@@ -55,6 +55,14 @@ uint32_t cmdInitExtension();
 */
 uint32_t cmdRunCommand(std::string i_command);
 
+/**
+ @brief Run the command line command passed in , stdout is captured and returned
+ @param i_command Command to pass to interpreter, ie 'ecmdquery version'
+ @param o_output Standard out from running command
+ @retval ECMD_SUCCESS if successful load
+ @retval nonzero if unsuccessful
+*/
+uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string o_output);
 
 
 
