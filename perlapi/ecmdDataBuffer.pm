@@ -970,7 +970,8 @@ sub genHexLeftStr() {
   if(($i_start + $i_bitlen) > $len) {
     printf( "**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
   }
-	
+
+
   if ($self->hasXstate($i_start, $i_bitlen)) {
     printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Cannot extract when non-binary (X-State) character present\n");
     return "-1";
@@ -1423,22 +1424,22 @@ sub hasXstate() {
 #  int   hasXstate(int i_start, int i_length); /* check subset */
 #  int   hasXstate(); 
 
-  my $i_start  = @_[0];
-  my $i_length = @_[1];
+  my $i_start  = @_[1];
+  my $i_length = @_[2];
   my $len    =0;
   my $looper =0;
   my $val =0;
   my $rc =0;
 
   $len = length($$self);
-
   if($i_length) {
 # we have both parameters
     if($len < ($i_start + $i_length)) {
       printf( "**** ERROR : ecmdDataBuffer.pm::hasXstate: start + len %d > NumBits (%d)\n", $i_start + $i_length, $len);
     } else {
       for($looper=0; $looper < $i_length; $looper++) {
-        $val = substr($$self,$looper,1);
+        $val = substr($$self,$looper+$i_start,1);
+        printf("test for val = %d\n",$val);
         if( !($val eq "0") && !($val eq "1") ) {
           $rc = 1;
           return $rc;
