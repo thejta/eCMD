@@ -26,7 +26,7 @@
 
 /* Overloading check */
 %typemap(typecheck) std::string = char *;
-%typemap(typecheck) const std::string & = char *;
+%typemap(typecheck) std::string & = char *;
 
 %typemap(in) std::string {
   STRLEN len;
@@ -38,8 +38,7 @@
   }
 }
 
-%typemap(in) std::string *INPUT(std::string temp), 
-const std::string & (std::string temp) {
+%typemap(in) std::string *(std::string temp), std::string & (std::string temp) {
   STRLEN len;
   const char *ptr = SvPV($input, len);
   if (!ptr) {
@@ -57,14 +56,14 @@ const std::string & (std::string temp) {
   ++argvi;
 }
 
-%typemap(out) const std::string & {
+%typemap(out) std::string & {
   if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
   char *data = const_cast<char*>($1->data());
   sv_setpvn($result = sv_newmortal(), data, $1->size());
   ++argvi;
 }
 
-%typemap(throws) const std::string & {
+%typemap(throws) std::string & {
   SWIG_croak($1.c_str());
 }
 
