@@ -89,30 +89,16 @@
   TRACFCOMP9(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7, arg8, arg9)
 #else
-#define ETRAC0(fmt) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__);
-#define ETRAC1(fmt, arg1) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1);
-#define ETRAC2(fmt, arg1, arg2) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2);
-#define ETRAC3(fmt, arg1, arg2, arg3) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3);
-#define ETRAC4(fmt, arg1, arg2, arg3, arg4) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4);
-#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5);
-#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, \
-  arg6);
-#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, \
-  arg6, arg7);
-#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, \
-  arg6, arg7, arg8);
-#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, \
-  arg6, arg7, arg8, arg9);
+#define ETRAC0(fmt) printf( "%s> ETRC: " fmt "\n", __FUNCTION__);
+#define ETRAC1(fmt, arg1) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1);
+#define ETRAC2(fmt, arg1, arg2) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2);
+#define ETRAC3(fmt, arg1, arg2, arg3) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3);
+#define ETRAC4(fmt, arg1, arg2, arg3, arg4) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4);
+#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5);
+#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6);
+#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 #endif
 
 //----------------------------------------------------------------------
@@ -1022,7 +1008,7 @@ public:
    * @brief This function will take the passed in buffer, delete any current data it holds, and point its data var to that which is owned by the one being called with.  It will not have iv_UserOwned flag set, so it should not delete the buffer it points to, nor resize it, but it can alter the data.  The use of this function is for caching data for reads.
    * @param i_sharingBuffer, input buffer
    * @retval ECMD_DBUF_SUCCESS on success
-   */	
+   */   
   uint32_t shareBuffer(ecmdDataBuffer* i_sharingBuffer);
 
   //@}
@@ -1058,7 +1044,7 @@ protected:  //data
   uint32_t iv_NumBits;          ///< Specified buffer size in bits
   uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
   uint32_t * iv_RealData;       ///< Real buffer - with header and tail
-//  bool	iv_UserOwned;		///< Whether or not this buffer owns the data
+//  bool    iv_UserOwned;       ///< Whether or not this buffer owns the data
 
 protected: //methods
 
