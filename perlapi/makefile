@@ -6,6 +6,10 @@
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+
+# List the extensions to include in the compile
+EXTENSIONS   := cip
+
 # Ok, find our CTE path if they don't already have one
 ifeq ($(strip $(CTEPATH)),)
   CTEPATH      := "UNKNOWN CTE CELL"
@@ -28,8 +32,26 @@ INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStruct
 INT_INCLUDES := 
 SOURCE       := ecmdClientPerlapi.C 
 DEFINES      := 
-CFLAGS       := -I. -I../capi/export -g 
-SWIGFLAGS    := -c++ -perl5 -shadow 
+CFLAGS       := -I. -I../capi/export -g -I../dll
+SWIGFLAGS    := -c++ -perl5 -shadow -I../dll 
+
+# Ok, tack on all the extension stuff
+VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi/export:../ext/${ext}/perlapi)
+#These are needed to define a space char for substitutions later on
+empty :=
+space := ${empty} ${empty}
+VPATH := $(subst ${space},,${VPATH})
+
+INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H )
+ifeq (${OS},Linux)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
+endif
+ifeq (${OS},AIX)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_aix.a)
+endif
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/perlapi)
+SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi)
+SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C)
 
 # *****************************************************************************
 # The Linux Setup stuff
@@ -40,7 +62,7 @@ ifeq (${OS},Linux)
   TARGET    := ecmd_x86_perl
   LD        := ${CC}
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
-  LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
+  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
@@ -72,7 +94,7 @@ ifeq (${OS},AIX)
 
   TARGET    := ecmd_aix_perl
   LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
-  LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
+  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
   SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig

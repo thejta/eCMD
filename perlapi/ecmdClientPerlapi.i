@@ -154,6 +154,19 @@
 
 %{
 #include "ecmdClientPerlapi.H"
+
+
+#include "ecmdPluginExtensionSupport.H"
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
+# include "cipClientPerlapi.H"
+#endif
 %}
 
 %include ecmdClientPerlapi.H
+
+# The extensions
+%include ecmdPluginExtensionSupport.H
+
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
+%include cipClientPerlapi.H
+#endif
