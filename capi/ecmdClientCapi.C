@@ -314,7 +314,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 
   if (myQuery) {
     delete i_queryData;
-    i_queryData = FALSE;
+    i_queryData = NULL;
   }
 
   return rc;

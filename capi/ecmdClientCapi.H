@@ -387,6 +387,7 @@ int putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::st
 
 /**
  @brief Enables internal caching of read/writes of scan rings to the chip for functions like getring/getspy/getspr
+ @post Ring caching is enabled on cache enabled functions
  - Functions that support caching are documented in the detailed description of the function
  - Functions that do not affect the state of the cache are documented in the detailed description of the function
  - Any non-cache enabled function will force a flush of the cache before performing the operation
@@ -398,7 +399,7 @@ void ecmdEnableRingCache();
  @brief Disable internal caching of reads/writes of scan rings
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- NOTE: A Flush is performed before disabling the cache
+ NOTE: A Flush of the cache is performed before disabling the cache
 */
 int  ecmdDisableRingCache();
 
