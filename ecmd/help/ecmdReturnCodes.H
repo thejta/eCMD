@@ -21,12 +21,13 @@
 */
 
 
-#define ECMD_SUCCESS  0x0
+#define ECMD_SUCCESS                    0x0    ///< API Returned Successfully
 
   /* For now let's define all return codes in the 0x1000-0x1FFF range */
-  //@ adding this because I need it for ecmdDataBuffer, it's a temporary thing- jtw 9/4/03
-#define ECMD_FAILURE 0x1010   
-#define ECMD_POS_NOT_CONFIGURED 0x1011
+
+#define ECMD_INVALID_DLL_VERSION        0x1000 ///< Dll Version didn't match the Client version detected
+#define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
+#define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
 
 
 
