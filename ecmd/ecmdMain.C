@@ -76,7 +76,7 @@ int main (int argc, char *argv[])
       sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", argv[1]);
       ecmdOutputError(buf);
     } else if (rc) {
-      std::string parse = ecmdGetErrorMsg(rc);
+      std::string parse = ecmdGetErrorMsg(rc, false);
       if (parse.length() > 0) {
         /* Display the registered message right away BZ#160 */
         ecmdOutput(parse.c_str());
@@ -88,7 +88,9 @@ int main (int argc, char *argv[])
 
 
     /* Move these outputs into the if !rc to fix BZ#224 - cje */
-    ecmdOutput(cmdsave.c_str());
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      ecmdOutput(cmdsave.c_str());
+    }
 
 
     ecmdUnloadDll();

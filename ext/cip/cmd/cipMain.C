@@ -96,7 +96,7 @@ int main (int argc, char *argv[])
       ecmdOutputError(buf);
       break;
     } else if (rc) {
-      std::string parse = ecmdGetErrorMsg(rc);
+      std::string parse = ecmdGetErrorMsg(rc, false);
       if (parse.length() > 0) {
         /* Display the registered message right away BZ#160 */
         ecmdOutput(parse.c_str());
