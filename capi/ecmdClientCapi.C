@@ -30,6 +30,7 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdDllCapi.H>
+#include <ecmdUtils.H>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -54,6 +55,10 @@
 #ifndef ECMD_STATIC_FUNCTIONS
 /* These are from ecmdClientCapiFunc.C */
 extern void * dlHandle;
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+bool ecmdDebug = false;
 #endif
 
 //---------------------------------------------------------------------
@@ -168,6 +173,13 @@ int ecmdUnloadDll() {
 int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
   int rc = ECMD_SUCCESS;
+
+#ifndef ECMD_STRIP_DEBUG
+  /* Let's look for the ecmdDebug statement */
+  if (ecmdParseOption(i_argc, i_argv, "-ecmddebug")) {
+    ecmdDebug = true;
+  }
+#endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllCommonCommandArgs(i_argc, i_argv);

@@ -151,13 +151,28 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
 
 /**
  @brief Formats data from data buffer into a string according to format flag and returns the string
- @retval String of formatted data
+ @return String of formatted data
  @param i_data ecmdDataBuffer where data to format is stored
  @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
  @param address A base address value that can be used in formating certain data- i.e., data from memory
  */
 std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address = 0);
 
+/**
+ @brief Print the bits header used in the output formats
+ @param i_initCharOffset char offset on screen to start printing
+ @param i_blockSize Binary block size (ie. column char size)
+ @param i_numCols Number of columns to display
+ @return String of formatted data
+*/
 std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols);
+
+
+/**
+ @brief Returns a formatted string containing the data in the given ecmdChipTarget
+ @return String with formatted target data
+ @param i_target ecmdChipTarget containing data to format into string
+ */
+std::string ecmdWriteTarget (ecmdChipTarget & i_target);
 
 #endif

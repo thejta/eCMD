@@ -291,7 +291,22 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
 //@}
 
 
+/** @name Jtag Functions */
+//@{
 
+/**
+ @brief Send a JTAG instruction and modifier to the specified chip
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to write
+ @param i_instruction Right aligned instruction to send to chip
+ @param i_modifier Right aligned instruction modifier to send
+ @param o_status Instruction status register value retrieved
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ NOTE : Proper parity will be generated on the command and modifier
+ NOTE : This function forces a flush of the ring caches
+*/
+int sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
 
 
 

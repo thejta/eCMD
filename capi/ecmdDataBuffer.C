@@ -52,33 +52,22 @@ void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count);
 //  Constructors
 //---------------------------------------------------------------------
 ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
-: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_ErrorCode(0)
+: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL), iv_ErrorCode(0), iv_Capacity(0)
 {
-   registerErrorMsg(ECMD_DBUF_INIT_FAIL,"ERROR: ecmdDataBuffer::ecmdDataBuffer: Default constructor used for ecmdDataBuffer creation!");
+#ifndef REMOVE_SIM
+  iv_DataStr = NULL;
+  iv_isXstate = 0;
+#endif
 }
 
 ecmdDataBuffer::ecmdDataBuffer(int numWords)
-: iv_NumWords(numWords), iv_NumBits(numWords*32), iv_Data(NULL), iv_ErrorCode(0)
+: iv_NumWords(numWords), iv_NumBits(numWords*32), iv_ErrorCode(0), iv_Capacity(0), iv_RealData(NULL), iv_Data(NULL)
 {
-
-  uint32_t randNum = 0x12345678;
-  iv_Capacity = iv_NumWords = (iv_NumBits - 1) / 32 + 1;
-
-  iv_RealData = new uint32_t[iv_Capacity + 10]; 
-  iv_Data = iv_RealData + 4;
-  memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-
 #ifndef REMOVE_SIM
-  iv_DataStr = new char[iv_NumBits + 1];
-  this->fillDataStr('0'); /* init to 0 */
+  iv_DataStr = NULL;
   iv_isXstate = 0;
 #endif
-
-  /* Ok, now setup the header, and tail */
-  iv_RealData[0] = DATABUFFER_HEADER;
-  iv_RealData[1] = iv_NumWords;
-  iv_RealData[3] = randNum;
-  iv_RealData[iv_NumWords + 4] = randNum;
+  setWordLength(numWords);
 
 }
 
@@ -137,13 +126,28 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
 
   uint32_t randNum = 0x12345678;
 
+  iv_NumWords = newNumWords;
+  iv_NumBits = iv_NumWords * 32;  /* that's as accurate as we can get */
+
   if (iv_Capacity < newNumWords) {  /* we need to resize iv_Data member */
-    delete[] iv_RealData;
-    iv_Capacity = iv_NumWords = newNumWords;
+
+    if (iv_RealData != NULL)
+      delete[] iv_RealData;
+
+    iv_Capacity = newNumWords;
 
     iv_RealData = new uint32_t[iv_Capacity + 10]; 
     iv_Data = iv_RealData + 4;
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+
+#ifndef REMOVE_SIM
+    if (iv_DataStr != NULL)
+      delete[] iv_DataStr;
+
+    iv_DataStr = new char[iv_NumBits + 42];
+    this->fillDataStr('0'); /* init to 0 */
+    iv_isXstate = 0;
+#endif
 
     /* Ok, now setup the header, and tail */
     iv_RealData[0] = DATABUFFER_HEADER;
@@ -152,8 +156,12 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
     iv_RealData[iv_NumWords + 4] = randNum;
 
   } else { /* no need to resize */
-    iv_NumWords = newNumWords;
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+
+#ifndef REMOVE_SIM
+    this->fillDataStr('0'); /* init to 0 */
+    iv_isXstate = 0;
+#endif
 
     /* Ok, now setup the header, and tail */
     iv_RealData[0] = DATABUFFER_HEADER;
@@ -162,15 +170,7 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
     iv_RealData[iv_NumWords + 4] = randNum;
   }
 
-  iv_NumBits = iv_NumWords * 32;  /* that's as accurate as we can get */
 
-#ifndef REMOVE_SIM
-  if (!(strlen(this->iv_DataStr) > iv_NumBits)) { /* we need to resize the iv_DataStr member */
-    delete[] iv_DataStr;
-    iv_DataStr = new char[iv_NumBits+1];
-  }
-  this->fillDataStr('0'); /* init to 0 */
-#endif
 }  
 
 void  ecmdDataBuffer::setBitLength(int newNumBits) {
@@ -178,13 +178,26 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
   int newNumWords = (newNumBits - 1) / 32 + 1;
   uint32_t randNum = 0x12345678;
 
+  iv_NumWords = newNumWords;
+  iv_NumBits = newNumBits;
+
   if (iv_Capacity < newNumWords) {  /* we need to resize iv_Data member */
-    delete[] iv_RealData;
-    iv_Capacity = iv_NumWords = newNumWords;
+    if (iv_RealData != NULL)
+      delete[] iv_RealData;
+    iv_Capacity = newNumWords;
 
     iv_RealData = new uint32_t[iv_Capacity + 10]; 
     iv_Data = iv_RealData + 4;
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+
+#ifndef REMOVE_SIM
+    if (iv_DataStr != NULL)
+      delete[] iv_DataStr;
+
+    iv_DataStr = new char[iv_NumBits + 42];
+    this->fillDataStr('0'); /* init to 0 */
+    iv_isXstate = 0;
+#endif
 
     /* Ok, now setup the header, and tail */
     iv_RealData[0] = DATABUFFER_HEADER;
@@ -194,9 +207,12 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
   } else { /* no need to resize */
 
-    iv_NumWords = newNumWords;
-
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+
+#ifndef REMOVE_SIM
+    this->fillDataStr('0'); /* init to 0 */
+    iv_isXstate = 0;
+#endif
 
     /* Ok, now setup the header, and tail */
     iv_RealData[0] = DATABUFFER_HEADER;
@@ -205,15 +221,7 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
     iv_RealData[iv_NumWords + 4] = randNum;
   }
 
-  iv_NumBits = newNumBits;
 
-#ifndef REMOVE_SIM
-  if (!(strlen(this->iv_DataStr) > iv_NumBits)) { /* we need to resize the iv_DataStr member */
-    delete[] iv_DataStr;
-    iv_DataStr = new char[iv_NumBits+1];
-  }
-  this->fillDataStr('0'); /* init to 0 */
-#endif
 
 }  
 
@@ -224,9 +232,10 @@ void ecmdDataBuffer::setCapacity (int newCapacity) {
     uint32_t randNum = 0x12345678;
 
     iv_Capacity = newCapacity;
-    delete[] iv_RealData;
+    if (iv_RealData != NULL)
+      delete[] iv_RealData;
 
-   iv_RealData = new uint32_t[iv_Capacity + 10]; 
+    iv_RealData = new uint32_t[iv_Capacity + 10]; 
     iv_Data = iv_RealData + 4;
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
@@ -235,6 +244,15 @@ void ecmdDataBuffer::setCapacity (int newCapacity) {
     iv_RealData[1] = iv_NumWords;
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
+
+#ifndef REMOVE_SIM
+    if (iv_DataStr != NULL)
+      delete[] iv_DataStr;
+    iv_DataStr = new char[iv_NumBits+42];
+  
+    this->fillDataStr('0'); /* init to 0 */
+#endif
+
   }
 
 }
@@ -526,6 +544,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
 
   // shift iv_Data array
   for (int iter = 0; iter < shiftNum; iter++) {
+    prevCarry = 0;
     for (i = iv_NumWords-1; i >= 0; i--) {
 
       if (this->iv_Data[i] & 0x80000000) 
@@ -552,7 +571,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
   char* temp = new char[iv_NumBits+1];
   for (i = 0; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
   temp[iv_NumBits] = '\0';
-  strncpy(temp, &iv_DataStr[shiftNum], iv_NumBits-shiftNum);  
+  strncpy(temp, &iv_DataStr[shiftNum], iv_NumBits);  
   strcpy(iv_DataStr, temp); // copy back into iv_DataStr
   delete[] temp;
 #endif
@@ -824,28 +843,31 @@ std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
 std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
 
   int tempNumWords = (bitLen - 1)/32 + 1;
-  int lastNibble = (bitLen - 1)/4 + 1;
+//  int lastNibble = (bitLen - 1)/4 + 1;
   std::string ret;
+  int offsetNibble = 0;
 
   tempNumWords++;
-  ecmdDataBuffer padded(bitLen+32); /* pad with extra word */
-  padded.setWordLength(tempNumWords);
+  ecmdDataBuffer padded(tempNumWords); 
 
   /* resize iv_DataOutStr if necessary */
 
   int shiftAmt = 32 - (bitLen % 32);
   extract(padded, start, bitLen);
-  padded.shiftRight(shiftAmt); /* fill left side with zeros */
+  if (shiftAmt % 32) {
+    padded.shiftRight(shiftAmt); /* fill left side with zeros */
+    offsetNibble = shiftAmt/4;
+  }
   ret = padded.genHexLeftStr();  /* grab hex string into iv_DataOutStr */
-  int offsetNibble = (shiftAmt - 1)/4;
+
   //iv_DataOutStr = &iv_DataOutStr[offsetNibble];  /* chop off left side */
   //iv_DataOutStr[lastNibble] = '\0'; /* chop off right side */
 
   if (offsetNibble > 0) {
-    ret.erase(0, offsetNibble+1);
+    ret.erase(0, offsetNibble);
   }
 
-  ret.erase(lastNibble, ret.length());
+//  ret.erase(lastNibble, ret.length());
 
   return ret;
 }
@@ -1026,7 +1048,7 @@ void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 }
 
 void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
-  setBitLength(bytes * 4);
+  setBitLength(bytes * 8);
   ecmdBigEndianMemCopy(iv_Data, buf, bytes);
 #ifndef REMOVE_SIM
   strcpy(iv_DataStr, genBinStr(0,bytes*4).c_str());

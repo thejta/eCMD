@@ -77,6 +77,10 @@ void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+#ifndef ECMD_STRIP_DEBUG
+/* This is from ecmdClientCapi.C */
+extern bool ecmdDebug;
+#endif
 
 //----------------------------------------------------------------------
 //  User Types
@@ -251,6 +255,12 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
 
   ecmdChipTarget queryTarget = io_target;
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdDebug) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Entering\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
   if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED) {
     queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
   }
@@ -282,8 +292,51 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
   if (rc) return rc;
 
+#ifndef ECMD_STRIP_DEBUG
+  /* Let's walk through the entire structure to see what the dll gave us back */
+  if (ecmdDebug) {
+    char buf[100];
+    ecmdOutput("ECMD DEBUG (ecmdConfigLooperInit) : Query Selected Return Value\n");
+    for (ecmdCurCage = ecmdSystemConfigData.cageData.begin(); ecmdCurCage != ecmdSystemConfigData.cageData.end(); ecmdCurCage ++) {
+      sprintf(buf,"k%d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+        for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+          sprintf(buf,"  n%d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+
+            for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+              sprintf(buf,"    s%d\n",ecmdCurSlot->slotId); ecmdOutput(buf);
+
+                for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+                  sprintf(buf,"      %s:p%d\n",ecmdCurChip->chipType.c_str(),ecmdCurChip->pos); ecmdOutput(buf);
+
+                    for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                      sprintf(buf,"        c%d\n",ecmdCurCore->coreId); ecmdOutput(buf);
+
+                        for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                          sprintf(buf,"          t%d\n",ecmdCurThread->threadId); ecmdOutput(buf);
+                        } /* curThreadIter */
+
+                    } /* curCoreIter */
+
+                } /* curChipIter */
+
+            } /* curSlotIter */
+
+        } /* curNodeIter */
+
+    } /* curCageIter */
+
+    ecmdOutput("ECMD DEBUG (ecmdConfigLooperInit) : END Query Selected Return Value\n");
+  }
+#endif
+
   ecmdCurCage = ecmdSystemConfigData.cageData.begin();
   ecmdLooperInitFlag = 1;
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdDebug) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
 
   return rc;
 }
@@ -300,6 +353,12 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   uint8_t level = CAGE;
   uint8_t valid = 1;
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdDebug) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Entering\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
   if (ecmdCurCage == ecmdSystemConfigData.cageData.end()) {
     return 0;
   }
@@ -308,9 +367,9 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
     io_target.cage = (*ecmdCurCage).cageId;
     ecmdCurNode = (*ecmdCurCage).nodeData.begin();
+    valid = 0;
 
     if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurNode == (*ecmdCurCage).nodeData.end()) {
-      valid = 0;
       io_target.node = 0;
     }
     else {
@@ -322,13 +381,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = NODE;
   }
 
-  if (level == NODE && (io_target.node != (*ecmdCurNode).nodeId || ecmdLooperInitFlag)) {
+  if (level == NODE && (!valid || io_target.node != (*ecmdCurNode).nodeId)) {
 
     io_target.node = (*ecmdCurNode).nodeId;
     ecmdCurSlot = (*ecmdCurNode).slotData.begin();
+    valid = 0;
   
     if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurSlot == (*ecmdCurNode).slotData.end()) {
-      valid = 0;
       io_target.slot = 0;
     }
     else {
@@ -340,13 +399,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = SLOT;
   }
 
-  if (level == SLOT && (io_target.slot != (*ecmdCurSlot).slotId || ecmdLooperInitFlag)) {
+  if (level == SLOT && (!valid || io_target.slot != (*ecmdCurSlot).slotId)) {
 
     io_target.slot = (*ecmdCurSlot).slotId;
     ecmdCurChip = (*ecmdCurSlot).chipData.begin();
+    valid = 0;
   
     if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurSlot).chipData.end()) {
-      valid = 0;
       io_target.chipType = "";
       io_target.pos = 0;
     }
@@ -360,14 +419,14 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   }
 
 
-  if (level == CHIP && (io_target.chipType != (*ecmdCurChip).chipType || io_target.pos != (*ecmdCurChip).pos || ecmdLooperInitFlag)) {
+  if (level == CHIP && (!valid || io_target.chipType != (*ecmdCurChip).chipType || io_target.pos != (*ecmdCurChip).pos)) {
 
     io_target.chipType = (*ecmdCurChip).chipType;
     io_target.pos = (*ecmdCurChip).pos;
     ecmdCurCore = (*ecmdCurChip).coreData.begin();
+    valid = 0;
 
     if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || ecmdCurCore == (*ecmdCurChip).coreData.end()) {
-      valid = 0;
       io_target.core = 0;
       io_target.thread = 0;
     }
@@ -380,13 +439,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = CORE;
   }
 
-  if (level == CORE && (io_target.core != (*ecmdCurCore).coreId || ecmdLooperInitFlag)) {
+  if (level == CORE && (!valid || io_target.core != (*ecmdCurCore).coreId)) {
 
     io_target.core = (*ecmdCurCore).coreId;
     ecmdCurThread = (*ecmdCurCore).threadData.begin();
+    valid = 0;
 
     if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || ecmdCurThread == (*ecmdCurCore).threadData.end()) {
-      valid = 0;
       io_target.thread = 0;
     }
     else {
@@ -398,11 +457,18 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = THREAD;
   }
 
-  if (level == THREAD && (io_target.thread != (*ecmdCurThread).threadId || ecmdLooperInitFlag)) {
+  if (level == THREAD && (!valid || io_target.thread != (*ecmdCurThread).threadId)) {
 
     io_target.thread = (*ecmdCurThread).threadId;
 
   }
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdDebug) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Found next Target : " + ecmdWriteTarget(io_target); printed += "\n";
+    ecmdOutput(printed.c_str());
+  }
+#endif
 
   switch (level) {
 
@@ -448,6 +514,12 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   if (ecmdLooperInitFlag) {
     ecmdLooperInitFlag = 0;
   }
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdDebug) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
 
   return 1;
 
@@ -705,4 +777,73 @@ std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols) {
   }
 
   return topLine + "\n" + bottomLine;
+}
+
+
+std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
+
+  std::string printed;
+  char util[7];
+
+  if (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
+    printed = i_target.chipType + "\t";
+  }
+
+  //always do cage
+  sprintf(util, "k%d", i_target.cage);
+  printed += util;
+
+  if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
+    sprintf(util, ":n%d", i_target.node);
+    printed += util;
+
+    if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
+      sprintf(util, ":s%d", i_target.slot);
+      printed += util;
+
+
+      if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
+
+        if (i_target.pos < 10) {
+          sprintf(util, ":p0%d", i_target.pos);
+        }
+        else {
+          sprintf(util, ":p%d", i_target.pos);
+        }
+        printed += util;
+
+        if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
+          sprintf(util, ":c%d", i_target.core);
+          printed += util;
+          
+          if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+            sprintf(util, ":t%d", i_target.thread);
+            printed += util;
+          }
+          else {
+            printed += "   ";  //adjust spacing
+          }
+
+        } //core
+        else {
+          printed += "      ";  //adjust spacing
+        }
+
+      } //pos
+      else {
+        printed += "          ";  //adjust spacing
+      }
+
+    } //slot
+    else {
+      printed += "             ";  //adjust spacing
+    }
+
+  } //node
+
+  //set a space between the target info and the data
+  printed += " "; 
+
+  return printed;
+
 }
