@@ -84,7 +84,10 @@ struct ecmdChipData {
   uint8_t  procThreads;
 
   uint32_t chipEc;
-  
+
+
+}
+
 
 
 /**

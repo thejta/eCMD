@@ -103,6 +103,62 @@ int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & da
 */
 int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
 
+/**
+ @brief Scans all of the bits from the selected ring on the target into the selected file
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @param target Struct that contains chip and cage/node/position/core/thread information of ring to read
+ @param ringName Name of ring to read from
+ @param fileName Name of file to write data to
+ @see ringWrite
+
+ - comment on file format, naming convention, should we give it a default file name?
+
+*/
+int ringRead (ecmdChipTarget & target, const char * ringName, const char * fileName);
+
+/**
+ @brief Scans all of the bits from the given file into theselected ring on the target
+ @retval ECMD_SUCCESS if successful write, nonzero if unsuccessful
+ @param target Struct that contains chip and cage/node/position/core/thread information of ring to write
+ @param ringName Name of ring to write to
+ @param fileName Name of file to read data from
+ @see ringRead
+
+ - comment on file format, naming convention, should we give it a default file name?
+
+*/
+int ringWrite (ecmdChipTarget & target, const char * ringName, const char * fileName);
+
+/**
+ @brief Scans the selected number of bits from the selected position of the selected register in the selected ring into the data buffer
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @param target Struct that contains chip and cage/node/position/core/thread information of register to read
+ @param ringName Name of ring to read from
+ @param registerName Name of register in the ring to read from
+ @param data DataBuffer object that holds data read from register
+ @param startPos Position of first bit in the register to read from
+ @param numBits Number of bits to read
+ @see putRegister
+
+
+*/
+int getRegister (ecmdChipTarget & target, const char * ringName, const char * registerName, ecmdDataBuffer & data, int startPos, int numBits);
+
+/**
+ @brief Scans the selected number of bits from the data buffer into the selected position in the selected register
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @param target Struct that contains chip and cage/node/position/core/thread information of register to write
+ @param ringName Name of ring to write to
+ @param registerName Name of register in the ring to write to
+ @param data DataBuffer object that holds data to write into register
+ @param startPos Position of first bit in the register to write to
+ @param numBits Number of bits to write
+ @see getRegister
+
+
+*/
+int putRegister (ecmdChipTarget & target, const char * ringName, const char * registerName, ecmdDataBuffer & data, int startPos, int numBits);
+
 //@}
 
 
