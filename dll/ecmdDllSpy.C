@@ -133,6 +133,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
   o_queryData.spyName = mySpy.name;
   o_queryData.bitLength = 0;
   o_queryData.isEccChecked = false;
+  o_queryData.isEnumerated = false;
   if (mySpy.type == DC_SPY) {
     sedcSpyEntry spyent = mySpy.getSpyEntry();
     o_queryData.bitLength = spyent.length;
