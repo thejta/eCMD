@@ -1182,7 +1182,8 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
           /* We need to grab more data */
           insertbuffer->extract(tmpbuffer, curaliasbit, lineit->length);
           tmpbuffer.invert();   /* Invert bits */
-          if (bustype == ECMD_CHIPFLAG_FSI)
+          /* scom's are not reversed so we grab like FSI mode */
+          if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) 
             scan.insert(tmpbuffer, lineit->offsetFSI, lineit->length);
           else { // JTAG
             tmpbuffer.reverse();
@@ -1209,7 +1210,8 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
           } else {
             /* We need to grab more data */
             insertbuffer->extract(tmpbuffer, curaliasbit, lineit->length);
-            if (bustype == ECMD_CHIPFLAG_FSI)
+            /* scom's are not reversed so we grab like FSI mode */
+            if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) 
               scan.insert(tmpbuffer, lineit->offsetFSI, lineit->length);
             else { // JTAG
               tmpbuffer.reverse();
