@@ -197,8 +197,14 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
       return ECMD_DBUF_NOT_OWNER;
   }
 
-  if (newNumBits == iv_NumBits)
+  if (newNumBits == iv_NumBits) {
+    /* Just clear the buffer */
+    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+#ifndef REMOVE_SIM
+    this->fillDataStr('0'); /* init to 0 */
+#endif
     return rc;  /* nothing to do */
+  }
 
   uint32_t newNumWords = newNumBits % 32 ? newNumBits / 32 + 1 : newNumBits / 32;
   uint32_t randNum = 0x12345678;
