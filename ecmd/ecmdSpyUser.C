@@ -382,19 +382,16 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       
     }
     if(getspyrc) 
-      return(getspyrc);
-    
-    /* Flush out the cache we don't need to keep entries from the previous chips */
-    rc = ecmdFlushRingCache();
-    if (rc) {
-      printed = "getspy - Error occured flushing cache on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      return rc;
-    }
-      
+      return(getspyrc);     
 
   }
+
+  rc = ecmdDisableRingCache();
+  if (rc) {
+    ecmdOutputError("getspy - Problems disabling the ring cache\n");
+    return rc;
+  }
+
 
   if (!validPosFound) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
@@ -591,6 +588,12 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
 
 
+  }
+
+  rc = ecmdDisableRingCache();
+  if (rc) {
+    ecmdOutputError("putspy - Problems disabling the ring cache\n");
+    return rc;
   }
 
   if (!validPosFound) {
