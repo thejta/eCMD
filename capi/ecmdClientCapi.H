@@ -1363,7 +1363,7 @@ bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
  @retval ECMD_SUCCESS if successful
 */
 
-uint32_t ecmdGetConfiguration(std::string i_name, std::string o_value);
+uint32_t ecmdGetConfiguration(std::string i_name, std::string & o_value);
 
 /**
  @brief Set the value of a Configuration Setting
