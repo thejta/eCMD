@@ -830,12 +830,31 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
   else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
     int myAddr = address;
     int wordsDone = 0;
+    std::string lastBytes;
     char tempstr[400];
     uint32_t wordsDonePrev;
+    int numLastBytes=0;
+    int i=0;
+    
+    //if not exact word multiple
+    if ( (i_data.getWordLength()*4) > (i_data.getByteLength()) ) {
+      numLastBytes = 4 - ((i_data.getWordLength()*4) - (i_data.getByteLength()));
+    }
     // Loop through the complete 4 word blocks
     while ((i_data.getWordLength() - wordsDone) > 3) {
       wordsDonePrev = wordsDone;
-      sprintf(tempstr,"%016X: %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+      //last word
+      if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+        lastBytes = i_data.genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
+        sprintf(tempstr,"%016X: %08X %08X %08X %s", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
+	i=0;
+	while (i < (4-numLastBytes)) {
+	  strcat(tempstr, "  "); i++;
+	}
+      }
+      else {
+        sprintf(tempstr,"%016X: %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+      }
       printed += tempstr;
       // Text printing additions
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
@@ -847,7 +866,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
         if (curState == ECMD_FORMAT_MEME) {
           sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
         }
-        printed += tempstr;
+	printed += tempstr;
       }
       printed += "\n";
       myAddr += 16;
@@ -861,7 +880,19 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
       printed += tempstr;
       // Now throw on the words
       while ((uint32_t) wordsDone < i_data.getWordLength()) {
-        sprintf(tempstr," %08X",i_data.getWord(wordsDone++));
+        //last word
+        if ( (i_data.getWordLength() == (wordsDone+1)) && (numLastBytes != 0)) {
+	  lastBytes = i_data.genHexLeftStr((wordsDone*32), (numLastBytes*8));
+          sprintf(tempstr," %s", lastBytes.c_str());
+	  i=0;
+	  while (i < (4-numLastBytes)) {
+	   strcat(tempstr, "  "); i++;
+	  }
+	  wordsDone++;
+        }
+	else {
+          sprintf(tempstr," %08X",i_data.getWord(wordsDone++));
+	}
         printed += tempstr;
       }
       // Text printing additions
@@ -887,14 +918,40 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     int myAddr = address;
 /*    int wordsDone = 0; */
     char tempstr[400];
+    int y=0;
+    
+    
+    //if not exact word multiple-To be used for printing in the byte format
+    /*int numLastBytes=0;
+    std::string lastBytes;
+    if ( (i_data.getWordLength()*4) > (i_data.getByteLength()) ) {
+      numLastBytes = 4 - ((i_data.getWordLength()*4) - (i_data.getByteLength()));
+    }*/
+    
     // Print out the data
     for (uint32_t x = 0; x < (i_data.getWordLength() / 2); x++) {
-      sprintf(tempstr,"D %016X: %08X%08X\n", myAddr, i_data.getWord(x), i_data.getWord(x+1));
+      //To be used for printing in the byte format
+      /*if ( ((i_data.getWordLength()) == y+2) && (numLastBytes != 0)) {
+        lastBytes = i_data.genHexLeftStr(((y+1)*32), (numLastBytes*8));
+        sprintf(tempstr,"D %016X: %08X%s\n", myAddr, i_data.getWord(y++), lastBytes.c_str());
+      }
+      else {
+        sprintf(tempstr,"D %016X: %08X%08X\n", myAddr, i_data.getWord(y++), i_data.getWord(y++));
+      }*/
+      sprintf(tempstr,"D %016X: %08X%08X\n", myAddr, i_data.getWord(y++), i_data.getWord(y++));
       printed += tempstr;
       myAddr += 8;
     }
 
     if (i_data.getWordLength() % 2) {
+      //To be used for printing in the byte format
+      /*if ( numLastBytes != 0) {
+        lastBytes = i_data.genHexLeftStr(((i_data.getWordLength() - 1)*32), (numLastBytes*8));
+	sprintf(tempstr,"D %016X: %s\n", myAddr, lastBytes.c_str());
+      }
+      else {
+        sprintf(tempstr,"D %016X: %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+      }*/
       sprintf(tempstr,"D %016X: %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
       printed += tempstr;
     }
