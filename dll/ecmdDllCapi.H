@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <ecmdStructs.H>
+#include <ecmdUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBuffer.H>
 
