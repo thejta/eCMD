@@ -65,8 +65,14 @@ ifeq (${OS},AIX)
   endif
   TARGET  := ecmd_aix
   LD      := ${CC}
-  LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export -lecmd_aix
-  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
+  LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export
+  ifeq (${MPATROL},yes) 
+    LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix_mp.a
+    LDFLAGS := ${LDFLAGS}  -lecmd_aix_mp
+  else
+    LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
+    LDFLAGS := ${LDFLAGS}  -lecmd_aix 
+  endif
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
@@ -76,7 +82,13 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 # The MPatrol Stuff
 # *****************************************************************************
-MPATROL_HOME := /afs/rchland/rel/common/bringup.tools/cronus/ecmd/mpatrol/
+ifeq (${SITE},rchland.ibm.com)
+  MPATROL_HOME := /afs/rchland/rel/common/cte/tools/ecmd/mpatrol
+endif
+ifeq (${SITE},awd.austin.ibm.com)
+  MPATROL_HOME := /afs/awd.austin.ibm.com/projects/cte/tools/ecmd/mpatrol
+endif
+
 ifeq (${MPATROL},yes) 
   DEFINES   := ${DEFINES} -DENABLE_MPATROL
 
