@@ -125,6 +125,9 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType);
 uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType);
 
 
+/* ecmdIstepUser.C */
+uint32_t ecmdIstepUser(int argc, char * argv[]);
+
 //@}
 
 

@@ -137,6 +137,19 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
 
 
+        /************************/
+        /* The I's              */
+        /************************/
+      case 'i':
+
+        if (!strcmp(argv[0], "istep")) {
+          rc = ecmdIstepUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
 
         /************************/
         /* The P's              */
