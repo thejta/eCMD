@@ -31,9 +31,6 @@ SOURCE       := ${SOURCE} ${EXTENSION_NAME}ClientCapi.C ${AUTOGEN_SOURCE}
 
 
 
-
-
-
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
@@ -41,7 +38,7 @@ ifeq (${OS},Linux)
   SUBDIR   := linux/
   CC := g++
   TARGET = ${EXTENSION_NAME}ClientCapi_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-30
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
 endif
 
