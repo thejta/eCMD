@@ -896,6 +896,7 @@ uint32_t ecmdDisplayDllInfo() {
 
 
 
+#ifndef ECMD_STRIP_DEBUG
 /**********************************************************************************/
 /**********************************************************************************/
 /*                                                                                */
@@ -918,7 +919,7 @@ uint32_t ecmdDisplayDllInfo() {
 /*                                                                                */
 /**********************************************************************************/
 /**********************************************************************************/
-void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
+void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, ...) {
 /* declare variables */
   int commaCount, looper, parmCount, looper2;
   std::vector<std::string> tokens;
@@ -1102,6 +1103,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
       printed += dummy;
       printed += "\n";
       ecmdOutput(printed.c_str());
+#if 0
     } else if((!strcasecmp(variableType,"std::string"))       ||
               (!strcasecmp(variableType,"const std::string")) ||
               (!strcasecmp(variableType,"std::string&"))      ||
@@ -1119,7 +1121,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
       printed += dummy;
       printed += "\n";
       ecmdOutput(printed.c_str());
-
+#endif
     } else if((!strcasecmp(variableType,"std::list<ecmdRingData> &"))   ||
               (!strcasecmp(variableType,"std::list<ecmdArrayEntry> &")) ||
               (!strcasecmp(variableType,"std::list<ecmdNameEntry> &"))  ||
@@ -1234,7 +1236,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
     } else if(!strcasecmp(variableType,"bool")) {
 /* bool */
       bool dummy;
-      dummy = va_arg(ap, bool);
+      dummy = va_arg(ap, int);
 
       printed = "ECMD DEBUG (ecmdFPP) : ";
       printed += variableType;
@@ -1320,8 +1322,7 @@ struct ecmdDllInfo {
   std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
 };
 ***/
-
-/*      void *dum2;*/
+#if 0
 
       ecmdDllInfo dummy;
 
@@ -1387,6 +1388,7 @@ struct ecmdDllInfo {
 
       printed = "ECMD DEBUG (ecmdFPP) : ***************************************\n";
       ecmdOutput(printed.c_str());
+#endif
 
     } else {
       printed = "ECMD DEBUG (ecmdFPP) : ";
@@ -1402,7 +1404,7 @@ struct ecmdDllInfo {
   va_end(ap);
 }
 
-
+#endif /* strip_debug */
 
 
 

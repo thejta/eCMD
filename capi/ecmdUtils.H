@@ -124,15 +124,15 @@ uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 */
 uint32_t ecmdDisplayDllInfo();
 
+#ifndef ECMD_STRIP_DEBUG
 /**
  @brief Print the parameters pass to a given function.
  @retval Void return
- @param enum efppInOut Helps printed output for IN or OUT message
- @param char* fprototypeStr cut and paste of function prototype line.
- @param  <all others> parameters associated with given calling function.
+ @param inOut Tell Parm Printer if we are going into or out of the function
+ @param fprototypeStr function prototype
  */
-void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...);
-
+void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, ...);
+#endif
 
 
 #endif
