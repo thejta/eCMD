@@ -64,6 +64,8 @@ specify what format you are providing data in.
 
         -ib             Data is binary
 
+        -ibX            Data is X-State binary
+
         -ienum          Data is an enumeration (only valid with putspy)
 
 BIT MODIFIERS
