@@ -942,7 +942,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
       printed += util;
 
 
-      if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
+      if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
 
         if (i_target.pos < 10) {
           sprintf(util, ":p0%d", i_target.pos);
@@ -1007,7 +1007,7 @@ uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
 
   o_data = needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.front();
-  if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
+  if ((o_data.chipType != i_target.chipType && o_data.chipCommonType != i_target.chipType) || o_data.pos != i_target.pos) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
     
