@@ -131,19 +131,35 @@ while (<IN>) {
 	    
 	$printout .= "#else\n\n";
 
-	unless ($type_flag == $VOID) {
-	    $printout .= "  if (dlHandle == NULL) {\n";
-	    if ($type_flag == $STRING) {
-		$printout .= "     return \"\";\n";
-	    }
-	    else {
-		$printout .= "     return ECMD_DLL_UNINITIALIZED;\n";
-	    }
-	    $printout .= "  }\n\n";
+	
+	$printout .= "  if (dlHandle == NULL) {\n";
+	if ($type_flag == $STRING) {
+	    $printout .= "     return \"ECMD_DLL_UNINITIALIZED\";\n";
 	}
+	elsif ($type_flag == $INT) {
+	    $printout .= "     return ECMD_DLL_UNINITIALIZED;\n";
+	}
+	else { #type is VOID
+	    $printout .= "     return;\n";
+	}
+
+	$printout .= "  }\n\n";
 
 	$printout .= "  if (DllFnTable[$enumname] == NULL) {\n";
 	$printout .= "     DllFnTable[$enumname] = (void*)dlsym(dlHandle, \"$funcname\");\n";
+
+	$printout .= "     if (DllFnTable[$enumname] == NULL) {\n";
+	if ($type_flag == $STRING) {
+	    $printout .= "     return \"ECMD_DLL_INVALID\";\n";
+	}
+	elsif ($type_flag == $INT) {
+	    $printout .= "     return ECMD_DLL_INVALID;\n";
+	}
+	else { #type is VOID
+	    $printout .= "     return;\n";
+	}
+	$printout .= "     }\n";
+	
 	$printout .= "  }\n\n";
 
 	$printout .= "  $type (*Function)($typestring) = \n";
