@@ -40,7 +40,7 @@
 
 
 /**
- @brief Structure used to designate which cec object you would like the function to operate on
+ @brief Structure used to designate which cec object/chip you would like the function to operate on
 
   - The valid bits are used by D/A functions to tell the calling function what level of granularity the function operates on
     Ex.  putmem/getmem display memory through the processor, they are only dependent on cage/node/pos because they do not use
@@ -52,20 +52,20 @@
 */
 struct ecmdChipTarget {
 
-  std::string chipType;         ///< name of chip to access
 
   uint32_t cage;                ///< cage that contains node with chip
   uint32_t node;                ///< node that contains chip
+  std::string chipType;         ///< name of chip to access
   uint32_t pos;                 ///< position of chip within node
   uint32_t core;                ///< which core on chip to access, if chip is multi-core
   uint32_t thread;              ///< which thread on chip to access, if chip is multi-threaded
 
   uint8_t chipTypeValid;        ///< chipType field is valid
   uint8_t cageValid;            ///< cage field is valid
-  uint8_t nodeValid;            ///< cage field is valid
-  uint8_t posValid;             ///< cage field is valid
-  uint8_t coreValid;            ///< cage field is valid
-  uint8_t threadValid;          ///< cage field is valid
+  uint8_t nodeValid;            ///< node field is valid
+  uint8_t posValid;             ///< pos field is valid
+  uint8_t coreValid;            ///< core field is valid
+  uint8_t threadValid;          ///< thread field is valid
   uint8_t ValidChecked;         ///< valid bits are valid 
 };
 
@@ -94,7 +94,7 @@ struct ecmdChipData {
   std::string   chipType;                       ///< name of chip
   uint32_t pos;                                 ///< Position of this entry
   uint8_t  numProcCores;                        ///< Number of cores this entry supports - only valid for Processor compute cores
-  uint32_t chipEc;                              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id)
+  uint32_t chipEc;                              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
   ecmdChipInterfaceType_t interfaceType;        ///< Interface Macro used by the chip
   uint32_t chipFlags;                           ///< Various additional info about the chip - bitmask of defines
   std::vector<ecmdCoreData> coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
@@ -123,7 +123,9 @@ struct ecmdCageData {
 struct ecmdRingData {
   std::vector<std::string> ringNames;   ///< Names used to reference this ring
   uint32_t address;                     ///< Address modifier
-  int bitLength;                        ///< length of ring
+  int      bitLength;                   ///< length of ring
+  bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
+  bool     supportsBroadsideLoad;       ///< This ring supports broadside load in simulation
 };
 
 /**
@@ -150,11 +152,11 @@ typedef enum {
  @brief Used for the ecmdQuerySpy function to return spy info
 */
 struct ecmdSpyData {
-  std::string spyName;                  ///< Names used to reference this ring
+  std::string spyName;                  ///< Names used to reference this spy
   int bitLength;                        ///< length of spy
-  ecmdSpyType_t spyType;                ///< Type of spy - do we need this ?
+  ecmdSpyType_t spyType;                ///< Type of spy
   
-  std::vector<std::string> enums;       ///< Possible enum values for Spy - can GFW provide this?
+  std::vector<std::string> enums;       ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
 };
 
 

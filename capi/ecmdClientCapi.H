@@ -97,14 +97,14 @@ int ecmdCommandArgs(int argc, char* argv[]);
  entry and return the relevant data.
 
 
- Ex: to query what positions of the Nova chip are on cage 1, node 2:
-   cage = 1, node = 2, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid>
- Ex: to query what positions of the Nova chip are in the entire system:
-   cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid>
- Ex: to query all the chips on cage 3, node 0:
-   cage = 3, node = 0, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid>
- Ex: to query all the chips in the entire system:
-   cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid>
+ Ex: to query what positions of the Nova chip are on cage 1, node 2:<p>
+   cage = 1, node = 2, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid><p>
+ Ex: to query what positions of the Nova chip are in the entire system:<p>
+   cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid><p>
+ Ex: to query all the chips on cage 3, node 0:<p>
+   cage = 3, node = 0, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid><p>
+ Ex: to query all the chips in the entire system:<p>
+   cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid><p>
 */
    
 int ecmdQueryConfig(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData);
@@ -246,47 +246,41 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
 //@{
 
 /**
- @brief Scans the selected number of bits from the selected position in the selected alias into the data buffer
+ @brief Scans the selected number of bits from the selected position in the selected spy into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
- @param spyName Name of alias to read from
- @param data DataBuffer object that holds data read from alias
- @see putAlias
+ @param target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param spyName Name of spy to read from
+ @param data DataBuffer object that holds data read from spy
 
 */
 int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
 
 /**
- @brief Scans the selected number of bits from the selected position in the selected alias into the data buffer
+ @brief Scans the selected number of bits from the selected position in the selected spy into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
- @param spyName Name of alias to read from
- @param enumValue Enum value
- @see putAlias
+ @param target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param spyName Name of spy to read from
+ @param enumValue Enum value read from the spy
 
 */
 int getSpyEnum (ecmdChipTarget & target, const char * spyName, std::string enumValue);
 
 /**
- @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
+ @brief Scans the selected number of bits from the data buffer into the selected position in the selected spy
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
- @param spyName Name of alias to write to
- @param data DataBuffer object that holds data to write into alias
- @see getAlias
-
+ @param target Struct that contains chip and cage/node/position/core/thread information of spy to write
+ @param spyName Name of spy to write to
+ @param data DataBuffer object that holds data to write into spy
 
 */
 int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
 
 /**
- @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
+ @brief Scans the selected number of bits from the data buffer into the selected position in the selected spy
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
- @param spyName Name of alias to write to
- @param enumValue DataBuffer object that holds data to write into alias
- @see getAlias
-
+ @param target Struct that contains chip and cage/node/position/core/thread information of spy to write
+ @param spyName Name of spy to write to
+ @param enumValue String enum value to load into the spy
 
 */
 int putSpyEnum (ecmdChipTarget & target, const char * spyName, const std::string enumValue);

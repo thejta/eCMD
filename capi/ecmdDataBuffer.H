@@ -82,7 +82,7 @@ public:
    */
   int   getBitLength() const;
   /**
-   * @brief Return the actual capacity of the internal buffer
+   * @brief Return the actual capacity of the internal buffer in words
    * @retval Actual capacity of internal buffer
    */
   int   getCapacity() const;
