@@ -71,17 +71,17 @@ int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
   if (rc) return rc;
 
-  if (needlesslySlow.cageData.empty()) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().cageId != i_target.cage) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().nodeData.empty()) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().nodeData.front().slotData.empty()) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().slotId != i_target.slot) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().cageId != i_target.cage) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().slotId != i_target.slot) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
 
   o_data = needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.front();
   if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
-    return ECMD_INVALID_ARGS;
+    return ECMD_TARGET_NOT_CONFIGURED;
   }
     
   return rc;
