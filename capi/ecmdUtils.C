@@ -82,6 +82,11 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+#ifdef FIPSODE
+tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
+TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
+#endif
+
 #ifndef ECMD_STRIP_DEBUG
 /* This is from ecmdClientCapi.C */
 extern int ecmdClientDebug;

@@ -36,12 +36,14 @@
 #endif
 #ifdef FIPSODE
 #include <tracinterface.H>
-#include <hutlTrace.H>
 #endif
 
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+#ifdef FIPSODE
+extern tracDesc_t g_etrc; /** Trace Descriptor **/
+#endif
 
 //----------------------------------------------------------------------
 //  Constants
@@ -66,27 +68,27 @@
 //--------------------------------------------------------------------
 #ifdef FIPSODE
 #define ETRAC0(fmt) \
-  TRACFCOMP0(hutlTrace::hreg, fmt);
+  TRACFCOMP0(g_etrc, fmt);
 #define ETRAC1(fmt, arg1) \
-  TRACFCOMP1(hutlTrace::hreg, fmt, arg1)
+  TRACFCOMP1(g_etrc, fmt, arg1)
 #define ETRAC2(fmt, arg1, arg2) \
-  TRACFCOMP2(hutlTrace::hreg, fmt, arg1, arg2)
+  TRACFCOMP2(g_etrc, fmt, arg1, arg2)
 #define ETRAC3(fmt, arg1, arg2, arg3) \
-  TRACFCOMP3(hutlTrace::hreg, fmt, arg1, arg2, arg3)
+  TRACFCOMP3(g_etrc, fmt, arg1, arg2, arg3)
 #define ETRAC4(fmt, arg1, arg2, arg3, arg4) \
-  TRACFCOMP4(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4)
+  TRACFCOMP4(g_etrc, fmt, arg1, arg2, arg3, arg4)
 #define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  TRACFCOMP5(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4, arg5)
+  TRACFCOMP5(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5)
 #define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  TRACFCOMP6(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
+  TRACFCOMP6(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
 #define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  TRACFCOMP7(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  TRACFCOMP7(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7)
 #define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  TRACFCOMP8(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  TRACFCOMP8(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7, arg8)
 #define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  TRACFCOMP9(hutlTrace::hreg, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  TRACFCOMP9(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7, arg8, arg9)
 #else
 #define ETRAC0(fmt) printf( "%s> ETRC: " fmt "\n", __FUNCTION__);

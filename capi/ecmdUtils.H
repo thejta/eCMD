@@ -31,8 +31,17 @@
 #include <inttypes.h>
 #include <string>
 #include <vector>
-
 #include <ecmdClientCapi.H>
+#ifdef FIPSODE
+#include <tracinterface.H>
+#endif
+
+//----------------------------------------------------------------------
+//  Global Variables
+//----------------------------------------------------------------------
+#ifdef FIPSODE
+extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
+#endif
 
 //----------------------------------------------------------------------
 //  Constants
@@ -41,29 +50,36 @@
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
+//NOTE: to use PTRAC in a fips environment, any library which will call
+//PTRAC needs to use a workaround and explicitly include the .a which
+//contains this object... example: (ask Adam Loeffler if questions)
+//  libsomelib.so_OFILES = normalobject.o libecmdclientcapi.a
+//  libsomelib.ndso_SHLDFLAGS libsomelib.so_SHLDFLAGS += -Wl,--whole-archive \
+//        -lecmdclientcapi -Wl,--no-whole-archive
+
 #ifdef FIPSODE
 #define PTRAC0(fmt) \
-  TRACFCOMP0(hutlTrace::ptrc, fmt);
+  TRACFCOMP0(g_ptrc, fmt);
 #define PTRAC1(fmt, arg1) \
-  TRACFCOMP1(hutlTrace::ptrc, fmt, arg1)
+  TRACFCOMP1(g_ptrc, fmt, arg1)
 #define PTRAC2(fmt, arg1, arg2) \
-  TRACFCOMP2(hutlTrace::ptrc, fmt, arg1, arg2)
+  TRACFCOMP2(g_ptrc, fmt, arg1, arg2)
 #define PTRAC3(fmt, arg1, arg2, arg3) \
-  TRACFCOMP3(hutlTrace::ptrc, fmt, arg1, arg2, arg3)
+  TRACFCOMP3(g_ptrc, fmt, arg1, arg2, arg3)
 #define PTRAC4(fmt, arg1, arg2, arg3, arg4) \
-  TRACFCOMP4(hutlTrace::ptrc, fmt, arg1, arg2, arg3, arg4)
+  TRACFCOMP4(g_ptrc, fmt, arg1, arg2, arg3, arg4)
 #define PTRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  TRACFCOMP5(hutlTrace::ptrc, fmt, arg1, arg2, arg3, arg4, arg5)
+  TRACFCOMP5(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5)
 #define PTRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  TRACFCOMP6(hutlTrace::ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
+  TRACFCOMP6(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
 #define PTRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  TRACFCOMP7(hutlTrace::ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  TRACFCOMP7(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7)
 #define PTRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  TRACFCOMP8(hutlTrace::ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  TRACFCOMP8(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7, arg8)
 #define PTRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  TRACFCOMP9(hutlTrace::ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  TRACFCOMP9(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7, arg8, arg9)
 #else
 #define PTRAC0(fmt) \
