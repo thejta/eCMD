@@ -284,12 +284,6 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
   arrayName = argv[1];
 
-  rc = ecmdReadDataFormatted(buffer, argv[3], format);
-  if (rc) {
-    ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -313,6 +307,14 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
       return rc;
     }
+
+    rc = ecmdReadDataFormatted(buffer, argv[3], format, arrayData.width);
+    if (rc) {
+      ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+
+
 
 
     rc = putArray(target, arrayName.c_str(), address, buffer);
