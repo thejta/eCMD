@@ -32,7 +32,8 @@
  * @file ecmdClientPerlapi.H
  * @brief eCMD Perl API
 
- * Usage : 
+ * Usage :
+   <pre>
  *   @filestat = stat("/usr/include/linux/zorro.h");
  *   if (@filestat[1] eq "") {
  *     require ecmd_aix_perl;
@@ -40,7 +41,7 @@
  *     require ecmd_x86_perl;
  *   }    
  *   my $ep = new ecmdClientPerlapi();
-
+   </pre>
 
 */
 
@@ -50,6 +51,7 @@ extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
  * @brief eCMD Perl API
 
  * Usage : 
+   <pre>
  *   @filestat = stat("/usr/include/linux/zorro.h");
  *   if (@filestat[1] eq "") {
  *     require ecmd_aix_perl;
@@ -57,6 +59,7 @@ extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
  *     require ecmd_x86_perl;
  *   }    
  *   my $ep = new ecmdClientPerlapi();
+   </pre>
 */
 
 class ecmdClientPerlapi
