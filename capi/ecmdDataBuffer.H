@@ -558,6 +558,32 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t  extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Copy data from this buffer into another at a given offset, preserving the size and other data in the output buffer
+   * @param o_bufferOut Target data buffer where data is copied into
+   * @param i_start Start bit in this DataBuffer to begin copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Start bit in output buffer where data is copied defaults to zero
+   * @post Data is copied from offset in this buffer to offset in out buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval EMCD_DBUF_BUFFER_OVERFLOW data requested is out of range in one of the 2 buffers
+   */
+  uint32_t extractPreserve(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset
+   * @param o_data Array of data to write into, must be pre-allocated
+   * @param i_start Start bit in this DataBuffer to begin the copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Starting bit in output data to place extracted data, defaults to zero
+   * @post Data is copied from offset in this DataBuffer to offset in output buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
+   * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
+   */
+  uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const; 
+
   /**
    * @brief Copy data from this DataBuffer into another DataBuffer and right justify
    * @param o_bufferOut DataBuffer to copy into - data is placed right aligned
