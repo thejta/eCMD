@@ -163,7 +163,7 @@ sub setBit() {
         } else {
 		if ($len) {
 			while ($len != 0) {
-				substr($iv_DataStr,$i_bit+$len,1) ='1';
+				substr($iv_DataStr,$i_bit+$len-1,1) ='1';
 				$len--;
 			}
 		} else {
