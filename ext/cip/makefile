@@ -20,6 +20,7 @@ ifeq (${OS},Linux)
   CC := g++
   TARGET = cipClientCapi_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-25
+  GPATH   := ${SUBDIR}
 endif
 
 # *****************************************************************************
