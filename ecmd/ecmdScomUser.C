@@ -24,13 +24,16 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdDaScomUser_C
+#include <stdio.h>
+#include <time.h>
+
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
-#include <stdio.h>
-#include <time.h>
+#include <ecmdInterpreter.H>
+
 #undef ecmdDaScomUser_C
 //----------------------------------------------------------------------
 //  User Types
@@ -309,6 +312,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
     numbits = atoi(argv[3]);
+
+
+    /* Bounds check */
+    if ((startbit + numbits) > ECMD_MAX_DATA_BITS) {
+      char errbuf[100];
+      sprintf(errbuf,"putscom - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+      ecmdOutputError(errbuf);
+      return ECMD_DATA_BOUNDS_OVERFLOW;
+    }
 
     rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numbits);
     if (rc) {
