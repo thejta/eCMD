@@ -96,7 +96,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   /************************************************************************/
   if (argc < 3) {
     ecmdOutputError("getarray - Too few arguments specified; you need at least a chip, an array, and an address.\n");
-    ecmdOutputError("getarray - Type 'getarray -h' for usage.");
+    ecmdOutputError("getarray - Type 'getarray -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -272,7 +272,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   /************************************************************************/
   if (argc < 4) {
     ecmdOutputError("putarray - Too few arguments specified; you need at least a chip, an array, an address, and some data.\n");
-    ecmdOutputError("putarray - Type 'putarray -h' for usage.");
+    ecmdOutputError("putarray - Type 'putarray -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
