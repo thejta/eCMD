@@ -1140,7 +1140,7 @@ int ecmdDataBuffer::operator=(ecmdDataBuffer & i_master) {
 
   setBitLength(i_master.iv_NumBits);
   // iv_Data
-  memcpy(i_master.iv_Data, iv_Data, iv_NumWords * 4);
+  memcpy(iv_Data, i_master.iv_Data, iv_NumWords * 4);
   // char
 
 #ifndef REMOVE_SIM
