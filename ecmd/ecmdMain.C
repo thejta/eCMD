@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
     rc = ecmdLoadDll("");
   }
 
-  if (!rc) {
+  if (rc == ECMD_SUCCESS) {
 
 
     /* Check to see if we are using stdin to pass in multiple commands */
@@ -73,6 +73,7 @@ int main (int argc, char *argv[])
       rc = ecmdCommandArgs(&argc, &argv);
       if (rc) return rc;
 
+      /* There shouldn't be any more args when doing a -stdin */
       if (argc > 1) {
         ecmdOutputError("ecmd - Invalid args passed to ecmd in -stdin mode\n");
         rc = ECMD_INVALID_ARGS;
@@ -81,18 +82,24 @@ int main (int argc, char *argv[])
 
         std::vector< std::string > commands;
         int   c_argc;
-        char* c_argv[21];
+        char* c_argv[21];       ///< A limit of 20 tokens(args) per command
         char* buffer = NULL;
         int   bufflen = 0;
         int   commlen;
 
+        /* ecmdParseStdInCommands reads from stdin and returns a vector of strings */
+        /*  each string contains one command (ie 'ecmdquery version')              */
+        /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
         while ((rc = ecmdParseStdinCommands(commands)) != ECMD_SUCCESS) {
 
           rc = 0;
+
+          /* Walk through individual commands from ecmdParseStdInCommands */
           for (std::vector< std::string >::iterator commit = commands.begin(); commit != commands.end(); commit ++) {
 
             c_argc = 0;
 
+            /* Create a char buffer to hold the whole command, we will use this to create pointers to each token in the command (like argc,argv) */
             commlen = commit->length();
             if ( commlen > bufflen) {
               if (buffer != NULL) delete[] buffer;
@@ -129,7 +136,10 @@ int main (int argc, char *argv[])
 
 
             if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-              sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+              if (strlen(c_argv[0]) < 200)
+                sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+              else
+                sprintf(buf,"ecmd -  Unknown Command specified \n");
               ecmdOutputError(buf);
             } else if (rc) {
               std::string parse = ecmdGetErrorMsg(rc, false);
@@ -138,7 +148,10 @@ int main (int argc, char *argv[])
                 ecmdOutput(parse.c_str());
               }
               parse = ecmdParseReturnCode(rc);
-              sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", c_argv[0], rc, parse.c_str());
+              if (strlen(c_argv[0]) + parse.length() < 300)
+                sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", c_argv[0], rc, parse.c_str());
+              else
+                sprintf(buf,"ecmd - Command returned with error code %X (%s)\n", rc, parse.c_str());
               ecmdOutputError(buf);
               break;
             }
@@ -163,7 +176,10 @@ int main (int argc, char *argv[])
 
 
       if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-        sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", argv[1]);
+        if (strlen(argv[1]) < 200)
+          sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", argv[1]);
+        else
+          sprintf(buf,"ecmd -  Unknown Command specified \n");
         ecmdOutputError(buf);
       } else if (rc) {
         std::string parse = ecmdGetErrorMsg(rc, false);
@@ -172,7 +188,10 @@ int main (int argc, char *argv[])
           ecmdOutput(parse.c_str());
         }
         parse = ecmdParseReturnCode(rc);
-        sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
+        if (strlen(argv[1]) + parse.length() < 300)
+          sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
+        else
+          sprintf(buf,"ecmd - Command returned with error code %X (%s)\n", rc, parse.c_str());
         ecmdOutputError(buf);
       }
     }
