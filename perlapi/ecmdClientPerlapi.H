@@ -145,6 +145,8 @@ namespace ECMDPERLAPI {
  <li>ecmdClientPerlapi.H</li>
  <li>ecmdDataBuffer</li>
  <li>ecmdStructs.H</li>
+ <li>ecmdUtils.H</li>
+ <li>ecmdSharedUtils.H</li>
  </ul>
 
 @subsection ext Api Extensions

@@ -24,6 +24,8 @@
 #include "ecmdDataBuffer.H"
 #include "ecmdStructs.H"
 #include "ecmdClientPerlapiIterators.H"
+#include "ecmdUtils.H"
+#include "ecmdSharedUtils.H"
 
 #include "ecmdPluginExtensionSupport.H"
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
@@ -72,6 +74,8 @@
 %include ecmdDataBuffer.H
 %include ecmdStructs.H
 %include ecmdClientPerlapiIterators.H
+%include ecmdUtils.H
+%include ecmdSharedUtils.H
 
 // The extensions
 %include ecmdPluginExtensionSupport.H
