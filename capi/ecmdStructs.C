@@ -484,8 +484,8 @@ uint32_t ecmdThreadData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 	do {	// Single entry ->
 
-		// Check for buffer overflown conditions.
-		if (this->flattenSize() != i_len) {
+		// Check for buffer overflown conditions. 
+		if (this->flattenSize() > i_len) {                //@01c
 			// Generate an error for buffer overflow conditions.
 			ETRAC2("Buffer overflow occured in "
                                "ecmdThreadData::unflatten() "
@@ -623,7 +623,9 @@ uint32_t ecmdCoreData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 		// Copy list data.
 		while (threaditor != threadData.end()) {
-			threaditor->flatten(l_ptr, i_len);
+			rc = threaditor->flatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -631,6 +633,7 @@ uint32_t ecmdCoreData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 			l_ptr += threaditor->flattenSize();
 			threaditor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
 
@@ -708,7 +711,9 @@ uint32_t ecmdCoreData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 							threadData.begin();
 		// Unflatten list data.
 		while (threaditor != threadData.end()) {
-			threaditor->unflatten(l_ptr, i_len);
+			rc = threaditor->unflatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -716,6 +721,7 @@ uint32_t ecmdCoreData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 			l_ptr += threaditor->flattenSize();
 			threaditor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
 
@@ -890,8 +896,10 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		}
 
 		// Copy list data.
-		while (coreitor != coreData.end()) {
-			coreitor->flatten(l_ptr, i_len);
+		while (coreitor != coreData.end()){
+		        rc = coreitor->flatten(l_ptr, i_len);
+
+			if (rc) break; // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -899,7 +907,7 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 			l_ptr += coreitor->flattenSize();
 			coreitor++;
 		}
-
+		if (rc) break; // make sure we get to single exit with bad rc
 		
 
 	} while (0);	// <- single exit.
@@ -1025,7 +1033,9 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	
 		// Unflatten list data.
 		while (coreitor != coreData.end()) {
-			coreitor->unflatten(l_ptr, i_len);
+			rc = coreitor->unflatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -1033,6 +1043,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 			l_ptr += coreitor->flattenSize();
 			coreitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
 
@@ -1186,10 +1197,13 @@ uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 		// Copy list data.
 		while (chipitor != chipData.end()) {
-			chipitor->flatten(l_ptr, i_len);
+			rc = chipitor->flatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			l_ptr += chipitor->flattenSize();
 			chipitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
 
@@ -1265,7 +1279,9 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		// Unflatten list data.
 		while (chipitor != chipData.end()) {
-			chipitor->unflatten(l_ptr, i_len);
+			rc = chipitor->unflatten(l_ptr, i_len);
+
+			if (rc) break; // stop on fail and exit
 			/*
 			 * l_ptr is not passed by reference so now that we 
 			 * have it populated increment by the actual size.
@@ -1273,7 +1289,8 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 			l_ptr += chipitor->flattenSize();
 			chipitor++;
 		}
-	
+		if (rc) break; // make sure we get to single exit with bad rc
+
 	} while (0);	// <- single exit.
 
 	return rc;
@@ -1412,7 +1429,9 @@ uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 		// Copy list data.
 		while (slotitor != slotData.end()) {
-			slotitor->flatten(l_ptr, i_len);
+			rc = slotitor->flatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -1420,6 +1439,7 @@ uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 			l_ptr += slotitor->flattenSize();
 			slotitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
 
@@ -1495,7 +1515,9 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	
 		// Unflatten list data.
 		while (slotitor != slotData.end()) {
-			slotitor->unflatten(l_ptr, i_len);
+			rc = slotitor->unflatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -1503,6 +1525,7 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 			l_ptr += slotitor->flattenSize();
 			slotitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
 
@@ -1641,7 +1664,9 @@ uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 		// Copy list data.
 		while (nodeitor != nodeData.end()) {
-			nodeitor->flatten(l_ptr, i_len);
+			rc = nodeitor->flatten(l_ptr, i_len);
+
+			if (rc) break; // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -1649,6 +1674,7 @@ uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 			l_ptr += nodeitor->flattenSize();
 			nodeitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);    // <- single exit.
 
@@ -1724,7 +1750,9 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		// Unflatten list data.
 		while (nodeitor != nodeData.end()) {
-			nodeitor->unflatten(l_ptr, i_len);
+			rc = nodeitor->unflatten(l_ptr, i_len);
+
+			if (rc) break;
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -1732,6 +1760,7 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 			l_ptr += nodeitor->flattenSize();
 			nodeitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);    // <- single exit.
 
@@ -1865,7 +1894,9 @@ uint32_t ecmdQueryData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 		// Copy list data.
 		while (cageitor != cageData.end()) {
-			cageitor->flatten(l_ptr, i_len);
+			rc = cageitor->flatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
@@ -1873,6 +1904,7 @@ uint32_t ecmdQueryData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 			l_ptr += cageitor->flattenSize();
 			cageitor++;
 		}
+		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);    // <- single exit.
 
@@ -1886,6 +1918,7 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	uint32_t hdrCheck = 0;
 	uint32_t listSize = 0;
 	uint32_t rc       = ECMD_SUCCESS;
+    uint32_t l_orig_i_len = i_len;      //@01a
 
 	do {    // Single entry ->
 
@@ -1942,13 +1975,35 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		// Unflatten list data.
 		while (cageitor != cageData.end()) {
-			cageitor->unflatten(l_ptr, i_len);
+		        rc = cageitor->unflatten(l_ptr, i_len);
+
+			if (rc) break;  // stop on fail and exit
 			/*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
                          */
 			l_ptr += cageitor->flattenSize();
 			cageitor++;
+		}
+		if (rc) break; // make sure we get to single exit with bad rc
+
+		// Check for underflow condition.  As each nested structure is
+		// unflattened it decrements i_len.  The buffer and the unflattened
+		// data should match in size if everything worked correctly.  So after
+		// everything is unflattened we should have i_len = 0        @01a
+		if (i_len)
+		{
+		    // Error.  Unflattened data didn't fill the whole buffer
+		    // Either the calculation of the buffer size needed is
+		    // wrong (to big) or there was an error during the unflatten
+		    // and not all the data was restored.
+		    ETRAC2("Buffer underflow occured in "
+			   "ecmdQueryData::unflatten() "
+			   "input length = %d, "
+			   "length left over = %d ",
+			   l_orig_i_len, i_len);
+		    rc = ECMD_DATA_UNDERFLOW;
+		    break;
 		}
 
 	} while (0);    // <- single exit.
@@ -2401,6 +2456,10 @@ void  ecmdSpyData::printStruct() {
 //  Flag Reason   Vers Date     Coder    Description                       
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              prahl    Initial Creation
+//  @01x 492138        02/10/05 prahl    Fix ecmdThreadData::unflatten overflow
+//                                       check & Added underflow check 
+//                                       to ecmdQueryData::unflatten
 //
 // End Change Log *****************************************************
+
 
