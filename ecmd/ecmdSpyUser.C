@@ -60,14 +60,19 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
-  bool enumFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  std::string outputformat = "x";       ///< Output format
-  std::string inputformat = "x";        ///< Expect data input format
+  std::string outputformat = "default"; ///< Output format - default to 'enum' if enumerated otherwise 'x'
+  std::string inputformat = "default";  ///< Expect data input format
   std::string expectArg;                ///< String containing expect data
   ecmdDataBuffer spyBuffer;             ///< Buffer to hold entire spy contents
   ecmdDataBuffer buffer;                ///< Buffer to hold user requested part of spy
-  ecmdDataBuffer expected;              ///< Buffer to hold expected data
+  ecmdDataBuffer expectedRaw;           ///< Buffer to hold Raw expected data
+  std::string expectedEnum;             ///< Buffer to hold enum expected data
+  bool validPosFound = false;           ///< Did the looper find something?
+  std::string printed;                  ///< Output string data
+  std::string enumValue;                ///< The enum value returned
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -85,9 +90,6 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
     outputformat = formatPtr;
   }
 
-  if (outputformat == "enum") {
-    enumFlag = true;
-  }
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     inputformat = formatPtr;
@@ -111,7 +113,6 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -121,43 +122,84 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   std::string spyName = argv[1];
   uint32_t startBit = 0x0, numBits = 0x0;
 
-  if (!enumFlag) {
-    if (argc > 2) {
-      startBit = atoi(argv[2]);
-    }
-    else {
-      startBit = 0x0;
-    }
 
-    if (argc > 3) {
-      numBits = atoi(argv[3]);
-    }
-    else {
-      numBits = 0xFFFFFFFF;
-    }
-  }
-
-
-
-  if (expectFlag) {
-    rc = ecmdReadDataFormatted(expected, expectArg.c_str(), inputformat);
-    if (rc) return rc;
-  }
-
-
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  std::string printed;
-  std::string enumValue;
 
   /* We are going to enable ring caching to speed up performance */
   ecmdEnableRingCache();
 
 
+
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    if (enumFlag) {
+    /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
+    if ((outputformat == "default") || (inputformat == "default")) {
+      rc = ecmdQuerySpy(target, spyData, spyName.c_str());
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      } else if (rc) {
+        printed = "getspy - Error occured looking up data on spy " + spyName + " on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+
+      if (spyData.isEnumerated) {
+        if (outputformat == "default") outputformat = "enum";
+        if (inputformat == "default") inputformat = "enum";
+      } else {
+        if (outputformat == "default") outputformat = "x";
+        if (inputformat == "default") inputformat = "x";
+      }
+    } 
+    if ((outputformat == "enum") && (inputformat != "enum")) {
+      /* We can't do an expect on non-enumerated when they want a fetch of enumerated */
+      ecmdOutputError("getspy - When reading enumerated spy's both input and output format's must be of type 'enum'\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+
+    /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
+    if (outputformat != "enum") {
+      if (argc > 2) {
+        startBit = atoi(argv[2]);
+      }
+      else {
+        startBit = 0x0;
+      }
+
+      if (argc > 3) {
+        numBits = atoi(argv[3]);
+      }
+      else {
+        numBits = 0xFFFFFFFF;
+      }
+      if (argc > 4) {
+        ecmdOutputError("getspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+        ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+        
+    } else if (argc > 2) {
+      ecmdOutputError("getspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+      ecmdOutputError("getspy - It is also possible you specified <start> <numbits> with an enumerated alias or dial\n");
+      ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+
+    if (expectFlag) {
+      if (inputformat != "enum")
+        rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
+      else
+        expectedEnum = expectArg;
+        
+      if (rc) return rc;
+    }
+
+
+    if (outputformat == "enum") {
       rc = getSpyEnum(target, spyName.c_str(), enumValue);
     }
     else {
@@ -179,22 +221,32 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 
     printed = ecmdWriteTarget(target) + " " + spyName;
 
-    if (enumFlag) {
-      printed += "\n" + enumValue + "\n";
-      ecmdOutput( printed.c_str() );
+    if (outputformat == "enum") {
+      if (!expectFlag) {
+        printed += "\n" + enumValue + "\n";
+        ecmdOutput( printed.c_str() );
+      } else {
+        if (expectedEnum != enumValue) {
+          printed =  "getspy - Actual            : " + enumValue + "\n";
+          ecmdOutputError( printed.c_str() );
+          printed =  "getspy - Expected          : " + expectedEnum + "\n";
+          ecmdOutputError( printed.c_str() );
+          return ECMD_EXPECT_FAILURE;
+        }
+      }
     }
     else {
 
       uint32_t bitsToFetch = 0x0;
-      if (numBits = 0xFFFFFFFF) {
-        bitsToFetch = spyBuffer.getBitLength();
+      if (numBits == 0xFFFFFFFF) {
+        bitsToFetch = spyBuffer.getBitLength() - startBit;
       }
       else {
         bitsToFetch = numBits;
       }
 
       buffer.setBitLength(bitsToFetch);
-      buffer.insert(spyBuffer, startBit, bitsToFetch);
+      spyBuffer.extract(buffer, startBit, bitsToFetch);
 
       if (!expectFlag) {
 
@@ -211,14 +263,16 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       }
       else {
 
-        if (!ecmdCheckExpected(buffer, expected)) {
+        if (!ecmdCheckExpected(buffer, expectedRaw)) {
           //@ make this stuff sprintf'd
           printed =  "getspy - Actual            : ";
           printed += ecmdWriteDataFormatted(buffer, outputformat);
-
-          printed += "getspy - Expected          : ";
-          printed += ecmdWriteDataFormatted(expected, outputformat);
           ecmdOutputError( printed.c_str() );
+
+          printed =  "getspy - Expected          : ";
+          printed += ecmdWriteDataFormatted(expectedRaw, outputformat);
+          ecmdOutputError( printed.c_str() );
+          return ECMD_EXPECT_FAILURE;
         }
 
       }
@@ -248,20 +302,20 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 int ecmdPutSpyUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
-  bool enumFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  std::string format = "x";             ///< Input data format
+  std::string inputformat = "default";  ///< Input data format
   std::string dataModifier = "insert";  ///< Default data modifier
   uint32_t startBit, numBits = 0;
   ecmdDataBuffer buffer;                ///< Buffer to hold input data
   ecmdDataBuffer spyBuffer;             ///< Buffer to hold current spy data
+  ecmdChipTarget target;                ///< Current target
+  bool validPosFound = false;           ///< Did the looper find anything?
+  std::string printed;                  ///< Output data
+  ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
-    format = formatPtr;
-  }
-  if (format == "enum") {
-    enumFlag = true;
+    inputformat = formatPtr;
   }
 
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
@@ -277,12 +331,11 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
   if (argc < 3) {  //chip + address
     ecmdOutputError("putspy - Too few arguments specified; you need at least a chip, a spy, and data.\n");
-    ecmdOutputError("putspy - Type 'getspy -h' for usage.\n");
+    ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -290,60 +343,73 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
   //get spy name
   std::string spyName = argv[1];
-  std::string spyData = argv[argc-1]; //always the last arg
-
-#if 0
-  if (enumFlag) {
-    for (int i = 0; i < spyData.length(); i++) {
-      if (!isxdigit(spyData[i])) {
-        break;
-      }
-    }
-    //all chars were hex digits, so we'll work
-    //under the assumption the data is not an enum
-    //enumFlag = false;
-  }
-#endif
-
-  if (!enumFlag) {
-
-
-    if (argc > 3) {
-      startBit = atoi(argv[2]);
-    }
-    else {
-      startBit = 0x0;
-    }
-
-    if (argc > 4) {
-      numBits = atoi(argv[3]);
-    }
-
-    rc = ecmdReadDataFormatted(buffer, spyData.c_str() , format, numBits);
-    if (rc) {
-      ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
-      return rc;
-    }
-
-  }
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::string printed;
 
   /* We are going to enable ring caching to speed up performance */
   ecmdEnableRingCache();
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    if (enumFlag) {
-      rc = putSpyEnum(target, spyName.c_str(), spyData);
+    /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
+    rc = ecmdQuerySpy(target, spyData, spyName.c_str());
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    } else if (rc) {
+      printed = "putspy - Error occured looking up data on spy " + spyName + " on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+
+    if (spyData.isEnumerated) {
+      if (inputformat == "default") inputformat = "enum";
+    } else {
+      if (inputformat == "default") inputformat = "x";
+    }
+
+    /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
+    if (inputformat != "enum") {
+      if (argc > 3) {
+        startBit = atoi(argv[2]);
+      }
+      else {
+        startBit = 0x0;
+      }
+
+      if (argc > 4) {
+        numBits = atoi(argv[3]);
+      }
+      else {
+        numBits = spyData.bitLength - startBit;
+      }
+      if (argc > 5) {
+        ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+        ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      rc = ecmdReadDataFormatted(buffer, argv[argc-1] , inputformat, numBits);
+      if (rc) {
+        ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
+        return rc;
+      }
+        
+    } else if (argc > 3) {
+      ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+      ecmdOutputError("putspy - It is also possible you specified <start> <numbits> with an enumerated alias or dial\n");
+      ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+
+    if (inputformat == "enum") {
+      rc = putSpyEnum(target, spyName.c_str(), argv[argc-1] );
     }
     else {
       rc = getSpy(target, spyName.c_str(), spyBuffer);
@@ -353,7 +419,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-      if (enumFlag) {
+      if (inputformat == "enum") {
         printed = "putspy - Error occured performing putspy (enumerated) on ";
       }
       else {
@@ -368,7 +434,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-    if (!enumFlag) {
+    if (inputformat != "enum") {
 
 
       rc = ecmdApplyDataModifier(spyBuffer, buffer,  startBit, dataModifier);
