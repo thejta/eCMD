@@ -1,6 +1,6 @@
 
 Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>] 
-                          [-o<format>] [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+                          [-o<format>] [-i<format>] [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
 
@@ -33,6 +33,10 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
                         Default format for non-enumerated spys : 'xl'
                         Default format for enumerated spys : 'enum'
                         Run 'ecmdquery formats' to view available formats
+ 
+        -v   [optional] Enable verbose printing of spy information.
+                        Displays all groups of a spy
+                        Displays all ECC Checkers 
         
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
