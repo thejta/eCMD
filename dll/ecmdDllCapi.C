@@ -27,6 +27,7 @@
 #define ecmdDllCapi_C
 #include <stdio.h>
 #include <list>
+#include <algorithm>
 #include <fstream>
 #include <string.h>
 #include <stdlib.h>
@@ -40,39 +41,26 @@
 //  User Types
 //----------------------------------------------------------------------
 
-//----------------------------------------------------------------------
-//  Constants
-//----------------------------------------------------------------------
-#ifdef ENABLE_MPATROL
-#ifdef _AIX
-/* This is to fix a missing symbol problem when compiling on aix with mpatrol */
-char **p_xargv;
-#endif
-#endif
+/** @brief Used to hold info out of the scandef for get/putlatch etc. */
+struct ecmdLatchInfo {
+  std::string ringName;                 ///< Name of ring that contains this latch
+  std::string latchName;                ///< Full Latch Name (including any parens)
+  uint32_t ringOffset;                  ///< Ring Offset
+  uint32_t length;                      ///< Length of entry
+  uint32_t latchStartBit;               ///< Start bit in latch (comes from parens in latch name) 
+  uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name) 
 
-//----------------------------------------------------------------------
-//  Macros
-//----------------------------------------------------------------------
+};
 
-//----------------------------------------------------------------------
-//  Internal Function Prototypes
-//----------------------------------------------------------------------
+/** @brief Used to buffer scandef data to avoid searching for each chip ec */
+struct ecmdLatchBufferEntry {
+  std::list<ecmdLatchInfo> entry;       ///< Data from Scandef
+  std::string scandefName;              ///< Name of scandef where data was retrieved
+  std::string latchName;                ///< Latch name used to search for this data
+  std::string ringName;                 ///< Ring name used to search for this data (empty string if == NULL)
+};
 
 
-uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
-
-/* Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string str);
-
-//----------------------------------------------------------------------
-//  Global Variables
-//----------------------------------------------------------------------
-#ifndef ECMD_STRIP_DEBUG
-/* @brief This is used to output Debug messages on the DLL side */
-uint32_t ecmdGlobal_DllDebug = 0;
-#endif
-/* @brief This is a global var set by -quiet */
-uint32_t ecmdGlobal_quiet = 0;
 
 
 /**
@@ -98,6 +86,84 @@ struct ecmdUserInfo {
   bool allTargetSpecified;
 
 } ecmdUserArgs;
+
+
+//----------------------------------------------------------------------
+//  Constants
+//----------------------------------------------------------------------
+#ifdef ENABLE_MPATROL
+#ifdef _AIX
+/* This is to fix a missing symbol problem when compiling on aix with mpatrol */
+char **p_xargv;
+#endif
+#endif
+
+//----------------------------------------------------------------------
+//  Macros
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//  Internal Function Prototypes
+//----------------------------------------------------------------------
+
+/** @brief Used to sort latch entries from the scandef */
+bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
+
+
+  if (lhs.ringName != rhs.ringName)
+    return lhs.ringName < rhs.ringName;
+
+  int lhsLeftParen = lhs.latchName.find('(');
+  int rhsLeftParen = rhs.latchName.find('(');
+
+  if (lhsLeftParen == std::string::npos || rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
+    return lhs.latchName < rhs.latchName;
+  }
+
+  std::string lhsSub = lhs.latchName.substr(0, lhsLeftParen);
+  std::string rhsSub = rhs.latchName.substr(0, rhsLeftParen);
+
+  if (lhsSub != rhsSub) {
+    return lhs.latchName < rhs.latchName;
+  }
+
+  return lhs.latchStartBit < rhs.latchStartBit;
+}
+
+/** @brief Used to sort latch entries from the scandef */
+bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
+
+  if (lhs.ringName != rhs.ringName)
+    return true;
+
+  int lhsLeftParen = lhs.latchName.find('(');
+  int rhsLeftParen = rhs.latchName.find('(');
+
+  if (lhsLeftParen != rhsLeftParen) {
+    return true;
+  }
+
+  return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
+}
+
+
+uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
+
+/* Returns true if all chars of str are decimal numbers */
+bool dllIsValidTargetString(std::string str);
+
+//----------------------------------------------------------------------
+//  Global Variables
+//----------------------------------------------------------------------
+#ifndef ECMD_STRIP_DEBUG
+/* @brief This is used to output Debug messages on the DLL side */
+uint32_t ecmdGlobal_DllDebug = 0;
+#endif
+/* @brief This is a global var set by -quiet */
+uint32_t ecmdGlobal_quiet = 0;
+
+/* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
+std::list<ecmdLatchBufferEntry> latchBuffer;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -550,6 +616,26 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
    store them away for future use */
   char * curArg;
 
+  //-trace
+  if ((curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace="))) {
+    /* Grab all the tokens */
+    std::vector<std::string> tokens;
+    std::vector<std::string>::iterator tokit;
+
+    ecmdParseTokens(curArg," \t\n,", tokens);
+    for (tokit = tokens.begin(); tokit != tokens.end(); tokit ++) {
+      if (!strcmp(tokit->c_str(), "scan")) {
+        dllSetTraceMode(ECMD_TRACE_SCAN,true);
+      } else if (!strcmp(tokit->c_str(), "prcd")) {
+        dllSetTraceMode(ECMD_TRACE_PROCEDURE,true);
+      } else {
+        dllOutputWarning(("dllCommonCommandArgs - Unknown Trace type detected '" + *tokit + "' : Ignoring\n").c_str());
+      }
+
+    }
+  }
+
+
   ecmdUserArgs.allTargetSpecified = false;
   if (ecmdParseOption(io_argc, io_argv, "-all"))
     ecmdUserArgs.allTargetSpecified = true;
@@ -632,24 +718,6 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdGlobal_quiet = 1;
 
 
-  //-trace
-  if ((curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace="))) {
-    /* Grab all the tokens */
-    std::vector<std::string> tokens;
-    std::vector<std::string>::iterator tokit;
-
-    ecmdParseTokens(curArg," \t\n,", tokens);
-    for (tokit = tokens.begin(); tokit != tokens.end(); tokit ++) {
-      if (!strcmp(tokit->c_str(), "scan")) {
-        dllSetTraceMode(ECMD_TRACE_SCAN,true);
-      } else if (!strcmp(tokit->c_str(), "prcd")) {
-        dllSetTraceMode(ECMD_TRACE_PROCEDURE,true);
-      } else {
-        dllOutputWarning("dllCommonCommandArgs - Unknown Trace type detected '" + *tokit + "' : Ignoring\n");
-      }
-
-    }
-  }
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
@@ -733,6 +801,373 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
 
   return ret;
 }
+
+uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
+  uint32_t rc = 0;
+
+  std::list<ecmdLatchBufferEntry>::iterator bufferit;
+  ecmdLatchBufferEntry curEntry;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::string scandefFile;                      ///< Full path to scandef file
+  ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
+  ecmdDataBuffer buffer(100 /* words */);       ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
+  std::string latchName = i_latchName;          ///< Store our latchname in a stl string
+  bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
+  bool foundit;                                 ///< Did I find the latch info that I have already looked up
+  bool newFileFormat = false;                   ///< This is set if we find the new Eclipz scandef format 
+  ecmdLatchEntry curData;                       ///< Data to load into return list
+  std::string curRing;                          ///< Current ring being operated on
+
+  if (!dllIsRingCacheEnabled()) {
+    enabledCache = true;
+    dllEnableRingCache();
+  }
+
+
+  /* Transform to upper case for case-insensitive comparisons */
+  transform(latchName.begin(), latchName.end(), latchName.begin(), toupper);
+
+  /* Single exit point */
+  while (1) {
+
+
+    /* find scandef file */
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+    if (rc) {
+#ifndef ECMD_STRIP_DEBUG
+      if (ecmdGlobal_DllDebug) 
+        dllOutputError(("dllGetLatch - Error occured locating scandef file: " + scandefFile + "\n").c_str());
+#endif
+      break;
+    }
+
+    /* Let's see if we have already looked up this info */
+    foundit = false;
+    for (bufferit = latchBuffer.begin(); bufferit != latchBuffer.end(); bufferit ++) {
+      if (bufferit->scandefName == scandefFile && bufferit->latchName == latchName) {
+        /* If the user passed NULL we have to search entire scandef */
+        if (i_ringName == NULL) {
+          if (bufferit->ringName.length() == 0) {
+            curEntry = (*bufferit);
+            foundit = true;
+            break;
+          }
+        } else {
+          if (bufferit->ringName == i_ringName) {
+            curEntry = (*bufferit);
+            foundit = true;
+            break;
+          }
+        }
+      }
+    } /* End for search loop */
+
+
+    /* We don't have it already, let's go looking */
+    if (!foundit) {
+      std::ifstream ins(scandefFile.c_str());
+      if (ins.fail()) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) 
+          dllOutputError(("dllGetLatch - Error occured opening scandef file: " + scandefFile + "\n").c_str());
+#endif
+        rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
+        break;
+      }
+
+      //let's go hunting in the scandef for this register (pattern)
+      ecmdLatchInfo curLatch;
+
+      std::string curLine;
+      std::vector<std::string> curArgs(4);
+
+      std::string ringPrefix = "ring=";
+      std::string ringArg;
+      if (i_ringName != NULL)
+        ringArg = ringPrefix + i_ringName;
+      std::string temp;
+
+      bool done = false;
+      bool foundRing = false;
+      int  leftParen;
+      int  colon;
+
+      while (getline(ins, curLine) && !done) {
+
+        if (foundRing) {
+
+          /* We hit the end of this ring defition with the old syntax */
+          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+            if (i_ringName != NULL) {
+              done = true; break;
+            } else {
+              int offset = curLine.find(ringPrefix) + ringPrefix.length();
+              curRing = curLine.substr(offset, std::string::npos);
+              /* Strip the tail off the line */
+              curRing.erase(curRing.find_first_of(" \t"));
+              continue;
+            }
+            /* we hit the end of this ring definition with the new syntax */
+          } else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
+            done = true; break;
+          }
+          else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+            //do nothing
+            continue;
+          }
+          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
+            // do nothing
+            continue;
+          }
+          else if (!(i_mode == ECMD_LATCHMODE_FULL) && (curLine.find(latchName) != std::string::npos)) {
+
+            /* Transform to upper case */
+            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+
+            ecmdParseTokens(curLine, " \t\n", curArgs);
+            curLatch.length = atoi(curArgs[0].c_str());
+            curLatch.ringOffset = atoi(curArgs[1].c_str());
+            curLatch.latchName = curArgs[3];
+          }
+          else if (i_mode == ECMD_LATCHMODE_FULL) {
+
+            /* Transform to upper case */
+            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+            ecmdParseTokens(curLine, " \t\n", curArgs);
+
+            if (latchName == curArgs[3]) {
+              curLatch.length = atoi(curArgs[0].c_str());
+              curLatch.ringOffset = atoi(curArgs[1].c_str());
+              curLatch.latchName = curArgs[3];
+            } else
+              continue;
+
+          } else {
+            /* Not one we want */
+            continue;
+          }
+
+          /* Let's parse out the start/end bit if they exist */
+          leftParen = curLatch.latchName.find('(');
+          if (leftParen == std::string::npos) {
+            /* This latch doesn't have any parens */
+            curLatch.latchStartBit = curLatch.latchEndBit = 0;
+          } else {
+            temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
+            curLatch.latchStartBit = atoi(temp.c_str());
+
+            /* Is this a multibit or single bit */
+            if ((colon = temp.find(':')) != std::string::npos) {
+              curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
+            } else {
+              curLatch.latchEndBit = curLatch.latchStartBit;
+            }
+          }
+          curLatch.ringName = curRing;
+          curEntry.entry.push_back(curLatch);
+
+        }
+          /* The user specified a ring for use to look in */
+        else if ((i_ringName != NULL) &&
+                 (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
+                 ((curLine[0] == 'N') && (curLine.find(i_ringName) != std::string::npos)))) {
+          foundRing = true;
+          if (curLine.substr(0,4) == "Name") {
+            newFileFormat = true;
+          }
+          curRing = i_ringName;
+
+          /* The user didn't specify a ring for us, we will search them all */
+        } else if ((i_ringName == NULL) &&
+                   ((curLine[0] == '*') && (curLine.find(ringPrefix) != std::string::npos))) {
+          int offset = curLine.find(ringPrefix) + ringPrefix.length();
+          curRing = curLine.substr(offset, std::string::npos);
+          /* Strip the tail off the line */
+          curRing.erase(curRing.find_first_of(" \t"));
+          foundRing = true;
+        } else if ((i_ringName == NULL) &&
+                   ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
+          curRing = curLine.substr(5, std::string::npos);
+          /* Strip the tail off the line */
+          curRing.erase(curRing.find_first_of(" \t"));
+          foundRing = true;
+        }                    
+      }
+
+      ins.close();
+
+      if (!foundRing) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) {
+          std::string tmp = i_ringName;
+          dllOutputError(("dllGetLatch - Could not find ring name " + tmp + "\n").c_str());
+        }
+#endif
+        rc = ECMD_INVALID_RING;
+        break;
+      }
+
+      if (curEntry.entry.empty()) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) 
+          dllOutputError(("dllGetLatch - no registers found that matched " + latchName + "\n").c_str());
+#endif
+        rc = ECMD_INVALID_LATCHNAME;
+        break;
+      }
+
+      curEntry.scandefName = scandefFile;
+      if (i_ringName != NULL)
+        curEntry.ringName = i_ringName;
+      else
+        curEntry.ringName = "";
+      curEntry.latchName = latchName;
+      curEntry.entry.sort();
+
+      /* Let's push this entry onto the stack */
+      latchBuffer.push_back(curEntry);
+    
+    }
+
+    uint32_t bitsToFetch = 0x0FFFFFFF;  // Grab all bits
+    int curLatchBit = -1;               // This is the actual latch bit we are looking for next
+    int curStartBit = 0;                // This is the offset into the current entry to start extraction
+    int curBufferBit = 0;               // Current bit to insert into buffered register
+    int curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+    int dataStartBit = -1;              // Actual start bit of buffered register
+    int dataEndBit = -1;                // Actual end bit of buffered register
+    std::string latchname = "";
+    curRing = "";
+
+    for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+
+
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+        rc = dllGetRing(target, curLatchInfo->ringName.c_str(), ringBuffer);
+        if (rc) {
+#ifndef ECMD_STRIP_DEBUG
+          if (ecmdGlobal_DllDebug) 
+            dllOutputError("dllGetLatch - Problems reading ring from chip\n");
+#endif
+          break;
+        }
+        curRing = curLatchInfo->ringName;
+      }
+      /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+      if (((dataStartBit != -1) && (curLatchBit != curLatchInfo->latchStartBit) && (curLatchBit != curLatchInfo->latchEndBit)) ||
+          ((latchname == "") || (latchname.substr(0, latchname.find('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('))))) {
+        /* I have some good data here */
+        if (latchname != "") {
+
+          /* Display this if we aren't expecting or the expect failed */
+          char temp[20];
+          curData.latchStartBit = dataStartBit;
+          curData.latchEndBit = dataEndBit;
+          buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1);
+          curData.rc = ECMD_SUCCESS;
+          o_data.push_back(curData);
+
+        }
+
+        /* If this is a fresh one we need to reset everything */
+        if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+          dataStartBit = dataEndBit = -1;
+          curStartBit = 0;
+          curBitsToFetch = 0x0FFFFFFF;
+          curBufferBit = 0;
+          latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('));
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+          curData.latchName = latchname;
+          curData.ringName = curLatchInfo->ringName;
+        } else {
+          /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+          dataStartBit = dataEndBit = -1;
+          curBufferBit = 0;
+          /* Decrement the bits to fetch by the hole in the latch */
+          curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        }
+      }
+
+      /* Do we want anything in here */
+      /* Check if the bits are ordered from:to (0:10) or just (1) */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+          /* Check if the bits are ordered to:from (10:0) */
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStartBit <= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchStartBit))) {
+
+        bitsToFetch = ((curLatchInfo->length - curStartBit) < curBitsToFetch) ? curLatchInfo->length - curStartBit : curBitsToFetch;
+
+        /* Setup the actual data bits displayed */
+        if (dataStartBit == -1) {
+          dataStartBit = curLatchBit + curStartBit;
+          dataEndBit = dataStartBit - 1;
+        }
+        dataEndBit += bitsToFetch;
+
+
+        /* Extract bits if ordered from:to (0:10) */
+        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+          ringBuffer.extract(buffertemp, curLatchInfo->ringOffset + curStartBit, bitsToFetch);
+          buffer.insert(buffertemp, curBufferBit, bitsToFetch); curBufferBit += bitsToFetch;
+
+          curLatchBit = curLatchInfo->latchEndBit + 1;
+        } else {
+          /* Extract if bits are ordered to:from (10:0) or just (1) */
+          for (int bit = 0; bit < bitsToFetch; bit ++) {
+            if (ringBuffer.isBitSet(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit))
+              buffer.setBit(curBufferBit++);
+            else
+              buffer.clearBit(curBufferBit++);
+          }
+
+          curLatchBit = curLatchInfo->latchStartBit + 1;
+
+        }
+
+        curStartBit = 0;
+        curBitsToFetch -= bitsToFetch;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+        curStartBit -= curLatchInfo->length;
+      }
+
+    } /* end latchinfo for loop */
+
+    /* We have good data here, let's push it */
+    if (latchname != "") {
+
+      /* Display this if we aren't expecting or the expect failed */
+      char temp[20];
+      curData.latchStartBit = dataStartBit;
+      curData.latchEndBit = dataEndBit;
+      buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1);
+      curData.rc = ECMD_SUCCESS;
+      o_data.push_back(curData);
+
+    }
+
+    break;
+  } /* end while (exit point) */
+
+  if (enabledCache) {
+    rc = dllDisableRingCache();
+  }
+
+  return rc;
+}
+
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode) {
+
+  uint32_t rc = 0;
+
+  return rc;
+}
+
 
 
 // Change Log *********************************************************
