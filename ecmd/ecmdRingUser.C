@@ -1186,78 +1186,49 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     int curStartBit = startBit;         // This is the offset into the current entry to start extraction
     int curBitsToInsert = numBits;      // This is the total number of bits left to Insert
 
-#if 0
-    int curstartbit = 0;
-    int curoffset = 0;
-    int totallen = 0, insertlen;
-    bool foundit = false;
-#endif
     for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
 
 
       if (curLatchBit == -1)
         curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
 
-/* This needs work */
-        /* Check if the bits are ordered from:to (0:10) or just (1) */
-        if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
-            /* Check if the bits are ordered to:from (10:0) */
-            ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStartBit <= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchStartBit))) {
+      /* Check if the bits are ordered from:to (0:10) or just (1) */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+          /* Check if the bits are ordered to:from (10:0) */
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStartBit <= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchStartBit))) {
 
-          bitsToInsert = ((curLatchInfo->length - curStartBit) < curBitsToInsert) ? curLatchInfo->length - curStartBit : curBitsToInsert;
+        bitsToInsert = ((curLatchInfo->length - curStartBit) < curBitsToInsert) ? curLatchInfo->length - curStartBit : curBitsToInsert;
 
 
-          /* Extract bits if ordered from:to (0:10) */
-          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+        /* Extract bits if ordered from:to (0:10) */
+        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
 
-            ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curStartBit, bitsToInsert);
-            bufferCopy.shiftLeft(bitsToInsert);
+          ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curStartBit, bitsToInsert);
+          bufferCopy.shiftLeft(bitsToInsert);
 
-            curLatchBit = curLatchInfo->latchEndBit + 1;
-          } else {
-            /* Extract if bits are ordered to:from (10:0) or just (1) */
-            for (int bit = 0; bit < bitsToInsert; bit ++) {
-              if (bufferCopy.isBitSet(bit)) 
-                ringBuffer.setBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
-              else
-                ringBuffer.clearBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
-            }
-
-            curLatchBit = curLatchInfo->latchStartBit + 1;
-
+          curLatchBit = curLatchInfo->latchEndBit + 1;
+        } else {
+          /* Extract if bits are ordered to:from (10:0) or just (1) */
+          for (int bit = 0; bit < bitsToInsert; bit ++) {
+            if (bufferCopy.isBitSet(bit)) 
+              ringBuffer.setBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
+            else
+              ringBuffer.clearBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
           }
 
-          curStartBit = 0;
-          curBitsToInsert -= bitsToInsert;
-        } else {
-          /* Nothing was there that we needed, let's try the next entry */
-          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+          curLatchBit = curLatchInfo->latchStartBit + 1;
 
-          curStartBit -= curLatchInfo->length;
         }
 
-#if 0
-      /* Let's look for the beginning of the range we are looking for */
-      if (!foundit && (startBit < curLatchInfo->latchEndBit)) {
-        curoffset = startBit - curstartbit;
-        foundit = true;
-        insertlen = curLatchInfo->length - curoffset;
-      } else if (foundit) {
-        curoffset = 0;
-        insertlen = curLatchInfo->length;
+        curStartBit = 0;
+        curBitsToInsert -= bitsToInsert;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+        curStartBit -= curLatchInfo->length;
       }
-      if (foundit) {
-        insertlen = totallen + insertlen > numBits ? numBits - totallen : insertlen;
 
-        ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curoffset, insertlen);
-        bufferCopy.shiftLeft(insertlen);
-
-        totallen += insertlen;
-
-        /* We are done, let's get out of here */
-        if (totallen >= numBits) break;
-      }
-#endif
     }
 
     rc = putRing(target, ringName.c_str(), ringBuffer);
