@@ -73,6 +73,7 @@ struct dllSpyData {
 //----------------------------------------------------------------------
 /* Lookup Spy info from a spydef file */
 uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy);
+uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data, std::string & o_domain);
 /* Search the spy file for our spy */
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
 int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name);
@@ -296,6 +297,8 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
   char outstr[200];
   ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+  std::string spyDomain;                        ///< What domain does this chip belong to
+  ecmdClockState_t curClockState;               ///< Current state of spy clock domain
 
   ecmdSpyGroupData groupTemp;
   std::list<ecmdSpyGroupData> groups;             ///< List to store all groups so that they can be compared in the end
@@ -339,6 +342,11 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
   /* Now let's go grab our data */
   sedcAEIEntry spyent = mySpy.getAEIEntry();
 
+
+  /* See if we need the clock domain */
+  if (spyent.states & SPY_CLOCK_ANY)
+    rc = dllGetSpyClockDomain(i_target, &spyent, spyDomain);
+  if (rc) return rc;
 
   /* Do some error checking with what we have */
   if (data.dataType == SPYDATA_DATA) {
@@ -440,15 +448,12 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     /*---------------------*/
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_ON)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
-#if 0
-      if (isClockDomainOn(CLOCK_DOMAIN_ALL, pos) && !(global_debug & mask[1]) && !(global_debug & mask[3])) {
+      rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if ((curClockState == ECMD_CLOCKSTATE_ON) || (curClockState == ECMD_CLOCKSTATE_NA)) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
       } else 
         curstate &= ~(SPY_CLOCK_ANY);
-#endif
-      dllOutputError("dllGetSpy - clock dependent spies not currently supported\n");
-      return ECMD_FAILURE;
     } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_ON)) {
       /* We are done with the clock dep section, lets set our state back to independent */
       curstate &= ~(SPY_CLOCK_ANY);
@@ -459,16 +464,13 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     /* CLOCK OFF SECTION   */
     /*---------------------*/
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_OFF)) {
-      /* We hit a clock on section - we need to figure out if the chip clocks are on */
-#if 0
-      if (!isClockDomainOn(CLOCK_DOMAIN_ALL, pos)) {
+      /* We hit a clock off section - we need to figure out if the chip clocks are off */
+      rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if ((curClockState == ECMD_CLOCKSTATE_OFF) || (curClockState == ECMD_CLOCKSTATE_NA)  || (curClockState == ECMD_CLOCKSTATE_UNKNOWN)  ) {
         curstate &= ~(SPY_CLOCK_ANY);
-        curstate |= SPY_CLOCK_OFF;
+        curstate |= SPY_CLOCK_ON;
       } else 
         curstate &= ~(SPY_CLOCK_ANY);
-#endif
-      dllOutputError("dllGetSpy - clock dependent spies not currently supported\n");
-      return ECMD_FAILURE;
 
     } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_OFF)) {
       /* We are done with the clock dep section, lets set our state back to independent */
@@ -912,6 +914,9 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
   int curaliasbit = 0;
   sedcSpyContainer mySpy = spy;
   uint32_t curstate = SPY_CLOCK_IND;       ///< Current state of what we will accept, we will start by allowing clock independent (or spy's without clock dependence) to run
+  std::string spyDomain;                        ///< What domain does this chip belong to
+  ecmdClockState_t curClockState;               ///< Current state of spy clock domain
+
   char outstr[200];
   ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
@@ -949,6 +954,11 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
 
   /* Now let's go grab our data */
   sedcAEIEntry spyent = mySpy.getAEIEntry();
+
+  /* See if we need the clock domain */
+  if (spyent.states & SPY_CLOCK_ANY)
+    rc = dllGetSpyClockDomain(i_target, &spyent, spyDomain);
+  if (rc) return rc;
 
 
   /* Do some error checking with what we have */
@@ -1079,15 +1089,12 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     /*---------------------*/
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_ON)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
-#if 0
-      if (isClockDomainOn(CLOCK_DOMAIN_ALL, pos) && !(global_debug & mask[1]) && !(global_debug & mask[3])) {
+      rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if ((curClockState == ECMD_CLOCKSTATE_ON) || (curClockState == ECMD_CLOCKSTATE_NA)) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
       } else 
         curstate &= ~(SPY_CLOCK_ANY);
-#endif
-      dllOutputError("dllPutSpy - clock dependent spies not currently supported\n");
-      return ECMD_FAILURE;
 
     } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_ON)) {
       /* We are done with the clock dep section, lets set our state back to independent */
@@ -1102,15 +1109,12 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     /*---------------------*/
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_OFF)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
-#if 0
-      if (!isClockDomainOn(CLOCK_DOMAIN_ALL, pos)) {
+      rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if ((curClockState == ECMD_CLOCKSTATE_OFF) || (curClockState == ECMD_CLOCKSTATE_NA)  || (curClockState == ECMD_CLOCKSTATE_UNKNOWN)  ) {
         curstate &= ~(SPY_CLOCK_ANY);
-        curstate |= SPY_CLOCK_OFF;
+        curstate |= SPY_CLOCK_ON;
       } else 
         curstate &= ~(SPY_CLOCK_ANY);
-#endif
-      dllOutputError("dllPutSpy - clock dependent spies not currently supported\n");
-      return ECMD_FAILURE;
 
     } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_OFF)) {
       /* We are done with the clock dep section, lets set our state back to independent */
@@ -1378,18 +1382,70 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   return 0;
 }
 
+uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data, std::string & o_domain) {
+  uint32_t rc = 0;
+  bool foundit = false;
+  std::list<sedcLatchLine>::iterator lineit;
+  char outstr[200];
+  std::list<ecmdRingData> ringQueryData;
+
+  /* Walk through the lines looking for our first scom/ring line */
+  for (lineit = spy_data->aeiLines.begin(); lineit != spy_data->aeiLines.end(); lineit ++) {
+
+    if (lineit->state == (SPY_SECTION_START | SPY_RING)) {
+      /* Now we need to query the ring data */
+      rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str());
+      if (rc) return rc;
+      if (!ringQueryData.empty())
+        o_domain = ringQueryData.begin()->clockDomain;
+
+      foundit = true;
+      break;
+    } else if (lineit->state == (SPY_SECTION_START | SPY_SCOM)) {
+#if 0
+      /* Right now there isn't an api to check scom clock domain 2/2/05 cje */
+
+      BIT32 addr;
+      int num = sscanf(lineit->latchName.c_str(), "%x",&addr);
+      if (num != 1) {
+        sprintf(outstr, "Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), spy_name);
+        out.error("Chip::getSpyClockDomain",outstr);
+        return ECMD_INVALID_SPY;
+      }
+      rc = getScomClockDomain(addr, o_domain, 0);
+      foundit = true;
+      break;
+#endif
+    }
+
+  }
+
+  if (!foundit) {
+    sprintf(outstr,"dllGetSpyClockDomain - Unable to find a ring or scom definition in spy\n");
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  }    
+
+  return rc;
+
+}
+
+
+
 int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name) {
 
   int found = 0;
   sedcHashEntry curhash;
   int entrysize = sizeof(struct sedcHashEntry); /* We need this to be able to traverse the binary hash file */
   long filepos;
+  long endpos;
   std::string line;
   int numentries;
   int linePos;
 
   /* first get the size of the hash file */
   filepos = hashFile.tellg();                   /* get end of file position     */
+  hashFile.seekg(0, std::ios::beg);			/* go back to beginning of file */
   hashFile.seekg(0, std::ios::beg);			/* go back to beginning of file */
   numentries = filepos / entrysize;
 
@@ -1429,6 +1485,11 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
     curhash.filepos = htonl(curhash.filepos);
 
     spyFile.seekg(curhash.filepos);              /* go to that spot in the spy file */
+    if (spyFile.fail()) {
+      /* We must have seeked to a bad spot, this hash file is really messed up */
+      spyFile.clear();
+      return 0;
+    }
     getline(spyFile,line,'\n');                 /* read the spy and then clean off the extras*/
 
     /* We found something here let's see if it the spy we want */
@@ -1462,8 +1523,10 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
   int found = 0;
   std::string line;
   long filepos;
+  sedcFileLine myLine;
 
   /* Get the file back to the beginning so we can search */
+  spyFile.clear();
   spyFile.seekg(0, std::ios::beg);
 
   /* One to kick it off */
@@ -1480,12 +1543,11 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
       /* We found something here let's see if it the spy we want */
       /* Strip the front off */
       std::string tmp = line.substr(line.find_first_not_of(WHITESPACE, line.find_first_of(WHITESPACE,0)), line.length());
-      /* Strip the end off */
-      tmp = tmp.erase(tmp.find_first_of(WHITESPACE,0), tmp.length());
+      sedcCreateSpyTokens(line, WHITESPACE, myLine);
+      transform(myLine.tokens[1].begin(), myLine.tokens[1].end(), myLine.tokens[1].begin(), toupper);
 
-      transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) toupper);
 
-      if (tmp == spy_name) {
+      if (myLine.tokens[1] == spy_name) {
         /* We found it */
         found = 1;
         spyFile.seekg(filepos);
