@@ -301,7 +301,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   bool foundit;
   std::list<ecmdLatchBufferEntry> latchBuffer;
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
-  std::list<ecmdLatchInfo>::iterator latchit;
   ecmdLatchBufferEntry curEntry;
   char* expectDataPtr = NULL;
 
@@ -542,10 +541,8 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     printed = ecmdWriteTarget(target) + "\n";
     ecmdOutput(printed.c_str());
     uint32_t bitsToFetch = numBits;
-    uint32_t bitsFetched = 0;
     int curLatchBit = -1;               // This is the actual latch bit we are looking for next
     int curStartBit = startBit;         // This is the offset into the current entry to start extraction
-    int curEndBit = -1;
     int curBufferBit = 0;               // Current bit to insert into buffered register
     int curBitsToFetch = numBits;       // This is the total number of bits left to fetch
     int dataStartBit = -1;              // Actual start bit of buffered register
@@ -576,7 +573,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
         }
         ecmdOutput( printed.c_str());
         curBitsToFetch -= bitsToFetch;
-        bitsFetched += bitsToFetch;
 
 
         /**** NON-Compressed output ****/
@@ -585,7 +581,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
         /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
         if (((dataStartBit != -1) && (curLatchBit != curLatchInfo->latchStartBit) && (curLatchBit != curLatchInfo->latchEndBit)) ||
-            ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length())))) {
+            ((latchname == "") || (latchname.substr(0, latchname.find('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('))))) {
           /* I have some good data here */
           if (latchname != "") {
 
@@ -615,7 +611,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
           }
           /* If this is a fresh one we need to reset everything */
           if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
-            curEndBit = dataStartBit = dataEndBit = -1;
+            dataStartBit = dataEndBit = -1;
             curStartBit = startBit;
             curBitsToFetch = numBits;
             curBufferBit = 0;
@@ -632,7 +628,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
         }
 
         /* Do we want anything in here */
-
         /* Check if the bits are ordered from:to (0:10) or just (1) */
         if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
             /* Check if the bits are ordered to:from (10:0) */
@@ -982,6 +977,11 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
 int ecmdPutLatchUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
+  bool foundit;
+  std::list<ecmdLatchBufferEntry> latchBuffer;
+  std::list<ecmdLatchBufferEntry>::iterator bufferit;
+  ecmdLatchBufferEntry curEntry;
+
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -1065,90 +1065,180 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
       return rc;
     }
 
-    std::ifstream ins(scandefFile.c_str());
-    if (ins.fail()) {
-      ecmdOutputError(("putlatch - Error occured opening scandef file: " + scandefFile + "\n").c_str());
-      return ECMD_INVALID_ARGS;  //change this
+    /* Let's see if we have already looked up this info */
+    foundit = false;
+    for (bufferit = latchBuffer.begin(); bufferit != latchBuffer.end(); bufferit ++) {
+      if (bufferit->scandefname == scandefFile) {
+        curEntry = (*bufferit);
+        foundit = true;
+        break;
+      }
     }
 
-    //let's go hunting in the scandef for this register (pattern)
-    std::list< ecmdLatchInfo > latchInfo;
-    ecmdLatchInfo curLatch;
-    ecmdLatchInfo tmpLatch;
-
-    std::string curLine;
-    std::vector<std::string> curArgs(4);
-
-    std::string ringPrefix = "ring=";
-    std::string ringArg = ringPrefix + ringName;
-
-    bool done = false;
-    bool found = false;
-
-    while (getline(ins, curLine) && !done) {
-
-      if (found) {
-        if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '#') {
-          //nada
-        }
-        else if (curLine.find(ringPrefix) != std::string::npos) {
-          done = true;
-        }
-        else if ((curLine[0] != '*') && curLine.find(latchName) != std::string::npos) {
-
-          ecmdParseTokens(curLine, curArgs);
-          curLatch.length = atoi(curArgs[0].c_str());
-          curLatch.ringOffset = atoi(curArgs[1].c_str());
-          curLatch.latchName = curArgs[3];
-          latchInfo.push_back(curLatch);
-        }
-      }
-      else {
-        if ((curLine[0] == '*') && curLine.find(ringArg) != std::string::npos) {
-          found = true;
-        }
+    if (!foundit) {
+      std::ifstream ins(scandefFile.c_str());
+      if (ins.fail()) {
+        ecmdOutputError(("putlatch - Error occured opening scandef file: " + scandefFile + "\n").c_str());
+        return ECMD_INVALID_ARGS;  //change this
       }
 
-    }
+      //let's go hunting in the scandef for this register (pattern)
+      ecmdLatchInfo curLatch;
+      ecmdLatchInfo tmpLatch;
 
-    ins.close();
+      std::string curLine;
+      std::vector<std::string> curArgs(4);
 
-    if (!found) {
-      ecmdOutputError(("putlatch - Could not find ring name " + ringName + "\n").c_str());
-      return ECMD_INVALID_ARGS;
-    }
+      std::string ringPrefix = "ring=";
+      std::string ringArg = ringPrefix + ringName;
+      std::string temp;
 
-    if (latchInfo.empty()) {
-      ecmdOutputError(("putlatch - No registers found that matched " + latchName + "\n").c_str());
-      return ECMD_INVALID_ARGS;
-    }
+      bool done = false;
+      bool found = false;
+      int  leftParen;
+      int  colon;
 
-    latchInfo.sort();
+      while (getline(ins, curLine) && !done) {
 
-    /* Let's make sure the latches we found all have the same name */
-    /* We might also want to verify that we found consecutive bits for the latch */
-    std::string curLatchName;
-    for (curLatchInfo = latchInfo.begin(); curLatchInfo != latchInfo.end(); curLatchInfo++) {
-      if (curLatchInfo == latchInfo.begin())
-        curLatchName = curLatchInfo->latchName;
-      else if (curLatchName != curLatchInfo->latchName) {
-        ecmdOutputError("putlatch - Found multiple latches that match name provided, please provide additional latch name - unable to perform putlatch\n");
+        if (found) {
+          if ((curLine[0] == '*') && curLine.find(ringPrefix) != std::string::npos) {
+            done = true; continue;
+          }
+          else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+            continue;
+            //nada
+          }
+          else if ((curLine[0] != '*') && curLine.find(latchName) != std::string::npos) {
+
+            ecmdParseTokens(curLine, curArgs);
+            curLatch.length = atoi(curArgs[0].c_str());
+            curLatch.ringOffset = atoi(curArgs[1].c_str());
+            curLatch.latchName = curArgs[3];
+          } else {
+            /* Not one we want */
+            continue;
+          }
+
+          /* Let's parse out the start/end bit if they exist */
+          leftParen = curLatch.latchName.find('(');
+          if (leftParen == std::string::npos) {
+            /* This latch doesn't have any parens */
+            curLatch.latchStartBit = curLatch.latchEndBit = 0;
+          } else {
+            temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
+            curLatch.latchStartBit = atoi(temp.c_str());
+
+            /* Is this a multibit or single bit */
+            if ((colon = temp.find(':')) != std::string::npos) {
+              curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
+            } else {
+              curLatch.latchEndBit = curLatch.latchStartBit;
+            }
+          }
+          curEntry.entry.push_back(curLatch);
+
+
+        }
+        else {
+          if ((curLine[0] == '*') && curLine.find(ringArg) != std::string::npos) {
+            found = true;
+          }
+        }
+
+      }
+
+      ins.close();
+
+      if (!found) {
+        ecmdOutputError(("putlatch - Could not find ring name " + ringName + "\n").c_str());
         return ECMD_INVALID_ARGS;
       }
-    }
+
+      if (curEntry.entry.empty()) {
+        ecmdOutputError(("putlatch - No registers found that matched " + latchName + "\n").c_str());
+        return ECMD_INVALID_ARGS;
+      }
+
+      curEntry.scandefname = scandefFile;
+      curEntry.entry.sort();
+
+      /* Let's push this entry onto the stack */
+      latchBuffer.push_back(curEntry);
+
+      /* Let's make sure the latches we found all have the same name */
+      /* We might also want to verify that we found consecutive bits for the latch */
+      std::string curLatchName;
+      for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
+        if (curLatchInfo == curEntry.entry.begin())
+          curLatchName = curLatchInfo->latchName;
+        else if (curLatchName.substr(0, curLatchName.find('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('(')) ) {
+          ecmdOutputError("putlatch - Found multiple latches that match name provided, please provide additional latch name - unable to perform putlatch\n");
+          return ECMD_INVALID_ARGS;
+        }
+      }
+    } /* End !found in latch buffer */
 
     buffer.copy(bufferCopy);
 
 
+    uint32_t bitsToInsert = numBits;
+    int curLatchBit = -1;               // This is the actual latch bit we are looking for next
+    int curStartBit = startBit;         // This is the offset into the current entry to start extraction
+    int curBitsToInsert = numBits;      // This is the total number of bits left to Insert
 
+#if 0
     int curstartbit = 0;
     int curoffset = 0;
     int totallen = 0, insertlen;
     bool foundit = false;
-    for (curLatchInfo = latchInfo.begin(); curLatchInfo != latchInfo.end(); curLatchInfo++) {
+#endif
+    for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
 
+
+      if (curLatchBit == -1)
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+
+/* This needs work */
+        /* Check if the bits are ordered from:to (0:10) or just (1) */
+        if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+            /* Check if the bits are ordered to:from (10:0) */
+            ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStartBit <= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchStartBit))) {
+
+          bitsToInsert = ((curLatchInfo->length - curStartBit) < curBitsToInsert) ? curLatchInfo->length - curStartBit : curBitsToInsert;
+
+
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+
+            ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curStartBit, bitsToInsert);
+            bufferCopy.shiftLeft(bitsToInsert);
+
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+          } else {
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+            for (int bit = 0; bit < bitsToInsert; bit ++) {
+              if (bufferCopy.isBitSet(bit)) 
+                ringBuffer.setBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
+              else
+                ringBuffer.clearBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
+            }
+
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+
+          }
+
+          curStartBit = 0;
+          curBitsToInsert -= bitsToInsert;
+        } else {
+          /* Nothing was there that we needed, let's try the next entry */
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+          curStartBit -= curLatchInfo->length;
+        }
+
+#if 0
       /* Let's look for the beginning of the range we are looking for */
-      if (!foundit && (startBit < curstartbit + curLatchInfo->length)) {
+      if (!foundit && (startBit < curLatchInfo->latchEndBit)) {
         curoffset = startBit - curstartbit;
         foundit = true;
         insertlen = curLatchInfo->length - curoffset;
@@ -1167,6 +1257,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
         /* We are done, let's get out of here */
         if (totallen >= numBits) break;
       }
+#endif
     }
 
     rc = putRing(target, ringName.c_str(), ringBuffer);
