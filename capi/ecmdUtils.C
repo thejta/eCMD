@@ -58,16 +58,6 @@ typedef enum {
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-/**
- * @brief Iterates over argv, removing null pointers and decrementing argc
- * @retval None
- * @param io_argc Pointer to number of elements in io_argv array
- * @param io_argv Array of strings passed in from command line
-
- - Utility function for ecmdParseOption and ecmdParseOptionWithArgs
- */
-void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
-
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -80,107 +70,6 @@ extern int ecmdClientDebug;
 //  User Types
 //----------------------------------------------------------------------
 
-
-void ecmdRemoveNullPointers (int *argc, char **argv[]) {
-  int counter=0;
-  int counter2=0;
-
-  for (counter=0;counter<(*argc+1);counter++) {
-    for (counter2=counter;counter2<*argc;counter2++) {
-      if ((*argv)[counter]==NULL) {
-        (*argv)[counter]=(*argv)[counter2];
-        (*argv)[counter2]=NULL;
-      }
-    }
-  }
-
-  for (counter=0;counter<(*argc);counter++) {
-    if ((*argv)[counter]==NULL) {
-      *argc=counter;
-      return;
-    }
-  }
-}
-
-
-bool ecmdParseOption (int *argc, char **argv[], const char *option) {
-  int counter = 0;
-  bool foundit = false;
-
-  for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strcmp((*argv)[counter],option)==0)) {
-      (*argv)[counter]=NULL;
-      foundit = true;
-      break;
-    }
-  }
-
-  ecmdRemoveNullPointers(argc, argv);
-  return foundit;
-}
-
-/* ----------------------------------------------------------------- */
-/* Function will parse for an option and eliminate it from a list    */
-/* while returning a pointer to the option that is used.             */
-/* If no option is available, the function will return NULL          */
-/* ----------------------------------------------------------------- */
-char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
-  int counter = 0;
-  int foundit = 0;
-  char *returnValue=NULL;
-
-  for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) { 
-
-      if (strlen((*argv)[counter])>strlen(option)) {
-        returnValue = &((*argv)[counter][strlen(option)]);
-        (*argv)[counter]=NULL;
-      } else {
-        if ((counter+1)<*argc) {
-          returnValue = (*argv)[counter+1];
-          (*argv)[counter]=NULL;
-          (*argv)[counter+1]=NULL;
-        } else {
-          returnValue = NULL;
-        }
-      }
-      /* We found it , let's stop looping , we don't want to pull other args out if they are here, this fixes BZ#6 */
-      break;
-      
-    }
-  }
-
-  ecmdRemoveNullPointers(argc, argv);
-
-  return returnValue;
-}
-
-void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens) {
-
-  tokens.clear();
-  bool done = false;
-  std::string curToken;
-  int curOffset = 0;
-  bool nonSpace = false;
-
-  for (int i = 0; i < line.length(); i++) {
-
-    if (isspace(line[i]) && nonSpace) {
-      tokens.push_back(line.substr(curOffset, i - curOffset));
-      nonSpace = false;
-    }
-    else if (!isspace(line[i]) && !nonSpace) {
-      nonSpace = true;
-      curOffset = i;
-    }
-
-  }
-
-  if (nonSpace) {
-    tokens.push_back(line.substr(curOffset, line.length()));
-  }
-
-}
 
 
 uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state) {
@@ -262,6 +151,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
   io_state.ecmdCurCage = io_state.ecmdSystemConfigData.cageData.begin();
   io_state.ecmdLooperInitFlag = true;
+  io_state.prevTarget = io_target;
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug > 1) {
@@ -295,6 +185,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     return 0;
   }
 
+  /* ******** NOTE : The iterators in io_state always point to the next instance to use */
+  /*           (the one that should be returned from this function ****************     */
+
+  /* Enter if : */
+  /* First time in config looper */
+  /* last cage != current cage */
   if (io_state.ecmdLooperInitFlag || io_target.cage != (*io_state.ecmdCurCage).cageId) {
 
     io_target.cage = (*io_state.ecmdCurCage).cageId;
@@ -313,6 +209,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     level = NODE;
   }
 
+  /* Enter if : */
+  /* Level == Node (the user is looping with nodes  */
+  /* !valid - current node iterator isn't valid */
+  /* last node != current node */
   if (level == NODE && (!valid || io_target.node != (*io_state.ecmdCurNode).nodeId)) {
 
     io_target.node = (*io_state.ecmdCurNode).nodeId;
@@ -331,6 +231,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     level = SLOT;
   }
 
+  /* Enter if : */
+  /* Level == Slot (the user is looping with Slots  */
+  /* !valid - current Slot iterator isn't valid */
+  /* last Slot != current Slot */
   if (level == SLOT && (!valid || io_target.slot != (*io_state.ecmdCurSlot).slotId)) {
 
     io_target.slot = (*io_state.ecmdCurSlot).slotId;
@@ -351,7 +255,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   }
 
 
-  if (level == CHIP && (!valid || io_target.chipType != (*io_state.ecmdCurChip).chipType || io_target.pos != (*io_state.ecmdCurChip).pos)) {
+  /* Enter if : */
+  /* Level == Chip (the user is looping with Chips  */
+  /* !valid - current Chip iterator isn't valid */
+  /* last ChipType != current ChipType */
+  /* last Chip pos != current Chip pos */
+  if (level == CHIP && (!valid || io_target.chipType != (*io_state.ecmdCurChip).chipType || io_target.pos != (*io_state.ecmdCurChip).pos )) {
 
     io_target.chipType = (*io_state.ecmdCurChip).chipType;
     io_target.pos = (*io_state.ecmdCurChip).pos;
@@ -371,6 +280,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     level = CORE;
   }
 
+  /* Enter if : */
+  /* Level == Core (the user is looping with Cores  */
+  /* !valid - current Core iterator isn't valid */
+  /* last Core != current Core */
   if (level == CORE && (!valid || io_target.core != (*io_state.ecmdCurCore).coreId)) {
 
     io_target.core = (*io_state.ecmdCurCore).coreId;
@@ -389,6 +302,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     level = THREAD;
   }
 
+  /* Enter if : */
+  /* Level == Thread (the user is looping with Threads  */
+  /* !valid - current Thread iterator isn't valid */
+  /* last Thread != current Thread */
   if (level == THREAD && (!valid || io_target.thread != (*io_state.ecmdCurThread).threadId)) {
 
     io_target.thread = (*io_state.ecmdCurThread).threadId;

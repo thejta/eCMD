@@ -3,7 +3,7 @@
 
 // Copyright **********************************************************
 //                                                                      
-// File ecmdDataBuffer.H                                               
+// File ecmdUtils.H                                               
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
@@ -49,42 +49,6 @@
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
-
-/* Functions in here are defined as extern C for the following reasons:
- 1)  Keeps Function names small by preventing C++ "mangling"
- 2)  Allows (C-based) perl interpreter to access these functions
-
-*/
-
-/** @name Command Line Parsing Functions */
-//@{
-
-/**
- * @brief Iterates over argv, looking for given option string, removes it if found
- * @retval 1 if option found, 0 otherwise
- * @param io_argc Pointer to number of elements in io_argv array
- * @param io_argv Array of strings passed in from command line
- * @param i_option Option to look for
- * @see ecmdParseOptionWithArgs
-
- */
-bool ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
-
-/**
- * @brief Iterates over argv, looking for given option string, removes it if found
- * @retval Value of option arg if found, NULL otherwise
- * @param io_argc Pointer to number of elements in io_argv array
- * @param io_argv Array of strings passed in from command line
- * @param i_option Option to look for
- * @see ecmdParseOptionWithArgs
-
- */
-char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
-
-
-void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens);
-
-//@}
 
 
 /**
