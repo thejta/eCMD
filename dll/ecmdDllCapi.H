@@ -133,6 +133,8 @@ void dllOutputWarning(const char* i_message);
 
 void dllOutput(const char* i_message); 
 
+int dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
+
 } //extern C
 
 #endif

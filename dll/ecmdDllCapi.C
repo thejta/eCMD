@@ -64,8 +64,11 @@ bool dllIsAllDecimal(std::string str);
 //----------------------------------------------------------------------
 #ifndef ECMD_STRIP_DEBUG
 /* @brief This is used to output Debug messages on the DLL side */
-int ecmdDllDebug = 0;
+int ecmdGlobal_DllDebug = 0;
 #endif
+/* @brief This is a global var set by -quiet */
+int ecmdGlobal_quiet = 0;
+
 
 /**
  * @brief Used for storing error messages internally to dll
@@ -108,7 +111,7 @@ int dllLoadDll (const char* i_clientVersion, int debugLevel) {
     exit(999);
   }
 
-  ecmdDllDebug = debugLevel;
+  ecmdGlobal_DllDebug = debugLevel;
 
   return dllInitDll();
 
@@ -528,6 +531,11 @@ int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdUserArgs.thread = "";
   }
 
+  /* Grab the quiet mode flag */
+  if (dllParseOption(io_argc, io_argv, "-quiet"))
+    ecmdGlobal_quiet = 1;
+
+
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
 
@@ -641,6 +649,22 @@ bool dllIsAllDecimal(std::string str) {
 
   return ret;
 }
+
+int dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
+
+  int ret = 0;
+
+  if (i_type == ECMD_GLOBALVAR_DEBUG) {
+#ifndef ECMD_STRIP_DEBUG
+    ret = ecmdGlobal_DllDebug;
+#endif
+  } else if (i_type == ECMD_GLOBALVAR_QUIETMODE) {
+    ret = ecmdGlobal_quiet;
+  }
+
+  return ret;
+}
+
 
 // Change Log *********************************************************
 //                                                                      

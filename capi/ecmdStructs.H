@@ -333,4 +333,13 @@ struct ecmdLooperData {
   bool ecmdLooperInitFlag;                              ///< Is fresh ?
 };
 
+
+/**
+ @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
+*/
+typedef enum {
+  ECMD_GLOBALVAR_DEBUG,         ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
+  ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
+} ecmdGlobalVarType_t;
+
 #endif

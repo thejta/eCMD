@@ -843,7 +843,19 @@ void ecmdOutput(const char* i_message);
 
 //@}
 
+/** @name Misc Functions */
+//@{
 
+/**
+ @brief Retrieve the value of some ecmdGlobalVars
+ @param i_type Specifies which global var you are looking for
+ @retval Value of global var
+ NOTE : This function does not affect ring caching
+*/
+int ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
+
+
+//@}
 
 }  //extern "C"
 
