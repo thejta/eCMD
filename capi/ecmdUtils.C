@@ -101,6 +101,7 @@ extern int ecmdClientDebug;
 uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state) {
 
   uint32_t rc = ECMD_SUCCESS;
+  ecmdChipTarget queryTarget;
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
@@ -144,7 +145,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     /* Standard physical targets */
   } else {
 
-    ecmdChipTarget queryTarget = io_target;
+    queryTarget = io_target;
 
 
     /* Setup the Query target */
