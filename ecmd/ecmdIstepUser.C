@@ -91,7 +91,7 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
         steps.flushTo1();
       }
 
-      int curOffset = 0;
+      uint32_t curOffset = 0;
       int nextOffset = 0;
       int tmpOffset = 0;
 
@@ -162,7 +162,7 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
 
     } else {
       /* Let's move the steps from the vector to a list (kindof annoying) */
-      for (int x = 0; x < tokens.size(); x ++) {
+      for (uint32_t x = 0; x < tokens.size(); x ++) {
         iSteps.push_back(tokens[x]);
       }
 
