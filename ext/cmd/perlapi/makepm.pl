@@ -72,8 +72,9 @@ foreach $fileLine (@fileLines) {
 close IN;
 close OUT;
 
-#functions to ignore in parsing <ext>ClientPerlapiFunc.H  generated above because they are hand generated in <ext>ClientPerlApi.C
-my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode );
+#functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
+my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode simFusionRand );
+
 my $ignore_re = join '|', @ignores;
 
 open IN, "${curdir}/$ARGV[0]ClientPerlapiFunc.H" or die "Could not find $ARGV[0]ClientPerlapiFunc.H: $!\n";

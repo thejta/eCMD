@@ -110,7 +110,7 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}.so ${TARGET}.pm
+all: dir ${TARGET}.so ${TARGET}.pm 
 	@touch t.o tecmd.so tecmd.pm t_wrap.c
 	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
 	@echo "Exporting eCMD PerlApi to export/ ..."
@@ -146,7 +146,7 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES} ${MAKEPM_OUT}
 	$(CC) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
 ${TARGET}.pm ecmdClientPerlapi_wrap.c: ${INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
@@ -158,7 +158,7 @@ ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
 # *****************************************************************************
 # Create the Perl Shared Library
 # *****************************************************************************
-${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o
+${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o  
 	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
 
 

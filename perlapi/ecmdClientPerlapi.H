@@ -64,16 +64,16 @@ namespace ECMDPERLAPI {
    do not affect your script.
 
    USAGE :
-   if (ecmdInitDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }
+   if (ecmdLoadDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }
 
    */
-  int ecmdInitDll(const char * i_dllName, const char * i_clientVersion);
+  int ecmdLoadDll(const char * i_dllName, const char * i_clientVersion);
 
 
   /**
    @brief Clean up the Perl Module - MUST BE CALLED JUST BEFORE SCRIPT EXIT
    */
-  void ecmdCleanup();
+  void ecmdUnloadDll();
 
   /**
    @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
@@ -181,7 +181,7 @@ namespace ECMDPERLAPI {
 
  # Initialize the Plugin - has to be first thing done
  # Here we pass in that we know this script supports eCMD Releases 1.x if we know we support more we could pass like "ver1,ver2"
- if (ecmdInitDll("", "ver1")) { die "Fatal errors initializing DLL"; }
+ if (ecmdLoadDll("", "ver1")) { die "Fatal errors initializing DLL"; }
 
 
  </pre>
@@ -196,7 +196,7 @@ extension example but all extensions work the same way just replace the prefix w
 <pre>
 
  # Initialize the Plugin - has to be first thing done 
- if (ecmdInitDll("", "ver1")) { die "Fatal errors initializing DLL"; }
+ if (ecmdLoadDll("", "ver1")) { die "Fatal errors initializing DLL"; }
 
  # Now initialize the extension as well - notice I use the $cp variable that points to my extension
  if (cipInitExtension("ver1")) { die "Fatal errors initializing CIP Extension"; }
@@ -357,8 +357,8 @@ Usage of a vector is identical to a list like above.
  The following should be observed when using the Perl API.
 
  <ol>
- <li> The ecmdInitDll() function should ALWAYS be the first function called.</li>
- <li> The ecmdCleanup() function should be called just before script exit</li>
+ <li> The ecmdLoadDll() function should ALWAYS be the first function called.</li>
+ <li> The ecmdUnloadDll() function should be called just before script exit</li>
  <li> Perl should be picked up as shown in the example below to grab the eCMD supported version</li>
  </ol>
 

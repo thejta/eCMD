@@ -29,6 +29,7 @@
 #include <ecmdReturnCodes.H>
 #include <ecmdUtils.H>
 #include <ecmdClientPerlapi.H>
+#include <ecmdClientPerlapiFunc.H>
 #include <ecmdSharedUtils.H>
 
 static int myErrorCode = ECMD_SUCCESS;
@@ -62,12 +63,12 @@ void ECMDPERLAPI::ecmdDisablePerlSafeMode() { safeMode = false; }
 void ECMDPERLAPI::ecmdEnablePerlSafeMode() { safeMode = true; }
 
 
-void ECMDPERLAPI::ecmdCleanup()  {
-  ecmdUnloadDll();
+void ECMDPERLAPI::ecmdUnloadDll()  {
+  ::ecmdUnloadDll();
 }
 
 
-int ECMDPERLAPI::ecmdInitDll (const char * i_dllName, const char * i_clientVersion) {
+int ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_clientVersion) {
 
   int rc = ECMD_SUCCESS;
   std::string dllName = "";
@@ -75,7 +76,7 @@ int ECMDPERLAPI::ecmdInitDll (const char * i_dllName, const char * i_clientVersi
     dllName = i_dllName;
   }
 
-  rc = ecmdLoadDll(dllName);
+  rc = ::ecmdLoadDll(dllName);
   ecmdPerlInterfaceErrorCheck(rc);
 
 
@@ -108,4 +109,14 @@ int ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
 
   ecmdPerlInterfaceErrorCheck(rc);
   return rc;
+}
+
+/* This is overwritten because the retval is a number not a return code */
+uint32_t ECMDPERLAPI::simFusionRand32(uint32_t i_min , uint32_t i_max , const char* i_fusionRandObject ) { 
+  return ::simFusionRand32(i_min, i_max, i_fusionRandObject);
+}
+
+/* This is overwritten because the retval is a number not a return code */
+uint64_t ECMDPERLAPI::simFusionRand64(uint64_t i_min , uint64_t i_max , const char* i_fusionRandObject ) { 
+  return ::simFusionRand64(i_min, i_max, i_fusionRandObject);
 }
