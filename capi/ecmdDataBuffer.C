@@ -787,6 +787,12 @@ void ecmdDataBuffer::applyInversionMask(uint32_t * i_invMask, int i_invByteLen) 
 
 void  ecmdDataBuffer::insert(ecmdDataBuffer &bufferIn, int start, int len) {
     this->insert(bufferIn.iv_Data, start, len);
+    /* Now apply the Xstate stuff */
+#ifndef REMOVE_SIM   
+    if (start+len <= iv_NumBits) {
+      strncpy(&(iv_DataStr[start]), (bufferIn.genXstateStr(0, len)).c_str(), len);
+    }
+#endif
 }
 
 void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
