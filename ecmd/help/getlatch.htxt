@@ -12,7 +12,8 @@ Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exa
                         
                         With the -exact option, eCMD searches for an exact match, and 
                         will return only the first latch that exactly matches (excluding
-                        any parentheses). 
+                        any parentheses). This option also enables searching the scandef
+                        with a hash file which greatly increases performance.
 
                         The -nocompress flag turns off concatenation of all latches of 
                         a register in the scandef and displays on seperate lines as 

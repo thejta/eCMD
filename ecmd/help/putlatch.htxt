@@ -1,6 +1,6 @@
 
 Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
-                            [-i<format>] [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
+                   [-exact] [-i<format>] [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -9,6 +9,11 @@ Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data
                         (not including parenthesis) will be used. If the register is 
                         broken into multiple lines, the register lengths are 
                         concatenated to form one complete register.
+
+                        With the -exact option, eCMD searches for an exact match, and 
+                        will alter only the first latch that exactly matches (excluding
+                        any parentheses). This option also enables searching the scandef
+                        with a hash file which greatly increases performance.
 
         Parmeters:
         --------------------------------------------------------------------------------
@@ -29,6 +34,9 @@ Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data
 
         Data            Data to be written to the register specified.  
                         Format specified by -i<format>
+
+        -exact    [opt] No pattern matching. Instead, search for exact latch name.
+
 
         -i<format>[opt] Specifies the format type of input data : default 'xl'
                         Run 'ecmdquery formats' to view available formats
