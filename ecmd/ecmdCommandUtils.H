@@ -66,6 +66,15 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
 
 int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
 
+
+/**
+ @brief Write help text file for command
+ @param i_command Command to lookup help text for
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if failure
+*/
+int ecmdPrintHelp(const char* i_command);
+
 #endif /* ecmdCommandUtils_h */
 
 // Change Log *********************************************************
