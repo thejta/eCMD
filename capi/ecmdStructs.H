@@ -25,6 +25,11 @@
 //  Forward References                                                
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+//  Defines                                                
+//--------------------------------------------------------------------
+
+#define ECMD_MAX_CHIP_TYPE_LENGTH 15
 
 // Change Log *********************************************************
 //                                                                      
@@ -40,7 +45,7 @@
 */
 typedef struct {
 
-  char * chipType;  // name of chip to access
+  char chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  // name of chip to access
 
   uint32_t cage;  // cage that contains node with chip
   uint32_t node;  // node that contains chip
