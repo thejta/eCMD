@@ -15,6 +15,17 @@
 #include <ecmdStructs.H>
 #include <ecmdDataBuffer.H>
 
+
+
+#if 0
+/* We are making sure they are compiling with the right compiler here */
+#if defined(__GNUC__) && !defined(FIPSODE)
+# if (__GNUC__ != 2) && (__GNUC_MINOR__ != 96)
+#  error "YOU MUST USE THE GCC 2.96 COMPILER AS THAT IS THE ONLY SUPPORTED COMPILER BY ECMD CURRENTLY FOR LINUX"
+# endif
+#endif
+#endif
+
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
@@ -1721,15 +1732,29 @@ uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
+
+ NOTE - lowest state that is valid is level that is deconfigured.
+   ex - if coreState is VALID the core selected is deconfigured
+   ex - if coreState is UNUSED and posState is VALID then the pos is deconfigured
+
+  This interface allows you to deconfigure all levels cages, nodes, slots, pos's, cores
+
 */
 uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
 
 /**
  @brief Configure a target in the system - must be previously known to the system
  @param i_target Target info to specify what to configure (target states must be set)
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system, or was not previously deconfigured
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
+
+ NOTE - lowest state that is valid is level that is configured.
+   ex - if coreState is VALID the core selected is configured
+   ex - if coreState is UNUSED and posState is VALID then the pos is configured
+
+  This interface allows you to configure all levels cages, nodes, slots, pos's, cores
+
 */
 uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
 
