@@ -177,6 +177,7 @@ int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, 
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
  @see putRing
+ NOTE : This function is ring cache enabled
 
 
 */
@@ -189,6 +190,7 @@ int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
  @see getRing
+ NOTE : This function is ring cache enabled
 
 
 */
@@ -241,6 +243,7 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
  @param i_spyName Name of spy to read from
  @param o_data DataBuffer object that holds data read from spy
+ NOTE : This function is ring cache enabled
 
 */
 int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
@@ -251,6 +254,7 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
  @param i_spyName Name of spy to read from
  @param o_enumValue Enum value read from the spy
+ NOTE : This function is ring cache enabled
 
 */
 int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string o_enumValue);
@@ -261,6 +265,7 @@ int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string o
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
  @param i_spyName Name of spy to write to
  @param i_data DataBuffer object that holds data to write into spy
+ NOTE : This function is ring cache enabled
 
 */
 int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
@@ -271,12 +276,38 @@ int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
  @param i_spyName Name of spy to write to
  @param i_enumValue String enum value to load into the spy
-
+ NOTE : This function is ring cache enabled
 */
 int putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
 
 //@}
 
+
+
+/** @name Ring Cache Functions */
+//@{
+
+/**
+ @brief Enables internal caching of read/writes of scan rings to the chip for functions like getring/getspy/getspr
+ - Functions that support caching are documented in the detailed description of the function
+ - Any non-cache enabled function will force a flush of the cache before performing the operation
+*/
+void ecmdEnableRingCache();
+
+/**
+ @brief Disable internal caching of reads/writes of scan rings
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ NOTE: A Flush is performed before disabling the cache
+*/
+int  ecmdDisableRingCache();
+
+/**
+ @brief Flush all modified data from the internal cache to the hardware
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+*/
+int  ecmdFlushRingCache();
+
+//@}
 
 
 
