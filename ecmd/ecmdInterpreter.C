@@ -205,6 +205,8 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimSUBCMDUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simsymbol")) {
           rc = ecmdSimsymbolUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simtckinterval")) {
+          rc = ecmdSimTckIntervalUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simUNSTICK")) {
           rc = ecmdSimUNSTICKUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simUNSTICKS")) {

@@ -109,6 +109,7 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]);
 int ecmdSimstktcfacUser(int argc, char * argv[]);
 int ecmdSimSUBCMDUser(int argc, char * argv[]);
 int ecmdSimsymbolUser(int argc, char * argv[]);
+int ecmdSimTckIntervalUser(int argc, char * argv[]);
 int ecmdSimUNSTICKUser(int argc, char * argv[]);
 int ecmdSimUNSTICKSUser(int argc, char * argv[]);
 int ecmdSimunsticktcfacUser(int argc, char * argv[]);
