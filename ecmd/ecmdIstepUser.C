@@ -214,7 +214,7 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
   else {
-   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
@@ -237,7 +237,9 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  
+
+  ecmdOutput("Starting Clocks on Targets ...\n");
+
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = startClocks(target, clockDomain, force);
@@ -279,7 +281,7 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
     }
 
 
-    printed = ecmdWriteTarget(target) + "  ";
+    printed = ecmdWriteTarget(target) + "\n";
     ecmdOutput( printed.c_str() ); 
   }
 
@@ -328,7 +330,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
   else {
-   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
@@ -351,7 +353,8 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  
+  ecmdOutput("Stopping Clocks on Targets ...\n");
+
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = stopClocks(target, clockDomain, force);
@@ -393,7 +396,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
     }
 
 
-    printed = ecmdWriteTarget(target) + "  ";
+    printed = ecmdWriteTarget(target) + "\n";
     ecmdOutput( printed.c_str() ); 
   }
 
