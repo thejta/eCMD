@@ -111,7 +111,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   // we need the instruction and modifier
 
   if (strlen(argv[1]) > 2) {
-    ecmdOutputError("sendcmd - The instruction has two be <= 8 bits\n");
+    ecmdOutputError("sendcmd - The instruction has to be <= 8 bits\n");
     return ECMD_INVALID_ARGS;
   } else if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("sendcmd - Instruction data contained some non-hex characters\n");
@@ -120,7 +120,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   ecmdGenB32FromHexRight(&instruction, argv[1], 32);
 
   if (strlen(argv[2]) > 6) {
-    ecmdOutputError("sendcmd - The modifier has two be <= 24 bits\n");
+    ecmdOutputError("sendcmd - The modifier has to be <= 24 bits\n");
     return ECMD_INVALID_ARGS;
   } else if (!ecmdIsAllHex(argv[2])) {
     ecmdOutputError("sendcmd - Modifier data contained some non-hex characters\n");
