@@ -43,7 +43,7 @@ extern "C" {
        - Name limit of 255 characters.
        - Errors in loading are printed to STDERR.
 */
-int ecmdLoadDll(string dllName);
+int ecmdLoadDll(std::string dllName);
 
 /**
  @brief Unload the eCMD DLL
@@ -105,7 +105,7 @@ int ecmdCommandArgs(int argc, char* argv[]);
    cage = 3, node = 0, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid>
 */
    
-int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData);
+int ecmdQueryConfig(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData);
 
 /**
  @brief Query Ring information from the DLL
@@ -115,7 +115,7 @@ int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQueryRing(ecmdChipTarget & target, vector<ecmdRingData> & queryData, const char * ringName = NULL);
+int ecmdQueryRing(ecmdChipTarget & target, std::vector<ecmdRingData> & queryData, const char * ringName = NULL);
 
 /**
  @brief Query Array information from the DLL
@@ -125,7 +125,7 @@ int ecmdQueryRing(ecmdChipTarget & target, vector<ecmdRingData> & queryData, con
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQueryArray(ecmdChipTarget & target, vector<ecmdArrayData> & queryData, const char * arrayName);
+int ecmdQueryArray(ecmdChipTarget & target, std::vector<ecmdArrayData> & queryData, const char * arrayName);
 
 /**
  @brief Query Spy information from the DLL
@@ -135,7 +135,7 @@ int ecmdQueryArray(ecmdChipTarget & target, vector<ecmdArrayData> & queryData, c
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQuerySpy(ecmdChipTarget & target, vector<ecmdSpyData> & queryData, const char * spyName);
+int ecmdQuerySpy(ecmdChipTarget & target, std::vector<ecmdSpyData> & queryData, const char * spyName);
 
 /**
  @brief Query the location of a specific file type for the selected target
@@ -144,7 +144,7 @@ int ecmdQuerySpy(ecmdChipTarget & target, vector<ecmdSpyData> & queryData, const
  @param fileLocation Return string with full path and filename to location 
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
 */
-int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, string fileLocation);
+int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string fileLocation);
 
 
 /**
@@ -274,7 +274,7 @@ int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
  @see putAlias
 
 */
-int getSpyEnum (ecmdChipTarget & target, const char * spyName, string enumValue);
+int getSpyEnum (ecmdChipTarget & target, const char * spyName, std::string enumValue);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
@@ -298,7 +298,7 @@ int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
 
 
 */
-int putSpyEnum (ecmdChipTarget & target, const char * spyName, const string enumValue);
+int putSpyEnum (ecmdChipTarget & target, const char * spyName, const std::string enumValue);
 
 //@}
 
@@ -377,7 +377,7 @@ int iplSys ();
  @param errorCode Error code to lookup up message for
  @retval point to NULL terminated string containing error data, NULL if error occurs
 */
-string ecmdGetErrorMsg(int errorCode);
+std::string ecmdGetErrorMsg(int errorCode);
 
 /**
  @brief Register an Error Message that has occured

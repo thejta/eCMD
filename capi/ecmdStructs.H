@@ -52,21 +52,21 @@
 */
 struct ecmdChipTarget {
 
-  string chipType;///< name of chip to access
+  std::string chipType;         ///< name of chip to access
 
-  uint32_t cage;  ///< cage that contains node with chip
-  uint32_t node;  ///< node that contains chip
-  uint32_t pos;   ///< position of chip within node
-  uint32_t core;  ///< which core on chip to access, if chip is multi-core
-  uint32_t thread; ///< which thread on chip to access, if chip is multi-threaded
+  uint32_t cage;                ///< cage that contains node with chip
+  uint32_t node;                ///< node that contains chip
+  uint32_t pos;                 ///< position of chip within node
+  uint32_t core;                ///< which core on chip to access, if chip is multi-core
+  uint32_t thread;              ///< which thread on chip to access, if chip is multi-threaded
 
-  uint8_t chipTypeValid; ///< chipType field is valid
-  uint8_t cageValid;  ///< cage field is valid
-  uint8_t nodeValid;  ///< cage field is valid
-  uint8_t posValid;   ///< cage field is valid
-  uint8_t coreValid;  ///< cage field is valid
-  uint8_t threadValid; ///< cage field is valid
-  uint8_t ValidChecked;  ///< valid bits are valid 
+  uint8_t chipTypeValid;        ///< chipType field is valid
+  uint8_t cageValid;            ///< cage field is valid
+  uint8_t nodeValid;            ///< cage field is valid
+  uint8_t posValid;             ///< cage field is valid
+  uint8_t coreValid;            ///< cage field is valid
+  uint8_t threadValid;          ///< cage field is valid
+  uint8_t ValidChecked;         ///< valid bits are valid 
 };
 
 
@@ -75,45 +75,45 @@ struct ecmdChipTarget {
  @brief Used in ecmdChipData to describe the interface macro used by the chip
 */
 typedef enum {
-  ECMD_INTERFACE_ACCESS,        ///< Standard Jtag Rochester Access Macro
-  ECMD_INTERFACE_CFAM           ///< CommonFirmwareAccessMacro - Fsi interface
+  ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Rochester Access Macro
+  ECMD_INTERFACE_CFAM                   ///< CommonFirmwareAccessMacro - Fsi interface
 } ecmdChipInterfaceType_t;
 
 /**
  @brief Used for the ecmdQueryConfig function to return core data
 */
 struct ecmdCoreData {
-  uint32_t coreId;              ///< core number of this entry
-  uint8_t  numProcThreads;      ///< Number of threads per core this entry supports - only valid for Processors
+  uint32_t coreId;                      ///< core number of this entry
+  uint8_t  numProcThreads;              ///< Number of threads per core this entry supports - only valid for Processors
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return chip data
 */
 struct ecmdChipData {
-  string   chipType;            ///< name of chip
-  uint32_t pos;                 ///< Position of this entry
-  uint8_t  numProcCores;        ///< Number of cores this entry supports - only valid for Processor compute cores
-  uint32_t chipEc;              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id)
-  ecmdChipInterfaceType_t interfaceType; ///< Interface Macro used by the chip
-  uint32_t chipFlags;           ///< Various additional info about the chip - bitmask of defines
-  vector<ecmdCoreData> coreData;///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+  std::string   chipType;                       ///< name of chip
+  uint32_t pos;                                 ///< Position of this entry
+  uint8_t  numProcCores;                        ///< Number of cores this entry supports - only valid for Processor compute cores
+  uint32_t chipEc;                              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id)
+  ecmdChipInterfaceType_t interfaceType;        ///< Interface Macro used by the chip
+  uint32_t chipFlags;                           ///< Various additional info about the chip - bitmask of defines
+  std::vector<ecmdCoreData> coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return node data
 */
 struct ecmdNodeData {
-  uint32_t nodeId;                ///< Node number of this entry
-  vector<ecmdChipData> chipData;  ///< Vector of all chips requested in this node - in numerical order per chip by pos
+  uint32_t nodeId;                      ///< Node number of this entry
+  std::vector<ecmdChipData> chipData;   ///< Vector of all chips requested in this node - in numerical order per chip by pos
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return cage data
 */
 struct ecmdCageData {
-  uint32_t cageId;                ///< Cage number of this entry
-  vector<ecmdNodeData> nodeData;  ///< Vector of all nodes requested in this cage - in numerical order by nodeId
+  uint32_t cageId;                      ///< Cage number of this entry
+  std::vector<ecmdNodeData> nodeData;   ///< Vector of all nodes requested in this cage - in numerical order by nodeId
 };
 
 
@@ -121,16 +121,16 @@ struct ecmdCageData {
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
-  vector<string> ringNames;      ///< Names used to reference this ring
-  uint32_t address;              ///< Address modifier
-  int bitLength;                 ///< length of ring
+  std::vector<std::string> ringNames;   ///< Names used to reference this ring
+  uint32_t address;                     ///< Address modifier
+  int bitLength;                        ///< length of ring
 };
 
 /**
  @brief Used for the ecmdQueryArray function to return array info
 */
 struct ecmdArrayData {
-  string arrayName;      ///< Names used to reference this ring
+  std::string arrayName; ///< Names used to reference this ring
   int length;            ///< length of array
   int width;             ///< width of array
 };
@@ -150,11 +150,11 @@ typedef enum {
  @brief Used for the ecmdQuerySpy function to return spy info
 */
 struct ecmdSpyData {
-  string spyName;        ///< Names used to reference this ring
-  int bitLength;         ///< length of spy
-  ecmdSpyType_t spyType; ///< Type of spy - do we need this ?
+  std::string spyName;                  ///< Names used to reference this ring
+  int bitLength;                        ///< length of spy
+  ecmdSpyType_t spyType;                ///< Type of spy - do we need this ?
   
-  vector<string> enums;  ///< Possible enum values for Spy - can GFW provide this?
+  std::vector<std::string> enums;       ///< Possible enum values for Spy - can GFW provide this?
 };
 
 

@@ -68,7 +68,7 @@ extern void * dlHandle;
 
 
 
-int ecmdLoadDll(string dllName) {
+int ecmdLoadDll(std::string dllName) {
 
 
   const char* dlError;
