@@ -133,11 +133,11 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
 
     printed = ecmdWriteTarget(target) + "\n";
     
-    if( (validOutput == ECMD_CONFIG_VALID_FIELD_ALPHA) || (validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH)) {
+    if( validOutput == ECMD_CONFIG_VALID_FIELD_ALPHA) {
      printed += configName + " = " + valueAlpha + "\n";
      ecmdOutput(printed.c_str());
     }
-    else if( validOutput == ECMD_CONFIG_VALID_FIELD_NUMERIC) {
+    else if(( validOutput == ECMD_CONFIG_VALID_FIELD_NUMERIC) || (validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH)) {
      numData.setWord(0, valueNumeric);
      printed += configName + " = ";
      printed += ecmdWriteDataFormatted(numData, format);
