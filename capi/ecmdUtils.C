@@ -31,8 +31,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include <ecmdUtils.H>
+#include <ecmdSharedUtils.H>
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
 //----------------------------------------------------------------------
@@ -54,6 +56,10 @@ typedef enum {
   ECMD_FORMAT_BXN,
   ECMD_FORMAT_BXW
 } ecmdFormatState_t;
+
+
+
+
 
 //--------------------------------------------------------------------
 // Macros
@@ -887,3 +893,485 @@ uint32_t ecmdDisplayDllInfo() {
   return rc;
 
 }
+
+
+
+/**********************************************************************************/
+/**********************************************************************************/
+/*                                                                                */
+/* efppInOut = an enum that tells me if we are working in a before or after mode  */
+/*             FUNCTIONIN is intended to be the first thing done at the top of a  */
+/*                        function.                                               */
+/*             FUNCTIONOUT is the last thing done.                                */
+/*                                                                                */
+/* fprototypeStr = a cut and paste string of the actual function prototype        */
+/*                                                                                */
+/* other parameters must be handled on a case by case basis based on the parsed   */
+/*                  value within fprototypeStr.                                   */
+/*                                                                                */
+/*                                                                                */
+/**********************************************************************************/
+/* if you can think of a better way to detect and handle parameter types let me   */
+/* know.  I think this method allows us to handle structures in a convinient way. */
+/*                                                                                */
+/* FLEXIBILITY and EXPANDABILITY                                                  */
+/*                                                                                */
+/**********************************************************************************/
+/**********************************************************************************/
+void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
+/* declare variables */
+  int commaCount, looper, parmCount, looper2;
+  std::vector<std::string> tokens;
+  std::vector<std::string> parmTokens;
+  std::vector<std::string> parmEntryTokens;
+
+  char variableType[100]; /* this will be something like "char*" or "BIT32" */
+  std::vector<std::string> variableName; /* this will be something like "fprototypeStr" no * or & in this */
+  std::string printed;
+
+  int mysize;
+  char *tempStr;
+  char tempIntStr[80];
+
+  va_list ap;
+
+
+/* validate the type of call we are doing, return if invalid */
+  if(inOut == FUNCTIONIN) {
+    printed = "\n";
+    printed += "ECMD DEBUG (ecmdFPP) : *******  Tracing of Parameters from function call LEADING INTO function.  *******\n";
+  } else if (inOut == FUNCTIONOUT) {
+    printed += "\n";
+    printed += "ECMD DEBUG (ecmdFPP) : *******  Tracing of Parameters from function call EXITING FROM function.   *******\n";
+  } else {
+    printed += "ECMD DEBUG (ecmdFPP) : ERROR::ecmdFunctionParmPrinter  Invalid Enum type on function call.\n";
+    return;
+  }
+  ecmdOutput(printed.c_str());
+
+
+/* print the original function prototype */
+  printed = "ECMD DEBUG (ecmdFPP) : Function prototype: ";
+  printed += fprototypeStr;
+  printed += "\n";
+  ecmdOutput(printed.c_str());
+
+
+/* parse the parameters */
+  ecmdParseTokens(fprototypeStr, "()", tokens); /* this chops off the leading junk */
+/* example: */
+/* tokens[0] = "void ecmdFunctionParmPrinter"             */
+/* tokens[1] = "enum efppInOut, char *fprototypeStr, ..." */
+/* tokens[2] = " {"                                       */
+/* tokens.size() = 3                                      */
+
+  ecmdParseTokens(tokens[1].c_str(), ",", parmTokens); /* this tokenizes the meat and potatoes */
+
+/* example: */
+/* parmTokens[0] = "enum efppInOut"       */
+/* parmTokens[1] = " char *fprototypeStr" */
+/* parmTokens[2] = " ..."                 */
+/* parmTokens.size90 = 3                    */
+
+/* remember the leading and trailing spaces, they could mess up a compare */
+
+/* we need to handle each one on it's own, and make sure the types match the string provided */
+  va_start(ap, fprototypeStr);
+//  tempStr = va_arg(ap, char*); /* pop it off the list */
+
+  for(looper =0; looper < parmTokens.size(); looper++) {
+    ecmdParseTokens(parmTokens[looper].c_str(), " ", parmEntryTokens);
+    /* example: */
+    /* parmEntryTokens[0] = "enum"      */
+    /* parmEntryTokens[1] = "efppInOut" */
+    /* parmEntryTokens.size() = 2       */
+
+    /* rules of engagement: */
+     /* must have at least 2 entries, */
+    /* last entry is variable name */
+    /* last entry could have leading * or & character so strip it and cat it on to the previous string for consistancy */
+
+    mysize = parmEntryTokens.size();
+
+    if(mysize < 2) {
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += "ERROR::ecmdFunctionParmPrinter  We have an invalid parameter for parm entry # ";
+      sprintf(tempIntStr,"%d",looper);
+      printed += tempIntStr;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+      continue;
+    }
+
+    strcpy(variableType,"");
+/*    variableName[0] = "";*/
+
+    for(looper2=0; looper2 < (mysize -1); looper2++) {
+      /* used -1 because we don't want the variable name yet */
+      strcat(variableType,parmEntryTokens[looper2].c_str());
+    }
+
+    if(parmEntryTokens[mysize-1].c_str()[0] == '*') {
+      strcat(variableType,"*");
+      /* handle the "char **name" oddities too */
+      if(parmEntryTokens[mysize-1].c_str()[1] == '*') strcat(variableType,"*");
+    } else if(parmEntryTokens[mysize-1].c_str()[0] == '&') {
+      strcat(variableType,"&");
+    }
+
+    ecmdParseTokens(parmEntryTokens[mysize-1].c_str(), "*&", variableName);
+    
+/****************************************/
+/* at this point variableType is somehting like : "enum" or "char*" or "const char*" */
+/* variableName[0] is the variable name */
+
+/* we need to strcasecmp on variableType and then declare an object of that type. it will go away */
+/* when it falls out of scope */
+
+    if((variableType         == NULL) ||
+       (strlen(variableType) == 0   )   ){
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += "ERROR::ecmdFunctionParmPrinter  variableType parsing messed up big time for parm number ";
+      sprintf(tempIntStr,"%d",looper);
+      printed += tempIntStr;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+      continue;
+    }
+
+/* char */
+
+    if(!strcasecmp(variableType,"char")) {
+
+      char dummy;
+      dummy = (char) va_arg(ap, int); /* this was the example shown for char entries */
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      sprintf(tempIntStr,"%c",dummy);
+      printed += tempIntStr;
+/*      printed += dummy;*/
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+    } else if((!strcasecmp(variableType,"const char *")) ||
+              (!strcasecmp(variableType,"const char*"))    ){
+/* const char * */
+
+      const char * dummy;
+      dummy = va_arg(ap, const char *);
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      printed += dummy;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+    } else if((!strcasecmp(variableType,"std::string"))       ||
+              (!strcasecmp(variableType,"const std::string")) ||
+              (!strcasecmp(variableType,"std::string&"))      ||
+              (!strcasecmp(variableType,"std::string &"))       ){
+/* std::string */
+
+      std::string dummy;
+      dummy = va_arg(ap, std::string);
+
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      printed += dummy;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+    } else if((!strcasecmp(variableType,"std::list<ecmdRingData> &"))   ||
+              (!strcasecmp(variableType,"std::list<ecmdArrayEntry> &")) ||
+              (!strcasecmp(variableType,"std::list<ecmdNameEntry> &"))  ||
+              (!strcasecmp(variableType,"std::list<ecmdIndexEntry> &"))  ||
+              (!strcasecmp(variableType,"std::list <ecmdNameVectorEntry> &"))  ||
+              (!strcasecmp(variableType,"std::list<ecmdLatchEntry> &"))   ){
+/* std::list<something> & */
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      printed += "placeholder for std::list dump\n";
+      ecmdOutput(printed.c_str());
+
+    } else if(!strcasecmp(variableType,"std::vector <ecmdDataBuffer> &")) {
+/* std::vector <ecmdDataBuffer> & */
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      printed += "placeholder for std::vector dump\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = placeholder for std::vector dump\n",variableType,variableName[0].c_str());*/
+
+    } else if(!strcasecmp(variableType,"uint32_t")) {
+/* uint32_t */
+      uint32_t dummy;
+      dummy = va_arg(ap, uint32_t);
+
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " : ";
+      sprintf(tempIntStr,"d=%d 0x%.08X",dummy,dummy);
+      printed += tempIntStr;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = 0x%8X\n",variableType,variableName[0].c_str(),dummy);*/
+
+    } else if(!strcasecmp(variableType,"uint64_t")) {
+/* uint64_t */
+      uint64_t dummy;
+      dummy = va_arg(ap, uint64_t);
+
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " : ";
+      sprintf(tempIntStr,"d=%d 0x%.016X",dummy,dummy);
+      printed += tempIntStr;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = 0x%16X\n",variableType,variableName[0].c_str(),dummy);*/
+
+
+
+    } else if((!strcasecmp(variableType,"ecmdDllType_t"))           ||
+              (!strcasecmp(variableType,"ecmdDllProduct_t"))        ||
+              (!strcasecmp(variableType,"ecmdDllEnv_t"))            ||
+              (!strcasecmp(variableType,"ecmdChipTargetState_t"))   ||
+              (!strcasecmp(variableType,"ecmdChipInterfaceType_t")) ||
+              (!strcasecmp(variableType,"ecmdQueryDetail_t"))       ||
+              (!strcasecmp(variableType,"ecmdClockState_t"))        ||
+              (!strcasecmp(variableType,"ecmdSpyType_t"))           ||
+              (!strcasecmp(variableType,"ecmdFileType_t"))          ||
+              (!strcasecmp(variableType,"ecmdConfigLoopType_t"))    ||
+              (!strcasecmp(variableType,"ecmdGlobalVarType_t"))     ||
+              (!strcasecmp(variableType,"ecmdTraceType_t"))         ||
+              (!strcasecmp(variableType,"ecmdLatchMode_t"))         ||
+              (!strcasecmp(variableType,"efppInOut_t"))               ){
+/* enums */
+      int dummy;
+      dummy = va_arg(ap, int);
+
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      sprintf(tempIntStr,"%d",dummy);
+      printed += tempIntStr;
+
+/*      printed += dummy;*/
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+      
+    } else if(!strcasecmp(variableType,"int *")) {
+/* int * */
+      int *dummy;
+      dummy = va_arg(ap, int*);
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      sprintf(tempIntStr,"%d",dummy);
+      printed += tempIntStr;
+
+/*      printed += *dummy;*/
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = %d\n",variableType,variableName[0].c_str(),dummy);*/
+    } else if(!strcasecmp(variableType,"bool")) {
+/* bool */
+      bool dummy;
+      dummy = va_arg(ap, bool);
+
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+
+      if(dummy) {
+        printed += "TRUE";
+
+      } else {
+        printed += "FALSE";
+      }
+
+/*      sprintf(tempIntStr,"%d",dummy);   */
+/*      printed += tempIntStr;            */
+
+/*      printed += dummy;*/
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = %d\n",variableType,variableName[0].c_str(),dummy);*/
+
+
+    } else if(!strcasecmp(variableType,"char**")) {
+/* char** */
+      char** dummy;
+      dummy = va_arg(ap, char**);
+
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += variableType;
+      printed += " ";
+      printed += variableName[0].c_str();
+      printed += " = ";
+      printed += *dummy;
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = %s\n",variableType,variableName[0].c_str(),dummy);*/
+
+    } else if((!strcasecmp(variableType,"ecmdChipTarget &")) ||
+              (!strcasecmp(variableType,"ecmdGroupData &"))  ||
+              (!strcasecmp(variableType,"ecmdArrayData &"))  ||
+              (!strcasecmp(variableType,"ecmdArrayEntry &"))  ||
+              (!strcasecmp(variableType,"ecmdNameEntry &"))  ||
+              (!strcasecmp(variableType,"ecmdIndexEntry &"))  ||
+              (!strcasecmp(variableType,"ecmdLatchEntry &"))  ||
+              (!strcasecmp(variableType,"ecmdSpyData &"))  ||
+              (!strcasecmp(variableType,"ecmdDataBuffer &"))  ||
+              (!strcasecmp(variableType,"ecmdProcRegisterInfo &"))  ||
+              (!strcasecmp(variableType,"ecmdLooperData &"))  ||
+              (!strcasecmp(variableType,"ecmdThreadData &"))  ||
+              (!strcasecmp(variableType,"ecmdCoreData &"))  ||
+              (!strcasecmp(variableType,"ecmdSlotData &"))  ||
+              (!strcasecmp(variableType,"ecmdNodeData &"))  ||
+              (!strcasecmp(variableType,"ecmdCageData &"))  ||
+              (!strcasecmp(variableType,"ecmdRingData &"))  ||
+              (!strcasecmp(variableType,"ecmdCageData &"))  ||
+              (!strcasecmp(variableType,"ecmdQueryData &"))    ) {
+/* default structures not coded yet */
+      printed = "ECMD DEBUG (ecmdFPP) : type = ";
+      printed += variableType;
+      printed += "\n";
+      printed += "ECMD DEBUG (ecmdFPP) : variable name = ";
+      printed += variableName[0].c_str();
+      printed += "\n";
+      printed += "ECMD DEBUG (ecmdFPP) : value = ";
+      printed += "placeholder for structure dump\n";
+      ecmdOutput(printed.c_str());
+
+/*      printf("%s %s = placeholder for structure dump.\n",variableType,variableName[0].c_str());*/
+
+    } else if((!strcasecmp(variableType,"ecmdDllInfo &")) ||
+              (!strcasecmp(variableType,"ecmdDllInfo&"))    ) {
+
+/***
+struct ecmdDllInfo {
+  ecmdDllType_t         dllType;        ///< Dll instance type running
+  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
+  std::string           dllBuildDate;   ///< Date the Dll was built
+  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
+  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
+};
+***/
+
+/*      void *dum2;*/
+
+      ecmdDllInfo dummy;
+
+      dummy = va_arg(ap, ecmdDllInfo);
+
+      printed = "ECMD DEBUG (ecmdFPP) : type : ";
+      printed += variableType;
+      printed += "\n";
+      printed += "ECMD DEBUG (ecmdFPP) : variable name : ";
+      printed += variableName[0].c_str();
+      printed += "\n";
+      printed += "ECMD DEBUG (ecmdFPP) : ***************************************\n";
+      printed += "ECMD DEBUG (ecmdFPP) : value : ecmdDllType_t         dllType = ";
+
+      if (dummy.dllType == ECMD_DLL_STUB)
+        printed += "Stub\n";
+      else if (dummy.dllType == ECMD_DLL_STUB)
+        printed += "Stub\n";
+      else if (dummy.dllType == ECMD_DLL_CRONUS)
+        printed += "Cronus\n";
+      else if (dummy.dllType == ECMD_DLL_IPSERIES)
+        printed += "IP-Series\n";
+      else if (dummy.dllType == ECMD_DLL_ZSERIES)
+        printed += "Z-Series\n";
+      else if (dummy.dllType == ECMD_DLL_SCAND)
+        printed += "ScanD\n";
+      else 
+        printed += "Unknown\n";
+
+      ecmdOutput(printed.c_str());
+
+
+      printed = "ECMD DEBUG (ecmdFPP) : value : ecmdDllProduct_t      dllProduct = ";
+
+      if (dummy.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
+        printed += "Eclipz\n";
+      else
+        printed += "Unknown\n";
+      ecmdOutput(printed.c_str());
+
+
+      printed = "ECMD DEBUG (ecmdFPP) : value : ecmdDllEnv_t          dllEnv = ";
+      if (dummy.dllEnv == ECMD_DLL_ENV_HW)
+        printed += "Hardware\n";
+      else
+        printed += "Simulation\n";
+      ecmdOutput(printed.c_str());
+
+      printed = "ECMD DEBUG (ecmdFPP) : value : std::string           dllBuildDate = ";
+      printed += dummy.dllBuildDate.c_str();
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+      printed = "ECMD DEBUG (ecmdFPP) : value : std::string           dllCapiVersion = ";
+      printed += dummy.dllCapiVersion.c_str();
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+      printed = "ECMD DEBUG (ecmdFPP) : value : std::string           dllBuildInfo = ";
+      printed += dummy.dllBuildInfo.c_str();
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+      printed = "ECMD DEBUG (ecmdFPP) : ***************************************\n";
+      ecmdOutput(printed.c_str());
+
+    } else {
+      printed = "ECMD DEBUG (ecmdFPP) : ";
+      printed += "WARNING::ecmdFunctionParmPrinter  Unknown variableType = ";
+      printed += variableType;
+      printed += " \n";
+      ecmdOutput(printed.c_str());
+    }    
+
+
+  }
+
+  va_end(ap);
+}
+
+
+
+
+

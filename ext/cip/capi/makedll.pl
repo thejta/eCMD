@@ -35,6 +35,7 @@ print OUT "#include <inttypes.h>\n";
 print OUT "#include <vector>\n";
 print OUT "#include <string>\n";
 print OUT "#include <ecmdStructs.H>\n";
+print OUT "#include <ecmdUtils.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 if ($ARGV[0] ne "ecmd") {
@@ -120,13 +121,49 @@ while (<IN>) {
 
 
         #Put the debug stuff here
-        if (!($orgfuncname =~ /ecmdOutput/)) {
-          $printout .= "#ifndef ECMD_STRIP_DEBUG\n";
-          $printout .= "  if (ecmdClientDebug > 1) {\n";
-          $printout .= "    std::string printed = \"ECMD DEBUG ($orgfuncname) : Entering\\n\"; ecmdOutput(printed.c_str());\n";
-          $printout .= "  }\n";
-          $printout .= "#endif\n\n";
-        }
+	if (!($orgfuncname =~ /ecmdOutput/)) {
+	    $printout .= "#ifndef ECMD_STRIP_DEBUG\n";
+	    $printout .= "  if (ecmdClientDebug > 1) {\n";
+	    $printout .= "    std::string printed = \"ECMD DEBUG ($orgfuncname) : Entering\\n\"; ecmdOutput(printed.c_str());\n";
+	    $printout .= "  }\n";
+
+	    # new debug10 parm tracing stuff
+	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
+		if($#argnames >=0) {
+		    $printout .= "  if (ecmdClientDebug == 10) {\n";
+
+		    $printout .= "    ecmdFunctionParmPrinter(FUNCTIONIN,\"$type $orgfuncname(@argnames)\"";
+
+		    #
+		    my $pp_argstring;
+		    my $pp_typestring;
+		    foreach my $curarg (@argnames) {
+
+			my @pp_argsplit = split /\s+/, $curarg;
+
+			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
+			$tmptypestring = "@typeargs";
+
+			my $tmparg = $pp_argsplit[-1];
+			if ($tmparg =~ /\[\]$/) {
+			    chop $tmparg; chop $tmparg;
+			    $tmptypestring .= "[]";
+			}
+
+			$pp_typestring .= $tmptypestring . ", ";
+			$pp_argstring .= $tmparg . ", ";
+		    }
+
+		    chop ($pp_typestring, $pp_argstring);
+		    chop ($pp_typestring, $pp_argstring);
+
+		    $printout .= "," . $pp_argstring . ");\n\n";
+		    #	    
+		    $printout .= "  }\n";
+		} # end if there are no args
+	    } # end if its not ecmdFunctionParmPrinter 
+	    $printout .= "#endif\n\n";
+	}
 
 	unless (/$dont_flush_sdcache_re/o) {
   
@@ -210,11 +247,50 @@ while (<IN>) {
 
         #Put the debug stuff here
         if (!($orgfuncname =~ /ecmdOutput/)) {
-          $printout .= "#ifndef ECMD_STRIP_DEBUG\n";
-          $printout .= "  if (ecmdClientDebug > 1) {\n";
-          $printout .= "    std::string printed = \"ECMD DEBUG ($orgfuncname) : Exiting\\n\"; ecmdOutput(printed.c_str());\n";
-          $printout .= "  }\n";
-          $printout .= "#endif\n\n";
+	    $printout .= "#ifndef ECMD_STRIP_DEBUG\n";
+
+
+	    # new debug10 parm tracing stuff
+	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
+		if($#argnames >=0) {
+		    $printout .= "  if (ecmdClientDebug == 10) {\n";
+
+		    $printout .= "    ecmdFunctionParmPrinter(FUNCTIONOUT,\"$type $orgfuncname(@argnames)\"";
+
+		    #
+		    my $pp_argstring;
+		    my $pp_typestring;
+		    foreach my $curarg (@argnames) {
+
+			my @pp_argsplit = split /\s+/, $curarg;
+
+			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
+			$tmptypestring = "@typeargs";
+
+			my $tmparg = $pp_argsplit[-1];
+			if ($tmparg =~ /\[\]$/) {
+			    chop $tmparg; chop $tmparg;
+			    $tmptypestring .= "[]";
+			}
+
+			$pp_typestring .= $tmptypestring . ", ";
+			$pp_argstring .= $tmparg . ", ";
+		    }
+
+		    chop ($pp_typestring, $pp_argstring);
+		    chop ($pp_typestring, $pp_argstring);
+
+		    $printout .= "," . $pp_argstring . ");\n\n";
+		    #	    
+		    $printout .= "  }\n";
+		} # end if there are no args
+	    } # end if its not ecmdFunctionParmPrinter 
+
+
+	    $printout .= "  if (ecmdClientDebug > 1) {\n";
+	    $printout .= "    std::string printed = \"ECMD DEBUG ($orgfuncname) : Exiting\\n\"; ecmdOutput(printed.c_str());\n";
+	    $printout .= "  }\n";
+	    $printout .= "#endif\n\n";
         }
 
 	$printout .= "  return rc;\n\n" unless ($type_flag == $VOID);
@@ -264,6 +340,9 @@ if ($ARGV[0] ne "ecmd") {
 }
 print OUT "#include <$ARGV[0]ClientCapi.H>\n";
 print OUT "#include <$ARGV[0]ClientEnums.H>\n\n\n";
+
+print OUT "#include <$ARGV[0]Utils.H>\n\n";
+
 print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
 print OUT "\n#include <dlfcn.h>\n\n";
 
