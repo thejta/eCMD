@@ -884,7 +884,7 @@ uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 */
-uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> o_data);
+uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> & o_data);
 
 /**
  @brief Dump all entries of specified trace array
@@ -900,7 +900,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vecto
  - NOTE : to fetch all Trace Arrays available add only one entry to io_entries and set
     ecmdNameVectorEntry.name = "ALL"
 */
-uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> o_data);
+uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> & o_data);
 
 //@}
 
