@@ -42,7 +42,7 @@ ifeq (${OS},AIX)
   LD      := ${CC}
   LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export -lecmd_aix
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
-  CFLAGS  := ${CFLAGS} -+ -qstaticinline
+  CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}

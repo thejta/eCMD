@@ -41,7 +41,7 @@ ifeq (${OS},AIX)
   LD      := makeC++SharedLib
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
-  CFLAGS  := ${CFLAGS} -+ -qstaticinline
+  CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
   SLIBLDFLAGS :=  -e libecmd_aix.export -p 0
 endif
 

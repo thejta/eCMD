@@ -53,7 +53,7 @@ ifeq (${OS},AIX)
     CC      := xlC
   endif
   TARGET = ${EXTENSION_NAME}ClientCapi_aix.a
-  CFLAGS  := ${CFLAGS} -+ -qstaticinline
+  CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
 VPATH := ${SUBDIR}:../../../capi/export:../../template/capi
