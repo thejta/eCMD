@@ -185,6 +185,7 @@ typedef enum {
 */
 struct ecmdThreadData {
   uint8_t threadId;                             ///< (Detail: Low) Thread number of this entry
+  //uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
 };
 
 /**
@@ -196,6 +197,7 @@ struct ecmdThreadData {
 struct ecmdCoreData {
   uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
   uint8_t                       numProcThreads; ///< (Detail: Low) Number of threads per core this entry supports - only valid for Processors
+  //uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
   std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
 };
 
@@ -220,6 +222,7 @@ struct ecmdChipData {
   std::string                   chipType;           ///< (Detail: Low)  actual name of chip , ie. gr, ent (should be 3chars or less)
   std::string                   chipCommonType;     ///< (Detail: Low)  common name of chip, ie. pu, riohub
   uint32_t                      pos;                ///< (Detail: Low)  Position of this entry
+  //uint32_t                      unitId;             ///< (Detail: High) Unit Id of this entry
   uint8_t                       numProcCores;       ///< (Detail: Low)  Number of cores this entry supports - only valid for Processor compute cores
   uint32_t                      chipEc;             ///< (Detail: High) EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
   uint32_t                      simModelEc;         ///< (Detail: High) Model EC level of this chip
@@ -236,6 +239,7 @@ struct ecmdChipData {
 */
 struct ecmdSlotData {
   uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
+  //uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in order by chipType and pos
 };
 
@@ -247,6 +251,7 @@ struct ecmdSlotData {
 */
 struct ecmdNodeData {
   uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
+  //uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   std::list<ecmdSlotData> slotData;     ///< (Detail: Low) List of all slots requested in this node - in numerical order by slotId
 };
 
@@ -258,6 +263,7 @@ struct ecmdNodeData {
 */
 struct ecmdCageData {
   uint32_t cageId;                      ///< (Detail: Low) Cage number of this entry
+  //uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   std::list<ecmdNodeData> nodeData;     ///< (Detail: Low) List of all nodes requested in this cage - in numerical order by nodeId
 };
 
