@@ -129,6 +129,7 @@ uint32_t ecmdDataBuffer::clear() {
 
   if(!iv_UserOwned)
   {
+      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
       return ECMD_DBUF_NOT_OWNER;
   }
 
@@ -172,6 +173,7 @@ uint32_t  ecmdDataBuffer::setWordLength(uint32_t newNumWords) {
 
   if(!iv_UserOwned)
   {
+      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
       return ECMD_DBUF_NOT_OWNER;
   }
 
@@ -187,6 +189,7 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
 
   if(!iv_UserOwned)
   {
+      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
       return ECMD_DBUF_NOT_OWNER;
   }
 
@@ -262,6 +265,7 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
 
   if(!iv_UserOwned)
   {
+      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
       return ECMD_DBUF_NOT_OWNER;
   }
 
@@ -704,6 +708,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
 
   if(!iv_UserOwned)
   {
+      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
       return ECMD_DBUF_NOT_OWNER;
   }
 
@@ -806,6 +811,7 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t shiftNum) {
 
   if(!iv_UserOwned)
   {
+      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
       return ECMD_DBUF_NOT_OWNER;
   }
 
