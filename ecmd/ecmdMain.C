@@ -73,12 +73,14 @@ int main (int argc, char *argv[])
 
 
     if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-      sprintf(buf,"**** ERROR (eCMD::main) : Unknown Command specified\n");
+      sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", argv[1]);
       ecmdOutputError(buf);
     } else if (rc) {
       std::string parse = ecmdGetErrorMsg(rc);
-      /* Display the registered message right away BZ#160 */
-      ecmdOutputError(parse.c_str());
+      if (parse.length() > 0) {
+        /* Display the registered message right away BZ#160 */
+        ecmdOutput(parse.c_str());
+      }
       parse = ecmdParseReturnCode(rc);
       sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
       ecmdOutputError(buf);
