@@ -45,6 +45,10 @@ uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
 
 uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
+uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
+
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode); 
+
 uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
@@ -71,6 +75,8 @@ uint32_t dllDisableRingCache();
 
 uint32_t dllFlushRingCache(); 
 
+bool dllIsRingCacheEnabled(); 
+
 uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries); 
@@ -78,6 +84,12 @@ uint32_t dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName
 uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data); 
 
 uint32_t dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
+
+uint32_t dllQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t o_clockState); 
+
+uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
+
+uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
 
 uint32_t dllISteps(ecmdDataBuffer & i_steps); 
 
