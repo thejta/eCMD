@@ -36,6 +36,11 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
+#ifndef FIPSODE
+# include <sedcParser.H>
+# include <sedcScomdefClasses.H>
+#endif
+
 #undef ecmdDaScomUser_C
 //----------------------------------------------------------------------
 //  User Types

@@ -13,6 +13,13 @@ SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C e
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -I../dll -g 
 
+
+# Tell the SEDC code we import that we just want the scomdef parser
+CFLAGS       := ${CFLAGS} -DSCOMDEF_ONLY
+INCLUDES     := ${INCLUDES} sedcParser.H sedcScomdefClasses.H
+SOURCE       := ${SOURCE} sedcParser.c sedcScomdefClasses.C
+VPATH        := ${VPATH}:sedc
+
 VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
