@@ -73,6 +73,81 @@ int ecmdInitDll(int argc, char* argv[]);
 //@}
 
 
+
+
+
+
+/** @name Query Functions */
+//@{
+/**
+ @brief Query configuration information from the DLL
+ @param target Struct that contains partial information to limit query results
+ @param queryData Return vector from query - in numerical order by cageId
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
+ When a -1 is encountered or zero length chipType the query function will iterate on all possible values for that
+ entry and return the relevant data.
+
+ NOTE: the Valid flags of the ecmdChipTarget structure are not used for this function
+
+ Ex: to query what positions of the Nova chip are on cage 1, node 2:
+   cage = 1, node = 2, pos = -1, chipType = 'Nova', core = -1, thread = -1
+ Ex: to query what positions of the Nova chip are in the entire system:
+   cage = -1, node = -1, pos = -1, chipType = 'Nova', core = -1, thread = -1
+ Ex: to query all the chips on cage 3, node 0:
+   cage = 3, node = 0, pos = -1, chipType = '', core = -1, thread = -1
+*/
+   
+int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData);
+
+/**
+ @brief Query Ring information from the DLL
+ @param target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param queryData Return vector from query
+ @param ringName if != NULL used to refine query to a single ring
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+int ecmdQueryRing(ecmdChipTarget & target, vector<ecmdRingData> & queryData, const char * ringName = NULL);
+
+/**
+ @brief Query Array information from the DLL
+ @param target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param queryData Return vector from query
+ @param arrayName array to access data for
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+int ecmdQueryArray(ecmdChipTarget & target, vector<ecmdArrayData> & queryData, const char * arrayName);
+
+/**
+ @brief Query Spy information from the DLL
+ @param target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param queryData Return vector from query
+ @param spyName Spy to access data for
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+int ecmdQuerySpy(ecmdChipTarget & target, vector<ecmdSpyData> & queryData, const char * spyName);
+
+/**
+ @brief Query the location of a specific file type for the selected target
+ @param target Struct that contains chip and cage/node/position/core/thread information
+ @param fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
+ @param fileLocation Return string with full path and filename to location - allocated by Capi - must be deallocated
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+*/
+int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, char * fileLocation);
+
+
+//@}
+
+
+
+
+
 /** @name Scan Functions */
 //@{
 /**
@@ -81,8 +156,6 @@ int ecmdInitDll(int argc, char* argv[]);
  @param target Struct that contains chip and cage/node/position/core/thread information of ring to read
  @param ringName Name of ring to read from
  @param data DataBuffer object that holds data read from ring
- @param startPos Position of first bit in the ring to read from
- @param numBits Number of bits to read
  @see putRing
 
 
@@ -95,8 +168,6 @@ int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & da
  @param target Struct that contains chip and cage/node/position/core/thread information of ring to write
  @param ringName Name of ring to write to
  @param data DataBuffer object that holds data to write into ring
- @param startPos Position of first bit in the ring to write to
- @param numBits Number of bits to write
  @see getRing
 
 
@@ -132,48 +203,7 @@ int ringWrite (ecmdChipTarget & target, const char * ringName, const char * file
 //@}
 
 
-/** @name Query Functions */
-//@{
-/**
- @brief Query configuration information from the DLL
- @param target Struct that contains partial information to limit query results
- @param queryData Return vector from query - in numerical order by cageId
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
 
- The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
- When a -1 is encountered or zero length chipType the query function will iterate on all possible values for that
- entry and return the relevant data.
-
- NOTE: the Valid flags of the ecmdChipTarget structure are not used for this function
-
- Ex: to query what positions of the Nova chip are on cage 1, node 2:
-   cage = 1, node = 2, pos = -1, chipType = 'Nova', core = -1, thread = -1
- Ex: to query what positions of the Nova chip are in the entire system:
-   cage = -1, node = -1, pos = -1, chipType = 'Nova', core = -1, thread = -1
- Ex: to query all the chips on cage 3, node 0:
-   cage = 3, node = 0, pos = -1, chipType = '', core = -1, thread = -1
-*/
-   
-int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData);
-
-int ecmdQueryRing(ecmdChipTarget & target);
-
-int ecmdQueryArray(ecmdChipTarget & target);
-
-int ecmdQueryAlias(ecmdChipTarget & target);
-
-/**
- @brief Query the location of a specific file type for the selected target
- @param target Struct that contains chip and cage/node/position/core/thread information
- @param fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param fileLocation Return string with full path and filename to location - allocated by Capi - must be deallocated
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
-*/
-int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, char * fileLocation);
-
-
-//@}
 
 /** @name Scom Functions  */
 //@{
@@ -203,6 +233,10 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
 //@}
 
 
+
+
+
+
 /** @name Spy Functions */
 //@{
 
@@ -212,8 +246,6 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
  @param aliasName Name of alias to read from
  @param data DataBuffer object that holds data read from alias
- @param startPos Position of first bit in the alias to read from
- @param numBits Number of bits to read
  @see putAlias
 
 */
@@ -225,12 +257,10 @@ int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
  @param aliasName Name of alias to read from
  @param enumValue Enum value
- @param startPos Position of first bit in the alias to read from
- @param numBits Number of bits to read
  @see putAlias
 
 */
-int getSpyEnum (ecmdChipTarget & target, const char * spyName, char * enumValue);
+int getSpyEnum (ecmdChipTarget & target, const char * spyName, string enumValue);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
@@ -238,8 +268,6 @@ int getSpyEnum (ecmdChipTarget & target, const char * spyName, char * enumValue)
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
  @param aliasName Name of alias to write to
  @param data DataBuffer object that holds data to write into alias
- @param startPos Position of first bit in the alias to write to
- @param numBits Number of bits to write
  @see getAlias
 
 
@@ -251,16 +279,18 @@ int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
  @param aliasName Name of alias to write to
- @param data DataBuffer object that holds data to write into alias
- @param startPos Position of first bit in the alias to write to
- @param numBits Number of bits to write
+ @param enumValue DataBuffer object that holds data to write into alias
  @see getAlias
 
 
 */
-int putSpyEnum (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
+int putSpyEnum (ecmdChipTarget & target, const char * spyName, const string enumValue);
 
 //@}
+
+
+
+
 
 /** @name Array Functions */
 //@{
@@ -290,6 +320,10 @@ int putArray (ecmdChipTarget & target, const char * arrayName, uint32_t * addres
 //@}
 
 
+
+
+
+
 /** @name Flush and IPL Functions */
 //@{
 
@@ -315,6 +349,10 @@ int iplSys ();
 //@}
 
 
+
+
+
+
 /** @name Error Handling Functions */
 //@{
 
@@ -322,14 +360,17 @@ int iplSys ();
  @brief Retrieve additional error information for errorcode
  @retval point to NULL terminated string containing error data, NULL if error occurs
 */
-const char* ecmdGetErrorMsg(int errorCode);
+string ecmdGetErrorMsg(int errorCode);
 
 /**
  @brief Register an Error Message that has occured
 */
-int ecmdRegisterErrorMsg(int errorCode, const char* message);
+int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message);
 
 //@}
+
+
+
 
 /** @name Output Functions */
 //@{
