@@ -222,11 +222,12 @@ uint32_t ecmdDisplayDllInfo();
 /**
  @brief Print the parameters pass to a given function.
  @retval Void return
+ @param int tCount is the trace count.
  @param inOut Tell Parm Printer if we are going into or out of the function
  @param fprototypeStr function prototype
  @param args function argument vector 
  */
-void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
+void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
 #endif
 
 

@@ -149,6 +149,7 @@ while (<IN>) {
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
+		    $printout .= "  int myTcount =0;\n";
 		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     std::vector< void * > args;\n";
 
@@ -179,7 +180,9 @@ while (<IN>) {
 #		    chop ($pp_typestring, $pp_argstring);
 #		    chop ($pp_typestring, $pp_argstring);
 #		    $printout .= "," . $pp_argstring . ");\n\n";
-		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "     fppCallCount++;\n";
+		    $printout .= "     myTcount = fppCallCount;\n";
+		    $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
 		    $printout .= "  }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 
@@ -318,7 +321,7 @@ while (<IN>) {
 
 		    $printout .= "\n";
 
-		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
 		    #	    
 		    $printout .= "   }\n";
 		} # end if there are no args
@@ -405,6 +408,8 @@ if ($ARGV[0] ne "ecmd") {
 
 print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "extern int ecmdClientDebug;\n";
+print OUT "extern int fppCallCount;\n";
+
 print OUT "#endif\n\n\n";
 
 print OUT "extern int ecmdRingCacheEnabled;\n\n\n";

@@ -64,6 +64,7 @@ extern void * DllFnTable[];
 #ifndef ECMD_STRIP_DEBUG
 /* @brief This is used to output Debug messages on the Client side */
 int ecmdClientDebug = 0;
+int fppCallCount =0;
 #endif
 
 /* @brief This var stores the state of ring caching */
@@ -98,11 +99,13 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
-     printf("ECMD DEBUG (ecmdFPP) : ENTER : uint32_t ecmdLoadDll(std::string i_dllName)\n");
+     fppCallCount++;
+     myTcount = fppCallCount;
+     printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
      if (ecmdClientDebug >= 9) {
-       printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : std::string \t varriable name : i_dllName = %s\n",i_dllName.c_str());
-       printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
+       printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : std::string \t varriable name : i_dllName = %s\n",myTcount,i_dllName.c_str());
      }
   }
 #endif
@@ -175,15 +178,15 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : EXIT  : uint32_t ecmdLoadDll(std::string i_dllName)\n");
+    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
     if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : std::string : varriable name : i_dllName = %s\n",i_dllName.c_str());
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : std::string : varriable name : i_dllName = %s\n",myTcount,i_dllName.c_str());
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
-    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");
+    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
   }
 #endif
 
@@ -197,9 +200,12 @@ uint32_t ecmdUnloadDll() {
 
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t uint32_t ecmdUnloadDll()\n");
-    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
+    fppCallCount++;
+    myTcount = fppCallCount;
+
+    printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
   }
 #endif
 
@@ -237,14 +243,14 @@ uint32_t ecmdUnloadDll() {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t uint32_t ecmdUnloadDll()\n");
+    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
     if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
-    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");
+    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
   }
 #endif
 
@@ -259,13 +265,16 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n");
+    fppCallCount++;
+    myTcount = fppCallCount;
+
+    printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n",myTcount);
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : int* : variable name : i_argc = %d\n",*i_argc);
-      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : char** : variable name : i_argv = **not implemented yet**\n");
+      printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : int* : variable name : i_argc = %d\n",myTcount,*i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : char** : variable name : i_argv = **not implemented yet**\n",myTcount);
     }
-    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
   }
 #endif
 
@@ -293,16 +302,16 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n");
+    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n",myTcount);
     if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : int* : variable name : i_argc = %d\n",*i_argc);
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : char** : variable name : i_argv = **not implemented yet**\n");
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : int* : variable name : i_argc = %d\n",myTcount,*i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : char** : variable name : i_argv = **not implemented yet**\n",myTcount);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
-    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");
+    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
   }
 #endif
 
@@ -324,16 +333,20 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
      args.push_back((void*) &i_target);
      args.push_back((void*) &i_queryData);
      args.push_back((void*) &rc);
 
+     fppCallCount++;
+     myTcount = fppCallCount;
+
      if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
      } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
      }
   }
 #endif
@@ -393,9 +406,9 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
         args.push_back((void*) &ret);
 
         if (ecmdClientDebug == 8) {
-          ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+          ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
         } else {
-          ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+          ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
         }
       }
 #endif
@@ -484,9 +497,9 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
      args.push_back((void*) &ret);
 
      if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
      } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
      }
   }
 #endif
@@ -504,13 +517,16 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 void ecmdEnableRingCache() {
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
+     fppCallCount++;
+     myTcount = fppCallCount;
 
      if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"void ecmdEnableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"void ecmdEnableRingCache()",args);
      } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache()",args);
      }
   }
 #endif
@@ -548,9 +564,9 @@ void ecmdEnableRingCache() {
      std::vector< void * > args;
 
      if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache()",args);
      } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache()",args);
      }
   }
 #endif
@@ -562,14 +578,17 @@ uint32_t ecmdDisableRingCache() {
   uint32_t rc;
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
      args.push_back((void*) &rc);
+     fppCallCount++;
+     myTcount = fppCallCount;
 
      if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache()",args);
      } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache()",args);
      }
   }
 #endif
@@ -610,9 +629,9 @@ uint32_t ecmdDisableRingCache() {
      args.push_back((void*) &rc);
 
      if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache()",args);
      } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache()",args);
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache()",args);
      }
   }
 #endif

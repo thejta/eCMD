@@ -63,7 +63,7 @@ typedef enum {
 
 
 char frontFPPTxt[35];
-int  fppCallCount;
+extern int  fppCallCount;
 
 
 //--------------------------------------------------------------------
@@ -102,6 +102,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipTarget queryTarget;
+  int myTcount =0;
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
@@ -110,8 +111,9 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     args.push_back((void*) &i_looptype);
     args.push_back((void*) &io_state);
     args.push_back((void*) &rc);
-
-    ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+    fppCallCount++;
+    myTcount = fppCallCount;
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
   }
 
 #endif
@@ -210,7 +212,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     args.push_back((void*) &io_state);
     args.push_back((void*) &rc);
 
-    ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
   }
 
 #endif
@@ -232,13 +234,16 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   bool freshLoop = false;               ///< Have we moved forward to a new target at a hier level of hierarchy 
 
 #ifndef ECMD_STRIP_DEBUG
+  int myTcount=0;
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
      args.push_back((void*) &io_target);
      args.push_back((void*) &io_state);
      args.push_back((void*) &rc);
 
-     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
    }
 
 #endif
@@ -275,7 +280,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           args.push_back((void*) &io_state);
           args.push_back((void*) &rc);
 
-          ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+          ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
         }
 #endif
         return rc;
@@ -527,7 +532,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     args.push_back((void*) &io_state);
     args.push_back((void*) &rc);
 
-    ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
   }
 #endif
 
@@ -1155,8 +1160,7 @@ uint32_t ecmdDisplayDllInfo() {
 /*                                                                                */
 /**********************************************************************************/
 /**********************************************************************************/
-/*void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, ...) {*/
-void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args) {
+void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args) {
 /* declare variables */
   int looper, looper2;
   std::vector<std::string> tokens;
@@ -1173,18 +1177,15 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 
   char tempIntStr[400];
 
-  static int fppCallCount =0;
 
   look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
   if(inOut == ECMD_FPP_FUNCTIONIN) {
     look4rc =0;
-    fppCallCount++;
-    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : ",fppCallCount);
+    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : ",tCount);
   } else if (inOut == ECMD_FPP_FUNCTIONOUT) {
     look4rc =1;
-    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : ",fppCallCount);
-    fppCallCount--;
+    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : ",tCount);
   } else {
     printed = "ECMD DEBUG (ecmdFPP) : ERROR::ecmdFunctionParmPrinter  Invalid Enum type on function call.\n";
     ecmdOutput(printed.c_str());
@@ -1251,10 +1252,23 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 /* go check return code to see if it's zero or not. */
     if((!strcmp(fReturnType[0].c_str(),"uint32_t")) && (look4rc)) {
       uint32_t* dummy = (uint32_t*)(args[parmTokens.size()]);
-      if (*dummy ==0) return;  /* normal return code so just exit */
+      if (*dummy ==0) {
+
+        /* print the splat line to show it's the end of the exit */
+        printed = frontFPPTxt;
+        printed += "\t ***************************************\n";
+        ecmdOutput(printed.c_str());
+
+        return;  /* normal return code so just exit */
+      }
     } else {
     /* if return type is something other than uint32_t then we should probably return since it would not */
     /* match the intended meening of the debug8 exit plan */
+      /* print the splat line to show it's the end of the exit */
+      printed = frontFPPTxt;
+      printed += "\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
       return;
     }
   }
