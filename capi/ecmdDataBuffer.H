@@ -525,19 +525,6 @@ public:
 
   //@}
 
-  /**@name Error Functions */
-  //@{
-
-  /**
-   @brief Retrieve additional error information for errorcode
-   @param i_errorCode Error code to lookup up message for
-   @retval point to NULL terminated string containing error data, NULL if error occurs
-   */
-  const std::string getErrorMsg (int i_errorCode);
-
-
-  //@}
-
 private:  //data
   int iv_Capacity;
   int iv_NumWords;
@@ -545,16 +532,9 @@ private:  //data
   uint32_t * iv_Data;
   uint32_t * iv_RealData;
 
-  int iv_ErrorCode;
-  std::string iv_ErrorMsg;
 
 private: //methods
   ecmdDataBuffer(const ecmdDataBuffer &other);
-
-  /**
-   @brief Register an Error Message that has occured
-   */
-  int registerErrorMsg (int i_errorCode, std::string i_message);
 
 
 #ifndef REMOVE_SIM
