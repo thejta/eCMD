@@ -72,7 +72,7 @@ int ecmdUnloadDll();
  - Position flags can be queried later with functions like ?????
 */
 
-int ecmdCommandArgs(int i_argc, char* i_argv[]); 
+int ecmdCommandArgs(int * i_argc, char** i_argv[]); 
 
 //@}
 
