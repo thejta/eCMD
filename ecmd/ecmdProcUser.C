@@ -416,7 +416,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       ecmdOutput( printed.c_str() );
     }
 
-    ecmdOutput("\n")
+    ecmdOutput("\n");
   }
 
   if (!validPosFound) {
@@ -556,7 +556,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
       rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
       if (rc) {
-        ecmdOutputError("putspr - Problems occurred parsing input data, must be an invalid format\n");
+        ecmdOutputError(function + " - Problems occurred parsing input data, must be an invalid format\n");
         return rc;
       }
 
@@ -573,7 +573,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       rc = putFpr(target, entry, sprBuffer);
 
     if (rc) {
-      printed = function + " - Error occured performing putspr on ";
+      printed = function + " - Error occured performing command on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
