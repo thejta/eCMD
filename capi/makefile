@@ -42,6 +42,8 @@ all: dir ${TARGET}
 
 clean:
 	rm -rf ${SUBDIR}
+	rm ecmdClientCapiFunc.C
+	rm ecmdDllCapi.C
 
 dir:
 	@mkdir -p ${SUBDIR}
@@ -75,6 +77,6 @@ ${TARGET}: ${SOURCE_OBJS}
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
-ecmdClientCapiFunc.C : ecmdClientCapi.H
+ecmdClientCapiFunc.C : ecmdClientCapi.H makedll.pl
 	@echo "==== Auto Generate Client Functions"
 	./makedll.pl 
