@@ -7,7 +7,7 @@ OS           := $(shell uname)
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H
 INT_INCLUDES := ecmdDllCapi.H 
-SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdDllCapiTest.C
+SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdDllCapiTest.C ecmdClientCapiFunc.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
@@ -69,3 +69,11 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
 	ar r ${SUBDIR}$@ $(addprefix ${SUBDIR}, $^)
+
+
+
+# *****************************************************************************
+# Autogenerate the Client side of the Dll
+# *****************************************************************************
+ecmdClientCapiFunc.C : ecmdClientCapi.H
+	./makedll.pl > ecmdClientCapiFunc.C
