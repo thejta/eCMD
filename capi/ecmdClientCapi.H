@@ -264,16 +264,20 @@ uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core information
  @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
  @param o_data list of Entries containing all latches found matching i_latchName
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
+ @param i_mode LatchName search mode
 
  NOTE : This function is ring cache enabled
 
 */
-uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdNameEntry> & o_data, ecmdLatchMode_t i_mode);
+uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
 
 
 /**
@@ -281,11 +285,15 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core information 
  @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
  @param i_data DataBuffer object that holds data to write into latch
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
+ @param i_mode LatchName search mode
 
  NOTE : This function is ring cache enabled
 
@@ -537,6 +545,13 @@ uint32_t  ecmdDisableRingCache();
 */
 uint32_t  ecmdFlushRingCache();
 
+/**
+ @brief Returns true/false to signify if caching is currently enabled
+ @retval true if ring caching is enabled
+ @retval false if ring caching is disabled
+*/
+bool      ecmdIsRingCacheEnabled();
+
 //@}
 
 
@@ -638,8 +653,6 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
 
 
 
-/* This change is going into v2.0 not now */
-#if 0
 /** @name Clock Functions */
 //@{
 
@@ -656,8 +669,41 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
 uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t o_clockState);
 
 
+/**
+ @brief Start the clocks in the domain specified
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+ @retval ECMD_CLOCKS_ALREADY_ON The clocks in the specified domain are already on
+ @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_clockDomain Clock domain to start - as defined in scandef - use "ALL" to start all domains
+ @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
+
+ * NOTE : i_clockDomain has to be "ALL" unless i_target refers to a specific chip
+ *         if i_target refers to a Node or Cage then an individual clockDomain cannot be specified
+*/
+uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
+
+/**
+ @brief Stop the clocks in the domain specified
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+ @retval ECMD_CLOCKS_ALREADY_OFF The clocks in the specified domain are already off
+ @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
+ @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
+
+ * NOTE : i_clockDomain has to be "ALL" unless i_target refers to a specific chip
+ *         if i_target refers to a Node or Cage then an individual clockDomain cannot be specified
+*/
+uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
+
 //@}
-#endif
 
 
 /** @name iSteps Functions */
@@ -720,8 +766,10 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param io_entries List of entries to fetch ecmdNameEntry.name field must be filled in
 
- - NOTE : to fetch all SPR's available add only one entry to io_entries and set
-    ecmdNameEntry.name = "ALL"
+ - NOTE : There are special keywords that can be specified to fetch groups of entries, they
+          are used by adding only an entry to io_entries and setting ecmdNameEntry.name = <keyword>
+   - "ALLTHREADED" : To fetch all threaded (replicated) SPR's for particular target
+   - "ALLSHARED"   : To fetch all non-threaded SPR's for particular target
 
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The function will still continue through all entries requested.
@@ -1547,11 +1595,11 @@ testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/e
 
 
 <pre>
-&#35include <list>
-&#35include <string>
+&#35;include <list>
+&#35;include <string>
 
-&#35include <ecmdClientCapi.H>
-&#35include <ecmdDataBuffer.H>
+&#35;include <ecmdClientCapi.H>
+&#35;include <ecmdDataBuffer.H>
 
 
 int main (int argc, char *argv[])
