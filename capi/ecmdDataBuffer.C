@@ -15,6 +15,15 @@
 
 /* $Header$ */
 
+                               
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -1594,6 +1603,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t st
     if ((i & 0xFFF8) == i)
       number_ptr[i>>3] = 0x0;
     if (!isxdigit(i_hexChars[i])) {
+      delete[] number_ptr;        //@01a delete buffer to prevent memory leak.
       return ECMD_DBUF_INVALID_DATA_FORMAT;
     }
     nextOne[0] = i_hexChars[i];
@@ -2306,7 +2316,7 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
       }
       else {
       //Hdr
-	char tmpstr[8];
+	char tmpstr[9]; //@01c Bumped to 9 to account for NULL terminator
 	sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
 	sprintf(tmpstr,"%08X",format); ops.write(tmpstr,8);
 	sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
@@ -2326,11 +2336,11 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
      }
      if (szcount == 0) {
         //Hdr
-        char tmpstr[8];
+        char tmpstr[9]; //@01c Bumped to 9 to account for NULL terminator
         sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
         sprintf(tmpstr,"%08X",format); ops.write(tmpstr,8);
-	sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
-	ops << "\n";
+        sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
+        ops << "\n";
      }
      ops << xstatestr.c_str();
      if ((uint32_t)szcount+64<numBits)

@@ -21,6 +21,14 @@
  *
  */
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
@@ -62,7 +70,7 @@ typedef enum {
 } ecmdFormatState_t;
 
 
-char frontFPPTxt[35];
+char frontFPPTxt[40]; //@01c Bumped from 35 to 40 (max str len = 37)
 extern int  fppCallCount;
 
 
