@@ -34,8 +34,7 @@
 
  * Usage :
    <pre>
- *   @filestat = stat("/usr/include/linux/zorro.h");
- *   if (@filestat[1] eq "") {
+ *   if (`uname` eq "AIX") {
  *     require ecmd_aix_perl;
  *   } else {
  *     require ecmd_x86_perl;
@@ -52,8 +51,7 @@ extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
 
  * Usage : 
    <pre>
- *   @filestat = stat("/usr/include/linux/zorro.h");
- *   if (@filestat[1] eq "") {
+ *   if (`uname` eq "AIX") {
  *     require ecmd_aix_perl;
  *   } else {
  *     require ecmd_x86_perl;
@@ -783,8 +781,7 @@ class ecmdClientPerlapi
  <pre>
  #!/usr/bin/perl
 
- @filestat = stat("/usr/include/linux/zorro.h");
- if (@filestat[1] eq "") {
+ if (`uname` eq "AIX") {
    require ecmd_aix_perl;
  } else {
    require ecmd_x86_perl;
@@ -829,7 +826,7 @@ Here is an example usage of the ecmdDataBuffer module:
   # Read data from the chip
   my $rc = 0;
   # The \$$ tells perl that we are passing in the class object by reference such that data can be returned out
-  # The general rule is if the function is defined as char** in the Api documentation pass in your variable as \$$
+  # The general rule is if the function is defined as char** in the Api documentation pass in your variable as &#92$$
   # If the function is defined as const char* then pass it in as $$ as seen below.
   $rc = $ep->getRing("pu -p1", "idreg", \$$data);
 
@@ -859,9 +856,9 @@ Most functions take a const char* i_target argument which is where you specify t
   $target->pos(3);
   $rc = $ep->putRing($$target, "idreg", $$data);
 </pre>
- 
 
- <br><br>
+
+<br><br>
  <hr>
  @section perluse Perl API Usage
 
@@ -894,9 +891,7 @@ Most functions take a const char* i_target argument which is where you specify t
  require ecmdDataBuffer;
  require ChipTarget;
 
- my $filestat = stat("/usr/include/linux/zorro.h");
- if ($filestat eq "") {
-
+ if (`uname` eq "AIX") {
    require ecmd_aix_perl; 
  } else {
    require ecmd_x86_perl; 
@@ -926,7 +921,7 @@ Most functions take a const char* i_target argument which is where you specify t
     $rc = $ep->putScom($$target, "800000", $$data);
 
     print "---- starting getscom -----";
-    $rc = $ep->getScom($$target, "800000", /$$data);
+    $rc = $ep->getScom($$target, "800000", \$$data);
     print "getscom 800000 = " . sprintf("%0.8X %0.8X\\n", $data->getWord(0), $data->getWord(1));
  }
 
