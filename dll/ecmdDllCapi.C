@@ -738,7 +738,7 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
 
     curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
 
-    if (((uint32_t) tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
+    if ((uint32_t)( tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
 
       int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
       int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
