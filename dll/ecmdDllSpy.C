@@ -1302,7 +1302,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
   transform(spy_name.begin(), spy_name.end(), spy_name.begin(), (int(*)(int)) toupper);
 
   /* Look in the DB to see if we've read this in already */
-  returnSpy.name = spy_name;
+  returnSpy.setName(spy_name);
 
   do {
 //    searchSpy = find(spies.begin(), spies.end(), returnSpy);
