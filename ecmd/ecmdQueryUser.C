@@ -77,6 +77,11 @@ int ecmdQueryUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+
+  /* ---------- */
+  /* rings      */
+  /* ---------- */
+
   if (!strcmp(argv[0], "rings")) {
 
     char invmask = 'N';
@@ -188,10 +193,21 @@ int ecmdQueryUser(int argc, char* argv[]) {
       return ECMD_TARGET_NOT_CONFIGURED;
     }
 
+
+
+    /* ---------- */
+    /* version    */
+    /* ---------- */
   } else if (!strcmp(argv[0],"version")) {
 
     rc = ecmdDisplayDllInfo();
 
+
+
+
+    /* ---------- */
+    /* configd    */
+    /* ---------- */
   } else if (!strcmp(argv[0],"configd")) {
 
     if (argc < 2) {
@@ -218,9 +234,173 @@ int ecmdQueryUser(int argc, char* argv[]) {
       return ECMD_TARGET_NOT_CONFIGURED;
     }
 
+
+    /* ---------- */
+    /* chips      */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"chips")) {
+
+    //Setup the target that will be used to query the system config 
+    ecmdQueryData queryData;            ///< Query data
+    ecmdChipTarget target;              ///< Target to refine query
+    std::list<ecmdCageData>::iterator ecmdCurCage;      ///< Iterators
+    std::list<ecmdNodeData>::iterator ecmdCurNode;
+    std::list<ecmdSlotData>::iterator ecmdCurSlot;
+    std::list<ecmdChipData>::iterator ecmdCurChip;
+    std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdThreadData>::iterator ecmdCurThread;
+
+    /* Do they want to run in easy parse mode ? */
+    int easyParse = ecmdParseOption (&argc, &argv, "-ep");
+
+
+
+    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = ECMD_TARGET_QUERY_IGNORE;
+
+    rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
+
+    char buf[100];
+    char buf2[10];
+    std::string curchip, kbuf, nbuf, sbuf;
+
+    for (ecmdCurCage = queryData.cageData.begin(); ecmdCurCage != queryData.cageData.end(); ecmdCurCage ++) {
+      if (!easyParse) {
+        sprintf(buf,"Cage %d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+      } else {
+        sprintf(buf,"-k%d ",ecmdCurCage->cageId); kbuf = buf;
+      }        
+      for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+        if (!easyParse) {
+          sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+        } else {
+          sprintf(buf,"-n%d ",ecmdCurNode->nodeId); nbuf = kbuf + buf;
+        }
+
+        for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+          if (!easyParse) {
+            sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); buf[0] = '\0';
+          } else {
+            sprintf(buf,"-s%d ",ecmdCurSlot->slotId); sbuf = nbuf + buf;
+          }
+
+          curchip = "";
+          for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+            if (!easyParse) {
+              if (curchip == "") {
+                curchip = ecmdCurChip->chipType;
+                sprintf(buf,"      %s",ecmdCurChip->chipType.c_str());
+              } else if (curchip != ecmdCurChip->chipType) {
+                strcat(buf, "\n"); ecmdOutput(buf);
+                sprintf(buf,"      %s",ecmdCurChip->chipType.c_str());
+              }
+            }
+            if (ecmdCurChip->numProcCores == 0) {
+              /* For non-core chips */
+              if (!easyParse) {
+                sprintf(buf2," %d,", ecmdCurChip->pos);
+                strcat(buf, buf2);
+              } else {
+                sprintf(buf,"%s\t -p%0.2d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
+                printed = sbuf + buf;
+                ecmdOutput(printed.c_str());
+              }
+            } else {
+              for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                if (!easyParse) {
+                  sprintf(buf2, " %d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId);
+                  strcat(buf, buf2);
+                } else {
+                  sprintf(buf,"%s\t -p%0.2d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId);
+                  printed = sbuf + buf;
+                  ecmdOutput(printed.c_str());
+                }
+
+              } /* curCoreIter */
+            }
+
+          } /* curChipIter */
+          if (!easyParse && strlen(buf) > 0) {
+              strcat(buf, "\n"); ecmdOutput(buf);
+          }
+        } /* curSlotIter */
+
+      } /* curNodeIter */
+
+    } /* curCageIter */
+
+
+    /* ---------- */
+    /* chipinfo   */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"chipinfo")) {
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for rings; you need at least a query rings <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+    bool validPosFound = false;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    char buf[200];
+
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      } else if (rc) {
+        printed = "ecmdquery - Error occured performing chipinfo query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      /* Ok, display what we got */
+      ecmdOutput(   "*******************************************************\n");
+      printed =     "Target           : " + ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
+      printed =     "Chip Name        : " + chipdata.chipType + "\n"; ecmdOutput(printed.c_str());
+      printed =     "Chip Common Name : " + chipdata.chipCommonType + "\n"; ecmdOutput(printed.c_str());
+      sprintf(buf,  "Chip Position    : %d\n", chipdata.pos); ecmdOutput(buf);
+      sprintf(buf,  "Num Proc Cores   : %d\n", chipdata.numProcCores); ecmdOutput(buf);
+      sprintf(buf,  "Chip EC Level    : %d\n", chipdata.chipEc); ecmdOutput(buf);
+      if (chipdata.interfaceType == ECMD_INTERFACE_ACCESS)
+        sprintf(buf,"Chip Interface   : ACCESS\n");
+      else if (chipdata.interfaceType == ECMD_INTERFACE_CFAM)
+        sprintf(buf,"Chip Interface   : CFAM\n");
+      else
+        sprintf(buf,"Chip Interface   : UNKNOWN\n");
+      ecmdOutput(buf);
+
+      sprintf(buf,  "Chip Flags       : %.08X\n", chipdata.chipFlags); ecmdOutput(buf);
+      ecmdOutput(   "*******************************************************\n");
+
+    }
+
+    /* ---------- */
+    /* formats    */
+    /* ---------- */
   } else if ("formats") {
     /* We will just print this from the format helpfile */
     return ecmdPrintHelp("format");
+
+
 
   } else {
     /* Invalid Query Mode */
