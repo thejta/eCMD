@@ -156,6 +156,54 @@ class ecmdClientPerlapi
     int putRing (const char * i_target, const char * i_ringName, const char * i_data); 
 
 
+
+    /**
+     @brief Reads the selected spy into the data buffer (only full name matching supported)
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SUCCESS if successful read
+     @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+     @retval ECMD_INVALID_RING if ringname is not valid for target
+     @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core information
+     @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
+     @param o_data list of Entries containing all latches found matching i_latchName
+     @param i_startBit Startbit in latchname to fetct data
+     @param i_numBits Number of bits to fetch from startbit
+     @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
+     @param i_mode LatchName search mode
+
+     NOTE : This function is ring cache enabled
+
+     */
+    int getLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * o_data, int i_startBit, int i_numBits);
+
+
+    /**
+     @brief Writes the data buffer into the all latches matching i_latchName (only full name matching supported)
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+     @retval ECMD_INVALID_RING if ringname is not valid for target
+     @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core information 
+     @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
+     @param i_data DataBuffer object that holds data to write into latch
+     @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
+     @param i_startBit Startbit in latchname to insert data
+     @param i_numBits Number of bits to insert from startbit
+     @param o_matchs Number of latchs found that matched your name and data was inserted
+
+     NOTE : This function is ring cache enabled
+
+     */
+    int putLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * i_data, int i_startBit, int i_numBits, int & o_matchs);
+
     //@}
 
 
@@ -801,10 +849,10 @@ class ecmdClientPerlapi
  #! -*- perl -*-
 
  eval '
- if [ "X$CRONUS_HOME" = "X" ]; then echo "CRONUS_HOME env var is not set, rerun your Cronus setup script"; exit 1; fi
- PERL5LIB=$CRONUS_HOME/contrib/`uname`/perl/lib:$CRONUS_HOME/contrib/`uname`/perl/lib/5.6.1/osdep:$CRONUS_HOME/contrib/bin:$CRONUS_HOME/dll;
+ if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set, please initialize your CTE environment"; exit 1; fi
+ PERL5LIB=$CTEPATH/tools/perl/5.8.1/lib:$CTEPATH/tools/ecmd/rel/perlapi;
  export PERL5LIB;
- exec $CRONUS_HOME/contrib/`uname`/perl/bin/perl -x -S $0 ${1+"$@"}
+ exec $CTEPATH/tools/perl/5.8.1/bin/perl -x -S $0 ${1+"$@"}
  '
  if 0;
  </pre>
@@ -817,8 +865,6 @@ class ecmdClientPerlapi
  Data is passed between the client Perl script and the eCMD shared object in the form of binary character strings.  To make data manipulation in Perl much easier we have provided the ecmdDataBuffer Perl module.  This allows you to have the same bit manipulation functions that are available on the C++ Api. <br>
 Here is an example usage of the ecmdDataBuffer module:
 <pre>
-  my $ep = new ecmdClientPerlapi();
-  if ($ep->initDll("")) { die "Fatal errors initializing DLL"; }
 
   # Create a pointer to an DataBuffer class
   my $data = new ecmdDataBuffer();
@@ -882,10 +928,10 @@ Most functions take a const char* i_target argument which is where you specify t
  #! -*- perl -*-
 
  eval '
- if [ "X$CRONUS_HOME" = "X" ]; then echo "CRONUS_HOME env var is not set, rerun your Cronus setup script"; exit 1; fi
- PERL5LIB=$CRONUS_HOME/contrib/`uname`/perl/lib:$CRONUS_HOME/contrib/`uname`/perl/lib/5.6.1/osdep:$CRONUS_HOME/contrib/bin:$CRONUS_HOME/dll;
+ if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set, please initialize your CTE environment"; exit 1; fi
+ PERL5LIB=$CTEPATH/tools/perl/5.8.1/lib:$CTEPATH/tools/ecmd/rel/perlapi;
  export PERL5LIB;
- exec $CRONUS_HOME/contrib/`uname`/perl/bin/perl -x -S $0 ${1+"$@"}
+ exec $CTEPATH/tools/perl/5.8.1/bin/perl -x -S $0 ${1+"$@"}
  '
  if 0;
 
@@ -894,16 +940,19 @@ Most functions take a const char* i_target argument which is where you specify t
  require ChipTarget;
 
  my $osname = `uname`;
+ my $ep;
+
  chomp $osname;
  if ($osname eq "AIX") {
    require ecmd_aix_perl; 
+   $ep = new ecmd_aix_perl::ecmdClientPerlapi();
  } else {
    require ecmd_x86_perl; 
+   $ep = new ecmd_x86_perl::ecmdClientPerlapi();
  }
 
  $| = 1;  # set autoflush
 
- my $ep = new ecmdClientPerlapi();
  if ($ep->initDll("")) { die "Fatal errors initializing DLL"; }
 
 
