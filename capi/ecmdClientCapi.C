@@ -23,6 +23,8 @@
 //  Includes
 //----------------------------------------------------------------------
 #include <dlfcn.h>
+#include <string>
+#include <stdio.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdDllCapi.H>
@@ -81,11 +83,78 @@ ECMD_PUTARRAY,
 ECMD_FLUSHSYS,
 ECMD_IPLSYS,
 ECMD_REGISTERERRORMSG,
+ECMD_UNLOADDLL,
 ECMD_NUMFUNCTIONS
 } ecmdFunctionIndex_t;
 
 void * dlHandle = NULL;
 void * DllFnTable[ECMD_NUMFUNCTIONS];
+
+
+int ecmdLoadDll(string dllName) {
+
+
+  const char* dlError;
+  int rc = ECMD_SUCCESS;
+
+#ifndef LINUX
+  /* clean up the machine from previous tests */
+  system("slibclean");
+#endif
+
+  /* --------------------- */
+  /* load DLL              */
+  /* --------------------- */
+  char dllname[256];
+  if (dllName.size() == 0) {
+    /* Let's try to get it from the env var */
+    char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
+    if (tempptr != NULL) {
+      dllName = tempptr;
+    } else {
+      fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
+      return ECMD_INVALID_DLL_FILENAME;
+    }
+  }
+
+  printf("loadDll: loading %s ...\n", dllname); 
+  dlHandle = dlopen(dllname, RTLD_NOW);
+  if (!dlHandle) {
+    if ((dlError = dlerror()) != NULL) {
+      printf("ERROR: loadDll: %s\n", dlError);
+      return ECMD_DLL_LOAD_FAILURE;
+    }
+  } else {
+    printf("loadDll: load successful\n");
+  }
+}
+
+int ecmdUnloadDll() {
+
+  int rc = ECMD_SUCCESS;
+  int c_rc = ECMD_SUCCESS;
+
+  /* call DLL cleanup */
+  int (*Function)() =
+    (int(*)())DllFnTable[ECMD_UNLOADDLL];
+  rc = (*Function)();
+
+  /* release DLL */
+  const char* dlError;
+
+  c_rc = dlclose(dlHandle);
+  if (c_rc) {
+    if ((dlError = dlerror()) != NULL) {
+      fprintf(stderr,"ERROR: ecmdUnloadDll: %s\n", dlError);
+      return ECMD_DLL_UNLOAD_FAILURE;
+    }
+  }
+
+  dlHandle = NULL;
+
+  return rc;
+}
+
 
 int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData) {
 
