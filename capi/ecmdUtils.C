@@ -128,6 +128,19 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     io_state.prevTarget = io_target;
     io_state.curUnitIdTarget = io_state.unitIdTargets.begin();
 
+
+    /* Ok, we still need to call queryconfig, we will use this to make sure the targets that come back actually exist */
+    queryTarget.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.slotState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.chipTypeState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.posState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.threadState = ECMD_TARGET_QUERY_WILDCARD;
+
+    rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
+    if (rc) return rc;
+
     /* Standard physical targets */
   } else {
 
@@ -225,11 +238,18 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   /* Are we using unitids ? */
   if (io_state.ecmdUseUnitid) {
     /* We at the end ? */
-    if (io_state.curUnitIdTarget == io_state.unitIdTargets.end())
-      return 0;
+    while (!done) {
+      if (io_state.curUnitIdTarget == io_state.unitIdTargets.end())
+        return 0;
 
-    io_target = *(io_state.curUnitIdTarget);
-    io_state.curUnitIdTarget ++;
+      io_target = *(io_state.curUnitIdTarget);
+      io_state.curUnitIdTarget ++;
+
+      /* Is this target actually configured, if not try the next one */
+      if (ecmdQueryTargetConfigured(io_target, &(io_state.ecmdSystemConfigData))) {
+        done = true;
+      }
+    } /* while !done */
 
   } else {
     while (!done) {
