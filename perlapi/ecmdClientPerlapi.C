@@ -610,17 +610,25 @@ int ecmdClientPerlapi::putSpyEnum (const char* i_target, const char * i_spyName,
 
 void ecmdClientPerlapi::ecmdEnableRingCache(){
 
+  ::ecmdEnableRingCache();
+
   return ;
 }
 
 int  ecmdClientPerlapi::ecmdDisableRingCache(){
 
-  return 0;
+  int rc = ::ecmdDisableRingCache();
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
 }
 
 int  ecmdClientPerlapi::ecmdFlushRingCache(){
 
-  return 0;
+  int rc = ::ecmdFlushRingCache();
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
 }
 
 int ecmdClientPerlapi::simaet(const char* i_function){
