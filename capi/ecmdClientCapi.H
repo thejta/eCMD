@@ -1493,25 +1493,32 @@ bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
 
 /**
  @brief Retrieve the value of a Configuration Setting
+ @param i_target struct that contains chip and cage/node/slot/position/core information if necessary
  @param i_name Name of setting as defined by eCMD Api
- @param o_value Value of setting
+ @param o_validOutput Indicator if o_valueAlpha, o_valueNumeric (or both) are valid.
+ @param o_valueAlpha Alpha value of setting (if appropriate)
+ @param o_valueNumeric Numeric value of setting (if appropriate)
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
  @retval ECMD_SUCCESS if successful
 */
 
-uint32_t ecmdGetConfiguration(std::string i_name, std::string & o_value);
+uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric);
 
 /**
  @brief Set the value of a Configuration Setting
+ @param i_target struct that contains chip and cage/node/slot/position/core information if necessary
  @param i_name Name of setting as defined by eCMD Api
- @param i_value Value to apply to setting
+ @param i_validInput Indicator if i_valueAlpha, i_valueNumeric (or both) are valid.
+ @param i_valueAlpha Alpha value of setting (if appropriate)
+ @param i_valueNumeric Numeric value of setting (if appropriate)
  @retval ECMD_DBUF_INVALID_DATA_FORMAT Value is not in correct format for specified configuration setting
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
 
-uint32_t ecmdSetConfiguration(std::string i_name, std::string i_value);
+uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string & i_valueAlpha, uint32_t i_valueNumeric);
+
 
 /**
  @brief Deconfigure a target in the system

@@ -468,13 +468,23 @@ typedef enum {
 
 
 /**
- @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
+ @brief Used by the eCMD Function parm trace printer
 */
 
 typedef enum {
-  FUNCTIONIN,                   ///< Designates 
-  FUNCTIONOUT
+  ECMD_FPP_FUNCTIONIN,                  ///< Designates the call in of the api function
+  ECMD_FPP_FUNCTIONOUT                  ///< Designatest the call out of the api function
 } efppInOut_t;
+
+/**
+ @brief Used by the get/set configuration functions to specify what data is good
+*/
+typedef enum {
+  ECMD_CONFIG_VALID_FIELD_NONE,         ///< No field is valid, must have been an error
+  ECMD_CONFIG_VALID_FIELD_ALPHA,        ///< The string field contains valid data
+  ECMD_CONFIG_VALID_FIELD_NUMERIC,      ///< The numeric field contains valid data
+  ECMD_CONFIG_VALID_FIELD_BOTH          ///< Bothe the string and numeric fields contain valid data
+} ecmdConfigValid_t;
 
 
 /* @name Operators */
