@@ -14,7 +14,7 @@ my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfi
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
-my @no_gen = qw( ecmdQueryConfig ecmdQuerySelected ecmdEnableRingCache ecmdDisableRingCache);
+my @no_gen = qw( ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
 my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode );
@@ -128,6 +128,9 @@ while (<IN>) {
         $printout .= "    exit(ECMD_DLL_INVALID);\n";
 	$printout .= "  }\n\n";
 
+
+	$printout .= "#endif\n\n";
+
         if ($ARGV[0] ne "ecmd") {
           $printout .= "  if (!".$ARGV[0]."Initialized) {\n";
           $printout .= "    fprintf(stderr,\"$funcname: eCMD Extension not initialized before function called\\n\");\n";
@@ -135,9 +138,6 @@ while (<IN>) {
           $printout .= "    exit(ECMD_DLL_INVALID);\n";
           $printout .= "  }\n\n";
         }
-
-	$printout .= "#endif\n\n";
-
 
         #Put the debug stuff here
 	if (!($orgfuncname =~ /ecmdOutput/)) {
@@ -392,7 +392,6 @@ if ($ARGV[0] eq "ecmd") {
   print OUT " void * $ARGV[0]DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
 
   print OUT "/* Our initialization flag */\n";
-  print OUT " bool $ARGV[0]Initialized = false;\n";
 }       
 
 print OUT "\n#else\n\n";
@@ -400,6 +399,10 @@ print OUT "\n#else\n\n";
 print OUT " #include <$ARGV[0]DllCapi.H>\n\n";
 
 print OUT "#endif\n\n\n";
+
+if ($ARGV[0] ne "ecmd") {
+  print OUT " bool $ARGV[0]Initialized = false;\n";
+}
 
 print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "extern int ecmdClientDebug;\n";
