@@ -222,7 +222,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 /** @name Scan Functions */
 //@{
 /**
- @brief Scans the selected number of bits from the selected position in the selected ring into the data buffer
+ @brief Scans the ring from the selected chip into the data buffer
  @retval ECMD_INVALID_RING if ringname is not valid for target
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -240,7 +240,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
 /**
- @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
+ @brief Scans ring from the data buffer into the selected chip in the selected ring
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -288,17 +288,23 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
  @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
  @retval ECMD_INVALID_RING if ringname is not valid for target
  @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core information 
  @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
  @param i_data DataBuffer object that holds data to write into latch
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
  @param i_mode LatchName search mode
+ @param i_startBit Startbit in latchname to insert data
+ @param i_numBits Number of bits to insert from startbit
+ @param o_matchs Number of latchs found that matched your name and data was inserted
 
  NOTE : This function is ring cache enabled
 
 */
-uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode);
+uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
+
 
 //@}
 
@@ -711,15 +717,58 @@ uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool
 
 
 /**
- @brief Run iSteps
+ @brief Run iSteps by number
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @post iSteps are complete
+ @post iSteps specified  are complete
  @param i_steps Bit mask defining which steps to run
 
+ NOTE - function returns on first failure and remaining steps are not run
+
 */
-uint32_t iSteps (ecmdDataBuffer & i_steps);
+uint32_t iStepsByNumber (ecmdDataBuffer & i_steps);
+
+/**
+ @brief Run a single iStep by name
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_ISTEPS_INVALID_STEP An invalid step name was provided
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @post iStep specified is complete
+ @param i_stepName List of iStep names to run
+
+*/
+uint32_t iStepsByName(std::string i_stepName);
+
+/**
+ @brief Run multiple iSteps by name
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_ISTEPS_INVALID_STEP An invalid step name was provided
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @post iSteps specified  are complete
+ @param i_stepNames List of iStep names to run
+
+ NOTE - Steps are run in order as is appropriate for proper system configuration, not by order provided in list
+ NOTE - function returns on first failure and remaining steps are not run
+*/
+uint32_t iStepsByNameMultiple(std::list< std::string > i_stepNames);
+
+/**
+ @brief Run all iSteps by name starting with i_stepNameBegin and ending with i_stepNameEnd
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_ISTEPS_INVALID_STEP An invalid step name was provided
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @post iSteps specified  are complete
+ @param i_stepNameBegin Starting iStep to run
+ @param i_stepNameEnd Ending iStep to run
+
+ NOTE - function returns on first failure and remaining steps are not run
+*/
+uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepNameEnd);
+
 
 //@}
 
@@ -1405,6 +1454,19 @@ uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row 
  @retval nonzero on failure
 */
 uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
+
+
+/**
+ @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param o_hierarchy Return the model hierarchy for this target
+
+NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_QUERY_FIELD_VALID
+*/
+uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
 
 #endif /* ifndef REMOVE_SIM */
 //@}
