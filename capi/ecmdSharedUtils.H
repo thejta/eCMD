@@ -43,6 +43,21 @@
 #include <inttypes.h>
 
 #include <ecmdDataBuffer.H>
+#include <ecmdStructs.H>
+
+//--------------------------------------------------------------------
+// ENUM Definitions
+//--------------------------------------------------------------------
+typedef enum {
+  ECMD_DEPTH_CAGE = 0,
+  ECMD_DEPTH_NODE,
+  ECMD_DEPTH_SLOT,
+  ECMD_DEPTH_CHIP,
+  ECMD_DEPTH_CORE,
+  ECMD_DEPTH_THREAD
+} ecmdTargetDepth_t;
+
+
 
 //--------------------------------------------------------------------
 //  Forward References
@@ -115,6 +130,20 @@ extern "C" uint32_t ecmdHexToUInt32(const char* i_str);
  */
 extern "C" uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 
+/**
+ *  @brief Sets State Fields of Chip Target based on depth
+ *  @param io_target an ecmdChipTarget struct representing a specific eCmd target
+ *  @param i_depth an ecmdTargetDepth_t enum representing depth to be set valid
+ *  @retval ECMD_SUCCESS if setting successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching depth
+ *  @post State Fields of Chip Target are set to either ECMD_TARGET_FIELD VALID or ECMD_TARGET_FIELD_UNUSED
+
+ TARGET DEPTH  : Input To This Function
+ TARGET STATES : Gets Set By This Function
+
+ */
+uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_depth);
+
 
 #endif /* ecmdSharedUtils_h */
 
@@ -124,5 +153,5 @@ extern "C" uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 //  ---- -------- ---- -------- -----  -------------------------------
 //                              cengel Initial Creation
 //                              kloss  added hash functions: hashString32, hexToUInt32
-//
+//                              baiocchi Added ecmdSetTargetDepth()
 // End Change Log *****************************************************

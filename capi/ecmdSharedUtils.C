@@ -28,6 +28,8 @@
 #include <stdio.h>
 
 #include <ecmdSharedUtils.H>
+#include <ecmdStructs.H>
+#include <ecmdReturnCodes.H>
 
 
 #undef ecmdSharedUtils_C
@@ -263,4 +265,50 @@ uint32_t ecmdHexToUInt32(const char* str)
 {
 	const char* start = str + 2;
 	return strtoull(start, NULL, 16);
+}
+
+uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_depth)
+{
+    uint32_t rc = ECMD_SUCCESS;
+
+    // Set Target Depth based on i_depth input
+    switch (i_depth)
+    {
+	case ECMD_DEPTH_CAGE:
+	    io_target.cageState = ECMD_TARGET_FIELD_VALID;
+	    io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+	    break;
+
+	case ECMD_DEPTH_NODE:
+	    io_target.cageState = io_target.nodeState = ECMD_TARGET_FIELD_VALID;
+	    io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+	    break;
+
+	case ECMD_DEPTH_SLOT:
+	    io_target.cageState = io_target.nodeState = io_target.slotState = ECMD_TARGET_FIELD_VALID;
+	    io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+	    break;
+
+	case ECMD_DEPTH_CHIP:
+	    io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = ECMD_TARGET_FIELD_VALID;
+	    io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+	    break;
+
+	case ECMD_DEPTH_CORE:
+	    io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = ECMD_TARGET_FIELD_VALID;
+	    io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+	    break;
+
+	case ECMD_DEPTH_THREAD:
+	    io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_VALID;
+	    break;
+
+
+        default: // Used an unknown ecmdTargetDepth_t enum value
+	    rc = ECMD_INVALID_ARGS;
+	    break;
+    }
+
+    return rc;
+
 }
