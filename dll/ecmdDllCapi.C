@@ -288,18 +288,27 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::string ret;
   std::list<ecmdError>::iterator cur;
   char tmp[200];
+  bool first = true;
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
-      ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
-      ret += (*cur).message;
-      if (i_parseReturnCode) {
-        sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCode(i_errorCode).c_str());
-        ret += tmp;
+      if (first) {
+        ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
+        first = false;
+      } else {
+        ret  += "------\n";
       }
-      ret += "==============================================================\n";
-      break;
+      ret += (*cur).message;
     }
+  }
+  if (!first) {
+    /* We must have found something */
+    if (i_parseReturnCode) {
+      ret  += "------\n";
+      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCode(i_errorCode).c_str());
+      ret += tmp;
+    }
+    ret += "==============================================================\n";
   }
 
   /* We want to parse the return code even if we didn't finded extended error info */
