@@ -305,7 +305,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                     sprintf(buf2, " %d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId);
                     strcat(buf, buf2);
                   } else {
-                    sprintf(buf,"%s\t -p%0.2d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId);
+                    sprintf(buf,"%s\t -p%02d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId);
                     printed = sbuf + buf;
                     ecmdOutput(printed.c_str());
                   }
@@ -315,7 +315,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                       sprintf(buf2, " %d:%d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId,ecmdCurThread->threadId);
                       strcat(buf, buf2);
                     } else {
-                      sprintf(buf,"%s\t -p%0.2d -c%d -t%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId, ecmdCurThread->threadId);
+                      sprintf(buf,"%s\t -p%02d -c%d -t%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId, ecmdCurThread->threadId);
                       printed = sbuf + buf;
                       ecmdOutput(printed.c_str());
                     }
@@ -331,7 +331,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 sprintf(buf2," %d,", ecmdCurChip->pos);
                 strcat(buf, buf2);
               } else {
-                sprintf(buf,"%s\t -p%0.2d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
+                sprintf(buf,"%s\t -p%02d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
                 printed = sbuf + buf;
                 ecmdOutput(printed.c_str());
               }
