@@ -187,7 +187,7 @@ void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type); 
 
-uint32_t dllGetConfiguration(std::string i_name, std::string o_value); 
+uint32_t dllGetConfiguration(std::string i_name, std::string & o_value); 
 
 uint32_t dllSetConfiguration(std::string i_name, std::string i_value); 
 
