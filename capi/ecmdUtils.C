@@ -455,6 +455,7 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
   int rc = ECMD_SUCCESS;
 
   std::string localFormat = i_format;
+  int bitlength;
 
   //ignore leading 'p'- it's for perl stuff
   if (localFormat[0] == 'p') {
@@ -462,15 +463,21 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
   }
 
   if (localFormat == "x" || localFormat == "xl") {
-    o_data.setBitLength(strlen(i_dataStr) * 4);
-    rc = o_data.insertFromHexLeft(i_dataStr);
+    bitlength = strlen(i_dataStr) * 4;
+    if (i_expectedLength != 0) bitlength = i_expectedLength;
+    o_data.setBitLength(bitlength);
+    rc = o_data.insertFromHexLeft(i_dataStr, 0, bitlength);
   }
   else if (localFormat == "xr") {
-    o_data.setBitLength(strlen(i_dataStr) * 4);
-    rc = o_data.insertFromHexRight(i_dataStr, i_expectedLength);
+    bitlength = strlen(i_dataStr) * 4;
+    if (i_expectedLength != 0) bitlength = i_expectedLength;
+    o_data.setBitLength(bitlength);
+    rc = o_data.insertFromHexRight(i_dataStr, 0, bitlength);
   }     
   else if (localFormat == "b") {
-    o_data.setBitLength(strlen(i_dataStr));
+    bitlength = strlen(i_dataStr);
+    if (i_expectedLength != 0) bitlength = i_expectedLength;
+    o_data.setBitLength(bitlength);
     rc = o_data.insertFromBin(i_dataStr);
   }
   else {
@@ -608,6 +615,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     if (curState == ECMD_FORMAT_BN) blockSize = 4;
     int curOffset = 0;
     int numBlocks = (i_data.getWordLength() * 32) / blockSize;
+    int dataBitLength = i_data.getBitLength();
 
     if (numCols) {
 
@@ -621,13 +629,13 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     for (int i = 0; i < numBlocks; i++) {
 
       if (curState == ECMD_FORMAT_XW) {
-        printed += i_data.genHexLeftStr(curOffset, blockSize);
+        printed += i_data.genHexLeftStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else if (curState == ECMD_FORMAT_XRW) {
-        printed += i_data.genHexRightStr(curOffset, blockSize);
+        printed += i_data.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else {
-        printed += i_data.genBinStr(curOffset, blockSize);
+        printed += i_data.genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 
       colCount++;
