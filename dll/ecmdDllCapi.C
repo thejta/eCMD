@@ -32,7 +32,6 @@
 #include <stdlib.h>
 
 #include <ecmdDllCapi.H>
-#include <ecmdUtils.H>
 #include <ecmdStructs.H>
 
 #undef ecmdDllCapi_C
