@@ -21,6 +21,8 @@
 #include <ecmdUtils.H>
 #include <string.h>
 #include <ecmdClientPerlapi.H>
+#include <stdio.h>
+
 
 static int myErrorCode = ECMD_SUCCESS;
 
@@ -49,9 +51,14 @@ ecmdClientPerlapi::ecmdClientPerlapi () {
 
 ecmdClientPerlapi::~ecmdClientPerlapi () {
 
+  this->cleanup();
+}
+
+void ecmdClientPerlapi::cleanup()  {
   ecmdUnloadDll();
 
 }
+
 
 int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) {
 
@@ -92,15 +99,82 @@ int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char
   int rc = setupTarget(i_target, myTarget);
   if (rc) return rc;
 
-  ecmdOutput(i_data); ecmdOutput("\n");
   ecmdDataBuffer buffer; 
   rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
 
-  ecmdOutput(buffer.genHexLeftStr().c_str()); ecmdOutput("\n");
   rc = ::putScom(myTarget, i_address, buffer);
-  ecmdOutput(buffer.genHexLeftStr().c_str()); ecmdOutput("\n");
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+}
+
+
+ 
+/*char* ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName) {*/
+int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, char **o_data) {
+
+  char* tmp;
+printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
+
+  printf("comming into c code o_data = %s.\n",*o_data);
+  printf("in the c code printing o_data = %08X\n",*o_data);
+
+  int rc = setupTarget(i_target, myTarget);
+/*  if (rc) return NULL; */
+  if (rc) return rc;
+
+  int flushrc = ecmdFlushRingCache();
+  printf("just flushed\n");
+  if (flushrc) {
+/*     return NULL;*/
+     return flushrc;
+  }
+
+  ecmdDataBuffer buffer;
+  printf("made my buffer\n");
+
+  rc = ::getRing(myTarget, i_ringName, buffer);
+  printf("out of getring\n");
+  ecmdPerlInterfaceErrorCheck(rc);
+  printf("after errorCheck\n");
+
+/*  if (rc) return NULL;*/
+  if (rc) return rc;
+
+  dataStr = ecmdWriteDataFormatted(buffer, myFormat);
+  printf("after writeDataFormatted\n");
+
+  tmp = new char[dataStr.length()+1];
+  strcpy(tmp,dataStr.c_str());
+  *o_data = tmp;
+
+  printf("in the c code printing tmp = %s\n",tmp);
+  printf("in the c code printing o_data = %s\n",*o_data);
+
+  printf("in the c code printing o_data = %08X\n",*o_data);
+printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
+printf("tmp %.08X : &tmp %.08X\n",tmp, &tmp);
+/*  return (char*)(dataStr.c_str());*/
+//  return rc;
+  return 10;
+
+
+}
+
+
+int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, const char * i_data) {
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer; 
+  rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  rc = ::putRing(myTarget, i_ringName, buffer);
 
   ecmdPerlInterfaceErrorCheck(rc);
   return rc;
@@ -108,7 +182,26 @@ int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char
 
 
 
-/* paul was here */
+
+
+void ecmdClientPerlapi::add(char *retval) {
+  printf("Inside function: %c %c %c\n",retval[0],retval[1],retval[2]);
+
+  retval[0] = 'L'; retval[1] = 'p';
+
+ strcpy(retval,"Looky here - I made it");
+}
+
+void ecmdClientPerlapi::add2(char **retval) {
+  printf("Inside function: %s\n",*retval);
+
+
+  *retval = (char*)malloc(sizeof (char[100]));
+  strcpy(*retval,"Looky here - I made it");
+}
+
+
+
 
 
 int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
@@ -158,7 +251,6 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
   ecmdLooperData looperdata;
 
   ecmdCommandArgs(&numArgs, &args);
-/*  rc = ecmdConfigLooperInit(o_target);*/
   rc = ecmdConfigLooperInit(o_target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
