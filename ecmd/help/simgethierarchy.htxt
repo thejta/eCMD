@@ -23,4 +23,6 @@ Syntax: simgethierarchy <ChipSelect> [-k#] [-n#] [-s#] [-p#]
 
         --------------------------------------------------------------------------------
 
-        Example:        simgethierarchy pu -p2
+        Example:        > simgethierarchy pu -p2
+                        Model hierarchy for target pu	k0:n0:s0:p00       is :
+                        P0.B.S.LT.EM.
