@@ -105,7 +105,7 @@ all: dir ${TARGET} ${SLIB}
 	-@cp -p ecmdDllCapi.H ../dll/
 
 clean:
-	rm -rf ${SUBDIR} export/
+	rm -rf ${SUBDIR} 
 	rm -f ecmdClientCapiFunc.C
 	rm -f ecmdDllCapi.H
 	rm -f ecmdClientEnums.H
