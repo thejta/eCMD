@@ -977,13 +977,14 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
   std::string printed;
+  bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
 
   o_matchs = 0;
 
-//  if (!dllIsRingCacheEnabled()) {
-//    enabledCache = true;
-//    dllEnableRingCache();
-//  }
+  if (!dllIsRingCacheEnabled()) {
+    enabledCache = true;
+    dllEnableRingCache();
+  }
 
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
@@ -1146,11 +1147,11 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
   }
 
-//  if (enabledCache) {
-//    /* Write all the data to the chip */
-//    rc = dllFlushRingCache(); if (rc) return rc;
-//    rc = dllDisableRingCache();
-//  }
+  if (enabledCache) {
+    /* Write all the data to the chip */
+    rc = dllFlushRingCache(); if (rc) return rc;
+    rc = dllDisableRingCache();
+  }
 
   return rc;
 }
