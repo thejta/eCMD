@@ -569,6 +569,13 @@ uint32_t   ecmdDataBuffer::shiftRight(uint32_t shiftNum) {
 
   uint32_t i;
 
+  /* If we are going to shift off the end we can just clear everything out */
+  if (shiftNum >= iv_NumBits) {
+    rc = flushTo0();
+    return rc;
+  }
+
+
   // shift iv_Data array
   for (uint32_t iter = 0; iter < shiftNum; iter++) {
     for (i = 0; i < iv_NumWords; i++) {
@@ -1803,19 +1810,6 @@ uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bytes) const
 }
 
 
-//---------------------------------------------------------------------
-//  Private Member Function Specifications
-//---------------------------------------------------------------------
-#ifndef REMOVE_SIM
-uint32_t ecmdDataBuffer::fillDataStr(char fillChar) {
-  if (iv_NumWords > 0) {
-    memset(iv_DataStr, fillChar, iv_NumBits);
-    iv_DataStr[iv_NumBits] = '\0';  
-  }
-  return ECMD_DBUF_SUCCESS;
-}
-#endif
-
 
 int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
 
@@ -1893,6 +1887,20 @@ ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& other) const {
 
   return newItem;
 }
+
+
+//---------------------------------------------------------------------
+//  Private Member Function Specifications
+//---------------------------------------------------------------------
+#ifndef REMOVE_SIM
+uint32_t ecmdDataBuffer::fillDataStr(char fillChar) {
+  if (iv_NumWords > 0) {
+    memset(iv_DataStr, fillChar, iv_NumBits);
+    iv_DataStr[iv_NumBits] = '\0';  
+  }
+  return ECMD_DBUF_SUCCESS;
+}
+#endif
 
 uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to_extract, uint32_t *out_iv_Data_ptr)
 {

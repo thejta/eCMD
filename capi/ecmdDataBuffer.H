@@ -135,7 +135,8 @@ public:
    * @post Buffer is reinitialized and zero'd out
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
-   *
+   * 
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
   uint32_t  setWordLength(uint32_t i_newNumWords);   
@@ -146,6 +147,7 @@ public:
    * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
    * @post Buffer is reinitialized and zero'd out
    *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
   uint32_t  setBitLength(uint32_t i_newNumBits);
@@ -228,6 +230,8 @@ public:
    * @brief Fetch a byte from ecmdDataBuffer
    * @param i_byteoffset Offset of byte to fetch
    * @retval Value of byte requested
+   *
+   * NOTE : If offset > buffer length retval = 0 and error printed
    */
   uint8_t getByte(uint32_t i_byteoffset) const;
 
