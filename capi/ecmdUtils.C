@@ -1172,7 +1172,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
               (!strcasecmp(variableType,"const char*"))   ){
 /* const char * */
 
-      const char * dummy = (const char *)(args[looper]);
+      char ** dummy = (char **)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
@@ -1181,9 +1181,8 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "\n";
       ecmdOutput(printed.c_str());
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : ";
-      printed += "(will fix later)";
-//      if (dummy == NULL) printed += "NULL";
-//      else printed += dummy;
+      if (*dummy == NULL) printed += "NULL";
+      else printed += *dummy;
       printed += "\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
@@ -1365,8 +1364,8 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
               (!strcasecmp(variableType,"ecmdNodeData &"))  ||
               (!strcasecmp(variableType,"ecmdCageData &"))  ||
               (!strcasecmp(variableType,"ecmdRingData &"))  ||
-              (!strcasecmp(variableType,"ecmdCageData &"))  ||
-              (!strcasecmp(variableType,"ecmdQueryData &"))    ) {
+              (!strcasecmp(variableType,"ecmdCageData &"))
+              ) {
 /* default structures not coded yet */
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
@@ -1376,6 +1375,61 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "ECMD DEBUG (ecmdFPP) : \t \t value = ";
       printed += "placeholder for structure dump\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
+    } else if((!strcasecmp(variableType,"ecmdQueryData &")) ||
+              (!strcasecmp(variableType,"ecmdQueryData&"))    ) {
+
+      ecmdQueryData* dummy = (ecmdQueryData*)(args[looper]);
+
+
+      printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
+      printed += variableType;
+      printed += " : variable name : ";
+      printed += variableName[0].c_str();
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+      std::list<ecmdCageData>::iterator ecmdCurCage;
+      std::list<ecmdNodeData>::iterator ecmdCurNode;
+      std::list<ecmdSlotData>::iterator ecmdCurSlot;
+      std::list<ecmdChipData>::iterator ecmdCurChip;
+      std::list<ecmdCoreData>::iterator ecmdCurCore;
+      std::list<ecmdThreadData>::iterator ecmdCurThread;
+      char buf[100];
+      if (dummy->cageData.empty()) {
+        printed = "ECMD DEBUG (ecmdFPP) : \t \t value = EMPTY\n"; ecmdOutput(printed.c_str());
+      } else {
+
+        for (ecmdCurCage = dummy->cageData.begin(); ecmdCurCage != dummy->cageData.end(); ecmdCurCage ++) {
+          sprintf(buf,"ECMD DEBUG (ecmdFPP) : \t \t k%d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+          for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+            sprintf(buf,"ECMD DEBUG (ecmdFPP) : \t \t   n%d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+
+            for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+              sprintf(buf,"ECMD DEBUG (ecmdFPP) : \t \t     s%d\n",ecmdCurSlot->slotId); ecmdOutput(buf);
+
+              for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+                sprintf(buf,"ECMD DEBUG (ecmdFPP) : \t \t       %s:p%d\n",ecmdCurChip->chipType.c_str(),ecmdCurChip->pos); ecmdOutput(buf);
+
+                for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                  sprintf(buf,"ECMD DEBUG (ecmdFPP) : \t \t         c%d\n",ecmdCurCore->coreId); ecmdOutput(buf);
+
+                  for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                    sprintf(buf,"ECMD DEBUG (ecmdFPP) : \t \t           t%d\n",ecmdCurThread->threadId); ecmdOutput(buf);
+                  } /* curThreadIter */
+
+                } /* curCoreIter */
+
+              } /* curChipIter */
+
+            } /* curSlotIter */
+
+          } /* curNodeIter */
+
+        } /* curCageIter */
+      }
+      printed = "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
     } else if((!strcasecmp(variableType,"ecmdDataBuffer &")) ||
@@ -1398,14 +1452,6 @@ private:  //data
       printed += "\n";
       ecmdOutput(printed.c_str());
 
-      if(dummy == NULL) {
-        printed = "ECMD DEBUG (ecmdFPP) : NULL parameter/data\n";
-        printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
-
-        ecmdOutput(printed.c_str());
-        continue;
-      }
-
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : int    iv_Capacity = ";
       sprintf(tempIntStr,"%d",dummy->getCapacity());
       printed += tempIntStr;
@@ -1425,7 +1471,7 @@ private:  //data
       ecmdOutput(printed.c_str());
 
       if(dummy->getBitLength() == 0) {
-        printed = "ECMD DEBUG (ecmdFPP) :\t \t value : string iv_Data     =\n";
+        printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t[] iv_Data =\n";
         printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
         ecmdOutput(printed.c_str());
         continue;
@@ -1434,7 +1480,7 @@ private:  //data
       if(dummy->hasXstate()) {
         if (ecmdClientDebug == 9) {
           printed = "ECMD DEBUG (ecmdFPP) :\t \t value : XSTATE iv_DataStr  = ";
-          printed += dummy->genXstateStr(0,63);
+          printed += dummy->genXstateStr(0, 64 < dummy->getBitLength() ? 64 : dummy->getBitLength());
           printed += "\n";
           ecmdOutput(printed.c_str());
         } else {
@@ -1445,37 +1491,32 @@ private:  //data
         }
       } else {
         if (ecmdClientDebug == 9) {
-          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : string iv_Data     = 0x";
-          printed += dummy->genHexLeftStr(0,63);
+          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t[] iv_Data = ";
+          printed += dummy->genHexLeftStr(0, 64 < dummy->getBitLength() ? 64 : dummy->getBitLength());
           printed += "\n";
           ecmdOutput(printed.c_str());
         } else {
-          dataLooper =0;
 
-          remainder = dummy->getBitLength();
-          printed = "myspecialworkaround";
-          int newblock, oldblock;
-          for(dataLooper=0, newblock=0, oldblock=0; dataLooper < (dummy->getBitLength()/64); dataLooper+=64) {
-            newblock = remainder / 64;
-            if(newblock != oldblock) {
-              if (printed != "myspecialworkaround") {
-                /* this will terminate and print the previous string */
-                printed += "\n";
-                ecmdOutput(printed.c_str());
-              }
-              printed = "ECMD DEBUG (ecmdFPP) :\t \t value : string iv_Data     = 0x";
-              oldblock = newblock;
+          char tbuf[10];
+          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t[] iv_Data = ";
+
+          if (dummy->getWordLength() > 4) {
+            printed += "\n"; ecmdOutput(printed.c_str());
+            printed = "ECMD DEBUG (ecmdFPP) :\t \t \t\t";
+          }
+
+          for (dataLooper = 0; dataLooper < dummy->getWordLength(); dataLooper ++) {
+            if (!(dataLooper % 4) && (dataLooper != 0)) {
+              printed += "\n";
+              ecmdOutput(printed.c_str());
+              printed = "ECMD DEBUG (ecmdFPP) :\t \t \t\t";
             }
-            if(remainder >= 65) {
-              printed += dummy->genHexLeftStr(dataLooper,64);
-              printed += "  0x";
-            } else {
-              printed += dummy->genHexLeftStr(dataLooper,remainder);
-            }
-            remainder = remainder - 64;
+            sprintf(tbuf,"%.08X ",dummy->getWord(dataLooper));
+            printed += tbuf;
           }
           printed += "\n";
           ecmdOutput(printed.c_str());
+
         }
       }
       printed = "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
@@ -1520,56 +1561,55 @@ private:  //data
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    cage     = ";
       sprintf(tempIntStr,"%u",dummy->cage);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->cageState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    node     = ";
       sprintf(tempIntStr,"%u",dummy->node);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->nodeState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    slot     = ";
       sprintf(tempIntStr,"%u",dummy->slot);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->slotState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : std::string chiptype = ";
-//      printed += "strings not working yet";
       printed += dummy->chipType.c_str();
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->chipTypeState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    pos      = ";
       sprintf(tempIntStr,"%u",dummy->pos);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->posState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    core     = ";
       sprintf(tempIntStr,"%u",dummy->core);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->coreState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    thread   = ";
       sprintf(tempIntStr,"%d",dummy->thread);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->threadState);
       ecmdOutput(printed.c_str());
 
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t    unitId   = ";
-      sprintf(tempIntStr,"d=%u 0x%.08X",dummy->unitId,dummy->unitId);
+      sprintf(tempIntStr,"0x%.08X",dummy->unitId);
       printed += tempIntStr;
-      printed += "   State = ";
+      printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->unitIdState);
       ecmdOutput(printed.c_str());
 
