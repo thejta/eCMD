@@ -136,10 +136,10 @@ int ecmdQuerySpy(ecmdChipTarget & target, vector<ecmdSpyData> & queryData, const
  @brief Query the location of a specific file type for the selected target
  @param target Struct that contains chip and cage/node/position/core/thread information
  @param fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param fileLocation Return string with full path and filename to location - allocated by Capi - must be deallocated
+ @param fileLocation Return string with full path and filename to location 
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
 */
-int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, char * fileLocation);
+int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, string fileLocation);
 
 
 //@}
