@@ -1,0 +1,41 @@
+
+Syntax: putscom ChipSelect ScanCommAddr Bits0-31 Bits32-63 Bits64-96 [-and | -or] [-n#] [-p#] [-c#]
+
+	
+	Function: 	Write the specified data to the specified chip using scancom.
+
+	Parameters:
+	--------------------------------------------------------------------------------
+	ChipSelect	Chip to put scancom data to.  Possibe chip names: 
+			pu, spinnaker, outrigger, gq, catalina, speedwagon, fairwind,
+			midway, python, mack, etc.
+
+	ScanCommAddr 	Address in hex.
+
+	Bits0-31	Data consists of 8 hex numbers, right aligned.
+
+	Bits32-63	Data consists of 8 hex numbers, right aligned.
+
+	Bits64-96	Data consists of 8 hex numbers, right aligned.
+
+	-and [optional]	Input data will be AND'ed with current scom data.
+
+	-or  [optional] Input data will be OR'ed with current scom data.
+
+	-n#  [optional]	Specify which node to act on (0 is default). Specify -nall
+			to act on all nodes.
+
+	-p#  [optional]	Specify which chip position to act on (0 is default). Specify -pall
+			to act on all chips.
+
+	-c#  [optional]	Specify which processor core to act on (0 is default). Specify
+			-call to act on all cores.
+
+	--------------------------------------------------------------------------------
+
+	Notes:		Leading zeros are not necessary.
+
+	Examples:  	> putscom pu 600000 deadbeef 80000000 0 -p0,1
+			ecmd.exe putscom pu 600000 deadbeef 80000000 0 -p0,1
+			> putscom memctrl 2010 00800 488 0
+			ecmd.exe putscom memctrl 2010 00800 488 0
