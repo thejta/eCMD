@@ -342,20 +342,27 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
 int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format) {
   int rc = ECMD_SUCCESS;
 
-  if (i_format == "x" || i_format == "xl") {
+  std::string localFormat = i_format;
+
+  //ignore leading 'p'- it's for perl stuff
+  if (localFormat[0] == 'p') {
+    localFormat = localFormat.substr(1, localFormat.size());
+  }
+
+  if (localFormat == "x" || localFormat == "xl") {
     o_data.setBitLength(strlen(i_dataStr) * 4);
     rc = o_data.insertFromHexLeft(i_dataStr);
   }
-  else if (i_format == "xr") {
+  else if (localFormat == "xr") {
     o_data.setBitLength(strlen(i_dataStr) * 4);
     rc = o_data.insertFromHexRight(i_dataStr);
   }     
-  else if (i_format == "b") {
+  else if (localFormat == "b") {
     o_data.setBitLength(strlen(i_dataStr));
     rc = o_data.insertFromBin(i_dataStr);
   }
   else {
-    ecmdOutputError( ("Did not recognize input format string " + i_format).c_str() );
+    ecmdOutputError( ("Did not recognize input format string " + localFormat).c_str() );
     rc = ECMD_INVALID_ARGS;
   }
 
@@ -368,6 +375,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
   int numCols = 0;
   bool good = true;
+  bool perlMode = false;
 
   for (int i = 0; i < formTagLen; i++) {
 
@@ -434,6 +442,9 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
 
       curState = ECMD_FORMAT_BX;
     }
+    else if (i_format[i] == 'p') {
+      perlMode = true;
+    }
     else if (isdigit(i_format[i])) {
       numCols = atoi(&i_format[i]);
       break;
@@ -462,13 +473,16 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   }
 
   if (curState == ECMD_FORMAT_X) {
-    printed = "0x" + i_data.genHexLeftStr();
+    printed += i_data.genHexLeftStr();
+    if (!perlMode) printed = "0x" + printed;
   }
   else if (curState == ECMD_FORMAT_XR) {
-    printed = "0x" + i_data.genHexRightStr();
+    printed = i_data.genHexRightStr();
+    if (!perlMode) printed = "0x" + printed;
   }
   else if (curState == ECMD_FORMAT_B) {
-    printed = "0b" + i_data.genBinStr();
+    printed = i_data.genBinStr();
+    if (!perlMode) printed = "0b" + printed;
   }
   else if (curState == ECMD_FORMAT_BX) {
     //do something
@@ -523,7 +537,10 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     outstr = NULL;
   }
 
-  printed += "\n";
+  if (!perlMode) {
+    printed += "\n";
+  }
+
   return printed;
 
 }
