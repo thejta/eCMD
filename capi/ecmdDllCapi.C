@@ -200,7 +200,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = ALL;
   }
-  else if (ecmdUserArgs.cage.find(patterns) != std::string::npos) {
+  else if (ecmdUserArgs.cage.find(patterns) < ecmdUserArgs.cage.length()) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = MULTI;
   }
@@ -222,7 +222,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
     nodeType = ALL;
   }
-  else if (ecmdUserArgs.node.find(patterns) != std::string::npos) {
+  else if (ecmdUserArgs.node.find(patterns) < ecmdUserArgs.node.length()) {
     i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
     nodeType = MULTI;
   }
@@ -244,7 +244,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     posType = ALL;
     i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
   }
-  else if (ecmdUserArgs.pos.find(patterns) != std::string::npos) {
+  else if (ecmdUserArgs.pos.find(patterns) < ecmdUserArgs.pos.length()) {
     posType = MULTI;
     i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
   }
@@ -266,7 +266,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
     coreType = ALL;
   }
-  else if (ecmdUserArgs.core.find(patterns) != std::string::npos) {
+  else if (ecmdUserArgs.core.find(patterns) < ecmdUserArgs.core.length()) {
     i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
     coreType = MULTI;
   }
@@ -288,7 +288,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
     threadType = ALL;
   }
-  else if (ecmdUserArgs.thread.find(",") != std::string::npos) {
+  else if (ecmdUserArgs.thread.find(patterns) < ecmdUserArgs.thread.length()) {
     i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
     threadType = MULTI;    
   }
@@ -393,21 +393,36 @@ int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   /* We need to pull out the targeting options here, and
    store them away for future use */
-
+  char * curArg;
   //cage - the "-k" was Larry's idea, I just liked it - jtw
-  ecmdUserArgs.cage = dllParseOptionWithArgs(io_argc, io_argv, "-k");
+  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-k");
+  if (curArg != NULL) {
+    ecmdUserArgs.cage = curArg;
+  }
 
   //node
-  ecmdUserArgs.node = dllParseOptionWithArgs(io_argc, io_argv, "-n");
+  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-n");
+  if (curArg != NULL) {
+    ecmdUserArgs.node = curArg;
+  }
 
   //position
-  ecmdUserArgs.pos = dllParseOptionWithArgs(io_argc, io_argv, "-p");
+  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-p");
+  if (curArg != NULL) {
+    ecmdUserArgs.pos = curArg;
+  }
 
   //core
-  ecmdUserArgs.core = dllParseOptionWithArgs(io_argc, io_argv, "-c");
+  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-c");
+  if (curArg != NULL) {
+    ecmdUserArgs.core = curArg;
+  }
 
   //thread
-  ecmdUserArgs.thread = dllParseOptionWithArgs(io_argc, io_argv, "-t");
+  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-t");
+  if (curArg != NULL) {
+    ecmdUserArgs.thread = curArg;
+  }
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
@@ -480,7 +495,7 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
 
     curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
 
-    if ((tmpOffset = curSubstr.find("..",0)) != std::string::npos) {
+    if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
 
       int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
       int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());

@@ -97,6 +97,8 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   ecmdCurCage = ecmdSystemConfigData.begin();
   ecmdLooperInitFlag = 1;
 
+  ecmdOutput("Looper Initialized\n");
+
   return rc;
 }
 
@@ -109,9 +111,12 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   uint8_t THREAD = 4;
 
   uint8_t level = CAGE;
-  uint8_t valid = 0;
+  uint8_t valid = 1;
+
+  ecmdOutput("Entering Looper Next\n");
 
   if (ecmdCurCage == ecmdSystemConfigData.end()) {
+    ecmdOutput("Immediate bailout\n");
     return 0;
   }
 
@@ -120,10 +125,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     io_target.cage = (*ecmdCurCage).cageId;
     ecmdCurNode = (*ecmdCurCage).nodeData.begin();
 
-    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED) {
-      valid = 1;
-    }
-    else if (ecmdCurNode == (*ecmdCurCage).nodeData.end()) {
+    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurNode == (*ecmdCurCage).nodeData.end()) {
       valid = 0;
     }
     else {
@@ -140,10 +142,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     io_target.node = (*ecmdCurNode).nodeId;
     ecmdCurChip = (*ecmdCurNode).chipData.begin();
 
-    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED) {
-      valid = 1;
-    }
-    else if (ecmdCurChip == (*ecmdCurNode).chipData.end()) {
+    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurNode).chipData.end()) {
       valid = 0;
     }
     else {
@@ -151,7 +150,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     }
 
   }
-  else {
+  else if (valid) {
     level = CHIP;
   }
 
@@ -161,18 +160,15 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     io_target.pos = (*ecmdCurChip).pos;
     ecmdCurCore = (*ecmdCurChip).coreData.begin();
 
-    if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED) {
-      valid = 1;
-    }
-    else if (ecmdCurCore == (*ecmdCurChip).coreData.end()) {
-      valid =  0;
+    if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || ecmdCurCore == (*ecmdCurChip).coreData.end()) {
+      valid = 0;
     }
     else {
       level = CORE;
     }
 
   }
-  else {
+  else if (valid) {
     level = CORE;
   }
 
@@ -181,10 +177,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     io_target.core = (*ecmdCurCore).coreId;
     ecmdCurThread = (*ecmdCurCore).threadData.begin();
 
-    if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED) {
-      valid = 1;
-    }
-    else if (ecmdCurThread == (*ecmdCurCore).threadData.end()) {
+    if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || ecmdCurThread == (*ecmdCurCore).threadData.end()) {
       valid = 0;
     }
     else {
@@ -192,14 +185,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     }
 
   }
-  else {
+  else if (valid) {
     level = THREAD;
   }
 
   if (level == THREAD && (io_target.thread != (*ecmdCurThread).threadId || ecmdLooperInitFlag)) {
 
     io_target.thread = (*ecmdCurThread).threadId;
-    valid = 1;
 
   }
 
@@ -211,7 +203,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
         break;
       }
       else {
-        //fall through, update core
+        ecmdOutput("Fell through thread\n");
       }
 
     case 3:  //core
@@ -220,7 +212,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
         break;
       }
       else {
-        //fall through, update chip
+        ecmdOutput("Fell through core\n");
       }
 
     case 2:  //chip
@@ -229,7 +221,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
         break;
       }
       else {
-        //fall through, update node
+        ecmdOutput("Fell through chip\n");
       }
 
     case 1:  //node
@@ -238,7 +230,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
         break;
       }
       else {
-        //fall through, update cage
+        ecmdOutput("Fell through node\n");
       }
 
     case 0:  //cage

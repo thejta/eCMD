@@ -66,7 +66,10 @@ int dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer &
 int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
-int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
+
+  return ECMD_SUCCESS;
+}
 
 int dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
@@ -94,15 +97,40 @@ int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData)
   ecmdChipData chipData;
   ecmdNodeData nodeData;
   ecmdCageData cageData;
+  ecmdThreadData threadData;
 
+  threadData.threadId = 0;
 
   /* Let's return some dummy info , we will return a proc with cores and threads */
   coreData.coreId = 0;
   coreData.numProcThreads = 2;
+  coreData.threadData.push_front(threadData);
 
   chipData.coreData.push_front(coreData);
- 
+  chipData.chipType = "gr";
+  chipData.pos = 0;
+  nodeData.chipData.push_front(chipData);
 
+  ecmdChipData cd2;
+  cd2.coreData.clear();
+  cd2.chipType = "gr";
+  cd2.pos = 1;
+  nodeData.chipData.push_back(cd2);
+
+  cd2.pos = 2;
+  nodeData.chipData.push_back(cd2);
+
+  cd2.pos = 3;
+  nodeData.chipData.push_back(cd2);
+
+  nodeData.nodeId = 0;
+  printf("Node data length: %d\n", nodeData.chipData.size());
+
+  cageData.cageId = 0;
+  cageData.nodeData.push_front(nodeData);
+
+  queryData.push_front(cageData);
+  
   return ECMD_SUCCESS;
 
 } 

@@ -11,7 +11,7 @@ INT_INCLUDES := ecmdDllCapi.H
 SOURCE       := ecmdDllCapiTest.C ecmdDllCapi.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi -g
-LDFLAGS      :=
+LDFLAGS      := 
 
 
 # *****************************************************************************
@@ -80,6 +80,6 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	$(LD) ${LDFLAGS} -o $@ $^
+	$(LD) ${LDFLAGS} -o $@ $^ 
 
 
