@@ -27,11 +27,12 @@
 #define ecmdDllCapi_C
 #include <stdio.h>
 #include <list>
-#include <fstream>
+#include <ifstream>
 #include <string.h>
 #include <stdlib.h>
 
-#include "ecmdDllCapi.H"
+#include <ecmdDllCapi.H>
+#include <ecmdUtils.H>
 
 #undef ecmdDllCapi_C
 //----------------------------------------------------------------------
@@ -53,7 +54,9 @@
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
-list<ecmdError> ecmdErrorList;
+std::list<ecmdError> ecmdErrorList;
+
+ecmdUserSelectInfo ecmdUserArgs;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -89,7 +92,7 @@ int dllUnloadDll() {
 
 std::string dllGetErrorMsg(int i_errorCode) {
   std::string ret;
-  list<ecmdError>::iterator cur;
+  std::list<ecmdError>::iterator cur;
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
@@ -170,7 +173,23 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_qu
 int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   int rc = ECMD_SUCCESS;
 
-  /* We need to pull out the targeting options here */
+  /* We need to pull out the targeting options here, and
+   store them away for future use */
+
+  //cage - the "-k" was Larry's idea, I just liked it - jtw
+  ecmdUserArgs.cage = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
+
+  //node
+  ecmdUserArgs.node = ecmdParseOptionWithArgs(io_argc, io_argv, "-n");
+
+  //position
+  ecmdUserArgs.pos = ecmdParseOptionWithArgs(io_argc, io_argv, "-p");
+
+  //core
+  ecmdUserArgs.core = ecmdParseOptionWithArgs(io_argc, io_argv, "-c");
+
+  //thread
+  ecmdUserArgs.thread = ecmdParseOptionWithArgs(io_argc, io_argv, "-t");
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);

@@ -109,3 +109,77 @@ uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, i
 
 }
 
+
+
+void ecmdRemoveNullPointers (int *argc, char **argv[]) {
+  int counter=0;
+  int counter2=0;
+
+  for (counter=0;counter<(*argc+1);counter++) {
+    for (counter2=counter;counter2<*argc;counter2++) {
+      if ((*argv)[counter]==NULL) {
+        (*argv)[counter]=(*argv)[counter2];
+        (*argv)[counter2]=NULL;
+      }
+    }
+  }
+
+  for (counter=0;counter<(*argc);counter++) {
+    if ((*argv)[counter]==NULL) {
+      *argc=counter;
+      return;
+    }
+  }
+}
+
+
+int ecmdParseOption (int *argc, char **argv[], const char *option) {
+  int counter = 0;
+  int foundit = 0;
+
+  for (counter = 0; counter < *argc ; counter++) {
+    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) {
+      (*argv)[counter]=NULL;
+      foundit = 1;
+      counter = *argc;
+    }
+  }
+
+  ecmdRemoveNullPointers(argc, argv);
+
+  return foundit;
+}
+
+/* ----------------------------------------------------------------- */
+/* Function will parse for an option and eliminate it from a list    */
+/* while returning a pointer to the option that is used.             */
+/* If no option is available, the function will return NULL          */
+/* ----------------------------------------------------------------- */
+char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
+  int counter = 0;
+  int foundit = 0;
+  char *returnValue=NULL;
+
+  for (counter = 0; counter < *argc ; counter++) {
+    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) { 
+
+      if (strlen((*argv)[counter])>strlen(option)) {
+        returnValue = &((*argv)[counter][strlen(option)]);
+        (*argv)[counter]=NULL;
+      } else {
+        if ((counter+1)<*argc) {
+          returnValue = (*argv)[counter+1];
+          (*argv)[counter]=NULL;
+          (*argv)[counter+1]=NULL;
+        } else {
+          returnValue = NULL;
+        }
+      }
+    }
+  }
+
+  ecmdRemoveNullPointers(argc, argv);
+
+  return returnValue;
+}
+

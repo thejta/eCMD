@@ -208,6 +208,18 @@ struct ecmdError {
   std::string message;  ///< Message about the error
 };
 
+
+/**
+ * @brief Used to store position-selection related info a cmdline user passed in
+ */
+struct ecmdUserInfo {
+  std::string cage;     ///< String containing cage info user passed in with -k option
+  std::string node;     ///< String containing node info user passed in with -n option
+  std::string pos;      ///< String containing position info user passed in -p option
+  std::string core;     ///< String containing core info user passed in with -c option
+  std::string thread;   ///< String containing thread info user passed in with -t option
+};
+
 /**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
 */

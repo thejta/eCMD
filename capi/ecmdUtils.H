@@ -46,6 +46,8 @@
 //  User Types
 //----------------------------------------------------------------------
 
+/** @name Gen Functions */
+//@{
 /**
  * @brief Default function for converting hex strings to unsigned int arrays
  * @retval First element of the parsed data, or 0xFFFFFFFF if error
@@ -78,5 +80,47 @@ uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
  */
 uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int expectBits = 0);
 
+//@}
+
+
+/** @name Command Line Parsing Functions */
+//@{
+
+/**
+ * @brief Iterates over argv, removing null pointers and decrementing argc
+ * @retval None
+ * @param io_argc Pointer to number of elements in io_argv array
+ * @param io_argv Array of strings passed in from command line
+ * @see ecmdParseOption
+ * @see ecmdParseOptionWithArgs
+
+ - Utility function for ecmdParseOption and ecmdParseOptionWithArgs
+ */
+void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
+
+/**
+ * @brief Iterates over argv, looking for given option string, removes it if found
+ * @retval 1 if option found, 0 otherwise
+ * @param io_argc Pointer to number of elements in io_argv array
+ * @param io_argv Array of strings passed in from command line
+ * @param i_option Option to look for
+ * @see ecmdRemoveNullPointers
+ * @see ecmdParseOptionWithArgs
+
+ */
+int ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
+
+/**
+ * @brief Iterates over argv, looking for given option string, removes it if found
+ * @retval Value of option arg if found, NULL otherwise
+ * @param io_argc Pointer to number of elements in io_argv array
+ * @param io_argv Array of strings passed in from command line
+ * @param i_option Option to look for
+ * @see ecmdRemoveNullPointers
+ * @see ecmdParseOptionWithArgs
+
+ */
+char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
+//@}
 
 #endif
