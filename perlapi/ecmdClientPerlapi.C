@@ -78,7 +78,7 @@ char * ecmdClientPerlapi::getScom (const char * i_target, int i_address) {
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return NULL;
 
-  ecmdDataBuffer buffer(3); buffer.flushTo0();
+  ecmdDataBuffer buffer;
   rc = ::getScom(myTarget, i_address, buffer);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return NULL;
@@ -93,7 +93,7 @@ int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char
   if (rc) return rc;
 
   ecmdOutput(i_data); ecmdOutput("\n");
-  ecmdDataBuffer buffer(3); buffer.flushTo0();
+  ecmdDataBuffer buffer; 
   rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
