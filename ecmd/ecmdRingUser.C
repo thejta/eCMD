@@ -870,6 +870,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latchs
   ecmdLatchMode_t latchMode = ECMD_LATCHMODE_PARTIAL;   ///< Default to pattern matching on latch name
   ecmdDataBuffer buffer;                ///< Buffer to store data from user
+  uint32_t matchs;                      ///< Number of matchs returned from putlatch
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1047,13 +1048,18 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       
       /* We can do a full latch compare here now to make sure we don't cause matching problems */
       if (ringName.length() != 0) 
-        rc = putLatch(target, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer, ECMD_LATCHMODE_FULL);
+        rc = putLatch(target, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer, curStartBit, curNumBits, matchs, ECMD_LATCHMODE_FULL);
       else
-        rc = putLatch(target, NULL, latchit->latchName.c_str(), latchit->buffer, ECMD_LATCHMODE_FULL);
+        rc = putLatch(target, NULL, latchit->latchName.c_str(), latchit->buffer, curStartBit, curNumBits, matchs,  ECMD_LATCHMODE_FULL);
       if (rc) {
         printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
+        return rc;
+      } else if (matchs > 1) {
+        printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_FAILURE;
         return rc;
       }
 
