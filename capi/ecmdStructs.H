@@ -268,7 +268,7 @@ struct ecmdArrayData {
  @brief Used by the getArrayMultiple function to pass data
 */
 struct ecmdArrayEntry {
-  uint32_t       address;               ///< Array address/element to access
+  ecmdDataBuffer address;               ///< Array address/element to access
   ecmdDataBuffer buffer;                ///< Array data from address
 };
 
