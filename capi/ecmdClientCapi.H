@@ -1127,7 +1127,7 @@ int main (int argc, char *argv[])
 
     // We will dump all the idregs 
     rc = getRing(target, "idreg", data);
-    printf("pu: %d  0x%.08X", target.pos, data.getWord(0));
+    printf("Idreg for %s : 0x%.08X", ecmdWriteTarget(target).c_str(), data.getWord(0));
 
     // Signify that we looped at least once 
     validPosFound = true;
