@@ -57,6 +57,19 @@
 int ecmdGetArrayUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
+  ecmdChipTarget target;        ///< Current target
+  std::string arrayName;        ///< Name of array to access
+  ecmdDataBuffer address;       ///< Buffer to store address
+  ecmdDataBuffer address_copy;  ///< Copy of address to modify in entry loop
+  int  numEntries = 1;          ///< Number of consecutive entries to fetch
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  bool printedHeader;           ///< Have we printed the array name and pos
+  std::list<ecmdArrayEntry> entries;    ///< List of arrays to fetch, to use getArrayMultiple
+  ecmdArrayEntry entry;         ///< Array entry to fetch
+  uint32_t* add_buffer;         ///< Buffer to do temp work with the address for incrementing
+  ecmdArrayData arrayData;      ///< Query data about array
+
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -85,54 +98,124 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  std::string arrayName = argv[1];
+  arrayName = argv[1];
 
-  ecmdDataBuffer address;
-  /* Set the length based on the data provided */
-  address.setBitLength(strlen(argv[2]) * 4);
-  rc = address.insertFromHexRight(argv[2]);
-  if (rc) return rc;
+  /* Did the specify more then one entry ? */
+  if (argc > 3) {
+    numEntries = atoi(argv[3]);
+  }
 
-  ecmdDataBuffer buffer;
-
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
-  std::string printed;
 
   while ( ecmdConfigLooperNext(target) ) {
 
-    rc = getArray(target, arrayName.c_str(), address, buffer);
+    /* We need to find out info about this array */
+    rc = ecmdQueryArray(target, arrayData , arrayName.c_str());
+    if (rc) {
+      printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
 
+
+    /* Set the length  */
+    address.setBitLength(arrayData.addressLength);
+    rc = address.insertFromHexRight(argv[2], arrayData.addressLength);
+    if (rc) return rc;
+
+
+    add_buffer = new uint32_t[address.getWordLength()];
+    int idx, word;
+    uint32_t add_inc = 1;           ///< Address increment, this will increment data by 1 for left aligned buffer
+    uint32_t add_mask = 0xFFFFFFFF;     ///< Mask of valid bits in the last word of the address
+    if (address.getBitLength() % 32) {
+      add_inc = 1 << (32 - (address.getBitLength() % 32));
+      add_mask <<= (32 - (address.getBitLength() % 32));
+    }
+
+    /* Extract the address into a buffer we can deal with */
+    for (idx = 0; idx < address.getWordLength(); idx ++) {
+      add_buffer[idx] = address.getWord(idx);
+    }
+    /* Setup the array entries we are going to fetch */
+    for (int idx = 0; idx < numEntries; idx ++) {
+      entry.address.setBitLength(address.getBitLength());
+      entry.address.insert(add_buffer, 0, address.getBitLength());
+
+      entries.push_back(entry);
+
+      /* Increment for the next one */
+      if (add_buffer[address.getWordLength()-1] == add_mask) {
+        /* We are going to rollover */
+        if (address.getWordLength() == 1) {
+          printed = "getarray - Address overflow on " + arrayName + " ";
+          printed += ecmdWriteTarget(target) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return ECMD_DATA_OVERFLOW;
+        }
+
+        add_buffer[address.getWordLength()-1] = 0;
+        for (int word = address.getWordLength()-2; word >= 0; word --) {
+          if (add_buffer[word] == 0xFFFFFFFF) {
+            /* We are going to rollover */
+            if (word == 0) {
+              printed = "getarray - Address overflow on " + arrayName + " ";
+              printed += ecmdWriteTarget(target) + "\n";
+              ecmdOutputError( printed.c_str() );
+              return ECMD_DATA_OVERFLOW;
+            }
+            add_buffer[word] = 0;
+          } else {
+            add_buffer[word] ++;
+            /* We took care of the carryover, let's get out of here */
+            break;
+          }
+                      
+        }
+      } else {
+        add_buffer[address.getWordLength()-1] += add_inc;
+      }
+
+    }
+  
+
+
+    printedHeader = false;
+
+    /* Actually go fetch the data */
+    rc = getArrayMultiple(target, arrayName.c_str(), entries);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-        printed = "getarray - Error occured performing getarray on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
+      printed = "getarray - Error occured performing getArrayMultiple on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
     }
     else {
       validPosFound = true;     
     }
 
-    printed = ecmdWriteTarget(target) + " " + arrayName + " " + address.genHexRightStr();
+    for (std::list<ecmdArrayEntry>::iterator entit = entries.begin(); entit != entries.end(); entit ++) {
+      if (!printedHeader) {
+        printed = ecmdWriteTarget(target) + " " + arrayName + "\n" + entit->address.genHexRightStr() + "\t";
+        printedHeader = true;
+      } else {
+        printed = entit->address.genHexRightStr() + "\t";
+      }
 
-    std::string dataStr = ecmdWriteDataFormatted(buffer, format);
-    if (dataStr[0] != '\n') {
-      printed += "\n";
+      printed += ecmdWriteDataFormatted(entit->buffer, format);
+
+      ecmdOutput( printed.c_str() );
     }
-
-    printed += dataStr;
-
-    ecmdOutput( printed.c_str() );
 
   }
 
@@ -147,6 +230,13 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
 
 int ecmdPutArrayUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  std::string arrayName;        ///< Name of array to access
+  ecmdDataBuffer address;       ///< Buffer to store address
+  ecmdDataBuffer buffer;        ///< Buffer to store data to write with
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
 
   /* get format flag, if it's there */
   std::string format;
@@ -176,20 +266,17 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  std::string arrayName = argv[1];
+  arrayName = argv[1];
 
-  ecmdDataBuffer address;
   address.setBitLength(strlen(argv[2]) * 4);
   rc = address.insertFromHexRight(argv[2]);
   if (rc) return rc;
 
-  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[3], format);
   if (rc) {
     ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
@@ -197,10 +284,8 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   }
 
 
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
-  std::string printed;
 
   while ( ecmdConfigLooperNext(target) ) {
 
