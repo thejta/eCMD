@@ -266,11 +266,18 @@ uint32_t ecmdHexToUInt32(const char* str)
 	return strtoull(start, NULL, 16);
 }
 
-// Change Log *********************************************************
-//
-//  Flag Reason   Vers Date     Coder    Description
-//  ---- -------- ---- -------- -------- ------------------------------
-//                              CENGEL   Initial Creation
-//                     10/07/04 kloss    added the hashfunction ecmdHexToUInt32 and ecmdHashString32
-//
-// End Change Log *****************************************************
+/* ----------------------------------------------------- */
+/* swaps bytes from 0x01234567 to 0x67452301             */ 
+/* ----------------------------------------------------- */
+uint32_t ecmdGenByteSwap32(uint32_t data) {
+
+  unsigned int dataout = 0x0;
+
+  dataout  =
+    ((data & 0x000000FF) << 24) |
+    ((data & 0x0000FF00) <<  8) | 
+    ((data & 0x00FF0000) >>  8) |
+    ((data & 0xFF000000) >> 24);
+
+  return dataout;
+}
