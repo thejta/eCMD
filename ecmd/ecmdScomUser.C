@@ -36,12 +36,11 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#if 0
 #ifndef FIPSODE
 # include <sedcScomdefParser.H>
 # include <sedcScomdefClasses.H>
 #endif
-#endif
+
 
 #undef ecmdDaScomUser_C
 //----------------------------------------------------------------------
