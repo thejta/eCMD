@@ -1499,36 +1499,54 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       uint32_t numRings =0;
       insh.read((char *)& numRings, 4);
       numRings = htonl(numRings);
+
+      //Get Offset of the end of file
+      insh.seekg (0, ios::end); 
+      uint32_t end = insh.tellg(); 
       
-       //Seek to the Latch Section
-      insh.seekg ( ((numRings * 8) * 2) + 8 ); //Each ring is repeated twice - One for BEGIN offset and One for END
-      
+      uint32_t curLKey; //LatchKey 
+      uint32_t curLOffset; //LatchOffset
 
-      while ( !insh.eof() ) {
-        uint32_t curLKey; //LatchKey 
-        uint32_t curLOffset; //LatchOffset
+      //Binary Search through the latches
+      //Index-low,mid,high
+      //Latch Section
+       uint32_t low=(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END
+       uint32_t mid=0;
+       uint32_t high = end/8-1;
+       while(low <= high) {
+         mid = (low + high) / 2;
+         insh.seekg ( mid*8 );
+         insh.read( (char *)& curLKey, 4);
+         curLKey = htonl(curLKey); 
+         if(latchKeyToLookFor == curLKey) {
+           //Goto the first occurence of this latch
+           while(latchKeyToLookFor == curLKey) {
+             insh.seekg(-12, ios::cur);
+             insh.read( (char *)& curLKey, 4);
+             curLKey = htonl(curLKey); 
+           }
+           //Go back to the matching latch
+           insh.seekg(4, ios::cur);
+           insh.read( (char *)& curLKey, 4);
+           while(latchKeyToLookFor == curLKey) {
+            insh.read( (char *)& curLOffset, 4 );
+            curLOffset = htonl(curLOffset);
+            curLatchHashInfo.latchOffset = curLOffset;
+            curLatchHashInfo.ringFound = false;
+	    latchHashDet.push_back(curLatchHashInfo);
+            foundLatch = true;
+            //Read next latch
+            insh.read( (char *)& curLKey, 4);
+           }
+           break;
+         }
+         if (latchKeyToLookFor < curLKey)
+           high = mid - 1;
+         else
+           low  = mid + 1;
+       }
 
-        insh.read( (char *)& curLKey, 4);
-        curLKey = htonl(curLKey);
 
-        //all the latchname matches have been pulled into the list so stop looking. LatchKeys are binary sorted
-        if((foundLatch == true) && (curLKey != latchKeyToLookFor)) {
-	  break;
-	}
-	
-        if(curLKey == latchKeyToLookFor) {
-          insh.read( (char *)& curLOffset, 4 );
-          curLOffset = htonl(curLOffset);
-          curLatchHashInfo.latchOffset = curLOffset;
-	  curLatchHashInfo.ringFound = false;
-	  latchHashDet.push_back(curLatchHashInfo);
-	  foundLatch = true;
-        }
-        else {
-          insh.seekg ( 4, ios::cur  );
-        }
-
-      }
       if (!foundLatch) {
         rc = ECMD_INVALID_LATCHNAME;
         dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Could not find a Latchname '" + latchName + "'  Key Match in the scandef hash.\n").c_str());
