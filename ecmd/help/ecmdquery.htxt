@@ -12,6 +12,11 @@ Syntax: ecmdquery <Mode> [Mode Options]
         Mode Values     rings ChipSelect [-k#] [-n#] [-s#] [-p#]
                             - Display all rings available for chip
 
+                        format
+                            - Display help text for all available input/output formats
+        
+
         --------------------------------------------------------------------------------
 
         Example:        ecmdquery rings pu -p0,1
+                        ecmdquery format
