@@ -177,18 +177,16 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("simEXPECTFAC - Too few arguments to simEXPECTFAC, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simEXPECTFAC - Too few arguments to simEXPECTFACS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  uint32_t symbol = 0x0;
-  ecmdGenB32FromHexRight(&symbol, argv[0]);
+  char * facname = argv[0];
 
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
   ecmdDataBuffer expected;
-
   rc = ecmdReadDataFormatted(expected, argv[1], format, bitLength);
   if (rc) {
     ecmdOutputError("simEXPECTFAC - Problems occurred parsing input data, must be an invalid format\n");
@@ -205,12 +203,12 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("simEXPECTFAC - Too many arguments to simEXPECTFAC, you probably added a non-supported option.\n");
+    ecmdOutputError("simEXPECTFAC - Too many arguments to simEXPECTFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
   /* Ok, let's call GETFAC and do the comparison */
-  rc = simGETFAC(symbol, bitLength, buffer, row, offset);
+  rc = simGETFAC(facname, bitLength, buffer, row, offset);
 
   if (!ecmdCheckExpected ( buffer, expected)) {
     char buf[200];
@@ -219,77 +217,6 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
     printed = "simEXPECTFAC - Actual   : " + ecmdWriteDataFormatted(buffer, format); 
     ecmdOutputError(printed.c_str());
     printed = "simEXPECTFAC - Expected : " + ecmdWriteDataFormatted(expected, format); 
-    ecmdOutputError(printed.c_str());
-    return ECMD_EXPECT_FAILURE;
-  }
-
-  return rc;
-
-}
-
-int ecmdSimEXPECTFACSUser(int argc, char * argv[]) {
-
-  int rc = ECMD_SUCCESS;
-
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "xr";
-  }
-  else {
-    format = formatPtr;
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
-  if (argc < 3) {
-    ecmdOutputError("simEXPECTFACS - Too few arguments to simEXPECTFACS, you need at least a symbol , data, and a length.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  char * facname = argv[0];
-
-  uint32_t bitLength = atoi(argv[2]);
-
-  ecmdDataBuffer buffer;
-  ecmdDataBuffer expected;
-  rc = ecmdReadDataFormatted(expected, argv[1], format, bitLength);
-  if (rc) {
-    ecmdOutputError("simEXPECTFACS - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
-
-  uint32_t row = 0, offset = 0;
-  if (argc > 3) {
-    row = atoi(argv[3]);
-  }
-  if (argc > 4) {
-    offset = atoi(argv[4]);
-  }
-
-  if (argc > 5) {
-    ecmdOutputError("simEXPECTFACS - Too many arguments to simEXPECTFACS, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  /* Ok, let's call GETFAC and do the comparison */
-  rc = simGETFACS(facname, bitLength, buffer, row, offset);
-
-  if (!ecmdCheckExpected ( buffer, expected)) {
-    char buf[200];
-    std::string printed;
-    ecmdOutputError("simEXPECTFACS - Expect failure\n");
-    printed = "simEXPECTFACS - Actual   : " + ecmdWriteDataFormatted(buffer, format); 
-    ecmdOutputError(printed.c_str());
-    printed = "simEXPECTFACS - Expected : " + ecmdWriteDataFormatted(expected, format); 
     ecmdOutputError(printed.c_str());
     return ECMD_EXPECT_FAILURE;
   }
@@ -412,63 +339,7 @@ int ecmdSimGETFACUser(int argc, char * argv[]) {
 
 
   if (argc < 2) {
-    ecmdOutputError("simGETFAC - Too few arguments to simGETFAC, you need at least a symbol and a length.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  uint32_t symbol = 0x0;
-  ecmdGenB32FromHexRight(&symbol, argv[0]);
-
-  uint32_t bitLength = atoi(argv[1]);
-
-  uint32_t row = 0, offset = 0;
-  if (argc > 2) {
-    row = atoi(argv[2]);
-  }
-  if (argc > 3) {
-    offset = atoi(argv[3]);
-  }
-
-  if (argc > 4) {
-    ecmdOutputError("simGETFAC - Too many arguments to simGETFAC, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  ecmdDataBuffer buffer;
-
-  rc = simGETFAC(symbol, bitLength, buffer, row, offset);
-
-  std::string printed = ecmdWriteDataFormatted(buffer, format);
-  ecmdOutput(printed.c_str());
-
-  return rc;
-
-}
-
-int ecmdSimGETFACSUser(int argc, char * argv[]) {
-
-  int rc = ECMD_SUCCESS;
-
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "xr";
-  }
-  else {
-    format = formatPtr;
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
-  if (argc < 2) {
-    ecmdOutputError("simGETFACS - Too few arguments to simGETFACS, you need at least a facname and bit length.\n");
+    ecmdOutputError("simGETFAC - Too few arguments to simGETFACS, you need at least a facname and bit length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -484,13 +355,13 @@ int ecmdSimGETFACSUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("simGETFACS - Too many arguments to simGETFACS, you probably added a non-supported option.\n");
+    ecmdOutputError("simGETFAC - Too many arguments to simGETFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
   ecmdDataBuffer buffer;
 
-  rc = simGETFACS(facname, bitLength, buffer, row, offset);
+  rc = simGETFAC(facname, bitLength, buffer, row, offset);
 
   std::string printed = ecmdWriteDataFormatted(buffer, format);
   ecmdOutput(printed.c_str());
@@ -689,12 +560,11 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("simPUTFAC - Too few arguments to simPUTFAC, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simPUTFAC - Too few arguments to simPUTFACS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  uint32_t symbol = 0x0;
-  ecmdGenB32FromHexRight(&symbol, argv[0]);
+  char * facname = argv[0];
 
   uint32_t bitLength = atoi(argv[2]);
 
@@ -715,69 +585,11 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("simPUTFAC - Too many arguments to simPUTFAC, you probably added a non-supported option.\n");
+    ecmdOutputError("simPUTFAC - Too many arguments to simPUTFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simPUTFAC(symbol, bitLength, buffer, row, offset);
-
-  return rc;
-
-}
-
-int ecmdSimPUTFACSUser(int argc, char * argv[]) {
-
-  int rc = ECMD_SUCCESS;
-
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "xr";
-  }
-  else {
-    format = formatPtr;
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
-  if (argc < 3) {
-    ecmdOutputError("simPUTFACS - Too few arguments to simPUTFACS, you need at least a symbol , data, and a length.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  char * facname = argv[0];
-
-  uint32_t bitLength = atoi(argv[2]);
-
-  ecmdDataBuffer buffer;
-  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) {
-    ecmdOutputError("simPUTFACS - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
-
-  uint32_t row = 0, offset = 0;
-  if (argc > 3) {
-    row = atoi(argv[3]);
-  }
-  if (argc > 4) {
-    offset = atoi(argv[4]);
-  }
-
-  if (argc > 5) {
-    ecmdOutputError("simPUTFACS - Too many arguments to simPUTFACS, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  rc = simPUTFACS(facname, bitLength, buffer, row, offset);
+  rc = simPUTFAC(facname, bitLength, buffer, row, offset);
 
   return rc;
 
@@ -941,65 +753,7 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("simSTKFAC - Too few arguments to simSTKFAC, you need at least a symbol , data, and a length.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  uint32_t symbol = 0x0;
-  ecmdGenB32FromHexRight(&symbol, argv[0]);
-
-  uint32_t bitLength = atoi(argv[2]);
-
-  ecmdDataBuffer buffer;
-  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) {
-    ecmdOutputError("simSTKFAC - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
-  uint32_t row = 0, offset = 0;
-  if (argc > 3) {
-    row = atoi(argv[3]);
-  }
-  if (argc > 4) {
-    offset = atoi(argv[4]);
-  }
-
-  if (argc > 5) {
-    ecmdOutputError("simSTKFAC - Too many arguments to simSTKFAC, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  rc = simSTKFAC(symbol, bitLength, buffer, row, offset);
-
-  return rc;
-
-}
-
-int ecmdSimSTKFACSUser(int argc, char * argv[]) {
-
-  int rc = ECMD_SUCCESS;
-
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "xr";
-  }
-  else {
-    format = formatPtr;
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
-  if (argc < 3) {
-    ecmdOutputError("simSTKFACS - Too few arguments to simSTKFACS, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simSTKFAC - Too few arguments to simSTKFACS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1010,7 +764,7 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) {
-    ecmdOutputError("simSTKFACS - Problems occurred parsing input data, must be an invalid format\n");
+    ecmdOutputError("simSTKFAC - Problems occurred parsing input data, must be an invalid format\n");
     return rc;
   }
 
@@ -1024,11 +778,11 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("simSTKFACS - Too many arguments to simSTKFACS, you probably added a non-supported option.\n");
+    ecmdOutputError("simSTKFAC - Too many arguments to simSTKFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simSTKFACS(facname, bitLength, buffer, row, offset);
+  rc = simSTKFAC(facname, bitLength, buffer, row, offset);
 
   return rc;
 
@@ -1114,32 +868,6 @@ int ecmdSimSUBCMDUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimsymbolUser(int argc, char * argv[]) {
-
-  int rc = ECMD_SUCCESS;
-
-  if (argc < 1) {
-    ecmdOutputError("simsymbol - At least one argument (a facname) is required for simsymbol.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  else if (argc > 1) {
-    ecmdOutputError("simsymbol - Too many arguments to simsymbol, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  char * facname = argv[0];
-  uint32_t symbol = 0x0;
-
-  rc = simsymbol(facname, symbol);
-  if (rc) return rc;
-
-  char outstr[50];
-  sprintf(outstr, "Symbol for fac %s is %d\n", facname, symbol);
-  ecmdOutput(outstr);
-
-  return rc;
-
-}
 
 int ecmdSimTckIntervalUser(int argc, char * argv[]) {
 
@@ -1188,58 +916,7 @@ int ecmdSimUNSTICKUser(int argc, char * argv[]) {
 
 
   if (argc < 2) {
-    ecmdOutputError("simUNSTICK - Too few arguments to simUNSTICK, you need at least a symbol and a length.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  uint32_t symbol = 0x0;
-  ecmdGenB32FromHexRight(&symbol, argv[0]);
-
-  uint32_t bitLength = atoi(argv[1]);
-
-  uint32_t row = 0, offset = 0;
-  if (argc > 2) {
-    row = atoi(argv[2]);
-  }
-  if (argc > 3) {
-    offset = atoi(argv[3]);
-  }
-
-  if (argc > 4) {
-    ecmdOutputError("simUNSTICK - Too many arguments to simUNSTICK, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  rc = simUNSTICK(symbol, bitLength, row, offset);
-
-  return rc;
-
-}
-
-int ecmdSimUNSTICKSUser(int argc, char * argv[]) {
-
-  int rc = ECMD_SUCCESS;
-
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "xr";
-  }
-  else {
-    format = formatPtr;
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
-  if (argc < 2) {
-    ecmdOutputError("simUNSTICKS - Too few arguments to simUNSTICKS, you need at least a symbol and a length.\n");
+    ecmdOutputError("simUNSTICK - Too few arguments to simUNSTICKS, you need at least a symbol and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1256,11 +933,11 @@ int ecmdSimUNSTICKSUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("simUNSTICKS - Too many arguments to simUNSTICKS, you probably added a non-supported option.\n");
+    ecmdOutputError("simUNSTICK - Too many arguments to simUNSTICKS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simUNSTICKS(facname, bitLength, row, offset);
+  rc = simUNSTICK(facname, bitLength, row, offset);
 
   return rc;
 

@@ -92,27 +92,21 @@ int ecmdSimclockUser(int argc, char * argv[]);
 int ecmdSimechoUser(int argc, char * argv[]);
 int ecmdSimexitUser(int argc, char * argv[]);
 int ecmdSimEXPECTFACUser(int argc, char * argv[]);
-int ecmdSimEXPECTFACSUser(int argc, char * argv[]);
 int ecmdSimexpecttcfacUser(int argc, char * argv[]);
 int ecmdSimGETFACUser(int argc, char * argv[]);
-int ecmdSimGETFACSUser(int argc, char * argv[]);
 int ecmdSimGETFACXUser(int argc, char * argv[]);
 int ecmdSimgettcfacUser(int argc, char * argv[]);
 int ecmdSimgetcurrentcycleUser(int argc, char * argv[]);
 int ecmdSiminitUser(int argc, char * argv[]);
 int ecmdSimPUTFACUser(int argc, char * argv[]);
-int ecmdSimPUTFACSUser(int argc, char * argv[]);
 int ecmdSimPUTFACXUser(int argc, char * argv[]);
 int ecmdSimputtcfacUser(int argc, char * argv[]);
 int ecmdSimrestartUser(int argc, char * argv[]);
 int ecmdSimSTKFACUser(int argc, char * argv[]);
-int ecmdSimSTKFACSUser(int argc, char * argv[]);
 int ecmdSimstktcfacUser(int argc, char * argv[]);
 int ecmdSimSUBCMDUser(int argc, char * argv[]);
-int ecmdSimsymbolUser(int argc, char * argv[]);
 int ecmdSimTckIntervalUser(int argc, char * argv[]);
 int ecmdSimUNSTICKUser(int argc, char * argv[]);
-int ecmdSimUNSTICKSUser(int argc, char * argv[]);
 int ecmdSimunsticktcfacUser(int argc, char * argv[]);
 #endif  //REMOVE_SIM
 

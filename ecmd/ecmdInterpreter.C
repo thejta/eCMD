@@ -170,14 +170,10 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimexitUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simEXPECTFAC")) {
           rc = ecmdSimEXPECTFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simEXPECTFACS")) {
-          rc = ecmdSimEXPECTFACSUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simexpecttcfac")) {
           rc = ecmdSimexpecttcfacUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simGETFAC")) {
           rc = ecmdSimGETFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simGETFACS")) {
-          rc = ecmdSimGETFACSUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simGETFACX")) {
           rc = ecmdSimGETFACXUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simgettcfac")) {
@@ -188,8 +184,6 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSiminitUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simPUTFAC")) {
           rc = ecmdSimPUTFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simPUTFACS")) {
-          rc = ecmdSimPUTFACSUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simPUTFACX")) {
           rc = ecmdSimPUTFACXUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simputtcfac")) {
@@ -198,20 +192,14 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimrestartUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simSTKFAC")) {
           rc = ecmdSimSTKFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simSTKFACS")) {
-          rc = ecmdSimSTKFACSUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simstktcfac")) {
           rc = ecmdSimstktcfacUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simSUBCMD")) {
           rc = ecmdSimSUBCMDUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simsymbol")) {
-          rc = ecmdSimsymbolUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simtckinterval")) {
           rc = ecmdSimTckIntervalUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simUNSTICK")) {
           rc = ecmdSimUNSTICKUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simUNSTICKS")) {
-          rc = ecmdSimUNSTICKSUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simunsticktcfac")) {
           rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
 #endif

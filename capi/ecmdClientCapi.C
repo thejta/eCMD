@@ -206,8 +206,7 @@ int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
     (int(*)(int*, char***))(void*)dlsym(dlHandle, "dllCommonCommandArgs");
   if (!Function) {
     fprintf(stderr,"ecmdCommandArgs: Unable to find dllCommonCommandArgs function, must be an invalid DLL\n");
-    rc = ECMD_DLL_INVALID;
-    return rc;
+    exit(ECMD_DLL_INVALID);
   }
   rc = (*Function)(i_argc, i_argv);
   
@@ -383,7 +382,8 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmd
   if (DllFnTable[ECMD_QUERYCONFIG] == NULL) {
      DllFnTable[ECMD_QUERYCONFIG] = (void*)dlsym(dlHandle, "dllQueryConfig");
      if (DllFnTable[ECMD_QUERYCONFIG] == NULL) {
-       return ECMD_DLL_INVALID;
+       fprintf(stderr,"ecmdQueryConfig: Unable to find ecmdQueryConfig function, must be an invalid DLL\n");
+       exit(ECMD_DLL_INVALID);
      }
   }
 
@@ -468,7 +468,8 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData) {
   if (DllFnTable[ECMD_QUERYSELECTED] == NULL) {
      DllFnTable[ECMD_QUERYSELECTED] = (void*)dlsym(dlHandle, "dllQuerySelected");
      if (DllFnTable[ECMD_QUERYSELECTED] == NULL) {
-       return ECMD_DLL_INVALID;
+       fprintf(stderr,"ecmdQuerySelected: Unable to find ecmdQuerySelected function, must be an invalid DLL\n");
+       exit(ECMD_DLL_INVALID);
      }
   }
 
