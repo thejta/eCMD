@@ -220,11 +220,6 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
     }
 
 
-    /* Let's process the errors returned by the command */
-    if (rc && (rc != ECMD_INT_UNKNOWN_COMMAND)) {
-      /* Do something here */
-    }
-
 
   } /* End if (argc >= 1) */
   else {

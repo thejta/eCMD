@@ -71,10 +71,15 @@ int main (int argc, char *argv[])
       char buf[100];
       sprintf(buf,"**** ERROR (eCMD::main) : Unknown Command specified\n");
       ecmdOutputError(buf);
+    } else {
+      std::string parse = ecmdGetErrorMsg(rc);
+      std::string out = "ecmd - "; out += argv[0];
+      out += " returned with error code " + rc;
+      out += " (" + parse + ")\n";
+      ecmdOutputError(out.c_str());
     }
-
-
   }
+
 
   ecmdOutput(cmdsave.c_str());
 
