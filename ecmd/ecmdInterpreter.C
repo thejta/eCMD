@@ -143,6 +143,19 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         break;
 
         /************************/
+        /* The D's              */
+        /************************/
+      case 'd':
+
+        if (!strcmp(argv[0], "deconfig")) {
+          rc = ecmdDeconfigUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+        /************************/
         /* The E's              */
         /************************/
       case 'e':
@@ -246,6 +259,19 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutSprUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putspy")) {
           rc = ecmdPutSpyUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+        /************************/
+        /* The R's              */
+        /************************/
+      case 'r':
+
+        if (!strcmp(argv[0], "reconfig")) {
+          rc = ecmdReconfigUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

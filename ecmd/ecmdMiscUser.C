@@ -49,6 +49,8 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+void getTargetList (std::string userArgs, std::list<uint32_t> &targetList);
+bool isTargetStringValid(std::string str);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -634,9 +636,524 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 }
 
 
+uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;           ///< Print Buffer
+  ecmdLooperData looperdata;     ///< Store internal Looper data
 
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
 
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+
+  //Setup the target that will be used to query the system config
+  if( argc == 1) {
+   target.chipType = argv[0];
+   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else {
+   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+  }
+
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    /* Actually go fetch the data */
+    rc = ecmdDeconfigureTarget(target);
+
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "deconfig - Error occured performing ecmdDeconfigureTarget on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;
+    }
+
+    printed = ecmdWriteTarget(target) + "deconfigured.\n";
+    
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+
+
+}
+
+uint32_t ecmdReconfigUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  uint8_t ONE = 0;
+  uint8_t MANY = 1;
+
+  ecmdChipTarget target;        ///< Current target
+  std::string printed;           ///< Print Buffer
+  std::string patterns = ".,"; 
+
+  std::string cage;	
+  std::string node;	
+  std::string slot;	
+  std::string pos;	
+  std::string core;	
+  
+  uint8_t cageType;
+  uint8_t nodeType;
+  uint8_t slotType;
+  uint8_t posType;
+  uint8_t coreType;
+  
+  
+  std::list<uint32_t>              cageList;
+  std::list<uint32_t>::iterator    cageListIter;
+  std::list<uint32_t>              nodeList;
+  std::list<uint32_t>::iterator    nodeListIter;
+  std::list<uint32_t>              slotList;
+  std::list<uint32_t>::iterator    slotListIter;
+  std::list<uint32_t>              posList;
+  std::list<uint32_t>::iterator    posListIter;
+  std::list<uint32_t>              coreList;
+  std::list<uint32_t>::iterator    coreListIter;
+  
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+
+  char *targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-all");
+  if(targetPtr != NULL) {
+     printed = "reconfig - 'all' option for targets not supported in reconfig.\n";
+     ecmdOutputError( printed.c_str() );
+     return rc;
+  }
+
+  //Cage
+  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-k");
+  if(targetPtr != NULL) {
+   cage = targetPtr;
+   if(cage == "all") {
+     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
+     ecmdOutputError( printed.c_str() );
+     return rc;
+   }
+   else if (cage.find_first_of(patterns) < cage.length()) {
+     if (!isTargetStringValid(cage)) {
+       ecmdOutputError("reconfig - Cage (-k#) argument contained invalid characters\n");
+       return ECMD_INVALID_ARGS;
+     }
+     target.cageState = ECMD_TARGET_FIELD_VALID;
+     cageType = MANY;
+   }
+   else {
+     if (cage.length() != 0) {
+       if (!isTargetStringValid(cage)) {
+   	 ecmdOutputError("reconfig - Cage (-k#) argument contained invalid characters\n");
+   	 return ECMD_INVALID_ARGS;
+       }
+       target.cage = atoi(cage.c_str());
+     }
+     else {
+       target.cage = 0x0;
+     }
+     cageType = ONE;
+     target.cageState = ECMD_TARGET_FIELD_VALID;
+   }
+  }
+  else {
+    target.cage = 0x0;
+    cageType = ONE;
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+  }
+  
+  
+  //Node
+  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-n");
+  if(targetPtr != NULL) {
+   node = targetPtr;
+   if(node == "all") {
+     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
+     ecmdOutputError( printed.c_str() );
+     return rc;
+   }
+   else if (node.find_first_of(patterns) < node.length()) {
+     if (!isTargetStringValid(node)) {
+       ecmdOutputError("reconfig - Node (-n#) argument contained invalid characters\n");
+       return ECMD_INVALID_ARGS;
+     }
+     target.nodeState = ECMD_TARGET_FIELD_VALID;
+     nodeType = MANY;
+   }
+   else {
+     if (node.length() != 0) {
+       if (!isTargetStringValid(node)) {
+   	 ecmdOutputError("reconfig - Node (-n#) argument contained invalid characters\n");
+   	 return ECMD_INVALID_ARGS;
+       }
+       target.node = atoi(node.c_str());
+     }
+     else {
+       target.node = 0x0;
+     }
+     nodeType = ONE;
+     target.nodeState = ECMD_TARGET_FIELD_VALID;
+   }
+  }
+  else {
+    target.node = 0x0;
+    nodeType = ONE;
+    target.nodeState = ECMD_TARGET_FIELD_VALID;
+  }
+  
+  
+  //Slot
+  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-s");
+  if(targetPtr != NULL) {
+   slot = targetPtr;
+   if(slot == "all") {
+     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
+     ecmdOutputError( printed.c_str() );
+     return rc;
+   }
+   else if (slot.find_first_of(patterns) < slot.length()) {
+     if (!isTargetStringValid(slot)) {
+       ecmdOutputError("reconfig - Slot (-s#) argument contained invalid characters\n");
+       return ECMD_INVALID_ARGS;
+     }
+     target.slotState = ECMD_TARGET_FIELD_VALID;
+     slotType = MANY;
+   }
+   else {
+     if (slot.length() != 0) {
+       if (!isTargetStringValid(slot)) {
+   	 ecmdOutputError("reconfig - Slot (-s#) argument contained invalid characters\n");
+   	 return ECMD_INVALID_ARGS;
+       }
+       target.slot = atoi(slot.c_str());
+     }
+     else {
+       target.slot = 0x0;
+     }
+     slotType = ONE;
+     target.slotState = ECMD_TARGET_FIELD_VALID;
+   }
+  }
+  else {
+    target.slot = 0x0;
+    slotType = ONE;
+    target.slotState = ECMD_TARGET_FIELD_VALID;
+  }
+
+
+  //Position
+  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-p");
+  if(targetPtr != NULL) {
+   pos = targetPtr;
+   if(pos == "all") {
+     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
+     ecmdOutputError( printed.c_str() );
+     return rc;
+   }
+   else if (pos.find_first_of(patterns) < pos.length()) {
+     if (!isTargetStringValid(pos)) {
+       ecmdOutputError("reconfig - Pos (-p#) argument contained invalid characters\n");
+       return ECMD_INVALID_ARGS;
+     }
+     target.posState = ECMD_TARGET_FIELD_VALID;
+     posType = MANY;
+   }
+   else {
+     if (pos.length() != 0) {
+       if (!isTargetStringValid(pos)) {
+   	 ecmdOutputError("reconfig - Pos (-p#) argument contained invalid characters\n");
+   	 return ECMD_INVALID_ARGS;
+       }
+       target.pos = atoi(pos.c_str());
+     }
+     else {
+       target.pos = 0x0;
+     }
+     posType = ONE;
+     target.posState = ECMD_TARGET_FIELD_VALID;
+   }
+  }
+  else {
+    target.pos = 0x0;
+    posType = ONE;
+    target.posState = ECMD_TARGET_FIELD_VALID;
+  }
+  
+ 
+  //Core
+  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-c");
+  if(targetPtr != NULL) {
+   core = targetPtr;
+   if(core == "all") {
+     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
+     ecmdOutputError( printed.c_str() );
+     return rc;
+   }
+   else if (core.find_first_of(patterns) < core.length()) {
+     if (!isTargetStringValid(core)) {
+       ecmdOutputError("reconfig - Core (-c#) argument contained invalid characters\n");
+       return ECMD_INVALID_ARGS;
+     }
+     target.coreState = ECMD_TARGET_FIELD_VALID;
+     coreType = MANY;
+   }
+   else {
+     if (core.length() != 0) {
+       if (!isTargetStringValid(core)) {
+   	 ecmdOutputError("reconfig - Core (-c#) argument contained invalid characters\n");
+   	 return ECMD_INVALID_ARGS;
+       }
+       target.core = atoi(core.c_str());
+     }
+     else {
+       target.core = 0x0;
+     }
+     coreType = ONE;
+     target.coreState = ECMD_TARGET_FIELD_VALID;
+   }
+  }
+  else {
+    target.core = 0x0;
+    coreType = ONE;
+    target.coreState = ECMD_TARGET_FIELD_VALID;
+  }
+  
+
+  //Thread
+  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-t");
+  if(targetPtr != NULL) {
+    ecmdOutputError("reconfig - Thread (-t#) argument not supported\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+
+  //Setup the target that will be used to query the system config
+  if( argc == 1) {
+   target.chipType = argv[0];
+   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  }
+  else {
+   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED ;
+   target.posState = ECMD_TARGET_FIELD_UNUSED ;
+   target.coreState = ECMD_TARGET_FIELD_UNUSED ;
+  }
+ 
+ 
+ 
+  target.threadState = ECMD_TARGET_FIELD_UNUSED ;
+    
+    
+  //Go through each of the targets and configure them 
+  if (cageType == ONE) {
+    cageList.push_back(target.cage);
+  }
+  else if (cageType == MANY) {
+    getTargetList(cage, cageList);
+  }
+  if (cageList.empty()) {
+    ecmdOutputError("reconfig - no cage input found.\n");
+    return ECMD_INVALID_CONFIG;
+  }
+  /* STart walking the cages */
+  for (cageListIter = cageList.begin(); cageListIter != cageList.end(); cageListIter++) {
+     target.cage = *cageListIter;
+     
+     nodeList.clear();
+
+     if (nodeType == ONE) {
+       nodeList.push_back(target.node);
+     }
+     else if (nodeType == MANY) {
+       getTargetList(node, nodeList);
+     }
+	
+     for (nodeListIter = nodeList.begin(); nodeListIter != nodeList.end(); nodeListIter ++) {
+     	target.node = *nodeListIter;
+       
+     	slotList.clear();
+     	
+     	if (slotType == ONE) {
+     	   slotList.push_back(target.slot);
+     	}
+     	else if (slotType == MANY) {
+     	   getTargetList(slot, slotList);
+     	}
+
+	 /* Walk the slots */
+        for (slotListIter = slotList.begin(); slotListIter != slotList.end(); slotListIter ++) {
+          target.slot = *slotListIter;
+	  
+	 /* Walk the slots */
+         if (target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
+           
+	  posList.clear();
+          //ChipType has been previously set
+	  if (posType == ONE) {
+           posList.push_back(target.pos);
+          }
+          else if (posType == MANY) {
+           getTargetList(pos, posList);
+          }
+
+	  /* Now start walking chip pos's */
+	  for (posListIter = posList.begin(); posListIter != posList.end(); posListIter ++) {
+	    target.pos = *posListIter;
+	   
+	    coreList.clear();
+
+	    if (coreType == ONE) {
+              coreList.push_back(target.core);
+            }
+            else if (coreType == MANY) {
+              getTargetList(core, coreList);
+            }
+	    
+	    /* Ok, walk the cores */
+            for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
+	      target.core = *coreListIter;
+
+	      rc = ecmdConfigureTarget(target);
+
+ 	     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+ 	      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
+ 	      printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
+ 	      ecmdOutputError( printed.c_str() );
+ 	      continue;
+ 	     }
+ 	     else if (rc) {
+ 	      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
+ 	      printed += ecmdWriteTarget(target) + "\n";
+ 	      ecmdOutputError( printed.c_str() );
+ 	      return rc;
+ 	     }
+             printed = ecmdWriteTarget(target) + "configured.\n";
+ 	     ecmdOutput( printed.c_str() );
+	
+	    }//Loop cores
+
+	       
+	  }//Loop pos 
+
+	 }// end if chiptype Used
+	 else {
+	   rc = ecmdConfigureTarget(target);
+
+ 	   if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+ 	      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
+ 	      printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
+ 	      ecmdOutputError( printed.c_str() );
+ 	      continue;
+ 	   }
+ 	   else if (rc) {
+ 	     printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
+ 	     printed += ecmdWriteTarget(target) + "\n";
+ 	     ecmdOutputError( printed.c_str() );
+ 	     return rc;
+ 	   }
+           printed = ecmdWriteTarget(target) + "configured.\n";
+ 	   ecmdOutput( printed.c_str() );
+	 
+	 }
+
+	}// Loop slots 
+	    
+      } //Loop nodes 
+      
+    }// Loop cages
+
+  return rc;
+  
+}
+
+
+/* Returns true if all chars of str are decimal numbers */
+bool isTargetStringValid(std::string str) {
+
+  bool ret = true;
+  for (int x = 0; x < str.length(); x ++) {
+    if (isdigit(str[x])) {
+    } else if (str[x] == ',') {
+    } else if (str[x] == '.' && str[x+1] == '.') {
+      x++;
+    } else {
+      ret = false;
+      break;
+    }
+  }
+
+  return ret;
+}
+
+void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
+  
+  std::string curSubstr;
+  int curOffset = 0;
+  int nextOffset = 0;
+  int tmpOffset = 0;
+
+  while (curOffset < userArgs.length()) {
+
+    nextOffset = userArgs.find(',',curOffset);
+    if (nextOffset == std::string::npos) {
+      nextOffset = userArgs.length();
+    }
+
+    curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
+
+    if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
+
+      int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
+      int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
+      
+      int curPos = lowerBound;
+      while (lowerBound <= curPos && curPos <= upperBound) {
+        targetList.push_back(curPos);
+	curPos++;
+      }
+    }
+    else {
+
+      int curValidPos = atoi(curSubstr.c_str());
+      targetList.push_back(curValidPos);
+    }
+
+    curOffset = nextOffset+1;
+
+  }
+
+}
 
 // Change Log *********************************************************
 //                                                                      
