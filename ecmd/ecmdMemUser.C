@@ -103,8 +103,8 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_MEM_DA_TYPE memMode) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 3) {  //chip + address
-    printLine = cmdlineName + " - Too few arguments specified; you need at least a chip, an address and number of bytes.\n";
+  if (argc < 2) {  //chip + address
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
@@ -216,8 +216,8 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_MEM_DA_TYPE memMode) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  if (argc < 3) {  //chip + address
-    printLine = cmdlineName + " - Too few arguments specified; you need at least a chip, an address and number of bytes.\n";
+  if (argc < 2) {  //chip + address
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
