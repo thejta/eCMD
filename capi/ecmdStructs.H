@@ -100,12 +100,12 @@ struct ecmdChipTarget {
   uint32_t core;                ///< which core on chip to access, if chip is multi-core
   uint32_t thread;              ///< which thread on chip to access, if chip is multi-threaded
 
-  ecmdChipTargetState_t cageState;            ///< cage field is state
-  ecmdChipTargetState_t nodeState;            ///< node field is state
-  ecmdChipTargetState_t chipTypeState;        ///< chipType field is state
-  ecmdChipTargetState_t posState;             ///< pos field is state
-  ecmdChipTargetState_t coreState;            ///< core field is state
-  ecmdChipTargetState_t threadState;          ///< thread field is state
+  ecmdChipTargetState_t cageState;            ///< cage field state
+  ecmdChipTargetState_t nodeState;            ///< node field state
+  ecmdChipTargetState_t chipTypeState;        ///< chipType field state
+  ecmdChipTargetState_t posState;             ///< pos field state
+  ecmdChipTargetState_t coreState;            ///< core field state
+  ecmdChipTargetState_t threadState;          ///< thread field state
 };
 
 
