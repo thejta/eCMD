@@ -300,7 +300,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             if ( (ecmdCurChip->numProcCores != 0) && ( !ecmdCurChip->coreData.empty() )) {
               for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
 
-                if (ecmdCurCore->numProcThreads == 0) {
+                if ((ecmdCurCore->numProcThreads == 0) || ecmdCurCore->threadData.empty()) {
                   /* For non-threaded chips */
                   if (!easyParse) {
                     sprintf(buf2, " %d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId);
