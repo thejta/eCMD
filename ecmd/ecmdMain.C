@@ -39,7 +39,6 @@
 #include <ecmdCommandUtils.H>
 #include <ecmdSharedUtils.H>
 
-
 #undef ecmdMain_C
 
 int main (int argc, char *argv[])
@@ -130,7 +129,7 @@ int main (int argc, char *argv[])
 
 
             if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-              sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", argv[1]);
+              sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
               ecmdOutputError(buf);
             } else if (rc) {
               std::string parse = ecmdGetErrorMsg(rc, false);
@@ -139,7 +138,7 @@ int main (int argc, char *argv[])
                 ecmdOutput(parse.c_str());
               }
               parse = ecmdParseReturnCode(rc);
-              sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
+              sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", c_argv[0], rc, parse.c_str());
               ecmdOutputError(buf);
               break;
             }
