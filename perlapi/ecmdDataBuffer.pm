@@ -2,20 +2,29 @@
 
 package ecmdDataBuffer;
 
+=for mainBrief
+/**
+ * @file ecmdDataBuffer.pm
+ * @brief Provides a means to handle data from the eCMD Perl API
+ *
+ * DataBuffers handle data in a Big Endian fashion with Bit 0 being the MSB
+*/
+=cut
+
 use strict;
-#use warnings;
-#require Exporter;
-
-#use vars qw(@ISA @EXPORT);
-
-#@ISA = qw(Exporter);
-#@EXPORT = qw(new getWordLength getstr setstr );
 
 
 ################################################
 # This is the only data string global variable #
 ################################################
 my $iv_DataStr = "";
+
+=for functionBrief
+  /**
+   * @brief Default Constructor
+   * @post buffer is not allocated, can be allocated later with setWordLength, setCapacity or setBitLength
+   */
+=cut
 
 sub new {
 	my $self = \$iv_DataStr;
@@ -25,13 +34,14 @@ sub new {
 }
 
 
-#  // Member Functions
-#  /** @name Buffer Size Function */
-#  //@{
-#  /**
-#   * @brief Return the length of the buffer in words
-#   * @retval Buffer length in words rounded up
-#   */
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Return the length of the buffer in words
+   * @retval Buffer length in words rounded up
+   */
+=cut
+
 sub getWordLength {
 	my ($len) =0;
 	my ($needExtra) =0;
@@ -42,10 +52,15 @@ sub getWordLength {
 	return $len;
 }
 
-#  /**
-#   * @brief Return the length of the buffer in bytes
-#   * @retval Buffer length in bytes rounded up
-#   */
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Return the length of the buffer in bytes
+   * @retval Buffer length in bytes rounded up
+   */
+=cut
+
 sub getByteLength() {
 	my ($len) =0;
 	my ($needExtra) =0;
@@ -56,21 +71,31 @@ sub getByteLength() {
 	return $len;
 }
 
-#  /**
-#   * @brief Return the length of the buffer in bits
-#   * @retval Buffer length in bits
-#   */
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Return the length of the buffer in bits
+   * @retval Buffer length in bits
+   */
+=cut
+
 sub getBitLength() {
 	return length($iv_DataStr);
 }
 
-#  /**
-#   * @brief Reinitialize the Buffer to specified length
-#   * @param i_newNumWords Length of new buffer in words
-#   * @post Buffer is reinitialized
-#   *
-#   * CAUTION : All data stored in buffer will be lost
-#   */
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumWords Length of new buffer in words
+   * @post Buffer is reinitialized
+   *
+   * CAUTION : All data stored in buffer will be lost
+   */
+=cut
+
 sub setWordLength() {
 	my ($i_newNumWords)= @_[1];
 	my ($looper)=0;
@@ -81,13 +106,17 @@ sub setWordLength() {
 }  
 
 
-#  /**
-#   * @brief Reinitialize the Buffer to specified length
-#   * @param i_newNumBits Length of new buffer in bits
-#   * @post Buffer is reinitialized
-#   *
-#   * CAUTION : All data stored in buffer will be lost
-#   */
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumBits Length of new buffer in bits
+   * @post Buffer is reinitialized
+   *
+   * CAUTION : All data stored in buffer will be lost
+   */
+=cut
+
 sub setBitLength() {
 	my ($i_newNumBits)= @_[1];
 	my ($looper)=0;
@@ -98,20 +127,15 @@ sub setBitLength() {
 }
 
 
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Turn on a bit in buffer
+   * @param i_bit Bit in buffer to turn on
+   * @param i_len Number of consecutive bits from start bit to turn on
+   */
+=cut
 
-
-#  //@}
-
-
-
-#/** @name Bit/Word Manipulation Functions */
-#  //@{
-
-
-#  /**
-#   * @brief Turn on a bit in buffer
-#   * @param i_bit Bit in buffer to turn on
-#   */
 sub setBit() {
 	my ($i_bit,$len) = @_[1],@_[2];
 	if (($i_bit        >= getBitLength()) || 
@@ -128,6 +152,16 @@ sub setBit() {
 		}
 	}
 }
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Clear a bit in buffer
+   * @param i_bit Bit in buffer to turn off
+   * @param i_len Number of consecutive bits from start bit to off
+   */
+=cut
 
 sub clearBit() {
 	my ($i_bit) = @_[1];
@@ -148,11 +182,15 @@ sub clearBit() {
 }
 
 
-#  /**
-#   * @brief Set a word of data in buffer
-#   * @param i_wordoffset Offset of word to set
-#   * @param i_value 32 bits of data to put into word
-#   */
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Set a word of data in buffer
+   * @param i_wordoffset Offset of word to set
+   * @param i_value 32 bits of data to put into word
+   */
+=cut
+
 sub setWord() {
 	my ($i_wordOffset) = @_[1];
 	my ($i_value) = @_[2];
@@ -179,11 +217,15 @@ sub setWord() {
 }
 
 
-#/**
-#  * @brief Fetch a word from ecmdDataBuffer
-#  * @param i_wordoffset Offset of word to fetch
-#  * @retval Value of word requested
-#  */
+#######################################################################################
+=for functionBrief
+/**
+  * @brief Fetch a word from ecmdDataBuffer
+  * @param i_wordoffset Offset of word to fetch
+  * @retval Value of word requested
+  */
+=cut
+
 sub getWord() {
 	my ($i_wordOffset) = @_[1];
 	my ($extracted) ="";
@@ -191,11 +233,16 @@ sub getWord() {
 	return $extracted;
 }
 
-#  /**
-#   * @brief Set a byte of data in buffer
-#   * @param i_byteoffset Offset of byte to set
-#   * @param i_value 8 bits of data to put into byte
-#   */
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Set a byte of data in buffer
+   * @param i_byteoffset Offset of byte to set
+   * @param i_value 8 bits of data to put into byte
+   */
+=cut
+
 sub setByte() {
 	my ($i_byteOffset) = @_[1];
 	my ($i_value) = @_[2];
@@ -222,6 +269,14 @@ sub setByte() {
 }
 
 
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Invert bit
+   * @param i_bit Bit in buffer to invert
+   * @param i_len Number of consecutive bits to invert
+   */
+=cut
 
 sub flipBit() {
 	my ($bit) = @_[1];
@@ -250,6 +305,16 @@ sub flipBit() {
 }
 
 
+#######################################################################################
+=for functionBrief
+ /**
+   * @brief Test if bit is set
+   * @param i_bit Bit to test
+   * @param i_len Number of consecutive bits to test
+   * @retval true if bit is set - false if bit is clear
+   */
+=cut
+
 sub isBitSet() {
 	my ($bit) = @_[1];
 	my ($len) = @_[2];
@@ -277,6 +342,17 @@ sub isBitSet() {
 	}
 	return 1;
 }
+
+
+#######################################################################################
+=for functionBrief
+/**
+   * @brief Test if bit is clear
+   * @param i_bit Bit to test
+   * @param i_len Number of consecutive bits to test
+   * @retval true if bit is clear - false if bit is set
+   */
+=cut
 
 sub isBitClear() {
 	my ($bit) = @_[1];
@@ -307,6 +383,15 @@ sub isBitClear() {
 }
 
 
+#######################################################################################
+=for functionBrief
+/**
+   * @brief Count number of bits set in a range
+   * @param i_bit Start bit to test
+   * @param i_len Number of consecutive bits to test
+   * @retval Number of bits set in range
+   */    
+=cut
 
 sub getNumBitsSet() {
 	my ($bit) = @_[1];
@@ -337,12 +422,15 @@ sub getNumBitsSet() {
 }
 
 
+#######################################################################################
+=for functionBrief
   /**
    * @brief Shift data to right
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to right by specified number of bits - data is shifted off the end
    * @post Buffer size is unchanged
    */
+=cut
 
 sub shiftRight() {
 	my ($shiftNum) = @_[1];
@@ -362,12 +450,16 @@ sub shiftRight() {
 
 }
 
+
+#######################################################################################
+=for functionBrief
  /**
    * @brief Shift data to left
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
    * @post Buffer size is unchanged
    */
+=cut
 
 sub shiftLeft() {
 	my ($shiftNum) = @_[1];
@@ -386,11 +478,15 @@ sub shiftLeft() {
 
 }
 
+
+#######################################################################################
+=for functionBrief
   /**
    * @brief Rotate data to right
    * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the right by specified number of bits - data is rotated to the beginning
    */
+=cut
 
 sub rotateRight() {
 	my ($shiftNum) = @_[1];
@@ -410,12 +506,16 @@ sub rotateRight() {
 
 }
 
+
+#######################################################################################
+=for functionBrief
  /**
    * @brief Rotate data to left
    * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the left by specified number of bits - data is rotated to the end
    */
-  
+=cut
+
 sub rotateLeft() {
 	my ($shiftNum) = @_[1];
 	my ($charHolder);
@@ -433,6 +533,57 @@ sub rotateLeft() {
 
 	}
 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Clear entire buffer to 0's
+   */
+=cut
+
+sub flushTo0() {
+	my ($len) =0;
+	my ($looper) =0;
+
+	$len = length($iv_DataStr);
+	$iv_DataStr =0;
+	for($looper=0;$looper<$len-1; $looper++) {
+		$iv_DataStr = $iv_DataStr . 0;
+	}
+
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Set entire buffer to 1's
+   */
+=cut
+
+sub flushTo1() {
+	my ($len) =0;
+	my ($looper) =0;
+
+	$len = length($iv_DataStr);
+	$iv_DataStr =1;
+	for($looper=0;$looper<$len-1; $looper++) {
+		$iv_DataStr = $iv_DataStr . 1;
+	}
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Invert entire buffer
+   */
+=cut
+
+sub invert() {
+#  /* Performs bit inversion on entire DataBuffer class */
 }
 
 
