@@ -112,6 +112,7 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 int ecmdGetRingDumpUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
+  bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
 
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -229,13 +230,20 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 
       while (getline(ins, curLine) && !done) {
 
+
         if (found) {
 
-          if (curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+            done = true;
+          }
+          else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
             done = true;
           }
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
             //do nothing
+          }
+          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
+            // do nothing
           }
           else {
 
@@ -268,14 +276,27 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
           }
 
         }
-        else if (curLine[0] == '*' && curLine.find(ringArg) != std::string::npos) {
+        /* Can we find the ring we are looking for on this line */
+        else if (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
+                 ((curLine[0] == 'N') && (curLine.find(ringName) != std::string::npos))) {
           found = true;
+          if (curLine.substr(0,4) == "Name") {
+            newFileFormat = true;
+          }
         }
 
       }
 
       if (!found) {
-        //panic
+        printed = "getringdump - Unable to find ring '";
+        printed += ringName;
+        printed += "' in the scandef\n";
+        ecmdOutputError(printed.c_str());
+        printed = "getringdump - Scandef Used : ";
+        printed += scandefFile;
+        printed += "\n";
+        ecmdOutputError(printed.c_str());
+        return ECMD_SCANDEF_LOOKUP_FAILURE;
       }
 
       ins.close();
@@ -303,6 +324,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   ecmdLatchBufferEntry curEntry;
   char* expectDataPtr = NULL;
+  bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
 
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -457,12 +479,19 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
         if (found) {
 
-          if ((curLine[0] == '*') && curLine.find(ringPrefix) != std::string::npos) {
+          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+            done = true; continue;
+          }
+          else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
             done = true; continue;
           }
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+            //do nothing
             continue;
-            //nada
+          }
+          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
+            // do nothing
+            continue;
           }
           else if (!exactFlag && (curLine.find(latchName) != std::string::npos)) {
 
@@ -510,9 +539,11 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
           curEntry.entry.push_back(curLatch);
 
         }
-        else {
-          if (curLine[0] == '*' && curLine.find(ringArg) != std::string::npos) {
-            found = true;
+        else if (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
+                 ((curLine[0] == 'N') && (curLine.find(ringName) != std::string::npos))) {
+          found = true;
+          if (curLine.substr(0,4) == "Name") {
+            newFileFormat = true;
           }
         }
 
@@ -984,6 +1015,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchBufferEntry> latchBuffer;
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   ecmdLatchBufferEntry curEntry;
+  bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
 
   /* get format flag, if it's there */
   std::string format;
@@ -1119,12 +1151,19 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
       while (getline(ins, curLine) && !done) {
 
         if (found) {
-          if ((curLine[0] == '*') && curLine.find(ringPrefix) != std::string::npos) {
+          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+            done = true; continue;
+          }
+          else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
             done = true; continue;
           }
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+            //do nothing
             continue;
-            //nada
+          }
+          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
+            // do nothing
+            continue;
           }
           else if ((curLine[0] != '*') && curLine.find(latchName) != std::string::npos) {
 
@@ -1157,9 +1196,11 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
 
 
         }
-        else {
-          if ((curLine[0] == '*') && curLine.find(ringArg) != std::string::npos) {
-            found = true;
+        else if (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
+                 ((curLine[0] == 'N') && (curLine.find(ringName) != std::string::npos))) {
+          found = true;
+          if (curLine.substr(0,4) == "Name") {
+            newFileFormat = true;
           }
         }
 

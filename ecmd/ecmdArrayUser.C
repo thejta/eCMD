@@ -93,12 +93,13 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
 
   std::string arrayName = argv[1];
 
-  ecmdDataBuffer address(3);
+  ecmdDataBuffer address;
+  /* Set the length based on the data provided */
+  address.setBitLength(strlen(argv[2]) * 4);
   rc = address.insertFromHexRight(argv[2]);
   if (rc) return rc;
 
-  ecmdDataBuffer buffer(3);
-  buffer.flushTo0();
+  ecmdDataBuffer buffer;
 
   bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
@@ -183,11 +184,12 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
 
   std::string arrayName = argv[1];
 
-  ecmdDataBuffer address(3);
+  ecmdDataBuffer address;
+  address.setBitLength(strlen(argv[2]) * 4);
   rc = address.insertFromHexRight(argv[2]);
   if (rc) return rc;
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[3], format);
   if (rc) {
     ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
