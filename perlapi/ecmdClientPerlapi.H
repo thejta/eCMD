@@ -535,13 +535,19 @@ class ecmdClientPerlapi
      */
     int simecho(const char* i_message);
 
+
     /**
      @brief Close down the simulation model
+     @param i_rc [Optional] Send a testcase failure return code to the simulation
+     @param i_message [Optional[ Send a testcase failure message to the simulation
      @retval ECMD_SUCCESS if successful
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simexit();
+
+    int simexit(uint32_t i_rc = 0, const char* i_message = NULL);
+
+/*    int simexit();*/
 
     /**
      @brief Perform expect on facility using name
@@ -624,6 +630,39 @@ class ecmdClientPerlapi
      @retval nonzero on failure
      */
     int siminit(const char* i_checkpoint);
+
+    /**
+     @brief Poll a facility waiting for expected value
+     @param i_facname Facility name
+     @param i_bitlength Bit length to expect
+     @param i_expect Data to expect in facility
+     @param i_row Optional: Array row
+     @param i_offset Optional : Facility offset
+     @param i_maxcycles Optional : Maximum number of cycles to run 
+     @param i_pollinterval Option : Number of clock cycles to run between each poll
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+     */
+    int simPOLLFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0, int i_offset = 0, int i_maxcycles = 1, int i_pollinterval = 1);
+
+    /**
+     @brief Poll a TCFAC facility waiting for expected value
+     @param i_tcfacname Facility name
+     @param i_bitlength Bit length to expect
+     @param i_expect Data to expect in facility
+     @param i_row Optional: Array row
+     @param i_startbit Optional : Facility startbit
+     @param i_maxcycles Optional : Maximum number of cycles to run 
+     @param i_pollinterval Option : Number of clock cycles to run between each poll
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+     */
+    int simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, int i_row = 0, int i_startbit = 0, int i_bitlength = 0, int i_maxcycles = 1, int i_pollinterval = 1);
+
 
     /**
      @brief Write a Facility using a name

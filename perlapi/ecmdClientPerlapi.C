@@ -535,112 +535,221 @@ int  ecmdClientPerlapi::ecmdFlushRingCache(){
 
 int ecmdClientPerlapi::simaet(const char* i_function){
 
-  return 0;
+  int rc = 0;
+
+  rc = simaet(i_function);
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simcheckpoint(const char* i_checkpoint){
 
-  return 0;
+  int rc = 0;
+  rc = simcheckpoint(i_checkpoint);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simclock(int i_cycles){
 
-  return 0;
+  int rc = 0;
+  rc = simclock(i_cycles);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simecho(const char* i_message){
 
-  return 0;
+  int rc = 0;
+  rc = simecho(i_message);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
-int ecmdClientPerlapi::simexit(){
+int ecmdClientPerlapi::simexit(uint32_t i_rc , const char* i_message ){
 
-  return 0;
+  int rc = 0;
+  rc = simexit(i_rc, i_message);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simEXPECTFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simEXPECTFAC(i_facname, i_bitlength, i_expect, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simexpecttcfac(const char* i_tcfacname, int i_bitlength, const char* i_expect, int i_row){
 
-  return 0;
+  int rc = 0;
+  rc = simexpecttcfac(i_tcfacname, i_bitlength, i_expect, i_row);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simgetcurrentcycle(char** o_cyclecount){
 
-  return 0;
+  int rc = 0;
+  rc = simgetcurrentcycle(o_cyclecount);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simGETFAC(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simGETFAC(i_facname, i_bitlength, o_data, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simGETFACX(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simGETFACX(i_facname, i_bitlength, o_data, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simgettcfac(const char* i_tcfacname, char** o_data, int i_row, int i_startbit, int i_bitlength){
 
-  return 0;
+  int rc = 0;
+  rc = simgettcfac(i_tcfacname, o_data, i_row, i_startbit, i_bitlength);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::siminit(const char* i_checkpoint){
 
-  return 0;
+  int rc = 0;
+  rc = siminit(i_checkpoint);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
+
+int ecmdClientPerlapi::simPOLLFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row, int i_offset, int i_maxcycles, int i_pollinterval) {
+
+  int rc = 0;
+  rc = simPOLLFAC(i_facname, i_bitlength, i_expect, i_row, i_offset, i_maxcycles, i_pollinterval);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
+}
+
+int simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, int i_row, int i_startbit, int i_bitlength, int i_maxcycles, int i_pollinterval) {
+
+  int rc = 0;
+  rc = simpolltcfac(i_tcfacname, i_expect, i_row, i_startbit, i_bitlength, i_maxcycles, i_pollinterval);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+}
+
+
 
 int ecmdClientPerlapi::simPUTFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simPUTFAC(i_facname, i_bitlength, i_data, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simPUTFACX(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simPUTFACX(i_facname, i_bitlength, i_data, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simputtcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows){
 
-  return 0;
+  int rc = 0;
+  rc = simputtcfac(i_tcfacname, i_bitlength, i_data, i_row, i_numrows);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simrestart(const char* i_checkpoint){
 
-  return 0;
+  int rc = 0;
+  rc = simrestart(i_checkpoint);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simSTKFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simSTKFAC(i_facname, i_bitlength, i_data, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simstktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows){
 
-  return 0;
+  int rc = 0;
+  rc = simstktcfac(i_tcfacname, i_bitlength, i_data, i_row, i_numrows);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simSUBCMD(const char* i_command){
 
-  return 0;
+  int rc = 0;
+  rc = simSUBCMD(i_command);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simtckinterval(int i_tckinterval){
 
-  return 0;
+  int rc = 0;
+  rc = simtckinterval(i_tckinterval);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simUNSTICK(const char* i_facname, int i_bitlength, int i_row, int i_offset){
 
-  return 0;
+  int rc = 0;
+  rc = simUNSTICK(i_facname, i_bitlength, i_row, i_offset);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 int ecmdClientPerlapi::simunsticktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows){
 
-  return 0;
+  int rc = 0;
+  rc = simunsticktcfac(i_tcfacname, i_bitlength, i_data, i_row, i_numrows);
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 char* ecmdClientPerlapi::ecmdGetErrorMsg(int i_errorCode){
