@@ -605,7 +605,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       /* check for last iteration */
       /* ------------------------ */
       if ((limitFlag == ITERATIONS_T || limitFlag == CYCLES_T) && numPolls >= maxPolls) done = 1;
-      else if (limitFlag == SECONDS_T && maxPolls != 0 && (time(NULL) > timerStart + maxPolls)) done = 1;
+      else if (limitFlag == SECONDS_T && maxPolls != 0 && ((uint32_t) time(NULL) > timerStart + maxPolls)) done = 1;
 
       if (expectFlag) {
 
