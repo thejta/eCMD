@@ -953,7 +953,7 @@ void ecmdDataBuffer::setXor(uint32_t * dataIn, int startBit, int len) {
   } else {
     uint32_t mask = 0x80000000;
     for (int i = 0; i < len; i++) {
-      this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ mask));
+      this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
       mask >>= 1;
       if (mask == 0x00000000) {
         mask = 0x80000000;
