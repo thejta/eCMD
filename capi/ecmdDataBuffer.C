@@ -73,15 +73,26 @@ ecmdDataBuffer::ecmdDataBuffer(int numWords)
 
 ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
 
-  this->setWordLength(other.iv_NumWords);
-  for (int i = 0; i < iv_NumWords; i++) 
-    iv_Data[i] = other.iv_Data[i];
+  if (other.iv_NumBits != 0) {
+
+    this->setBitLength(other.iv_NumBits);
+    for (int i = 0; i < iv_NumWords; i++) 
+      iv_Data[i] = other.iv_Data[i];
 
 
 #ifndef REMOVE_SIM
-  strcpy(iv_DataStr, other.iv_DataStr);
-  iv_isXstate = other.iv_isXstate;
+    strcpy(iv_DataStr, other.iv_DataStr);
+    iv_isXstate = other.iv_isXstate;
 #endif
+  } else {
+    /* We are copying an empty buffer */
+    iv_NumWords = iv_NumBits = iv_Capacity = 0;
+    iv_Data = iv_RealData = NULL;
+#ifndef REMOVE_SIM
+    iv_DataStr = NULL;
+    iv_isXstate = 0;
+#endif
+  }
 
 }
 

@@ -53,8 +53,11 @@ class ecmdDataBuffer {
 
 public:
 
+  /** @name ecmdDataBuffer Constructors */
+  //@{
   /**
    * @brief Default Constructor
+   * @post buffer is not allocated, can be allocated later with setWordLength, setCapacity or setBitLength
    */
   ecmdDataBuffer();
 
@@ -65,10 +68,19 @@ public:
    */
   ecmdDataBuffer(int i_numWords); 
 
+
+  /**
+   * @brief Copy Constructor
+   * @param other Buffer to copy
+   */
+  ecmdDataBuffer(const ecmdDataBuffer &other);
+
   /**
    * @brief Default Destructor
    */
   ~ecmdDataBuffer();
+  //@}
+
 
   // Member Functions
   /** @name Buffer Size Function */
@@ -534,7 +546,6 @@ private:  //data
 
 
 private: //methods
-  ecmdDataBuffer(const ecmdDataBuffer &other);
 
 
 #ifndef REMOVE_SIM
