@@ -125,16 +125,12 @@ class ecmdDataBuffer {
       * @param len Number of consecutive bits from start bit to turn on
       */
      void  setBit(int bit, int len);
-
-#ifdef ECMD_SIM
      /**
       * @brief Turn on a bit in buffer
       * @param bitoffset bit in buffer to turn on
       * @param datastr Character value to set bit - can be "0", "1", "X"
       */
      void  setBit(int bitoffset, const char* datastr); // data can be 0,1,'x','X' 
-#endif
-
      /**
       * @brief Set a word of data in buffer
       * @param wordoffset Offset of word to set
@@ -447,7 +443,6 @@ class ecmdDataBuffer {
      const char* genBinStr();
      //@}
 
-#ifdef ECMD_SIM
      /** @name Simulation Buffer Functions */
      //@{
      /**
@@ -464,7 +459,6 @@ class ecmdDataBuffer {
      int   isXstate(int start, int length); /* check subset */
 
      //@}
-#endif
 
    private:  //data
      int iv_Capacity;
@@ -478,7 +472,7 @@ class ecmdDataBuffer {
    private: //methods
      ecmdDataBuffer(const ecmdDataBuffer &other);
 
-#ifdef ECMD_SIM
+#ifndef REMOVE_SIM_BUFFERS
    private:
      char* iv_DataStr; /* binary or x data */
 
