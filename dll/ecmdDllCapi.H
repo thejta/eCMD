@@ -213,6 +213,10 @@ uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_t
 
 std::string dllCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command); 
 
+uint32_t dllSimFusionRand32(uint32_t i_min , uint32_t i_max , const char* i_fusionRandObject ); 
+
+uint64_t dllSimFusionRand64(uint64_t i_min , uint64_t i_max , const char* i_fusionRandObject ); 
+
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 

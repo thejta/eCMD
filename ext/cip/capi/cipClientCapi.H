@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#ifndef PERLAPI
+#ifndef ECMD_PERLAPI
 /** @name Load/Unload Functions */
 //@{
 
