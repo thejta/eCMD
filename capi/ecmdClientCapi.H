@@ -1118,6 +1118,83 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
 uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
 
+/**
+ @brief Reads the selected Processor SLB Entry into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_slbNum Number of fpr to read from
+ @param o_data DataBuffer object that holds data read from fpr
+
+
+*/
+uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & o_data);
+
+/**
+ @brief Reads the selected Processor SLB Entry into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in with slb number
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
+
+*/
+uint32_t getSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+
+/**
+ @brief Writes the data buffer into the selected Processor SLB Entry
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_slbNum Number of fpr to write to
+ @param i_data DataBuffer object that holds data to write into fpr
+
+
+*/
+uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & i_data);
+
+/**
+ @brief Writes the data buffer into the selected Processor SLB Entry
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
+
+ The return value of this function is set to the first non-zero return code found when
+  writing multiple entries.  The function will NOT continue through all subsequent entries.
+
+
+*/
+uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+
 //@}
 /* End Processor Functions */
 
@@ -1849,6 +1926,15 @@ To create Linux x86 binaries, the following is required:
 <hr>
 @section ext eCMD Extensions
 These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.
+@subsection cmd CMD Command line Extension
+This extensions provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
+
+Include files :
+<ul>
+<li> cmdClientCapi.H</li>
+<li> cmdStructs.H</li>
+</ul>
+
 @subsection cip CIP (Cronus/IP) Extension
 This extensions provides interfaces to start/stop processor instructions and breakpoint handling.<br>
 Include files :
