@@ -91,6 +91,8 @@ struct ecmdUserInfo {
   std::string core;
   std::string thread;
 
+  bool allTargetSpecified;
+
 } ecmdUserArgs;
 
 //---------------------------------------------------------------------
@@ -225,7 +227,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //update target with useful info in the ecmdUserArgs struct
   //cage
-  if (ecmdUserArgs.cage == allFlag) {
+  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = ALL;
   }
@@ -255,7 +257,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //node
-  if (ecmdUserArgs.node == allFlag) {
+  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.node == allFlag)) {
     i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
     nodeType = ALL;
   }
@@ -285,7 +287,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //slot
-  if (ecmdUserArgs.slot == allFlag) {
+  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.slot == allFlag)) {
     i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
     slotType = ALL;
   }
@@ -315,7 +317,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //position
-  if (ecmdUserArgs.pos == allFlag) {
+  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.pos == allFlag)) {
     posType = ALL;
     i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
   }
@@ -345,7 +347,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //core
-  if (ecmdUserArgs.core == allFlag ) {
+  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.core == allFlag)) {
     i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
     coreType = ALL;
   }
@@ -375,7 +377,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //thread
-  if (ecmdUserArgs.thread == allFlag || ecmdUserArgs.thread == "alive") {
+  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.thread == allFlag) || (ecmdUserArgs.thread == "alive")) {
     i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
     threadType = ALL;
   }
@@ -504,9 +506,18 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   /* We need to pull out the targeting options here, and
    store them away for future use */
   char * curArg;
+
+  ecmdUserArgs.allTargetSpecified = false;
+  if (dllParseOption(io_argc, io_argv, "-all"))
+    ecmdUserArgs.allTargetSpecified = true;
+    
+
   //cage - the "-k" was Larry's idea, I just liked it - jtw
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-k");
-  if (curArg != NULL) {
+  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -k# at the same time\n");
+    return ECMD_INVALID_ARGS;
+  } else if (curArg != NULL) {
     ecmdUserArgs.cage = curArg;
   }
   else {
@@ -515,7 +526,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   //node
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-n");
-  if (curArg != NULL) {
+  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -n# at the same time\n");
+    return ECMD_INVALID_ARGS;
+  } else if (curArg != NULL) {
     ecmdUserArgs.node = curArg;
   }
   else {
@@ -524,7 +538,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   //slot
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-s");
-  if (curArg != NULL) {
+    if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -s# at the same time\n");
+    return ECMD_INVALID_ARGS;
+  } else if (curArg != NULL) {
     ecmdUserArgs.slot = curArg;
   }
   else {
@@ -533,7 +550,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   //position
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-p");
-  if (curArg != NULL) {
+  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -p# at the same time\n");
+    return ECMD_INVALID_ARGS;
+  } else if (curArg != NULL) {
     ecmdUserArgs.pos = curArg;
   }
   else {
@@ -542,7 +562,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   //core
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-c");
-  if (curArg != NULL) {
+  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -c# at the same time\n");
+    return ECMD_INVALID_ARGS;
+  } else if (curArg != NULL) {
     ecmdUserArgs.core = curArg;
   }
   else {
@@ -551,7 +574,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   //thread
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-t");
-  if (curArg != NULL) {
+  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -t# at the same time\n");
+    return ECMD_INVALID_ARGS;
+  } else if (curArg != NULL) {
     ecmdUserArgs.thread = curArg;
   }
   else {
