@@ -111,6 +111,10 @@ int ecmdSimclockUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  if (!ecmdIsAllDecimal(argv[0])) {
+    ecmdOutputError("simclock - Non-decimal numbers detected in cycles field\n");
+    return ECMD_INVALID_ARGS;
+  }
   int numcycles = atoi(argv[0]);
   rc = simclock(numcycles);
 
@@ -183,6 +187,10 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simEXPECTFAC - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -196,9 +204,17 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simEXPECTFAC - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simEXPECTFAC - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[4]);
   }
 
@@ -272,6 +288,10 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 
   if (!useSubset) {
     if (argc > 2) {
+      if (!ecmdIsAllDecimal(argv[2])) {
+        ecmdOutputError("simexpecttcfac - Non-decimal numbers detected in row field\n");
+        return ECMD_INVALID_ARGS;
+      }
       row = atoi(argv[2]);
     }
 
@@ -285,7 +305,15 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
       ecmdOutputError("simexpecttcfac - Too few arguments to simgettcfac, you need to specify startbits and numbits with -subset.\n");
       return ECMD_INVALID_ARGS;
     }
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("simexpecttcfac - Non-decimal numbers detected in startBit field\n");
+      return ECMD_INVALID_ARGS;
+    }
     startBit = atoi(argv[2]);
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simexpecttcfac - Non-decimal numbers detected in bitLength field\n");
+      return ECMD_INVALID_ARGS;
+    }
     bitLength = atoi(argv[3]);
 
     if (argc > 4) {
@@ -344,13 +372,25 @@ int ecmdSimGETFACUser(int argc, char * argv[]) {
   }
 
   char * facname = argv[0];
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("simGETFAC - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[1]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 2) {
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("simGETFAC - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[2]);
   }
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simGETFAC - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[3]);
   }
 
@@ -398,13 +438,25 @@ int ecmdSimGETFACXUser(int argc, char * argv[]) {
   }
 
   char * facname = argv[0];
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("simGETFACX - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[1]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 2) {
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("simGETFACX - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[2]);
   }
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simGETFACX - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[3]);
   }
 
@@ -462,6 +514,10 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
 
   if (!useSubset) {
     if (argc > 1) {
+      if (!ecmdIsAllDecimal(argv[1])) {
+        ecmdOutputError("simgettcfac - Non-decimal numbers detected in row field\n");
+        return ECMD_INVALID_ARGS;
+      }
       row = atoi(argv[1]);
     }
 
@@ -475,7 +531,15 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
       ecmdOutputError("simgettcfac - Too few arguments to simgettcfac, you need to specify startbits and numbits with -subset.\n");
       return ECMD_INVALID_ARGS;
     }
+    if (!ecmdIsAllDecimal(argv[1])) {
+      ecmdOutputError("simgettcfac - Non-decimal numbers detected in startBit field\n");
+      return ECMD_INVALID_ARGS;
+    }
     startBit = atoi(argv[1]);
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("simgettcfac - Non-decimal numbers detected in bitLength field\n");
+      return ECMD_INVALID_ARGS;
+    }
     bitLength = atoi(argv[2]);
 
     if (argc > 3) {
@@ -566,6 +630,10 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simPUTFAC - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -578,9 +646,17 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simPUTFAC - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simPUTFAC - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[4]);
   }
 
@@ -625,6 +701,10 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simPUTFACX - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -637,9 +717,17 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simPUTFACX - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simPUTFACX - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[4]);
   }
 
@@ -683,6 +771,10 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simputtcfac - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -694,9 +786,17 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simputtcfac - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simputtcfac - Non-decimal numbers detected in numRows field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numRows = atoi(argv[4]);
   }
 
@@ -759,6 +859,10 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simSTKFAC - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -771,9 +875,17 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simSTKFAC - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simSTKFAC - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[4]);
   }
 
@@ -817,6 +929,10 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simstktcfac - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -828,9 +944,17 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simstktcfac - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simstktcfac - Non-decimal numbers detected in numRows field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numRows = atoi(argv[4]);
   }
 
@@ -883,6 +1007,10 @@ int ecmdSimTckIntervalUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  if (!ecmdIsAllDecimal(argv[0])) {
+    ecmdOutputError("simtckinterval - Non-decimal numbers detected in cycles field\n");
+    return ECMD_INVALID_ARGS;
+  }
   cycles = atoi(argv[0]);
 
   rc = simtckinterval(cycles);
@@ -922,13 +1050,25 @@ int ecmdSimUNSTICKUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("simUNSTICK - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[1]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 2) {
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("simUNSTICK - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[2]);
   }
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simUNSTICK - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
     offset = atoi(argv[3]);
   }
 
@@ -972,6 +1112,10 @@ int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
   uint32_t bitLength = atoi(argv[2]);
 
   ecmdDataBuffer buffer;
@@ -983,9 +1127,17 @@ int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
     row = atoi(argv[3]);
   }
   if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in numRows field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numRows = atoi(argv[4]);
   }
 

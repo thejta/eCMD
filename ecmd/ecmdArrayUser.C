@@ -129,7 +129,10 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
     /* Set the length  */
     address.setBitLength(arrayData.addressLength);
     rc = address.insertFromHexRight(argv[2], 0, arrayData.addressLength);
-    if (rc) return rc;
+    if (rc) {
+      ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
+      return rc;
+    }
 
 
     add_buffer = new uint32_t[address.getWordLength()];
@@ -292,7 +295,7 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayData , arrayName.c_str());
     if (rc) {
-      printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
+      printed = "putarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
@@ -301,7 +304,10 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
     /* Set the length  */
     address.setBitLength(arrayData.addressLength);
     rc = address.insertFromHexRight(argv[2], 0, arrayData.addressLength);
-    if (rc) return rc;
+    if (rc) {
+      ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
+      return rc;
+    }
 
 
     rc = putArray(target, arrayName.c_str(), address, buffer);
@@ -317,6 +323,11 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
     }
     else {
       validPosFound = true;     
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
     }
 
   }

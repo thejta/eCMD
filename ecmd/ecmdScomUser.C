@@ -67,6 +67,11 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
   std::string outputformat = "x";               ///< Output Format to display
   std::string inputformat = "x";                ///< Input format of data
+  ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdDataBuffer buffer;                        ///< Buffer to hold scom data
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string printed;                          ///< Output data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -108,22 +113,22 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
-  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
-  if (address == 0xFFFFFFFF) {
-    ecmdOutputError("getscom - Address argument was not a string of hex characters.\n");
-    ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
+  
+  if (!ecmdIsAllHex(argv[1])) {
+    ecmdOutputError("getscom - Non-hex characters detected in address field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (strlen(argv[1]) > 6) {
+    ecmdOutputError("getscom - Scom addresses must be <= 24 bits in length\n");
     return ECMD_INVALID_ARGS;
   }
+  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
 
-  //container to store data
-  ecmdDataBuffer buffer(3);  //the 3 is just a placeholder
 
   if (expectFlag) {
 
@@ -154,12 +159,9 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  bool validPosFound = false;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::string printed;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
@@ -280,12 +282,14 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  address = ecmdGenB32FromHexRight(&address, argv[1]);
-  if (address == 0xFFFFFFFF) {
-    ecmdOutputError("putscom - Address argument was not a string of hex characters.\n");
-    ecmdOutputError("putscom - Type 'putscom -h' for usage.\n");
+  if (!ecmdIsAllHex(argv[1])) {
+    ecmdOutputError("putscom - Non-hex characters detected in address field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (strlen(argv[1]) > 6) {
+    ecmdOutputError("putscom - Scom addresses must be <= 24 bits in length\n");
     return ECMD_INVALID_ARGS;
   }
+  address = ecmdGenB32FromHexRight(&address, argv[1]);
 
   /* Did they specify a start/numbits */
   if (argc > 3) {
@@ -295,7 +299,15 @@ int ecmdPutScomUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
+    if (!ecmdIsAllHex(argv[2])) {
+      ecmdOutputError("putscom - Non-hex characters detected in startbit field\n");
+      return ECMD_INVALID_ARGS;
+    }
     startbit = atoi(argv[2]);
+    if (!ecmdIsAllHex(argv[3])) {
+      ecmdOutputError("putscom - Non-hex characters detected in numbits field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numbits = atoi(argv[3]);
 
     rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numbits);
@@ -373,6 +385,11 @@ int ecmdPutScomUser(int argc, char* argv[]) {
         validPosFound = true;     
       }
 
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
     }
   
   }
@@ -452,6 +469,10 @@ int ecmdPollScomUser(int argc, char* argv[]) {
 
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
   if (curArg != NULL) {
+    if (!ecmdIsAllDecimal(curArg)) {
+      ecmdOutputError("pollscom - Non-decimal numbers detected in interval field\n");
+      return ECMD_INVALID_ARGS;
+    }
     interval = atoi(curArg);
     if (strstr(curArg, "c")) {
       intervalFlag = CYCLES_T;
@@ -463,6 +484,10 @@ int ecmdPollScomUser(int argc, char* argv[]) {
 
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-limit");
   if (curArg != NULL) {
+    if (!ecmdIsAllDecimal(curArg)) {
+      ecmdOutputError("pollscom - Non-decimal numbers detected in limit field\n");
+      return ECMD_INVALID_ARGS;
+    }
     maxPolls = atoi(curArg);
     if (strstr(curArg, "s")) {
       limitFlag = SECONDS_T;
@@ -509,12 +534,14 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
-  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
-  if (address == 0xFFFFFFFF) {
-    ecmdOutputError("pollscom - Address argument was not a string of hex characters.\n");
-    ecmdOutputError("pollscom - Type 'pollscom -h' for usage.\n");
+  if (!ecmdIsAllHex(argv[1])) {
+    ecmdOutputError("pollscom - Non-hex characters detected in address field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (strlen(argv[1]) > 6) {
+    ecmdOutputError("pollscom - Scom addresses must be <= 24 bits in length\n");
     return ECMD_INVALID_ARGS;
   }
+  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
 
 
   /************************************************************************/

@@ -163,6 +163,10 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
     /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
     if (outputformat != "enum") {
       if (argc > 2) {
+        if (!ecmdIsAllDecimal(argv[2])) {
+          ecmdOutputError("getspy - Non-decimal numbers detected in startbit field\n");
+          return ECMD_INVALID_ARGS;
+        }
         startBit = atoi(argv[2]);
       }
       else {
@@ -170,6 +174,10 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       }
 
       if (argc > 3) {
+        if (!ecmdIsAllDecimal(argv[3])) {
+          ecmdOutputError("getspy - Non-decimal numbers detected in numbits field\n");
+          return ECMD_INVALID_ARGS;
+        }
         numBits = atoi(argv[3]);
       }
       else {
@@ -377,6 +385,10 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
     if (inputformat != "enum") {
       if (argc > 3) {
+        if (!ecmdIsAllDecimal(argv[2])) {
+          ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
+          return ECMD_INVALID_ARGS;
+        }
         startBit = atoi(argv[2]);
       }
       else {
@@ -384,6 +396,10 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
       }
 
       if (argc > 4) {
+        if (!ecmdIsAllDecimal(argv[3])) {
+          ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
+          return ECMD_INVALID_ARGS;
+        }
         numBits = atoi(argv[3]);
       }
       else {
@@ -457,6 +473,11 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
     }
 
   }

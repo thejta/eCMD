@@ -114,6 +114,23 @@ uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, i
 //@}
 
 
+/**
+ @brief Returns true if all chars of str are decimal numbers
+ @retval true if all chars are decimal
+ @retval false if any non-decimal character is detected
+ @param str Input string to perform comparison against
+*/
+bool ecmdIsAllDecimal(const char* str);
+
+/**
+ @brief Returns true if all chars of str are hex numbers
+ @retval true if all chars are hex
+ @retval false if any non-hex character is detected
+ @param str Input string to perform comparison against
+*/
+bool ecmdIsAllHex(const char* str);
+
+
 
 #endif /* ecmdCommandUtils_h */
 

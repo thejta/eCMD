@@ -58,6 +58,7 @@ struct ecmdLatchBufferEntry {
 };
 
 
+/** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 
   int lhsLeftParen = lhs.latchName.find('(');
@@ -77,6 +78,7 @@ bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
   return lhs.latchStartBit < rhs.latchStartBit;
 }
 
+/** @brief Used to sort latch entries from the scandef */
 bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 
   int lhsLeftParen = lhs.latchName.find('(');
@@ -112,10 +114,17 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 int ecmdGetRingDumpUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
-  bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
+  bool newFileFormat = false;           ///< This is set if we find the new Eclipz scandef format 
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string ringName;                 ///< Ring name being worked on
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
+  ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
+  ecmdChipTarget target;                ///< Current target being operated on
+  bool validPosFound = false;           ///< Did the looper find something ?
+  std::string format = "default";       ///< Output format
+  std::ifstream ins;                    ///< File stream
 
-  std::string format = "default";
+
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
     format = formatPtr;
@@ -135,29 +144,22 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  std::string ringName;
-
-  ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer buffer;
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
   std::string curLine;
   std::string ringPrefix = "ring=";
-  std::ifstream ins;
   char outstr[30];
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
@@ -329,8 +331,13 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer expected;                      ///< Buffer to store output data
   ecmdChipTarget target;                        ///< Target we are operating on
   std::string printed;
-  std::list< ecmdLatchInfo >::iterator curLatchInfo;
-  std::string scandefFile;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::string scandefFile;                      ///< Full path to scandef file
+  ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
+  ecmdDataBuffer buffer(100 /* words */);       ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
+
+  bool validPosFound = false;
 
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -403,21 +410,24 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("getlatch - Non-decimal numbers detected in startbit field\n");
+      return ECMD_INVALID_ARGS;
+    }
     startBit = atoi(argv[3]);
     if (!strcmp(argv[4], "end")) {
       numBits = 0x0FFFFFFF;
     }
     else {
+      if (!ecmdIsAllDecimal(argv[4])) {
+        ecmdOutputError("getlatch - Non-decimal numbers detected in numbits field\n");
+        return ECMD_INVALID_ARGS;
+      }
       numBits = atoi(argv[4]);
     }
   }
 
 
-  ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer buffer(100 /* words */);         // Space for extracted latch data
-  ecmdDataBuffer buffertemp(100 /* words */);     // Temp space for extracted latch data
-
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -751,7 +761,6 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
-  bool xstateFlag = false;
   char* expectDataPtr = NULL;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string outputformat = "b";       ///< Output Format to display
@@ -771,10 +780,6 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   //expect and mask flags check
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
-  }
-
-  if (ecmdParseOption(&argc, &argv, "-X")) {
-    xstateFlag = true;
   }
 
   /* get format flag, if it's there */
@@ -812,12 +817,20 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
   ringName = argv[1];
 
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("getbits - Non-decimal numbers detected in startbit field\n");
+    return ECMD_INVALID_ARGS;
+  }
   startBit = atoi(argv[2]);
 
   if (!strcmp(argv[3], "end")) {
     numBits = 0xFFFFFFFF;
   }
   else {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("getbits - Non-decimal numbers detected in numbits field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numBits = atoi(argv[3]);
   }
 
@@ -869,6 +882,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
       if (!ecmdCheckExpected(buffer, expected)) {
 
         //@ make this stuff sprintf'd
+        printed = ecmdWriteTarget(target) + "  " + ringName + "\n";
         printed =  "Actual            : ";
         printed += ecmdWriteDataFormatted(buffer, outputformat);
         ecmdOutputError( printed.c_str() );
@@ -905,18 +919,18 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 int ecmdPutBitsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
-  bool xstateFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string format = "b";             ///< Input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
+  ecmdDataBuffer buffer;                ///< Buffer to store data insert data
+  bool validPosFound = false;           ///< Did the looper find something ?
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   //expect and mask flags check
-  if (ecmdParseOption(&argc, &argv, "-X")) {
-    xstateFlag = true;
-  }
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -950,7 +964,6 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -958,11 +971,15 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
 
   //get ring name and starting position
   std::string ringName = argv[1];
+
+
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("putbits - Non-decimal numbers detected in startbit field\n");
+    return ECMD_INVALID_ARGS;
+  }
   int startBit = atoi(argv[2]);
   
   //container to store data
-  ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer buffer; 
 
   rc = ecmdReadDataFormatted(buffer, argv[3], format);
   if (rc) {
@@ -975,7 +992,6 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -1009,6 +1025,12 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
         return rc;
     }
 
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+
+
   }
 
   if (!validPosFound) {
@@ -1026,16 +1048,17 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchBufferEntry> latchBuffer;
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   ecmdLatchBufferEntry curEntry;
-  bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
+  bool newFileFormat = false;           ///< This is set if we find the new Eclipz scandef format 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string format = "x";             ///< Output format
-  ecmdChipTarget target;
-  ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer bufferCopy;
-  ecmdDataBuffer buffer;
-  bool validPosFound = false;
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
+  ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
+  ecmdDataBuffer buffer;                ///< Master copy of data to be inserted
+  bool validPosFound = false;           ///< Did the looper find anything ?
   std::string printed;
   std::list< ecmdLatchInfo >::iterator curLatchInfo;
+  std::string scandefFile;              ///< Full path to scandef file
 
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -1082,7 +1105,15 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("putlatch - Non-decimal numbers detected in startbit field\n");
+      return ECMD_INVALID_ARGS;
+    }
     startBit = atoi(argv[3]);
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("putlatch - Non-decimal numbers detected in numbits field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numBits = atoi(argv[4]);
   }
   else {
@@ -1116,7 +1147,6 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     /* find scandef file */
-    std::string scandefFile;
     rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
     if (rc) {
       ecmdOutputError(("putlatch - Error occured locating scandef file: " + scandefFile + "\n").c_str());
@@ -1308,6 +1338,11 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
         ecmdOutputError( printed.c_str() );
         return rc;
     }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
     
   }
 
@@ -1324,6 +1359,11 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 
   bool allRingsFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store ring
+  std::list<ecmdRingData> queryRingData;///< Ring data 
+  bool validPosFound = false;           ///< Did the looper find anything ?
+  bool printedTarget;                   ///< Have we printed the target out yet?
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1345,7 +1385,6 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -1357,19 +1396,15 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
     allRingsFlag = true;
 
   
-  ecmdDataBuffer ringBuffer; 
   std::string printed;
   char outstr[200];
   uint32_t pattern0 = 0xAAAA0000;
   uint32_t pattern1 = 0x5555FFFF;
   uint32_t pattern = 0x0;
 
-  bool validPosFound = false;
-  bool printedTarget;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::list<ecmdRingData> queryRingData;
 
   while (ecmdConfigLooperNext(target, looperdata)) {
     printedTarget = false;
@@ -1500,16 +1535,18 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 int ecmdPutPatternUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
-  std::list<ecmdRingData> queryRingData;
+  std::list<ecmdRingData> queryRingData;///< Ring query data
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
+  std::string printed;                  ///< Output print data
+  bool validPosFound = false;           ///< Did the looper find anything?
+  ecmdDataBuffer buffer;                ///< Buffer to store pattern
+  std::string format = "xr";            ///< Default input format
 
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "xr";
-  }
-  else {
+  if (formatPtr != NULL) {
     format = formatPtr;
   }
 
@@ -1533,7 +1570,6 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -1541,17 +1577,12 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
 
   std::string ringName = argv[1];
 
-  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[2], format, 32);
   if (rc) {
     ecmdOutputError("putpattern - Problems occurred parsing input data, must be an invalid format\n");
     return rc;
   }
 
-  ecmdDataBuffer ringBuffer;
-  std::string printed;
-
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -1591,6 +1622,11 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
     }
 
   }

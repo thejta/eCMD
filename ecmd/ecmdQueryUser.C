@@ -190,48 +190,8 @@ int ecmdQueryUser(int argc, char* argv[]) {
 
   } else if (!strcmp(argv[0],"version")) {
 
-    /* Let's display the dllInfo to the user */
-    ecmdDllInfo info;
-    rc = ecmdQueryDllInfo(info);
-    if (rc) {
-      ecmdOutputError("ecmdquery - Problems occurred trying to get Dll Info\n");
-      return rc;
-    }
-    ecmdOutput("================================================\n");
-    printed = "Dll Type         : ";
-    if (info.dllType == ECMD_DLL_STUB)
-      printed += "Stub\n";
-    else if (info.dllType == ECMD_DLL_STUB)
-      printed += "Stub\n";
-    else if (info.dllType == ECMD_DLL_CRONUS)
-      printed += "Cronus\n";
-    else if (info.dllType == ECMD_DLL_IPSERIES)
-      printed += "IP-Series\n";
-    else if (info.dllType == ECMD_DLL_ZSERIES)
-      printed += "Z-Series\n";
-    else 
-      printed = "Unknown\n";
-    ecmdOutput(printed.c_str());
+    rc = ecmdDisplayDllInfo();
 
-    printed = "Dll Product      : ";
-    if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
-      printed += "Eclipz\n";
-    else
-      printed += "Unknown\n";
-    ecmdOutput(printed.c_str());
-
-    printed = "Dll Environment  : ";
-    if (info.dllEnv == ECMD_DLL_ENV_HW)
-      printed += "Hardware\n";
-    else
-      printed += "Simulation\n";
-    ecmdOutput(printed.c_str());
-
-    printed = "Dll Build Date   : "; printed += info.dllBuildDate; printed += "\n"; ecmdOutput(printed.c_str());
-    printed = "Dll Capi Version : "; printed += info.dllCapiVersion; printed += "\n"; ecmdOutput(printed.c_str());
-    ecmdOutput("================================================\n");
-
-    
   } else if (!strcmp(argv[0],"configd")) {
 
     if (argc < 2) {
