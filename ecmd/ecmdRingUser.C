@@ -123,6 +123,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 
   ecmdChipTarget target;
   target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
 
   std::string ringName;
 
@@ -300,6 +301,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   //get chip name
   ecmdChipTarget target;
   target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
 
   std::string ringName = argv[1];
   std::string latchName = argv[2];
@@ -516,6 +518,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   //get chip name
   ecmdChipTarget target;
   target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
 
   std::string ringName = argv[1];
 
@@ -665,6 +668,7 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   //get chip name
   ecmdChipTarget target;
   target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
 
   //get ring name and starting position
   std::string ringName = argv[1];
@@ -757,6 +761,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   //get chip name
   ecmdChipTarget target;
   target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
 
   std::string ringName = argv[1];
   std::string latchName = argv[2];
