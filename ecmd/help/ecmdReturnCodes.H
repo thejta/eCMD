@@ -75,6 +75,8 @@
 #define ECMD_ISTEPS_INVALID_STEP                (ECMD_ERR_ECMD | 0x1048) ///< An invalid step name was provided
 #define ECMD_UNABLE_TO_OPEN_SCANDEFHASH         (ECMD_ERR_ECMD | 0x1049) ///< eCMD was unable to open the scandefhash
 #define ECMD_SCANDEFHASH_MULT_RINGS             (ECMD_ERR_ECMD | 0x1050) ///< Multiple ring keys matching the same latchname found
+#define ECMD_UNABLE_TO_OPEN_SCOMDEF             (ECMD_ERR_ECMD | 0x1051) ///< eCMD was unable to open scomdef file
+#define ECMD_SCOMADDRESS_NOT_FOUND              (ECMD_ERR_ECMD | 0x1052) ///< Scom Address not found in the ScomDef file
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command
