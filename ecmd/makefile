@@ -53,11 +53,15 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   SUBDIR  := aix/
-  ifeq (${SITE},rchland.ibm.com)
-    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC.6002
-  else
+# Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
+  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
+  ifeq (${SITE},apd.pok.ibm.com)
     CC      := xlC
   endif
+  ifeq (${SITE},awd.austin.ibm.com)
+    CC      := xlC
+  endif
+
   TARGET  := ecmd_aix
   LD      := ${CC}
   LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export
