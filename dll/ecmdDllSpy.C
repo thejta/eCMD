@@ -741,10 +741,10 @@ uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDa
   std::list<sedcEccfuncLine>::iterator eccfuncIter;
   char outstr[200];
 
-  if (eccfuncName == "oddparity") {
+  if (eccfuncName == "ODDPARITY") {
     goodECC.setBitLength(1);
     goodECC.writeBit(0, inLatches.oddParity(0, inLatches.getBitLength()));
-  } else if (eccfuncName == "evenparity") {
+  } else if (eccfuncName == "EVENPARITY") {
     goodECC.setBitLength(1);
     goodECC.writeBit(0, inLatches.evenParity(0, inLatches.getBitLength()));
   } else {
@@ -1298,7 +1298,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
 
   /* Convert to a STL string */
   spy_name = name;
-  transform(spy_name.begin(), spy_name.end(), spy_name.begin(), tolower);
+  transform(spy_name.begin(), spy_name.end(), spy_name.begin(), toupper);
 
   /* Look in the DB to see if we've read this in already */
   returnSpy.name = spy_name;
@@ -1383,8 +1383,8 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
 int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name) {
 
   int found = 0;
-  sedcSpyHashEntry curhash;
-  int entrysize = sizeof(struct sedcSpyHashEntry); /* We need this to be able to traverse the binary hash file */
+  sedcHashEntry curhash;
+  int entrysize = sizeof(struct sedcHashEntry); /* We need this to be able to traverse the binary hash file */
   long filepos;
   std::string line;
   int numentries;
@@ -1449,7 +1449,7 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
       if (strPos != NOT_FOUND) {
         tmp = tmp.erase(strPos, tmp.length());
 
-        transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+        transform(tmp.begin(), tmp.end(), tmp.begin(), toupper);
 
         if (tmp == spy_name)
           found = 1;      /* found it! */
@@ -1491,7 +1491,7 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
       /* Strip the end off */
       tmp = tmp.erase(tmp.find_first_of(WHITESPACE,0), tmp.length());
 
-      transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+      transform(tmp.begin(), tmp.end(), tmp.begin(), toupper);
 
       if (tmp == spy_name) {
         /* We found it */
