@@ -1,6 +1,7 @@
 
-Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] [-nocompress] [-exp <value>]
-                                               [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] 
+                              [-nocompress] [-exp <value>] [-o<format>] 
+                              [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -10,9 +11,9 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
                         pattern-matched substring will be printed to the screen.  With 
                         the -exact option, eCMD searches for an exact match, and will 
                         return only the first latch that exactly matches (excluding any
-                        parentheses). The -compress flag searches past the first match for 
-                        more matches and concatenates data if the register is broken into 
-                        separate lines.
+                        parentheses). The -compress flag searches past the first match 
+                        for more matches and concatenates data if the register is broken
+                        into separate lines.
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -30,8 +31,8 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
 			NOTE : Not allowed when using -nocompress
 
         Numbits   [opt] Number of bits to get. Specify along with Start. If out of range,
-                        and -exact not selected, prints a warning message instead of the data.
-                        If -exact is selected, immediately return an error.
+                        and -exact not selected, prints a warning message instead of the
+                        data. If -exact is selected, immediately return an error.
 			NOTE : Not allowed when using -nocompress
 
         -exact    [opt] No pattern matching. Instead, search for exact latch name.

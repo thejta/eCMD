@@ -1,5 +1,6 @@
 
-Syntax: putpattern <ChipSelect> <RingType> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: putpattern <ChipSelect> <RingType> <Data> [-i<format>] 
+                                           [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 

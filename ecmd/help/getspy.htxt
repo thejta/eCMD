@@ -20,8 +20,8 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
         Numbits   [opt] Number of bits to get. Specify along with Start.
                         Only valid with non-enumerated spy's
         
-        -exp [optional] Provides an expected value as the last argument. Returns error only
-                        if miscompare. Expected value string is read depending 
+        -exp [optional] Provides an expected value as the last argument. Returns error
+                        only if miscompare. Expected value string is read depending 
                         on format flag.
 
         -o<format>[opt] Specifies the format type of the output. (default: hex-left)

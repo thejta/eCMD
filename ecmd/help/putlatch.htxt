@@ -4,10 +4,11 @@ Syntax: putlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] <Data>
 
         ECMD:           Core Common Function
 
-        Function:       Puts a value for a specified register into a ring.  The first register 
-                        in the scandef file that exactly matches the RegName (not including 
-                        parenthesis) will be used. If the register is broken into successive 
-                        lines, the register lengths are concatenated to form one complete register.
+        Function:       Puts a value for a specified register into a ring.  The first  
+                        register in the scandef file that exactly matches the RegName 
+                        (not including parenthesis) will be used. If the register is 
+                        broken into multiple lines, the register lengths are 
+                        concatenated to form one complete register.
 
         Parmeters:
         --------------------------------------------------------------------------------

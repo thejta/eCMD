@@ -1,6 +1,6 @@
 
-Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>  
-                                  [-i<format>] [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>  [-i<format>] 
+                                  [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
 

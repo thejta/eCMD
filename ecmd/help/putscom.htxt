@@ -1,6 +1,6 @@
 
-Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>] 
-                             [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>]  
+                             [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -16,9 +16,9 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<forma
 
         Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits
                         are not specified, start = 0 and numbits is calculated from
-                        length of data string, rest of Scom register is padded with zeros..
+                        length of data string, rest of Scom register is padded with zeros.
 
-	Data	        Data to insert into Scom Register. Default is Hex-Left.
+        Data            Data to insert into Scom Register. Default is Hex-Left.
 
         -i<format>[opt] Specifies the format type of input data
 
@@ -33,8 +33,8 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<forma
         -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
                         to act on all slots.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify
+                        -pall to act on all chips.
 
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.

@@ -1,6 +1,6 @@
 
-Syntax: getscom <ChipSelect> <ScanCommAddr> [-v] [-k#] [-n#] [-s#] [-p#] [-c#] [-o<format>]
-                [-i<format>] [-exp <data> [-mask <data>]]
+Syntax: getscom <ChipSelect> <ScanCommAddr> [-v] [-k#] [-n#] [-s#] [-p#] [-c#] 
+                                 [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
 
         ECMD:           Core Common Function
 

@@ -14,7 +14,7 @@ Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>]
 
         ArrayIndex      Array Index in right aligned hex.
 
-	NumEntries[opt] Number of consecutive entries to display
+        NumEntries[opt] Number of consecutive entries to display
                         Address is incremented by 1
 
         -o<format>[opt] Output Format : default x - See doc for details
@@ -28,8 +28,8 @@ Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>]
         -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
                         to act on all slots.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify
+                        -pall to act on all chips.
 
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.

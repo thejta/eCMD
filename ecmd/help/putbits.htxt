@@ -1,6 +1,6 @@
 
-Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>] [-X] 
-                                 [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>]
+                                 [-X] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -33,8 +33,8 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
         -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
                         to act on all slots.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify
+                        -pall to act on all chips.
 
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.

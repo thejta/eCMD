@@ -1,6 +1,7 @@
 
-Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<format>] [-i<format>]
-                                [-limit #[s|c]] [-interval #[s|c]] [-verbose] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<format>] 
+                              [-i<format>] [-limit #[s|c]] [-interval #[s|c]] [-verbose] 
+                              [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -49,8 +50,8 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<fo
         -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
                         to act on all slots.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify
+                        -pall to act on all chips.
 
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
