@@ -335,6 +335,17 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 }
 
               } /* curCoreIter */
+	      /* If core list is empty */
+	      if( ecmdCurChip->coreData.empty() ) {
+	        if (!easyParse) {
+                  sprintf(buf2, " %d,",ecmdCurChip->pos);
+                  strcat(buf, buf2);
+                } else {
+                  sprintf(buf,"%s\t -p%0.2d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
+                  printed = sbuf + buf;
+                  ecmdOutput(printed.c_str());
+                }
+	      }
             }
 
           } /* curChipIter */
