@@ -1,14 +1,20 @@
 
-Syntax: istep [<StepName1>[,<StepName2> ...] | -s<StepNumbers> | -i<SkipSteps> | <StartStep>..<EndStep>]
+Syntax: istep 
+        istep <StepName1>[,<StepName2> ...] 
+        istep <StartStep>..<EndStep>
+        istep -s<StepNumbers> 
+        istep -i<SkipSteps> 
 
         ECMD:           Core Common Function
 
         Function:       Run iSteps on the system. Default is to run all isteps
 
+        NOTE:           Some plugins support 'istep list' to display all available steps
+
         Parameters:
         --------------------------------------------------------------------------------
         <Stepname>      Comma seperated list of names of steps to run 
-                        (ex 'proc_cfam_init')
+                        (ex 'proc_cfaminit')
 
 	<StartStep>     Start Step to run 
 
