@@ -1231,6 +1231,58 @@ sub genXstateStr() {
 =cut
 sub insertFromHexLeft() {
 #  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
+	my ($i_hexChars) = @_[1];
+	my ($i_start)    = @_[2];
+	my ($i_bitlen)   = @_[3];
+	my ($len)        = 0;
+	my ($remainder)  = 0;
+	my ($nibbles)    = 0;
+	my ($looper)     = 0;
+	my ($thisNible)  = 0;
+	my ($hexCnt)     = 0;
+	my ($newBin)     = "";
+	my ($tmpNewBin)     = "";
+
+	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
+		        "1000","1001","1010","1011","1100","1101","1110","1111");
+	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+
+
+	$len = length($iv_DataStr);
+	if(($i_start + $i_bitlen) > $len) {
+		printf( "**** ERROR : ecmdDataBuffer::insertFromHexLeft: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+		return -1;
+	}
+
+	$remainder = $i_bitlen %4;
+	$nibbles   = ($i_bitlen-$remainder) /4;
+
+	if($remainder) {
+		# this will handle remainder
+		$nibbles++;
+	}
+	
+	$len = length($i_hexChars);
+	if($len < $nibbles) {
+		printf( "**** ERROR : ecmdDataBuffer::insertFromHexLeft: Not enough data provided according to desired length\n");
+		return -1;
+	}
+
+
+	for($looper=0; $looper < $nibbles; $looper++) {
+		$thisNible = substr($i_hexChars, $looper,1);
+		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+			if( $thisNible eq $theHex[$hexCnt]) {
+				$newBin = "$newBin" . "$theBin[$hexCnt]";
+			}
+		}
+	}
+
+	#remember newBin may be to big due to remainder bits, so use i_bitlen
+	$newBin = substr($newBin, 0, $i_bitlen);
+	substr($iv_DataStr, $i_start, $i_bitlen) = $newBin;
+	return 0;
+
 }
 
 
@@ -1249,6 +1301,70 @@ sub insertFromHexLeft() {
 =cut
 sub insertFromHexRight() {
 #  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
+	my ($i_hexChars) = @_[1];
+	my ($i_start)    = @_[2];
+	my ($i_bitlen)   = @_[3];
+	my ($len)        = 0;
+	my ($remainder)  = 0;
+	my ($nibbles)    = 0;
+	my ($looper)     = 0;
+	my ($thisNible)  = 0;
+	my ($hexCnt)     = 0;
+	my ($newBin)     = "";
+	my ($tmpNewBin)  = "";
+	my ($offset)     = 0;
+
+	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
+		        "1000","1001","1010","1011","1100","1101","1110","1111");
+	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+
+
+	$len = length($iv_DataStr);
+	if(($i_start + $i_bitlen) > $len) {
+		printf( "**** ERROR : ecmdDataBuffer::insertFromHexRight: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+		return -1;
+	}
+
+	$remainder = $i_bitlen %4;
+	$nibbles   = ($i_bitlen-$remainder) /4;
+
+	if($remainder) {
+		# this will handle remainder
+		$nibbles++;
+	}
+	
+	$len = length($i_hexChars);
+	if($len < $nibbles) {
+		printf( "**** ERROR : ecmdDataBuffer::insertFromHexRight: Not enough data provided according to desired length\n");
+		return -1;
+	}
+
+	$offset = length($i_hexChars);
+
+	for($looper=0; $looper < $nibbles; $looper++) {
+		$thisNible = substr($i_hexChars, $offset-$looper,1);
+		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+			if( $thisNible eq $theHex[$hexCnt]) {
+				$newBin = "$theBin[$hexCnt]" . "$newBin";
+			}
+		}
+	}
+
+	#remember newBin may be to big due to remainder bits, so use i_bitlen
+	if($remainder == 1) {
+		$offset =3;
+	} elsif ($remainder == 2) {
+		$offset =2;
+	} elsif ($remainder == 3) {
+		$offset =1;
+	} else {
+	#this should never happen
+	}
+
+	$newBin = substr($newBin, $offset, $i_bitlen);
+	substr($iv_DataStr, $i_start, $i_bitlen) = $newBin;
+	return 0;
+
 }
 
 
