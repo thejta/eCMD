@@ -297,17 +297,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 sprintf(buf,"      %s",ecmdCurChip->chipType.c_str());
               }
             }
-            if (ecmdCurChip->numProcCores == 0) {
-              /* For non-core chips */
-              if (!easyParse) {
-                sprintf(buf2," %d,", ecmdCurChip->pos);
-                strcat(buf, buf2);
-              } else {
-                sprintf(buf,"%s\t -p%0.2d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
-                printed = sbuf + buf;
-                ecmdOutput(printed.c_str());
-              }
-            } else {
+            if ( (ecmdCurChip->numProcCores != 0) && ( !ecmdCurChip->coreData.empty() )) {
               for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
 
                 if (ecmdCurCore->numProcThreads == 0) {
@@ -335,18 +325,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 }
 
               } /* curCoreIter */
-	      /* If core list is empty */
-	      if( ecmdCurChip->coreData.empty() ) {
-	        if (!easyParse) {
-                  sprintf(buf2, " %d,",ecmdCurChip->pos);
-                  strcat(buf, buf2);
-                } else {
-                  sprintf(buf,"%s\t -p%0.2d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
-                  printed = sbuf + buf;
-                  ecmdOutput(printed.c_str());
-                }
-	      }
             }
+	    else {
+              /* For non-core chips OR For core-chips If core list is empty */
+              if (!easyParse) {
+                sprintf(buf2," %d,", ecmdCurChip->pos);
+                strcat(buf, buf2);
+              } else {
+                sprintf(buf,"%s\t -p%0.2d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
+                printed = sbuf + buf;
+                ecmdOutput(printed.c_str());
+              }
+            } 
 
           } /* curChipIter */
           if (!easyParse && strlen(buf) > 0) {
