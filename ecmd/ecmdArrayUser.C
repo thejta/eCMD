@@ -176,7 +176,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
 
     add_buffer = new uint32_t[address.getWordLength()];
-    int idx, word;
+    uint32_t idx;
     uint32_t add_inc = 1;           ///< Address increment, this will increment data by 1 for left aligned buffer
     uint32_t add_mask = 0xFFFFFFFF;     ///< Mask of valid bits in the last word of the address
     if (address.getBitLength() % 32) {
@@ -435,7 +435,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   bool printedHeader;           ///< Have we printed the array name and pos
   std::vector <ecmdDataBuffer> arrayData; ///< Trace Array Data retrieved
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  int loop; 			///<loop around the array data
+  uint32_t loop; 			///<loop around the array data
   
   /* get format flag, if it's there */
   std::string format;
