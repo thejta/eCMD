@@ -540,7 +540,7 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
 }
 
 
-uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength) {
+uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string i_format, int i_expectedLength) {
   uint32_t rc = ECMD_SUCCESS;
 
   std::string localFormat = i_format;
@@ -616,7 +616,7 @@ uint32_t decToUInt32(const char *decstr) {
     }
     return decdata;
 }
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, uint64_t address) {
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_format, uint64_t address) {
   std::string printed;
   int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;

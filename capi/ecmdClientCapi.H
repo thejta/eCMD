@@ -1722,7 +1722,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @retval nonzero on failure
 */
 
-uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string & i_valueAlpha, uint32_t i_valueNumeric);
+uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
 
 
 /**

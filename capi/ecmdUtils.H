@@ -166,7 +166,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
  @param i_format Flag that tells how to parse the data string, e.g., "b" = binary, "x" = hex left
  @param i_expectedLength If length of data is known before hand , should be passed is necessary for right aligned data that is not byte aligned lengths
  */
-uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength = 0);
+uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string i_format, int i_expectedLength = 0);
 
 /**
  @brief Converts decimal string to uint32_t
@@ -182,7 +182,7 @@ uint32_t decToUInt32(const char *i_decstr);
  @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
  @param i_address A base address value that can be used in formating certain data- i.e., data from memory
  */
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, uint64_t i_address = 0);
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0);
 
 /**
  @brief Print the bits header used in the output formats
