@@ -1391,13 +1391,13 @@ uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuff
 }
 
 
-uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
+uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
 
   while (curcycles < i_maxcycles) {
-    rc = dllSimgettcfac(i_facname,actual_data,i_row,i_offset,i_bitlength);
+    rc = dllSimgettcfac(i_tcfacname,actual_data,i_row,i_startbit,i_bitlength);
     if (rc) return rc;
 
     /* We found what we expected */

@@ -173,6 +173,8 @@ uint32_t dllSiminit(const char* i_checkpoint);
 
 uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row , uint32_t i_offset , uint32_t i_maxcycles , uint32_t i_pollinterval ); 
 
+uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row , uint32_t i_startbit , uint32_t i_bitlength , uint32_t i_maxcycles , uint32_t i_pollinterval ); 
+
 uint32_t dllSimPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_offset ); 
 
 uint32_t dllSimPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_offset ); 
