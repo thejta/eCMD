@@ -1,6 +1,6 @@
 
 Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] 
-                              [-nocompress] [-exp <value>] [-o<format>] 
+                              [-exp <value>] [-o<format>] 
                               [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -39,8 +39,6 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
                         NOTE : Not allowed when using -nocompress
 
         -exact    [opt] No pattern matching. Instead, search for exact latch name.
-
-        -nocompress[opt]Displays Latches as they are broken up in the scandef.
 
         -exp [optional] Provide an expected-value as the last argument. Returns error if
                         data miscompare, else nothing.
