@@ -103,6 +103,11 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
 
 
   } /* End if (argc >= 1) */
+  else {
+    /* For now we will return invalid, for the future we may want a shell here */
+    rc = ECMD_INT_UNKNOWN_COMMAND;
+
+  }
 
   return rc;
 }
