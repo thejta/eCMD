@@ -142,26 +142,26 @@ uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmd
 
 
 /**
- @brief Reads the selected Processor Architected VMX Register (VPR) into the data buffer
+ @brief Reads the selected Processor Architected VMX Register (VR) into the data buffer
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARGS Vpr number is invalid
+ @retval ECMD_INVALID_ARGS Vr number is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
- @param i_vprNum Number of vpr to read from
- @param o_data DataBuffer object that holds data read from vpr
+ @param rNum Number of vr to read from
+ @param o_data DataBuffer object that holds data read from vr
 
 */
-uint32_t cipGetVpr (ecmdChipTarget & i_target, uint32_t i_vprNum, ecmdDataBuffer & o_data);
+uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & o_data);
 
 /**
- @brief Reads the selected Processor Architected VMX Register (VPR) into the data buffers
+ @brief Reads the selected Processor Architected VMX Register (VR) into the data buffers
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARGS Vpr number is invalid
+ @retval ECMD_INVALID_ARGS Vr number is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
@@ -175,14 +175,14 @@ uint32_t cipGetVpr (ecmdChipTarget & i_target, uint32_t i_vprNum, ecmdDataBuffer
   should be considered invalid.
 
 */
-uint32_t cipGetVprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 
 /**
- @brief Writes the data buffer into the selected Processor Architected VMX Register (VPR)
+ @brief Writes the data buffer into the selected Processor Architected VMX Register (VR)
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARGS Vpr number is invalid
+ @retval ECMD_INVALID_ARGS Vr number is invalid
  @retval ECMD_SUCCESS if successful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
@@ -190,17 +190,17 @@ uint32_t cipGetVprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
- @param i_vprNum Number of vpr to write to
- @param i_data DataBuffer object that holds data to write into vpr
+ @param i_vrNum Number of vr to write to
+ @param i_data DataBuffer object that holds data to write into vr
 
 */
-uint32_t cipPutVpr (ecmdChipTarget & i_target, uint32_t i_vprNum, ecmdDataBuffer & i_data);
+uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & i_data);
 
 /**
- @brief Writes the data buffer into the selected Processor Architected VMX Register (VPR)
+ @brief Writes the data buffer into the selected Processor Architected VMX Register (VR)
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARGS Vpr number is invalid
+ @retval ECMD_INVALID_ARGS Vr number is invalid
  @retval ECMD_SUCCESS if successful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
@@ -215,7 +215,7 @@ uint32_t cipPutVpr (ecmdChipTarget & i_target, uint32_t i_vprNum, ecmdDataBuffer
   writing multiple entries.  The function will NOT continue through all subsequent entries.
 
 */
-uint32_t cipPutVprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
 
 //@}
