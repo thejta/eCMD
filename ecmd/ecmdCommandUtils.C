@@ -334,16 +334,16 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
   int rc = ECMD_SUCCESS;
 
   if (i_format == "x" || i_format == "xl") {
-    rc = o_data.insertFromHexLeft(i_dataStr);
     o_data.setBitLength(strlen(i_dataStr) * 4);
+    rc = o_data.insertFromHexLeft(i_dataStr);
   }
   else if (i_format == "xr") {
-    rc = o_data.insertFromHexRight(i_dataStr);
     o_data.setBitLength(strlen(i_dataStr) * 4);
+    rc = o_data.insertFromHexRight(i_dataStr);
   }     
   else if (i_format == "b") {
-    rc = o_data.insertFromBin(i_dataStr);
     o_data.setBitLength(strlen(i_dataStr));
+    rc = o_data.insertFromBin(i_dataStr);
   }
   else {
     ecmdOutputError( ("Did not recognize input format string " + i_format).c_str() );
