@@ -924,23 +924,28 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
   std::vector<std::string> tokens;
   std::vector<std::string> parmTokens;
   std::vector<std::string> parmEntryTokens;
+  std::vector<std::string> fReturnType;
 
   char variableType[100]; /* this will be something like "char*" or "BIT32" */
   std::vector<std::string> variableName; /* this will be something like "fprototypeStr" no * or & in this */
   std::string printed;
 
   int mysize;
+  int look4rc,outputRC;
+
   char *tempStr;
   char tempIntStr[80];
 
   va_list ap;
 
-
+  look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
   if(inOut == FUNCTIONIN) {
+    look4rc =0;
     printed = "\n";
     printed += "ECMD DEBUG (ecmdFPP) : *******  Tracing of Parameters from function call LEADING INTO function.  *******\n";
   } else if (inOut == FUNCTIONOUT) {
+    look4rc =1;
     printed += "\n";
     printed += "ECMD DEBUG (ecmdFPP) : *******  Tracing of Parameters from function call EXITING FROM function.   *******\n";
   } else {
@@ -965,6 +970,21 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
 /* tokens[2] = " {"                                       */
 /* tokens.size() = 3                                      */
 
+  ecmdParseTokens(tokens[0].c_str(), " ", fReturnType); /* this tokenizes the function name and return type */
+/* example: */
+/* fReturnType[0] = "void"             */
+/* fReturnType[1] = "ecmdFunctionParmPrinter" */
+/* fReturnType.size() = 2                                      */
+
+  if(look4rc) {
+    if((!strcasecmp(fReturnType[0].c_str(),"void")) && (look4rc)) {
+      /* it's a void return so don't do return code printing. */
+      outputRC =0;
+    } else {
+      outputRC =1;
+    }
+  }  
+
   ecmdParseTokens(tokens[1].c_str(), ",", parmTokens); /* this tokenizes the meat and potatoes */
 
 /* example: */
@@ -979,7 +999,10 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
   va_start(ap, fprototypeStr);
 //  tempStr = va_arg(ap, char*); /* pop it off the list */
 
-  for(looper =0; looper < parmTokens.size(); looper++) {
+
+  for(looper =0; looper < parmTokens.size() + outputRC; looper++) {
+
+
     ecmdParseTokens(parmTokens[looper].c_str(), " ", parmEntryTokens);
     /* example: */
     /* parmEntryTokens[0] = "enum"      */
@@ -1005,7 +1028,6 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
     }
 
     strcpy(variableType,"");
-/*    variableName[0] = "";*/
 
     for(looper2=0; looper2 < (mysize -1); looper2++) {
       /* used -1 because we don't want the variable name yet */
@@ -1021,6 +1043,15 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...) {
     }
 
     ecmdParseTokens(parmEntryTokens[mysize-1].c_str(), "*&", variableName);
+
+    if((looper ==0) && (outputRC ==1)) {
+      /* we are in our first pass and we need to say the first parm is a return code. */
+      /* must still pop the int off the parm stack */
+      strcpy(variableType,fReturnType[0].c_str());
+      variableName[0] = "RETURN CODE";
+      looper=-1; 
+      outputRC =0;
+    }
     
 /****************************************/
 /* at this point variableType is somehting like : "enum" or "char*" or "const char*" */

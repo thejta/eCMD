@@ -256,10 +256,14 @@ while (<IN>) {
 		    $printout .= "  if (ecmdClientDebug == 10) {\n";
 
 		    $printout .= "    ecmdFunctionParmPrinter(FUNCTIONOUT,\"$type $orgfuncname(@argnames)\"";
-
 		    #
 		    my $pp_argstring;
 		    my $pp_typestring;
+
+		    if($type_flag != $VOID) {
+			$printout .= ",rc";
+		    }
+
 		    foreach my $curarg (@argnames) {
 
 			my @pp_argsplit = split /\s+/, $curarg;
