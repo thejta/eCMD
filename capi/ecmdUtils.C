@@ -579,9 +579,14 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     if (curState == ECMD_FORMAT_BN) blockSize = 4;
     int curOffset = 0;
     int numBlocks = (i_data.getWordLength() * 32) / blockSize;
-    
+
     if (numCols) {
-      printed = "\n00: ";
+
+      if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B) {
+        printed += ecmdBitsHeader(4, blockSize, numCols);
+      }
+
+      printed += "\n00: ";
     }
 
     for (int i = 0; i < numBlocks; i++) {
@@ -628,3 +633,45 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
 
 }
 
+std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols) {
+
+  std::string topLine(initCharOffset, ' ');
+  std::string bottomLine(initCharOffset, ' ');
+
+  int bitsToPrint = blockSize * numCols;
+  int numSpaces = numCols - 1;
+  char curNum[2];
+  int blockCount = 0;
+  int lineCount = 0;
+  int topLineTrack = -1;
+
+  for (int i = 0; i < bitsToPrint + numSpaces; i++) {
+
+    if (blockCount == blockSize) {
+      topLine += " ";
+      bottomLine += " ";
+      blockCount = 0;
+    }
+    else {
+
+      int topLineCount = lineCount / 10;
+      if (topLineCount != topLineTrack) {
+        sprintf(curNum, "%d", topLineCount);
+        topLine += curNum;
+        topLineTrack = topLineCount;
+      }
+      else {
+        topLine += " ";
+      }
+
+      sprintf(curNum, "%d", lineCount % 10);
+      bottomLine += curNum;
+
+      lineCount++;
+      blockCount++;
+    }
+
+  }
+
+  return topLine + "\n" + bottomLine;
+}

@@ -158,5 +158,6 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
  */
 std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address = 0);
 
+std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols);
 
 #endif
