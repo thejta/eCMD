@@ -467,7 +467,24 @@ int ecmdClientPerlapi::putCfamRegister (const char* i_target, int i_address, con
 
 int ecmdClientPerlapi::getSpyEnum (const char* i_target, const char * i_spyName, char** o_enumValue){
 
-  return 0;
+  int rc = 0;
+  std::string buffer; 
+  ecmdChipTarget myTarget;
+
+  rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  rc = ::getSpyEnum(myTarget, i_spyName, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  char* tmp;
+  tmp = new char[buffer.size()+1];
+  strcpy(tmp,buffer.c_str());
+  *o_enumValue = tmp;
+
+  return rc;
 }
 
 int ecmdClientPerlapi::getSpyEccGrouping (const char* i_target, const char * i_spyEccGroupName, char** o_groupData, char** o_eccData, char** o_eccErrorMask){
@@ -479,7 +496,20 @@ int ecmdClientPerlapi::getSpyEccGrouping (const char* i_target, const char * i_s
 
 int ecmdClientPerlapi::putSpyEnum (const char* i_target, const char * i_spyName, const char* i_enumValue){
 
-  return 0;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  std::string buffer;
+
+  buffer = i_enumValue;
+
+  rc = ::putSpyEnum(myTarget, i_spyName, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
 }
 
 void ecmdClientPerlapi::ecmdEnableRingCache(){
