@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <stdint.h>
+#include <inttypes.h>
 
 #include <ecmdDataBuffer.H>
 #include <ecmdClientCapi.H>
