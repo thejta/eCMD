@@ -550,6 +550,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "IP-Series\n";
   else if (info.dllType == ECMD_DLL_ZSERIES)
     printed += "Z-Series\n";
+  else if (info.dllType == ECMD_DLL_SCAND)
+    printed += "ScanD\n";
   else 
     printed = "Unknown\n";
   ecmdOutput(printed.c_str());
