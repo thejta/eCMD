@@ -1327,7 +1327,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
       /* ----------------------------------------------------------------- */
       /*  Try to find the spy position from the hash file                */
       /* ----------------------------------------------------------------- */
-      key = ecmdHashString32(spy_name.c_str(), spy_name.length());
+      key = ecmdHashString32(spy_name.c_str());
 
       rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEFHASH, spyHashFilePath);
       if (!rc) {
