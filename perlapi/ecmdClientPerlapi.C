@@ -702,7 +702,7 @@ int ecmdClientPerlapi::simPOLLFAC(const char* i_facname, int i_bitlength, const 
 
 }
 
-int simpolltcfac(const char* i_tcfacname, const char* i_expect, int i_row, int i_startbit, int i_bitlength, int i_maxcycles, int i_pollinterval) {
+int ecmdClientPerlapi::simpolltcfac(const char* i_tcfacname, const char* i_expect, int i_row, int i_startbit, int i_bitlength, int i_maxcycles, int i_pollinterval) {
 
   int rc = 0;
   ecmdDataBuffer buffer;
