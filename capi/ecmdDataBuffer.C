@@ -92,7 +92,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 
 
 #ifndef REMOVE_SIM
-    strcpy(iv_DataStr, other.iv_DataStr);
+    strncpy(iv_DataStr, other.iv_DataStr, iv_NumBits);
 #endif
   }
   /* else do nothing.  already have an empty buffer */
@@ -558,7 +558,7 @@ void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
 
 #ifndef REMOVE_SIM
     char* temp = new char[iv_NumBits+42];
-    strcpy(temp, iv_DataStr);
+    strncpy(temp, iv_DataStr, iv_NumBits);
 #endif
     /* Now resize with the new capacity */
     setCapacity(iv_NumWords);
@@ -568,7 +568,7 @@ void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
     delete[] tempBuf;
 
 #ifndef REMOVE_SIM
-    strcpy(iv_DataStr, temp); // copy back into iv_DataStr
+    strncpy(iv_DataStr, temp, iv_NumBits); // copy back into iv_DataStr
     delete[] temp;
 #endif
   }
@@ -1587,7 +1587,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
 
 #ifndef REMOVE_SIM
   /* Check the X-state buffer */
-  if (strcmp(iv_DataStr, other.iv_DataStr)) {
+  if (strncmp(iv_DataStr, other.iv_DataStr, iv_NumBits)) {
     return 0;
   }
 #endif
