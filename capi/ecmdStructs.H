@@ -160,7 +160,14 @@ struct ecmdSpyData {
   std::vector<std::string> enums;       ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
 };
 
-
+/**
+ * @brief Used for storing error messages internally to dll
+ */
+struct ecmdError {
+  int errorCode;        ///< Numeric error code- see ecmdReturnCodes.H
+  std::string whom;     ///< Function that registered error
+  std::string message;  ///< Message about the error
+};
 
 /**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for

@@ -55,8 +55,8 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
    registerErrorMsg(ECMD_DBUF_INIT_FAIL,"ERROR: ecmdDataBuffer::ecmdDataBuffer: Default constructor used for ecmdDataBuffer creation!");
 }
 
-ecmdDataBuffer::ecmdDataBuffer(int numBits)
-: iv_NumWords(1), iv_NumBits(numBits), iv_Data(NULL), iv_ErrorCode(0)
+ecmdDataBuffer::ecmdDataBuffer(int numWords)
+: iv_NumWords(numWords), iv_NumBits(numWords*32), iv_Data(NULL), iv_ErrorCode(0)
 {
 
   uint32_t randNum = 0x12345678;

@@ -16,6 +16,9 @@ my $STRING = 2;
 my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs);
 my $ignore_re = join '|', @ignores;
 
+my @dont_flush_sdcache = qw( Query Cache Output Error Spy Ring );
+my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
+ 
 my $printout;
 my @enumtable;
 
@@ -55,7 +58,7 @@ while (<IN>) {
 
     if (/^(int|string|void)/) {
 	
-	next if (/$ignore_re/);
+	next if (/$ignore_re/o);
 
 	my $type_flag = $INT;
 	$type_flag = $VOID if (/^void/);
@@ -79,6 +82,24 @@ while (<IN>) {
 
 	
 	$printout .= "  $type rc;\n\n" unless ($type_flag == $VOID);
+
+
+	unless (/$dont_flush_sdcache_re/o) {
+	    $printout .= "  int flushrc = ecmdFlushRingCache();\n";
+	    $printout .= "  if (flushrc) {\n";
+	    if ($type_flag == $STRING) {
+		$printout .= "     return ecmdGetErrorMsg(flushrc);\n";
+	    }
+	    elsif ($type_flag == $INT) {
+		$printout .= "     return flushrc;\n";
+	    }
+	    else { #type is VOID
+		$printout .= "     return;\n";
+	    }
+
+	    $printout .= "  }\n\n";
+	}
+	
 	$printout .= "#ifdef ECMD_STATIC_FUNCTIONS\n\n";
 
 	$printout .= "  rc = " unless ($type_flag == $VOID);
@@ -102,7 +123,10 @@ while (<IN>) {
         print OUT "$type $funcname(@argnames); \n\n";
 	$" = " ";
        
-	  
+	if ($type_flag == $VOID) {
+	    $printout .= "  ";
+	}
+
 	$printout .= $funcname . "(";
 
 	my $argstring;
@@ -130,7 +154,7 @@ while (<IN>) {
 	$printout .= $argstring . ");\n\n";
 	    
 	$printout .= "#else\n\n";
-
+	
 	
 	$printout .= "  if (dlHandle == NULL) {\n";
 	if ($type_flag == $STRING) {

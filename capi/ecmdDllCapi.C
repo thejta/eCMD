@@ -24,7 +24,7 @@
 //----------------------------------------------------------------------
 #define ecmdDllCapi_C
 #include <stdio.h>
-#include <map>
+#include <list>
 
 #include "ecmdDllCapi.H"
 
@@ -48,6 +48,7 @@
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+list<ecmdError> ecmdErrorList;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -83,12 +84,27 @@ int dllUnloadDll() {
 
 std::string dllGetErrorMsg(int i_errorCode) {
   std::string ret = "UNKNOWN";
+  list<ecmdError>::iterator cur;
+
+  for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
+    if ( (*cur).errorCode == i_errorCode ) {
+      ret = (*cur).whom + ": " + (*cur).message;
+      break;
+    }
+  }
 
   return ret;
 }
 
 int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message) {
   int rc = ECMD_SUCCESS;
+
+  ecmdError curError;
+  curError.errorCode = i_errorCode;
+  curError.whom = i_whom;
+  curError.message = i_message;
+
+  ecmdErrorList.push_back(curError);
 
   return rc;
 }

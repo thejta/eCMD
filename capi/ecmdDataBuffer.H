@@ -59,10 +59,10 @@ public:
 
   /**
    * @brief Constructor
-   * @param i_numBits Size of data to initialize in bits
+   * @param i_numWords Size of data to initialize in 32-bit words
    * @post ecmdDataBuffer is initialzed with a buffer
    */
-  ecmdDataBuffer(int i_numBits); 
+  ecmdDataBuffer(int i_numWords); 
 
   /**
    * @brief Default Destructor
