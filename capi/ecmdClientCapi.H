@@ -483,6 +483,24 @@ uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::str
 uint32_t getSpyEpCheckers (ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask);
 
 /**
+ @brief Reads the selected spy and load all the spy groups into provided list
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
+ @param i_spyName Name of spy to read from
+ @param o_groups List of structures containing the group data and deadbits mask
+
+ NOTE : This function is ring cache enabled
+
+*/
+uint32_t getSpyGroups (ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups);
+
+/**
  @brief Writes the data buffer into the selected spy
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
