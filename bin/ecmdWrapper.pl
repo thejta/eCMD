@@ -43,7 +43,7 @@ foreach (@ARGV) {
 }
 
 
-$temp = $command . " " . $functionname;
+$temp = $ecmd_exe . " " . $functionname;
 print $temp
 exec($temp);
 exit($?/256);
