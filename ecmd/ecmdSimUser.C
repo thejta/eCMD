@@ -789,22 +789,27 @@ uint32_t ecmdSimputtcfacUser(int argc, char * argv[]) {
   }
 
   uint32_t row = 0, numRows = 0;
-  if (argc > 2) {
+  if (argc == 4) {
     if (!ecmdIsAllDecimal(argv[2])) {
       ecmdOutputError("simputtcfac - Non-decimal numbers detected in row field\n");
       return ECMD_INVALID_ARGS;
     }
     row = atoi(argv[2]);
-  }
-  if (argc > 3) {
+
     if (!ecmdIsAllDecimal(argv[3])) {
       ecmdOutputError("simputtcfac - Non-decimal numbers detected in numRows field\n");
       return ECMD_INVALID_ARGS;
     }
     numRows = atoi(argv[3]);
-  }
 
-  if (argc > 4) {
+
+    if (argc > 4) {
+      ecmdOutputError("simputtcfac - Too many arguments to simputtcfac, you probably added a non-supported option.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+  } else if (argc > 2) {
+
     ecmdOutputError("simputtcfac - Too many arguments to simputtcfac, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -990,7 +995,7 @@ uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]) {
     strcat(buf," ");
   }
 
-  rc = simSUBCMD(argv[0]);
+  rc = simSUBCMD(buf);
 
   return rc;
 
