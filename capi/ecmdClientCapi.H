@@ -30,21 +30,22 @@ extern "C" {
 //@{
 /**
  @brief Load the eCMD DLL
- @retval ECMD_SUCCESS if successful load   nonzero if unsuccessful
- @post eCMD DLL is loaded into memory
- @see initDll
+ @retval ECMD_SUCCESS if successful load
+ @retval ECMD_INVALID_DLL_VERSION if Dll version loaded doesn't match client version
+ @retval nonzero if unsuccessful
+ @post eCMD DLL is loaded into memory and initialized
  @see unloadDll
 
-       - This function loads the DLL based first on CRONUS_DLL env variable, next on CRONUS_EXE env. variable.
+       - This function loads the DLL based on ???.
        - Name limit of 255 characters.
-       - Function also inits a symbol table of DLL functions.
        - Errors in loading are printed to STDOUT.
 */
 int ecmdLoadDll();
 
 /**
  @brief Unload the eCMD DLL
- @retval ECMD_SUCCESS if successful load  nonzero if unsuccessful
+ @retval ECMD_SUCCESS if successful load
+ @retval nonzero if unsuccessful
  @see loadDll
 
  - Errors in unloading are printed to STDOUT.
@@ -139,7 +140,7 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
 //@}
 
 
-/** @name Alias Functions */
+/** @name Spy Functions */
 //@{
 
 /**
@@ -153,7 +154,20 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
  @see putAlias
 
 */
-int getAlias (ecmdChipTarget & target, const char * aliasName, ecmdDataBuffer & data, int startPos, int numBits);
+int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data, int startPos, int numBits);
+
+/**
+ @brief Scans the selected number of bits from the selected position in the selected alias into the data buffer
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
+ @param aliasName Name of alias to read from
+ @param enumValue Enum value
+ @param startPos Position of first bit in the alias to read from
+ @param numBits Number of bits to read
+ @see putAlias
+
+*/
+int getSpyEnum (ecmdChipTarget & target, const char * spyName, char * enumValue, int startPos, int numBits);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
@@ -167,7 +181,21 @@ int getAlias (ecmdChipTarget & target, const char * aliasName, ecmdDataBuffer & 
 
 
 */
-int putAlias (ecmdChipTarget & target, const char * aliasName, ecmdDataBuffer & data, int startPos, int numBits);
+int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data, int startPos, int numBits);
+
+/**
+ @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
+ @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
+ @param aliasName Name of alias to write to
+ @param data DataBuffer object that holds data to write into alias
+ @param startPos Position of first bit in the alias to write to
+ @param numBits Number of bits to write
+ @see getAlias
+
+
+*/
+int putSpyEnum (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data, int startPos, int numBits);
 
 //@}
 
