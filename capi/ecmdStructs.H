@@ -23,6 +23,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <stdint.h>
+#include <list.h>  /* For STL list */
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -32,9 +33,9 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION ".1"
+#define ECMD_CAPI_VERSION ".1"          ///< eCMD API Version
 
-#define ECMD_MAX_CHIP_TYPE_LENGTH 15  ///< @see ecmdChipTarget
+#define ECMD_MAX_CHIP_TYPE_LENGTH 15    ///< @see ecmdChipTarget
 
 
 
@@ -67,6 +68,35 @@ struct ecmdChipTarget {
   uint8_t threadLoopValid; ///< Tell the calling function that this function operates at a thread level
   uint8_t loopValidChecked;  ///< Flag that indicates that we have signaled to the user level how to loop 
 };
+
+
+
+
+enum ecmdChipInterfaceType_t {
+  ECMD_INTERFACE_ACCESS,
+  ECMD_INTERFACE_CFAM
+};
+
+struct ecmdChipData {
+  uint32_t pos;
+
+  uint8_t  procCores;
+  uint8_t  procThreads;
+
+  uint32_t chipEc;
+  
+
+
+/**
+ @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
+*/
+enum ecmdFileType_t {
+  ECMD_FILE_SCANDEF,    ///< Scandef file type
+  ECMD_FILE_SPYDEF,     ///< Spy Definition file
+  ECMD_FILE_ARRAYDEF    ///< Array Definition file
+};
+
+
 
 
 #endif
