@@ -851,7 +851,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
       }
       /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
       if (((dataStartBit != -1) && (curLatchBit != curLatchInfo->latchStartBit) && (curLatchBit != curLatchInfo->latchEndBit)) ||
-          ((latchname == "") || (latchname.substr(0, latchname.find('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('))))) {
+          ((latchname == "") || (latchname.substr(0, latchname.rfind('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
         /* I have some good data here */
         if (latchname != "") {
 
@@ -869,7 +869,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
           dataStartBit = dataEndBit = -1;
           curBitsToFetch = 0x0FFFFFFF;
           curBufferBit = 0;
-          latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('));
+          latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
           curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
           curData.latchName = latchname;
           curData.ringName = curLatchInfo->ringName;
@@ -987,12 +987,12 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
-    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is greater then numBits requested to write\n");
     rc = ECMD_DATA_OVERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is greater then numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
-    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is less then numBits requested to write\n");
     rc = ECMD_DATA_UNDERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is less then numBits requested to write\n");
     return rc;
   }
 
@@ -1025,9 +1025,9 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
 
     uint32_t bitsToInsert = i_data.getBitLength();
-    int curLatchBit = -1;               // This is the actual latch bit we are looking for next
-    int curStartBit = i_startBit;         // This is the offset into the current entry to start extraction
-    int curBitsToInsert = bitsToInsert;      // This is the total number of bits left to Insert
+    int curLatchBit = -1;                       // This is the actual latch bit we are looking for next
+    int curBitsToInsert = bitsToInsert;         // This is the total number of bits left to Insert
+    int curStartBitToInsert;                    // This is the offset into the current entry for insertion
 
     for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
 
@@ -1049,22 +1049,31 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
         curRing = curLatchInfo->ringName;
       }
 
-      if ((curLatchBit == -1) || (curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('(')))) {
+      if ((curLatchBit == -1) || (curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
         curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
-        curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('));
+        curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
         /* Make a copy of insert data so we don't lose it */
         bufferCopy = i_data;
+        bitsToInsert = i_data.getBitLength();
+        curBitsToInsert = bitsToInsert;
 
         /* We found something, bump the matchs */
         o_matchs ++;
       }
 
       /* Check if the bits are ordered from:to (0:10) or just (1) */
-      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (i_startBit <= curLatchInfo->latchEndBit) && (i_startBit + bitsToInsert >= curLatchInfo->latchStartBit)) ||
           /* Check if the bits are ordered to:from (10:0) */
-          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStartBit <= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchStartBit))) {
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (i_startBit <= curLatchInfo->latchStartBit) && (i_startBit + bitsToInsert >= curLatchInfo->latchEndBit))) {
 
-        bitsToInsert = ((curLatchInfo->length - curStartBit) < curBitsToInsert) ? curLatchInfo->length - curStartBit : curBitsToInsert;
+        if (i_startBit < curLatchInfo->latchStartBit) {
+          /* If the data started before this entry */
+          curStartBitToInsert = 0;
+        } else {
+          /* If the data starts in the middle of this entry */
+          curStartBitToInsert = (curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) ? i_startBit - curLatchInfo->latchStartBit : i_startBit - curLatchInfo->latchEndBit;
+        }
+        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert) ? curLatchInfo->length - curStartBitToInsert : curBitsToInsert;
 
 
         /* ********* */
@@ -1085,7 +1094,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
             curLatchBit = curLatchInfo->latchStartBit + 1;
 
           }
-          ringBuffer.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBit, bitsToInsert);
+          ringBuffer.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
           /* Get rid of the data we just inserted, to line up the next piece */
           bufferCopy.shiftLeft(bitsToInsert);
 
@@ -1109,19 +1118,17 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
           }
 
-          ringBuffer.insert(buffertemp, curLatchInfo->jtagRingOffset + curStartBit - bitsToInsert + 1, bitsToInsert);
+          ringBuffer.insert(buffertemp, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
           /* Get rid of the data we just inserted, to line up the next piece */
           bufferCopy.shiftLeft(bitsToInsert);
 
         }
 
-        curStartBit = 0;
         curBitsToInsert -= bitsToInsert;
       } else {
         /* Nothing was there that we needed, let's try the next entry */
         curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
 
-        curStartBit -= curLatchInfo->length;
       }
 
     }
@@ -1259,7 +1266,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
             ecmdParseTokens(curLine, " \t\n", curArgs);
 
-            if (latchName == curArgs[4].substr(0,curArgs[4].find_first_of("("))) {
+            if (latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
               curLatch.length = atoi(curArgs[0].c_str());
               curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
               curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
@@ -1273,7 +1280,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
           }
 
           /* Let's parse out the start/end bit if they exist */
-          leftParen = curLatch.latchName.find('(');
+          leftParen = curLatch.latchName.rfind('(');
           if (leftParen == std::string::npos) {
             /* This latch doesn't have any parens */
             curLatch.latchStartBit = curLatch.latchEndBit = 0;

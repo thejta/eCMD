@@ -870,6 +870,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latchs
   ecmdLatchMode_t latchMode = ECMD_LATCHMODE_PARTIAL;   ///< Default to pattern matching on latch name
   ecmdDataBuffer buffer;                ///< Buffer to store data from user
+  ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
 
   /************************************************************************/
@@ -1011,9 +1012,10 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     /* Walk through all the latchs recieved */
     for (latchit = latchs.begin(); latchit != latchs.end(); latchit ++ ) {
 
+      buffer_copy = buffer;
 
       if (startBit == 0x0FFFFFFF) {
-        curStartBit = 0;
+        curStartBit = latchit->latchStartBit;
         curNumBits = latchit->buffer.getBitLength();
       } else {
         curStartBit = startBit;
@@ -1038,7 +1040,10 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       }
 
       /* Let's apply our data */
-      rc = ecmdApplyDataModifier(latchit->buffer, buffer, curStartBit - latchit->latchStartBit, dataModifier);
+      /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
+      if (curNumBits < buffer_copy.getBitLength()) 
+        buffer_copy.shrinkBitLength(curNumBits);
+      rc = ecmdApplyDataModifier(latchit->buffer, buffer_copy, curStartBit - latchit->latchStartBit, dataModifier);
       if (rc) {
         printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
         printed += ecmdWriteTarget(target) + "\n";
@@ -1048,9 +1053,9 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       
       /* We can do a full latch compare here now to make sure we don't cause matching problems */
       if (ringName.length() != 0) 
-        rc = putLatch(target, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer, curStartBit, curNumBits, matchs, ECMD_LATCHMODE_FULL);
+        rc = putLatch(target, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer, latchit->latchStartBit, latchit->latchEndBit - latchit->latchStartBit + 1, matchs, ECMD_LATCHMODE_FULL);
       else
-        rc = putLatch(target, NULL, latchit->latchName.c_str(), latchit->buffer, curStartBit, curNumBits, matchs,  ECMD_LATCHMODE_FULL);
+        rc = putLatch(target, NULL, latchit->latchName.c_str(), latchit->buffer, latchit->latchStartBit, latchit->latchEndBit - latchit->latchStartBit + 1, matchs,  ECMD_LATCHMODE_FULL);
       if (rc) {
         printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
         printed += ecmdWriteTarget(target) + "\n";
