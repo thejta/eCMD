@@ -6,6 +6,13 @@ use strict;
 
 my $curdir = ".";
 
+
+#functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
+my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode simFusionRand );
+my $ignore_re = join '|', @ignores;
+
+
+
 if ($ARGV[0] ne "ecmd") {
   open IN, "${curdir}/../ext/$ARGV[0]/capi/$ARGV[0]ClientCapi.H" or die "Could not find $ARGV[0]ClientCapi.H: $!\n";
 } else {
@@ -28,7 +35,6 @@ foreach $fileLine (@fileLines) {
   # If we don't fix the names on the ifdefs and defines, we'll get all sorts of screwy compile errors
   $fileLine =~ s/ClientCapi/ClientPerlapiFunc/;
 
-  # There are pieces of code we don't want in the generated .H.  Currently this code doesn't work quite right becuase if it's ifdef PERLAPI, it will still get excluded
   if (substr($fileLine, 0, 6) eq "#ifdef" || substr($fileLine, 0, 7) eq "#ifndef" || substr($fileLine, 0, 11) eq "#if defined" || substr($fileLine, 0, 12) eq "#if !defined") {
     push(@ifdefs, $fileLine);
     if ("@ifdefs" =~ "PERLAPI") {
@@ -36,7 +42,6 @@ foreach $fileLine (@fileLines) {
     }
   }
 
-  # Finish for the above
   if ($fileLine =~ "#endif") {
     $beforePopPerlapi = 0;
     if ("@ifdefs" =~ "PERLAPI") {
@@ -52,14 +57,17 @@ foreach $fileLine (@fileLines) {
     }
   }
 
-  # Replace the extern C line with a namespace line
   if ($fileLine =~ "extern \"C\" {") {
     $tempstr = sprintf("namespace %sPERLAPI {\n", uc($ARGV[0]));
     print OUT $tempstr;
     next;
   }
 
-  # Print everything to the screen
+  # Close the namespace bracket when the extern C bracket is closed
+  #if ($print && ($fileLine =~ "}" && !(substr($fileLine,0,2) eq "//" || substr($fileLine,0,2) eq "/*"))) {
+  #  print OUT "}\n";
+  #}
+
   if ($print) {
     if ($print == 1) {
       $print++;  #Make it so we don't print the ending ifdef for the PERLAPI
@@ -72,10 +80,7 @@ foreach $fileLine (@fileLines) {
 close IN;
 close OUT;
 
-#functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
-my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode simFusionRand );
 
-my $ignore_re = join '|', @ignores;
 
 open IN, "${curdir}/$ARGV[0]ClientPerlapiFunc.H" or die "Could not find $ARGV[0]ClientPerlapiFunc.H: $!\n";
 open OUT, ">${curdir}/$ARGV[0]ClientPerlapiFunc.C" or die $!;

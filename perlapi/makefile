@@ -34,7 +34,7 @@ SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
 MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRenames.i
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g -I../dll
-SWIGFLAGS    := -c++ -perl5 -exportall -const -I../dll 
+SWIGFLAGS    := -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
 
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi/export:../ext/${ext}/perlapi)
