@@ -49,12 +49,17 @@ int main (int argc, char *argv[])
   }
 
   cmdsave += "\n";
-
+  if (getenv ("ECMD_DLL_FILE") == NULL) {
 #ifdef _AIX
-  rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_aix.so");
+    rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_aix.so");
 #else
-  rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_x86.so");
+    rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_x86.so");
 #endif
+  } else {
+    /* Load the one specified by ECMD_DLL_FILE */
+    rc = ecmdLoadDll("");
+  }
+
   if (!rc) {
 
     /* We now want to call the command interpreter to handle what the user provided us */
