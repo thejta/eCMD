@@ -72,6 +72,19 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
     switch (argv[0][0]) {
 
         /************************/
+        /* The C's              */
+        /************************/
+      case 'e':
+
+        if (!strcmp(argv[0], "checkrings")) {
+          rc = ecmdCheckRings(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+        /************************/
         /* The E's              */
         /************************/
       case 'e':

@@ -259,6 +259,11 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 
   }
 
+  if (!validPosFound) {
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
   return rc;
 }
 
@@ -466,7 +471,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -619,7 +624,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -730,7 +735,7 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -918,7 +923,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -991,6 +996,11 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
       ringName = (*curRingData).ringNames.front();
       ringBuffer.setBitLength((*curRingData).bitLength);
 
+      if (!curRingData->isCheckable && allRingsFlag) {
+        curRingData++;
+        continue;
+      }
+
       for (int i = 0; i < 2; i++) {
 
         if (i % 2) {
@@ -1055,7 +1065,7 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
   }
   
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -1147,7 +1157,7 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 

@@ -583,6 +583,7 @@ int ecmdPrintHelp(const char* i_command) {
   }
 
   while (getline(ins, curLine)) {
+    curLine += '\n';
     ecmdOutput(curLine.c_str());
   }
   ins.close();

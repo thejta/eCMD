@@ -121,8 +121,8 @@ int ecmdQueryUser(int argc, char* argv[]) {
       }
 
       printed = "\nAvailable rings for "; printed += ecmdWriteTarget(target); printed += " ec "; printed += "xxxx"; printed += ":\n"; ecmdOutput(printed.c_str());
-      printed = "Ring Names                           Address    Length   Mask Chkable BroadSide\n"; ecmdOutput(printed.c_str());
-      printed = "-----------------------------------  --------   ------   ---- ------- ---------\n"; ecmdOutput(printed.c_str());
+      printed = "Ring Names                           Address    Length   Mask Chkable BroadSide ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "-----------------------------------  --------   ------   ---- ------- --------- ----------\n"; ecmdOutput(printed.c_str());
 
       for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
 
@@ -149,7 +149,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
           broadmode = 'Y';
         } else broadmode = 'N';
 
-        sprintf(buf,"0x%.6X\t%d\t  %c    %c        %c ", ringit->address, ringit->bitLength, invmask, chkable, broadmode);
+        sprintf(buf,"0x%.6X\t%d\t  %c     %c         %c     ", ringit->address, ringit->bitLength, invmask, chkable, broadmode);
         printed += buf;
 
         if (ringit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
@@ -166,7 +166,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
     }
 
     if (!validPosFound) {
-      //this is an error common across all UI functions
+      ecmdOutputError("Unable to find a valid target to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
 
@@ -180,7 +180,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
       return rc;
     }
     ecmdOutput("================================================\n");
-    printed += "Dll Type         : ";
+    printed = "Dll Type         : ";
     if (info.dllType == ECMD_DLL_STUB)
       printed += "Stub\n";
     else if (info.dllType == ECMD_DLL_STUB)
@@ -192,22 +192,25 @@ int ecmdQueryUser(int argc, char* argv[]) {
     else if (info.dllType == ECMD_DLL_ZSERIES)
       printed += "Z-Series\n";
     else 
-      printed += "Unknown\n";
+      printed = "Unknown\n";
+    ecmdOutput(printed.c_str());
 
-    printed += "Dll Product      : ";
+    printed = "Dll Product      : ";
     if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
       printed += "Eclipz\n";
     else
       printed += "Unknown\n";
+    ecmdOutput(printed.c_str());
 
-    printed += "Dll Environment  : ";
+    printed = "Dll Environment  : ";
     if (info.dllEnv == ECMD_DLL_ENV_HW)
       printed += "Hardware\n";
     else
       printed += "Simulation\n";
+    ecmdOutput(printed.c_str());
 
-    printed += "Dll Build Date   : "; printed += info.dllBuildDate; printed += "\n";
-    printed += "Dll Capi Version : "; printed += info.dllCapiVersion; printed += "\n";
+    printed = "Dll Build Date   : "; printed += info.dllBuildDate; printed += "\n"; ecmdOutput(printed.c_str());
+    printed = "Dll Capi Version : "; printed += info.dllCapiVersion; printed += "\n"; ecmdOutput(printed.c_str());
     ecmdOutput("================================================\n");
 
     

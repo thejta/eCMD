@@ -222,6 +222,7 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 
   if (!validPosFound) {
     //this is an error common across all UI functions
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -357,6 +358,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   }
 
   if (!validPosFound) {
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -643,6 +645,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   }
 
   if (!validPosFound) {
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
