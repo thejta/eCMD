@@ -61,6 +61,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   ecmdChipTarget target;        ///< Current target
   std::string configName;       ///< Name of config variable to fetch
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  bool formatSpecfied = false;   ///< Was the -o option specified
   ecmdConfigValid_t validOutput;  ///< Indicator if valueAlpha, valueNumeric (or both) are valid
   std::string  valueAlpha;       ///< Alpha value of setting (if appropriate)
   uint32_t  valueNumeric;        ///< Numeric value of setting (if appropriate)
@@ -76,6 +77,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   }
   else {
     format = formatPtr;
+    formatSpecfied = true;
   }
 
   /************************************************************************/
@@ -133,11 +135,12 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
 
     printed = ecmdWriteTarget(target) + "\n";
     
-    if( validOutput == ECMD_CONFIG_VALID_FIELD_ALPHA) {
+    if( (validOutput == ECMD_CONFIG_VALID_FIELD_ALPHA) || ((validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH) &&
+    (!formatSpecfied))) {
      printed += configName + " = " + valueAlpha + "\n";
      ecmdOutput(printed.c_str());
     }
-    else if(( validOutput == ECMD_CONFIG_VALID_FIELD_NUMERIC) || (validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH)) {
+    else if(( validOutput == ECMD_CONFIG_VALID_FIELD_NUMERIC) || ((validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH) && (formatSpecfied))) {
      numData.setWord(0, valueNumeric);
      printed += configName + " = ";
      printed += ecmdWriteDataFormatted(numData, format);
