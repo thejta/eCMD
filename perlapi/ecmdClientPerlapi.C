@@ -27,6 +27,11 @@ static int myErrorCode = ECMD_SUCCESS;
 int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
   if (errorCode == -1) {
+
+    if (myErrorCode != ECMD_SUCCESS) {
+      ecmdOutputError( (ecmdGetErrorMsg(myErrorCode) + "\n").c_str());
+    }
+
     return myErrorCode;
   }
   else if (errorCode != ECMD_SUCCESS) {
@@ -38,12 +43,14 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
 ecmdClientPerlapi::ecmdClientPerlapi () {
 
-  myFormat = "px";
+  myFormat = "pxr";
 
 }
 
 ecmdClientPerlapi::~ecmdClientPerlapi () {
-  //nothing, for now
+
+  ecmdUnloadDll();
+
 }
 
 int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) {
@@ -68,7 +75,7 @@ char * ecmdClientPerlapi::getScom (char * i_target, int i_address) {
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return NULL;
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer(3); buffer.flushTo0();
   rc = ::getScom(myTarget, i_address, buffer);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return NULL;
@@ -82,12 +89,15 @@ int ecmdClientPerlapi::putScom (char * i_target, int i_address, char * i_data) {
   int rc = setupTarget(i_target, myTarget);
   if (rc) return rc;
 
-  ecmdDataBuffer buffer(3);
+  ecmdOutput(i_data); ecmdOutput("\n");
+  ecmdDataBuffer buffer(3); buffer.flushTo0();
   rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
 
+  ecmdOutput(buffer.genHexLeftStr().c_str()); ecmdOutput("\n");
   rc = ::putScom(myTarget, i_address, buffer);
+  ecmdOutput(buffer.genHexLeftStr().c_str()); ecmdOutput("\n");
 
   ecmdPerlInterfaceErrorCheck(rc);
   return rc;
@@ -134,7 +144,14 @@ int ecmdClientPerlapi::setupTarget (char * i_targetStr, ecmdChipTarget & o_targe
 
   ecmdCommandArgs(&numArgs, &args);
   rc = ecmdConfigLooperInit(o_target);
-
   ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  ecmdConfigLooperNext(o_target);
+
+  if (args != NULL) {
+    delete[] args;
+  }
+
   return rc;
 }
