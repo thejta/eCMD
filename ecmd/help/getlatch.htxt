@@ -8,12 +8,15 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
         Function:       Gets values for specified latch names in a ring.  The 
                         latch names in the scandef file are searched for the
                         substring LatchName for a match.  Each register containing the
-                        pattern-matched substring will be printed to the screen.  With 
-                        the -exact option, eCMD searches for an exact match, and will 
-                        return only the first latch that exactly matches (excluding any
-                        parentheses). The -compress flag searches past the first match 
-                        for more matches and concatenates data if the register is broken
-                        into separate lines.
+                        pattern-matched substring will be printed to the screen.  
+                        
+                        With the -exact option, eCMD searches for an exact match, and 
+                        will return only the first latch that exactly matches (excluding
+                        any parentheses). 
+
+                        The -nocompress flag turns off concatenation of all latches of 
+                        a register in the scandef and displays on seperate lines as 
+                        they appear in the scandef.
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -69,4 +72,4 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
         --------------------------------------------------------------------------------
 
         Examples:       getlatch pu cp_abist LATCH0
-                        getlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -ox -exact -compress -expect feed -ix
+                        getlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -ox -exact -nocompress -expect feed -ix
