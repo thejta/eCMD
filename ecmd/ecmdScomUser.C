@@ -247,18 +247,21 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         if (rc) {
           printed = "getScom - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
           ecmdOutputWarning(printed.c_str());
+	  rc = 0;
           continue;
         }
       
         std::ifstream scomdefFile(scomdefFileStr.c_str());
         if(scomdefFile.fail()) {
           printed = "readScomdefFile - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-          ecmdOutputWarning(printed.c_str());	     
+          ecmdOutputWarning(printed.c_str());
+	  rc = 0;	     
           continue;
         }
         rc = readScomDefFile(address, scomdefFile);
         if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-	  ecmdOutput("Skipping -v parsing\n");
+	  ecmdOutputWarning("Skipping -v parsing\n");
+	  rc = 0;
 	  continue;
         }
         scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
