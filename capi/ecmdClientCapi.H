@@ -115,15 +115,15 @@ uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
 
  Ex: to query what positions of the Nova chip are on cage 1, node 2:<p>
-   cage = 1, node = 2, pos = <wildcard>, chipType = 'Nova', core = <wildcard>, thread = <wildcard><p>
+   cage = 1, node = 2, pos = 'wildcard', chipType = 'Nova', core = 'wildcard', thread = 'wildcard'<p>
  Ex: to query what positions of the Nova chip are in the entire system:<p>
-   cage = <wildcard>, node = <wildcard>, pos = <wildcard>, chipType = 'Nova', core = <wildcard>, thread = <wildcard><p>
+   cage = 'wildcard', node = 'wildcard', pos = 'wildcard', chipType = 'Nova', core = 'wildcard', thread = 'wildcard'<p>
  Ex: to query all the chips on cage 3, node 0:<p>
-   cage = 3, node = 0, pos = <wildcard>, chipType = <wildcard>, core = <wildcard>, thread = <wildcard><p>
+   cage = 3, node = 0, pos = 'wildcard', chipType = 'wildcard', core = 'wildcard', thread = 'wildcard'<p>
  Ex: to query all the chips in the entire system:<p>
-   cage = <wildcard>, node = <wildcard>, pos = <wildcard>, chipType = <wildcard>, core = <wildcard>, thread = <wildcard><p>
+   cage = 'wildcard', node = 'wildcard', pos = 'wildcard', chipType = 'wildcard', core = 'wildcard', thread = 'wildcard'<p>
  Ex: to query the total nodes in a system:<p>
-   cage = <wildcard>, node = <wildcard>, pos = <ignore>, chipType = <ignore>, core = <ignore>, thread = <ignore><p>
+   cage = 'wildcard', node = 'wildcard', pos = 'ignore', chipType = 'ignore', core = 'ignore', thread = 'ignore'<p>
  NOTE : This function does not affect ring caching
 */
    
