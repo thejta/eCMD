@@ -44,7 +44,7 @@ ifeq (${OS},Linux)
   LD      := ${CC}
   LDFLAGS := -ldl -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-30
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
 endif
 
