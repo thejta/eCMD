@@ -1,6 +1,6 @@
 
-Syntax: putmemmemctrl <MemAddress> <Data> | -f[d|b]<filename>  [-i<format>] 
-                                                               [-k#] [-n#] [-s#] [-p#]
+Syntax: putmemmemctrl <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-p#]
+        putmemmemctrl <MemAddress> -f[d|b]<filename>           [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -12,8 +12,9 @@ Syntax: putmemmemctrl <MemAddress> <Data> | -f[d|b]<filename>  [-i<format>]
         MemAddress      64 Bit address to write to (Hex-Right)
 
         -fd <filename>  Specify full path and filename to file in D-Card format to load
+                        to system
 
-        -fb <filename>  Specify full path and filename to binary file to load
+        -fb <filename>  Specify full path and filename to binary file to load to system
 
         Data            Data to write into mainstore. Not valid with -f option
                         Format specified by -i<format>
@@ -37,3 +38,4 @@ Syntax: putmemmemctrl <MemAddress> <Data> | -f[d|b]<filename>  [-i<format>]
         --------------------------------------------------------------------------------
 
         Examples:       > putmemmemctrl 10000 deadbeef80000000  -p0,1 
+                        > putmemmemctrl 10000 -fb datafile
