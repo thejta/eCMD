@@ -788,22 +788,26 @@ uint32_t ecmdDataBuffer::getWord(int wordOffset) {
 std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
 
   int tempNumWords = (bitLen - 1)/32 + 1;
-  int lastnibble = (bitLen - 1)/4 + 1;
   std::string ret;
-#if 0
-  char* cPtr = ret.str();
+
+  char cPtr[10];
   /* extract iv_Data */
-  uint32_t* tempData = new uint32_t[tempNumWords];
-  this->extract(&tempData[0], start, bitLen);
+  ecmdDataBuffer tmpBuffer(tempNumWords*32);
+  tmpBuffer.flushTo0();
+
+  this->extract(tmpBuffer, start, bitLen);
 
   for (int w = 0; w < tempNumWords; w++) {
-    sprintf(cPtr, "%.8X", tempData[w]);
-    cPtr = &cPtr[8];
+    sprintf(cPtr, "%.8X", tmpBuffer.getWord(w));
+    ret.append(cPtr);
   }
 
-  iv_DataOutStr[lastnibble] = '\0';
-  delete[] tempData;
-#endif
+  int overCount = (32*tempNumWords - bitLen) / 4;
+
+  if (overCount > 0) {
+    ret.erase(ret.length() - overCount, ret.length()-1);
+  }
+
   return ret;
 }
 
@@ -812,51 +816,59 @@ std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
   int tempNumWords = (bitLen - 1)/32 + 1;
   int lastNibble = (bitLen - 1)/4 + 1;
   std::string ret;
-#if 0
 
   tempNumWords++;
   ecmdDataBuffer padded(bitLen+32); /* pad with extra word */
   padded.setWordLength(tempNumWords);
 
   /* resize iv_DataOutStr if necessary */
-  if (iv_DataOutStr == NULL) {
-    iv_DataOutStr = new char[tempNumWords*8+1];
-  } else if (strlen(iv_DataOutStr) < tempNumWords*8) {
-    delete[] iv_DataOutStr;
-    iv_DataOutStr = new char[tempNumWords*8+1];
-  }
 
-  int shiftAmt = 32 - bitLen % 32;
+  int shiftAmt = 32 - (bitLen % 32);
   extract(padded, start, bitLen);
   padded.shiftRight(shiftAmt); /* fill left side with zeros */
-  strcpy(iv_DataOutStr, padded.genHexLeftStr());  /* grab hex string into iv_DataOutStr */
+  ret = padded.genHexLeftStr();  /* grab hex string into iv_DataOutStr */
   int offsetNibble = (shiftAmt - 1)/4;
-  iv_DataOutStr = &iv_DataOutStr[offsetNibble];  /* chop off left side */
-  iv_DataOutStr[lastNibble] = '\0'; /* chop off right side */
-#endif
+  //iv_DataOutStr = &iv_DataOutStr[offsetNibble];  /* chop off left side */
+  //iv_DataOutStr[lastNibble] = '\0'; /* chop off right side */
+
+  if (offsetNibble > 0) {
+    ret.erase(0, offsetNibble+1);
+  }
+
+  ret.erase(lastNibble, ret.length());
+
   return ret;
 }
 
 std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
 
+  int tempNumWords = (bitLen - 1)/32 + 1;
   std::string ret;
-#if 0
-  /* resize iv_DataOutStr if necessary */
-  if (iv_DataOutStr == NULL) {
-    iv_DataOutStr = new char[bitLen+1];
-  } else if (strlen(iv_DataOutStr) < bitLen) {
-    delete[] iv_DataOutStr;
-    iv_DataOutStr = new char[bitLen+1];
+  /* extract iv_Data */
+  uint32_t* tempData = new uint32_t[tempNumWords];
+  this->extract(&tempData[0], start, bitLen);
+  uint32_t mask = 0x80000000;
+  int curWord = 0;
+
+  for (int w = 0; w < bitLen; w++) {
+    if (tempData[curWord] & mask) {
+      ret.append("1");
+    }
+    else {
+      ret.append("0");
+    }
+
+    mask >>= 1;
+
+    if (!mask) {
+      curWord++;
+      mask = 0x80000000;
+    }
+
   }
 
-#ifndef REMOVE_SIM_BUFFERS
-  // iv_DataStr should already have updated iv_Data
-  strncpy(iv_DataOutStr, &iv_DataStr[start], bitLen);
-#endif
+  delete[] tempData;
 
-  iv_DataOutStr[bitLen] = '\0';
-  return iv_DataOutStr;    
-#endif
   return ret;
 }
 
