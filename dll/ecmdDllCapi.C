@@ -1528,6 +1528,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
            //Go back to the matching latch
            insh.seekg(4, ios::cur);
            insh.read( (char *)& curLKey, 4);
+	   curLKey = htonl(curLKey); 
            while(latchKeyToLookFor == curLKey) {
             insh.read( (char *)& curLOffset, 4 );
             curLOffset = htonl(curLOffset);
@@ -1537,6 +1538,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
             foundLatch = true;
             //Read next latch
             insh.read( (char *)& curLKey, 4);
+	    curLKey = htonl(curLKey); 
            }
            break;
          }
