@@ -56,6 +56,8 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 //  libsomelib.so_OFILES = normalobject.o libecmdclientcapi.a
 //  libsomelib.ndso_SHLDFLAGS libsomelib.so_SHLDFLAGS += -Wl,--whole-archive -lecmdclientcapi -Wl,--no-whole-archive
 
+#ifndef ECMD_PERLAPI
+
 #ifdef FIPSODE
 #define PTRAC0(fmt) \
   TRACFCOMP0(g_ptrc, fmt);
@@ -129,6 +131,7 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
   ecmdOutput(buffer);}
 #endif
 
+#endif // ifndef ECMD_PERLAPI
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
