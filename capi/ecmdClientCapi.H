@@ -30,21 +30,22 @@ extern "C" {
 //@{
 /**
  @brief Load the eCMD DLL
+ @param dllName Specify the full path and name of the dll to load, 
  @retval ECMD_SUCCESS if successful load
  @retval ECMD_INVALID_DLL_VERSION if Dll version loaded doesn't match client version
  @retval nonzero if unsuccessful
  @post eCMD DLL is loaded into memory and initialized
  @see unloadDll
 
-       - This function loads the DLL based on ???.
+       - This function loads the DLL based on dllName if specified, otherwise the env var ECMD_DLL_FILE is used
        - Name limit of 255 characters.
        - Errors in loading are printed to STDOUT.
 */
-int ecmdLoadDll();
+int ecmdLoadDll(string dllName);
 
 /**
  @brief Unload the eCMD DLL
- @retval ECMD_SUCCESS if successful load
+ @retval ECMD_SUCCESS if successful unload
  @retval nonzero if unsuccessful
  @see loadDll
 
@@ -54,21 +55,21 @@ int ecmdLoadDll();
 int ecmdUnloadDll(); 
 
 /**
- @brief Initialize the eCMD DLL
- @retval ECMD_SUCCESS if successful load  nonzero if unsuccessful
+ @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @param argc Passed from Command line Arguments
  @param argv Passed from Command line Arguments
  @pre loadDll must have been called
  @post Global options (ex. -debug, -p#, -c#) will be removed from arg list
  @see loadDll
 
- - initializes objects in the DLL.
  - argc/argv get passed to the eCMD DLL.
  - Global options such as -debug flags and -p#, -c# will be parsed out.
- - Position flags can be queried later with functions like wasposselected()
+ - Position flags can be queried later with functions like ?????
 */
 
-int ecmdInitDll(int argc, char* argv[]); 
+int ecmdCommandArgs(int argc, char* argv[]); 
 
 //@}
 
@@ -86,18 +87,19 @@ int ecmdInitDll(int argc, char* argv[]);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
+ The Valid bits of the target are used to refine the query
+
  The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
- When a -1 is encountered or zero length chipType the query function will iterate on all possible values for that
+ When a field is nonValid the query function will iterate on all possible values for that
  entry and return the relevant data.
 
- NOTE: the Valid flags of the ecmdChipTarget structure are not used for this function
 
  Ex: to query what positions of the Nova chip are on cage 1, node 2:
-   cage = 1, node = 2, pos = -1, chipType = 'Nova', core = -1, thread = -1
+   cage = 1, node = 2, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid>
  Ex: to query what positions of the Nova chip are in the entire system:
-   cage = -1, node = -1, pos = -1, chipType = 'Nova', core = -1, thread = -1
+   cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid>
  Ex: to query all the chips on cage 3, node 0:
-   cage = 3, node = 0, pos = -1, chipType = '', core = -1, thread = -1
+   cage = 3, node = 0, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid>
 */
    
 int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData);
@@ -141,6 +143,15 @@ int ecmdQuerySpy(ecmdChipTarget & target, vector<ecmdSpyData> & queryData, const
 */
 int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, string fileLocation);
 
+
+/**
+ @brief Query wether the target specified was selected by the user with -n#, -p#, -c#, -t#
+ @param target Struct that contains the cage/node/position/core/thread information (chipType not used)
+ @retval FALSE if target not selected
+ @retval TRUE if target selected
+  - The Valid bits of the target are used to refine the query @see ecmdQueryConfig
+*/
+uint8_t ecmdQueryTargetSelected(ecmdChipTarget & target);
 
 //@}
 
@@ -244,7 +255,7 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
  @brief Scans the selected number of bits from the selected position in the selected alias into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
- @param aliasName Name of alias to read from
+ @param spyName Name of alias to read from
  @param data DataBuffer object that holds data read from alias
  @see putAlias
 
@@ -255,7 +266,7 @@ int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
  @brief Scans the selected number of bits from the selected position in the selected alias into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to read
- @param aliasName Name of alias to read from
+ @param spyName Name of alias to read from
  @param enumValue Enum value
  @see putAlias
 
@@ -266,7 +277,7 @@ int getSpyEnum (ecmdChipTarget & target, const char * spyName, string enumValue)
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
- @param aliasName Name of alias to write to
+ @param spyName Name of alias to write to
  @param data DataBuffer object that holds data to write into alias
  @see getAlias
 
@@ -278,7 +289,7 @@ int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
  @param target Struct that contains chip and cage/node/position/core/thread information of alias to write
- @param aliasName Name of alias to write to
+ @param spyName Name of alias to write to
  @param enumValue DataBuffer object that holds data to write into alias
  @see getAlias
 
@@ -301,6 +312,7 @@ int putSpyEnum (ecmdChipTarget & target, const char * spyName, const string enum
  @param target Struct that contains chip and cage/node/position/core/thread information of array to read
  @param arrayName Name of array to read from
  @param data DataBuffer object that holds data read from address
+ @param address Array Address to read from - how long is this ??????
  @see putArray
 
 */
@@ -312,6 +324,7 @@ int getArray (ecmdChipTarget & target, const char * arrayName, uint32_t * addres
  @param target Struct that contains chip and cage/node/position/core/thread information of array to write
  @param arrayName Name of array to write to
  @param data DataBuffer object that holds data to write into array
+ @param address Array Address to write to - how long is this ??????
  @see getArray
 
 */
@@ -358,6 +371,7 @@ int iplSys ();
 
 /**
  @brief Retrieve additional error information for errorcode
+ @param errorCode Error code to lookup up message for
  @retval point to NULL terminated string containing error data, NULL if error occurs
 */
 string ecmdGetErrorMsg(int errorCode);
@@ -375,6 +389,24 @@ int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message);
 /** @name Output Functions */
 //@{
 
+/**
+ @brief Output a message related to an error
+ @param message String to output
+*/
+void ecmdOutputError(const char* message);
+
+/**
+ @brief Output a message related to an warning
+ @param message String to output
+*/
+void ecmdOutputWarning(const char* message);
+
+/**
+ @brief Output a message to the screen or logs
+ @param message String to output
+*/
+void ecmdOutput(const char* message);
+
 //@}
 
 
@@ -383,6 +415,80 @@ int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message);
 
 
 #endif /* ecmdClientCapi_H */
+
+
+/**
+ * @mainpage
+
+@section int Introduction
+
+Common Hardware Access Programming Interface (eCMD)
+
+This is the documentation of the eCMD C/C++ Programming Api
+
+@section inc Include Files
+
+To compile client code to use the C++ API, the following header files are required:
+<ul>
+<li> ecmdClientCapi.H
+<li> ecmdDataBuffer.H
+<li> ecmdStructs.H
+<li> ecmdReturnCodes.H
+</ul>
+
+@section link Link objects
+To link the client code on AIX, the following is required:
+<ul>
+<li>ecmdClientCapi_aix.a
+<li>ecmdClientCapi.export
+<li>xlC v5.0
+</ul>
+To create Linux x86 binaries, the following is required:
+<ul>
+<li>ecmdClientCapi_x86.a
+<li>g++ v2.96
+</ul>
+To create Linux ppc binaries, the following is required:
+<ul>
+<li>ecmdClientCapi_ppc.a
+<li>g++ ????
+</ul>
+@section dllv DLL Version
+The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
+
+<br>
+<hr>
+@section bvc The ecmdDataBuffer class
+Data is passed between the client and the DLL with the ecmdDataBuffer class.  The ecmdDataBuffer object is linked on both the client side and the DLL side.
+
+The ecmdDataBuffer maintains data both as unsigned integers and as a character string.  The class contains methods for accessing and modifying data as well as converting data to strings (e.g. hex, left-aligned).  The ecmdDataBuffer class allocates the memory for the conversion-to-string routines and returns a char* pointer to the memory.  The client should allocate its own memory and do a strcpy if the string is to be preserved upon the next ecmdDataBuffer conversion-to-string call.
+<br>
+<hr>
+@section makefile Makefile Example
+
+@subsection Aixmake Aix
+<ul>
+<pre>
+testclient: testclient.o ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_aix.a
+	xlC -+ -g testclient.o ecmdClientCapi_aix.a -bI:ecmdClientCapi.export -o testclient
+
+testclient.o: testclient.c ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_aix.a
+	xlC -+ -g -c testclient.c -o testclient.o
+</pre>
+</ul>
+@subsection Linuxmake Linux x86
+<ul>
+<pre>
+testclient.linux: testclient_linux.o ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_x86.a
+	g++ -g -ldl testclient_linux.o ecmdClientCapi_x86.a -o testclient.linux
+
+testclient_linux.o: testclient.c ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_x86.a
+	g++ -g -c -I./ testclient.c -o testclient_linux.o
+</pre>
+</ul>
+
+
+*/
 
 // Change Log *********************************************************
 //                                                                      
