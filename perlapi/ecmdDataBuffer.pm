@@ -662,8 +662,28 @@ sub invert() {
    void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
 =cut
 sub applyInversionMask() {
-#void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
+	my ($i_invMask)    = @_[1];
+	my ($i_invByteLen) = @_[2];
+	my ($len) =0;
+	my ($looper) =0;
 
+#do the shorter of the three possible lenghts
+
+	$len = length($i_invMask);
+	if($len > $i_invByteLen * 4) { $len = $i_invByteLen * 4; }
+	if(length($iv_DataStr) < $len) { $len = legth($iv_DataStr); }
+
+	for($looper=0;$looper<$len; $looper++) {
+		if(substr($i_invMask,$looper,1) == 1) {
+# /* data could be an xstate so don't invert anything other than 1's or 0's */
+			if(substr($iv_DataStr,$looper,1) == '1') {
+				substr($iv_DataStr,$looper,1) = 0;
+			}
+			elsif (substr($iv_DataStr,$looper,1) == '0') {
+				substr($iv_DataStr,$looper,1) = '1';
+			}
+		}
+	}
 }
 
 
@@ -711,7 +731,20 @@ sub insertFromRight() {
   void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
 =cut
 sub extract() {
-#  void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
+#	my $o_bufferOut = @_[1];
+	my ($i_start)   = @_[2];
+	my ($i_len)     = @_[3];
+	my ($len) =0;
+
+	$len = length($iv_DataStr);
+	if(($i_start + $i_len) > $len) {
+		printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", $i_start + $i_len, $len);
+	}
+	else {
+#		$o_bufferOut = substr($iv_DataStr,$i_start,$i_len); doesn't work this way
+		@_[1] = substr($iv_DataStr,$i_start,$i_len);
+	}
+
 }
 
 
