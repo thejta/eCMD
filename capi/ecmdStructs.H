@@ -456,6 +456,15 @@ typedef enum {
 } ecmdLatchMode_t;
 
 
+/**
+ @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
+*/
+
+typedef enum {
+  FUNCTIONIN,                   ///< Designates 
+  FUNCTIONOUT
+} efppInOut_t;
+
 
 /* @name Operators */
 //@{

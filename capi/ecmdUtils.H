@@ -124,4 +124,15 @@ uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 */
 uint32_t ecmdDisplayDllInfo();
 
+/**
+ @brief Print the parameters pass to a given function.
+ @retval Void return
+ @param enum efppInOut Helps printed output for IN or OUT message
+ @param char* fprototypeStr cut and paste of function prototype line.
+ @param  <all others> parameters associated with given calling function.
+ */
+void ecmdFunctionParmPrinter(efppInOut_t inOut, char *fprototypeStr, ...);
+
+
+
 #endif
