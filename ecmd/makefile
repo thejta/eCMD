@@ -8,7 +8,7 @@ OS           := $(shell uname)
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := ecmdInterpreter.H
-SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C
+SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g 
 
@@ -57,8 +57,7 @@ ifeq (${MPATROL},yes)
 
   ifeq (${OS},AIX)
     CFLAGS  := ${CFLAGS} -I${MPATROL_HOME}include/
-    EXTRA_LIBS := ${EXTRA_LIBS} libmpatrol.a
-    LDFLAGS := ${LDFLAGS} -lld
+    LDFLAGS := ${LDFLAGS} -lld ${MPATROL_HOME}/aix/libmpatrol.a
   endif
 
 

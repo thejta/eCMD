@@ -37,6 +37,7 @@
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
+#include <ecmdSharedUtils.H>
 
 #undef ecmdRingUser_C
 //----------------------------------------------------------------------
@@ -250,7 +251,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
           }
           else {
 
-            ecmdParseTokens(curLine, splitArgs);
+            ecmdParseTokens(curLine, " \t\n", splitArgs);
 
             printed = splitArgs[3];
 
@@ -524,7 +525,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
             /* Transform to upper case */
             transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
 
-            ecmdParseTokens(curLine, curArgs);
+            ecmdParseTokens(curLine, " \t\n", curArgs);
             curLatch.length = atoi(curArgs[0].c_str());
             curLatch.ringOffset = atoi(curArgs[1].c_str());
             curLatch.latchName = curArgs[3];
@@ -533,7 +534,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
             /* Transform to upper case */
             transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
-            ecmdParseTokens(curLine, curArgs);
+            ecmdParseTokens(curLine, " \t\n", curArgs);
 
             if (latchName == curArgs[3]) {
               curLatch.length = atoi(curArgs[0].c_str());
@@ -1229,7 +1230,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
           }
           else if ((curLine[0] != '*') && curLine.find(latchName) != std::string::npos) {
 
-            ecmdParseTokens(curLine, curArgs);
+            ecmdParseTokens(curLine, " \t\n", curArgs);
             curLatch.length = atoi(curArgs[0].c_str());
             curLatch.ringOffset = atoi(curArgs[1].c_str());
             curLatch.latchName = curArgs[3];

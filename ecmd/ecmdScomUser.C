@@ -33,6 +33,7 @@
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
+#include <ecmdSharedUtils.H>
 
 #undef ecmdDaScomUser_C
 //----------------------------------------------------------------------

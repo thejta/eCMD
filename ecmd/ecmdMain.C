@@ -30,12 +30,13 @@
 //----------------------------------------------------------------------
 #define ecmdMain_C
 
+#include <stdio.h>
+#include <string>
+
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
 #include <ecmdReturnCodes.H>
 
-#include <stdio.h>
-#include <string>
 
 #undef ecmdMain_C
 
@@ -51,6 +52,8 @@ int main (int argc, char *argv[])
   }
 
   cmdsave += "\n";
+
+
   if (getenv ("ECMD_DLL_FILE") == NULL) {
 #ifdef _AIX
     rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_aix.so");

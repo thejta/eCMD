@@ -112,6 +112,11 @@ uint32_t ecmdSimUNSTICKUser(int argc, char * argv[]);
 uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]);
 #endif  //REMOVE_SIM
 
+/* ecmdProcUser.C */
+uint32_t ecmdGetSprUser(int argc, char * argv[]);
+uint32_t ecmdPutSprUser(int argc, char * argv[]);
+
+
 //@}
 
 

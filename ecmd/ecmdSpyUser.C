@@ -33,6 +33,8 @@
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
+#include <ecmdSharedUtils.H>
+
 #undef ecmdDaSpyUser_C
 //----------------------------------------------------------------------
 //  User Types

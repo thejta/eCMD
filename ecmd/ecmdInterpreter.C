@@ -31,6 +31,7 @@
 #include <ecmdReturnCodes.H>
 #include <ecmdCommandUtils.H>
 #include <ecmdUtils.H>
+#include <ecmdSharedUtils.H>
 
 #undef ecmdInterpreter_C
 //----------------------------------------------------------------------
@@ -114,6 +115,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getspr")) {
+          rc = ecmdGetSprUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getspy")) {
           rc = ecmdGetSpyUser(argc - 1, argv + 1);
         } else {
@@ -143,6 +146,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutPatternUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putscom")) {
           rc = ecmdPutScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putspr")) {
+          rc = ecmdPutSprUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putspy")) {
           rc = ecmdPutSpyUser(argc - 1, argv + 1);
         } else {

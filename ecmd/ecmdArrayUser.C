@@ -29,6 +29,8 @@
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
+#include <ecmdSharedUtils.H>
+
 #undef ecmdArrayUser_C
 //----------------------------------------------------------------------
 //  User Types
