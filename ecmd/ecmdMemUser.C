@@ -94,6 +94,14 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     outputformat = formatPtr;
   }
 
+  /* Get the filename if -fb is specified */
+  char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
+  
+  if((filename != NULL) && (formatPtr != NULL) ) {
+    printLine = cmdlineName + " - Options -fb and -o can't be specified together for format. Specify either one.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  } 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -167,15 +175,27 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     else {
       validPosFound = true;     
     }
-
+    
     printLine = ecmdWriteTarget(target);
-
-    std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
-    if (dataStr[0] != '\n') {
-      printLine += "\n";
-    }
-    printLine += dataStr;
-    ecmdOutput( printLine.c_str() );
+    if (formatPtr != NULL) {
+     
+     std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
+     if (dataStr[0] != '\n') {
+       printLine += "\n";
+     }
+     printLine += dataStr;
+     ecmdOutput( printLine.c_str() );
+    } else if (filename != NULL) {
+      rc = returnData.writeFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+       
+      if (rc) {
+       printLine += cmdlineName + " - Problems occurred writing data into file" + filename +"\n";
+       ecmdOutputError(printLine.c_str()); 
+       return rc;
+      }
+      ecmdOutput( printLine.c_str() );
+    } 
+   
   }
 
   if (!validPosFound) {
@@ -219,7 +239,14 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (formatPtr != NULL) {
     inputformat = formatPtr;
   }
-
+  /* Get the filename if -fb is specified */
+  char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
+  
+  if((filename != NULL) && (formatPtr != NULL) ) {
+    printLine = cmdlineName + "Options -fb and -i can't be specified together for format. Specify either one.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  } 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -262,15 +289,24 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
   }
-
+  
   // Read in the input data
-  rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
-  if (rc) {
-    printLine = cmdlineName + " - Problems occurred parsing input data, must be an invalid format\n";
-    ecmdOutputError(printLine.c_str());
-    return rc;
+  if (formatPtr != NULL) {
+   rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
+   if (rc) {
+     printLine = cmdlineName + " - Problems occurred parsing input data, must be an invalid format\n";
+     ecmdOutputError(printLine.c_str());
+     return rc;
+   }
+  } else if(filename != NULL) {
+    rc = inputData.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+    if (rc) {
+     printLine = cmdlineName + " - Problems occurred parsing input data from file" + filename +", must be an invalid format\n";
+     ecmdOutputError(printLine.c_str());
+     return rc;
+   }
   }
-
+  
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
