@@ -859,7 +859,6 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
     for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
 
 
-
       /* Let's grab the ring for this latch entry */
       if (curRing != curLatchInfo->ringName) {
         rc = dllGetRing(target, curLatchInfo->ringName.c_str(), ringBuffer);
@@ -1431,7 +1430,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
   while (1) {
     /* Let's see if we have already looked up this info */
     foundit = false;
- 
     /* find scandef file */
     rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
     if (rc) {
@@ -1462,7 +1460,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
     /* We're done, get out of here */
     if (foundit) return rc;
 
-    
 
     /* We don't have it already, let's go looking */
     if (!foundit) {
@@ -1473,14 +1470,13 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       if (i_ringName != NULL) {
         ringKey = ecmdHashString32(i_ring.c_str(), 0);
       }
-      
       /* find scandef hash file */
       rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile);
       if (rc) {
         dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured locating scandef hash file: " + scandefHashFile + "\n").c_str());
         return rc;
       }
-      
+
       std::ifstream insh(scandefHashFile.c_str());
       if (insh.fail()) {
         rc = ECMD_UNABLE_TO_OPEN_SCANDEFHASH;
@@ -1488,10 +1484,8 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
         break;
       }
  
- 
       bool foundLatch = false;
       uint32_t numRings =0;
-
       insh.read((char *)& numRings, 4);
       numRings = htonl(numRings);
       
@@ -1533,7 +1527,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       //Seek to the ring area in the hashfile
       insh.seekg ( 8 ); 
       
-     
       bool ringFound = false;
       std::list< ecmdLatchHashInfo >::iterator latchIter;
       
@@ -1564,12 +1557,12 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	}
 	else {
 	 while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
-	  insh.read( (char *)& ringKey, 4 ); //Read the ringKey
+	  insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
 	  insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-	  insh.read( (char *)& ringKey, 4 ); //Read the ringKey
+	  insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
 	  insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
 	
-	  curRingKey = htonl(ringKey);
+	  curRingKey = htonl(curRingKey);
 	  ringBeginOffset = htonl(ringBeginOffset);
 	  ringEndOffset = htonl(ringEndOffset);
 	
@@ -1580,7 +1573,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	      //The ring user specified does not match the one looked up in the scandefhash
 	      std::string tmp = i_ringName;
               rc = ECMD_INVALID_RING;
-              dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Could not find ring name " + tmp + " match\n").c_str());
+              dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Ring " + tmp + " that user specified is not the same as the ring match found in the hash\n").c_str());
               break;
 	    }
 	    latchHashDetIter->ringBeginOffset = ringBeginOffset;
@@ -1600,7 +1593,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       }
       
       /**********Scandef World after this *****************/
-      
       std::ifstream ins(scandefFile.c_str());
       if (ins.fail()) {
         rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
@@ -1654,7 +1646,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
           foundRing = true;
         }                    
       }
-      
       if( foundRing) { 
       
        for (latchHashDetIter = latchHashDet.begin(); latchHashDetIter != latchHashDet.end(); latchHashDetIter++) {
@@ -1714,7 +1705,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
         break;
       }
 
-      foundit = true;
       o_latchdata.scandefName = scandefFile;
       if (i_ringName != NULL)
         o_latchdata.ringName = i_ringName;
