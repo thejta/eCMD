@@ -1840,22 +1840,19 @@ To create Linux x86 binaries, the following is required:
 @section ext eCMD Extensions
 These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.
 @subsection cip CIP (Cronus/IP) Extension
-<ul>
 This extensions provides interfaces to start/stop processor instructions and breakpoint handling.<br>
 Include files :
 <ul>
 <li> cipClientCapi.H</li>
 <li> cipStructs.H</li>
 </ul>
-</ul>
+
 @subsection cronus Cronus Extension
-<ul>
 This extensions provides Cronus only interfaces.<br>
 Include files :
 <ul>
 <li> croClientCapi.H</li>
 <li> croStructs.H</li>
-</ul>
 </ul>
 
 <hr>
