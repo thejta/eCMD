@@ -64,6 +64,13 @@ uint32_t ecmdSimaetUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
   if (argc < 1) {
     ecmdOutputError("simaet - At least one argument ('on', 'off', or 'flush') is required for simaet.\n");
     return ECMD_INVALID_ARGS;
@@ -84,6 +91,13 @@ uint32_t ecmdSimcheckpointUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
   if (argc < 1) {
     ecmdOutputError("simcheckpoint - At least one argument (a checkpoint filename) is required for simcheckpoint.\n");
     return ECMD_INVALID_ARGS;
@@ -103,6 +117,13 @@ uint32_t ecmdSimcheckpointUser(int argc, char * argv[]) {
 uint32_t ecmdSimclockUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
 
   if (argc < 1) {
     ecmdOutputError("simclock - At least one argument (a number of clock cycles) is required for simclock.\n");
@@ -130,6 +151,13 @@ uint32_t ecmdSimechoUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   std::string message;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
   if (argc < 1) {
     ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
     return ECMD_INVALID_ARGS;
@@ -149,6 +177,13 @@ uint32_t ecmdSimechoUser(int argc, char * argv[]) {
 uint32_t ecmdSimexitUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
 
   if (argc == 2) {
     if (!ecmdIsAllDecimal(argv[0])) {
@@ -174,6 +209,7 @@ uint32_t ecmdSimexitUser(int argc, char * argv[]) {
 uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+
 
   /* get format flag, if it's there */
   std::string format;
@@ -577,6 +613,14 @@ uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
   if (argc > 0) {
     ecmdOutputError("simgetcurrentcycle - Too many arguments to simgetcurrentcycle, none are required.\n");
     return ECMD_INVALID_ARGS;
@@ -598,6 +642,13 @@ uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
 uint32_t ecmdSiminitUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
 
   if (argc < 1) {
     ecmdOutputError("siminit - At least one argument (a checkpoint filename or 'NONE') is required for siminit.\n");
@@ -827,6 +878,13 @@ uint32_t ecmdSimrestartUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
   if (argc < 1) {
     ecmdOutputError("simrestart - At least one argument (a checkpoint filename) is required for simrestart.\n");
     return ECMD_INVALID_ARGS;
@@ -988,6 +1046,14 @@ uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]) {
   char buf[1000];
   buf[0] = '\0';
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
   if (argc < 1) {
     ecmdOutputError("simSUBCMD - At least one argument (a command to execute) is required for simSUBCMD.\n");
     return ECMD_INVALID_ARGS;
@@ -1009,6 +1075,14 @@ uint32_t ecmdSimTckIntervalUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
   uint32_t cycles ;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
 
   if (argc < 1) {
     ecmdOutputError("simtckinterval - At least one argument (a cycle count) is required for simtckinterval.\n");
