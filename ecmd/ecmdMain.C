@@ -85,12 +85,15 @@ int main (int argc, char *argv[])
       sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
       ecmdOutputError(buf);
     }
+
+
+    /* Move these outputs into the if !rc to fix BZ#224 - cje */
+    ecmdOutput(cmdsave.c_str());
+
+
+    ecmdUnloadDll();
+
   }
-
-
-  ecmdOutput(cmdsave.c_str());
-
-  ecmdUnloadDll();
 
   exit(rc);
 
