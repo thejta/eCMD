@@ -244,7 +244,9 @@ std::string dllGetErrorMsg(uint32_t i_errorCode) {
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
-      ret = (*cur).whom + ": " + (*cur).message + " ";
+      ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
+      ret += (*cur).message;
+      ret += "==============================================================\n";
       break;
     }
   }
@@ -1116,6 +1118,30 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   return rc;
 }
 
+
+uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1) {
+
+  uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
+  ecmdDataBuffer actual_data;
+
+  actual_data.setBitLength(i_bitlength);
+
+  while (curcycles < i_maxcycles) {
+    rc = dllSimGETFAC(i_facname,i_bitlength,actual_data,i_row,i_offset);
+    if (rc) return rc;
+
+    /* We found what we expected */
+    if (i_expect == actual_data) {
+      return rc;
+    }
+
+    dllSimclock(i_pollinterval);
+    curcycles += i_pollinterval;
+  }
+
+  /* We must have timed out */
+  return ECMD_POLLING_FAILURE;
+}
 
 
 // Change Log *********************************************************

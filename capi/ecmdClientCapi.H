@@ -1248,6 +1248,23 @@ uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t 
 */
 uint32_t siminit(const char* i_checkpoint);
 
+
+/**
+ @brief Poll a facility waiting for expected valud
+ @param i_facname Facility name
+ @param i_bitlength Bit length to expect
+ @param i_expect Data to expect in facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @param i_maxcycles Optional : Maximum number of cycles to run 
+ @param i_pollinterval Option : Number of clock cycles to run between each poll
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+
 /**
  @brief Write a Facility using a name
  @param i_facname Facility name
