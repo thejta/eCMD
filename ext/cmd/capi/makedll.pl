@@ -24,7 +24,9 @@ print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 print OUT "extern \"C\" {\n\n";
 
 print OUT "int dllLoadDll (const char * version);\n\n";
+print OUT "int dllInitDll ();\n\n";
 print OUT "int dllUnloadDll ();\n\n";
+
 
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
