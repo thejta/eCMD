@@ -316,6 +316,7 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
 */
 int sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
 
+//@}
 
 
 /** @name Spy Functions */
@@ -953,6 +954,7 @@ The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed int
 Data is passed between the client and the DLL with the ecmdDataBuffer class.  The ecmdDataBuffer object is linked on both the client side and the DLL side.
 
 The ecmdDataBuffer maintains data both as unsigned integers and as a character string.  The class contains methods for accessing and modifying data as well as converting data to strings (e.g. hex, left-aligned).  The ecmdDataBuffer class allocates the memory for the conversion-to-string routines and returns a char* pointer to the memory.  The client should allocate its own memory and do a strcpy if the string is to be preserved upon the next ecmdDataBuffer conversion-to-string call.
+
 <br>
 <hr>
 @section makefile Makefile Example
@@ -977,6 +979,7 @@ testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/e
 </pre>
 
 
+<hr>
 @section example Example
 
 
@@ -991,94 +994,101 @@ testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/e
 int main (int argc, char *argv[])
 {
 
-  ecmdDataBuffer data;          /* A buffer to store our data */
+  // A buffer to store our data
+  ecmdDataBuffer data;          
   int rc = 0;
-  ecmdChipTarget target;        /* This is the chip target to operate on */
+  // This is the chip target to operate on
+  ecmdChipTarget target;       
 
 
-  /* Load and initialize the eCMD Dll */
-  /* Which DLL to load is determined by the ECMD_DLL_FILE environment variable */
+  // Load and initialize the eCMD Dll 
+  // Which DLL to load is determined by the ECMD_DLL_FILE environment variable 
   rc = ecmdLoadDll("");
   if (rc) {
-    printf("**** ERROR : Problems loading eCMD Dll\n");
+    printf("**** ERROR : Problems loading eCMD Dll!");
     return rc;
   }
 
-  /* Pass your arguments to the Dll so it can parse out any common args */
-  /* Common args like -p# -c# will be removed from arg list upon return */
+  // Pass your arguments to the Dll so it can parse out any common args 
+  // Common args like -p# -c# will be removed from arg list upon return 
   rc = ecmdCommandArgs(&argc, &argv); 
   if (rc) return rc;
 
-  /* Let's setup our target */
+  // Let's setup our target 
   target.cage = target.node = target.slot = 0;
   target.chipType = "pu";
   target.pos = target.core = 0;
 
-  /* Is this target configured ? */
+  // Is this target configured ? 
   if (ecmdQueryTargetConfigured(target)) {
-    printf("pu 0:0 is configured\n");
+    printf("pu 0:0 is configured");
   } else {
-    printf("**** ERROR : pu 0:0 is not configured, unable to complete test\n");
+    printf("**** ERROR : pu 0:0 is not configured, unable to complete test");
     return 1;
   }
 
-  /* ----------------- */
-  /* Ring's            */
-  /* ----------------- */
+  // ----------------- 
+  // Ring's            
+  // ----------------- 
   rc = getRing (target, "sgxbs", data);
   if (rc) return rc;
-  printf("Scanned ring sgxbs - length = %d\n",data.getBitLength());
+  printf("Scanned ring sgxbs - length = %d",data.getBitLength());
 
-  /* We need to set a few bits */
-  data.setWord(1, 0xFEEDBEEF);  /* Set an entire word */
-  data.setBit(2);               /* Set bit 2 */
-  data.setBit(5,5);             /* Set bits 5-9 */
-  data.clearBit(12);            /* Clear bit 12 */
+  // We need to set a few bits
+  // Set an entire word
+  data.setWord(1, 0xFEEDBEEF);  
+  // Set bit 2
+  data.setBit(2);               
+  // Set bits 5-9
+  data.setBit(5,5);             
+  // Clear bit 12
+  data.clearBit(12);            
 
-  /* Scan the ring back in */
+  // Scan the ring back in 
   rc = putRing (target, "sgxbs", data);
   if (rc) return rc;
 
 
-  /* ----------------- */
-  /* Spy's             */
-  /* ----------------- */
-  /* We will enable ring caching this will reduce the scans to the hardware */
+  // ----------------- 
+  // Spy's             
+  // ----------------- 
+  // We will enable ring caching this will reduce the scans to the hardware 
   ecmdEnableRingCache();
 
-  /* First we will try a non-enumerated spy */
+  // First we will try a non-enumerated spy 
   rc = getSpy (target, "MYSPY", data);
   if (rc) return rc;
   data.setWord(0,0xAAAAAAAA);
   rc = putSpy (target, "MYSPY", data);
   if (rc) return rc;
 
-  /* Now an enumerated spy */
+  // Now an enumerated spy 
   std::string enumval;
   rc = getSpyEnum (target, "MYENUMSPY", enumval);
   if (rc) return rc;
-  printf("pu 0:0 MYENUMSPY is set to : %s\n",enumval.c_str());
+  printf("pu 0:0 MYENUMSPY is set to : %s",enumval.c_str());
   rc = putSpyEnum (target, "MYENUMSPY", "ENABLE");
   if (rc) return rc;
 
-  /* Now that we are done with that, flush all the rings to the hardware that were modified */
+  // Now that we are done with that, flush all the rings to the hardware that were modified 
   rc = ecmdDisableRingCache();
   if (rc) return rc;
 
 
-  /* ----------------- */
-  /* Scom's            */
-  /* ----------------- */
+  // ----------------- 
+  // Scom's            
+  // ----------------- 
   
   rc = getScom (target, 0x800003, data);
   if (rc) return rc;
+  printf("pu 0:0 800003 %.08X %.08X",data.getWord(0),data.getWord(1));
   data.setWord(1,0x5555AAAA);
   rc = putScom (target, 0x800003, data);
   if (rc) return rc;
 
 
 
-  /* Unload the eCMD Dll, this should always be the last thing you do */
+  // Unload the eCMD Dll, this should always be the last thing you do 
   ecmdUnloadDll();
 
   return rc;

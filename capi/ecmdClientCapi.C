@@ -340,5 +340,5 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
     i_queryData = NULL;
   }
 
-  return rc;
+  return ret;
 }
