@@ -87,7 +87,7 @@ int ecmdInitDll(int argc, char* argv[]);
 
 
 */
-int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
+int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data); 
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
@@ -101,7 +101,7 @@ int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & da
 
 
 */
-int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
+int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data); 
 
 /**
  @brief Scans all of the bits from the selected ring on the target into the selected file
@@ -128,36 +128,6 @@ int ringRead (ecmdChipTarget & target, const char * ringName, const char * fileN
 
 */
 int ringWrite (ecmdChipTarget & target, const char * ringName, const char * fileName);
-
-/**
- @brief Scans the selected number of bits from the selected position of the selected register in the selected ring into the data buffer
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of register to read
- @param ringName Name of ring to read from
- @param registerName Name of register in the ring to read from
- @param data DataBuffer object that holds data read from register
- @param startPos Position of first bit in the register to read from
- @param numBits Number of bits to read
- @see putRegister
-
-
-*/
-int getRegister (ecmdChipTarget & target, const char * ringName, const char * registerName, ecmdDataBuffer & data, int startPos, int numBits);
-
-/**
- @brief Scans the selected number of bits from the data buffer into the selected position in the selected register
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of register to write
- @param ringName Name of ring to write to
- @param registerName Name of register in the ring to write to
- @param data DataBuffer object that holds data to write into register
- @param startPos Position of first bit in the register to write to
- @param numBits Number of bits to write
- @see getRegister
-
-
-*/
-int putRegister (ecmdChipTarget & target, const char * ringName, const char * registerName, ecmdDataBuffer & data, int startPos, int numBits);
 
 //@}
 
@@ -247,7 +217,7 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
  @see putAlias
 
 */
-int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data, int startPos, int numBits);
+int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
 
 /**
  @brief Scans the selected number of bits from the selected position in the selected alias into the data buffer
@@ -260,7 +230,7 @@ int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
  @see putAlias
 
 */
-int getSpyEnum (ecmdChipTarget & target, const char * spyName, char * enumValue, int startPos, int numBits);
+int getSpyEnum (ecmdChipTarget & target, const char * spyName, char * enumValue);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
@@ -274,7 +244,7 @@ int getSpyEnum (ecmdChipTarget & target, const char * spyName, char * enumValue,
 
 
 */
-int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data, int startPos, int numBits);
+int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
@@ -288,7 +258,7 @@ int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data
 
 
 */
-int putSpyEnum (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data, int startPos, int numBits);
+int putSpyEnum (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
 
 //@}
 
