@@ -1447,10 +1447,19 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   int tempNumWords = (bitLen + 31) / 32;
   std::string ret;
   char* data = new char[bitLen + 1];
+  bool createdTemp = false;
+  uint32_t* tempData = NULL;
 
-  /* extract iv_Data */
-  uint32_t* tempData = new uint32_t[tempNumWords];
-  this->extract(&tempData[0], start, bitLen);
+  /* Let's see if we can get a perf bonus */
+  if ((start == 0) && (bitLen == iv_NumBits))
+    tempData = iv_Data;
+  else {
+    tempData = new uint32_t[tempNumWords];
+    /* extract iv_Data */
+    this->extract(&tempData[0], start, bitLen);
+    createdTemp = true;
+  }
+
   uint32_t mask = 0x80000000;
   int curWord = 0;
 
@@ -1473,7 +1482,8 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   /* Terminate this puppy */
   data[bitLen] = '\0';
 
-  delete[] tempData;
+  if (createdTemp)
+    delete[] tempData;
 
   ret = data;
   delete[] data;
@@ -1716,7 +1726,26 @@ uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Do
   } else {
     ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
 #ifndef REMOVE_SIM
-    strcpy(iv_DataStr, genBinStr().c_str());
+  uint32_t mask = 0x80000000;
+  int curWord = 0;
+
+  for (uint32_t w = 0; w < cbytes*8; w++) {
+    if (iv_Data[curWord] & mask) {
+      iv_DataStr[w] = '1';
+    }
+    else {
+      iv_DataStr[w] = '0';
+    }
+
+    mask >>= 1;
+
+    if (!mask) {
+      curWord++;
+      mask = 0x80000000;
+    }
+
+  }
+
 #endif
   }
   return rc;
