@@ -131,6 +131,14 @@ bool ecmdIsAllHex(const char* str);
 std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
 
+/**
+ @brief Returns a list of commands that were read from stdin
+ @param o_commands
+ @retval ECMD_SUCCESS when EOF is reached (list may still contain valid commands
+ @retval list size
+*/
+uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands);
+
 #endif /* ecmdCommandUtils_h */
 
 // Change Log *********************************************************

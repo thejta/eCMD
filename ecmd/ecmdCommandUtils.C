@@ -25,6 +25,7 @@
 //----------------------------------------------------------------------
 #define ecmdCommandUtils_C
 #include <list>
+#include <iostream>
 #include <fstream>
 #include <inttypes.h>
 #include <string.h>
@@ -351,10 +352,30 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode) {
   return ret;
 }
 
+uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands) {
+  std::string buffer;
+
+  o_commands.clear();
+
+  if (!std::cin) {
+    /* We have reached EOF */
+    return ECMD_SUCCESS;
+  } else {
+    getline(std::cin, buffer);
+
+    /* Carve up what we have here */
+    ecmdParseTokens(buffer,"\n;", o_commands);
+
+  }
+  return o_commands.size();
+}
+
+
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              CENGEL   Initial Creation
+//                     10/8/04  CENGEL   Added ecmdParseStdinCommands BZ#261
 //
 // End Change Log *****************************************************
