@@ -5,7 +5,7 @@
 
 OS           := $(shell uname)
 
-VPATH        := ../../../capi/export ../capi/export ../../../ecmd/
+VPATH        := ../../../capi/export:../capi/export:../../../ecmd/
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H ecmdCommandUtils.H
 INT_INCLUDES := cipInterpreter.H
 SOURCE       := cipMain.C cipInterpreter.C cipProcUser.C ecmdCommandUtils.C
