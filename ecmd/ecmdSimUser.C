@@ -128,17 +128,18 @@ uint32_t ecmdSimclockUser(int argc, char * argv[]) {
 uint32_t ecmdSimechoUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+  std::string message;
 
   if (argc < 1) {
     ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
     return ECMD_INVALID_ARGS;
   }
-  else if (argc > 1) {
-    ecmdOutputError("simecho - Too many arguments to simecho, you probably didn't put your message in quotes.\n");
-    return ECMD_INVALID_ARGS;
+  for (int idx = 0; idx < argc; idx ++) {
+    message += argv[idx];
+    message += " ";
   }
 
-  rc = simecho(argv[0]);
+  rc = simecho(message.c_str());
 
   return rc;
 
