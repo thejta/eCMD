@@ -305,13 +305,13 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
-    if (!ecmdIsAllHex(argv[2])) {
-      ecmdOutputError("putscom - Non-hex characters detected in startbit field\n");
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("putscom - Non-decimal characters detected in startbit field\n");
       return ECMD_INVALID_ARGS;
     }
     startbit = atoi(argv[2]);
-    if (!ecmdIsAllHex(argv[3])) {
-      ecmdOutputError("putscom - Non-hex characters detected in numbits field\n");
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("putscom - Non-decimal characters detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
     numbits = atoi(argv[3]);
@@ -323,6 +323,9 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       sprintf(errbuf,"putscom - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
       ecmdOutputError(errbuf);
       return ECMD_DATA_BOUNDS_OVERFLOW;
+    } else if (numbits == 0) {
+      ecmdOutputError("putscom - Number of bits == 0, operation not performed\n");
+      return ECMD_INVALID_ARGS;
     }
 
     rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numbits);
