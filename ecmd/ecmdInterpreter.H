@@ -16,15 +16,6 @@
 // End Copyright ******************************************************
 /* $Header$ */
 
-// Class Description *************************************************
-//                                                                      
-//  Name:  ecmdInterpreter
-//  Base class: 
-//
-//  Description: 
-//  Usage:
-//
-// End Class Description *********************************************
 
 /**
  @file ecmdInterpreter.H
