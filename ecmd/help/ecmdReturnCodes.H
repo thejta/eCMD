@@ -73,6 +73,8 @@
 #define ECMD_TARGET_INVALID_TYPE                (ECMD_ERR_ECMD | 0x1046) ///< Target specified an object that was inappropriate for the function
 #define ECMD_EXTENSION_NOT_SUPPORTED            (ECMD_ERR_ECMD | 0x1047) ///< The current plugin does not supported the requested extension
 #define ECMD_ISTEPS_INVALID_STEP                (ECMD_ERR_ECMD | 0x1048) ///< An invalid step name was provided
+#define ECMD_UNABLE_TO_OPEN_SCANDEFHASH         (ECMD_ERR_ECMD | 0x1049) ///< eCMD was unable to open the scandefhash
+#define ECMD_SCANDEFHASH_MULT_RINGS             (ECMD_ERR_ECMD | 0x1050) ///< Multiple ring keys matching the same latchname found
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command
