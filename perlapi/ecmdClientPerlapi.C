@@ -294,42 +294,11 @@ int ecmdClientPerlapi::getLatch (const char * i_target, const char* i_ringName, 
 
   if(i_startBit < 0 ) {
     /* just in case we get stupid */
-      return ECMD_DATA_UNDERFLOW;
+    return ECMD_DATA_UNDERFLOW;
   }
 
-  if(latchEntries.size() >1 ){
 
-    for(curEntry = latchEntries.begin(), foundOne =0; curEntry != latchEntries.end(); curEntry++) {
-
-      if (i_startBit > curEntry->latchStartBit) {
-        /* fail because we are out of range. */
-        return ECMD_DATA_UNDERFLOW;
-      }
-
-      if ((i_startBit + i_numBits -1) > curEntry->latchEndBit) {
-        /* fail because we want to much data */
-        return ECMD_DATA_UNDERFLOW;
-      }
-
-      if((i_startBit <= curEntry->latchStartBit) &&
-         ((i_startBit + i_numBits -1) <= curEntry->latchEndBit) ) {
-        /* we are here because this entry falls within the range we want. */
-
-        if (foundOne) {
-          /* we should not be here since we found one already! */
-           return ECMD_DATA_UNDERFLOW;
-        }
-        buffer.setBitLength(i_numBits);
-        rc = curEntry->buffer.extract(buffer, i_startBit, i_numBits);
-        /* data should not be in buffer left alligned */
-        foundOne++;
-      }
-
-    } /* end of for loop */
-  } else {
-
-    /* there is only one entry in the latch list returned so don't do looping. */
-    curEntry = latchEntries.begin();
+  for(curEntry = latchEntries.begin(), foundOne =0; curEntry != latchEntries.end(); curEntry++) {
 
     if (i_startBit > curEntry->latchStartBit) {
       /* fail because we are out of range. */
@@ -345,14 +314,21 @@ int ecmdClientPerlapi::getLatch (const char * i_target, const char* i_ringName, 
        ((i_startBit + i_numBits -1) <= curEntry->latchEndBit) ) {
       /* we are here because this entry falls within the range we want. */
 
+      if (foundOne) {
+        /* we should not be here since we found one already! */
+        return ECMD_DATA_UNDERFLOW;
+      }
       buffer.setBitLength(i_numBits);
       rc = curEntry->buffer.extract(buffer, i_startBit, i_numBits);
       /* data should not be in buffer left alligned */
-    } else {
-      /* ya this should not occure unless the range didn't match for some reason. */
-      return ECMD_DATA_UNDERFLOW;
+      foundOne++;
     }
 
+  } /* end of for loop */
+
+  if(foundOne == 0) {
+    /* probably handled prior to this spot with the RC from ::getLatch */
+    return ECMD_DATA_UNDERFLOW;
   }
 
   char* tmp;
@@ -460,7 +436,16 @@ void ecmdClientPerlapi::add2(char **retval) {
 
 int ecmdClientPerlapi::ecmdCommandArgs(char** i_argv[]){
 
-  return 0;
+  int rc =0;
+
+  printf("int ecmdClientPerlapi::ecmdCommandArgs\n");
+/*  printf("i_argv:...%s...\n",i_argv);*/
+
+
+/*  rc = ::ecmdCommandArgs(int * i_argc, char** i_argv[]);  */
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
 }
 
 /***
