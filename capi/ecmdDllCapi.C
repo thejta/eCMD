@@ -72,8 +72,11 @@ int dllLoadDll (const char* clientVersion) {
 }
 
 int dllUnloadDll() {
+  int rc = 0;
+  
+  rc = dllFreeDll();
 
-  return 0;
+  return rc;
 }
 
 

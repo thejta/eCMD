@@ -28,15 +28,22 @@ print OUT "#ifndef ecmdDllCapi_H\n";
 print OUT "#define ecmdDllCapi_H\n\n";
 
 print OUT "#include <inttypes.h>\n";
+print OUT "#include <vector>\n";
+print OUT "#include <string>\n";
 print OUT "#include <ecmdStructs.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 
 print OUT "extern \"C\" {\n\n";
 
+print OUT "/* Dll Common load function - verifies version */\n";
 print OUT "int dllLoadDll (const char * version);\n\n";
+print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/\n";
 print OUT "int dllInitDll ();\n\n";
+print OUT "/* Dll Common unload function */\n";
 print OUT "int dllUnloadDll ();\n\n";
+print OUT "/* Dll Specific unload function - deallocates variables/object models*/\n";
+print OUT "int dllFreeDll();\n\n";
 
 
 #parse file spec'd by $ARGV[0]
