@@ -164,14 +164,34 @@ int putRegister (ecmdChipTarget & target, const char * ringName, const char * re
 
 /** @name Query Functions */
 //@{
+/**
+ @brief Query configuration information from the DLL
+ @param target Struct that contains partial information to limit query results
+ @param queryData Return vector from query - in numerical order by cageId
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 
-int ecmdQueryConfig();
+ The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
+ When a -1 is encountered or zero length chipType the query function will iterate on all possible values for that
+ entry and return the relevant data.
 
-int ecmdQueryRing();
+ NOTE: the Valid flags of the ecmdChipTarget structure are not used for this function
 
-int ecmdQueryArray();
+ Ex: to query what positions of the Nova chip are on cage 1, node 2:
+   cage = 1, node = 2, pos = -1, chipType = 'Nova', core = -1, thread = -1
+ Ex: to query what positions of the Nova chip are in the entire system:
+   cage = -1, node = -1, pos = -1, chipType = 'Nova', core = -1, thread = -1
+ Ex: to query all the chips on cage 3, node 0:
+   cage = 3, node = 0, pos = -1, chipType = '', core = -1, thread = -1
+*/
+   
+int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData);
 
-int ecmdQueryAlias();
+int ecmdQueryRing(ecmdChipTarget & target);
+
+int ecmdQueryArray(ecmdChipTarget & target);
+
+int ecmdQueryAlias(ecmdChipTarget & target);
 
 /**
  @brief Query the location of a specific file type for the selected target
