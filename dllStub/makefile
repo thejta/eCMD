@@ -20,6 +20,7 @@ LDFLAGS      :=
 ifeq (${OS},Linux)
   SUBDIR   := linux/
   CC := g++
+  LD := ${CC}
   TARGET = ecmdDllStub_x86.so
   LDFLAGS := ${LDFLAGS} -shared  -e dll.exp 
 endif
@@ -30,7 +31,9 @@ endif
 ifeq (${OS},AIX)
   SUBDIR  := aix/
   CC := xlC -+
+  LD := makeC++SharedLib
   TARGET = ecmdDllStub_x86.so
+  LDFLAGS := ${LDFLAGS} -e ecmdDllStub.export -p 0
 endif
 
 
@@ -70,6 +73,6 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	$(CC) ${LDFLAGS} -o ${SUBDIR}$@ $(addprefix ${SUBDIR}, $^)
+	$(LD) ${LDFLAGS} -o ${SUBDIR}$@ $(addprefix ${SUBDIR}, $^)
 
 
