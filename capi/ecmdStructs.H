@@ -83,23 +83,23 @@ typedef enum {
 /**
  @brief Structure used to designate which cec object/chip you would like the function to operate on
 
-  - The valid bits are used by D/A functions to tell the calling function what level of granularity the function operates on
+  - The state bits are used by D/A functions to tell the calling function what level of granularity the function operates on
     Ex.  putmem/getmem display memory through the processor, they are only dependent on cage/node/pos because they do not use
           the cores to perform their function
          However put/getspr display architected registers from the processor, they will signify that cage/node/pos/core and depending
           on the particular spr referenced threads may be valid
-  - The valid bits are used slightly differently for the queryFunctions they are used there to signify the
+  - The state bits are used slightly differently for the queryFunctions they are used there to signify
      what data coming in is valid to refine a query
 */
 struct ecmdChipTarget {
 
 
-  uint32_t cage;                ///< cage that contains node with chip
-  uint32_t node;                ///< node that contains chip
+  uint32_t    cage;             ///< cage that contains node with chip
+  uint32_t    node;             ///< node that contains chip
   std::string chipType;         ///< name of chip to access
-  uint32_t pos;                 ///< position of chip within node
-  uint32_t core;                ///< which core on chip to access, if chip is multi-core
-  uint32_t thread;              ///< which thread on chip to access, if chip is multi-threaded
+  uint32_t    pos;              ///< position of chip within node
+  uint8_t     core;             ///< which core on chip to access, if chip is multi-core
+  uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
 
   ecmdChipTargetState_t cageState;            ///< cage field state
   ecmdChipTargetState_t nodeState;            ///< node field state

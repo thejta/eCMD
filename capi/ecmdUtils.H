@@ -74,11 +74,11 @@ uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
  * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
  * @param o_numPtr The array that stores the data parsed from the input string
  * @param i_hexChars A string of hex characters
- * @param expectBits The number of defined bits in the o_numPtr array returned
+ * @param i_expectBits The number of defined bits in the o_numPtr array returned
  * @see ecmdGenB32FromHex
  * @see ecmdGenB32FromHexLeft
  */
-uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int expectBits = 0);
+uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int i_expectBits = 0);
 
 //@}
 
