@@ -554,7 +554,7 @@ uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t bit, uint32_t len) const {
   } else {
     int count = 0;
     for (uint32_t i = bit; i < len; i++) {
-      if (this->isBitSet(bit)) count++;
+      if (this->isBitSet(i)) count++;
     }
     return count;
   }
