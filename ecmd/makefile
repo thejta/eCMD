@@ -18,6 +18,11 @@ CFLAGS       := -I. -I../capi/export -g
 EXTENSIONS   := cip cro
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd:../ext/${ext}/capi/export)
+#These are needed to define a space char for substitutions later on
+empty :=
+space := ${empty} ${empty}
+VPATH := $(subst ${space},,${VPATH})
+
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.C)
 ifeq (${OS},Linux)
