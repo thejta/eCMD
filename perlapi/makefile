@@ -111,7 +111,7 @@ all: dir ${TARGET}.so ${TARGET}.pm
 	@touch t.o t_x86 t_aix t_ppc
 	@mv *.o ${SUBDIR}
 	@mv *x86* *_aix* *_ppc*  ${SUBDIR}
-	@echo "Exporting eCMD Client to export/ ..."
+	@echo "Exporting eCMD PerlApi to export/ ..."
 	@cp ${SUBDIR}${TARGET}.so export/
 	@cp ${SUBDIR}${TARGET}.pm export/
 	@cp ChipTarget.pm ecmdDataBuffer.pm export/

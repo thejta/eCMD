@@ -29,6 +29,7 @@
 
 static int myErrorCode = ECMD_SUCCESS;
 static int safeMode = 1;
+int setupTarget(const char * i_targetStr, ecmdChipTarget & o_target);
 
 int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
@@ -79,7 +80,7 @@ int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) 
 }
 
 
-int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
+int setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
 
   int rc = ECMD_SUCCESS;
   std::string printed;
