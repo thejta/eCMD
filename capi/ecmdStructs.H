@@ -14,6 +14,9 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
+
+/* $Header$ */
+
 /**
   @file ecmdStructs.H
   @brief All the Structures required for the eCMD Capi

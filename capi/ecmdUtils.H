@@ -16,6 +16,8 @@
 //                                                                      
 // End Copyright ******************************************************
 
+/* $Header$ */
+
 /**
  * @file ecmdUtils.H
  * @brief Useful functions for use throughout the ecmd C API

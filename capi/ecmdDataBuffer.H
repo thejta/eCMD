@@ -16,6 +16,8 @@
 //                                                                      
 // End Copyright ******************************************************
 
+/* $Header$ */
+
 /**
  * @file ecmdDataBuffer.H
  * @brief Provides a means to handle data from the eCMD C API

@@ -15,6 +15,8 @@
 //                                                                      
 // End Copyright ******************************************************
 
+/* $Header$ */
+
 /**
  * @file ecmdReturnCodes.H
  * @brief All Return Codes for the eCmd Capi
