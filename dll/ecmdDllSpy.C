@@ -31,6 +31,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ecmdSharedUtils.H>
 
 #include <ecmdDllCapi.H>
 
@@ -39,7 +40,6 @@
 #include <sedcStructs.H>
 #include <sedcDefines.H>
 #include <sedcParser.H>
-#include <sedcUtils.H>
 
 #undef ecmdClientSpy_C
 //----------------------------------------------------------------------
@@ -1326,7 +1326,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
       /* ----------------------------------------------------------------- */
       /*  Try to find the spy position from the hash file                */
       /* ----------------------------------------------------------------- */
-      key = sedcGenFCS32(spy_name.c_str(), spy_name.length());
+      key = ecmdHashString32(spy_name.c_str(), spy_name.length());
 
       rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEFHASH, spyHashFilePath);
       if (!rc) {
@@ -1410,7 +1410,7 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
     hashFile.read((char*)&(curhash.key), 4); /* read 4-byte key */
 #if defined (i386)
     /* We need to byte swap this guy */
-    curhash.key = sedcGenByteSwap32(curhash.key);
+    curhash.key = ecmdGenByteSwap32(curhash.key);
 #endif
 
     if (key > curhash.key)
@@ -1427,13 +1427,13 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
     hashFile.read((char*)&(curhash.key), sizeof(curhash.key));
 #if defined (i386)
     /* We need to byte swap this guy */
-    curhash.key = sedcGenByteSwap32(curhash.key);
+    curhash.key = ecmdGenByteSwap32(curhash.key);
 #endif
     if (key != curhash.key) return 0;      /* we should have been at the right spot */
     hashFile.read((char*)&(curhash.filepos), sizeof(curhash.filepos));
 #if defined (i386)
     /* We need to byte swap this guy */
-    curhash.filepos = sedcGenByteSwap32(curhash.filepos);
+    curhash.filepos = ecmdGenByteSwap32(curhash.filepos);
 #endif
 
     spyFile.seekg(curhash.filepos);              /* go to that spot in the spy file */
