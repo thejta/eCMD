@@ -37,6 +37,22 @@
 #define ECMD_CAPI_VERSION ".1"          ///< eCMD API Version
 
 
+/**
+ @brief Used by ecmdChipTarget to describe the value in the state fields
+ - The ECMD_TARGET_FIELD_* states are used for functions to return applicable values
+ - The ECMD_TARGET_QUERY_* states are used by the ecmdQueryConfig and ecmdQuerySelected functions to refine the query
+*/
+
+typedef enum {
+  ECMD_TARGET_UNKNOWN_STATE,    ///< State field has not been initialized
+
+  ECMD_TARGET_FIELD_VALID,      ///< Associated State Field is valid for this function
+  ECMD_TARGET_FIELD_UNUSED,     ///< Associated State Field is unused for this function
+
+  ECMD_TARGET_QUERY_FIELD_VALID,///< Associated State Field is valid for the query
+  ECMD_TARGET_QUERY_WILDCARD,   ///< Associated State Field should be itterated on and all valid results returned
+  ECMD_TARGET_QUERY_IGNORE      ///< Query should be limited to data above this field, ignoring data 
+} ecmdChipTargetState_t;
 
 
 /**
@@ -60,13 +76,12 @@ struct ecmdChipTarget {
   uint32_t core;                ///< which core on chip to access, if chip is multi-core
   uint32_t thread;              ///< which thread on chip to access, if chip is multi-threaded
 
-  uint8_t chipTypeValid;        ///< chipType field is valid
-  uint8_t cageValid;            ///< cage field is valid
-  uint8_t nodeValid;            ///< node field is valid
-  uint8_t posValid;             ///< pos field is valid
-  uint8_t coreValid;            ///< core field is valid
-  uint8_t threadValid;          ///< thread field is valid
-  uint8_t ValidChecked;         ///< valid bits are valid 
+  ecmdChipTargetState_t cageState;            ///< cage field is state
+  ecmdChipTargetState_t nodeState;            ///< node field is state
+  ecmdChipTargetState_t chipTypeState;        ///< chipType field is state
+  ecmdChipTargetState_t posState;             ///< pos field is state
+  ecmdChipTargetState_t coreState;            ///< core field is state
+  ecmdChipTargetState_t threadState;          ///< thread field is state
 };
 
 
