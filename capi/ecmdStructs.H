@@ -99,13 +99,15 @@ struct ecmdDllInfo {
 /**
  Predefined common chip names for ecmdChipData.chipCommonType
 */
-#define ECMD_CHIPT_PROCESSOR    "pu"
-#define ECMD_CHIPT_MEM_BUF      "memb"
-#define ECMD_CHIPT_MEM_CNTRL    "memc"
-#define ECMD_CHIPT_MEM_L2CACHE  "l2cache"
-#define ECMD_CHIPT_MEM_L3CACHE  "l3cache"
-#define ECMD_CHIPT_IOBDG        "iobdg"
-#define ECMD_CHIPT_IOHUB        "iohub"
+#define ECMD_CHIPT_PROCESSOR            "pu"
+#define ECMD_CHIPT_MEM_BUF              "memb"
+#define ECMD_CHIPT_MEM_CNTRL            "memc"
+#define ECMD_CHIPT_MEM_L2CACHE          "l2cache"
+#define ECMD_CHIPT_MEM_L3CACHE          "l3cache"
+#define ECMD_CHIPT_IOBDG                "iobdg"
+#define ECMD_CHIPT_IOHUB                "iohub"
+#define ECMD_CHIPT_MUX                  "mux"
+#define ECMD_CHIPT_SERVICE_PROCESSOR    "sp"
 
 
 /**
