@@ -258,6 +258,10 @@ int ecmdQueryUser(int argc, char* argv[]) {
       return ECMD_TARGET_NOT_CONFIGURED;
     }
 
+  } else if ("format") {
+    /* We will just print this from the format helpfile */
+    return ecmdPrintHelp("format");
+
   } else {
     /* Invalid Query Mode */
     ecmdOutputError("ecmdquery - Invalid Query Mode.\n");
