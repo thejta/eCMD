@@ -283,7 +283,8 @@ struct ecmdRingData {
   bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
   bool     supportsBroadsideLoad;       ///< This ring supports broadside load in simulation
   bool     isCheckable;                 ///< This ring can be run through the check_rings command
-  ecmdClockState_t       clockState;    ///< Required clock state to access this ring
+  std::string           clockDomain;    ///< Clock domain this ring belongs to
+  ecmdClockState_t      clockState;     ///< Required clock state to access this ring
 };
 
 
@@ -296,6 +297,7 @@ struct ecmdArrayData {
   int         addressLength;            ///< Bit length of address
   int         length;                   ///< Length of array (number of entries)
   int         width;                    ///< Bit width of array entry
+  std::string           clockDomain;    ///< Clock domain this array belongs to
   ecmdClockState_t       clockState;    ///< Required clock state to access this array
 };
 
@@ -361,8 +363,9 @@ struct ecmdLatchEntry {
  @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
 */
 struct ecmdProcRegisterInfo {
-  int bitLength;    ///< Bit length of each entry
-  int totalEntries; ///< Total number of entries available
+  int bitLength;                ///< Bit length of each entry
+  int totalEntries;             ///< Total number of entries available
+  bool threadReplicated;        ///< Register is replicated for each thread
 };
 
 
@@ -385,6 +388,8 @@ struct ecmdSpyData {
   ecmdSpyType_t spyType;                ///< Type of spy
   bool          isEccChecked;           ///< This spy affects some ECC groupings
   bool          isEnumerated;           ///< This spy has enumerated values
+
+  std::string           clockDomain;    ///< Clock domain this spy belongs to
   ecmdClockState_t       clockState;    ///< Required clock state to access this spy
   
   std::list<std::string> enums;         ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
@@ -416,6 +421,9 @@ typedef enum {
  @brief Used internally by ecmdConfigLooper to store looping state information
 */
 struct ecmdLooperData {
+  bool             ecmdLooperInitFlag;                  ///< Is fresh ?
+  bool             ecmdUseUnitid;                       ///< This looper is looping on unitid targets not config data
+
   ecmdQueryData    ecmdSystemConfigData;                ///< Config data queried from the system
   std::list<ecmdCageData>::iterator ecmdCurCage;        ///< Pointer to current Cage
   std::list<ecmdNodeData>::iterator ecmdCurNode;        ///< Pointer to current Node
@@ -424,7 +432,10 @@ struct ecmdLooperData {
   std::list<ecmdCoreData>::iterator ecmdCurCore;        ///< Pointer to current Core
   std::list<ecmdThreadData>::iterator ecmdCurThread;    ///< Pointer to current Thread
   ecmdChipTarget prevTarget;                            ///< Pointer to previous target
-  bool             ecmdLooperInitFlag;                  ///< Is fresh ?
+
+
+  std::list<ecmdChipTarget>     unitIdTargets;          ///< List of targets if looping on a unitid
+  std::list<ecmdChipTarget>::iterator curUnitIdTarget;  ///< Pointer to current unitid target
 };
 
 
