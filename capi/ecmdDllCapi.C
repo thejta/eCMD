@@ -92,6 +92,22 @@ int dllRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
   return rc;
 }
 
+int dllQuerySelected(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData) {
+  int rc = ECMD_SUCCESS;
+
+  return rc;
+}
+
+int dllCommonCommandArgs(int*  argc, char** argv[]) {
+  int rc = ECMD_SUCCESS;
+
+  /* We need to pull out the targeting options here */
+
+  /* Call the dllSpecificFunction */
+  rc = dllSpecificCommandArgs(argc,argv);
+
+  return rc;
+}
 
 
 // Change Log *********************************************************

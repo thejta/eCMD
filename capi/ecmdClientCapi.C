@@ -139,7 +139,7 @@ int ecmdUnloadDll() {
     (int(*)())(void*)dlsym(dlHandle, "dllUnloadDll");
   if (!Function) {
     fprintf(stderr,"ecmdUnloadDll: Unable to find UnloadDll function, must be an invalid DLL\n");
-    rc = ECMD_DLL_LOAD_FAILURE;
+    rc = ECMD_DLL_UNLOAD_FAILURE;
     return rc;
   }
   rc = (*Function)();
@@ -157,6 +157,30 @@ int ecmdUnloadDll() {
   }
 
   dlHandle = NULL;
+#endif
+
+  return rc;
+}
+
+int ecmdCommandArgs(int* argc, char** argv[]) {
+
+  int rc = ECMD_SUCCESS;
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllCommonCommandArgs(argc, argv);
+
+#else
+
+  /* call DLL unload */
+  int (*Function)(int*, char***) =
+    (int(*)(int*, char***))(void*)dlsym(dlHandle, "dllCommonCommandArgs");
+  if (!Function) {
+    fprintf(stderr,"ecmdCommandArgs: Unable to find dllCommonCommandArgs function, must be an invalid DLL\n");
+    rc = ECMD_DLL_INVALID;
+    return rc;
+  }
+  rc = (*Function)(argc, argv);
+  
 #endif
 
   return rc;

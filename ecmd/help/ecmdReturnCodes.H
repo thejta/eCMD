@@ -30,8 +30,10 @@
 #define ECMD_DLL_LOAD_FAILURE           0x1002 ///< Error occured on call to dlopen
 #define ECMD_DLL_UNLOAD_FAILURE         0x1003 ///< Error occurred on call to dlclose
 #define ECMD_DLL_UNINITIALIZED          0x1004 ///< A function was called before ecmdLoadDll was called
+#define ECMD_DLL_INVALID                0x1005 ///< If we are unable to lookup a function in the Dll
 #define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
 #define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
+
 
 /* dataBuffer specific return codes */
 #define DBUF_SUCCESS 0x0
