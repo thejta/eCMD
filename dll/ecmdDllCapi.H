@@ -217,6 +217,8 @@ bool dllQueryTraceMode(ecmdTraceType_t i_type);
 
 uint32_t dllDelay(uint32_t i_simCycles, uint32_t i_msDelay); 
 
+uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout); 
+
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
 uint32_t dllSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string & i_valueAlpha, uint32_t i_valueNumeric); 
