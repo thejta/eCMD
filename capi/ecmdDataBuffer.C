@@ -207,8 +207,22 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
 void ecmdDataBuffer::setCapacity (int newCapacity) {
 
-  if (iv_Capacity < newCapacity) {  
-    
+  /* only resize to make the capacity bigger */
+  if (iv_Capacity < newCapacity) {
+    uint32_t randNum = 0x12345678;
+
+    iv_Capacity = newCapacity;
+    delete[] iv_RealData;
+
+   iv_RealData = new uint32_t[iv_Capacity + 10]; 
+    iv_Data = iv_RealData + 4;
+    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+
+    /* Ok, now setup the header, and tail */
+    iv_RealData[0] = SCANDATA_HEADER;
+    iv_RealData[1] = iv_NumWords;
+    iv_RealData[3] = randNum;
+    iv_RealData[iv_NumWords + 4] = randNum;
   }
 
 }
