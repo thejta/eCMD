@@ -78,7 +78,8 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 3) {
-    ecmdOutputError("Too few arguments specified; you need at least a chip, an array, and an address.\nType 'getarray -h' for usage.");
+    ecmdOutputError("getarray - Too few arguments specified; you need at least a chip, an array, and an address.\n");
+    ecmdOutputError("getarray - Type 'getarray -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -111,8 +112,8 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "Error occured performing getarray on ";
-        printed += ecmdWriteTarget(target);
+        printed = "getarray - Error occured performing getarray on ";
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -135,6 +136,7 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
 
   if (!validPosFound) {
     //this is an error common across all UI functions
+    ecmdOutputError("getarray - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -166,7 +168,8 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 4) {
-    ecmdOutputError("Too few arguments specified; you need at least a chip, an array, an address, and some data.\nType 'putarray -h' for usage.");
+    ecmdOutputError("putarray - Too few arguments specified; you need at least a chip, an array, an address, and some data.\n");
+    ecmdOutputError("putarray - Type 'putarray -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -201,8 +204,8 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "Error occured performing putarray on ";
-        printed += ecmdWriteTarget(target);
+        printed = "putarray - Error occured performing putarray on ";
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -214,6 +217,7 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
 
   if (!validPosFound) {
     //this is an error common across all UI functions
+    ecmdOutputError("putarray - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 

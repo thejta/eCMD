@@ -62,11 +62,11 @@ int ecmdSimaetUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument ('on', 'off', or 'flush') is required for simaet.\n");
+    ecmdOutputError("simaet - At least one argument ('on', 'off', or 'flush') is required for simaet.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simaet, you probably added a non-supported option.\n");
+    ecmdOutputError("simaet - Too many arguments to simaet, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -82,11 +82,11 @@ int ecmdSimcheckpointUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a checkpoint filename) is required for simcheckpoint.\n");
+    ecmdOutputError("simcheckpoint - At least one argument (a checkpoint filename) is required for simcheckpoint.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simcheckpoint, you probably added a non-supported option.\n");
+    ecmdOutputError("simcheckpoint - Too many arguments to simcheckpoint, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -102,11 +102,11 @@ int ecmdSimclockUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a number of clock cycles) is required for simclock.\n");
+    ecmdOutputError("simclock - At least one argument (a number of clock cycles) is required for simclock.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simclock, you probably added a non-supported option.\n");
+    ecmdOutputError("simclock - Too many arguments to simclock, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -123,11 +123,11 @@ int ecmdSimechoUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a message to print) is required for simecho.\n");
+    ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simecho, you probably didn't put your message in quotes.\n");
+    ecmdOutputError("simecho - Too many arguments to simecho, you probably didn't put your message in quotes.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -143,7 +143,7 @@ int ecmdSimexitUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc > 0) {
-    ecmdOutputError("Too many arguments to simexit, none are required.\n");
+    ecmdOutputError("simexit - Too many arguments to simexit, none are required.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -176,7 +176,7 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simEXPECTFAC, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simEXPECTFAC - Too few arguments to simEXPECTFAC, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -198,7 +198,7 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simEXPECTFAC, you probably added a non-supported option.\n");
+    ecmdOutputError("simEXPECTFAC - Too many arguments to simEXPECTFAC, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -231,7 +231,7 @@ int ecmdSimEXPECTFACSUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simEXPECTFACS, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simEXPECTFACS - Too few arguments to simEXPECTFACS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -252,7 +252,7 @@ int ecmdSimEXPECTFACSUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simEXPECTFACS, you probably added a non-supported option.\n");
+    ecmdOutputError("simEXPECTFACS - Too many arguments to simEXPECTFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -285,7 +285,7 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simexpecttcfac, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simexpecttcfac - Too few arguments to simexpecttcfac, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -303,7 +303,7 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simexpecttcfac, you probably added a non-supported option.\n");
+    ecmdOutputError("simexpecttcfac - Too many arguments to simexpecttcfac, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -337,7 +337,7 @@ int ecmdSimGETFACUser(int argc, char * argv[]) {
 
 
   if (argc < 2) {
-    ecmdOutputError("Too few arguments to simGETFAC, you need at least a symbol and a length.\n");
+    ecmdOutputError("simGETFAC - Too few arguments to simGETFAC, you need at least a symbol and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -355,7 +355,7 @@ int ecmdSimGETFACUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simGETFAC, you probably added a non-supported option.\n");
+    ecmdOutputError("simGETFAC - Too many arguments to simGETFAC, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -393,7 +393,7 @@ int ecmdSimGETFACSUser(int argc, char * argv[]) {
 
 
   if (argc < 2) {
-    ecmdOutputError("Too few arguments to simGETFACS, you need at least a facname and bit length.\n");
+    ecmdOutputError("simGETFACS - Too few arguments to simGETFACS, you need at least a facname and bit length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -409,7 +409,7 @@ int ecmdSimGETFACSUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simGETFACS, you probably added a non-supported option.\n");
+    ecmdOutputError("simGETFACS - Too many arguments to simGETFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -447,7 +447,7 @@ int ecmdSimGETFACXUser(int argc, char * argv[]) {
 
 
   if (argc < 2) {
-    ecmdOutputError("Too few arguments to simGETFACX, you need at least a facname and bit length.\n");
+    ecmdOutputError("simGETFACX - Too few arguments to simGETFACX, you need at least a facname and bit length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -463,7 +463,7 @@ int ecmdSimGETFACXUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simGETFACX, you probably added a non-supported option.\n");
+    ecmdOutputError("simGETFACX - Too many arguments to simGETFACX, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -501,7 +501,7 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
 
 
   if (argc < 1) {
-    ecmdOutputError("Too few arguments to simgettcfac, you need at least a tcfacname.\n");
+    ecmdOutputError("simgettcfac - Too few arguments to simgettcfac, you need at least a tcfacname.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -520,7 +520,7 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+    ecmdOutputError("simgettcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -540,7 +540,7 @@ int ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc > 0) {
-    ecmdOutputError("Too many arguments to simgetcurrentcycle, none are required.\n");
+    ecmdOutputError("simgetcurrentcycle - Too many arguments to simgetcurrentcycle, none are required.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -562,11 +562,11 @@ int ecmdSiminitUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a checkpoint filename or 'NONE') is required for siminit.\n");
+    ecmdOutputError("siminit - At least one argument (a checkpoint filename or 'NONE') is required for siminit.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to siminit, you probably added a non-supported option.\n");
+    ecmdOutputError("siminit - Too many arguments to siminit, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -599,7 +599,7 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simPUTFAC, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simPUTFAC - Too few arguments to simPUTFAC, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -621,7 +621,7 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simPUTFAC, you probably added a non-supported option.\n");
+    ecmdOutputError("simPUTFAC - Too many arguments to simPUTFAC, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -654,7 +654,7 @@ int ecmdSimPUTFACSUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simPUTFACS, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simPUTFACS - Too few arguments to simPUTFACS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -675,7 +675,7 @@ int ecmdSimPUTFACSUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simPUTFACS, you probably added a non-supported option.\n");
+    ecmdOutputError("simPUTFACS - Too many arguments to simPUTFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -709,7 +709,7 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simPUTFACX, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simPUTFACX - Too few arguments to simPUTFACX, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -730,7 +730,7 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simPUTFACX, you probably added a non-supported option.\n");
+    ecmdOutputError("simPUTFACX - Too many arguments to simPUTFACX, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -763,7 +763,7 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simputtcfac, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simputtcfac - Too few arguments to simputtcfac, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -784,7 +784,7 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simputtcfac, you probably added a non-supported option.\n");
+    ecmdOutputError("simputtcfac - Too many arguments to simputtcfac, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -799,11 +799,11 @@ int ecmdSimrestartUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a checkpoint filename) is required for simrestart.\n");
+    ecmdOutputError("simrestart - At least one argument (a checkpoint filename) is required for simrestart.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simrestart, you probably added a non-supported option.\n");
+    ecmdOutputError("simrestart - Too many arguments to simrestart, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -836,7 +836,7 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simSTKFAC, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simSTKFAC - Too few arguments to simSTKFAC, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -858,7 +858,7 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simSTKFAC, you probably added a non-supported option.\n");
+    ecmdOutputError("simSTKFAC - Too many arguments to simSTKFAC, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -891,7 +891,7 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simSTKFACS, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simSTKFACS - Too few arguments to simSTKFACS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -912,7 +912,7 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simSTKFACS, you probably added a non-supported option.\n");
+    ecmdOutputError("simSTKFACS - Too many arguments to simSTKFACS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -945,7 +945,7 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simstktcfac, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simstktcfac - Too few arguments to simstktcfac, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -966,7 +966,7 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simstktcfac, you probably added a non-supported option.\n");
+    ecmdOutputError("simstktcfac - Too many arguments to simstktcfac, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -981,11 +981,11 @@ int ecmdSimSUBCMDUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a command to execute) is required for simSUBCMD.\n");
+    ecmdOutputError("simSUBCMD - At least one argument (a command to execute) is required for simSUBCMD.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simSUBCMD, you probably added a non-supported option.\n");
+    ecmdOutputError("simSUBCMD - Too many arguments to simSUBCMD, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1000,11 +1000,11 @@ int ecmdSimsymbolUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc < 1) {
-    ecmdOutputError("At least one argument (a facname) is required for simsymbol.\n");
+    ecmdOutputError("simsymbol - At least one argument (a facname) is required for simsymbol.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
-    ecmdOutputError("Too many arguments to simsymbol, you probably added a non-supported option.\n");
+    ecmdOutputError("simsymbol - Too many arguments to simsymbol, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1045,7 +1045,7 @@ int ecmdSimUNSTICKUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simUNSTICK, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simUNSTICK - Too few arguments to simUNSTICK, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1063,7 +1063,7 @@ int ecmdSimUNSTICKUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simUNSTICK, you probably added a non-supported option.\n");
+    ecmdOutputError("simUNSTICK - Too many arguments to simUNSTICK, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1096,7 +1096,7 @@ int ecmdSimUNSTICKSUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simUNSTICKS, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simUNSTICKS - Too few arguments to simUNSTICKS, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1113,7 +1113,7 @@ int ecmdSimUNSTICKSUser(int argc, char * argv[]) {
   }
 
   if (argc > 4) {
-    ecmdOutputError("Too many arguments to simUNSTICKS, you probably added a non-supported option.\n");
+    ecmdOutputError("simUNSTICKS - Too many arguments to simUNSTICKS, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1146,7 +1146,7 @@ int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
 
   if (argc < 3) {
-    ecmdOutputError("Too few arguments to simunsticktcfac, you need at least a symbol , data, and a length.\n");
+    ecmdOutputError("simunsticktcfac - Too few arguments to simunsticktcfac, you need at least a symbol , data, and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1167,7 +1167,7 @@ int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
   }
 
   if (argc > 5) {
-    ecmdOutputError("Too many arguments to simunsticktcfac, you probably added a non-supported option.\n");
+    ecmdOutputError("simunsticktcfac - Too many arguments to simunsticktcfac, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
 

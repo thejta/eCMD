@@ -152,8 +152,12 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
 
 
       case 's':
+
+        if (!strcmp(argv[0], "sendcmd")) {
+          rc = ecmdSendCmdUser(argc - 1, argv + 1);
+
 #ifndef REMOVE_SIM
-        if (!strcmp(argv[0], "simaet")) {
+        } else if (!strcmp(argv[0], "simaet")) {
           rc = ecmdSimaetUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simcheckpoint")) {
           rc = ecmdSimcheckpointUser(argc - 1, argv + 1);
@@ -207,16 +211,13 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimUNSTICKSUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simunsticktcfac")) {
           rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
-        }
-        else {
+#endif
+        } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
-#else
-        /* We don't understand this function, let's let the caller know */
-        rc = ECMD_INT_UNKNOWN_COMMAND;
-#endif
         break;
+
         /************************/
         /* The Unknown          */
         /************************/

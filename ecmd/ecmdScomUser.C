@@ -95,7 +95,8 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 2) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip and an address.\nType 'getscom -h' for usage.\n");
+    ecmdOutputError("getscom - Too few arguments specified; you need at least a chip and an address.\n");
+    ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -109,7 +110,8 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   //get address to fetch
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
   if (address == 0xFFFFFFFF) {
-    ecmdOutputError("Address argument was not a string of hex characters.\nType 'putscom -h' for usage.\n");
+    ecmdOutputError("getscom - Address argument was not a string of hex characters.\n");
+    ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -139,7 +141,8 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 
   }
   else if (argc > 2) {
-    ecmdOutputError("Too many arguments specified; you probably added an option that wasn't recognized.\nType 'getscom -h' for usage.\n");
+    ecmdOutputError("getscom - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -160,7 +163,7 @@ int ecmdGetScomUser(int argc, char* argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "Error occured performing getscom on ";
+        printed = "getscom - Error occured performing getscom on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -181,11 +184,11 @@ int ecmdGetScomUser(int argc, char* argv[]) {
         //@ make this stuff sprintf'd
         char outstr[50];
         printed = ecmdWriteTarget(target);
-        sprintf(outstr, " Data miscompare occured at address: %.8X\n", address);
+        sprintf(outstr, "\nData miscompare occured at address: %.8X\n", address);
         printed += outstr;
 
 
-        printed += "Actual";
+        printed += "getscom - Actual";
         if (maskFlag) {
           printed += " (with mask): ";
         }
@@ -195,7 +198,7 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 
         printed += ecmdWriteDataFormatted(buffer, format);
 
-        printed += "Expected          : ";
+        printed += "getscom - Expected          : ";
         printed += ecmdWriteDataFormatted(*expected, format);
         ecmdOutputError( printed.c_str() );
       }
@@ -224,7 +227,7 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 
   if (!validPosFound) {
     //this is an error common across all UI functions
-    ecmdOutputError("Unable to find a valid target to execute command on\n");
+    ecmdOutputError("getscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -257,7 +260,8 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   /************************************************************************/
 
   if (argc < 3) {  //chip + address + some data
-    ecmdOutputError("Too few arguments specified; you need at least a chip, an address, and some data.\nType 'putscom -h' for usage.\n");
+    ecmdOutputError("putscom - Too few arguments specified; you need at least a chip, an address, and some data.\n");
+    ecmdOutputError("putscom - Type 'putscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -270,7 +274,8 @@ int ecmdPutScomUser(int argc, char* argv[]) {
 
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
   if (address == 0xFFFFFFFF) {
-    ecmdOutputError("Address argument was not a string of hex characters.\nType 'putscom -h' for usage.\n");
+    ecmdOutputError("putscom - Address argument was not a string of hex characters.\n");
+    ecmdOutputError("putscom - Type 'putscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -279,7 +284,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
 
   //parse data to write
   for (int i = 0; i < argc-2; i++) {
-    buffer.insertFromHexRight(argv[i+2], i*32, 32);
+    buffer.insertFromHexRight(argv[i+2], 32, i*32, 32);
   }
 
   ecmdDataBuffer * fetchBuffer = NULL;  //only allocate if I have to
@@ -306,7 +311,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
         continue;
       }
       else if (rc) {
-        printed = "Error occured performing getscom on ";
+        printed = "putscom - Error occured performing getscom on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -327,7 +332,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
 
       rc = putScom(target, address, *fetchBuffer);
       if (rc) {
-        printed = "Error occured performing putscom on ";
+        printed = "putscom - Error occured performing putscom on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -342,7 +347,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
         continue;
       }
       else if (rc) {
-        printed = "Error occured performing putscom on ";
+        printed = "putscom - Error occured performing putscom on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -362,7 +367,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   }
 
   if (!validPosFound) {
-    ecmdOutputError("Unable to find a valid target to execute command on\n");
+    ecmdOutputError("putscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -460,7 +465,8 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 2) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip and an address.\nType 'pollscom -h' for usage.\n");
+    ecmdOutputError("pollscom - Too few arguments specified; you need at least a chip and an address.\n");
+    ecmdOutputError("pollscom - Type 'pollscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -474,7 +480,8 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   //get address to fetch
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
   if (address == 0xFFFFFFFF) {
-    ecmdOutputError("Address argument was not a string of hex characters.\nType 'pollscom -h' for usage.\n");
+    ecmdOutputError("pollscom - Address argument was not a string of hex characters.\n");
+    ecmdOutputError("pollscom - Type 'pollscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -530,7 +537,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
         break;
       }
       else if (rc) {
-        printed = "Error occured performing getscom on ";
+        printed = "pollscom - Error occured performing getscom on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -557,7 +564,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
           //mismatches
           if (done || verboseFlag) {
 
-            printed += "Actual";
+            printed += "pollscom - Actual";
             if (maskFlag) {
               printed += " (with mask): ";
             }
@@ -567,12 +574,12 @@ int ecmdPollScomUser(int argc, char* argv[]) {
 
             printed += ecmdWriteDataFormatted(buffer, format);
 
-            printed += "Expected          : ";
+            printed += "pollscom - Expected          : ";
             printed += ecmdWriteDataFormatted(*expected, format);
 
             if (done) {
               char outstr[50];
-              sprintf(outstr, "Data miscompare occured at address: %.8X\n", address);
+              sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
               printed = outstr + printed;
               ecmdOutputError( printed.c_str() );
             }
@@ -651,7 +658,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   }
 
   if (!validPosFound) {
-    ecmdOutputError("Unable to find a valid target to execute command on\n");
+    ecmdOutputError("pollscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 

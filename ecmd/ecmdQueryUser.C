@@ -70,7 +70,8 @@ int ecmdQueryUser(int argc, char* argv[]) {
   if (rc) return rc;
 
   if (argc == 0) {
-    ecmdOutputError("Too few arguments specified; you need at least a query mode.\nType 'ecmdquery -h' for usage.\n");
+    ecmdOutputError("ecmdquery - Too few arguments specified; you need at least a query mode.\n");
+    ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -84,7 +85,8 @@ int ecmdQueryUser(int argc, char* argv[]) {
     std::list<std::string>::iterator strit;
 
     if (argc < 2) {
-      ecmdOutputError("Too few arguments specified for rings; you need at least a query rings <chipname>.\nType 'ecmdquery -h' for usage.\n");
+      ecmdOutputError("ecmdquery - Too few arguments specified for rings; you need at least a query rings <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
 
@@ -113,7 +115,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
       } else if (rc) {
-        printed = "Error occured performing ring query on ";
+        printed = "ecmdquery - Error occured performing ring query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -126,7 +128,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
       /* Let's look up other info about the chip, namely the ec level */
       rc = ecmdGetChipData (target, chipdata);
       if (rc) {
-        printed = "Unable to lookup ec information for chip ";
+        printed = "ecmdquery - Unable to lookup ec information for chip ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -180,7 +182,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
     }
 
     if (!validPosFound) {
-      ecmdOutputError("Unable to find a valid target to execute command on\n");
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
 
@@ -190,7 +192,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
     ecmdDllInfo info;
     rc = ecmdQueryDllInfo(info);
     if (rc) {
-      ecmdOutputError("Problems occurred trying to get Dll Info\n");
+      ecmdOutputError("ecmdquery - Problems occurred trying to get Dll Info\n");
       return rc;
     }
     ecmdOutput("================================================\n");
@@ -231,7 +233,8 @@ int ecmdQueryUser(int argc, char* argv[]) {
 
   } else {
     /* Invalid Query Mode */
-    ecmdOutputError("Invalid Query Mode.\nType 'ecmdquery -h' for usage.\n");
+    ecmdOutputError("ecmdquery - Invalid Query Mode.\n");
+    ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
     return ECMD_INVALID_ARGS;
     
 

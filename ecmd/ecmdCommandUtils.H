@@ -49,13 +49,6 @@
 int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
 /**
- @brief Returns a formatted string containing the data in the given ecmdChipTarget
- @retval String with formatted target data
- @param i_target ecmdChipTarget containing data to format into string
- */
-std::string ecmdWriteTarget (ecmdChipTarget & i_target);
-
-/**
  @brief Compares the two data buffers to see if they contain the same data
  @retval 1 if match, 0 if mismatch
  @param i_data The actual data fetched from the chip

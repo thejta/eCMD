@@ -98,7 +98,8 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 2) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip and a spy.\nType 'getspy -h' for usage.");
+    ecmdOutputError("getspy - Too few arguments specified; you need at least a chip and a spy.\n");
+    ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -134,8 +135,8 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   ecmdDataBuffer * expected = NULL;
 
   if (!enumFlag) {
-    spyBuffer = new ecmdDataBuffer(3);
-    buffer = new ecmdDataBuffer(3);
+    spyBuffer = new ecmdDataBuffer;
+    buffer = new ecmdDataBuffer;
   }
 
   if (expectFlag) {
@@ -164,8 +165,8 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "Error occured performing getspy on ";
-        printed += ecmdWriteTarget(target);
+        printed = "getspy - Error occured performing getspy on ";
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -209,10 +210,10 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 
         if (!ecmdCheckExpected(*buffer, *expected)) {
           //@ make this stuff sprintf'd
-          printed =  "Actual            : ";
+          printed =  "getspy - Actual            : ";
           printed += ecmdWriteDataFormatted(*buffer, format);
 
-          printed += "Expected          : ";
+          printed += "getspy - Expected          : ";
           printed += ecmdWriteDataFormatted(*expected, format);
           ecmdOutputError( printed.c_str() );
         }
@@ -242,7 +243,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    //this is an error common across all UI functions
+    ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -274,7 +275,8 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 3) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, a spy, and data.\nType 'getspy -h' for usage.");
+    ecmdOutputError("putspy - Too few arguments specified; you need at least a chip, a spy, and data.\n");
+    ecmdOutputError("putspy - Type 'getspy -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -289,7 +291,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   std::string spyName = argv[1];
   std::string spyData = argv[argc-1]; //always the last arg
 
-  
+
   if (enumFlag) {
     for (int i = 0; i < spyData.length(); i++) {
       if (!isxdigit(spyData[i])) {
@@ -307,8 +309,8 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
   if (!enumFlag) {
 
-    buffer = new ecmdDataBuffer(3);
-    spyBuffer = new ecmdDataBuffer(3);
+    buffer = new ecmdDataBuffer;
+    spyBuffer = new ecmdDataBuffer;
     rc = ecmdReadDataFormatted(*buffer, spyData.c_str() , format);
     if (rc) return rc;
 
@@ -321,11 +323,10 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
     if (argc > 4) {
       numBits = atoi(argv[3]);
-    }
-    else {
+    } else {
       numBits = buffer->getBitLength();
-    }
 
+    }
   }
 
   /************************************************************************/
@@ -337,7 +338,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   std::string printed;
-  
+
   while ( ecmdConfigLooperNext(target) ) {
 
     if (enumFlag) {
@@ -352,10 +353,10 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     }
     else if (rc) {
       if (enumFlag) {
-        printed = "Error occured performing putspy (enumerated) on ";
+        printed = "putspy - Error occured performing putspy (enumerated) on ";
       }
       else {
-        printed = "Error occured performing getspy on ";
+        printed = "putspy - Error occured performing putspy on ";
       }
 
       printed += ecmdWriteTarget(target) + "\n";
@@ -369,17 +370,17 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     if (!enumFlag) {
 
       if (spyBuffer->getBitLength() < numBits) {
-        printed = "Number of bits specified is longer than number of bits in spy on ";
+        printed = "putspy - Number of bits specified is longer than number of bits in spy on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        
+
       }
 
       spyBuffer->insert(*buffer, startBit, numBits);
 
       rc = putSpy(target, spyName.c_str(), *spyBuffer);
       if (rc) {
-        printed = "Error occured performing putspy on ";
+        printed = "putspy - Error occured performing putspy on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -387,6 +388,11 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
     }
 
+  }
+
+  if (!validPosFound) {
+    ecmdOutputError("putspy - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
   }
 
   return rc;

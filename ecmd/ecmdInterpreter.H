@@ -27,7 +27,7 @@
 
 /**
  @file ecmdInterpreter.H
- @brief eCMD Command Interpreter
+ @brief eCMD Command Interpreter function prototypes
 */
 
 //--------------------------------------------------------------------
@@ -55,91 +55,63 @@ int ecmdCommandInterpreter(int argc, char* argv[]);
 /** @name User Functions */
 //@{
 
+/* ecmdRingUser.C */
 int ecmdCheckRingsUser(int argc, char* argv[]);
-
-int ecmdGetArrayUser(int argc, char* argv[]);
-
-int ecmdGetScomUser(int argc, char* argv[]);
-
 int ecmdGetBitsUser(int argc, char* argv[]);
-
 int ecmdGetLatchUser(int argc, char* argv[]);
-
 int ecmdGetRingDumpUser(int argc, char* argv[]);
-
-int ecmdGetSpyUser(int argc, char* argv[]);
-
-int ecmdPutArrayUser(int argc, char* argv[]);
-
 int ecmdPutBitsUser(int argc, char* argv[]);
-
 int ecmdPutLatchUser(int argc, char* argv[]);
-
 int ecmdPutPatternUser(int argc, char* argv[]);
 
+/* ecmdJtagUser.C */
+int ecmdSendCmdUser(int argc, char* argv[]);
+
+/* ecmdArrayUser.C */
+int ecmdGetArrayUser(int argc, char* argv[]);
+int ecmdPutArrayUser(int argc, char* argv[]);
+
+/* ecmdScomUser.C */
+int ecmdGetScomUser(int argc, char* argv[]);
 int ecmdPutScomUser(int argc, char* argv[]);
-
-int ecmdPutSpyUser(int argc, char* argv[]);
-
 int ecmdPollScomUser(int argc, char* argv[]);
 
+/* ecmdSpyUser.C */
+int ecmdGetSpyUser(int argc, char* argv[]);
+int ecmdPutSpyUser(int argc, char* argv[]);
+
+/* ecmdQueryUser.C */
 int ecmdQueryUser(int argc, char* argv[]);
 
+/* ecmdSimUser.C */
 #ifndef REMOVE_SIM
 int ecmdSimaetUser(int argc, char * argv[]);
-
 int ecmdSimcheckpointUser(int argc, char * argv[]);
-
 int ecmdSimclockUser(int argc, char * argv[]);
-
 int ecmdSimechoUser(int argc, char * argv[]);
-
 int ecmdSimexitUser(int argc, char * argv[]);
-
 int ecmdSimEXPECTFACUser(int argc, char * argv[]);
-
 int ecmdSimEXPECTFACSUser(int argc, char * argv[]);
-
 int ecmdSimexpecttcfacUser(int argc, char * argv[]);
-
 int ecmdSimGETFACUser(int argc, char * argv[]);
-
 int ecmdSimGETFACSUser(int argc, char * argv[]);
-
 int ecmdSimGETFACXUser(int argc, char * argv[]);
-
 int ecmdSimgettcfacUser(int argc, char * argv[]);
-
 int ecmdSimgetcurrentcycleUser(int argc, char * argv[]);
-
 int ecmdSiminitUser(int argc, char * argv[]);
-
 int ecmdSimPUTFACUser(int argc, char * argv[]);
-
 int ecmdSimPUTFACSUser(int argc, char * argv[]);
-
 int ecmdSimPUTFACXUser(int argc, char * argv[]);
-
 int ecmdSimputtcfacUser(int argc, char * argv[]);
-
 int ecmdSimrestartUser(int argc, char * argv[]);
-
 int ecmdSimSTKFACUser(int argc, char * argv[]);
-
 int ecmdSimSTKFACSUser(int argc, char * argv[]);
-
 int ecmdSimstktcfacUser(int argc, char * argv[]);
-
 int ecmdSimSUBCMDUser(int argc, char * argv[]);
-
 int ecmdSimsymbolUser(int argc, char * argv[]);
-
 int ecmdSimUNSTICKUser(int argc, char * argv[]);
-
 int ecmdSimUNSTICKSUser(int argc, char * argv[]);
-
 int ecmdSimunsticktcfacUser(int argc, char * argv[]);
-
 #endif  //REMOVE_SIM
 
 //@}
