@@ -115,12 +115,9 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
   ecmdLooperData looperdata;            ///< Store internal Looper data
 
-  std::string format;
+  std::string format = "default";
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "default";
-  }
-  else {
+  if (formatPtr != NULL) {
     format = formatPtr;
   }
 
@@ -325,8 +322,15 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   ecmdLatchBufferEntry curEntry;
   char* expectDataPtr = NULL;
-  bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  bool newFileFormat = false;                   /* This is set if we find the new Eclipz scandef format */
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  std::string outputformat = "default";         ///< Output Format to display
+  std::string inputformat = "x";                ///< Input format of data
+  ecmdDataBuffer expected;                      ///< Buffer to store output data
+  ecmdChipTarget target;                        ///< Target we are operating on
+  std::string printed;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;
+  std::string scandefFile;
 
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -341,13 +345,13 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   }
 
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "default";
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
   }
-  else {
-    format = formatPtr;
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
   
   /************************************************************************/
@@ -357,12 +361,14 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  ecmdDataBuffer expected; 
 
   if (expectFlag) {
     /* Grab the data for the expect */
-    expected.setBitLength(strlen(expectDataPtr) * 4);
-    expected.insertFromHexLeft(expectDataPtr);
+    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
+    if (rc) {
+      ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
+      return rc;
+    }
   }
 
   if (expectFlag && noCompressFlag) {
@@ -377,7 +383,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -410,14 +415,12 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
   ecmdDataBuffer ringBuffer;
   ecmdDataBuffer buffer(100 /* words */);         // Space for extracted latch data
-  ecmdDataBuffer buffertemp(100 /* words */);     // Temp space for extraced latch data
+  ecmdDataBuffer buffertemp(100 /* words */);     // Temp space for extracted latch data
 
   bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::string printed;
-  std::list< ecmdLatchInfo >::iterator curLatchInfo;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
@@ -436,7 +439,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     /* find scandef file */
-    std::string scandefFile;
     rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
     if (rc) {
       ecmdOutputError(("getlatch - Error occured locating scandef file: " + scandefFile + "\n").c_str());
@@ -589,7 +591,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
         ringBuffer.extract(buffer, (*curLatchInfo).ringOffset, bitsToFetch);
 
         printed = curLatchInfo->latchName + " ";
-        if (format == "default") {
+        if (outputformat == "default") {
 
           if (bitsToFetch <= 8) {
             printed += " 0b" + buffer.genBinStr();
@@ -602,7 +604,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
         }
         else {
-          printed += ecmdWriteDataFormatted(buffer, format);
+          printed += ecmdWriteDataFormatted(buffer, outputformat);
         }
         ecmdOutput( printed.c_str());
         curBitsToFetch -= bitsToFetch;
@@ -626,12 +628,12 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
               sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
               printed += temp;
               buffer.extract(buffertemp, 0, dataEndBit - dataStartBit + 1);
-              if (format == "default") {
+              if (outputformat == "default") {
                 if (buffertemp.getBitLength() <= 8)  printed += " 0b" + buffertemp.genBinStr();
                 else printed += " 0x" + buffertemp.genHexLeftStr();
                 printed += "\n";
               } else {
-                printed += ecmdWriteDataFormatted(buffertemp, format);
+                printed += ecmdWriteDataFormatted(buffertemp, outputformat);
               }
               ecmdOutput( printed.c_str());
 
@@ -717,12 +719,12 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
           sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
           printed += temp;
           buffer.extract(buffertemp, 0, dataEndBit - dataStartBit + 1);
-          if (format == "default") {
+          if (outputformat == "default") {
             if (buffertemp.getBitLength() <= 8)  printed += " 0b" + buffertemp.genBinStr();
             else printed += " 0x" + buffertemp.genHexLeftStr();
             printed += "\n";
           } else {
-            printed += ecmdWriteDataFormatted(buffertemp, format);
+            printed += ecmdWriteDataFormatted(buffertemp, outputformat);
           }
           ecmdOutput( printed.c_str());
           /* They did an expect and we must have failed */
@@ -905,6 +907,8 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
 
   bool xstateFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string format = "b";             ///< Input format
+  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -914,13 +918,13 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
     xstateFlag = true;
   }
 
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "b";
-  }
-  else {
+  if (formatPtr != NULL) {
     format = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
   }
 
   /************************************************************************/
@@ -993,12 +997,9 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-    if (startBit + buffer.getBitLength() > ringBuffer.getBitLength()) {
-      ecmdOutputError("putbits - startbit + numbits > ring length, buffer overflow\n");
-      return ECMD_INVALID_ARGS;
-    }
-
-    ringBuffer.insert(buffer, startBit, buffer.getBitLength());
+    
+    rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
+    if (rc) return rc;
 
     rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
@@ -1027,14 +1028,18 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdLatchBufferEntry curEntry;
   bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string format = "x";             ///< Output format
+  ecmdChipTarget target;
+  ecmdDataBuffer ringBuffer;
+  ecmdDataBuffer bufferCopy;
+  ecmdDataBuffer buffer;
+  bool validPosFound = false;
+  std::string printed;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;
 
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "x";
-  }
-  else {
+  if (formatPtr != NULL) {
     format = formatPtr;
   }
 
@@ -1047,7 +1052,6 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -1056,7 +1060,6 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   std::string ringName = argv[1];
   std::string latchName = argv[2];
 
-  ecmdDataBuffer buffer;
 
   //data is always the last arg
   rc = ecmdReadDataFormatted(buffer, argv[argc-1], format);
@@ -1092,15 +1095,9 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     numBits = buffer.getBitLength();
   }
 
-  ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer bufferCopy;
-
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::string printed;
-  std::list< ecmdLatchInfo >::iterator curLatchInfo;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
@@ -1274,6 +1271,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
         if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
 
           ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curStartBit, bitsToInsert);
+          /* Get rid of the data we just inserted, to line up the next piece */
           bufferCopy.shiftLeft(bitsToInsert);
 
           curLatchBit = curLatchInfo->latchEndBit + 1;
@@ -1285,6 +1283,8 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
             else
               ringBuffer.clearBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
           }
+          /* Get rid of the data we just inserted, to line up the next piece */
+          bufferCopy.shiftLeft(bitsToInsert);
 
           curLatchBit = curLatchInfo->latchStartBit + 1;
 
@@ -1542,7 +1542,7 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   std::string ringName = argv[1];
 
   ecmdDataBuffer buffer;
-  rc = ecmdReadDataFormatted(buffer, argv[2], format);
+  rc = ecmdReadDataFormatted(buffer, argv[2], format, 32);
   if (rc) {
     ecmdOutputError("putpattern - Problems occurred parsing input data, must be an invalid format\n");
     return rc;
