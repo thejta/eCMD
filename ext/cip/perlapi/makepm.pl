@@ -6,7 +6,7 @@
 my $curdir = ".";
 
 #functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
-my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs );
+my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode );
 my $ignore_re = join '|', @ignores;
 
 my $printout;
@@ -32,8 +32,9 @@ print OUT "#include <ecmdClientCapi.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdUtils.H>\n";
 print OUT "#include <ecmdSharedUtils.H>\n";
-print OUT "#include <$ARGV[0]ClientPerlapi.H>\n";
+print OUT "#include <ecmdClientPerlapi.H>\n";
 if ($ARGV[0] ne "ecmd") {
+  print OUT "#include <$ARGV[0]ClientPerlapi.H>\n";
   print OUT "#include <$ARGV[0]ClientCapi.H>\n";
 }
 print OUT "\n";

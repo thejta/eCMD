@@ -23,9 +23,6 @@
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
-/* These are in ecmdClientPerlapi.C */
-int ecmdPerlInterfaceErrorCheck (int rc);
-int ecmdQuerySafeMode();
 
 
 /* Functions in here are defined as extern C for the following reasons:

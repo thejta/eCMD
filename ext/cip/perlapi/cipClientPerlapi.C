@@ -23,6 +23,7 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdUtils.H>
+#include <ecmdClientPerlapi.H>
 #include <cipClientPerlapi.H>
 #include <cipClientCapi.H>
 #include <ecmdSharedUtils.H>

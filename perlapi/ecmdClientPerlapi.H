@@ -43,7 +43,7 @@
 */
 
 int ecmdPerlInterfaceErrorCheck (int rc);
-int ecmdQuerySafeMode();
+bool ecmdQuerySafeMode();
 
 /**
  * @brief eCMD Perl API
@@ -1737,6 +1737,16 @@ class ecmdClientPerlapi
 
      */
     uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message);
+
+    /**
+     @brief Enable Perl Error Handling Safe Mode - Croak on any eCMD error (default is enabled)
+     */
+    void ecmdEnablePerlSafeMode();
+
+    /**
+     @brief Disable Perl Error Handling Safe Mode - Return eCMD errors to client (default is enabled)
+     */
+    void ecmdDisablePerlSafeMode();
 
     //@}
 

@@ -32,7 +32,7 @@
 
 
 static int myErrorCode = ECMD_SUCCESS;
-static int safeMode = 1;
+static bool safeMode = true;
 
 int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
@@ -52,9 +52,13 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
   return ECMD_SUCCESS;
 }
-int ecmdQuerySafeMode() {
-  return (int) safeMode;
+bool ecmdQuerySafeMode() {
+  return safeMode;
 }
+
+void ecmdClientPerlapi::ecmdDisablePerlSafeMode() { safeMode = false; }
+
+void ecmdClientPerlapi::ecmdEnablePerlSafeMode() { safeMode = true; }
 
 
 ecmdClientPerlapi::ecmdClientPerlapi () {
