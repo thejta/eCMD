@@ -63,6 +63,7 @@
 #define ECMD_UNABLE_TO_OPEN_SCANDEF             0x1043 ///< eCMD was unable to open the scandef
 #define ECMD_INVALID_LATCHNAME                  0x1044 ///< eCMD was unable to find the specified latch in the scandef
 #define ECMD_POLLING_FAILURE                    0x1045 ///< eCMD failed waiting for a poll to match expected value
+#define ECMD_TARGET_INVALID_TYPE                0x1046 ///< Target specified an object that was inappropriate for the function
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
