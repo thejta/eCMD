@@ -736,7 +736,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   }
   else if (curState == ECMD_FORMAT_BX) {
     //do something
-    printed = "0bX" + i_data.genXstateStr();
+    printed = "0b" + i_data.genXstateStr();
   }
   else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
     int myAddr = address;
