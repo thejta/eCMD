@@ -142,6 +142,9 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
           returnValue = NULL;
         }
       }
+      /* We found it , let's stop looping , we don't want to pull other args out if they are here, this fixes BZ#6 */
+      break;
+      
     }
   }
 
