@@ -29,7 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-
+#include <netinet/in.h> /* for htonl */
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -38,6 +38,8 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
+
+using namespace std;
 
 #undef ecmdRingUser_C
 //----------------------------------------------------------------------
@@ -1591,12 +1593,15 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchData > & o_latchdata) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scandefFile;                      ///< Full path to scandef file
+  std::string scandefHashFile;                  ///< Full path to scandefhash file
   std::string i_ring;                           ///< Ring that caller specified
   std::string printed;
+  uint32_t i_ringkey;
   
   if (i_ringName != NULL) {
     i_ring = i_ringName;
     transform(i_ring.begin(), i_ring.end(), i_ring.begin(), (int(*)(int)) tolower);
+    i_ringkey = ecmdHashString32(i_ring.c_str(), 0);
   }
   else {
      rc = ECMD_INVALID_RING;
@@ -1604,11 +1609,54 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
      ecmdOutputError(printed.c_str());
      return rc;
   }
-  
 
+  //Try looking for the offset in scandef hash  
+  bool ringOffsetFound = false;
+  uint32_t curRingKey, ringBeginOffset;
+  bool foundRing = false;
       
       
+  while(1) {
+  /* Find the ring offset from the scandefhash file */
+      rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile);
+      if (rc) {
+        break;
+      }
+
+      std::ifstream insh(scandefHashFile.c_str());
+      if (insh.fail()) {
+        break;
+      }
       
+      uint32_t numRings =0;
+      insh.read((char *)& numRings, 4);
+      numRings = htonl(numRings);
+      
+  //Seek to the ring area in the hashfile
+      insh.seekg ( 8 );
+      
+      while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
+	insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
+	insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+	curRingKey = htonl(curRingKey);
+	ringBeginOffset = htonl(ringBeginOffset);
+	
+	if (i_ringkey == curRingKey) {
+	  foundRing = true;
+	  break;
+	}
+	insh.seekg (8, ios::cur); //Skip the ringKey-end offset pair
+	  
+      }
+      
+      if (foundRing) {
+        ringOffsetFound = true;
+      }
+      insh.close();
+      
+      break;
+    }
+    rc =0;
       /* find scandef file */
       rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
       if (rc) {
@@ -1631,10 +1679,13 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 
       
       bool done = false;
-      bool foundRing = false;
       int  leftParen;
       int  colon;
       
+      foundRing = false;
+      
+      //Seek to the beginning of the ring
+      if (ringOffsetFound == true) ins.seekg(ringBeginOffset);
 
       while (getline(ins, curLine) && !done) {
   
