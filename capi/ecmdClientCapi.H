@@ -466,15 +466,15 @@ uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::str
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
- @param i_spyEccGroupName Name of spy to read from
- @param o_groupData Return the data for the input to the eccGroup
- @param o_eccData Return the Ecc data associated with the outbits of the eccGroup
+ @param i_spyEpCheckersName Name of spy to read from
+ @param o_inLatchData Return the data for the input to the eccGroup
+ @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
  @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
  @retval nonzero if unsuccessful
 
  NOTE : This function is ring cache enabled
 */
-uint32_t getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask);
+uint32_t getSpyEpCheckers (ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask);
 
 /**
  @brief Writes the data buffer into the selected spy
