@@ -128,6 +128,7 @@ std::string dllGetErrorMsg(int i_errorCode) {
   std::string filePath;
   int rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
 
+  filePath += "ecmdReturnCodes.H";
   if (rc) {
     ret = "ERROR FINDING DECODE FILE";
     return ret;

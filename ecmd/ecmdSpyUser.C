@@ -24,7 +24,7 @@
 //----------------------------------------------------------------------
 #define ecmdDaSpyUser_C
 #include <ecmdCommandUtils.H>
-#include <ecmdIntReturnCodes.H>
+#include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>

@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 #include <ecmdCommandUtils.H>
-#include <ecmdIntReturnCodes.H>
+#include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #undef ecmdCommandUtils_C
 //----------------------------------------------------------------------

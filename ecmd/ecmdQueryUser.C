@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 #include <ecmdCommandUtils.H>
-#include <ecmdIntReturnCodes.H>
+#include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>

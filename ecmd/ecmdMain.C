@@ -31,7 +31,7 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
-#include <ecmdIntReturnCodes.H>
+#include <ecmdReturnCodes.H>
 
 #include <stdio.h>
 #include <string>

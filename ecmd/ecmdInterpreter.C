@@ -27,7 +27,7 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
-#include <ecmdIntReturnCodes.H>
+#include <ecmdReturnCodes.H>
 #include <ecmdCommandUtils.H>
 #include <ecmdUtils.H>
 

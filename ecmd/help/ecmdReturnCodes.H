@@ -47,6 +47,10 @@
 #define ECMD_INVALID_ARRAY                      0x1026 ///< Invalid array name was provided
 #define ECMD_INVALID_CONFIG                     0x1027 ///< There was an error processing the configuration information
 
+/* Return codes for command interpreter */
+#define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
+
+
 /* dataBuffer specific return codes */
 #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
 #define ECMD_DBUF_INIT_FAIL                     0x2000 ///< Initialization of the DataBuffer failed
@@ -54,6 +58,8 @@
 #define ECMD_DBUF_XSTATE_ERROR                  0x2020 ///< An 'X' character occured where it was not expected
 #define ECMD_DBUF_UNDEFINED_FUNCTION            0x2030 ///< Function not included in this version of DataBuffer
 #define ECMD_DBUF_INVALID_ARGS                  0x2040 ///< Args provided to dataBuffer were invalid
+
+
 
 #endif /* ecmdReturnCodes_h */
 
