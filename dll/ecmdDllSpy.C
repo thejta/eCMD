@@ -40,7 +40,7 @@
 #include <sedcDataContainer.H>
 #include <sedcStructs.H>
 #include <sedcDefines.H>
-#include <sedcParser.H>
+#include <sedcSpyParser.H>
 
 #undef ecmdClientSpy_C
 //----------------------------------------------------------------------
