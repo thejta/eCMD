@@ -443,7 +443,290 @@ int iplSys ();
 //@}
 
 
+/** @name Simulation Functions */
+//@{
+#ifndef REMOVE_SIM
 
+/**
+ * @brief Enable/Disable Simulation AET Logging
+ * @param i_function Should be either 'on'/'off'/'flush'
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simaet(const char* i_function);
+
+/**
+ * @brief Store a checkpoint to specified file
+ * @param i_checkpoint Name of checkpoint to write to
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simcheckpoint(const char* i_checkpoint);
+
+/**
+ * @brief Clock the model
+ * @param i_cycles Number of cycles to clock model
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simclock(int i_cycles);
+
+/**
+ * @brief Echo message to stdout and sim log
+ * @param i_message Message to echo
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simecho(const char* i_message);
+
+/**
+ * @brief Close down the simulation model
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simexit();
+
+/**
+ * @brief Perform expect on facility using symbol
+ * @param i_symbol Symbol id of facility
+ * @param i_expect Value to expect on facility
+ * @param i_bitlength Length of data to expect
+ * @param i_row Optional: Array Facility row
+ * @param i_offset Optional: Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simEXPECTFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Perform expect on facility using name
+ * @param i_facname Facility name
+ * @param i_expect Value to expect on facility
+ * @param i_bitlength Length of data to expect
+ * @param i_row Optional: Array Facility row
+ * @param i_offset Optional: Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simEXPECTFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Perform expect on TCFAC facility
+ * @param i_tcfacname Facility name
+ * @param i_expect Value to expect on facility
+ * @param i_bitlength Length of data to expect
+ * @param i_row Optional: Array Facility row
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simexpecttcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0);
+
+/**
+ * @brief Fetch current model cycle count
+ * @param o_cyclecount Current model cycle count
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simgetcurrentcycle(int & o_cyclecount);
+
+/**
+ * @brief Retrieve a Facility using a symbol id
+ * @param i_symbol Facility symbol id
+ * @param i_bitlength Bit length to read from facility
+ * @param o_data Data read from facility
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simGETFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & o_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Retrieve a Facility using a name
+ * @param i_facname Facility name
+ * @param i_bitlength Bit length to read from facility
+ * @param o_data Data read from facility
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simGETFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Retrieve a Facility using a name - preserving Xstate
+ * @param i_facname Facility name
+ * @param i_bitlength Bit length to read from facility
+ * @param o_data Data read from facility
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simGETFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Retrieve a TCFAC facility
+ * @param i_tcfacname TCFAC name
+ * @param o_data Value read
+ * @param i_row Optional: Array Facility row
+ * @param i_startbit Optional: Startbit to read
+ * @param i_bitlength Optional: Length of data to read
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, int i_row = 0, int i_startbit = 0, int i_bitlength = 0);
+
+/**
+ * @brief Initialize the simulation
+ * @param i_checkpoint Checkpoint to load : 'none' to skip
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int siminit(const char* checkpoint);
+
+/**
+ * @brief Write a Facility using a symbol id
+ * @param i_symbol Facility symbol id
+ * @param i_bitlength Bit length to write to facility
+ * @param i_data Data to write
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simPUTFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Write a Facility using a name
+ * @param i_facname Facility name
+ * @param i_bitlength Bit length to write to facility
+ * @param i_data Data to write
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simPUTFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Write a Facility using a name - preserving Xstate
+ * @param i_facname Facility name
+ * @param i_bitlength Bit length to write to facility
+ * @param i_data Data to write
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simPUTFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Write a TCFAC facility
+ * @param i_tcfacname TCFAC name
+ * @param i_data Value to write
+ * @param i_row Optional: Array Facility row
+ * @param i_numrows Optional: Number of rows to write
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simputtcfac(const char* i_tcfacname, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+
+/**
+ * @brief Load a checkpoint into model
+ * @param i_checkpoint Name of checkpoint
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simrestart(const char* i_checkpoint);
+
+/**
+ * @brief Stick a Facility using a symbol id
+ * @param i_symbol Facility symbol id
+ * @param i_bitlength Bit length to stick to facility
+ * @param i_data Data to stick
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simSTKFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Stick a Facility using a name
+ * @param i_facname Facility name
+ * @param i_bitlength Bit length to stick to facility
+ * @param i_data Data to stick
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simSTKFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Stick a TCFAC facility
+ * @param i_tcfacname TCFAC name
+ * @param i_data Value to stick
+ * @param i_row Optional: Array Facility row
+ * @param i_numrows Optional: Number of rows to stick
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simstktcfac(const char* i_tcfacname, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+
+/**
+ * @brief Run RTX SUBCMD
+ * @param i_command Command
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simSUBCMD(const char* i_command);
+
+/**
+ * @brief Look up a Facility symbol
+ * @param i_facname Facility name
+ * @param o_symbol Symbol id
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simsymbol(const char* i_facname, unsigned int & o_symbol);
+
+/**
+ * @brief Unstick a Facility using a symbol id
+ * @param i_symbol Facility symbol id
+ * @param i_bitlength Bit length to unstick to facility
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simUNSTICK(unsigned int i_symbol, int i_bitlength, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Unstick a Facility using a name
+ * @param i_facname Facility name
+ * @param i_bitlength Bit length to unstick to facility
+ * @param i_row Optional: Array row
+ * @param i_offset Optional : Facility offset
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simUNSTICKS(const char* i_facname, int i_bitlength, int i_row = 0, int i_offset = 0);
+
+/**
+ * @brief Unstick a TCFAC facility
+ * @param i_tcfacname TCFAC name
+ * @param i_data Value to unstick to 
+ * @param i_row Optional: Array Facility row
+ * @param i_numrows Optional: Number of rows to unstick
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simunsticktcfac(const char* i_tcfacname, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+
+#endif /* ifndef REMOVE_SIM */
+//@}
 
 
 

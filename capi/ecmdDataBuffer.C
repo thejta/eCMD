@@ -68,7 +68,7 @@ ecmdDataBuffer::ecmdDataBuffer(int numWords)
   iv_Data = iv_RealData + 4;
   memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   iv_DataStr = new char[iv_NumBits + 1];
   this->fillDataStr('0'); /* init to 0 */
   iv_isXstate = 0;
@@ -89,7 +89,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
     iv_Data[i] = other.iv_Data[i];
 
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   strcpy(iv_DataStr, other.iv_DataStr);
   iv_isXstate = other.iv_isXstate;
 #endif
@@ -117,7 +117,7 @@ ecmdDataBuffer::~ecmdDataBuffer()
 
   }
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   if (iv_DataStr != NULL) {
     delete[] iv_DataStr;
     iv_DataStr = NULL;
@@ -164,7 +164,7 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
 
   iv_NumBits = iv_NumWords * 32;  /* that's as accurate as we can get */
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   if (!(strlen(this->iv_DataStr) > iv_NumBits)) { /* we need to resize the iv_DataStr member */
     delete[] iv_DataStr;
     iv_DataStr = new char[iv_NumBits+1];
@@ -207,7 +207,7 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
   iv_NumBits = newNumBits;
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   if (!(strlen(this->iv_DataStr) > iv_NumBits)) { /* we need to resize the iv_DataStr member */
     delete[] iv_DataStr;
     iv_DataStr = new char[iv_NumBits+1];
@@ -247,7 +247,7 @@ void  ecmdDataBuffer::setBit(int bit) {
   } else {
     int index = bit/32;
     iv_Data[index] |= 0x00000001 << (31 - (bit-(index * 32)));
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     iv_DataStr[bit] = '1';
 #endif
   }
@@ -267,7 +267,7 @@ void  ecmdDataBuffer::setBit(int bit, int len) {
 
 
 void  ecmdDataBuffer::setBit(int bitOffset, const char* binStr) {
-#ifdef REMOVE_SIM_BUFFERS
+#ifdef DISABLE_SIM
 
 #else
   int len = strlen(binStr);
@@ -307,7 +307,7 @@ void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
   } else {
     iv_Data[wordOffset] = value;
     
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     int startBit = wordOffset * 32;
     uint32_t mask = 0x80000000;
     for (int i = 0; i < 32; i++) {
@@ -333,7 +333,7 @@ void  ecmdDataBuffer::clearBit(int bit) {
   } else {  
     int index = bit/32;
     iv_Data[index] &= ~(0x00000001 << (31 - (bit-(index * 32))));
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     iv_DataStr[bit] = '0';
 #endif
   }
@@ -355,7 +355,7 @@ void  ecmdDataBuffer::flipBit(int bit) {
     sprintf(temp, "ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
     registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, temp);
   } else {
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     if (this->hasXstate(bit, 1)) {
       char temp[60];
       sprintf(temp, "ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d\n", bit);
@@ -367,7 +367,7 @@ void  ecmdDataBuffer::flipBit(int bit) {
       } else {
         this->setBit(bit);
       }
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     }
 #endif
   }
@@ -394,7 +394,7 @@ int   ecmdDataBuffer::isBitSet(int bit) {
     registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, temp);
     return 0;
   } else {
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
       char temp[70];
       sprintf(temp, "ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d\n", bit);
@@ -432,7 +432,7 @@ int   ecmdDataBuffer::isBitClear(int bit) {
     registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, temp);
     return 0;
   } else {
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
       registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, "ecmdDataBuffer::isBitClear: non-binary character detected in data string\n");
       return 0;
@@ -507,7 +507,7 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
 
   iv_NumBits += shiftNum;
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   // shift char
   char* temp = new char[iv_NumBits+1];
   for (i = 0; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
@@ -547,7 +547,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
 
   iv_NumBits -= shiftNum;
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   // shift char
   char* temp = new char[iv_NumBits+1];
   for (i = 0; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
@@ -589,14 +589,14 @@ void  ecmdDataBuffer::rotateLeft(int rotateNum) {
 
 void  ecmdDataBuffer::flushTo0() {
   memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   this->fillDataStr('0');
 #endif
 }
 
 void  ecmdDataBuffer::flushTo1() {
   for (int i = 0; i < iv_NumWords; i++) iv_Data[i] = 0xFFFFFFFF;
-#ifndef REMOVE_SIM_BUFFERS   
+#ifndef DISABLE_SIM   
   this->fillDataStr('1');
 #endif
 }
@@ -653,7 +653,7 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
 
     ecmdExtract(this->iv_Data, start, len, dataOut);
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
     if (this->hasXstate()) {  /* fast strchr */
       for (int i = start; i < len; i++) { /* now get exact bit */
         if (this->hasXstate(start, 1)) {
@@ -883,7 +883,7 @@ std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
 
 std::string ecmdDataBuffer::genXstateStr(int start, int bitLen) { 
   std::string ret;
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   char * copyStr = new char[strlen(iv_DataStr)];
   strcpy(copyStr, &iv_DataStr[start]);
   if (bitLen < strlen(copyStr)) {
@@ -1018,7 +1018,7 @@ void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
   }
   // char
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
   strcpy(newCopy.iv_DataStr, iv_DataStr);
 #endif
 
@@ -1033,7 +1033,7 @@ void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy fr
 
 
 int ecmdDataBuffer::setXstate (int state) {
-#ifdef REMOVE_SIM_BUFFERS
+#ifdef DISABLE_SIM
   registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: setXstate: Not defined in this configuration");
   return ECMD_DBUF_UNDEFINED_FUNCTION;
 #else
@@ -1049,7 +1049,7 @@ int ecmdDataBuffer::setXstate (int state) {
 }
 
 int  ecmdDataBuffer::isXstate() {
-#ifdef REMOVE_SIM_BUFFERS
+#ifdef DISABLE_SIM
   registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: isXstate: Not defined in this configuration");
   return 0;
 #else
@@ -1058,7 +1058,7 @@ int  ecmdDataBuffer::isXstate() {
 }
 
 int   ecmdDataBuffer::hasXstate() {  /* check for only X's */
-#ifdef REMOVE_SIM_BUFFERS
+#ifdef DISABLE_SIM
   registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
@@ -1068,7 +1068,7 @@ int   ecmdDataBuffer::hasXstate() {  /* check for only X's */
 
 // actually use this for ANY non-binary char, not just X's
 int   ecmdDataBuffer::hasXstate(int start, int length) {
-#ifdef REMOVE_SIM_BUFFERS
+#ifdef DISABLE_SIM
   registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
@@ -1096,7 +1096,7 @@ int ecmdDataBuffer::registerErrorMsg (int errorCode, std::string message) {
 //---------------------------------------------------------------------
 //  Private Member Function Specifications
 //---------------------------------------------------------------------
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
 void ecmdDataBuffer::fillDataStr(char fillChar) {
 
   for (int i = 0; i < iv_NumBits; i++) iv_DataStr[i] = fillChar;

@@ -1,4 +1,4 @@
-#ifndef ecmdDataBuffer_H
+#ifndef ecmdDataBuffer_H 
 #define ecmdDataBuffer_H
 
 // Copyright **********************************************************
@@ -553,7 +553,7 @@ private: //methods
   int registerErrorMsg (int i_errorCode, std::string i_message);
 
 
-#ifndef REMOVE_SIM_BUFFERS
+#ifndef DISABLE_SIM
 private:
   char* iv_DataStr; /* binary or x data */
   int iv_isXstate;  /* flag to set if this is an x-state enabled data buffer */
