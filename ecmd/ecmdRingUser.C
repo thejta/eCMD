@@ -82,8 +82,8 @@ bool operator< (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
 
-  int lhsLeftParen = lhs.latchName.find('(');
-  int rhsLeftParen = rhs.latchName.find('(');
+  uint32_t lhsLeftParen = lhs.latchName.find('(');
+  uint32_t rhsLeftParen = rhs.latchName.find('(');
 
   if (lhsLeftParen == std::string::npos || rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
     return lhs.latchName < rhs.latchName;
@@ -307,7 +307,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 	for (curLatchInfo = curEntry.begin(); curLatchInfo != curEntry.end(); curLatchInfo++) {
           if(ringName == curLatchInfo->ringName) {
          
-	     if (((dataStartBit != -1) && (curLatchBit != curLatchInfo->latchStartBit) && (curLatchBit != curLatchInfo->latchEndBit)) ||
+	     if (((dataStartBit != -1) && (curLatchBit != (int) curLatchInfo->latchStartBit) && (curLatchBit != (int) curLatchInfo->latchEndBit)) ||
                ((latchname == "") || (latchname.substr(0, latchname.rfind('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
               /* I have some good data here */
    	      if (latchname != "") {
@@ -334,9 +334,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 	      
 	     /* Do we want anything in here */
              /* Check if the bits are ordered from:to (0:10) or just (1) */
-             if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+             if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && ((uint32_t) curLatchBit <= curLatchInfo->latchEndBit)) ||
              /* Check if the bits are ordered to:from (10:0) */
-             		 ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <= curLatchInfo->latchStartBit))) {
+             		 ((curLatchInfo->latchStartBit >  curLatchInfo->latchEndBit)  && ((uint32_t) curLatchBit <= curLatchInfo->latchStartBit))) {
 
 	       
 	       bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
@@ -601,20 +601,20 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       }
 
       /* See if there is data in here that we want */
-      if ((curStartBit + curNumBits < latchit->latchStartBit) || (curStartBit > latchit->latchEndBit)) {
+      if ((curStartBit + curNumBits < (uint32_t) latchit->latchStartBit) || (curStartBit > (uint32_t) latchit->latchEndBit)) {
         /* Nope nothing */
         continue;
       } else
         validLatchFound = true;
 
       /* Does the user want too much data? */
-      if ((curStartBit + curNumBits - 1) > latchit->latchEndBit)
-        curNumBits = latchit->latchEndBit - curStartBit + 1;
+      if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+        curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
 
       /* was the startbit before this latch ? */
-      if (curStartBit < latchit->latchStartBit) {
-        curNumBits -= (latchit->latchStartBit - curStartBit);
-        curStartBit = latchit->latchStartBit;
+      if (curStartBit < (uint32_t) latchit->latchStartBit) {
+        curNumBits -= ((uint32_t) latchit->latchStartBit - curStartBit);
+        curStartBit = (uint32_t) latchit->latchStartBit;
       }
       
 
@@ -1214,20 +1214,20 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       }
 
       /* See if there is data in here that we want */
-      if ((curStartBit + curNumBits < latchit->latchStartBit) || (curStartBit > latchit->latchEndBit)) {
+      if ((curStartBit + curNumBits < (uint32_t) latchit->latchStartBit) || (curStartBit > (uint32_t) latchit->latchEndBit)) {
         /* Nope nothing */
         continue;
       } else
         validLatchFound = true;
 
       /* Does the user want too much data? */
-      if ((curStartBit + curNumBits - 1) > latchit->latchEndBit)
-        curNumBits = latchit->latchEndBit - curStartBit + 1;
+      if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+        curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
 
       /* was the startbit before this latch ? */
-      if (curStartBit < latchit->latchStartBit) {
-        curNumBits -= (latchit->latchStartBit - curStartBit);
-        curStartBit = latchit->latchStartBit;
+      if (curStartBit < (uint32_t) latchit->latchStartBit) {
+        curNumBits -= ((uint32_t) latchit->latchStartBit - curStartBit);
+        curStartBit = (uint32_t) latchit->latchStartBit;
       }
 
       /* Let's apply our data */
@@ -1437,7 +1437,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         else {
           /* Walk the ring looking for errors */
           /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
-          for (int bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
+          for (uint32_t bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
             if (i % 2) {
               if (ringBuffer.isBitSet(bit)) {
                 sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
@@ -1706,7 +1706,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 	  else if ((curLine[0] == 'L') && curLine.find("Length") != std::string::npos) {
             /* Let's do a length check */
             ecmdParseTokens(curLine, " \t\n=", splitArgs);
-	    if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != atoi(splitArgs[1].c_str())) {
+	    if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != (uint32_t) atoi(splitArgs[1].c_str())) {
               sprintf(outstr, "readScandefFile - Warning : Length mismatch between ring fetched and scandef : fetched(%d) scandef(%d) on ring (%s)\n", ringBuffer.getBitLength(),atoi(splitArgs[1].c_str()),i_ringName);
               ecmdOutputWarning(outstr);
             }
@@ -1735,7 +1735,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 
           /* Let's parse out the start/end bit if they exist */
           leftParen = curLatch.latchName.rfind('(');
-          if (leftParen == std::string::npos) {
+          if ((uint32_t) leftParen == std::string::npos) {
             /* This latch doesn't have any parens */
             curLatch.latchStartBit = curLatch.latchEndBit = 0;
           } else {
@@ -1743,9 +1743,9 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
             curLatch.latchStartBit = atoi(temp.c_str());
 
             /* Is this a multibit or single bit */
-            if ((colon = temp.find(':')) != std::string::npos) {
+            if ((uint32_t) (colon = temp.find(':')) != std::string::npos) {
               curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
-            } else if ((colon = temp.find(',')) != std::string::npos) {
+            } else if ((uint32_t) (colon = temp.find(',')) != std::string::npos) {
               ecmdOutputError("readScandefFile - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
