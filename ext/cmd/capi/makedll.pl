@@ -55,6 +55,8 @@ if ($ARGV[0] eq "ecmd") {
   print OUT "uint32_t dllUnloadDll ();\n";
   print OUT "/* Dll Specific unload function - deallocates variables/object models*/\n";
   print OUT "uint32_t dllFreeDll();\n\n";
+  print OUT "/* Dll version check function */\n";
+  print OUT "uint32_t dllCheckDllVersion (const char* options);\n";
   print OUT "/* Dll Common Command Line Args Function*/\n";
   print OUT "uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);\n";
   print OUT "/* Dll Specific Command Line Args Function*/\n";

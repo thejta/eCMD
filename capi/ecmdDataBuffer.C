@@ -1537,6 +1537,14 @@ std::string ecmdDataBuffer::genBinStr() const { return this->genBinStr(0, iv_Num
 std::string ecmdDataBuffer::genAsciiStr() const { return this->genAsciiStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
 
+uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, uint32_t start, uint32_t length) {
+  if (length == 0) 
+    length = strlen(i_hexChars) * 4;
+  int rc = setBitLength(length);
+  if (rc) return rc;
+  return insertFromHexLeft(i_hexChars, start, length);
+}
+
 uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t start, uint32_t length) {
   int rc = ECMD_DBUF_SUCCESS;
   int i;
@@ -1576,6 +1584,14 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t st
   delete[] number_ptr;
 
   return rc;
+}
+
+uint32_t ecmdDataBuffer::insertFromHexRightAndResize (const char * i_hexChars, uint32_t start, uint32_t length) {
+  if (length == 0) 
+    length = strlen(i_hexChars) * 4;
+  int rc = setBitLength(length);
+  if (rc) return rc;
+  return insertFromHexRight(i_hexChars, start, length);
 }
 
 uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t start, uint32_t expectedLength) {
@@ -1620,6 +1636,12 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t s
   this->insert(insertBuffer, start, bitlength);
 
   return rc;
+}
+
+uint32_t ecmdDataBuffer::insertFromBinAndResize (const char * i_hexChars, uint32_t start) {
+  int rc = setBitLength(strlen(i_hexChars));
+  if (rc) return rc;
+  return insertFromBin(i_hexChars, start);
 }
 
 uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t start) {

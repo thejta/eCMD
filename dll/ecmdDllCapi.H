@@ -22,6 +22,8 @@ uint32_t dllUnloadDll ();
 /* Dll Specific unload function - deallocates variables/object models*/
 uint32_t dllFreeDll();
 
+/* Dll version check function */
+uint32_t dllCheckDllVersion (const char* options);
 /* Dll Common Command Line Args Function*/
 uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);
 /* Dll Specific Command Line Args Function*/
@@ -223,7 +225,7 @@ uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_co
 
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
-uint32_t dllSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string & i_valueAlpha, uint32_t i_valueNumeric); 
+uint32_t dllSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric); 
 
 uint32_t dllDeconfigureTarget(ecmdChipTarget & i_target); 
 

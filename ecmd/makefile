@@ -13,6 +13,7 @@ SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C e
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -I../dll -g 
 
+VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
 EXTENSIONS   := cip cro
@@ -41,6 +42,7 @@ ifeq (${OS},Linux)
   SUBDIR  := linux/
   CC      := g++
   TARGET  := ecmd_x86
+  VER_TARGET  := ecmdVersion_x86
   LD      := ${CC}
   LDFLAGS := -ldl -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a
@@ -63,6 +65,7 @@ ifeq (${OS},AIX)
   endif
 
   TARGET  := ecmd_aix
+  VER_TARGET  := ecmdVersion_aix
   LD      := ${CC}
   LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export
   ifeq (${MPATROL},yes) 
@@ -108,11 +111,12 @@ endif
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}
+all: dir ${TARGET} ${VER_TARGET}
 	@touch t.o t_x86 t_aix t_ppc
 	@mv *.o *_x86 *_aix *_ppc  ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
+	@cp -p ${SUBDIR}${VER_TARGET} export/
 
 clean:
 	rm -rf ${SUBDIR}
@@ -140,6 +144,8 @@ extensions:
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
+VER_SOURCE_OBJS  = $(basename $(VER_SOURCE))
+VER_SOURCE_OBJS := $(addsuffix .o, $(VER_SOURCE_OBJS))
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
@@ -147,6 +153,8 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
+$(VER_SOURCE_OBJS): %.o : %.C ${INCLUDES} 
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -156,4 +164,10 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
 	${LD} ${LDFLAGS} $^ -o $@ 
 
-
+${VER_TARGET}: ${VER_SOURCE_OBJS}
+ifeq (${OS},AIX)
+	${LD}  -brtl -bloadmap:PARM -w $^ -o $@ 
+endif
+ifeq (${OS},Linux)
+	${LD}  -ldl $^ -o $@ 
+endif

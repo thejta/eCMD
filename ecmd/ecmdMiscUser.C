@@ -71,7 +71,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   ecmdConfigValid_t validOutput;  ///< Indicator if valueAlpha, valueNumeric (or both) are valid
   std::string  valueAlpha;       ///< Alpha value of setting (if appropriate)
   uint32_t  valueNumeric;        ///< Numeric value of setting (if appropriate)
-  ecmdDataBuffer numData;	 ///< Initialise data buffer with the numeric value
+  ecmdDataBuffer numData(32);	 ///< Initialise data buffer with the numeric value
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperdata;     ///< Store internal Looper data
 

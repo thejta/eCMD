@@ -256,6 +256,32 @@ uint32_t dllUnloadDll() {
   return rc;
 }
 
+uint32_t dllCheckDllVersion (const char* options) {
+  uint32_t rc = 0;
+  char ver[20];
+  strcpy(ver, ECMD_CAPI_VERSION);
+  char major[10];
+  char minor[10];
+
+
+  int majorlength = (int)(strchr(ver, '.') - ver);
+  strncpy(major, ver, majorlength);
+  major[majorlength] = '\0';
+  strncpy(minor, &(ver[majorlength + 1]), strlen(ver) - majorlength - 1);
+  minor[strlen(ver) - majorlength - 1] = '\0';
+
+  /* Default is just the major number */
+  if ((options == NULL) || (strlen(options) == 0)) {
+    printf("ver%s",major);
+  } else if (!strcmp(options,"full")) {
+    printf("ver-%s-%s",major,minor);
+  }
+
+  /* Force an exit here as the dll is not properly initialized we can't allow things to continue */
+  exit(0);
+
+  return rc;
+}
 
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::string ret;

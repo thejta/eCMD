@@ -15,8 +15,6 @@
 #include <ecmdStructs.H>
 #include <ecmdDataBuffer.H>
 
-
-
 /* We are making sure they are compiling with the right compiler here */
 #if defined(__GNUC__) && !defined(FIPSODE)
 # if (__GNUC__ != 3) && (__GNUC_MINOR__ != 2)
@@ -1704,6 +1702,7 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
  @param o_valueAlpha Alpha value of setting (if appropriate)
  @param o_valueNumeric Numeric value of setting (if appropriate)
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 */
 
@@ -1718,6 +1717,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @param i_valueNumeric Numeric value of setting (if appropriate)
  @retval ECMD_DBUF_INVALID_DATA_FORMAT Value is not in correct format for specified configuration setting
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
