@@ -290,6 +290,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //update target with useful info in the ecmdUserArgs struct
   //cage
+  if (i_target.cageState == ECMD_TARGET_QUERY_IGNORE) {
+    /* If the cage is set to ignore we can't return anything so let's just short circuit */
+    return ECMD_SUCCESS;
+  }
+
   if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = ALL;
@@ -320,155 +325,165 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //node
-  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.node == allFlag)) {
-    i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
-    nodeType = ALL;
-  }
-  else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
-    if (!dllIsValidTargetString(ecmdUserArgs.node)) {
-      dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
-      return ECMD_INVALID_ARGS;
+  if (i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) {
+    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.node == allFlag)) {
+      i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+      nodeType = ALL;
     }
-    i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
-    nodeType = MULTI;
-  }
-  else {
-
-    if (ecmdUserArgs.node.length() != 0) {
+    else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.node)) {
         dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.node = atoi(ecmdUserArgs.node.c_str());
+      i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+      nodeType = MULTI;
     }
     else {
-      i_target.node = 0x0;
-    }
 
-    nodeType = SINGLE;
-    i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+      if (ecmdUserArgs.node.length() != 0) {
+        if (!dllIsValidTargetString(ecmdUserArgs.node)) {
+          dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.node = atoi(ecmdUserArgs.node.c_str());
+      }
+      else {
+        i_target.node = 0x0;
+      }
+
+      nodeType = SINGLE;
+      i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    }
   }
 
   //slot
-  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.slot == allFlag)) {
-    i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
-    slotType = ALL;
-  }
-  else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
-    if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
-      dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
-      return ECMD_INVALID_ARGS;
+  if (i_target.slotState != ECMD_TARGET_QUERY_IGNORE) {
+    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.slot == allFlag)) {
+      i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+      slotType = ALL;
     }
-    i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
-    slotType = MULTI;
-  }
-  else {
-
-    if (ecmdUserArgs.slot.length() != 0) {
+    else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
         dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.slot = atoi(ecmdUserArgs.slot.c_str());
+      i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+      slotType = MULTI;
     }
     else {
-      i_target.slot = 0x0;
-    }
 
-    slotType = SINGLE;
-    i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
+      if (ecmdUserArgs.slot.length() != 0) {
+        if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
+          dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.slot = atoi(ecmdUserArgs.slot.c_str());
+      }
+      else {
+        i_target.slot = 0x0;
+      }
+
+      slotType = SINGLE;
+      i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
+    }
   }
 
   //position
-  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.pos == allFlag)) {
-    posType = ALL;
-    i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
-  }
-  else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
-    if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
-      dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
-      return ECMD_INVALID_ARGS;
-    }
-    posType = MULTI;
-    i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
-  }
-  else {
+  if (i_target.posState != ECMD_TARGET_QUERY_IGNORE) {
 
-    if (ecmdUserArgs.pos.length() != 0) {
+    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.pos == allFlag)) {
+      posType = ALL;
+      i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    }
+    else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
         dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.pos = atoi(ecmdUserArgs.pos.c_str());
+      posType = MULTI;
+      i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
     }
     else {
-      i_target.pos = 0x0;
-    }
 
-    posType = SINGLE;
-    i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+      if (ecmdUserArgs.pos.length() != 0) {
+        if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
+          dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.pos = atoi(ecmdUserArgs.pos.c_str());
+      }
+      else {
+        i_target.pos = 0x0;
+      }
+
+      posType = SINGLE;
+      i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+    }
   }
 
   //core
-  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.core == allFlag)) {
-    i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-    coreType = ALL;
-  }
-  else if (ecmdUserArgs.core.find_first_of(patterns) < ecmdUserArgs.core.length()) {
-    if (!dllIsValidTargetString(ecmdUserArgs.core)) {
-      dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
-      return ECMD_INVALID_ARGS;
+  if (i_target.coreState != ECMD_TARGET_QUERY_IGNORE) {
+    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.core == allFlag)) {
+      i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coreType = ALL;
     }
-    i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-    coreType = MULTI;
-  }
-  else {
-
-    if (ecmdUserArgs.core.length() != 0) {
+    else if (ecmdUserArgs.core.find_first_of(patterns) < ecmdUserArgs.core.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.core)) {
         dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.core = atoi(ecmdUserArgs.core.c_str());
+      i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coreType = MULTI;
     }
     else {
-      i_target.core = 0x0;
-    }
 
-    coreType = SINGLE;
-    i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+      if (ecmdUserArgs.core.length() != 0) {
+        if (!dllIsValidTargetString(ecmdUserArgs.core)) {
+          dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.core = atoi(ecmdUserArgs.core.c_str());
+      }
+      else {
+        i_target.core = 0x0;
+      }
+
+      coreType = SINGLE;
+      i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+    }
   }
 
   //thread
-  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.thread == allFlag) || (ecmdUserArgs.thread == "alive")) {
-    i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
-    threadType = ALL;
-  }
-  else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
-    if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
-      dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
-      return ECMD_INVALID_ARGS;
+  if (i_target.threadState != ECMD_TARGET_QUERY_IGNORE) {
+    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.thread == allFlag) || (ecmdUserArgs.thread == "alive")) {
+      i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      threadType = ALL;
     }
-    i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
-    threadType = MULTI;    
-  }
-  else {
-
-    if (ecmdUserArgs.thread.length() != 0) {
+    else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
         dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.thread = atoi(ecmdUserArgs.thread.c_str());
+      i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      threadType = MULTI;    
     }
     else {
-      i_target.thread = 0x0;
+
+      if (ecmdUserArgs.thread.length() != 0) {
+        if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
+          dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.thread = atoi(ecmdUserArgs.thread.c_str());
+      }
+      else {
+        i_target.thread = 0x0;
+      }
+
+      threadType = SINGLE;
+      i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
-
-    threadType = SINGLE;
-    i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
-
 
   /* Okay, target setup as best we can, let's go out to query cnfg with it */
   rc = dllQueryConfig(i_target, o_queryData, ECMD_QUERY_DETAIL_LOW);
@@ -1167,11 +1182,8 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 
       std::ifstream ins(scandefFile.c_str());
       if (ins.fail()) {
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdGlobal_DllDebug) 
-          dllOutputError(("dllGetLatch - Error occured opening scandef file: " + scandefFile + "\n").c_str());
-#endif
         rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
+        dllRegisterErrorMsg(rc, "dllReadScandef", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
         break;
       }
 
@@ -1193,7 +1205,8 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
         if (foundRing) {
 
           if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
-            done = true; break;
+            if (i_ringName != NULL) done = true;
+            continue;
           }
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
             //do nothing
@@ -1246,7 +1259,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             if ((colon = temp.find(':')) != std::string::npos) {
               curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
             } else if ((colon = temp.find(',')) != std::string::npos) {
-              dllOutputError("getlatch - Array's not currently supported with getlatch\n");
+              dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
               curLatch.latchEndBit = curLatch.latchStartBit;
@@ -1265,9 +1278,14 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
           /* The user didn't specify a ring for us, we will search them all */
         } else if ((i_ringName == NULL) &&
                    ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
-          curRing = curLine.substr(5, std::string::npos);
-          /* Strip the tail off the line */
-          curRing.erase(curRing.find_first_of(" \t"));
+          ecmdParseTokens(curLine, " \t\n=", curArgs);
+          if (curArgs.size() != 2) {
+            rc = ECMD_SCANDEF_LOOKUP_FAILURE;
+            dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
+            break;
+          }
+          /* Get just the ringname */
+          curRing = curArgs[1];
           foundRing = true;
         }                    
       }
@@ -1275,22 +1293,15 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
       ins.close();
 
       if (!foundRing) {
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdGlobal_DllDebug) {
-          std::string tmp = i_ringName;
-          dllOutputError(("dllGetLatch - Could not find ring name " + tmp + "\n").c_str());
-        }
-#endif
+        std::string tmp = i_ringName;
         rc = ECMD_INVALID_RING;
+        dllRegisterErrorMsg(rc, "dllReadScandef", ("Could not find ring name " + tmp + "\n").c_str());
         break;
       }
 
       if (o_latchdata.entry.empty()) {
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdGlobal_DllDebug) 
-          dllOutputError(("dllGetLatch - no registers found that matched " + latchName + "\n").c_str());
-#endif
         rc = ECMD_INVALID_LATCHNAME;
+        dllRegisterErrorMsg(rc, "dllReadScandef", ("no registers found that matched " + latchName + "\n").c_str());
         break;
       }
 
