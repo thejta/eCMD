@@ -33,17 +33,6 @@
 #define SCANDATA_HEADER 0xBEEFBEEF
 #endif
 
-uint32_t ECMD_MASK[]
-= {
-  0x80000000, 0x40000000, 0x20000000, 0x10000000,
-  0x08000000, 0x04000000, 0x02000000, 0x01000000,
-  0x00800000, 0x00400000, 0x00200000, 0x00100000,
-  0x00080000, 0x00040000, 0x00020000, 0x00010000,
-  0x00008000, 0x00004000, 0x00002000, 0x00001000,
-  0x00000800, 0x00000400, 0x00000200, 0x00000100,
-  0x00000080, 0x00000040, 0x00000020, 0x00000010,
-  0x00000008, 0x00000004, 0x00000002, 0x00000001};
-
 
 //----------------------------------------------------------------------
 //  Forward declarations
@@ -263,11 +252,16 @@ void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
     iv_Data[wordOffset] = value;
     
     int startBit = wordOffset * 32;
+    uint32_t mask = 0x80000000;
     for (int i = 0; i < 32; i++) {
-      if (value & ECMD_MASK[i])
+      if (value & mask) {
         iv_DataStr[startBit+i] = '1';
-      else
+      }
+      else {
         iv_DataStr[startBit+i] = '0';
+      }
+
+      mask >>= 1;
     }
   }
 }
@@ -549,15 +543,19 @@ void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
     ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     
-    uint32_t thisMask;
-    uint32_t thisWord;
+    uint32_t mask = 0x80000000;
     for (int i = 0; i < len; i++) {
-      thisMask = ECMD_MASK[i%32];
-      thisWord = dataIn[i/32];
-      if (dataIn[i/32] & ECMD_MASK[i%32])
+      if (dataIn[i/32] & mask) {
         this->setBit(start+i);
-      else 
+      }
+      else { 
         this->clearBit(start+i);
+      }
+
+      mask >>= 1;
+      if (mask == 0x00000000) {
+        mask = 0x80000000;
+      }
     }
   }
 }
@@ -603,9 +601,15 @@ void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
     sprintf(temp, "ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
     ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
-
+    uint32_t mask = 0x80000000;
     for (int i = 0; i < len; i++) {
-      if (dataIn[i/32] & ECMD_MASK[i % 32]) this->setBit(startBit + i);
+      if (dataIn[i/32] & mask) {
+        this->setBit(startBit + i);
+      }
+      mask >>= 1;
+      if (mask == 0x00000000) {
+        mask = 0x80000000;
+      }
     }
   }  
 }
@@ -634,8 +638,15 @@ void ecmdDataBuffer::setAnd(uint32_t * dataIn, int startBit, int len) {
     sprintf(temp, "ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)\n", startBit, len, iv_NumBits);
     ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
+    uint32_t mask = 0x80000000;
     for (int i = 0; i < len; i++) {
-      if (!(dataIn[i/32] & ECMD_MASK[i % 32])) this->clearBit(startBit + i);
+      if (!(dataIn[i/32] & mask)) {
+        this->clearBit(startBit + i);
+      }
+      mask >>= 1;
+      if (mask == 0x00000000) {
+        mask = 0x80000000;
+      }
     }
   }
 }
@@ -650,18 +661,22 @@ int   ecmdDataBuffer::oddParity(int start, int stop) {
   int posOffset;
   int counter;
   int parity = 1;
+  uint32_t mask;
 
   charOffset = start / 32;
   posOffset = start - charOffset * 32;
+  mask = 0x80000000 >> posOffset;
 
   for (counter = 0; counter < (stop - start + 1); counter++) {
-    if (ECMD_MASK[posOffset] & iv_Data[charOffset]) {
+    if (mask & iv_Data[charOffset]) {
       parity ^= 1;
     }
     posOffset++;
+    mask >>= 1;
     if (posOffset > 31) {
       charOffset++;
       posOffset = 0;
+      mask = 0x80000000;
     }
   }
 
