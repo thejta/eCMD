@@ -959,17 +959,70 @@ int ecmdClientPerlapi::stopClocks (const char* i_target, const char * i_clockDom
 }
 
 int ecmdClientPerlapi::iStepsByNumber (const char* i_steps) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  int rc = 0;
+  ecmdDataBuffer steps(200);                    ///< Buffer to hold numbered steps (max of 200 steps)
+  std::string input;                            ///< Buffer for manipulating input
+  
+  if (i_steps == NULL) {
+    /* They didn't specify a step, so we will run all */
+    steps.flushTo1();
+  } 
+  else {
+    std::string curSubstr;
+    input = i_steps;
+    
+    uint32_t curOffset = 0;
+    uint32_t nextOffset = 0;
+    uint32_t tmpOffset = 0;
+
+    while (curOffset < input.length()) {
+
+      nextOffset = input.find(',',curOffset);
+      if (nextOffset == std::string::npos) {
+  	nextOffset = input.length();
+      }
+
+      curSubstr = input.substr(curOffset, nextOffset - curOffset);
+      
+      if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
+
+  	int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
+  	int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
+  	
+  	steps.setBit(lowerBound, upperBound - lowerBound + 1);
+
+      }
+      else {
+  	steps.setBit(atoi(curSubstr.c_str()));
+      }
+      
+      curOffset = nextOffset+1;
+      
+    }
+  }
+
+
+  rc = ::iStepsByNumber(steps);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int ecmdClientPerlapi::iStepsByName(const char* i_stepName) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  int rc=0;
+  std::string  input = i_stepName;
+  
+  rc = ::iStepsByName(input);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int ecmdClientPerlapi::iStepsByNameRange(const char* i_stepNameBegin, const char* i_stepNameEnd) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  int rc = 0;
+  std::string startstep = i_stepNameBegin;
+  std::string endstep = i_stepNameEnd;
+  
+  rc = ::iStepsByNameRange(startstep, endstep);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
