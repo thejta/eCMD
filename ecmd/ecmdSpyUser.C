@@ -433,22 +433,34 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
-    }
-    else if (rc) {
+    } else if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData.bitLength)) {
+      /* We will go on if the user was going to write the whole spy anyway */
+      ecmdOutputWarning("putspy - Problems reading group spy - found a mismatch - going ahead with write\n");
+      rc = 0;
+    } else if (rc == ECMD_SPY_GROUP_MISMATCH) {
+      /* If the user was only going to write part of the spy we can't go on because we don't ahve valid data to merge with */
+      printed = "putspy - Problems reading group spy - found a mismatch - to force write don't use start/numbits - on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+      
+    } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
+      ecmdOutputWarning("putspy - Problems reading spy - ECC check failed - going ahead with write\n");
+      rc = 0;
+    } else if (rc) {
       if (inputformat == "enum") {
         printed = "putspy - Error occured performing putspy (enumerated) on ";
       }
       else {
-        printed = "putspy - Error occured performing putspy on ";
+        printed = "putspy - Error occured performing getspy on ";
       }
 
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
-    else {
-      validPosFound = true;     
-    }
+
+    validPosFound = true;     
 
     if (inputformat != "enum") {
 
@@ -479,6 +491,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
+
 
   }
 
