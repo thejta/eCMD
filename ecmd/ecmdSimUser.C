@@ -309,13 +309,13 @@ uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]) {
     }
 
     if (argc > 3) {
-      ecmdOutputError("simexpecttcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+      ecmdOutputError("simexpecttcfac - Too many arguments to simexpecttcfac, you probably added a non-supported option.\n");
       return ECMD_INVALID_ARGS;
     }
 
   } else {
     if (argc < 4) {
-      ecmdOutputError("simexpecttcfac - Too few arguments to simgettcfac, you need to specify startbits and numbits with -subset.\n");
+      ecmdOutputError("simexpecttcfac - Too few arguments to simexpecttcfac, you need to specify startbits and numbits with -subset.\n");
       return ECMD_INVALID_ARGS;
     }
     if (!ecmdIsAllDecimal(argv[2])) {
@@ -330,7 +330,7 @@ uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]) {
     bitLength = atoi(argv[3]);
 
     if (argc > 4) {
-      ecmdOutputError("simexpecttcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+      ecmdOutputError("simexpecttcfac - Too many arguments to simexpecttcfac, you probably added a non-supported option.\n");
       return ECMD_INVALID_ARGS;
     }
   }
@@ -777,8 +777,8 @@ uint32_t ecmdSimputtcfacUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  if (argc < 3) {
-    ecmdOutputError("simputtcfac - Too few arguments to simputtcfac, you need at least a symbol , data, and a length.\n");
+  if (argc < 2) {
+    ecmdOutputError("simputtcfac - Too few arguments to simputtcfac, you need at least a symbol and data.\n");
     return ECMD_INVALID_ARGS;
   }
 
