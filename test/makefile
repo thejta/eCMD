@@ -5,13 +5,15 @@
 
 OS           := $(shell uname)
 
-VPATH        := ../capi/export:../dllStub:../capi
+VPATH        := ../capi/export:../dllStub:../capi:../ecmd/
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
 SOURCE       := ecmdLoadTest.C
 STATIC_SOURCE := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDataBuffer.C ecmdClientCapiFunc.C ecmdClientCapi.C ecmdUtils.C
+ECMD_SOURCE  := ecmdCommandUtils.C ecmdDaScomUser.C ecmdInterpreter.C ecmdMain.C
+ECMD_INCLUDES := ecmdCommandUtils.H ecmdIntReturnCodes.H ecmdInterpreter.H
 DEFINES      := 
-CFLAGS       := -I. -I../capi/export -I../capi/ -g
+CFLAGS       := -I. -I../capi/export -I../capi/ -I ../ecmd/ -g
 
 
 # *****************************************************************************
@@ -21,6 +23,7 @@ ifeq (${OS},Linux)
   SUBDIR  := linux/
   CC      := g++
   TARGET  := ecmdClientTest_x86
+  EC_TARGET := ecmd_x86
   LD      := ${CC}
   LDFLAGS := -ldl
 endif
@@ -32,6 +35,7 @@ ifeq (${OS},AIX)
   SUBDIR  := aix/
   CC      := xlC -+
   TARGET  := ecmdClientTest_aix
+  EC_TARGET := ecmd_aix
   CFLAGS  := ${CFLAGS} -qstaticinline
   LD      := ${CC}
 endif
@@ -48,6 +52,10 @@ all: dir ${TARGET} ${TARGET}_static
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 	@cp ${SUBDIR}${TARGET}_static export/
+	@cp ${SUBDIR}${EC_TARGET} export/
+
+
+cmd: ${EC_TARGET}
 
 clean:
 	rm -rf ${SUBDIR}
@@ -65,6 +73,8 @@ SOURCE_OBJS  = $(basename $(SOURCE))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 STATIC_SOURCE_OBJS  = $(basename $(SOURCE)) $(basename $(STATIC_SOURCE))
 STATIC_SOURCE_OBJS := $(addsuffix _static.o, $(STATIC_SOURCE_OBJS))
+EC_SOURCE_OBJS  = $(basename $(ECMD_SOURCE))
+EC_SOURCE_OBJS := $(addsuffix _static.o, $(EC_SOURCE_OBJS))
 
 
 # *****************************************************************************
@@ -75,6 +85,8 @@ STATIC_SOURCE_OBJS := $(addsuffix _static.o, $(STATIC_SOURCE_OBJS))
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 $(STATIC_SOURCE_OBJS): %_static.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES) -DECMD_STATIC_FUNCTIONS
+$(EC_SOURCE_OBJS): %_static.o : %.C ${INCLUDES} ${INT_INCLUDES} ${ECMD_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES) -DECMD_STATIC_FUNCTIONS
 
 
@@ -95,4 +107,10 @@ ${TARGET}_static: ${STATIC_SOURCE_OBJS}
 	@echo " "
 	@echo "Linking Static version of test client ..."
 	${LD} ${LDFLAGS} $^  -o $@ 
+
+${EC_TARGET}: ${EC_SOURCE_OBJS} ${STATIC_SOURCE_OBJS}
+	@echo " "
+	@echo "Linking Static version of command line ..."
+	${LD} ${LDFLAGS} $^  -o $@ 
+
 
