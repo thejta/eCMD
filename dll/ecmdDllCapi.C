@@ -920,8 +920,8 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
   ecmdLatchBufferEntry curEntry;
   std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(200 /* words */);       ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(200 /* words */);   ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
@@ -997,7 +997,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
 
           curData.latchStartBit = dataStartBit;
           curData.latchEndBit = dataEndBit;
-          buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1);
+          rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
           curData.rc = ECMD_SUCCESS;
           o_data.push_back(curData);
 
@@ -1042,7 +1042,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
         /* ********* */
 
         if (bustype == ECMD_CHIPFLAG_FSI) {
-          ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch);
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
 
           /* Extract bits if ordered from:to (0:10) */
           if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
@@ -1052,13 +1052,14 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
             if (bitsToFetch > 1) buffertemp.reverse();
             curLatchBit = curLatchInfo->latchStartBit + 1;
           }
-          buffer.insert(buffertemp, curBufferBit, bitsToFetch); curBufferBit += bitsToFetch;
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
 
         /* ********* */
         /*JTAG Order */
         /* ********* */
         } else {
-          ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch);
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch); if (rc) return rc;
           /* Extract bits if ordered from:to (0:10) */
           if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
             buffertemp.reverse();
@@ -1067,7 +1068,8 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
             /* Extract if bits are ordered to:from (10:0) or just (1) */
             curLatchBit = curLatchInfo->latchStartBit + 1;
           }
-          buffer.insert(buffertemp, curBufferBit, bitsToFetch); curBufferBit += bitsToFetch;
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
 
         }
 
@@ -1086,7 +1088,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
       /* Display this if we aren't expecting or the expect failed */
       curData.latchStartBit = dataStartBit;
       curData.latchEndBit = dataEndBit;
-      buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1);
+      rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
       curData.rc = ECMD_SUCCESS;
       o_data.push_back(curData);
 
@@ -1229,7 +1231,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
         if (bustype == ECMD_CHIPFLAG_FSI) {
 
-          bufferCopy.extract(buffertemp, 0, bitsToInsert);
+          rc = bufferCopy.extract(buffertemp, 0, bitsToInsert); if (rc) return rc;
 
           /* insert bits if ordered from:to (0:10) */
           if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
@@ -1241,7 +1243,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
             curLatchBit = curLatchInfo->latchStartBit + 1;
 
           }
-          ringBuffer.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
+          rc = ringBuffer.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert); if (rc) return rc;
           /* Get rid of the data we just inserted, to line up the next piece */
           bufferCopy.shiftLeft(bitsToInsert);
 
@@ -1249,7 +1251,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
         /*JTAG Order */
         /* ********* */
         } else {
-          bufferCopy.extract(buffertemp, 0, bitsToInsert);
+          rc = bufferCopy.extract(buffertemp, 0, bitsToInsert); if (rc) return rc;
 
           /* insert bits if ordered from:to (0:10) */
           if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
@@ -1265,7 +1267,8 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
           }
 
-          ringBuffer.insert(buffertemp, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+          rc = ringBuffer.insert(buffertemp, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+	  if (rc) return rc;
           /* Get rid of the data we just inserted, to line up the next piece */
           bufferCopy.shiftLeft(bitsToInsert);
 
