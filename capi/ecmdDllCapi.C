@@ -53,13 +53,37 @@
 //---------------------------------------------------------------------
 
 int dllLoadDll (const char* clientVersion) {
-  printf("hello world\n");
-  return 0;
+
+  /* First off let's check our version */
+  if (!strcmp(clientVersion,ECMD_CAPI_VERSION)) {
+    fprintf(stderr,"**** FATAL : eCMD DLL and your client are not compatible\n");
+    fprintf(stderr,"**** FATAL : Client Version : %d   : DLL Version : %d\n",clientVersion, ECMD_CAPI_VERSION);
+/*
+    if (version < DLL_VERSION)
+      fprintf(stderr,"**** FATAL : You must rebuild your client to continue\n");
+    else
+      fprintf(stderr,"**** FATAL : Contact the Cronus team to have the DLL rebuilt to match your client to continue\n");
+*/
+    exit(999);
+  }
+
+  return dllInitDll();
+
 }
 
 int dllUnloadDll() {
   printf("unloading dll\n");
   return 0;
+}
+
+
+string ecmdGetErrorMsg(int errorCode) {
+  string ret = "UNKNOWN";
+
+  return ret;
+}
+
+int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
 }
 
 
