@@ -38,6 +38,7 @@ ifeq (${OS},AIX)
   EC_TARGET := ecmd_aix
   CFLAGS  := ${CFLAGS} -qstaticinline
   LD      := ${CC}
+  LDFLAGS := -bloadmap:PARM
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}
@@ -54,7 +55,7 @@ all: dir ${TARGET} ${TARGET}_static
 	@cp ${SUBDIR}${TARGET}_static export/
 
 
-cmd: ${EC_TARGET}
+cmd: dir ${EC_TARGET}
 	@touch t.o t_x86 t_aix t_ppc t_static
 	@mv *.o *_x86 *_aix *_ppc *_static ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
@@ -74,7 +75,7 @@ dir:
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
-STATIC_SOURCE_OBJS  = $(basename $(SOURCE)) $(basename $(STATIC_SOURCE))
+STATIC_SOURCE_OBJS  =  $(basename $(STATIC_SOURCE))
 STATIC_SOURCE_OBJS := $(addsuffix _static.o, $(STATIC_SOURCE_OBJS))
 EC_SOURCE_OBJS = $(basename $(ECMD_SOURCE))
 EC_SOURCE_OBJS := $(addsuffix _static.o, $(EC_SOURCE_OBJS))
@@ -106,7 +107,7 @@ ifeq (${OS},AIX)
 	${LD} ${LDFLAGS} $^ ../capi/export/ecmdClientCapi_aix.a -o $@ 
 endif
 
-${TARGET}_static: ${STATIC_SOURCE_OBJS}
+${TARGET}_static: ${STATIC_SOURCE_OBJS} ${SOURCE_OBJS}
 	@echo " "
 	@echo "Linking Static version of test client ..."
 	${LD} ${LDFLAGS} $^  -o $@ 
