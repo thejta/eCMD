@@ -1,4 +1,4 @@
-%module ecmdClientPerlapi
+%module MODULE_NAME
 %include typemaps.i
 
 %except(perl5) {
