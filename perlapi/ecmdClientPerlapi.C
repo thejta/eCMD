@@ -61,12 +61,12 @@ void ECMDPERLAPI::ecmdDisablePerlSafeMode() { safeMode = false; }
 void ECMDPERLAPI::ecmdEnablePerlSafeMode() { safeMode = true; }
 
 
-void ECMDPERLAPI::cleanup()  {
+void ECMDPERLAPI::ecmdCleanup()  {
   ecmdUnloadDll();
 }
 
 
-int ECMDPERLAPI::initDll (const char * i_dllName, const char * i_clientVersion) {
+int ECMDPERLAPI::ecmdInitDll (const char * i_dllName, const char * i_clientVersion) {
 
   int rc = ECMD_SUCCESS;
   std::string dllName = "";
