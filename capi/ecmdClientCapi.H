@@ -213,6 +213,9 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
  NOTE : The target State fields must be filled in as either VALID or UNUSED
 */
 bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
+
+
+
 //@}
 
 
@@ -1537,6 +1540,25 @@ NOTE - To retrieve the hierarchy of a processor core the core field must be set 
 */
 uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
 
+/**
+ @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
+ @param i_target Target to query for information
+ @param o_timestamp Timestamp value from simulation model
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+
+/**
+ @brief Will retrieve the scandef timestamp from the scandef being used for the specified target
+ @param i_target Target to query for information
+ @param o_timestamp Timestamp value from scandef
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+
+
 #endif /* ifndef REMOVE_SIM */
 //@}
 /* End Simulation Functions */
@@ -1621,6 +1643,8 @@ bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
  @brief Function to delay a procedure either by running sim cycles or by doing a millisecond delay
  @param i_simCycles Number of sim cycles to run in simulation mode
  @param i_msDelay Number of milliseconds to delay in hardware mode
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
 */
 uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
 
