@@ -44,6 +44,7 @@ int main (int argc, char *argv[])
   int rc = 0;
 
   std::string cmdsave;
+  char buf[200];
   for (int i = 0; i < argc; i++) {
     cmdsave += argv[i];
     cmdsave += " ";
@@ -68,15 +69,12 @@ int main (int argc, char *argv[])
 
 
     if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-      char buf[100];
       sprintf(buf,"**** ERROR (eCMD::main) : Unknown Command specified\n");
       ecmdOutputError(buf);
     } else {
       std::string parse = ecmdGetErrorMsg(rc);
-      std::string out = "ecmd - "; out += argv[0];
-      out += " returned with error code " + rc;
-      out += " (" + parse + ")\n";
-      ecmdOutputError(out.c_str());
+      sprintf(buf,"ecmd - '%s' returned with error code %d (%s)\n", argv[1], rc, parse.c_str());
+      ecmdOutputError(buf);
     }
   }
 
