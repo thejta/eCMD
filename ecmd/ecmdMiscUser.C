@@ -692,7 +692,7 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
     }
 
     printed = ecmdWriteTarget(target) + "deconfigured.\n";
-    
+    ecmdOutput( printed.c_str() );
   }
 
   if (!validPosFound) {
@@ -752,6 +752,18 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
      return rc;
   }
 
+
+  //Set all the states Unused to begin with. Then set them to valid based on the args
+  target.cageState     = ECMD_TARGET_FIELD_UNUSED;
+  target.nodeState     = ECMD_TARGET_FIELD_UNUSED;
+  target.slotState     = ECMD_TARGET_FIELD_UNUSED;
+  target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  target.posState      = ECMD_TARGET_FIELD_UNUSED;
+  target.coreState     = ECMD_TARGET_FIELD_UNUSED;
+  target.threadState   = ECMD_TARGET_FIELD_UNUSED;
+  
+  
+  
   //Cage
   targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-k");
   if(targetPtr != NULL) {
@@ -766,7 +778,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        ecmdOutputError("reconfig - Cage (-k#) argument contained invalid characters\n");
        return ECMD_INVALID_ARGS;
      }
-     target.cageState = ECMD_TARGET_FIELD_VALID;
      cageType = MANY;
    }
    else {
@@ -781,13 +792,12 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        target.cage = 0x0;
      }
      cageType = ONE;
-     target.cageState = ECMD_TARGET_FIELD_VALID;
    }
+   target.cageState = ECMD_TARGET_FIELD_VALID;
   }
   else {
     target.cage = 0x0;
     cageType = ONE;
-    target.cageState = ECMD_TARGET_FIELD_VALID;
   }
   
   
@@ -805,7 +815,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        ecmdOutputError("reconfig - Node (-n#) argument contained invalid characters\n");
        return ECMD_INVALID_ARGS;
      }
-     target.nodeState = ECMD_TARGET_FIELD_VALID;
      nodeType = MANY;
    }
    else {
@@ -820,13 +829,13 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        target.node = 0x0;
      }
      nodeType = ONE;
-     target.nodeState = ECMD_TARGET_FIELD_VALID;
    }
+   target.cageState = ECMD_TARGET_FIELD_VALID;
+   target.nodeState = ECMD_TARGET_FIELD_VALID;
   }
   else {
     target.node = 0x0;
     nodeType = ONE;
-    target.nodeState = ECMD_TARGET_FIELD_VALID;
   }
   
   
@@ -844,7 +853,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        ecmdOutputError("reconfig - Slot (-s#) argument contained invalid characters\n");
        return ECMD_INVALID_ARGS;
      }
-     target.slotState = ECMD_TARGET_FIELD_VALID;
      slotType = MANY;
    }
    else {
@@ -859,15 +867,18 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        target.slot = 0x0;
      }
      slotType = ONE;
-     target.slotState = ECMD_TARGET_FIELD_VALID;
    }
+   target.cageState = ECMD_TARGET_FIELD_VALID;
+   target.nodeState = ECMD_TARGET_FIELD_VALID;
+   target.slotState = ECMD_TARGET_FIELD_VALID;
   }
   else {
     target.slot = 0x0;
     slotType = ONE;
-    target.slotState = ECMD_TARGET_FIELD_VALID;
   }
 
+  
+  
 
   //Position
   targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-p");
@@ -883,7 +894,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        ecmdOutputError("reconfig - Pos (-p#) argument contained invalid characters\n");
        return ECMD_INVALID_ARGS;
      }
-     target.posState = ECMD_TARGET_FIELD_VALID;
      posType = MANY;
    }
    else {
@@ -898,13 +908,15 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        target.pos = 0x0;
      }
      posType = ONE;
-     target.posState = ECMD_TARGET_FIELD_VALID;
    }
+   target.cageState = ECMD_TARGET_FIELD_VALID;
+   target.nodeState = ECMD_TARGET_FIELD_VALID;
+   target.slotState = ECMD_TARGET_FIELD_VALID;
+   target.posState = ECMD_TARGET_FIELD_VALID;
   }
   else {
     target.pos = 0x0;
     posType = ONE;
-    target.posState = ECMD_TARGET_FIELD_VALID;
   }
   
  
@@ -922,7 +934,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        ecmdOutputError("reconfig - Core (-c#) argument contained invalid characters\n");
        return ECMD_INVALID_ARGS;
      }
-     target.coreState = ECMD_TARGET_FIELD_VALID;
      coreType = MANY;
    }
    else {
@@ -937,13 +948,16 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
        target.core = 0x0;
      }
      coreType = ONE;
-     target.coreState = ECMD_TARGET_FIELD_VALID;
    }
+   target.cageState = ECMD_TARGET_FIELD_VALID;
+   target.nodeState = ECMD_TARGET_FIELD_VALID;
+   target.slotState = ECMD_TARGET_FIELD_VALID;
+   target.posState = ECMD_TARGET_FIELD_VALID;
+   target.coreState = ECMD_TARGET_FIELD_VALID;
   }
   else {
     target.core = 0x0;
     coreType = ONE;
-    target.coreState = ECMD_TARGET_FIELD_VALID;
   }
   
 
@@ -954,26 +968,25 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-
-  //Setup the target that will be used to query the system config
+  //ChipType
   if( argc == 1) {
    target.chipType = argv[0];
+   target.cageState = ECMD_TARGET_FIELD_VALID;
+   target.nodeState = ECMD_TARGET_FIELD_VALID;
+   target.slotState = ECMD_TARGET_FIELD_VALID;
    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+   target.posState = ECMD_TARGET_FIELD_VALID;
   }
   else {
-   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED ;
-   target.posState = ECMD_TARGET_FIELD_UNUSED ;
-   target.coreState = ECMD_TARGET_FIELD_UNUSED ;
+   target.posState = ECMD_TARGET_FIELD_UNUSED;
+   target.coreState = ECMD_TARGET_FIELD_UNUSED;
   }
- 
- 
- 
-  target.threadState = ECMD_TARGET_FIELD_UNUSED ;
-    
+  
+  //No Args Case
+  if(target.cageState == ECMD_TARGET_FIELD_UNUSED) {
+    ecmdOutputError("reconfig - No target args specified.\n");
+    return ECMD_INVALID_ARGS;
+  }
     
   //Go through each of the targets and configure them 
   if (cageType == ONE) {
