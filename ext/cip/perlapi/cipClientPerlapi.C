@@ -98,7 +98,19 @@ int cipClientPerlapi::cipGetVr (const char* i_target, int i_vrNum, char** o_data
 }
 
 int cipClientPerlapi::cipPutVr (const char* i_target, int i_vrNum, const char* i_data){
-  int rc = 0;
+  ecmdChipTarget myTarget;
+  
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::cipPutVr(myTarget, i_vrNum, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
