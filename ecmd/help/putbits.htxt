@@ -2,9 +2,12 @@
 Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>]
                                  [-k#] [-n#] [-s#] [-p#] [-c#]
 
+        putbits <ChipSelect> <RingName>  -f<filename>       [-k#] [-n#] [-s#] [-p#] [-c#]
+
         ECMD:           Core Common Function
 
-        Function:       Put bits to the specified chip ring.
+        Function:       Put bits to the specified chip ring. The data either comes from 
+                        the command line or from the file specified with the -f option.
 
         Paramaters:
         --------------------------------------------------------------------------------
@@ -27,6 +30,8 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
         -b<mod>[opt]    Bit modifier to apply to current ring data.
                         Run 'ecmdquery formats' to view available modifiers
 
+        -f<filename>[o] Specifies the filename that the ring data should be read from
+
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 
@@ -44,5 +49,6 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
 
         --------------------------------------------------------------------------------
 
-        Example:        putbits pu int 567 ABAB -ix -p0,1 -c1
-                        putbits pu int 23 011X001X -p0 -iX
+        Example:        > putbits pu int 567 ABAB -ix -p0,1 -c1
+                        > putbits pu int 23 011X001X -p0 -iX
+                        > putbits pu int -fintRing.dump
