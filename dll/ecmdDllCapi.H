@@ -133,6 +133,14 @@ uint32_t dllPutFpr(ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer 
 
 uint32_t dllPutFprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
+uint32_t dllGetSlb(ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & o_data); 
+
+uint32_t dllGetSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries); 
+
+uint32_t dllPutSlb(ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & i_data); 
+
+uint32_t dllPutSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
+
 uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> & o_data); 
 
 uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> & o_data); 
