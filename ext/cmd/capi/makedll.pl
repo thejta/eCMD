@@ -1,13 +1,17 @@
 #!/usr/bin/perl
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
 
+#functions to ignore in parsing ecmdClientCapi.H
 my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs);
 my $ignore_re = join '|', @ignores;
 
 my $printout;
 my @enumtable;
 
-while (<>) {
+open IN, "ecmdClientCapi.H" or die "Could not find ecmdClientCapi.H: $!\n";
+
+#parse file spec'd by $ARGV[0]
+while (<IN>) {
 
     if (/^int/) {
 
@@ -19,6 +23,7 @@ while (<>) {
 	my ($type, $funcname) = split /\s+/, $func;
 	my @argnames = split /,/ , $args;
 
+        #remove the default initializations
         foreach my $i (0..$#argnames) {
             if ($argnames[$i] =~ /=/) {
               $argnames[$i] =~ s/=.*//;
@@ -72,6 +77,9 @@ while (<>) {
 	    
 	$printout .= "#else\n\n";
 
+	$printout .= "  if (dlHandle == NULL) {\n";
+	$printout .= "     return ECMD_DLL_UNINITIALIZED;\n";
+        $printout .= "  }\n\n";
 	$printout .= "  if (DllFnTable[$enumname] == NULL) {\n";
 	$printout .= "     DllFnTable[$enumname] = (void*)dlsym(dlHandle, \"$funcname\");\n";
 	$printout .= "  }\n\n";
@@ -91,6 +99,8 @@ while (<>) {
     }
 
 }
+
+close IN;
 
 push @enumtable, "ECMD_NUMFUNCTIONS";
 $" = ",\n";

@@ -83,7 +83,6 @@ ECMD_PUTARRAY,
 ECMD_FLUSHSYS,
 ECMD_IPLSYS,
 ECMD_REGISTERERRORMSG,
-ECMD_UNLOADDLL,
 ECMD_NUMFUNCTIONS
 } ecmdFunctionIndex_t;
 
@@ -134,10 +133,11 @@ int ecmdUnloadDll() {
   int rc = ECMD_SUCCESS;
   int c_rc = ECMD_SUCCESS;
 
-  /* call DLL cleanup */
+  /* call DLL cleanup 
   int (*Function)() =
     (int(*)())DllFnTable[ECMD_UNLOADDLL];
   rc = (*Function)();
+  */
 
   /* release DLL */
   const char* dlError;
@@ -166,6 +166,10 @@ int ecmdQueryConfig(ecmdChipTarget & target, vector<ecmdCageData> & queryData) {
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_QUERYCONFIG] == NULL) {
      DllFnTable[ECMD_QUERYCONFIG] = (void*)dlsym(dlHandle, "dllQueryConfig");
   }
@@ -190,6 +194,10 @@ int ecmdQueryRing(ecmdChipTarget & target, vector<ecmdRingData> & queryData, con
   rc = dllQueryRing(target, queryData, ringName);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_QUERYRING] == NULL) {
      DllFnTable[ECMD_QUERYRING] = (void*)dlsym(dlHandle, "dllQueryRing");
@@ -216,6 +224,10 @@ int ecmdQueryArray(ecmdChipTarget & target, vector<ecmdArrayData> & queryData, c
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_QUERYARRAY] == NULL) {
      DllFnTable[ECMD_QUERYARRAY] = (void*)dlsym(dlHandle, "dllQueryArray");
   }
@@ -240,6 +252,10 @@ int ecmdQuerySpy(ecmdChipTarget & target, vector<ecmdSpyData> & queryData, const
   rc = dllQuerySpy(target, queryData, spyName);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_QUERYSPY] == NULL) {
      DllFnTable[ECMD_QUERYSPY] = (void*)dlsym(dlHandle, "dllQuerySpy");
@@ -266,6 +282,10 @@ int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, stri
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_QUERYFILELOCATION] == NULL) {
      DllFnTable[ECMD_QUERYFILELOCATION] = (void*)dlsym(dlHandle, "dllQueryFileLocation");
   }
@@ -290,6 +310,10 @@ int getRing(ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & dat
   rc = dllGetRing(target, ringName, data);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_GETRING] == NULL) {
      DllFnTable[ECMD_GETRING] = (void*)dlsym(dlHandle, "dllGetRing");
@@ -316,6 +340,10 @@ int putRing(ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & dat
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_PUTRING] == NULL) {
      DllFnTable[ECMD_PUTRING] = (void*)dlsym(dlHandle, "dllPutRing");
   }
@@ -340,6 +368,10 @@ int ringRead(ecmdChipTarget & target, const char * ringName, const char * fileNa
   rc = dllRingRead(target, ringName, fileName);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_RINGREAD] == NULL) {
      DllFnTable[ECMD_RINGREAD] = (void*)dlsym(dlHandle, "dllRingRead");
@@ -366,6 +398,10 @@ int ringWrite(ecmdChipTarget & target, const char * ringName, const char * fileN
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_RINGWRITE] == NULL) {
      DllFnTable[ECMD_RINGWRITE] = (void*)dlsym(dlHandle, "dllRingWrite");
   }
@@ -390,6 +426,10 @@ int getScom(ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
   rc = dllGetScom(target, address, data);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_GETSCOM] == NULL) {
      DllFnTable[ECMD_GETSCOM] = (void*)dlsym(dlHandle, "dllGetScom");
@@ -416,6 +456,10 @@ int putScom(ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_PUTSCOM] == NULL) {
      DllFnTable[ECMD_PUTSCOM] = (void*)dlsym(dlHandle, "dllPutScom");
   }
@@ -440,6 +484,10 @@ int getSpy(ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data)
   rc = dllGetSpy(target, spyName, data);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_GETSPY] == NULL) {
      DllFnTable[ECMD_GETSPY] = (void*)dlsym(dlHandle, "dllGetSpy");
@@ -466,6 +514,10 @@ int getSpyEnum(ecmdChipTarget & target, const char * spyName, string enumValue) 
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_GETSPYENUM] == NULL) {
      DllFnTable[ECMD_GETSPYENUM] = (void*)dlsym(dlHandle, "dllGetSpyEnum");
   }
@@ -490,6 +542,10 @@ int putSpy(ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data)
   rc = dllPutSpy(target, spyName, data);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_PUTSPY] == NULL) {
      DllFnTable[ECMD_PUTSPY] = (void*)dlsym(dlHandle, "dllPutSpy");
@@ -516,6 +572,10 @@ int putSpyEnum(ecmdChipTarget & target, const char * spyName, const string enumV
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_PUTSPYENUM] == NULL) {
      DllFnTable[ECMD_PUTSPYENUM] = (void*)dlsym(dlHandle, "dllPutSpyEnum");
   }
@@ -540,6 +600,10 @@ int getArray(ecmdChipTarget & target, const char * arrayName, uint32_t * address
   rc = dllGetArray(target, arrayName, address, data);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_GETARRAY] == NULL) {
      DllFnTable[ECMD_GETARRAY] = (void*)dlsym(dlHandle, "dllGetArray");
@@ -566,6 +630,10 @@ int putArray(ecmdChipTarget & target, const char * arrayName, uint32_t * address
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_PUTARRAY] == NULL) {
      DllFnTable[ECMD_PUTARRAY] = (void*)dlsym(dlHandle, "dllPutArray");
   }
@@ -590,6 +658,10 @@ int flushSys() {
   rc = dllFlushSys();
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_FLUSHSYS] == NULL) {
      DllFnTable[ECMD_FLUSHSYS] = (void*)dlsym(dlHandle, "dllFlushSys");
@@ -616,6 +688,10 @@ int iplSys() {
 
 #else
 
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
   if (DllFnTable[ECMD_IPLSYS] == NULL) {
      DllFnTable[ECMD_IPLSYS] = (void*)dlsym(dlHandle, "dllIplSys");
   }
@@ -640,6 +716,10 @@ int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
   rc = dllRegisterErrorMsg(errorCode, whom, message);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   if (DllFnTable[ECMD_REGISTERERRORMSG] == NULL) {
      DllFnTable[ECMD_REGISTERERRORMSG] = (void*)dlsym(dlHandle, "dllRegisterErrorMsg");
