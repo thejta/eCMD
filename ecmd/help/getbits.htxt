@@ -19,7 +19,7 @@ Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>] [-k#
         StartPos        Specifies starting bit position in Decimal.
 
         NumBits         Specifies number of bits to get from starting position (Decimal)
-                        Specify the keyword 'all' to fetch from startPos to end of ring.
+                        Specify the keyword 'end' to fetch from startPos to end of ring.
 
         -exp [optional] Provide expected data.  Returns error if expected != actual.  No
                         error/no data returned if expected == actual. 
