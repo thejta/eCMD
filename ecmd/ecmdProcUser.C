@@ -556,7 +556,8 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
       rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
       if (rc) {
-        ecmdOutputError(function + " - Problems occurred parsing input data, must be an invalid format\n");
+        printed = function + " - Problems occurred parsing input data, must be an invalid format\n";
+        ecmdOutputError(printed.c_str());
         return rc;
       }
 
