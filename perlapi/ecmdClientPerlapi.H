@@ -287,6 +287,9 @@ Functions available on a Perl list iterator :
 <tr><td>$listIter--</td><td>Decrement the iterator to previous entry</td></tr>
 <tr><td>$listIter == $listIter2</td><td>Check if two iterators point to the same entry</td></tr>
 <tr><td>$listIter != $listIter2</td><td>Check if two iterators point to different entries</td></tr>
+<tr><td>$listIter->setIter($list->begin())</td><td>Set the iterator pointer to an position in the list</td></tr>
+<tr><td>$listIter2->setIter($listIter->getIter())</td><td>Retrieve the iterator pointer to assign to another iterator</td></tr>
+
 </table>
 </ul>
 <br>
