@@ -14,7 +14,10 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-
+/**
+  @file ecmdStructs.H
+  @brief All the Structures required for the eCMD Capi
+*/
 
 //--------------------------------------------------------------------
 // Includes
@@ -29,7 +32,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_MAX_CHIP_TYPE_LENGTH 15
+#define ECMD_MAX_CHIP_TYPE_LENGTH 15  ///< @see ecmdChipTarget
 
 // Change Log *********************************************************
 //                                                                      
@@ -40,24 +43,24 @@
 // End Change Log *****************************************************
 
 /**
- @brief Commentary?
+ @brief Structure used to designate which cec object you would like the function to operate on
 
 */
 struct ecmdChipTarget {
 
-  char chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  // name of chip to access
+  char chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  ///< name of chip to access
 
-  uint32_t cage;  // cage that contains node with chip
-  uint32_t node;  // node that contains chip
-  uint32_t pos;   // position of chip within node
-  uint32_t core;  // which core on chip to access, if chip is multi-core
-  uint32_t thread; // which thread on chip to access, if chip is multi-threaded
+  uint32_t cage;  ///< cage that contains node with chip
+  uint32_t node;  ///< node that contains chip
+  uint32_t pos;   ///< position of chip within node
+  uint32_t core;  ///< which core on chip to access, if chip is multi-core
+  uint32_t thread; ///< which thread on chip to access, if chip is multi-threaded
 
-  uint8_t cageInvalid;  // flag to indicate whether selected cage is configured in the system
-  uint8_t nodeInvalid;  // flag to indicate whether selected node is configured in the system
-  uint8_t posInvalid;   // flag to indicate whether selected position is configured in the system
-  uint8_t coreInvalid;  // flag to indicate whether the selected core is configured on the selected chip in the system
-  uint8_t threadInvalid; // flag to indicate whether the selected thread is active on the selected chip in the system
+  uint8_t cageLoopValid;  ///< Tell the calling function that this function operates at a cage level
+  uint8_t nodeLoopValid;  ///< Tell the calling function that this function operates at a node level
+  uint8_t posLoopValid;   ///< Tell the calling function that this function operates at a pos level
+  uint8_t coreLoopValid;  ///< Tell the calling function that this function operates at a core level
+  uint8_t threadLoopValid; ///< Tell the calling function that this function operates at a thread level
 
 };
 
