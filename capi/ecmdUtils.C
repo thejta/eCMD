@@ -51,6 +51,8 @@ typedef enum {
   ECMD_FORMAT_BN,
   ECMD_FORMAT_BW,
   ECMD_FORMAT_BX,
+  ECMD_FORMAT_BXN,
+  ECMD_FORMAT_BXW
 } ecmdFormatState_t;
 
 //--------------------------------------------------------------------
@@ -543,12 +545,15 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       curState = ECMD_FORMAT_B;
     }
     else if (i_format[i] == 'n') {
-      if (curState != ECMD_FORMAT_B) {
+      if (curState == ECMD_FORMAT_B) {
+        curState = ECMD_FORMAT_BN;
+      } else if (cur_state == ECMD_FORMAT_BX) {
+        curState = ECMD_FORMAT_BXN;
+      } else {
         good = false;
         break;
       }
 
-      curState = ECMD_FORMAT_BN;
     }
     else if (i_format[i] == 'w') {
       if (curState == ECMD_FORMAT_X) {
@@ -560,6 +565,8 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       else if (curState == ECMD_FORMAT_B) {
         curState = ECMD_FORMAT_BW;
       }
+      else if (cur_state == ECMD_FORMAT_BX) {
+        curState = ECMD_FORMAT_BXW;
       else {
         good = false;
         break;
@@ -618,6 +625,8 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   }
   else if (curState == ECMD_FORMAT_BX) {
     //do something
+    printed = i_data.genXstateStr();
+    if (!perlMode) printed = "0bX" + printed;
   }
   else {
 
