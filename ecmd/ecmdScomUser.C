@@ -276,7 +276,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 	std::list< std::string >::iterator bitDetIt;
 	char bitDesc[1000];
     	
-    	sprintf(bitDesc,"Name       : %12s%s\nDesc       : %12s", " ",scomEntry.name.c_str()," ");  
+    	sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
 	ecmdOutput(bitDesc);
 	
     	for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
@@ -296,16 +296,35 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 	  
 	  if (definIt->length <= 8) {
 	    std::string binstr = buffer.genBinStr(definIt->lhsNum, definIt->length);
-	    sprintf(bitDesc, "0b%-8s  %s\n",binstr.c_str(),definIt->dialName.c_str());
+	    sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
 	  }
 	  else {
 	    std::string hexLeftStr = buffer.genHexLeftStr(definIt->lhsNum, definIt->length);
-	    sprintf(bitDesc, "0x%-8s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
+	    sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
 	  }
 	  ecmdOutput(bitDesc);
+	  std::string bitDescStr;
     	  for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
-    	    sprintf(bitDesc, "%24s %s\n", " ",bitDetIt->c_str());
-	    ecmdOutput(bitDesc);
+	    sprintf(bitDesc, "%32s ", " ");
+	    //Would print the entires string no matter how long it is
+	    //bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
+	    //ecmdOutput(bitDescStr.c_str());
+	    
+	    std::string tmpstr;
+	    int curptr =0, len, maxdesclen=80;
+	    while (curptr < (*bitDetIt).length()) {
+	      if (((*bitDetIt).length() - curptr) < maxdesclen) {
+	       len = (*bitDetIt).length() - curptr;
+	      }
+	      else {
+	       len = maxdesclen;
+	      }
+	      tmpstr = (*bitDetIt).substr(curptr,len);
+	      bitDescStr = (std::string)bitDesc + tmpstr + "\n";
+	      ecmdOutput(bitDescStr.c_str());
+	      curptr += len;
+	    }
+    	    
     	  }
     	  
     	}
