@@ -235,7 +235,7 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_DEFALL, looperdata);
   if (rc) return rc;
 
   ecmdOutput("Starting Clocks on Targets ...\n");
@@ -286,7 +286,7 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    ecmdOutputError("Unable to find a valid chip to execute command on\n");
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
@@ -351,7 +351,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_DEFALL, looperdata);
   if (rc) return rc;
   ecmdOutput("Stopping Clocks on Targets ...\n");
 
@@ -401,7 +401,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    ecmdOutputError("Unable to find a valid chip to execute command on\n");
+    ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
