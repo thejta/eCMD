@@ -26,6 +26,10 @@
   /* For now let's define all return codes in the 0x1000-0x1FFF range */
 
 #define ECMD_INVALID_DLL_VERSION        0x1000 ///< Dll Version didn't match the Client version detected
+#define ECMD_INVALID_DLL_FILENAME       0x1001 ///< Unable to find filename to load or file doesn't exist
+#define ECMD_DLL_LOAD_FAILURE           0x1002 ///< Error occured on call to dlopen
+#define ECMD_DLL_UNLOAD_FAILURE         0x1003 ///< Error occurred on call to dlclose
+#define ECMD_DLL_UNINITIALIZED          0x1004 ///< A function was called before ecmdLoadDll was called
 #define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
 #define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
 
