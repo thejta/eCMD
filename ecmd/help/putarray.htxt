@@ -1,0 +1,32 @@
+
+Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-k#] [-n#] [-p#] [-c#]
+
+        ECMD:           Core Common Function
+
+        Function:       Write the specified data to the specified chip array.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to put array data to.
+
+        ArrayName       Name of array to write to.
+
+        ArrayIndex      Array Index in right aligned hex.
+
+        ArrayData       Data to write to array: default "x"
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
+
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
+                        -call to act on all cores.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > putarray pu xgpr0 deadbeef80000000 -p0,1 -c1
