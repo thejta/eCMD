@@ -177,27 +177,27 @@ public:
   /**
    * @brief Test if bit is set
    * @param i_bit Bit to test
-   * @retval 1 if bit is set - 0 if bit is clear
+   * @retval true if bit is set - false if bit is clear
    */
   int   isBitSet(int i_bit);
   /**
    * @brief Test if multiple bits are set
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
-   * @retval 1 if bit is set - 0 if bit is clear
+   * @retval true if bit is set - false if bit is clear
    */
   int   isBitSet(int i_bit, int i_len);
   /**
    * @brief Test if bit is clear
    * @param i_bit Bit to test
-   * @retval 1 if bit is clear - 0 if bit is set
+   * @retval true if bit is clear - false if bit is set
    */
   int   isBitClear(int i_bit);
   /**
    * @brief Test if multiple bits are clear
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
-   * @retval 1 if bit is clear - 0 if bit is set
+   * @retval true if bit is clear - false if bit is set
    */
   int   isBitClear(int i_bit, int i_len);
   /**
