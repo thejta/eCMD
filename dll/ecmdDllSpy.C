@@ -57,9 +57,9 @@
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 /* Lookup Spy info from a spydef file */
-int dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy);
+uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy);
 /* Search the spy file for our spy */
-int dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
+uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -72,8 +72,8 @@ int dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
 /**
   This function specification is the same as defined in ecmdClientCapi.H as ecmdQuerySpy
 */
-int dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName) {
-  int rc = ECMD_SUCCESS;
+uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName) {
+  uint32_t rc = ECMD_SUCCESS;
   sedcDataContainer mySpy;
   std::list<sedcSpyEnum>::iterator enumit;
   char outstr[200];
@@ -152,8 +152,8 @@ int dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char
 /**
   This function specification is the same as defined in ecmdClientCapi.H as getSpy
 */
-int dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data){
-  int rc = ECMD_SUCCESS;
+uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data){
+  uint32_t rc = ECMD_SUCCESS;
 
   return rc;
 }
@@ -161,8 +161,8 @@ int dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer
 /**
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnum
 */
-int dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue){
-  int rc = ECMD_SUCCESS;
+uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue){
+  uint32_t rc = ECMD_SUCCESS;
 
   return rc;
 }
@@ -171,8 +171,8 @@ int dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::strin
 /**
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEccGrouping
 */
-int dllGetSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask){
-  int rc = ECMD_SUCCESS;
+uint32_t dllGetSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask){
+  uint32_t rc = ECMD_SUCCESS;
 
   return rc;
 }
@@ -181,8 +181,8 @@ int dllGetSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupN
 /**
   This function specification is the same as defined in ecmdClientCapi.H as PutSpy
 */
-int dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
-  int rc = ECMD_SUCCESS;
+uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
+  uint32_t rc = ECMD_SUCCESS;
 
   return rc;
 }
@@ -191,17 +191,17 @@ int dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer
 /**
   This function specification is the same as defined in ecmdClientCapi.H as PutSpyEnum
 */
-int dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue){
-  int rc = ECMD_SUCCESS;
+uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue){
+  uint32_t rc = ECMD_SUCCESS;
 
   return rc;
 }
 
 
 
-int dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy) {
+uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy) {
 
-  int rc = 0;
+  uint32_t rc = 0;
   std::ifstream spyFile;
   std::string spyFilePath;
   std::string spy_name;
@@ -246,7 +246,7 @@ int dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer
 }
 
 
-int dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
+uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
 
   int found = 0;
   std::string line;

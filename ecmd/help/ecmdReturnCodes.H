@@ -51,6 +51,11 @@
 #define ECMD_CLOCKS_IN_INVALID_STATE            0x1031 ///< Chip Clocks were in an invalid state to perform the operation
 #define ECMD_NON_JTAG_CHIP                      0x1032 ///< JTag function called  on non-jtag attached chip
 #define ECMD_NON_FSI_CHIP                       0x1033 ///< Fsi function called on non-fsi attached chip
+#define ECMD_INVALID_SPR                        0x1034 ///< Invalid SPR was specified to get/put spr functions
+#define ECMD_INVALID_GPR                        0x1035 ///< Invalid GPR number was specified to get/put gpr functions
+#define ECMD_INVALID_FPR                        0x1036 ///< Invalid FPR number was specified to get/put fpr functions
+#define ECMD_RING_CACHE_ENABLED                 0x1037 ///< Ring Cache enabled during call non-cache enabled function
+#define ECMD_INVALID_CONFIG_NAME                0x1038 ///< An Invalid name was used to set/get a configuation setting
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command

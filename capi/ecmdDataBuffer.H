@@ -87,9 +87,14 @@ public:
   //@{
   /**
    * @brief Return the length of the buffer in words
-   * @retval Buffer length in words
+   * @retval Buffer length in words rounded up
    */
   int   getWordLength() const;
+  /**
+   * @brief Return the length of the buffer in bytes
+   * @retval Buffer length in bytes rounded up
+   */
+  int   getByteLength() const;
   /**
    * @brief Return the length of the buffer in bits
    * @retval Buffer length in bits
@@ -398,13 +403,14 @@ public:
    * @brief Copy buffer into this ecmdDataBuffer
    * @param i_buf Buffer to copy from
    * @param i_bytes Byte length to copy
-   * @post  Xstate and Raw buffer are setup and buffer bit length is adjusted to i_bytes * 8
+   * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
   void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
    * @brief Copy DataBuffer into supplied uint32_t buffer
    * @param o_buf Buffer to copy into - must be pre-allocated
    * @param i_bytes Byte length to copy
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
   void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
@@ -572,13 +578,14 @@ public:
   /**
    * @brief Set an Xstate value in the buffer
    * @param i_bit Bit to set
+   * @param i_value Xstate value to set
    */
   void setXstate(int i_bit, char i_value);
 
   /**
    * @brief Set a range of Xstate values in buffer
    * @param i_bitoffset bit in buffer to start inserting
-   * @param i_datastr Character value to set bit - can be "0", "1", "X"
+   * @param i_datastr Character value to set bit - can be "0XX0", "1", "X"
    */
   void  setXstate(int i_bitoffset, const char* i_datastr); 
 
@@ -586,13 +593,14 @@ public:
    * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
    * @param i_buf Buffer to copy from
    * @param i_bytes Byte length to copy (char length)
-   * @post  Xstate and Raw buffer are setup and buffer bit length is adjusted to i_bytes * 8
+   * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
   void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
    * @brief Copy DataBuffer into supplied char buffer from Xstate data
    * @param o_buf Buffer to copy into - must be pre-allocated
    * @param i_bytes Byte length to copy (char length)
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
   void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 

@@ -13,119 +13,167 @@
 extern "C" {
 
 /* Dll Common load function - verifies version */
-int dllLoadDll (const char * i_version, int debugLevel);
+uint32_t dllLoadDll (const char * i_version, uint32_t debugLevel);
 /* Dll Specific load function - used by Cronus/GFW to init variables/object models*/
-int dllInitDll ();
+uint32_t dllInitDll ();
 
 /* Dll Common unload function */
-int dllUnloadDll ();
+uint32_t dllUnloadDll ();
 /* Dll Specific unload function - deallocates variables/object models*/
-int dllFreeDll();
+uint32_t dllFreeDll();
 
 /* Dll Common Command Line Args Function*/
-int dllCommonCommandArgs(int*  io_argc, char** io_argv[]);
+uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);
 /* Dll Specific Command Line Args Function*/
-int dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);
+uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);
 
-int dllQueryDllInfo(ecmdDllInfo & o_dllInfo); 
+uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo); 
 
-int dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ); 
+uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ); 
 
-int dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData); 
+uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData); 
 
-int dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName ); 
+uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName ); 
 
-int dllQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName); 
+uint32_t dllQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName); 
 
-int dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName); 
+uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName); 
 
-int dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
+uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
-int dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
+uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
-int dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
+uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
-int dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
+uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
-int dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
+uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
 
-int dllSendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status); 
+uint32_t dllSendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status); 
 
-int dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data); 
+uint32_t dllGetCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
-int dllGetSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue); 
+uint32_t dllPutCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
 
-int dllGetSpyEccGrouping(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask); 
+uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data); 
 
-int dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
+uint32_t dllGetSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue); 
 
-int dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 
+uint32_t dllGetSpyEccGrouping(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask); 
+
+uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
+
+uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 
 
 void dllEnableRingCache(); 
 
-int dllDisableRingCache(); 
+uint32_t dllDisableRingCache(); 
 
-int dllFlushRingCache(); 
+uint32_t dllFlushRingCache(); 
 
-int dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data); 
+uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data); 
 
-int dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries); 
+uint32_t dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries); 
 
-int dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data); 
+uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data); 
 
-int dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
+uint32_t dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
 
-int dllFlushSys(); 
+uint32_t dllIplSys(uint64_t i_steps); 
 
-int dllIplSys(); 
+uint32_t dllGetSpr(ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data); 
 
-int dllSimaet(const char* i_function); 
+uint32_t dllGetSprMultiple(ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries); 
 
-int dllSimcheckpoint(const char* i_checkpoint); 
+uint32_t dllPutSpr(ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & i_data); 
 
-int dllSimclock(int i_cycles); 
+uint32_t dllPutSprMultiple(ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries); 
 
-int dllSimecho(const char* i_message); 
+uint32_t dllGetGpr(ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & o_data); 
 
-int dllSimexit(); 
+uint32_t dllGetGprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries); 
 
-int dllSimEXPECTFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row , int i_offset ); 
+uint32_t dllPutGpr(ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & i_data); 
 
-int dllSimexpecttcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row ); 
+uint32_t dllPutGprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
-int dllSimgetcurrentcycle(int & o_cyclecount); 
+uint32_t dllGetFpr(ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & o_data); 
 
-int dllSimGETFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row , int i_offset ); 
+uint32_t dllGetFprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries); 
 
-int dllSimGETFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row , int i_offset ); 
+uint32_t dllPutFpr(ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & i_data); 
 
-int dllSimgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, int i_row , int i_startbit , int i_bitlength ); 
+uint32_t dllPutFprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
-int dllSiminit(const char* i_checkpoint); 
+uint32_t dllStartInstructions(ecmdChipTarget & i_target); 
 
-int dllSimPUTFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
+uint32_t dllStopInstructions(ecmdChipTarget & i_target); 
 
-int dllSimPUTFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
+uint32_t dllStepInstructions(ecmdChipTarget & i_target, uint32_t i_steps); 
 
-int dllSimputtcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_numrows ); 
+uint32_t dllSetBreakpoint(ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type); 
 
-int dllSimrestart(const char* i_checkpoint); 
+uint32_t dllClearBreakpoint(ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type); 
 
-int dllSimSTKFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
+uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
-int dllSimstktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_numrows ); 
+uint32_t dllPutMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
 
-int dllSimSUBCMD(const char* i_command); 
+uint32_t dllGetMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
-int dllSimtckinterval(int i_tckinterval); 
+uint32_t dllPutMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
 
-int dllSimUNSTICK(const char* i_facname, int i_bitlength, int i_row , int i_offset ); 
+uint32_t dllGetMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
-int dllSimunsticktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_numrows ); 
+uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
 
-std::string dllGetErrorMsg(int i_errorCode); 
+uint32_t dllSimaet(const char* i_function); 
 
-int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message); 
+uint32_t dllSimcheckpoint(const char* i_checkpoint); 
+
+uint32_t dllSimclock(uint32_t i_cycles); 
+
+uint32_t dllSimecho(const char* i_message); 
+
+uint32_t dllSimexit(); 
+
+uint32_t dllSimEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row ); 
+
+uint32_t dllSimgetcurrentcycle(uint32_t & o_cyclecount); 
+
+uint32_t dllSimGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row , uint32_t i_startbit , uint32_t i_bitlength ); 
+
+uint32_t dllSiminit(const char* i_checkpoint); 
+
+uint32_t dllSimPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_numrows ); 
+
+uint32_t dllSimrestart(const char* i_checkpoint); 
+
+uint32_t dllSimSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_numrows ); 
+
+uint32_t dllSimSUBCMD(const char* i_command); 
+
+uint32_t dllSimtckinterval(uint32_t i_tckinterval); 
+
+uint32_t dllSimUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row , uint32_t i_offset ); 
+
+uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_numrows ); 
+
+std::string dllGetErrorMsg(uint32_t i_errorCode); 
+
+uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
 
 void dllOutputError(const char* i_message); 
 
@@ -133,7 +181,19 @@ void dllOutputWarning(const char* i_message);
 
 void dllOutput(const char* i_message); 
 
-int dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
+uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
+
+void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable); 
+
+bool dllQueryTraceMode(ecmdTraceType_t i_type); 
+
+uint32_t dllGetConfiguration(std::string i_name, std::string o_value); 
+
+uint32_t dllSetConfiguration(std::string i_name, std::string i_value); 
+
+uint32_t dllDeconfigureTarget(ecmdChipTarget & i_target); 
+
+uint32_t dllConfigureTarget(ecmdChipTarget & i_target); 
 
 } //extern C
 

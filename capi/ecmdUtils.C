@@ -101,14 +101,14 @@ void ecmdRemoveNullPointers (int *argc, char **argv[]) {
 }
 
 
-int ecmdParseOption (int *argc, char **argv[], const char *option) {
+bool ecmdParseOption (int *argc, char **argv[], const char *option) {
   int counter = 0;
-  int foundit = 0;
+  bool foundit = false;
 
   for (counter = 0; counter < *argc ; counter++) {
     if (((*argv)[counter] != NULL) && (strcmp((*argv)[counter],option)==0)) {
       (*argv)[counter]=NULL;
-      foundit = 1;
+      foundit = true;
       break;
     }
   }
@@ -178,9 +178,9 @@ void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens) {
 }
 
 
-int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state) {
+uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget queryTarget = io_target;
 
@@ -267,7 +267,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_loo
   return rc;
 }
 
-int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) {
+uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) {
 
   const uint8_t CAGE = 0;
   const uint8_t NODE = 1;
@@ -458,8 +458,8 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) 
 
 }
 
-int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength) {
+  uint32_t rc = ECMD_SUCCESS;
 
   std::string localFormat = i_format;
   int bitlength;
@@ -790,4 +790,30 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
 
   return printed;
 
+}
+
+uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget tmp = i_target;
+  ecmdQueryData needlesslySlow;
+  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+  tmp.coreState = tmp.threadState = ECMD_TARGET_QUERY_IGNORE;
+  rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
+  if (rc) return rc;
+
+  if (needlesslySlow.cageData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().cageId != i_target.cage) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().slotId != i_target.slot) return ECMD_TARGET_NOT_CONFIGURED;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
+
+  o_data = needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.front();
+  if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+    
+  return rc;
 }

@@ -69,7 +69,12 @@ ecmdDataBuffer::ecmdDataBuffer(int numWords)
 
 }
 
-ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
+ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) 
+: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL), iv_Capacity(0)
+{
+#ifndef REMOVE_SIM
+  iv_DataStr = NULL;
+#endif
 
   if (other.iv_NumBits != 0) {
 
@@ -127,6 +132,7 @@ ecmdDataBuffer::~ecmdDataBuffer()
 //---------------------------------------------------------------------
 int   ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
 int   ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
+int   ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}
 int   ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
 
 void  ecmdDataBuffer::setWordLength(int newNumWords) {
@@ -560,6 +566,7 @@ void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
 #endif
   }
 
+  iv_RealData[1] = iv_NumWords;
   iv_RealData[iv_NumWords + 4] = 0x12345678;
 
   // shift iv_Data array
@@ -645,6 +652,7 @@ void   ecmdDataBuffer::shiftLeftAndResize(int shiftNum) {
   /* Adjust our lengths based on the shift */
   iv_NumBits -= shiftNum;
   iv_NumWords = (iv_NumBits - 1) / 32 + 1;
+  iv_RealData[1] = iv_NumWords;
   iv_RealData[iv_NumWords + 4] = 0x12345678;
 
 #ifndef REMOVE_SIM
@@ -774,8 +782,8 @@ void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
 
 void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
 
-  if (len > iv_NumBits) {
-    printf( "ecmdDataBuffer::extract: len %d > NumBits (%d)\n", len, iv_NumBits);
+  if (start + len > iv_NumBits) {
+    printf( "ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
   } else {
 
     ecmdExtract(this->iv_Data, start, len, dataOut);
@@ -1143,14 +1151,16 @@ int ecmdDataBuffer::operator=(ecmdDataBuffer & i_master) {
 
 
 void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
-  setBitLength(bytes * 8);
-  ecmdBigEndianMemCopy(iv_Data, buf, bytes);
+
+  int cbytes = bytes < getByteLength() ? bytes : getByteLength();
+  ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
 #ifndef REMOVE_SIM
-  strcpy(iv_DataStr, genBinStr(0,bytes*4).c_str());
+  strcpy(iv_DataStr, genBinStr().c_str());
 #endif
 }
 void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
-  ecmdBigEndianMemCopy(buf, iv_Data, bytes);
+  int cbytes = bytes < getByteLength() ? bytes : getByteLength();
+  ecmdBigEndianMemCopy(buf, iv_Data, cbytes);
 }
 
 
@@ -1265,17 +1275,18 @@ void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
  * @param i_bytes Byte length to copy (char length)
  */
 void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+
+  int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
 #ifdef REMOVE_SIM
   printf("ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
 #else
   /* Put the data into the Xstate array */
-  setBitLength(i_bytes * 8);
-  strncpy(iv_DataStr, i_buf, i_bytes);
-  iv_DataStr[i_bytes] = '\0';
+  strncpy(iv_DataStr, i_buf, cbytes);
+  iv_DataStr[cbytes] = '\0';
 
   /* Now slide it over to the raw buffer */
 
-  for (int counter = 0; counter < i_bytes; counter++) {
+  for (int counter = 0; counter < cbytes; counter++) {
     if (i_buf[counter] == '1') {
       iv_Data[counter>>5] |= 0x80000000 >> counter&0x1F;
     } else {
@@ -1292,12 +1303,13 @@ void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a mem
  * @param i_bytes Byte length to copy
  */
 void  ecmdDataBuffer::memCopyOutXstate(char * o_buf, int i_bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
 #ifdef REMOVE_SIM
   printf("ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
 #else
 
-  strncpy(o_buf, iv_DataStr, i_bytes);
-  o_buf[i_bytes] = '\0';
+  strncpy(o_buf, iv_DataStr, cbytes);
+  o_buf[cbytes] = '\0';
 
 #endif
 }

@@ -53,7 +53,7 @@
 void dllRemoveNullPointers (int * io_argc, char ** io_argv[]);
 
 char * dllParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
-int dllParseOption (int *argc, char **argv[], const char *option);
+bool dllParseOption (int *argc, char **argv[], const char *option);
 
 uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 
@@ -65,17 +65,17 @@ bool dllIsValidTargetString(std::string str);
 //----------------------------------------------------------------------
 #ifndef ECMD_STRIP_DEBUG
 /* @brief This is used to output Debug messages on the DLL side */
-int ecmdGlobal_DllDebug = 0;
+uint32_t ecmdGlobal_DllDebug = 0;
 #endif
 /* @brief This is a global var set by -quiet */
-int ecmdGlobal_quiet = 0;
+uint32_t ecmdGlobal_quiet = 0;
 
 
 /**
  * @brief Used for storing error messages internally to dll
  */
 struct ecmdError {
-  int errorCode;        ///< Numeric error code- see ecmdReturnCodes.H
+  uint32_t errorCode;        ///< Numeric error code- see ecmdReturnCodes.H
   std::string whom;     ///< Function that registered error
   std::string message;  ///< Message about the error
 };
@@ -97,7 +97,7 @@ struct ecmdUserInfo {
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int dllLoadDll (const char* i_clientVersion, int debugLevel) {
+uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 
   /* First off let's check our version */
   if (strcmp(i_clientVersion,ECMD_CAPI_VERSION)) {
@@ -118,8 +118,8 @@ int dllLoadDll (const char* i_clientVersion, int debugLevel) {
 
 }
 
-int dllUnloadDll() {
-  int rc = 0;
+uint32_t dllUnloadDll() {
+  uint32_t rc = 0;
   
   rc = dllFreeDll();
 
@@ -127,7 +127,7 @@ int dllUnloadDll() {
 }
 
 
-std::string dllGetErrorMsg(int i_errorCode) {
+std::string dllGetErrorMsg(uint32_t i_errorCode) {
   std::string ret;
   std::list<ecmdError>::iterator cur;
 
@@ -140,7 +140,7 @@ std::string dllGetErrorMsg(int i_errorCode) {
 
   ecmdChipTarget dummy;
   std::string filePath;
-  int rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
+  uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
 
   if (rc || (filePath.length()==0)) {
     ret = "ERROR FINDING DECODE FILE";
@@ -193,8 +193,8 @@ std::string dllGetErrorMsg(int i_errorCode) {
   return ret;
 }
 
-int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message) {
-  int rc = ECMD_SUCCESS;
+uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message) {
+  uint32_t rc = ECMD_SUCCESS;
 
   ecmdError curError;
   curError.errorCode = i_errorCode;
@@ -206,8 +206,8 @@ int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_messa
   return rc;
 }
 
-int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
-  int rc = ECMD_SUCCESS;
+uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
+  uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
   uint8_t MULTI = 1;
@@ -498,8 +498,8 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
 
 }
 
-int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   /* We need to pull out the targeting options here, and
    store them away for future use */
@@ -622,14 +622,14 @@ char * dllParseOptionWithArgs(int *argc, char **argv[], const char *option) {
 
 
 
-int dllParseOption (int *argc, char **argv[], const char *option) {
+bool dllParseOption (int *argc, char **argv[], const char *option) {
   int counter = 0;
-  int foundit = 0;
+  bool foundit = false;
 
   for (counter = 0; counter < *argc ; counter++) {
     if (((*argv)[counter] != NULL) && (strcmp((*argv)[counter],option)==0)) {
       (*argv)[counter]=NULL;
-      foundit = 1;
+      foundit = true;
       break;
     }
   }
@@ -699,9 +699,9 @@ bool dllIsValidTargetString(std::string str) {
   return ret;
 }
 
-int dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
+uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
 
-  int ret = 0;
+  uint32_t ret = 0;
 
   if (i_type == ECMD_GLOBALVAR_DEBUG) {
 #ifndef ECMD_STRIP_DEBUG

@@ -1,4 +1,4 @@
-#ifndef ecmdClientCapi_H
+#ifndef ecmdClientCapi_H 
 #define ecmdClientCapi_H
 
 /* $Header$ */
@@ -43,7 +43,7 @@ extern "C" {
        - Name limit of 255 characters.
        - Errors in loading are printed to STDERR.
 */
-int ecmdLoadDll(std::string i_dllName);
+uint32_t ecmdLoadDll(std::string i_dllName);
 
 /**
  @brief Unload the eCMD DLL
@@ -55,7 +55,7 @@ int ecmdLoadDll(std::string i_dllName);
  - Errors in unloading are printed to STDERR
 */
 
-int ecmdUnloadDll(); 
+uint32_t ecmdUnloadDll(); 
 
 /**
  @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
@@ -73,7 +73,7 @@ int ecmdUnloadDll();
  NOTE : This function does not affect ring caching
 */
 
-int ecmdCommandArgs(int * i_argc, char** i_argv[]); 
+uint32_t ecmdCommandArgs(int * i_argc, char** i_argv[]); 
 
 //@}
 
@@ -96,7 +96,7 @@ int ecmdCommandArgs(int * i_argc, char** i_argv[]);
  NOTE : This function does not affect ring caching
 */
 
-int ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
+uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
 /**
  @brief Function calls ecmdQueryDllInfo and displays the output to stdout
@@ -105,7 +105,7 @@ int ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
  NOTE : This function does not affect ring caching
 */
-int ecmdDisplayDllInfo();
+uint32_t ecmdDisplayDllInfo();
 
 /**
  @brief Query configuration information from the DLL
@@ -136,7 +136,7 @@ int ecmdDisplayDllInfo();
  NOTE : This function does not affect ring caching
 */
    
-int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
@@ -153,11 +153,11 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmd
    will be set to ECMD_TARGET_THREAD_ALIVE.
  NOTE : This function does not affect ring caching
 */
-int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
+uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
 
 /**
  @brief Query Ring information from the DLL
- @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
  @retval ECMD_INVALID_RING if i_ringName is not valid for target
@@ -167,11 +167,11 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
 
  NOTE : This function does not affect ring caching
 */
-int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
+uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
 
 /**
  @brief Query Array information from the DLL
- @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return data from query
  @param i_arrayName array to access data for
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -181,11 +181,11 @@ int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryDa
 
  NOTE : This function does not affect ring caching
 */
-int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName);
+uint32_t ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName);
 
 /**
  @brief Query Spy information from the DLL
- @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return data from query
  @param i_spyName Spy to access data for
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -195,11 +195,11 @@ int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const
 
  NOTE : This function does not affect ring caching
 */
-int ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName);
+uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName);
 
 /**
  @brief Query the location of a specific file type for the selected target
- @param i_target Struct that contains chip and cage/node/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
  @param o_fileLocation Return string with full path and filename to location 
  @retval ECMD_SUCCESS if successful
@@ -208,7 +208,7 @@ int ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const cha
 
  NOTE : This function does not affect ring caching
 */
-int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
+uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
 
 
 /**
@@ -237,16 +237,16 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to read
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of ring to read
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
  @see putRing
 
- NOTE : This function forces a flush of the ring caches
 
 
 */
-int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
+uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
@@ -257,16 +257,16 @@ int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_RING if ringname is not valid for target
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to write
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of ring to write
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
  @see getRing
 
- NOTE : This function forces a flush of the ring caches
 
 
 */
-int putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
+uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
 
 //@}
@@ -281,17 +281,17 @@ int putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @brief Scoms bits from the selected address into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to read
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of scom address to read
  @param i_address Scom address to read from
  @param o_data DataBuffer object that holds data read from address
  @see putScom
 
- NOTE : This function forces a flush of the ring caches
 
 */
-int getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
+uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
@@ -299,20 +299,23 @@ int getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_d
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to write
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of scom address to write
  @param i_address Scom address to write to
  @param i_data DataBuffer object that holds data to write into address
  @see getScom
 
- NOTE : This function forces a flush of the ring caches
 
 */
-int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
+uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
 //@}
+/* End Scom Functions */
+
+
+
 
 
 /** @name Jtag Functions */
@@ -320,21 +323,65 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
 
 /**
  @brief Send a JTAG instruction and modifier to the specified chip
- @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to write
+ @param i_target Struct that contains chip and cage/node/slot/position information of scom address to write
  @param i_instruction Right aligned instruction to send to chip
  @param i_modifier Right aligned instruction modifier to send
  @param o_status Instruction status register value retrieved
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_NON_JTAG_CHIP Chip Target is a non-jtag attached chip
  @retval nonzero if unsuccessful
 
  NOTE : Proper parity will be generated on the command and modifier
- NOTE : This function forces a flush of the ring caches
 */
-int sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
+uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
 
 //@}
+/* End Jtag Functions */
+
+
+
+
+
+/** @name FSI Functions */
+//@{
+
+/**
+ @brief Read data from the selected CFAM register address into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_address CFAM address to read from
+ @param o_data DataBuffer object that holds data read from address
+
+
+*/
+uint32_t getCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
+
+/**
+ @brief Write data into the selected CFAM register address 
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_address CFAM address to write to
+ @param i_data DataBuffer object that holds data to write into address
+
+
+*/
+uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
+
+//@}
+/* End FSI Functions */
+
+
+
 
 
 /** @name Spy Functions */
@@ -349,14 +396,14 @@ int sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modif
  @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
  @param i_spyName Name of spy to read from
  @param o_data DataBuffer object that holds data read from spy
 
  NOTE : This function is ring cache enabled
 
 */
-int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
+uint32_t getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected spy and returns it's assocaiated enum
@@ -368,14 +415,14 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
  @param i_spyName Name of spy to read from
  @param o_enumValue Enum value read from the spy
 
  NOTE : This function is ring cache enabled
 
 */
-int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
+uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
 
 /**
  @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
@@ -385,7 +432,7 @@ int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string &
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
  @param i_spyEccGroupName Name of spy to read from
  @param o_groupData Return the data for the input to the eccGroup
  @param o_eccData Return the Ecc data associated with the outbits of the eccGroup
@@ -394,7 +441,7 @@ int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string &
 
  NOTE : This function is ring cache enabled
 */
-int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask);
+uint32_t getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask);
 
 /**
  @brief Writes the data buffer into the selected position in the selected spy
@@ -406,14 +453,14 @@ int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to write
  @param i_spyName Name of spy to write to
  @param i_data DataBuffer object that holds data to write into spy
 
  NOTE : This function is ring cache enabled
 
 */
-int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
+uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the enum into the selected position in the selected spy
@@ -424,13 +471,13 @@ int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
+ @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to write
  @param i_spyName Name of spy to write to
  @param i_enumValue String enum value to load into the spy
 
  NOTE : This function is ring cache enabled
 */
-int putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
+uint32_t putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
 
 //@}
 
@@ -456,14 +503,14 @@ void ecmdEnableRingCache();
 
  NOTE: A Flush of the cache is performed before disabling the cache
 */
-int  ecmdDisableRingCache();
+uint32_t  ecmdDisableRingCache();
 
 /**
  @brief Flush all modified data from the internal cache to the hardware, then remove all rings from cache
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 */
-int  ecmdFlushRingCache();
+uint32_t  ecmdFlushRingCache();
 
 //@}
 
@@ -478,38 +525,38 @@ int  ecmdFlushRingCache();
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of array to read
+ @param i_target Struct that contains chip and cage/node/slot/position information of array to read
  @param i_arrayName Name of array to read from
  @param o_data DataBuffer object that holds data read from address
  @param i_address Array Address to read from - length of DataBuffer should be set to length of valid address data
  @see putArray
  @see getArrayMultiple
 
- NOTE : This function forces a flush of the ring caches
 
 */
-int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
+uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads bits from multiple array addresses/elements into the list of data buffers
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/position/core/thread information of array to read
+ @param i_target Struct that contains chip and cage/node/slot/position information of array to read
  @param i_arrayName Name of array to read from
  @param io_entries list of array entries to fetch
  @see putArray
  @see getArray
 
  NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return
- NOTE : This function forces a flush of the ring caches
 
 */
-int getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
+uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
 
 
 /**
@@ -519,19 +566,19 @@ int getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @param i_target Struct that contains chip and cage/node/position/core/thread information of array to write
+ @param i_target Struct that contains chip and cage/node/slot/position information of array to write
  @param i_arrayName Name of array to write to
  @param i_data DataBuffer object that holds data to write into array
  @param i_address Array Address to write to - length of DataBuffer should be set to length of valid address data
  @see getArray
 
- NOTE : This function forces a flush of the ring caches
 
 */
-int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
+uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
 
 /**
  @brief Writes bits from the list of entries into the selected array
@@ -539,20 +586,20 @@ int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @param i_target Struct that contains chip and cage/node/position/core/thread information of array to write
+ @param i_target Struct that contains chip and cage/node/slot/position information of array to write
  @param i_arrayName Name of array to write to
  @param i_entries List of addresses and data to write to chip
  @see getArray
 
- NOTE : This function forces a flush of the ring caches
  NOTE : i_entries should be pre-loaded with address and data
 
 */
-int putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
+uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 
 //@}
 
@@ -564,32 +611,413 @@ int putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::
 /** @name Flush and IPL Functions */
 //@{
 
-/**
- * @brief System Flush
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero if unsuccessful
- * @post The system is cleaned up and ready for iplsys
- * @see iplSys
-
- NOTE : This function forces a flush of the ring caches
-
-*/
-int flushSys ();
 
 /**
- * @brief Initial Program Load
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero if unsuccessful
- * @pre An ecmdFlushSys call is generally required before iplsys
- * @post The system is IPLed
- * @see flushSys
-
- NOTE : This function forces a flush of the ring caches
+ @brief Initial Program Load
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @post IPL Steps are complete
+ @param i_steps Bit mask defining which steps to run
 
 */
-int iplSys ();
+uint32_t iplSys (uint64_t i_steps);
 
 //@}
+
+
+
+
+
+/** @name Processor Functions */
+//@{
+
+/**
+ @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_sprName Name of spr to read from
+ @param o_data DataBuffer object that holds data read from spr
+
+
+*/
+uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data);
+
+/**
+ @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param io_entries List of entries to fetch ecmdNameEntry.name field must be filled in
+
+
+*/
+uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
+
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_sprName Name of spr to write to
+ @param i_data DataBuffer object that holds data to write into spr
+
+
+*/
+uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & i_data);
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
+
+
+*/
+uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries);
+
+/**
+ @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_GPR Gpr number is invalid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_gprNum Number of gpr to read from
+ @param o_data DataBuffer object that holds data read from gpr
+
+
+*/
+uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & o_data);
+
+/**
+ @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_GPR Gpr number is invalid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
+
+
+*/
+uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_GPR Gpr number is invalid
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_gprNum Number of gpr to write to
+ @param i_data DataBuffer object that holds data to write into gpr
+
+
+*/
+uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & i_data);
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_GPR Gpr number is invalid
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+
+
+*/
+uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+
+/**
+ @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_FPR Fpr number is invalid
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_fprNum Number of fpr to read from
+ @param o_data DataBuffer object that holds data read from fpr
+
+
+*/
+uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & o_data);
+
+/**
+ @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_FPR Fpr number is invalid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
+
+
+*/
+uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_FPR Fpr number is invalid
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_fprNum Number of fpr to write to
+ @param i_data DataBuffer object that holds data to write into fpr
+
+
+*/
+uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & i_data);
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_FPR Fpr number is invalid
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+
+
+*/
+uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+
+
+/**
+ @brief Start Instructions
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+
+*/
+uint32_t startInstructions (ecmdChipTarget & i_target);
+
+/**
+ @brief Stop Instructions
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+
+*/
+uint32_t stopInstructions (ecmdChipTarget & i_target);
+
+/**
+ @brief Step Instructions
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_steps Number of steps to execute
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+
+*/
+uint32_t stepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
+
+/**
+ @brief Set Breakpoint in Processor
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_address Address to set breakpoint at
+ @param i_type Type of breakpoint to set
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+
+*/
+uint32_t setBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
+
+/**
+ @brief Clear Breakpoint from Processor
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_address Address to clear breakpoint at
+ @param i_type Type of breakpoint to set
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+
+*/
+uint32_t clearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
+
+//@}
+/* End Processor Functions */
+
+
+
+
+/** @name Memory Functions */
+//@{
+
+/**
+ @brief Reads System Mainstore through the processor chip 
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+
+
+*/
+uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+
+/**
+ @brief Writes System Mainstore through the processor chip
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_address Starting address to write to
+ @param i_bytes Number of bytes to write
+ @param i_data DataBuffer object that holds data to write into memory
+
+
+*/
+uint32_t putMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+
+/**
+ @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains cage/node information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+
+
+*/
+uint32_t getMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+
+/**
+ @brief Writes System Mainstore through the PSI or DMA interface (whichever is avialable)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains cage/node information
+ @param i_address Starting address to write to
+ @param i_bytes Number of bytes to write
+ @param i_data DataBuffer object that holds data to write into memory
+
+
+*/
+uint32_t putMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+
+/**
+ @brief Reads System Mainstore through the memory controller 
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+
+ WARNING : This operation is typically not cache-coherent
+
+*/
+uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+
+/**
+ @brief Writes System Mainstore through the memory controller
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_address Starting address to write to
+ @param i_bytes Number of bytes to write
+ @param i_data DataBuffer object that holds data to write into memory
+
+ WARNING : This operation is typically not cache-coherent
+
+*/
+uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+
+
+//@}
+/* End Memory Functions */
+
+
 
 
 /** @name Simulation Functions */
@@ -597,232 +1025,254 @@ int iplSys ();
 #ifndef REMOVE_SIM
 
 /**
- * @brief Enable/Disable Simulation AET Logging
- * @param i_function Should be either 'on'/'off'/'flush'
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Enable/Disable Simulation AET Logging
+ @param i_function Should be either 'on'/'off'/'flush'
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simaet(const char* i_function);
+uint32_t simaet(const char* i_function);
 
 /**
- * @brief Store a checkpoint to specified file
- * @param i_checkpoint Name of checkpoint to write to
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Store a checkpoint to specified file
+ @param i_checkpoint Name of checkpoint to write to
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simcheckpoint(const char* i_checkpoint);
+uint32_t simcheckpoint(const char* i_checkpoint);
 
 /**
- * @brief Clock the model
- * @param i_cycles Number of cycles to clock model
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Clock the model
+ @param i_cycles Number of cycles to clock model
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simclock(int i_cycles);
+uint32_t simclock(uint32_t i_cycles);
 
 /**
- * @brief Echo message to stdout and sim log
- * @param i_message Message to echo
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Echo message to stdout and sim log
+ @param i_message Message to echo
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simecho(const char* i_message);
+uint32_t simecho(const char* i_message);
 
 /**
- * @brief Close down the simulation model
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Close down the simulation model
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simexit();
+uint32_t simexit();
 
 /**
- * @brief Perform expect on facility using name
- * @param i_facname Facility name
- * @param i_expect Value to expect on facility
- * @param i_bitlength Length of data to expect
- * @param i_row Optional: Array Facility row
- * @param i_offset Optional: Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Perform expect on facility using name
+ @param i_facname Facility name
+ @param i_expect Value to expect on facility
+ @param i_bitlength Length of data to expect
+ @param i_row Optional: Array Facility row
+ @param i_offset Optional: Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simEXPECTFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0, int i_offset = 0);
+uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
- * @brief Perform expect on TCFAC facility
- * @param i_tcfacname Facility name
- * @param i_expect Value to expect on facility
- * @param i_bitlength Length of data to expect
- * @param i_row Optional: Array Facility row
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Perform expect on TCFAC facility
+ @param i_tcfacname Facility name
+ @param i_expect Value to expect on facility
+ @param i_bitlength Length of data to expect
+ @param i_row Optional: Array Facility row
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simexpecttcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0);
+uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
 
 /**
- * @brief Fetch current model cycle count
- * @param o_cyclecount Current model cycle count
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Fetch current model cycle count
+ @param o_cyclecount Current model cycle count
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simgetcurrentcycle(int & o_cyclecount);
+uint32_t simgetcurrentcycle(uint32_t & o_cyclecount);
 
 /**
- * @brief Retrieve a Facility using a name
- * @param i_facname Facility name
- * @param i_bitlength Bit length to read from facility
- * @param o_data Data read from facility
- * @param i_row Optional: Array row
- * @param i_offset Optional : Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Retrieve a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to read from facility
+ @param o_data Data read from facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simGETFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row = 0, int i_offset = 0);
+uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
- * @brief Retrieve a Facility using a name - preserving Xstate
- * @param i_facname Facility name
- * @param i_bitlength Bit length to read from facility
- * @param o_data Data read from facility
- * @param i_row Optional: Array row
- * @param i_offset Optional : Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Retrieve a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to read from facility
+ @param o_data Data read from facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simGETFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row = 0, int i_offset = 0);
+uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
- * @brief Retrieve a TCFAC facility
- * @param i_tcfacname TCFAC name
- * @param o_data Value read
- * @param i_row Optional: Array Facility row
- * @param i_startbit Optional: Startbit to read
- * @param i_bitlength Optional: Length of data to read
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Retrieve a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param o_data Value read
+ @param i_row Optional: Array Facility row
+ @param i_startbit Optional: Startbit to read
+ @param i_bitlength Optional: Length of data to read
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, int i_row = 0, int i_startbit = 0, int i_bitlength = 0);
+uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
 
 /**
- * @brief Initialize the simulation
- * @param i_checkpoint Checkpoint to load : 'none' to skip
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Initialize the simulation
+ @param i_checkpoint Checkpoint to load : 'none' to skip
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int siminit(const char* i_checkpoint);
+uint32_t siminit(const char* i_checkpoint);
 
 /**
- * @brief Write a Facility using a name
- * @param i_facname Facility name
- * @param i_bitlength Bit length to write to facility
- * @param i_data Data to write
- * @param i_row Optional: Array row
- * @param i_offset Optional : Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Write a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to write to facility
+ @param i_data Data to write
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simPUTFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
- * @brief Write a Facility using a name - preserving Xstate
- * @param i_facname Facility name
- * @param i_bitlength Bit length to write to facility
- * @param i_data Data to write
- * @param i_row Optional: Array row
- * @param i_offset Optional : Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Write a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to write to facility
+ @param i_data Data to write
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simPUTFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
- * @brief Write a TCFAC facility
- * @param i_tcfacname TCFAC name
- * @param i_data Value to write
- * @param i_row Optional: Array Facility row
- * @param i_numrows Optional: Number of rows to write
- * @param i_bitlength Bit length to write to facility
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Write a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to write
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to write
+ @param i_bitlength Bit length to write to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simputtcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
- * @brief Load a checkpoint into model
- * @param i_checkpoint Name of checkpoint
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Load a checkpoint into model
+ @param i_checkpoint Name of checkpoint
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simrestart(const char* i_checkpoint);
+uint32_t simrestart(const char* i_checkpoint);
 
 /**
- * @brief Stick a Facility using a name
- * @param i_facname Facility name
- * @param i_bitlength Bit length to stick to facility
- * @param i_data Data to stick
- * @param i_row Optional: Array row
- * @param i_offset Optional : Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Stick a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to stick to facility
+ @param i_data Data to stick
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simSTKFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_offset = 0);
+uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
- * @brief Stick a TCFAC facility
- * @param i_tcfacname TCFAC name
- * @param i_data Value to stick
- * @param i_row Optional: Array Facility row
- * @param i_numrows Optional: Number of rows to stick
- * @param i_bitlength Bit length to write to facility
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Stick a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to stick
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to stick
+ @param i_bitlength Bit length to write to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simstktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
- * @brief Run RTX SUBCMD
- * @param i_command Command
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Run RTX SUBCMD
+ @param i_command Command
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simSUBCMD(const char* i_command);
-
-
-/**
- * @brief Set TCK Interval setting in the model for JTAG Master
- * @param i_tckinterval new setting for tck interval when using JTAG
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
-*/
-int simtckinterval(int i_tckinterval);
-
+uint32_t simSUBCMD(const char* i_command);
 
 
 /**
- * @brief Unstick a Facility using a name
- * @param i_facname Facility name
- * @param i_bitlength Bit length to unstick to facility
- * @param i_row Optional: Array row
- * @param i_offset Optional : Facility offset
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Set TCK Interval setting in the model for JTAG Master
+ @param i_tckinterval new setting for tck interval when using JTAG
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
 */
-int simUNSTICK(const char* i_facname, int i_bitlength, int i_row = 0, int i_offset = 0);
+uint32_t simtckinterval(uint32_t i_tckinterval);
+
+
 
 /**
- * @brief Unstick a TCFAC facility
- * @param i_tcfacname TCFAC name
- * @param i_data Value to unstick to 
- * @param i_row Optional: Array Facility row
- * @param i_numrows Optional: Number of rows to unstick
- * @param i_bitlength Bit length to unstick to facility
- * @retval ECMD_SUCCESS if successful
- * @retval nonzero on failure
+ @brief Unstick a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to unstick to facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
 */
-int simunsticktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Unstick a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to unstick to 
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to unstick
+ @param i_bitlength Bit length to unstick to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
 
 #endif /* ifndef REMOVE_SIM */
 //@}
-
+/* End Simulation Functions */
 
 
 /** @name Error Handling Functions */
@@ -833,16 +1283,14 @@ int simunsticktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i
  @param i_errorCode Error code to lookup up message for
  @retval point to NULL terminated string containing error data, NULL if error occurs
 
- NOTE : This function does not affect ring caching
 */
-std::string ecmdGetErrorMsg(int i_errorCode);
+std::string ecmdGetErrorMsg(uint32_t i_errorCode);
 
 /**
  @brief Register an Error Message that has occured
 
- NOTE : This function does not affect ring caching
 */
-int ecmdRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message);
+uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message);
 
 //@}
 
@@ -856,7 +1304,6 @@ int ecmdRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_mess
  @brief Output a message related to an error
  @param i_message String to output
 
- NOTE : This function does not affect ring caching
 */
 void ecmdOutputError(const char* i_message);
 
@@ -864,7 +1311,6 @@ void ecmdOutputError(const char* i_message);
  @brief Output a message related to an warning
  @param i_message String to output
 
- NOTE : This function does not affect ring caching
 */
 void ecmdOutputWarning(const char* i_message);
 
@@ -872,7 +1318,6 @@ void ecmdOutputWarning(const char* i_message);
  @brief Output a message to the screen or logs
  @param i_message String to output
 
- NOTE : This function does not affect ring caching
 */
 void ecmdOutput(const char* i_message);
 
@@ -886,12 +1331,73 @@ void ecmdOutput(const char* i_message);
  @param i_type Specifies which global var you are looking for
  @retval Value of global var
 
- NOTE : This function does not affect ring caching
 */
-int ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
+uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
 
+
+/**
+ @brief Enable/Disable a trace mode
+ @param i_type Specifies which trace mode to enable
+ @param i_enable Enable or disable
+*/
+void ecmdSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
+
+/**
+ @brief Query the state of a trace mode
+ @param i_type Specifies which trace mode to query
+ @retval Value of trace mode enable
+*/
+bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
 
 //@}
+
+
+/** @name Configuration Functions */
+//@{
+
+/**
+ @brief Retrieve the value of a Configuration Setting
+ @param i_name Name of setting as defined by eCMD Api
+ @param o_value Value of setting
+ @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_SUCCESS if successful
+*/
+
+uint32_t ecmdGetConfiguration(std::string i_name, std::string o_value);
+
+/**
+ @brief Set the value of a Configuration Setting
+ @param i_name Name of setting as defined by eCMD Api
+ @param i_value Value to apply to setting
+ @retval ECMD_DBUF_INVALID_DATA_FORMAT Value is not in correct format for specified configuration setting
+ @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+
+uint32_t ecmdSetConfiguration(std::string i_name, std::string i_value);
+
+/**
+ @brief Deconfigure a target in the system
+ @param i_target Target info to specify what to deconfigure (target states must be set)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
+
+/**
+ @brief Configure a target in the system - must be previously known to the system
+ @param i_target Target info to specify what to configure (target states must be set)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
+
+//@}
+
+
 
 }  //extern "C"
 
@@ -929,7 +1435,7 @@ To link the client code on AIX, the following is required:
 To create Linux x86 binaries, the following is required:
 <ul>
 <li>ecmdClientCapi_x86.a
-<li>g++ v2.96
+<li>g++ ????
 </ul>
 To create Linux ppc binaries, the following is required:
 <ul>
@@ -987,7 +1493,7 @@ int main (int argc, char *argv[])
 
   // A buffer to store our data
   ecmdDataBuffer data;          
-  int rc = 0;
+  uint32_t rc = 0;
   // This is the chip target to operate on
   ecmdChipTarget target;       
 

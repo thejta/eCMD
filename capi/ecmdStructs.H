@@ -39,7 +39,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION ".2"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION ".3"          ///< eCMD API Version
 
 
 
@@ -54,7 +54,8 @@ typedef enum {
   ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
   ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
   ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
-  ECMD_DLL_ZSERIES              ///< Running against Z Series HOM
+  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
+  ECMD_DLL_SCAND                ///< Running against the ScanD dll owned by Meghna Paruthi
 
 } ecmdDllType_t;
 
@@ -188,6 +189,7 @@ struct ecmdChipData {
   uint32_t                      pos;                ///< (Detail: Low)  Position of this entry
   uint8_t                       numProcCores;       ///< (Detail: Low)  Number of cores this entry supports - only valid for Processor compute cores
   uint32_t                      chipEc;             ///< (Detail: High) EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
+  uint32_t                      simModelEc;         ///< (Detail: High) Model EC level of this chip
   ecmdChipInterfaceType_t       interfaceType;      ///< (Detail: High) Interface Macro used by the chip
   uint32_t                      chipFlags;          ///< (Detail: High) Various additional info about the chip - bitmask of defines
   std::list<ecmdCoreData>       coreData;           ///< (Detail: Low)  List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
@@ -274,6 +276,22 @@ struct ecmdArrayEntry {
 };
 
 /**
+ @brief Used by get/putSprMultiple function to pass data
+*/
+struct ecmdNameEntry {
+  std::string    name;                  ///< Name of entry to Address
+  ecmdDataBuffer buffer;                ///< Data to/from entry
+};
+
+/**
+ @brief Used by get/put Gpr/Fpr Multiple function to pass data
+*/
+struct ecmdIndexEntry {
+  int            index;                 ///< Index of entry to address
+  ecmdDataBuffer buffer;                ///< Data to/from entry
+}; 
+
+/**
  @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData
 */
 typedef enum {
@@ -306,9 +324,9 @@ typedef enum {
   ECMD_FILE_SCANDEF,    ///< Scandef file type
   ECMD_FILE_SPYDEF,     ///< Spy Definition file
   ECMD_FILE_ARRAYDEF,   ///< Array Definition file
-  ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file
-  ECMD_FILE_SCOMDATA    ///< eCMD ScanComm Parse data files, used by getscom
-} ecmdFileType_t;
+  ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file - target field of ecmdQueryFileLocation is not used for this and just a path is returned
+  ECMD_FILE_SCOMDATA    ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
+} ecmdFileType_t; 
 
 
 /**
@@ -341,5 +359,23 @@ typedef enum {
   ECMD_GLOBALVAR_DEBUG,         ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
   ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
 } ecmdGlobalVarType_t;
+
+
+/**
+ @brief Used by setBreakpoint to specify what type of breakpoint to set
+*/
+typedef enum {
+  ECMD_BREAKPOINT_IABR,         ///< Instruction Address Breakpoint
+  ECMD_BREAKPOINT_DABR,         ///< Data Address Breakpoint
+  ECMD_BREAKPOINT_CIABR         ///< ?? Breakpoint
+} ecmdBreakpointType_t;
+
+/**
+ @brief Used by ecmdSetTraceMode to specify which trace to control
+*/
+typedef enum {
+ ECMD_TRACE_SCAN,               ///< Scan Trace
+ ECMD_TRACE_PROCEDURE           ///< Procedure Trace
+} ecmdTraceType_t;
 
 #endif

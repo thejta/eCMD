@@ -64,25 +64,19 @@ extern void * DllFnTable[];
 int ecmdClientDebug = 0;
 #endif
 
+/* @brief This var stores the state of ring caching */
+bool ecmdRingCacheEnabled = false;
+
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************
 
-
-
-int ecmdLoadDll(std::string i_dllName) {
+uint32_t ecmdLoadDll(std::string i_dllName) {
 
 
   const char* dlError;
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
 #ifndef ECMD_STRIP_DEBUG
   char* tmpptr = getenv("ECMD_DEBUG");
@@ -131,8 +125,8 @@ int ecmdLoadDll(std::string i_dllName) {
 
   /* Now we need to call loadDll on the dll itself so it can initialize */
 
-  int (*Function)(const char *,int) = 
-      (int(*)(const char *,int))(void*)dlsym(dlHandle, "dllLoadDll");
+  uint32_t (*Function)(const char *,uint32_t) = 
+      (uint32_t(*)(const char *,uint32_t))(void*)dlsym(dlHandle, "dllLoadDll");
   if (!Function) {
     fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
     rc = ECMD_DLL_LOAD_FAILURE;
@@ -148,10 +142,10 @@ int ecmdLoadDll(std::string i_dllName) {
   return rc;
 }
 
-int ecmdUnloadDll() {
+uint32_t ecmdUnloadDll() {
 
-  int rc = ECMD_SUCCESS;
-  int c_rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t c_rc = ECMD_SUCCESS;
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllUnloadDll();
@@ -160,8 +154,8 @@ int ecmdUnloadDll() {
 
   if (dlHandle) {
     /* call DLL unload */
-    int (*Function)() =
-      (int(*)())(void*)dlsym(dlHandle, "dllUnloadDll");
+    uint32_t (*Function)() =
+      (uint32_t(*)())(void*)dlsym(dlHandle, "dllUnloadDll");
     if (!Function) {
       fprintf(stderr,"ecmdUnloadDll: Unable to find UnloadDll function, must be an invalid DLL\n");
       rc = ECMD_DLL_UNLOAD_FAILURE;
@@ -187,9 +181,9 @@ int ecmdUnloadDll() {
   return rc;
 }
 
-int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
+uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
 
 #ifdef ECMD_STATIC_FUNCTIONS
@@ -202,8 +196,8 @@ int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   }
 
   /* call DLL common command args */
-  int (*Function)(int*, char***) =
-    (int(*)(int*, char***))(void*)dlsym(dlHandle, "dllCommonCommandArgs");
+  uint32_t (*Function)(int*, char***) =
+    (uint32_t(*)(int*, char***))(void*)dlsym(dlHandle, "dllCommonCommandArgs");
   if (!Function) {
     fprintf(stderr,"ecmdCommandArgs: Unable to find dllCommonCommandArgs function, must be an invalid DLL\n");
     exit(ECMD_DLL_INVALID);
@@ -216,7 +210,7 @@ int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 }
 
 bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
   bool ret = false;
   bool myQuery = false;
   ecmdChipTarget queryTarget;
@@ -360,9 +354,9 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 /* Some have been moved here from ecmdClientCapiFunc.C to add additional debug messages */
 /* ------------------------------------------------------------------------------------ */
 
-int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
 
-  int rc;
+  uint32_t rc;
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdQueryConfig) : Entering\n"; ecmdOutput(printed.c_str());
@@ -387,8 +381,8 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmd
      }
   }
 
-  int (*Function)(ecmdChipTarget &,  ecmdQueryData &,  ecmdQueryDetail_t) = 
-      (int(*)(ecmdChipTarget &,  ecmdQueryData &,  ecmdQueryDetail_t))DllFnTable[ECMD_QUERYCONFIG];
+  uint32_t (*Function)(ecmdChipTarget &,  ecmdQueryData &,  ecmdQueryDetail_t) = 
+      (uint32_t(*)(ecmdChipTarget &,  ecmdQueryData &,  ecmdQueryDetail_t))DllFnTable[ECMD_QUERYCONFIG];
 
   rc =    (*Function)(i_target, o_queryData, i_detail);
 
@@ -445,9 +439,9 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmd
 
 }
 
-int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData) {
+uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData) {
 
-  int rc;
+  uint32_t rc;
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug > 1) {
@@ -473,8 +467,8 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData) {
      }
   }
 
-  int (*Function)(ecmdChipTarget &,  ecmdQueryData &) = 
-      (int(*)(ecmdChipTarget &,  ecmdQueryData &))DllFnTable[ECMD_QUERYSELECTED];
+  uint32_t (*Function)(ecmdChipTarget &,  ecmdQueryData &) = 
+      (uint32_t(*)(ecmdChipTarget &,  ecmdQueryData &))DllFnTable[ECMD_QUERYSELECTED];
 
   rc =    (*Function)(io_target, o_queryData);
 
@@ -532,9 +526,9 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData) {
 
 }
 
-int ecmdDisplayDllInfo() {
+uint32_t ecmdDisplayDllInfo() {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
   std::string printed;
 
   /* Let's display the dllInfo to the user */
@@ -578,6 +572,98 @@ int ecmdDisplayDllInfo() {
   printed = "Dll Capi Version : "; printed += info.dllCapiVersion; printed += "\n"; ecmdOutput(printed.c_str());
   ecmdOutput("================================================\n");
 
+
+  return rc;
+
+}
+
+
+void ecmdEnableRingCache() {
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdEnableRingCache) : Entering\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+  /* Set our local variable so we know caching is enabled */
+  ecmdRingCacheEnabled = true;
+
+#ifdef ECMD_STATIC_FUNCTIONS
+
+  dllEnableRingCache();
+
+#else
+
+  if (dlHandle == NULL) {
+     return;
+  }
+
+  if (DllFnTable[ECMD_ENABLERINGCACHE] == NULL) {
+     DllFnTable[ECMD_ENABLERINGCACHE] = (void*)dlsym(dlHandle, "dllEnableRingCache");
+     if (DllFnTable[ECMD_ENABLERINGCACHE] == NULL) {
+       fprintf(stderr,"dllEnableRingCache : Unable to find dllEnableRingCache function, must be an invalid DLL - program aborting\n"); 
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)() = 
+      (void(*)())DllFnTable[ECMD_ENABLERINGCACHE];
+
+   (*Function)();
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdEnableRingCache) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+}
+
+uint32_t ecmdDisableRingCache() {
+
+  uint32_t rc;
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdDisableRingCache) : Entering\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+  /* Set our local variable so we know caching is enabled */
+  ecmdRingCacheEnabled = false;
+
+#ifdef ECMD_STATIC_FUNCTIONS
+
+  rc = dllDisableRingCache();
+
+#else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
+  if (DllFnTable[ECMD_DISABLERINGCACHE] == NULL) {
+     DllFnTable[ECMD_DISABLERINGCACHE] = (void*)dlsym(dlHandle, "dllDisableRingCache");
+     if (DllFnTable[ECMD_DISABLERINGCACHE] == NULL) {
+       fprintf(stderr,"dllDisableRingCache : Unable to find dllDisableRingCache function, must be an invalid DLL - program aborting\n"); 
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)() = 
+      (uint32_t(*)())DllFnTable[ECMD_DISABLERINGCACHE];
+
+  rc =    (*Function)();
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdDisableRingCache) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
 
   return rc;
 

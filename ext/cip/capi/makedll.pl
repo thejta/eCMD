@@ -17,7 +17,7 @@ my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfi
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
-my @no_gen = qw( ecmdQueryConfig ecmdQuerySelected );
+my @no_gen = qw( ecmdQueryConfig ecmdQuerySelected ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
 my @dont_flush_sdcache = qw( Query Cache Output Error Spy );
@@ -44,23 +44,23 @@ print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 print OUT "extern \"C\" {\n\n";
 
 print OUT "/* Dll Common load function - verifies version */\n";
-print OUT "int dllLoadDll (const char * i_version, int debugLevel);\n";
+print OUT "uint32_t dllLoadDll (const char * i_version, uint32_t debugLevel);\n";
 print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/\n";
-print OUT "int dllInitDll ();\n\n";
+print OUT "uint32_t dllInitDll ();\n\n";
 print OUT "/* Dll Common unload function */\n";
-print OUT "int dllUnloadDll ();\n";
+print OUT "uint32_t dllUnloadDll ();\n";
 print OUT "/* Dll Specific unload function - deallocates variables/object models*/\n";
-print OUT "int dllFreeDll();\n\n";
+print OUT "uint32_t dllFreeDll();\n\n";
 print OUT "/* Dll Common Command Line Args Function*/\n";
-print OUT "int dllCommonCommandArgs(int*  io_argc, char** io_argv[]);\n";
+print OUT "uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);\n";
 print OUT "/* Dll Specific Command Line Args Function*/\n";
-print OUT "int dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);\n\n";
+print OUT "uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);\n\n";
 
 
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
 
-    if (/^(int|std::string|void)/) {
+    if (/^(uint32_t|std::string|void|bool)/) {
 	
 	next if (/$ignore_re/o);
 
@@ -122,19 +122,18 @@ while (<IN>) {
         }
 
 	unless (/$dont_flush_sdcache_re/o) {
-	    $printout .= "  int flushrc = ecmdFlushRingCache();\n";
-	    $printout .= "  if (flushrc) {\n";
+  
+
 	    if ($type_flag == $STRING) {
-		$printout .= "     return ecmdGetErrorMsg(flushrc);\n";
+		$printout .= "   if (ecmdRingCacheEnabled) return ecmdGetErrorMsg(ECMD_RING_CACHE_ENABLED);\n";
 	    }
 	    elsif ($type_flag == $INT) {
-		$printout .= "     return flushrc;\n";
+		$printout .= "   if (ecmdRingCacheEnabled) return ECMD_RING_CACHE_ENABLED;\n";
 	    }
 	    else { #type is VOID
-		$printout .= "     return;\n";
+		$printout .= "   if (ecmdRingCacheEnabled) return;\n";
 	    }
 
-	    $printout .= "  }\n\n";
 	}
 	
 	$printout .= "#ifdef ECMD_STATIC_FUNCTIONS\n\n";
@@ -273,6 +272,7 @@ print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "extern int ecmdClientDebug;\n";
 print OUT "#endif\n\n\n";
 
+print OUT "extern int ecmdRingCacheEnabled;\n\n\n";
 
 
 print OUT $printout;

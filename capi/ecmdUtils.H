@@ -68,7 +68,7 @@
  * @see ecmdParseOptionWithArgs
 
  */
-int ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
+bool ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
 
 /**
  * @brief Iterates over argv, looking for given option string, removes it if found
@@ -95,7 +95,7 @@ void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens);
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
  */
-int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state);
+uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state);
 
 /**
  @brief Loops over configured and selected elements of the system, updating target to point to them
@@ -104,7 +104,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_loo
  @retval 1 if io_target is valid, 0 if it is not
  @see ecmdConfigLooperInit
  */
-int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
+uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
 
 
 /**
@@ -115,7 +115,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
  @param i_format Flag that tells how to parse the data string, e.g., "b" = binary, "x" = hex left
  @param i_expectedLength If length of data is known before hand , should be passed is necessary for right aligned data that is not byte aligned lengths
  */
-int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength = 0);
+uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength = 0);
 
 /**
  @brief Formats data from data buffer into a string according to format flag and returns the string
@@ -142,5 +142,14 @@ std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols
  @param i_target ecmdChipTarget containing data to format into string
  */
 std::string ecmdWriteTarget (ecmdChipTarget & i_target);
+
+
+/**
+ @brief Fetch the detailed chip data structure for the selected target
+ @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
+ @param i_target ecmdChipTarget that information is requested for
+ @param o_data ecmdChipData struct that contains detailed info on chip ec level, etc.
+ */
+uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
 #endif
