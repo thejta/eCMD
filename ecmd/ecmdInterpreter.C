@@ -306,6 +306,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
 	} else if (!strcmp(argv[0], "simgethierarchy")) {
           rc = ecmdSimGetHierarchyUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "startclocks")) {
+          rc = ecmdStartClocksUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "stopclocks")) {
+          rc = ecmdStopClocksUser(argc - 1, argv + 1);
 #endif
         } else {
           /* We don't understand this function, let's let the caller know */

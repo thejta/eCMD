@@ -177,6 +177,214 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
 
 }
 
+
+uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  char clockDomain[100]; 			///< Store the clock domain user specified
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target being operated on
+  bool validPosFound = false;           ///< Did the looper find something to run on?
+
+   /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  //Check force option
+  bool force = ecmdParseOption(&argc, &argv, "-force");
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  //Setup the target that will be used to query the system config
+  if(argc >= 1) {
+   target.chipType = argv[0];
+   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else {
+   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+  }
+
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+
+  if(argc == 2) {
+    strcpy(clockDomain, argv[1]);
+  }
+  else {
+    strcpy(clockDomain, "ALL");
+  }
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  std::string printed;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    rc = startClocks(target, clockDomain, force);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
+        printed = "startclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else if (rc == ECMD_CLOCKS_ALREADY_ON) {
+        printed = "startclocks - Clocks in the specified domain are already on for target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        if(force) {
+         ecmdOutput( printed.c_str() );
+	 continue;
+	} 
+	else {
+	 ecmdOutputError( printed.c_str() );
+         return rc;
+	}
+    }
+    else if (rc == ECMD_CLOCKS_IN_INVALID_STATE) {
+        printed = "startclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else if (rc == ECMD_RING_CACHE_ENABLED) {
+        printed = "startclocks - Ring Cache enabled - must be disabled to use this function. Target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+
+    printed = ecmdWriteTarget(target) + "  ";
+    ecmdOutput( printed.c_str() ); 
+  }
+
+  if (!validPosFound) {
+    ecmdOutputError("Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  char clockDomain[100]; 			///< Store the clock domain user specified
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target being operated on
+  bool validPosFound = false;           ///< Did the looper find something to run on?
+
+   /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  //Check force option
+  bool force = ecmdParseOption(&argc, &argv, "-force");
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  //Setup the target that will be used to query the system config
+  if(argc >= 1) {
+   target.chipType = argv[0];
+   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else {
+   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+  }
+
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+
+  if(argc == 2) {
+    strcpy(clockDomain, argv[1]);
+  }
+  else {
+    strcpy(clockDomain, "ALL");
+  }
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  std::string printed;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    rc = stopClocks(target, clockDomain, force);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
+        printed = "stopclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else if (rc == ECMD_CLOCKS_ALREADY_OFF) {
+        printed = "stopclocks - Clocks in the specified domain are already off for target ";
+        printed += ecmdWriteTarget(target) + "\n";
+	if(force) {
+         ecmdOutput( printed.c_str() );
+	 continue;
+	} 
+	else {
+	 ecmdOutputError( printed.c_str() );
+         return rc;
+	}
+    }
+    else if (rc == ECMD_CLOCKS_IN_INVALID_STATE) {
+        printed = "stopclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else if (rc == ECMD_RING_CACHE_ENABLED) {
+        printed = "stopclocks - Ring Cache enabled - must be disabled to use this function. Target ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+
+    printed = ecmdWriteTarget(target) + "  ";
+    ecmdOutput( printed.c_str() ); 
+  }
+
+  if (!validPosFound) {
+    ecmdOutputError("Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}  
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
