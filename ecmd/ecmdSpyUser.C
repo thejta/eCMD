@@ -1,6 +1,6 @@
 // Copyright ***********************************************************
 //                                                                      
-// File ecmdDaSpyUser.C                                  
+// File ecmdSpyUser.C                                  
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
@@ -193,7 +193,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         
 
       /* Bounds check */
-      if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+      if ((numBits != 0xFFFFFFFF) && (startBit + numBits) > ECMD_MAX_DATA_BITS) {
         char errbuf[100];
         sprintf(errbuf,"getspy - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
         ecmdOutputError(errbuf);
