@@ -161,7 +161,7 @@ uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmd
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
- @param rNum Number of vr to read from
+ @param i_vrNum Number of vr to read from
  @param o_data DataBuffer object that holds data read from vr
 
  TARGET DEPTH  : Core
