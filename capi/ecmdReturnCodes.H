@@ -62,7 +62,7 @@
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
 #define ECMD_EXPECT_FAILURE                     0x1901  ///< An expect was performed and a miscompare was found
 #define ECMD_SCANDEF_LOOKUP_FAILURE             0x1902  ///< An Error occurred trying to process the scandef file
-
+#define ECMD_DATA_BOUNDS_OVERFLOW               0x1903  ///< The user specified to get/put data that was larger then ECMD_MAX_DATA_BITS
 
 /* dataBuffer specific return codes */
 #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
