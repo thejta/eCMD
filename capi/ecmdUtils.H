@@ -129,7 +129,7 @@ void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens);
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
  */
-int ecmdConfigLooperInit (ecmdChipTarget & io_target);
+int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype);
 
 /**
  @brief Loops over configured and selected elements of the system, updating target to point to them

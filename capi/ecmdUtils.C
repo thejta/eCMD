@@ -249,7 +249,7 @@ void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens) {
 }
 
 
-int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
+int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype) {
 
   int rc = ECMD_SUCCESS;
 
@@ -289,7 +289,10 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
     queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
   }
 
-  rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
+  if (i_looptype == ECMD_SELECTED_TARGETS_LOOP) 
+    rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
+  else
+    rc = ecmdQueryConfig(queryTarget, ecmdSystemConfigData);
   if (rc) return rc;
 
   ecmdCurCage = ecmdSystemConfigData.cageData.begin();

@@ -309,6 +309,13 @@ typedef enum {
 } ecmdFileType_t;
 
 
+/**
+ @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
+*/
+typedef enum {
+  ECMD_SELECTED_TARGETS_LOOP,   ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc
+  ECMD_ALL_TARGETS_LOOP         ///< Loop on all valid targets in the system
+} ecmdConfigLoopType_t;
 
 
 #endif
