@@ -65,6 +65,7 @@
 #define ECMD_POLLING_FAILURE                    0x1045 ///< eCMD failed waiting for a poll to match expected value
 #define ECMD_TARGET_INVALID_TYPE                0x1046 ///< Target specified an object that was inappropriate for the function
 #define ECMD_EXTENSION_NOT_SUPPORTED            0x1047 ///< The current plugin does not supported the requested extension
+#define ECMD_ISTEPS_INVALID_STEP                0x1048 ///< An invalid step name was provided
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
