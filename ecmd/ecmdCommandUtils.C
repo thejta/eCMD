@@ -164,7 +164,7 @@ int ecmdPrintHelp(const char* i_command) {
   /* Let's go open this guy */
   ins.open(file.c_str());
   if (ins.fail()) {
-    ecmdOutputError(("Error occured opening help text file: " + file).c_str());
+    ecmdOutputError(("Error occured opening help text file: " + file + "\n").c_str());
     return ECMD_INVALID_ARGS;  //change this
   }
 
