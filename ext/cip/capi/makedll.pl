@@ -143,14 +143,11 @@ while (<IN>) {
         #Put the debug stuff here
 	if (!($orgfuncname =~ /ecmdOutput/)) {
 	    $printout .= "#ifndef ECMD_STRIP_DEBUG\n";
-	    $printout .= "  if (ecmdClientDebug > 1) {\n";
-	    $printout .= "    std::string printed = \"ECMD DEBUG ($orgfuncname) : Entering\\n\"; ecmdOutput(printed.c_str());\n";
-	    $printout .= "  }\n";
 
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
-		    $printout .= "  if (ecmdClientDebug >= 9) {\n";
+		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     std::vector< void * > args;\n";
 
 
@@ -180,8 +177,11 @@ while (<IN>) {
 #		    chop ($pp_typestring, $pp_argstring);
 #		    chop ($pp_typestring, $pp_argstring);
 #		    $printout .= "," . $pp_argstring . ");\n\n";
-		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
-		    
+		    $printout .= "     if (ecmdClientDebug == 8) {\n";
+		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "     } else {\n";
+		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "     }\n";
 		    $printout .= "  }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 
@@ -279,7 +279,7 @@ while (<IN>) {
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
-		    $printout .= "  if (ecmdClientDebug >= 9) {\n";
+		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     std::vector< void * > args;\n";
 
 		    #
@@ -318,16 +318,22 @@ while (<IN>) {
 #		    chop ($pp_typestring, $pp_argstring);
 #		    chop ($pp_typestring, $pp_argstring);
 
-		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "\n";
+		    if(($type_flag == $VOID) || ($type_flag == $STRING)) {
+			$printout .= "     if (ecmdClientDebug == 8) {\n";
+		    } else {
+			$printout .= "     if ((ecmdClientDebug == 8) && (rc ==0)) {\n";
+		    }
+		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "     } else {\n";
+
+		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
 		    #	    
-		    $printout .= "  }\n";
+		    $printout .= "     }\n";
+		    $printout .= "   }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 
 
-
-	    $printout .= "  if (ecmdClientDebug > 1) {\n";
-	    $printout .= "    std::string printed = \"ECMD DEBUG ($orgfuncname) : Exiting\\n\"; ecmdOutput(printed.c_str());\n";
-	    $printout .= "  }\n";
 	    $printout .= "#endif\n\n";
         }
 
