@@ -25,6 +25,7 @@
 #define ecmdCommandUtils_C
 #include <list>
 #include <inttypes.h>
+#include <string.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdIntReturnCodes.H>
@@ -248,6 +249,154 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
   return 1;
 
+}
+
+
+void ecmdWriteTarget (ecmdChipTarget & i_target) {
+
+  std::string printed;
+  char util[7];
+
+  if (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
+    printed = i_target.chipType + ":";
+    //printed += " ";  //space vs. colon?
+  }
+
+  //always do cage
+  sprintf(util, "k%d", i_target.cage);
+  printed += util;
+
+  if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
+    sprintf(util, ":n%d", i_target.node);
+    printed += util;
+
+    if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
+
+      if (i_target.pos < 10) {
+        sprintf(util, ":p0%d", i_target.pos);
+      }
+      else {
+        sprintf(util, ":p%d", i_target.pos);
+      }
+      printed += util;
+
+      if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
+        sprintf(util, ":c%d", i_target.core);
+        printed += util;
+
+        if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+          sprintf(util, ":t%d", i_target.thread);
+          printed += util;
+        }
+        else {
+          printed += "   ";
+        }
+
+      } //core
+      else {
+        printed += "      ";
+      }
+
+    } //pos
+    else {
+      printed += "          ";
+    }
+    
+  } //node
+
+  //set a space between the target info and the data
+  printed += " "; 
+
+  ecmdOutput(printed.c_str());
+
+}
+
+int ecmdWriteDataFormatted (const char * i_format, ecmdDataBuffer & i_data) {
+
+  std::string printed;
+  int formTagLength = strlen(i_format);
+
+  if (formTagLength > 1 && (i_format[formTagLength-1] == 'w' || i_format[formTagLength-1] == 'b')) {
+
+    uint8_t state = 0;
+    uint8_t HEXLEFT = 1;
+    uint8_t HEXRIGHT = 2;
+    uint8_t BINARY = 3;
+
+    if (formTagLength == 2) {
+      if (i_format[0] == 'x') {
+        state = HEXLEFT;
+      }
+      else if (i_format[0] == 'b') {
+        state = BINARY;
+      }
+    }
+    else if (formTagLength == 3) {
+      if (i_format[0] == 'x') {
+        if (i_format[1] == 'l') {
+          state = HEXLEFT;
+        }
+        else if (i_format[1] == 'r') {
+          state = HEXRIGHT;
+        }
+      }
+    }
+
+    if (state) {
+
+      int numBits = i_data.getBitLength();
+      int maxBits = 32;
+      if (i_format[formTagLength-1] == 'b') {
+        maxBits = 4;
+      }
+
+      int startBit = 0;
+      int numToFetch = numBits < maxBits ? numBits : maxBits;
+
+      while (numToFetch > 0) {
+
+        if (state == HEXLEFT) {
+          printed = i_data.genHexLeftStr(startBit, numToFetch);
+        }
+        else if (state == HEXRIGHT) {
+          printed = i_data.genHexRightStr(startBit, numToFetch);
+        }
+        else { //binary data
+          printed = i_data.genBinStr(startBit, numToFetch);
+        }
+
+        ecmdOutput( printed.c_str() );
+        ecmdOutput(" ");
+
+        startBit += numToFetch;
+        numBits -= numToFetch;
+        numToFetch = (numBits < maxBits) ? numBits: maxBits;
+      }
+
+      return ECMD_SUCCESS;
+    }
+  }
+  else {
+
+    if (!strcmp(i_format, "x") || !strcmp(i_format, "xl")) {
+      printed = i_data.genHexLeftStr();
+    }
+    else if (!strcmp(i_format, "xr")) {
+      printed = i_data.genHexRightStr();
+    }
+    else if (!strcmp(i_format, "b")) {
+      printed = i_data.genBinStr();
+    }
+    else if (!strcmp(i_format, "d")) {
+      // printed = i_data.genDecStr();  need to implement this
+    }
+
+    return ECMD_SUCCESS;
+  }
+
+  //if we made it this far, it's a special format 
+
+  return ECMD_SUCCESS;
 }
 
 // Change Log *********************************************************

@@ -34,6 +34,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <ecmdStructs.H>
+#include <ecmdDataBuffer.H>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -56,7 +57,9 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target);
 int ecmdConfigLooperNext (ecmdChipTarget & io_target);
 
 
+void ecmdWriteTarget (ecmdChipTarget & i_target);
 
+int ecmdWriteDataFormatted (const char * i_format, ecmdDataBuffer & i_data);
 
 #endif /* ecmdCommandUtils_h */
 
