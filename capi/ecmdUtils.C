@@ -816,16 +816,20 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
 
   if (curState == ECMD_FORMAT_X) {
     printed = "0x" + i_data.genHexLeftStr();
+    printed += "\n";
   }
   else if (curState == ECMD_FORMAT_XR) {
     printed = "0xr" + i_data.genHexRightStr();
+    printed += "\n";
   }
   else if (curState == ECMD_FORMAT_B) {
     printed = "0b" + i_data.genBinStr();
+    printed += "\n";
   }
   else if (curState == ECMD_FORMAT_BX) {
     //do something
     printed = "0b" + i_data.genXstateStr();
+    printed += "\n";
   }
   else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
     int myAddr = address;
@@ -864,7 +868,12 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
-          sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
+	  if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+	    sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+	  }
+	  else {
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
+	  }
         }
 	printed += tempstr;
       }
@@ -907,7 +916,12 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
-          sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+	  if (numLastBytes) {
+	    sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+	  }
+	  else {
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+	  }
         }
         printed += tempstr;
       }
@@ -1010,10 +1024,11 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
 
     delete outstr;
     outstr = NULL;
+    printed += "\n";
   }
 
   // Tack this onto the end of anything returned
-  printed += "\n";
+  //printed += "\n";
     
   return printed;
 
