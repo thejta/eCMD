@@ -43,6 +43,11 @@
 //
 //   These are just stubs, used for testing the out the DLL
 
+int dllInitDll() {
+  /* This is where we would init any local variables to the dll */
+  return ECMD_SUCCESS;
+}
+
 int dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }

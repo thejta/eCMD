@@ -55,9 +55,9 @@
 int dllLoadDll (const char* clientVersion) {
 
   /* First off let's check our version */
-  if (!strcmp(clientVersion,ECMD_CAPI_VERSION)) {
+  if (strcmp(clientVersion,ECMD_CAPI_VERSION)) {
     fprintf(stderr,"**** FATAL : eCMD DLL and your client are not compatible\n");
-    fprintf(stderr,"**** FATAL : Client Version : %d   : DLL Version : %d\n",clientVersion, ECMD_CAPI_VERSION);
+    fprintf(stderr,"**** FATAL : Client Version : %s   : DLL Version : %s\n",clientVersion, ECMD_CAPI_VERSION);
 /*
     if (version < DLL_VERSION)
       fprintf(stderr,"**** FATAL : You must rebuild your client to continue\n");
@@ -72,7 +72,7 @@ int dllLoadDll (const char* clientVersion) {
 }
 
 int dllUnloadDll() {
-  printf("unloading dll\n");
+
   return 0;
 }
 
@@ -84,6 +84,9 @@ string ecmdGetErrorMsg(int errorCode) {
 }
 
 int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
+  int rc = ECMD_SUCCESS;
+
+  return rc;
 }
 
 

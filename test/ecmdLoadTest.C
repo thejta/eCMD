@@ -12,15 +12,8 @@ int main (int argc, char *argv[])
 {
   ecmdDataBuffer vec(32);
 
-  ecmdLoadDll("/afs/rchland.ibm.com/usr2/willsj/ecmd/capi/ecmdClientCapi_x86.a");
+  ecmdLoadDll("../dllStub/export/ecmdDllStub_x86.so");
 
   ecmdUnloadDll();
 
 }
-
-/* Change Log
-<@log@>
-
-Fri Sep 19 2003  16:05:32  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-*/

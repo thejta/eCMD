@@ -48,8 +48,11 @@
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+
+#ifndef ECMD_STATIC_FUNCTIONS
 /* These are from ecmdClientCapiFunc.C */
 extern void * dlHandle;
+#endif
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -71,6 +74,7 @@ int ecmdLoadDll(string dllName) {
   const char* dlError;
   int rc = ECMD_SUCCESS;
 
+#ifndef ECMD_STATIC_FUNCTIONS
 #ifdef _AIX
   /* clean up the machine from previous tests */
   system("slibclean");
@@ -112,6 +116,11 @@ int ecmdLoadDll(string dllName) {
     rc = (*Function)(ECMD_CAPI_VERSION);
   }
 
+#else
+  rc = dllLoadDll(ECMD_CAPI_VERSION);
+
+#endif /* ECMD_STATIC_FUNCTIONS */
+
   return rc;
 }
 
@@ -119,6 +128,11 @@ int ecmdUnloadDll() {
 
   int rc = ECMD_SUCCESS;
   int c_rc = ECMD_SUCCESS;
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllUnloadDll();
+
+#else
 
   /* call DLL unload */
   int (*Function)() =
@@ -143,6 +157,7 @@ int ecmdUnloadDll() {
   }
 
   dlHandle = NULL;
+#endif
 
   return rc;
 }
