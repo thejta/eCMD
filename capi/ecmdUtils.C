@@ -641,14 +641,14 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     int curCol = 0;
     int colCount = 0;
     int blockSize = 32;
-    if (curState == ECMD_FORMAT_BN) blockSize = 4;
+    if ((curState == ECMD_FORMAT_BN) || (curState == ECMD_FORMAT_BXN))  blockSize = 4;
     int curOffset = 0;
     int numBlocks = i_data.getBitLength() % blockSize ? i_data.getBitLength() / blockSize + 1: i_data.getBitLength() / blockSize;
     int dataBitLength = i_data.getBitLength();
 
     if (numCols) {
 
-      if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B) {
+      if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B || curState == ECMD_FORMAT_BXN || curState == ECMD_FORMAT_BXW) {
         printed += "\n";
         printed += ecmdBitsHeader(4, blockSize, numCols, dataBitLength);
       } 
@@ -663,6 +663,9 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       }
       else if (curState == ECMD_FORMAT_XRW) {
         printed += i_data.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+      }
+      else if ((curState == ECMD_FORMAT_BX) || (curState == ECMD_FORMAT_BXN) || (curState == ECMD_FORMAT_BXW))  {
+        printed +=  i_data.genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else {
         printed += i_data.genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));

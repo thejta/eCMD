@@ -824,8 +824,23 @@ void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
 }
 
 void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
-  bufferOut.setBitLength(len);
-  this->extract(bufferOut.iv_Data, start, len);
+
+  if (start + len > iv_NumBits) {
+    printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
+  } else {
+    bufferOut.setBitLength(len);
+
+    ecmdExtract(this->iv_Data, start, len, bufferOut.iv_Data);
+
+
+#ifndef REMOVE_SIM   
+    if (start+len <= iv_NumBits) {
+      strncpy(bufferOut.iv_DataStr, (genXstateStr(start, len)).c_str(), len);
+      bufferOut.iv_DataStr[len] = '\0';
+    }
+#endif
+  }
+
 }
 
 void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
@@ -837,13 +852,9 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
     ecmdExtract(this->iv_Data, start, len, dataOut);
 
 #ifndef REMOVE_SIM
-    if (this->hasXstate()) {  /* fast strchr */
-      for (int i = start; i < len; i++) { /* now get exact bit */
-        if (this->hasXstate(start, 1)) {
-          char temp[100];
-          printf("**** ERROR : ecmdDataBuffer::extract: Cannot extract non-binary character at bit %d\n", i);
-        }
-      }
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(start, len)) {
+      printf("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character present\n");
     }
 #endif
   }
@@ -991,6 +1002,13 @@ std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
     ret.erase(ret.length() - overCount, ret.length()-1);
   }
 
+#ifndef REMOVE_SIM
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(start, bitLen)) {
+      printf("**** WARNING : ecmdDataBuffer::genHexLeftStr: Cannot extract when non-binary (X-State) character present\n");
+    }
+#endif
+
   return ret;
 }
 
@@ -1009,6 +1027,12 @@ std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
   }
   ret = temp.genHexLeftStr();
 
+#ifndef REMOVE_SIM
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(start, bitLen)) {
+      printf("**** WARNING : ecmdDataBuffer::genHexRightStr: Cannot extract when non-binary (X-State) character present\n");
+    }
+#endif
     
   return ret;
 }
@@ -1042,19 +1066,26 @@ std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
 
   delete[] tempData;
 
+#ifndef REMOVE_SIM
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(start, bitLen)) {
+      printf("**** WARNING : ecmdDataBuffer::genBinStr: Cannot extract when non-binary (X-State) character present\n");
+    }
+#endif
+
   return ret;
 }
 
 std::string ecmdDataBuffer::genXstateStr(int start, int bitLen) { 
   std::string ret;
 #ifndef REMOVE_SIM
-  char * copyStr = new char[strlen(iv_DataStr)];
-  strcpy(copyStr, &iv_DataStr[start]);
-  if (bitLen < strlen(copyStr)) {
-    copyStr[bitLen+1] = '\0';
-  }
+  char * copyStr = new char[bitLen + 4];
+  strncpy(copyStr, &iv_DataStr[start], bitLen);
+  copyStr[bitLen] = '\0';
 
   ret = copyStr;
+
+  delete[] copyStr;
 #else
   printf( "**** ERROR : ecmdDataBuffer: genXstateStr: Not defined in this configuration");
 #endif
@@ -1322,9 +1353,11 @@ void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
  * @param i_buf Buffer to copy from
  * @param i_bytes Byte length to copy (char length)
  */
-void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+void  ecmdDataBuffer::memCopyInXstate(const char * i_buf, int i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
-  int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+  /* cbytes is equal to the bit length of data */
+  int cbytes = i_bytes < getBitLength() ? i_bytes : getBitLength();
+  int index;
 #ifdef REMOVE_SIM
   printf("**** ERROR : ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
 #else
@@ -1334,11 +1367,12 @@ void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a mem
 
   /* Now slide it over to the raw buffer */
 
-  for (int counter = 0; counter < cbytes; counter++) {
-    if (i_buf[counter] == '1') {
-      iv_Data[counter>>5] |= 0x80000000 >> counter&0x1F;
+  for (int bit = 0; bit < cbytes; bit++) {
+    index = bit/32;
+    if (i_buf[bit] == '1') {
+      iv_Data[index] |= 0x00000001 << (31 - (bit-(index * 32)));
     } else {
-      iv_Data[counter>>5] &= ~(0x80000000 >> counter&0x1F);
+      iv_Data[index] &= (~0x00000001 << (31 - (bit-(index * 32))));
     }
   }
 

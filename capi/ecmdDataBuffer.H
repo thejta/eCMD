@@ -609,7 +609,7 @@ public:
    * @param i_bytes Byte length to copy (char length)
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
-  void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  void  memCopyInXstate(const char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
    * @brief Copy DataBuffer into supplied char buffer from Xstate data
    * @param o_buf Buffer to copy into - must be pre-allocated
