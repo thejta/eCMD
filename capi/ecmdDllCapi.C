@@ -33,6 +33,7 @@
 
 #include <ecmdDllCapi.H>
 #include <ecmdUtils.H>
+#include <ecmdStructs.H>
 
 #undef ecmdDllCapi_C
 //----------------------------------------------------------------------
@@ -50,6 +51,9 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+void dllRemoveNullPointers (int * io_argc, char ** io_argv[]);
+
+char * dllParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -164,7 +168,7 @@ int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_messa
   return rc;
 }
 
-int dllQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData) {
+int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData) {
   int rc = ECMD_SUCCESS;
 
   //update target with useful info in the ecmdUserArgs struct
@@ -262,25 +266,77 @@ int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
    store them away for future use */
 
   //cage - the "-k" was Larry's idea, I just liked it - jtw
-  ecmdUserArgs.cage = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
+  ecmdUserArgs.cage = dllParseOptionWithArgs(io_argc, io_argv, "-k");
 
   //node
-  ecmdUserArgs.node = ecmdParseOptionWithArgs(io_argc, io_argv, "-n");
+  ecmdUserArgs.node = dllParseOptionWithArgs(io_argc, io_argv, "-n");
 
   //position
-  ecmdUserArgs.pos = ecmdParseOptionWithArgs(io_argc, io_argv, "-p");
+  ecmdUserArgs.pos = dllParseOptionWithArgs(io_argc, io_argv, "-p");
 
   //core
-  ecmdUserArgs.core = ecmdParseOptionWithArgs(io_argc, io_argv, "-c");
+  ecmdUserArgs.core = dllParseOptionWithArgs(io_argc, io_argv, "-c");
 
   //thread
-  ecmdUserArgs.thread = ecmdParseOptionWithArgs(io_argc, io_argv, "-t");
+  ecmdUserArgs.thread = dllParseOptionWithArgs(io_argc, io_argv, "-t");
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
 
   return rc;
 }
+
+
+
+void dllRemoveNullPointers (int *argc, char **argv[]) {
+  int counter=0;
+  int counter2=0;
+
+  for (counter=0;counter<(*argc+1);counter++) {
+    for (counter2=counter;counter2<*argc;counter2++) {
+      if ((*argv)[counter]==NULL) {
+        (*argv)[counter]=(*argv)[counter2];
+        (*argv)[counter2]=NULL;
+      }
+    }
+  }
+
+  for (counter=0;counter<(*argc);counter++) {
+    if ((*argv)[counter]==NULL) {
+      *argc=counter;
+      return;
+    }
+  }
+}
+
+char * dllParseOptionWithArgs(int *argc, char **argv[], const char *option) {
+  int counter = 0;
+  int foundit = 0;
+  char *returnValue=NULL;
+
+  for (counter = 0; counter < *argc ; counter++) {
+    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) { 
+
+      if (strlen((*argv)[counter])>strlen(option)) {
+        returnValue = &((*argv)[counter][strlen(option)]);
+        (*argv)[counter]=NULL;
+      } else {
+        if ((counter+1)<*argc) {
+          returnValue = (*argv)[counter+1];
+          (*argv)[counter]=NULL;
+          (*argv)[counter+1]=NULL;
+        } else {
+          returnValue = NULL;
+        }
+      }
+    }
+  }
+
+  dllRemoveNullPointers(argc, argv);
+
+  return returnValue;
+}
+
 
 
 // Change Log *********************************************************

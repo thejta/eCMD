@@ -26,7 +26,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <inttypes.h>
-#include <vector>  /* For STL vector */
+#include <list>  /* For STL list */
 #include <string>
 
 //--------------------------------------------------------------------
@@ -58,7 +58,6 @@ typedef enum {
 
 struct ecmdDllInfo {
   ecmdDllType_t         dllType;        ///< Dll instance type running
-  std::string           dllFile;        ///< Full path/filename to the dll that was loaded
 };
 
 /**
@@ -136,7 +135,7 @@ struct ecmdChipData {
   uint32_t                      chipEc;             ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
   ecmdChipInterfaceType_t       interfaceType;      ///< Interface Macro used by the chip
   uint32_t                      chipFlags;          ///< Various additional info about the chip - bitmask of defines
-  std::vector<ecmdCoreData>     coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+  std::list<ecmdCoreData>     coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
 /**
@@ -144,7 +143,7 @@ struct ecmdChipData {
 */
 struct ecmdNodeData {
   uint32_t nodeId;                      ///< Node number of this entry
-  std::vector<ecmdChipData> chipData;   ///< Vector of all chips requested in this node - in numerical order per chip by pos
+  std::list<ecmdChipData> chipData;   ///< Vector of all chips requested in this node - in numerical order per chip by pos
 };
 
 /**
@@ -152,7 +151,7 @@ struct ecmdNodeData {
 */
 struct ecmdCageData {
   uint32_t cageId;                      ///< Cage number of this entry
-  std::vector<ecmdNodeData> nodeData;   ///< Vector of all nodes requested in this cage - in numerical order by nodeId
+  std::list<ecmdNodeData> nodeData;   ///< Vector of all nodes requested in this cage - in numerical order by nodeId
 };
 
 
@@ -160,7 +159,7 @@ struct ecmdCageData {
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
-  std::vector<std::string> ringNames;   ///< Names used to reference this ring
+  std::list<std::string> ringNames;   ///< Names used to reference this ring
   uint32_t address;                     ///< Address modifier
   int      bitLength;                   ///< length of ring
   bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
@@ -196,7 +195,7 @@ struct ecmdSpyData {
   int bitLength;                        ///< length of spy
   ecmdSpyType_t spyType;                ///< Type of spy
   
-  std::vector<std::string> enums;       ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
+  std::list<std::string> enums;       ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
 };
 
 /**

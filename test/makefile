@@ -9,7 +9,7 @@ VPATH        := ../capi/export ../dllStub ../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
 SOURCE       := ecmdLoadTest.C
-STATIC_SOURCE := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDataBuffer.C ecmdClientCapiFunc.C ecmdClientCapi.C
+STATIC_SOURCE := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDataBuffer.C ecmdClientCapiFunc.C ecmdClientCapi.C ecmdUtils.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -I../capi/ -g
 
@@ -34,12 +34,15 @@ ifeq (${OS},AIX)
   TARGET  := ecmdClientTest_aix
 endif
 
+VPATH     := ${VPATH}:${SUBDIR}
 
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} ${TARGET}_static
+	@touch t.o t_x86 t_aix t_ppc
+	@mv *.o *_x86 *_aix *_ppc  ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 	@cp ${SUBDIR}${TARGET}_static export/
@@ -68,19 +71,21 @@ STATIC_SOURCE_OBJS := $(addsuffix _static.o, $(STATIC_SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o ${SUBDIR}$@ $(DEFINES)
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 $(STATIC_SOURCE_OBJS): %_static.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o ${SUBDIR}$@ $(DEFINES) -DECMD_STATIC_FUNCTIONS
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES) -DECMD_STATIC_FUNCTIONS
 
 
 # *****************************************************************************
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
+	@echo " "
 	@echo "Linking Dynamic version of test client ..."
-	${LD} ${LDFLAGS} $(addprefix ${SUBDIR}, $^) ../capi/export/ecmdClientCapi_x86.a -o ${SUBDIR}$@ 
+	${LD} ${LDFLAGS} $^ ../capi/export/ecmdClientCapi_x86.a -o $@ 
 
 ${TARGET}_static: ${STATIC_SOURCE_OBJS}
+	@echo " "
 	@echo "Linking Static version of test client ..."
-	${LD} ${LDFLAGS} $(addprefix ${SUBDIR}, $^)  -o ${SUBDIR}$@ 
+	${LD} ${LDFLAGS} $^  -o $@ 
 

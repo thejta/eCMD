@@ -83,13 +83,18 @@ int dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * add
 
 int dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
-int dllQueryConfig(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData){ return ECMD_SUCCESS; } 
+int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
+  o_dllInfo.dllType = ECMD_DLL_STUB;
+  return ECMD_SUCCESS;
+}
 
-int dllQueryRing(ecmdChipTarget & target, std::vector<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
+int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData) { return ECMD_SUCCESS; } 
 
-int dllQueryArray(ecmdChipTarget & target, std::vector<ecmdArrayData> & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
+int dllQueryRing(ecmdChipTarget & target, std::list<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
 
-int dllQuerySpy(ecmdChipTarget & target, std::vector<ecmdSpyData> & queryData, const char * spyName){ return ECMD_SUCCESS; } 
+int dllQueryArray(ecmdChipTarget & target, std::list<ecmdArrayData> & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
+
+int dllQuerySpy(ecmdChipTarget & target, std::list<ecmdSpyData> & queryData, const char * spyName){ return ECMD_SUCCESS; } 
 
 int dllQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string fileLocation){ return ECMD_SUCCESS; } 
 

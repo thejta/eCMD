@@ -32,16 +32,19 @@ ifeq (${OS},AIX)
   SUBDIR  := aix/
   CC := xlC -+
   LD := makeC++SharedLib
-  TARGET = ecmdDllStub_x86.so
+  TARGET = ecmdDllStub_aix.so
   LDFLAGS := ${LDFLAGS} -e ecmdDllStub.export -p 0
 endif
 
+VPATH     := ${VPATH}:${SUBDIR}
 
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET}
+	@touch t.o t.so
+	@mv *.o *.so  ${SUBDIR}
 	@echo "Exporting eCMD Dll Stub to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 
@@ -66,13 +69,13 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o ${SUBDIR}$@ $(DEFINES)
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	$(LD) ${LDFLAGS} -o ${SUBDIR}$@ $(addprefix ${SUBDIR}, $^)
+	$(LD) ${LDFLAGS} -o $@ $^
 
 

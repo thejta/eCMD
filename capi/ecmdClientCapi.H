@@ -94,7 +94,7 @@ int ecmdCommandArgs(int i_argc, char* i_argv[]);
   along with additional information.
 */
 
-int ecmdQueryDllInfo(ecmdDllInfo o_dllInfo);
+int ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
 
 /**
@@ -121,7 +121,7 @@ int ecmdQueryDllInfo(ecmdDllInfo o_dllInfo);
    cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid><p>
 */
    
-int ecmdQueryConfig(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData);
+int ecmdQueryConfig(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
@@ -135,7 +135,7 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_que
 
  Use of this function is the same as ecmdQueryConfig except chipType is not used
 */
-int ecmdQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData);
+int ecmdQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData);
 
 /**
  @brief Query Ring information from the DLL
@@ -145,7 +145,7 @@ int ecmdQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_q
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQueryRing(ecmdChipTarget & i_target, std::vector<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
+int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
 
 /**
  @brief Query Array information from the DLL
@@ -155,7 +155,7 @@ int ecmdQueryRing(ecmdChipTarget & i_target, std::vector<ecmdRingData> & o_query
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQueryArray(ecmdChipTarget & i_target, std::vector<ecmdArrayData> & o_queryData, const char * i_arrayName);
+int ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName);
 
 /**
  @brief Query Spy information from the DLL
@@ -165,7 +165,7 @@ int ecmdQueryArray(ecmdChipTarget & i_target, std::vector<ecmdArrayData> & o_que
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQuerySpy(ecmdChipTarget & i_target, std::vector<ecmdSpyData> & o_queryData, const char * i_spyName);
+int ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName);
 
 /**
  @brief Query the location of a specific file type for the selected target
