@@ -108,6 +108,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetArrayUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getconfig")) {
+          rc = ecmdGetConfigUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getfpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_FPR);
         } else if (!strcmp(argv[0], "getgpr")) {
@@ -195,7 +197,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "sendcmd")) {
           rc = ecmdSendCmdUser(argc - 1, argv + 1);
-
+        } else if (!strcmp(argv[0], "setconfig")) {
+          rc = ecmdSetConfigUser(argc - 1, argv + 1);
 #ifndef REMOVE_SIM
         } else if (!strcmp(argv[0], "simaet")) {
           rc = ecmdSimaetUser(argc - 1, argv + 1);
