@@ -2,7 +2,7 @@
 // Additional typemaps for cases not covered by SWIG
 // Jason Albert
 
-%typemap(in) char* i_argv[] (AV* tempAV) {
+%typemap(in) char** i_argv (AV* tempAV) {
   int perlLength;
   int i;
   SV  **tv;
@@ -24,7 +24,7 @@
 
 // NOTE:  This typemap only supports the char** array coming back being the same size or smaller than the
 //        original perl array. It can be extended to suppot larger char** array's, but not needed currently.
-%typemap(argout) char* i_argv[] {
+%typemap(argout) char** i_argv {
   AV* tempAV = (AV*)SvRV($arg);  // This makes sense in the generated code
   SV **svs;
   int i = 0,cLength = 0,perlLength = 0;
