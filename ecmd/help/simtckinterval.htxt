@@ -1,0 +1,14 @@
+
+Syntax: simtckinterval <interval>
+        
+        ECMD:           Core Common Function
+
+        Function:       Adjust the TCK Interval
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        interval        New Interval
+
+        --------------------------------------------------------------------------------
+
+        Example:        simtckinterval 18
