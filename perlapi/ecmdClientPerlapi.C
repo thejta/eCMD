@@ -49,7 +49,6 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 }
 
 ecmdClientPerlapi::ecmdClientPerlapi () {
-  perlFormat = "b";
 
 }
 
@@ -76,132 +75,7 @@ int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) 
 
   return rc;
 
-
 }
-
-
-
-int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_data) {
-
-  ecmdChipTarget myTarget;
-  std::string dataStr;
-
-  int rc = setupTarget(i_target, myTarget);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) {
-    *o_data = NULL;
-    return rc;
-  }
-
-  ecmdDataBuffer buffer;
-  rc = ::getScom(myTarget, i_address, buffer);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) {
-    o_data = NULL;
-    return rc;
-  }
-
-
-  dataStr = buffer.genBinStr();
-
-  char* tmp;
-  tmp = new char[dataStr.length()+1];
-  strcpy(tmp,dataStr.c_str());
-  *o_data = tmp;
-
-  return rc;
-}
-
-
-
-int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char * i_data) {
-
-  ecmdChipTarget myTarget;
-
-  int rc = setupTarget(i_target, myTarget);
-  if (rc) return rc;
-
-  ecmdDataBuffer buffer;
-
-  buffer.setBitLength(strlen(i_data));
-  rc = buffer.insertFromBin(i_data);
-
-  rc = ::putScom(myTarget, i_address, buffer);
-
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
- 
- 
-int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, char **o_data) {
-
-  int rc = 0;
-  ecmdDataBuffer buffer;
-  ecmdChipTarget myTarget;
-  std::string dataStr;
-
-  rc = setupTarget(i_target, myTarget);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return rc;
-
-  rc = ::getRing(myTarget, i_ringName, buffer);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return rc;
-
-
-  dataStr = buffer.genBinStr();
-
-  char* tmp;
-  tmp = new char[dataStr.length()+1];
-  strcpy(tmp,dataStr.c_str());
-  *o_data = tmp;
-
-  return rc;
-}
-
-
-int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, const char * i_data) {
-
-  ecmdChipTarget myTarget;
-
-  int rc = setupTarget(i_target, myTarget);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return rc;
-
-  ecmdDataBuffer buffer;
-
-  buffer.setBitLength(strlen(i_data));
-  rc = buffer.insertFromBin(i_data);
-
-  rc = ::putRing(myTarget, i_ringName, buffer);
-
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
-
-
-
-/***
-void ecmdClientPerlapi::add(char *retval) {
-  printf("Inside function: %c %c %c\n",retval[0],retval[1],retval[2]);
-
-  retval[0] = 'L'; retval[1] = 'p';
-
- strcpy(retval,"Looky here - I made it");
-}
-
-void ecmdClientPerlapi::add2(char **retval) {
-  printf("Inside function: %s\n",*retval);
-
-
-  *retval = (char*)malloc(sizeof (char[100]));
-  strcpy(*retval,"Looky here - I made it");
-}
-***/
-
-
 
 
 int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
@@ -265,6 +139,165 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
 }
 
 
+
+int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_data) {
+
+  ecmdChipTarget myTarget;
+  std::string dataStr;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::getScom(myTarget, i_address, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+
+  dataStr = buffer.genBinStr();
+
+  char* tmp;
+  tmp = new char[dataStr.length()+1];
+  strcpy(tmp,dataStr.c_str());
+  *o_data = tmp;
+
+  return rc;
+}
+
+
+
+int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char * i_data) {
+
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putScom(myTarget, i_address, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+}
+
+ 
+ 
+int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, char **o_data) {
+
+  int rc = 0;
+  ecmdDataBuffer buffer;
+  ecmdChipTarget myTarget;
+
+  rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  rc = ::getRing(myTarget, i_ringName, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
+  return rc;
+}
+
+
+int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, const char * i_data) {
+
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putRing(myTarget, i_ringName, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+}
+
+
+int ecmdClientPerlapi::getSpy (const char* i_target, const char * i_spyName, char** o_data){
+  int rc = 0;
+  ecmdDataBuffer buffer;
+  ecmdChipTarget myTarget;
+
+  rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  rc = ::getSpy(myTarget, i_spyName, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
+  return rc;
+}
+
+int ecmdClientPerlapi::putSpy (const char* i_target, const char * i_spyName, const char* i_data){
+
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putSpy(myTarget, i_spyName, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+}
+
+
+/***
+void ecmdClientPerlapi::add(char *retval) {
+  printf("Inside function: %c %c %c\n",retval[0],retval[1],retval[2]);
+
+  retval[0] = 'L'; retval[1] = 'p';
+
+ strcpy(retval,"Looky here - I made it");
+}
+
+void ecmdClientPerlapi::add2(char **retval) {
+  printf("Inside function: %s\n",*retval);
+
+
+  *retval = (char*)malloc(sizeof (char[100]));
+  strcpy(*retval,"Looky here - I made it");
+}
+***/
+
+
+
+
 int ecmdClientPerlapi::ecmdCommandArgs(char** i_argv[]){
 
   return 0;
@@ -293,10 +326,6 @@ int ecmdClientPerlapi::putCfamRegister (const char* i_target, int i_address, con
   return 0;
 }
 
-int ecmdClientPerlapi::getSpy (const char* i_target, const char * i_spyName, char** o_data){
-
-  return 0;
-}
 
 int ecmdClientPerlapi::getSpyEnum (const char* i_target, const char * i_spyName, char** o_enumValue){
 
@@ -309,10 +338,6 @@ int ecmdClientPerlapi::getSpyEccGrouping (const char* i_target, const char * i_s
 }
 
 
-int ecmdClientPerlapi::putSpy (const char* i_target, const char * i_spyName, const char* i_data){
-
-  return 0;
-}
 
 int ecmdClientPerlapi::putSpyEnum (const char* i_target, const char * i_spyName, const char* i_enumValue){
 
