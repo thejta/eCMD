@@ -28,6 +28,7 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdDllCapi.H>
+#include <ecmdClientCapiFunc.H>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -61,33 +62,6 @@
 //
 // End Change Log *****************************************************
 
-
-typedef enum {
-ECMD_QUERYCONFIG,
-ECMD_QUERYRING,
-ECMD_QUERYARRAY,
-ECMD_QUERYSPY,
-ECMD_QUERYFILELOCATION,
-ECMD_GETRING,
-ECMD_PUTRING,
-ECMD_RINGREAD,
-ECMD_RINGWRITE,
-ECMD_GETSCOM,
-ECMD_PUTSCOM,
-ECMD_GETSPY,
-ECMD_GETSPYENUM,
-ECMD_PUTSPY,
-ECMD_PUTSPYENUM,
-ECMD_GETARRAY,
-ECMD_PUTARRAY,
-ECMD_FLUSHSYS,
-ECMD_IPLSYS,
-ECMD_REGISTERERRORMSG,
-ECMD_NUMFUNCTIONS
-} ecmdFunctionIndex_t;
-
-void * dlHandle = NULL;
-void * DllFnTable[ECMD_NUMFUNCTIONS];
 
 
 int ecmdLoadDll(string dllName) {
