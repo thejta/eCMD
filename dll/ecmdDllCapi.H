@@ -79,7 +79,9 @@ uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDa
 
 uint32_t dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
 
-uint32_t dllIplSys(uint64_t i_steps); 
+uint32_t dllISteps(ecmdDataBuffer & i_steps); 
+
+uint32_t dllQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data); 
 
 uint32_t dllGetSpr(ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data); 
 
@@ -105,15 +107,9 @@ uint32_t dllPutFpr(ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer 
 
 uint32_t dllPutFprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
-uint32_t dllStartInstructions(ecmdChipTarget & i_target); 
+uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> o_data); 
 
-uint32_t dllStopInstructions(ecmdChipTarget & i_target); 
-
-uint32_t dllStepInstructions(ecmdChipTarget & i_target, uint32_t i_steps); 
-
-uint32_t dllSetBreakpoint(ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type); 
-
-uint32_t dllClearBreakpoint(ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type); 
+uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> o_data); 
 
 uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
@@ -135,7 +131,7 @@ uint32_t dllSimclock(uint32_t i_cycles);
 
 uint32_t dllSimecho(const char* i_message); 
 
-uint32_t dllSimexit(); 
+uint32_t dllSimexit(uint32_t i_rc , const char* i_message ); 
 
 uint32_t dllSimEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row , uint32_t i_offset ); 
 
