@@ -1172,9 +1172,15 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
   std::string curRing;                          ///< Current ring being read in
+  std::string i_ring;                           ///< Ring that caller specified
 
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), toupper);
+
+  if (i_ringName != NULL) {
+    i_ring = i_ringName;
+    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), tolower);
+  }
 
   /* single exit point */
   while (1) {
@@ -1191,7 +1197,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             break;
           }
         } else {
-          if (bufferit->ringName == i_ringName) {
+          if (bufferit->ringName == i_ring) {
             o_latchdata = (*bufferit);
             foundit = true;
             break;
@@ -1305,9 +1311,14 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
         }
         /* The user specified a ring for use to look in */
         else if ((i_ringName != NULL) &&
-                  ((curLine[0] == 'N') && (curLine.find(i_ringName) != std::string::npos))) {
-          foundRing = true;
-          curRing = i_ringName;
+                  ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
+          ecmdParseTokens(curLine, " \t\n=", curArgs);
+          /* Push the ring name to lower case */
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
+          if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
+            foundRing = true;
+            curRing = i_ring;
+          }
 
           /* The user didn't specify a ring for us, we will search them all */
         } else if ((i_ringName == NULL) &&
@@ -1318,6 +1329,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
             break;
           }
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
           /* Get just the ringname */
           curRing = curArgs[1];
           foundRing = true;
