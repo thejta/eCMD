@@ -100,7 +100,7 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # *****************************************************************************
 # Create the Client 
 # *****************************************************************************
-${TARGET}: ${SOURCE_OBJS}
+${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
 	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
 
 
