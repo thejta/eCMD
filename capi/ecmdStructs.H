@@ -219,8 +219,9 @@ struct ecmdCoreData {
 
 */
 struct ecmdChipData {
-  std::string                   chipType;           ///< (Detail: Low)  actual name of chip , ie. gr, ent (should be 3chars or less)
-  std::string                   chipCommonType;     ///< (Detail: Low)  common name of chip, ie. pu, riohub
+  std::string                   chipType;           ///< (Detail: Low)  Full name of chip , ie. p6, enterprise, corona
+  std::string                   chipShortType;      ///< (Detail: Low)  Short name of chip, ie. p6, ent, cor  (should be 3chars or less)
+  std::string                   chipCommonType;     ///< (Detail: Low)  common name of chip, ie. pu, iohub, l3cache
   uint32_t                      pos;                ///< (Detail: Low)  Position of this entry
   uint32_t                      unitId;             ///< (Detail: High) Unit Id of this entry
   uint8_t                       numProcCores;       ///< (Detail: Low)  Number of cores this entry supports - only valid for Processor compute cores

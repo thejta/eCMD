@@ -392,8 +392,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 	    buf[0] = '\0';
 	    //Common chip details
 	    sprintf(buf2, "      %s %d\n",ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);strcat(buf, buf2);
-            sprintf(buf2, "        Details: PosUid=%d, Name=%s, Common Name=%s,\n",ecmdCurChip->unitId, ecmdCurChip->chipType.c_str(),ecmdCurChip->chipCommonType.c_str());
-	    sprintf(buf2, "        Details: Name=%s, Common Name=%s,\n", ecmdCurChip->chipType.c_str(),ecmdCurChip->chipCommonType.c_str());
+            sprintf(buf2, "        Details: PosUid=%d, Name=%s, Short Name=%s, Common Name=%s,\n",ecmdCurChip->unitId, ecmdCurChip->chipType.c_str(),ecmdCurChip->chipShortType.c_str(),ecmdCurChip->chipCommonType.c_str());
 	    strcat(buf, buf2);
             sprintf(buf2, "                 Pos=%d, NumProcCores=%d, EC=%d, Model EC=%d,\n",ecmdCurChip->pos,ecmdCurChip->numProcCores, ecmdCurChip->chipEc,ecmdCurChip->simModelEc );  
 	    strcat(buf, buf2);
@@ -477,6 +476,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutput(   "*******************************************************\n");
       printed =     "Target           : " + ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
       printed =     "Chip Name        : " + chipdata.chipType + "\n"; ecmdOutput(printed.c_str());
+      printed =     "Chip Short Name  : " + chipdata.chipShortType + "\n"; ecmdOutput(printed.c_str());
       printed =     "Chip Common Name : " + chipdata.chipCommonType + "\n"; ecmdOutput(printed.c_str());
       sprintf(buf,  "Chip Position    : %d\n", chipdata.pos); ecmdOutput(buf);
       sprintf(buf,  "Num Proc Cores   : %d\n", chipdata.numProcCores); ecmdOutput(buf);

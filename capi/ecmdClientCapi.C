@@ -429,7 +429,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
               }
 
               for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
-                if (((ecmdCurChip->chipType == i_target.chipType) || (ecmdCurChip->chipCommonType == i_target.chipType)) &&
+                if (((ecmdCurChip->chipType == i_target.chipType) || (ecmdCurChip->chipCommonType == i_target.chipType) || (ecmdCurChip->chipShortType == i_target.chipType)) &&
                     (ecmdCurChip->pos == i_target.pos)) {
                   if (i_target.coreState == ECMD_TARGET_FIELD_UNUSED) {
                     ret = true;
