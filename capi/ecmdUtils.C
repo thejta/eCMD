@@ -63,7 +63,7 @@ typedef enum {
 
 
 char frontFPPTxt[35];
-
+int  fppCallCount;
 
 
 //--------------------------------------------------------------------
@@ -1115,14 +1115,18 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 
   char tempIntStr[400];
 
+  static int fppCallCount =0;
+
   look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
   if(inOut == ECMD_FPP_FUNCTIONIN) {
     look4rc =0;
-    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER : ");
+    fppCallCount++;
+    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : ",fppCallCount);
   } else if (inOut == ECMD_FPP_FUNCTIONOUT) {
     look4rc =1;
-    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT  : ");
+    sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : ",fppCallCount);
+    fppCallCount--;
   } else {
     printed = "ECMD DEBUG (ecmdFPP) : ERROR::ecmdFunctionParmPrinter  Invalid Enum type on function call.\n";
     ecmdOutput(printed.c_str());
