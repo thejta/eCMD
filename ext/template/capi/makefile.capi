@@ -41,7 +41,7 @@ ifeq (${OS},Linux)
   SUBDIR   := linux/
   CC := g++
   TARGET = ${EXTENSION_NAME}ClientCapi_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-25
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30
   GPATH   := ${SUBDIR}
 endif
 
@@ -70,8 +70,8 @@ all: dir ${TARGET} ${EXTENSION_NAME}DllCapi.C
 	@mv *.o *.a ${SUBDIR}
 	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a
 	@echo "Exporting ${EXTENSION_NAME_u} eCMD Client Extension Api to export/ ..."
-	@cp ${SUBDIR}${TARGET} export/
-	@cp ${INCLUDES} export/
+	@cp -p ${SUBDIR}${TARGET} export/
+	@cp -p ${INCLUDES} export/
 
 clean:
 	rm -rf ${SUBDIR}
