@@ -814,6 +814,16 @@ int simSUBCMD(const char* i_command);
 int simsymbol(const char* i_facname, unsigned int & o_symbol);
 
 /**
+ * @brief Set TCK Interval setting in the model for JTAG Master
+ * @param i_tckinterval new setting for tck interval when using JTAG
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero on failure
+*/
+int simtckinterval(int i_cycles);
+
+
+
+/**
  * @brief Unstick a Facility using a symbol id
  * @param i_symbol Facility symbol id
  * @param i_bitlength Bit length to unstick to facility

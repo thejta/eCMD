@@ -525,7 +525,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
 }
 
-int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format) {
+int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength) {
   int rc = ECMD_SUCCESS;
 
   std::string localFormat = i_format;
@@ -541,7 +541,7 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
   }
   else if (localFormat == "xr") {
     o_data.setBitLength(strlen(i_dataStr) * 4);
-    rc = o_data.insertFromHexRight(i_dataStr);
+    rc = o_data.insertFromHexRight(i_dataStr, i_expectedLength);
   }     
   else if (localFormat == "b") {
     o_data.setBitLength(strlen(i_dataStr));

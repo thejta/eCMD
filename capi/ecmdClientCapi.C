@@ -82,7 +82,7 @@ int ecmdLoadDll(std::string i_dllName) {
   const char* dlError;
   int rc = ECMD_SUCCESS;
 
-#ifdef ECMD_STRIP_DEBUG
+#ifndef ECMD_STRIP_DEBUG
   char* tmpptr = getenv("ECMD_DEBUG");
   if (tmpptr != NULL)
     ecmdClientDebug = atoi(tmpptr);

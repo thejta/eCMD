@@ -89,6 +89,31 @@ sub node
 	}
 }
 
+sub slot
+{
+	my $self = shift;
+
+	if (@_) {  #a set
+		if ($$self =~ /-s\w+/) {
+
+			my @halves = split(/-s\w+/, $$self);
+			$$self = join("", $halves[0], "-s", $_[0], $halves[1]);
+
+		} 
+		else {
+			$$self .= " -s".$_[0];
+		}
+	}
+	else {  #a get
+		if ($$self =~ /-s(\w+)/) {			
+			return $1;		
+		}
+		else {
+			return "0";
+		}
+	}
+}
+
 sub pos
 {
 	my $self = shift;

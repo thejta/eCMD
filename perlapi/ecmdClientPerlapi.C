@@ -18,7 +18,7 @@
 #include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
-#include <ecmdCommandUtils.H>
+#include <ecmdUtils.H>
 #include <string.h>
 #include <ecmdClientPerlapi.H>
 

@@ -146,8 +146,9 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target);
  @param o_data ecmdDataBuffer where data from data string is placed.
  @param i_dataStr string of characters containing data
  @param i_format Flag that tells how to parse the data string, e.g., "b" = binary, "x" = hex left
+ @param i_expectedLength If length of data is known before hand , should be passed is necessary for right aligned data that is not byte aligned lengths
  */
-int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format);
+int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength = 0);
 
 /**
  @brief Formats data from data buffer into a string according to format flag and returns the string

@@ -62,7 +62,7 @@ all: dir ${TARGET}.so
 
 clean:
 	rm -rf ${SUBDIR}
-	rm *.o *_wrap.c
+	rm -f *.o *_wrap.c
 
 dir:
 	@mkdir -p ${SUBDIR}
@@ -87,13 +87,6 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 ecmdClientPerlapi_wrap${TARGET}.c: ecmdClientPerlapi.i
 	sed "s/MODULE_NAME/${TARGET}/g" ecmdClientPerlapi.i > ecmdClientPerlApi_new${TARGET}.i
 	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap${TARGET}.c ecmdClientPerlApi_new${TARGET}.i	
-#	sed "s/ecmdClientPerlapi/${TARGET}/g" ecmdClientPerlapi_wrap.c > ${TARGET}_wrap.c.new
-#	sed "s/${TARGET}.H/ecmdClientPerlapi.H/g" ${TARGET}_wrap.c.new > ${TARGET}_wrap.c
-#	sed "s/ecmdClientPerlapi/${TARGET}/g" ecmdClientPerlapi.pm > ${TARGET}.pm
-#	@rm ecmdClientPerlapi_wrap.c
-#	@rm ${TARGET}_wrap.c.new
-#	@rm ecmdClientPerlapi.pm
-#	cp ecmdClientPerlapi_wrap.c ${TARGET}_wrap.c
 
 ecmdClientPerlapi_wrap${TARGET}.o: ecmdClientPerlapi_wrap${TARGET}.c
 	${CC} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}

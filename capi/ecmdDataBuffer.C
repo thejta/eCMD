@@ -981,7 +981,7 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int expectedLen
 
   int strLen = strlen(i_hexChars);
 
-  //if the string isn't aligned along word boundaries, we
+  //if the string isn't aligned along word/byte boundaries, we
   //move it over
   if (expectedLength > 0) {
     start += expectedLength - strLen*4;
