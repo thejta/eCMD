@@ -842,7 +842,7 @@ class ecmdClientPerlapi
  <br>
  <hr>
  @section perlv Perl Version
- Scripts need Perl version 5.6.1.  eCMD provides the proper version for both the AIX and Linux in all our supported sites and remote installs.  All scripts using the perl module should start with the following: 
+ Scripts need Perl version 5.8.1.  eCMD provides the proper version for both the AIX and Linux in all our supported sites and remote installs.  All scripts using the perl module should start with the following: 
 
  <pre>
  #!/bin/ksh 
@@ -984,28 +984,30 @@ Most functions take a const char* i_target argument which is where you specify t
     $rc = $ep->getScom($$target, "800000", \$$data);
     printf("word count= %d\n",$data->getWordLength());
 
-    printf("getscom bin word 0 = %s\\n", $data->getWord(0));
-    printf("getscom hex word 0 = %s\\n", $data->genHexLeftStr(0,32));
-    printf("getscom bin word 1 = %s\\n", $data->getWord(1));
-    printf("getscom hex word 1 = %s\\n", $data->genHexLeftStr(32,32));
-    printf("getscom bin word 2 = %s\\n", $data->getWord(2));
+    printf("getscom string word 0 = %s\\n", $data->getWord(0));
+    printf("getscom genHLS word 0 = %s\\n", $data->genHexLeftStr(0,32));
+    printf("getscom string word 1 = %s\\n", $data->getWord(1));
+    printf("getscom genHLS word 1 = %s\\n", $data->genHexLeftStr(32,32));
+    printf("getscom string word 2 = %s\\n", $data->getWord(2));
  }
 
  # put/getring
  if (0) {
 
-    print "---- starting putring -----";
-    $data->setBitLength(32);
+    print "---- starting putring -----\\n";
+    $data->setBitLength(32); # length of your ring goes here
     $data->flushTo0();
     $data->setBit(0, 10); # Set bits 0-10
  
+    printf("putRing word 0 = %s\\n", $data->getWord(0));
     $rc = $ep->putRing($$target, "testring", $$data);
     if ($rc) {
        print "Problems calling eCMD putring\\n";
     }
     print "---- starting getRing -----\\n";
     $rc = $ep->getRing($$target, "testring", \$$data);
-    printf("getRing string = %s\\n", $data->getWord(0));
+    printf("getRing word 0 = %s\\n", $data->getWord(0));
+    printf("actual length  = %s\\n", $data->getBitLength());
 
  }
 
