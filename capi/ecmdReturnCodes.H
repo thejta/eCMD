@@ -33,14 +33,14 @@
 #define ECMD_DLL_INVALID                0x1005 ///< If we are unable to lookup a function in the Dll
 #define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
 #define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
-
+#define ECMD_INVALID_ARGS               0x1020 ///< Not enough arguments provided to the function
 
 /* dataBuffer specific return codes */
-#define DBUF_SUCCESS 0x0
-#define DBUF_INIT_FAIL 0x1000
-#define DBUF_BUFFER_OVERFLOW 0x1010
-#define DBUF_XSTATE_ERROR 0x1020
-#define DBUF_UNDEFINED_FUNCTION 0x1030
+#define DBUF_SUCCESS                    0x0    ///< DataBuffer returned successfully
+#define DBUF_INIT_FAIL                  0x1000 ///< Initialization of the DataBuffer failed
+#define DBUF_BUFFER_OVERFLOW            0x1010 ///< Attempt to read/write data beyond the length of the DataBuffer
+#define DBUF_XSTATE_ERROR               0x1020 ///< An 'X' character occured where it was not expected
+#define DBUF_UNDEFINED_FUNCTION         0x1030 ///< Function not included in this version of DataBuffer
 
 
 #endif /* ecmdReturnCodes_h */
