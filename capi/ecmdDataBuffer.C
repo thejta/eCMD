@@ -825,6 +825,29 @@ void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
 
 void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_len) {
 
+  int wordCount = i_len % 32 ? i_len / 32 + 1: i_len / 32;
+  int offset = 32 - (i_len % 32);
+
+  if (i_start+i_len > iv_NumBits) {
+    printf("**** ERROR : ecmdDataBuffer::insertFromRight: start %d + len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
+  } else {
+    
+    uint32_t mask = 0x80000000 >> offset;
+    for (int i = 0; i < i_len; i++) {
+      if (i_datain[i+offset/32] & mask) {
+        this->setBit(i_start+i);
+      }
+      else { 
+        this->clearBit(i_start+i);
+      }
+
+      mask >>= 1;
+      if (mask == 0x00000000) {
+        mask = 0x80000000;
+      }
+    }
+  }
+
 }
 void  ecmdDataBuffer::insertFromRight(uint32_t i_datain, int i_start, int i_len) {
   this->insertFromRight(&i_datain, i_start, i_len);
