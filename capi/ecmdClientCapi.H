@@ -298,7 +298,7 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  NOTE : This function is ring cache enabled
 
 */
-int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string o_enumValue);
+int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
 
 /**
  @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
