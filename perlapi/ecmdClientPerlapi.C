@@ -81,15 +81,15 @@ int ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_clientVersi
 
 
   /* Check our Perl Major Version */
-  char perlVersion[10];
-  strcpy(perlVersion,ECMD_PERLAPI_VERSION);
-  int majorlength = (int)(strchr(perlVersion, '.') - perlVersion);
+  char capiVersion[10];
+  strcpy(capiVersion,ECMD_CAPI_VERSION);
+  int majorlength = (int)(strchr(capiVersion, '.') - capiVersion);
   /* Strip off the minor version */
-  perlVersion[majorlength] = '\0';
+  capiVersion[majorlength] = '\0';
 
-  if (!strstr(i_clientVersion,perlVersion)) {
+  if (!strstr(i_clientVersion,capiVersion)) {
     fprintf(stderr,"**** FATAL : eCMD Perl Module and your client major version numbers don't match, they are not compatible\n");
-    fprintf(stderr,"**** FATAL : Client Version(s) : %s   : Perl Module Version : %s\n",i_clientVersion, ECMD_PERLAPI_VERSION);
+    fprintf(stderr,"**** FATAL : Client Version(s) : %s   : Perl Module Version : %s\n",i_clientVersion, ECMD_CAPI_VERSION);
 
     croak("(ecmdClientPerlapi::initDll) :: Perl Module version mismatch - execution halted\n");
   }
