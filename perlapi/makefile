@@ -22,7 +22,7 @@ ifeq ($(strip $(CTEPATH)),)
     CTEPATH    := /afs/vlsilab.boeblingen.ibm.com/proj/cte
   endif
 endif
-
+CTEPATH := /afs/watson/projects/vlsi/cte/
 
 VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
@@ -43,9 +43,9 @@ ifeq (${OS},Linux)
   LDFLAGS   := -shared -e dll.exp
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30
-  PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/linux/perl/lib/5.6.1/i386-linux/CORE
-  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/linux/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/linux/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/linux/swig/lib/swig_lib/perl5 -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib/swig_lib/
+  PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
+  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
   GPATH   := ${SUBDIR}
 endif
 
@@ -55,18 +55,18 @@ endif
 ifeq (${OS},AIX)
   SUBDIR    := aix/
   ifeq (${SITE},rchland.ibm.com)
-    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC.6002
+    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC_r.6002
   else
     CC      := xlC
   endif
   TARGET    := ecmd_aix_perl
   LD        := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib
-  LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE/perl.exp
+  LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
-  PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE
-  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/aix/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib/swig_lib/perl5 -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib/swig_lib/
+  PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
+  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 
@@ -89,7 +89,7 @@ endif
 
 clean:
 	rm -rf ${SUBDIR}
-	rm -f *.o *_wrap.c
+	rm -f *.o *wrap*
 
 dir:
 	@mkdir -p ${SUBDIR}
