@@ -24,13 +24,15 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdDaSpyUser_C
+#include <stdio.h>
+#include <ctype.h>
+
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
-#include <stdio.h>
-#include <ctype.h>
+#include <ecmdInterpreter.H>
 #undef ecmdDaSpyUser_C
 //----------------------------------------------------------------------
 //  User Types

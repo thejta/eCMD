@@ -24,16 +24,19 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdRingUser_C
-#include <ecmdCommandUtils.H>
-#include <ecmdReturnCodes.H>
-#include <ecmdClientCapi.H>
-#include <ecmdUtils.H>
-#include <ecmdDataBuffer.H>
 #include <stdio.h>
 #include <time.h>
 #include <fstream>
 #include <vector>
 #include <algorithm>
+
+
+#include <ecmdCommandUtils.H>
+#include <ecmdReturnCodes.H>
+#include <ecmdClientCapi.H>
+#include <ecmdUtils.H>
+#include <ecmdDataBuffer.H>
+#include <ecmdInterpreter.H>
 
 #undef ecmdRingUser_C
 //----------------------------------------------------------------------
