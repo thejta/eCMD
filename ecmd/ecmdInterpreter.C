@@ -21,12 +21,8 @@
 // End Module Description **********************************************
 
 
-/* Here will be the magic to enable/disable interpreters from being compiled in */
-#define CIP_INTERPRETER_SUPPORTED
-
-#if !defined(FIPSODE)
-#define CRO_INTERPRETER_SUPPORTED
-#endif
+/* This file tells us what extensions are supported by the plugin env we are compiling in (default is all) */
+#include <ecmdPluginExtensionSupport.H>
 
 
 
@@ -46,11 +42,11 @@
 #include <ecmdSharedUtils.H>
 
 /* Extension Interpreters */
-#ifdef CIP_INTERPRETER_SUPPORTED
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
  #include <cipInterpreter.H>
  #include <cipClientCapi.H>
 #endif
-#ifdef CRO_INTERPRETER_SUPPORTED
+#ifdef ECMD_CRO_EXTENSION_SUPPORT
  #include <croClientCapi.H>
  #include <croInterpreter.H>
 #endif
@@ -92,7 +88,7 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
   /* Core interpreter */
   rc = ecmdCommandInterpreter(argc, argv);
 
-#ifdef CIP_INTERPRETER_SUPPORTED
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
   /* Cronus/IP Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("cip",argv[0],3))) {
     rc = cipInitExtension();
@@ -102,7 +98,7 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
   }
 #endif
 
-#ifdef CRO_INTERPRETER_SUPPORTED
+#ifdef ECMD_CRO_EXTENSION_SUPPORT
   /* Cronus Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("cro",argv[0],3))) {
     rc = croInitExtension();
@@ -332,11 +328,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
 	} else if (!strcmp(argv[0], "simgethierarchy")) {
           rc = ecmdSimGetHierarchyUser(argc - 1, argv + 1);
+#endif
+
 	} else if (!strcmp(argv[0], "startclocks")) {
           rc = ecmdStartClocksUser(argc - 1, argv + 1);
 	} else if (!strcmp(argv[0], "stopclocks")) {
           rc = ecmdStopClocksUser(argc - 1, argv + 1);
-#endif
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

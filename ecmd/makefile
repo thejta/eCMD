@@ -11,7 +11,7 @@ INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStruct
 INT_INCLUDES := ecmdInterpreter.H
 SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C
 DEFINES      := 
-CFLAGS       := -I. -I../capi/export -g 
+CFLAGS       := -I. -I../capi/export -I../dll -g 
 
 
 # Common stuff for all extension interpreters
