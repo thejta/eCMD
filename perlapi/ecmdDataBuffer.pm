@@ -4,7 +4,7 @@ package ecmdDataBuffer;
 
 =for mainBrief
 /**
- * @file ecmdDataBuffer.pm
+ * @file ecmdDataBuffer.H
  * @brief Provides a means to handle data from the eCMD Perl API
  *
  * DataBuffers handle data in a Big Endian fashion with Bit 0 being the MSB
@@ -243,7 +243,7 @@ sub getWord() {
    * @param i_byteoffset Offset of byte to set
    * @param i_value 8 bits of data to put into byte
    */
-  void  setByte(int i_buteoffset, uint32_t i_value);
+  void  setByte(int i_byteoffset, uint32_t i_value);
 =cut
 
 sub setByte() {
