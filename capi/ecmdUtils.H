@@ -133,7 +133,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
  @param i_numCols Number of columns to display
  @return String of formatted data
 */
-std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols);
+std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols, int i_maxBitWidth);
 
 
 /**

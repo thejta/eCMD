@@ -624,14 +624,14 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     int blockSize = 32;
     if (curState == ECMD_FORMAT_BN) blockSize = 4;
     int curOffset = 0;
-    int numBlocks = (i_data.getWordLength() * 32) / blockSize;
+    int numBlocks = i_data.getBitLength() % blockSize ? i_data.getBitLength() / blockSize + 1: i_data.getBitLength() / blockSize;
     int dataBitLength = i_data.getBitLength();
 
     if (numCols) {
 
       if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B) {
-        printed += ecmdBitsHeader(4, blockSize, numCols);
-      }
+        printed += ecmdBitsHeader(4, blockSize, numCols, dataBitLength);
+      } 
 
       printed += "\n00: ";
     }
@@ -680,12 +680,12 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
 
 }
 
-std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols) {
+std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i_maxBitWidth) {
 
   std::string topLine(initCharOffset, ' ');
   std::string bottomLine(initCharOffset, ' ');
 
-  int bitsToPrint = blockSize * numCols;
+  int bitsToPrint = blockSize * numCols < i_maxBitWidth ? blockSize * numCols : i_maxBitWidth;
   int numSpaces = numCols - 1;
   char curNum[2];
   int blockCount = 0;
