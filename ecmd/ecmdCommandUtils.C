@@ -67,6 +67,7 @@ int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   ecmdChipTarget tmp = i_target;
   ecmdQueryData needlesslySlow;
   tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+  tmp.coreState = tmp.threadState = ECMD_TARGET_QUERY_IGNORE;
   rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
   if (rc) return rc;
 
