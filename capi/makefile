@@ -3,12 +3,13 @@
 
 # $Header$
 
-OS       := $(shell uname)
+OS           := $(shell uname)
 
-INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDllCapi.H  ecmdReturnCodes.H
-SOURCE   := ecmdDataBuffer.C ecmdClientCapi.C
-DEFINES  := 
-CFLAGS   := -I.
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H
+INT_INCLUDES := ecmdDllCapi.H 
+SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C
+DEFINES      := 
+CFLAGS       := -I. -g
 
 
 # *****************************************************************************
@@ -35,12 +36,16 @@ endif
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET}
+	@echo "Exporting eCMD Client Api to export/ ..."
+	@cp ${SUBDIR}${TARGET} export/
+	@cp ${INCLUDES} export/
 
 clean:
 	rm -rf ${SUBDIR}
 
 dir:
 	@mkdir -p ${SUBDIR}
+	@mkdir -p export
 
 
 
@@ -55,7 +60,7 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES}
+$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o ${SUBDIR}$@ $(DEFINES)
 
 
@@ -63,4 +68,4 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	ar r $@ $(addprefix ${SUBDIR}, $^)
+	ar r ${SUBDIR}$@ $(addprefix ${SUBDIR}, $^)
