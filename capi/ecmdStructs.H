@@ -42,6 +42,14 @@
 
 #define ECMD_CAPI_VERSION "4.0"          ///< eCMD API Version
 
+// Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
+#define QD_HDR_MAGIC     0xFFFFFFF1
+#define CAGE_HDR_MAGIC   0xFFFFFF2F
+#define NODE_HDR_MAGIC   0xFFFFF3FF
+#define SLOT_HDR_MAGIC   0xFFFF4FFF
+#define CHIP_HDR_MAGIC   0xFFF5FFFF
+#define CORE_HDR_MAGIC   0xFF6FFFFF
+#define THREAD_HDR_MAGIC 0xF7FFFFFF
 
 /**
  @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
@@ -133,6 +141,21 @@ typedef enum {
 */
 struct ecmdChipTarget {
 
+  // Constructor
+  ecmdChipTarget();
+
+  // Destructor
+  ~ecmdChipTarget();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void) const;
+#ifndef REMOVE_SIM
+  void     printStruct(void) const;
+#endif
+    
+  // Members
   uint32_t    cage;             ///< cage that contains node with chip
   uint32_t    node;             ///< node that contains chip
   uint32_t    slot;             ///< Card Slot/Fru to target
@@ -140,7 +163,7 @@ struct ecmdChipTarget {
   uint32_t    pos;              ///< position of chip within node
   uint8_t     core;             ///< which core on chip to access, if chip is multi-core
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
-
+  uint32_t    unitId;		///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
   ecmdChipTargetState_t nodeState;            ///< node field state
   ecmdChipTargetState_t slotState;            ///< slot field state
@@ -148,16 +171,32 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t coreState;            ///< core field state
   ecmdChipTargetState_t threadState;          ///< thread field state
-
-  uint32_t unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
   
 };
 
+// ecmdChipTarget Constructor
+inline ecmdChipTarget::ecmdChipTarget():
+cage(0),
+node(0),
+slot(0),
+pos(0),
+core(0),
+thread(0),
+unitId(0),
+cageState(ECMD_TARGET_UNKNOWN_STATE),
+nodeState(ECMD_TARGET_UNKNOWN_STATE),
+slotState(ECMD_TARGET_UNKNOWN_STATE),
+chipTypeState(ECMD_TARGET_UNKNOWN_STATE),
+posState(ECMD_TARGET_UNKNOWN_STATE),
+coreState(ECMD_TARGET_UNKNOWN_STATE),
+threadState(ECMD_TARGET_UNKNOWN_STATE),
+unitIdState(ECMD_TARGET_UNKNOWN_STATE)
+{
+}
 
-
-
-
+// ecmdChipTarget Destructor
+inline ecmdChipTarget::~ecmdChipTarget() { }
 
 /**
  @brief Used in ecmdChipData to describe the interface macro used by the chip
@@ -184,9 +223,37 @@ typedef enum {
 
 */
 struct ecmdThreadData {
-  uint8_t threadId;                             ///< (Detail: Low) Thread number of this entry
-  uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
+
+  // Constructor
+  ecmdThreadData();
+
+  // Destructor
+  ~ecmdThreadData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
+  uint8_t   threadId;		///< (Detail: Low) Thread number of this entry
+  uint32_t  unitId;		///< (Detail: High) Unit Id of this entry
 };
+
+// ecmdThreadData Constructor
+inline ecmdThreadData::ecmdThreadData():
+threadId(0),
+unitId(0)
+{
+}
+
+// ecmdThreadData Destructor
+inline ecmdThreadData::~ecmdThreadData() { }
+
+
 
 /**
  @brief Used for the ecmdQueryConfig function to return core data
@@ -195,12 +262,38 @@ struct ecmdThreadData {
 
 */
 struct ecmdCoreData {
+
+  // Constructor
+  ecmdCoreData();
+
+  // Destructor
+  ~ecmdCoreData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+	void printStruct(void);
+#endif
+
+  // Members
   uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
   uint8_t                       numProcThreads; ///< (Detail: Low) Number of threads per core this entry supports - only valid for Processors
   uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
   std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
 };
 
+// ecmdCoreData Constructor
+inline ecmdCoreData::ecmdCoreData():
+coreId(0),
+numProcThreads(0),
+unitId(0)
+{
+}
+
+// ecmdCoreData Destructor
+inline ecmdCoreData::~ecmdCoreData() { }
 
 /**
  Defines for the ecmdChipData chipFlags field
@@ -219,6 +312,22 @@ struct ecmdCoreData {
 
 */
 struct ecmdChipData {
+
+  // Constructor
+  ecmdChipData();
+
+  // Destructor
+  ~ecmdChipData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
   std::string                   chipType;           ///< (Detail: Low)  Full name of chip , ie. p6, enterprise, corona
   std::string                   chipShortType;      ///< (Detail: Low)  Short name of chip, ie. p6, ent, cor  (should be 3chars or less)
   std::string                   chipCommonType;     ///< (Detail: Low)  common name of chip, ie. pu, iohub, l3cache
@@ -232,6 +341,21 @@ struct ecmdChipData {
   std::list<ecmdCoreData>       coreData;           ///< (Detail: Low)  List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
+// ecmdChipData Constructor
+inline ecmdChipData::ecmdChipData():
+pos(0),
+unitId(0),
+numProcCores(0),
+chipEc(0),
+simModelEc(0),
+interfaceType(ECMD_INTERFACE_UNKNOWN),
+chipFlags(0)
+{
+}
+
+// ecmdChipData Destructor
+inline ecmdChipData::~ecmdChipData() { }
+
 /**
  @brief Used for the ecmdQueryConfig function to return slot data
 
@@ -239,10 +363,37 @@ struct ecmdChipData {
 
 */
 struct ecmdSlotData {
+
+  // Constructor
+  ecmdSlotData();
+
+  // Destructor
+  ~ecmdSlotData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
   uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
   uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in order by chipType and pos
 };
+
+// ecmdSlotData Constructor
+inline ecmdSlotData::ecmdSlotData():
+slotId(0),
+unitId(0)
+{
+}
+
+// ecmdSlotData Destructor
+inline ecmdSlotData::~ecmdSlotData() { }
+
 
 /**
  @brief Used for the ecmdQueryConfig function to return node data
@@ -251,10 +402,37 @@ struct ecmdSlotData {
 
 */
 struct ecmdNodeData {
+
+  // Constructor
+  ecmdNodeData();
+
+  // Destructor
+  ~ecmdNodeData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
   uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
   uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   std::list<ecmdSlotData> slotData;     ///< (Detail: Low) List of all slots requested in this node - in numerical order by slotId
 };
+
+// ecmdNodeData Constructor
+inline ecmdNodeData::ecmdNodeData():
+nodeId(0),
+unitId(0)
+{
+}
+
+// ecmdNodeData Destructor
+inline ecmdNodeData::~ecmdNodeData() { }
+
 
 /**
  @brief Used for the ecmdQueryConfig function to return cage data
@@ -263,22 +441,70 @@ struct ecmdNodeData {
 
 */
 struct ecmdCageData {
+
+  // Constructor
+  ecmdCageData();
+
+  // Destructor
+  ~ecmdCageData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
   uint32_t cageId;                      ///< (Detail: Low) Cage number of this entry
   uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   std::list<ecmdNodeData> nodeData;     ///< (Detail: Low) List of all nodes requested in this cage - in numerical order by nodeId
 };
+
+// ecmdCageData Constructor
+inline ecmdCageData::ecmdCageData():
+cageId(0),
+unitId(0)
+{
+}
+
+// ecmdCageData Destructor
+inline ecmdCageData::~ecmdCageData() { }
 
 
 /**
  @brief Used by the ecmdQueryConfig function to return data
 */
 struct ecmdQueryData {
+
+  // Constructor
+  ecmdQueryData();
+
+  // Destructor
+  ~ecmdQueryData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
   ecmdQueryDetail_t       detailLevel;  ///< (Detail: Low) This is set to the detail level of the data contained within
   std::list<ecmdCageData> cageData;     ///< (Detail: Low) List of all cages in the system - in nummerical order by cageId
 };
 
+// ecmdQueryData Constructor
+inline ecmdQueryData::ecmdQueryData():
+detailLevel((ecmdQueryDetail_t)0x0)
+{
+}
 
-
+// ecmdQueryData Destructor
+inline ecmdQueryData::~ecmdQueryData() { }
 
 /**
  @brief Used by Ring/Array/Spy Query functions to return a required clock state
@@ -400,11 +626,28 @@ typedef enum {
  @brief Used for the ecmdQuerySpy function to return spy info
 */
 struct ecmdSpyData {
+
+  // Constructor
+  ecmdSpyData();
+
+  // Destructor
+  ~ecmdSpyData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+
+  // Members
   std::string   spyName;                ///< Names used to reference this spy
   int           bitLength;              ///< length of spy
   ecmdSpyType_t spyType;                ///< Type of spy
   bool          isEccChecked;           ///< This spy affects some ECC groupings
   bool          isEnumerated;           ///< This spy has enumerated values
+  bool          isCoreRelated;          ///< This spy is related to the core level of a chip
 
   std::string           clockDomain;    ///< Clock domain this spy belongs to
   ecmdClockState_t       clockState;    ///< Required clock state to access this spy
@@ -413,6 +656,17 @@ struct ecmdSpyData {
   std::list<std::string> epCheckers;     ///< Possible epChecker names affected by this Spy
 };
 
+// ecmdSpyData Constructor
+inline ecmdSpyData::ecmdSpyData():
+bitLength(0),
+isEccChecked(false),
+isEnumerated(false),
+isCoreRelated(false)
+{
+}
+
+// ecmdSpyData Destructor
+inline ecmdSpyData::~ecmdSpyData() { }
 
 /**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
