@@ -1,4 +1,5 @@
 %module ecmd
+/* $Header$ */
 /*********** Start Typemaps ***********/
 %include typemaps.i
 %include cpointer.i

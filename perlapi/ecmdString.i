@@ -1,4 +1,4 @@
-//
+// $Header$
 // SWIG typemaps for std::string
 // Roy M. LeCates
 // October 23, 2002

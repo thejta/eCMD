@@ -1,4 +1,4 @@
-//
+// $Header$
 // Additional typemaps for cases not covered by SWIG
 // Jason Albert
 

@@ -1,3 +1,4 @@
+# $Header$
 # ---------------------------------------------------------------
 # This file gets included into the ecmd.pm when swig generates it
 # Include any extra perl functionality here

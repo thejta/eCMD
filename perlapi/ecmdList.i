@@ -1,4 +1,4 @@
-//
+// $Header$
 // SWIG typemaps for std::list types
 // Lluis Padro
 // June 3, 2003

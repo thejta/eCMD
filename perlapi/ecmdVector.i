@@ -1,4 +1,4 @@
-//
+// $Header$ 
 // SWIG typemaps for std::vector types
 // Luigi Ballabio
 // May 7, 2002

@@ -1,7 +1,6 @@
 #ifndef _ecmdClientPerlapi_H
 #define _ecmdClientPerlapi_H
 
-/* File ecmdClientPerlapi.H created by Joshua Wills on Mon Nov 24 2003. */
 
 // Copyright **********************************************************
 //
@@ -16,7 +15,7 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-
+/* $Header$ */
 
 #define ECMD_PERLAPI_VERSION "1.0"          ///< eCMD API Version
 
@@ -33,29 +32,16 @@
  * Usage : 
    <pre>
  use ecmd;
-
- my $ep;
- $ep = new ecmd::ecmdClientPerlapi();
    </pre>
 
 */
 
 #ifndef DOCUMENTATION
 namespace ECMDPERLAPI {
-#endif
 
   int ecmdPerlInterfaceErrorCheck (int rc);
   bool ecmdQuerySafeMode();
-
-  /**
-   * @brief eCMD Perl API
-
-   * Usage : 
-   <pre>
-   use ecmd;
-
-   </pre>
-   */
+#endif
 
   /** @name Load/Unload Functions */
   //@{
@@ -270,6 +256,96 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
 </pre>
  <b>WARNING: </b> The '=' operator DOES NOT work between ecmdChipTarget's or any other structure like you would expect it to in C. See 'Perl API Usage' below
 
+<br><br>
+ <hr>
+ @section listuse Using Lists
+Some eCMD functions return data to Perl in the form of a list of elements.  This is the same way this data is handled on the C-Api.<br>
+
+Functions available on a Perl list :
+<ul>
+<table>
+<tr><td>$list->size()</td><td>Returns the number of entries in the list</td></tr>
+<tr><td>$list->empty()</td><td>Returns True/False as to wether the list is empty</td></tr>
+<tr><td>$list->clear()</td><td>Empty the list</td></tr>
+<tr><td>$list->push_back($entry)</td><td>Push a new entry onto the back of the list</td></tr>
+<tr><td>$list->push_front($entry)</td><td>Push a new entry onto the front of the list</td></tr>
+<tr><td>$entry = $list->pop_back()</td><td>Pop an entry from the back of the list and return</td></tr>
+<tr><td>$entry = $list->pop_front()</td><td>Pop an entry from the front of the list and return</td></tr>
+<tr><td>$list->begin()</td><td>Returns an iterator that points to the beginning of list</td></tr>
+<tr><td>$list->end()</td><td>Returns an iterator that points to end of list</td></tr>
+</table>
+</ul>
+
+Iterators are pointers to a position in the list, they can be used to walk a list and view all elements.<br>
+
+Functions available on a Perl list iterator :
+<ul>
+<table>
+<tr><td>$entry = $listIter->getValue()</td><td>Return the entry that this iterator points to</td></tr>
+<tr><td>$listIter->setValue($entry)</td><td>Overwrite the value at this position with the new entry</td></tr>
+<tr><td>$listIter++</td><td>Increment the iterator to next entry</td></tr>
+<tr><td>$listIter--</td><td>Decrement the iterator to previous entry</td></tr>
+<tr><td>$listIter == $listIter2</td><td>Check if two iterators point to the same entry</td></tr>
+<tr><td>$listIter != $listIter2</td><td>Check if two iterators point to different entries</td></tr>
+</table>
+</ul>
+<br>
+
+Loading data into a list :
+<pre>
+  my $isteps = new ecmd::listString();
+  $isteps->push_back("proc_cfaminit");
+  $isteps->push_back("proc_runiap");
+  $isteps->push_back("asic_cfaminit");
+  iStepsByNameMultiple($isteps);
+</pre>
+
+Displaying data on a list :
+<pre>
+  my $istepIter = new ecmd::listStringIterator();
+  while ($istepIter != $isteps->end()) {
+    printf(" name: %s", $istepIter->getValue());
+    $istepIter++;
+  }
+</pre>
+
+
+<br><br>
+ <hr>
+ @section vectoruse Using Vectors
+Some eCMD functions return data to Perl in the form of a vector(array) of elements.  This is the same way this data is handled on the C-Api.<br>
+
+Functions available on a Perl vector :
+<ul>
+<table>
+<tr><td>$vector->size()</td><td>Returns the number of entries in the vector</td></tr>
+<tr><td>$vector->empty()</td><td>Returns True/False as to wether the vector is empty</td></tr>
+<tr><td>$vector->clear()</td><td>Empty the vector</td></tr>
+<tr><td>$vector->push_back($entry)</td><td>Push a new entry onto the back of the vector</td></tr>
+<tr><td>$entry = $vector->pop_back()</td><td>Pop an entry from the back of the vector and return</td></tr>
+<tr><td>$entry = $vector->get($index)</td><td>Retrieve entry at specified index</td></tr>
+<tr><td>$vector->set($index, $entry)</td><td>Overwrite entry at specified index</td></tr>
+<tr><td>$vector->begin()</td><td>Returns an iterator that points to the beginning of vector</td></tr>
+<tr><td>$vector->end()</td><td>Returns an iterator that points to end of vector</td></tr>
+</table>
+</ul>
+
+Iterators are pointers to a position in the vector, they can be used to walk a vector and view all elements.<br>
+
+Functions available on a Perl vector iterator :
+<ul>
+<table>
+<tr><td>$entry = $vectorIter->getValue()</td><td>Return the entry that this iterator points to</td></tr>
+<tr><td>$vectorIter->setValue($entry)</td><td>Overwrite the value at this position with the new entry</td></tr>
+<tr><td>$vectorIter++</td><td>Increment the iterator to next entry</td></tr>
+<tr><td>$vectorIter--</td><td>Decrement the iterator to previous entry</td></tr>
+<tr><td>$vectorIter == $vectorIter2</td><td>Check if two iterators point to the same entry</td></tr>
+<tr><td>$vectorIter != $vectorIter2</td><td>Check if two iterators point to different entries</td></tr>
+</table>
+</ul>
+<br>
+
+Usage of a vector is identical to a list like above.
 
 <br><br>
  <hr>
