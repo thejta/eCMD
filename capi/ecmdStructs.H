@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
-#include <stdint.h>
+#include <inttypes.h>
 #include <vector>  /* For STL vector */
 
 //--------------------------------------------------------------------
@@ -72,10 +72,10 @@ struct ecmdChipTarget {
 
 
 
-enum ecmdChipInterfaceType_t {
+typedef enum {
   ECMD_INTERFACE_ACCESS,
   ECMD_INTERFACE_CFAM
-};
+} ecmdChipInterfaceType_t;
 
 /**
  @brief Used for the ecmdQueryConfig function to return core data
@@ -117,11 +117,11 @@ struct ecmdCageData {
 /**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
 */
-enum ecmdFileType_t {
+typedef enum {
   ECMD_FILE_SCANDEF,    ///< Scandef file type
   ECMD_FILE_SPYDEF,     ///< Spy Definition file
   ECMD_FILE_ARRAYDEF    ///< Array Definition file
-};
+} ecmdFileType_t;
 
 
 
