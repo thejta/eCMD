@@ -921,14 +921,25 @@ Most functions take a const char* i_target argument which is where you specify t
  my $rc = 0;
 
  # put/getscom
- if (0) {
+ if (1) {
     print "---- starting putscom -----\\n";
     $data->setWord(0, 0xabebfeef);
+    printf("word 0 = %s\\n", $data->getWord(0));
+    printf("word 1 = %s\\n", $data->getWord(1));
+    printf("string = %s\\n",$data->genHexLeftStr(0,64));
+
     $rc = $ep->putScom($$target, "800000", $$data);
+    printf("string = %s\\n",$data->getstr());
 
     print "---- starting getscom -----\\n";
     $rc = $ep->getScom($$target, "800000", \$$data);
-    print "getscom 800000 = " . sprintf("%0.8X %0.8X\\n", $data->getWord(0), $data->getWord(1));
+    printf("word count= %d\n",$data->getWordLength());
+
+    printf("getscom bin word 0 = %s\\n", $data->getWord(0));
+    printf("getscom hex word 0 = %s\\n", $data->genHexLeftStr(0,32));
+    printf("getscom bin word 1 = %s\\n", $data->getWord(1));
+    printf("getscom hex word 1 = %s\\n", $data->genHexLeftStr(32,32));
+    printf("getscom bin word 2 = %s\\n", $data->getWord(2));
  }
 
  # put/getring
