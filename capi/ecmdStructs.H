@@ -189,6 +189,17 @@ struct ecmdCoreData {
   std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
 };
 
+
+/**
+ Defines for the ecmdChipData chipFlags field
+*/
+/* The Bus type flags use the first two bits of the chipflags field */
+#define ECMD_CHIPFLAG_BUSMASK   0xC0000000
+#define ECMD_CHIPFLAG_RSVDBUS1  0x00000000      ///< This is reserved for later expansion (should not be used)
+#define ECMD_CHIPFLAG_JTAG      0x40000000
+#define ECMD_CHIPFLAG_FSI       0x80000000
+#define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used) 
+
 /**
  @brief Used for the ecmdQueryConfig function to return chip data
 
