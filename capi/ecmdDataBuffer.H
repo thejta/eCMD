@@ -100,10 +100,13 @@ public:
 
 
   // Member Functions
-  /** @name Buffer Size Function */
+  /** @name Buffer Size Functions */
   //@{
   /**
    * @brief Called by the destructor, available to user to reset buffer to default constructor state
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval nonzero on failure
+   * @post Memory deallocated and size set to 0
    */
   uint32_t clear();
   /**
@@ -157,6 +160,14 @@ public:
    */
   uint32_t setCapacity (uint32_t i_newNumWords);
 
+
+  /**
+   * @brief Shrink buffer size to a new bit size
+   * @param i_newNumBits New bit length for buffer (must be <= current buffer length
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @post Internal buffer size is reset but data inside new size is not lost
+   */
+  uint32_t shrinkBitLength(uint32_t i_newNumBits);
   //@}
 
 

@@ -279,6 +279,32 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
 
 }
 
+uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
+
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  if (i_newNumBits > iv_NumBits) {
+    printf("**** ERROR : ecmdDataBuffer::shrinkBitLength: New Bit Length (%d) > current NumBits (%d)\n", i_newNumBits, iv_NumBits);
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
+    return rc;
+  }
+  if (i_newNumBits == iv_NumBits)
+    return rc;  /* nothing to do */
+
+  uint32_t newNumWords = i_newNumBits % 32 ? i_newNumBits / 32 + 1 : i_newNumBits / 32;
+  uint32_t randNum = 0x12345678;
+
+  iv_NumWords = newNumWords;
+  iv_NumBits = i_newNumBits;
+
+  /* Ok, now setup the header, and tail */
+  iv_RealData[0] = DATABUFFER_HEADER;
+  iv_RealData[1] = iv_NumWords;
+  iv_RealData[3] = randNum;
+  iv_RealData[iv_NumWords + 4] = randNum;
+
+  return rc;
+}
+
 uint32_t  ecmdDataBuffer::setBit(uint32_t bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (bit >= iv_NumBits) {
