@@ -1757,6 +1757,37 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
 */
 uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
 
+
+/**
+ *  @brief Converts an eCmd (physical) Target to a HOM Unit Id
+ *  @param io_target an ecmdChipTarget struct representing a specific eCmd target
+ *  @retval ECMD_SUCCESS if conversion successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching Unit ID
+ *  @post HOM Unit Ids in ecmdChipTarget struct are set and valid
+ */
+uint32_t ecmdTargetToUnitId(ecmdChipTarget & io_target);
+
+/**
+ *  @brief Converts a Unit Id String to an eCmd (physical) Target
+ *  @param i_unitId a string representing the name of a unitId
+ *  @param o_targetList a list of targets that match the input unitId string
+ *  @retval ECMD_SUCCESS if conversion successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in matching the string to a target
+ *  @post There will be a list ecmdChipTargets that represent the passed in unitId string
+ */
+uint32_t ecmdUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget> & o_targetList);
+
+/**
+ *  @brief Converts a Unit Id to an eCmd (physical) Target
+ *  @param i_unitId a uint32_t representing an unitID 
+ *  @param o_targetList a list of targets that match the unitId input 
+ *  @retval ECMD_SUCCESS if conversion successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in matching the string to a target
+ *  @post ecmdChipTarget Fields are set and represent the passed in unitId string
+ */
+uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targetList);
+
+
 //@}
 
 
