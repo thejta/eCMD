@@ -259,8 +259,9 @@ struct ecmdRingData {
 */
 struct ecmdArrayData {
   std::string arrayName;                ///< Names used to reference this ring
-  int         length;                   ///< length of array
-  int         width;                    ///< width of array
+  int         addressLength;            ///< Bit length of address
+  int         length;                   ///< Bit length of array
+  int         width;                    ///< Bit width of array
   ecmdClockState_t       clockState;    ///< Required clock state to access this spy
 };
 
