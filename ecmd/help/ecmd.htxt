@@ -1,0 +1,55 @@
+Syntax: ecmd
+
+        ECMD:           Core Common Function
+
+        Function:       Top level view of the commands available from the eCMD command
+                        line.  For more details enter the command of interest at the 
+                        command line specifing the "-h" flag.
+
+        Example:        ecmd -h
+        --------------------------------------------------------------------------------
+
+        Common Commands:
+        --------------------------------------------------------------------------------
+
+        checkrings               putbits                  simexpecttcfac           
+                                 putcfam                  simgetcurrentcycle       
+        deconfig                 putfpr                   simgethierarchy          
+                                 putgpr                   simgettcfac              
+        ecmdquery                putlatch                 siminit                  
+                                 putmemdma                simputtcfac              
+        format                   putmemmemctrl            simrestart               
+                                 putmemproc               simstktcfac              
+        getarray                 putpattern               simtckinterval           
+        getbits                  putscom                  simunsticktcfac          
+        getcfam                  putspr                   startclocks              
+        getconfig                putspy                   stopclocks               
+        getfpr                                            
+        getgpr                   reconfig                 
+        getlatch                                          
+        getmemdma                sendcmd                  
+        getmemmemctrl            setconfig                
+        getmemproc               simEXPECTFAC             
+        getringdump              simGETFAC                
+        getscom                  simGETFACX               
+        getspr                   simPUTFAC                
+        getspy                   simPUTFACX               
+        gettracearray            simSTKFAC                
+                                 simSUBCMD                
+        istep                    simUNSTICK               
+                                 simaet                   
+        makespsystemcall         simcheckpoint            
+                                 simclock                 
+        pollscom                 simecho                  
+        putarray                 simexit                  
+
+
+        Cronus/IP Extensions:
+        --------------------------------------------------------------------------------
+
+        cipbreakpoint            
+        cipgetvpr                
+        cipinstruct              
+        cipputvpr                
+
+
