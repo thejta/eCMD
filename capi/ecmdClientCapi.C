@@ -78,6 +78,23 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   const char* dlError;
   uint32_t rc = ECMD_SUCCESS;
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &i_dllName);
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
+     }
+
+  }
+
+#endif
+
+
 #ifndef ECMD_STATIC_FUNCTIONS
   /* Only do this if it hasn't been done already */
   if (dlHandle != NULL) {
@@ -146,6 +163,20 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 #endif /* ECMD_STATIC_FUNCTIONS */
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &i_dllName);
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
+     }
+  }
+#endif
+
 
   return rc;
 }
@@ -154,6 +185,20 @@ uint32_t ecmdUnloadDll() {
 
   uint32_t rc = ECMD_SUCCESS;
   uint32_t c_rc = ECMD_SUCCESS;
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdUnloadDll()",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdUnloadDll()",args);
+     }
+  }
+#endif
+
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllUnloadDll();
@@ -186,6 +231,19 @@ uint32_t ecmdUnloadDll() {
   dlHandle = NULL;
 #endif
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdUnloadDll()",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdUnloadDll()",args);
+     }
+  }
+#endif
+
   return rc;
 }
 
@@ -193,6 +251,20 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &i_argc);
+     args.push_back((void*) &i_argv);
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
+     }
+  }
+#endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllCommonCommandArgs(i_argc, i_argv);
@@ -215,6 +287,21 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   
 #endif
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &i_argc);
+     args.push_back((void*) &i_argv);
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
+     }
+  }
+#endif
+
   return rc;
 }
 
@@ -230,6 +317,22 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
   std::list<ecmdChipData>::iterator ecmdCurChip;
   std::list<ecmdCoreData>::iterator ecmdCurCore;
   std::list<ecmdThreadData>::iterator ecmdCurThread;
+
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_queryData);
+     args.push_back((void*) &rc);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+     }
+  }
+#endif
 
 
   /* Do we need to do our own query ? */
@@ -278,6 +381,21 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
     rc = ecmdQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       delete i_queryData;
+#ifndef ECMD_STRIP_DEBUG
+      if (ecmdClientDebug >= 8) {
+        std::vector< void * > args;
+        args.push_back((void*) &i_target);
+        args.push_back((void*) &i_queryData);
+        args.push_back((void*) &ret);
+
+        if (ecmdClientDebug == 8) {
+          ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+        } else {
+          ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+        }
+      }
+#endif
+
       return ret;
     }
   }
@@ -354,6 +472,21 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
     i_queryData = NULL;
   }
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_queryData);
+     args.push_back((void*) &ret);
+
+     if (ecmdClientDebug == 8) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+     }
+  }
+#endif
+
   return ret;
 }
 
@@ -369,13 +502,12 @@ void ecmdEnableRingCache() {
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
+
      if (ecmdClientDebug == 8) {
         ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"void ecmdEnableRingCache()",args);
-     } 
-  }
-
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdEnableRingCache) : Entering\n"; ecmdOutput(printed.c_str());
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache()",args);
+     }
   }
 #endif
   /* Set our local variable so we know caching is enabled */
@@ -410,13 +542,12 @@ void ecmdEnableRingCache() {
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
+
      if (ecmdClientDebug == 8) {
         ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache()",args);
-     } 
-  }
-
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdEnableRingCache) : Exiting\n"; ecmdOutput(printed.c_str());
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache()",args);
+     }
   }
 #endif
 
@@ -430,15 +561,15 @@ uint32_t ecmdDisableRingCache() {
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
      args.push_back((void*) &rc);
+
      if (ecmdClientDebug == 8) {
         ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache()",args);
-     } 
-  }
-
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdDisableRingCache) : Entering\n"; ecmdOutput(printed.c_str());
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache()",args);
+     }
   }
 #endif
+
 
   /* Set our local variable so we know caching is enabled */
   ecmdRingCacheEnabled = false;
@@ -473,13 +604,12 @@ uint32_t ecmdDisableRingCache() {
   if (ecmdClientDebug >= 8) {
      std::vector< void * > args;
      args.push_back((void*) &rc);
+
      if (ecmdClientDebug == 8) {
         ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache()",args);
-     } 
-  }
-
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdDisableRingCache) : Exiting\n"; ecmdOutput(printed.c_str());
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache()",args);
+     }
   }
 #endif
 
