@@ -122,10 +122,12 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;        /* We don't use threads for this function */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName;
 
@@ -314,11 +316,12 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;        /* We don't use threads for this function */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
   std::string latchName = argv[2];
@@ -534,11 +537,12 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;        /* We don't use threads for this function */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 
@@ -689,11 +693,12 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;        /* We don't use threads for this function */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get ring name and starting position
   std::string ringName = argv[1];
@@ -784,11 +789,12 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;        /* We don't use threads for this function */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
   std::string latchName = argv[2];
@@ -971,10 +977,12 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
   }
 
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 
@@ -990,12 +998,14 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t pattern = 0x0;
 
   bool validPosFound = false;
+  bool printedTarget;
   rc = ecmdConfigLooperInit(target);
   if (rc) return rc;
 
   std::list<ecmdRingData> queryRingData;
 
   while (ecmdConfigLooperNext(target)) {
+    printedTarget = false;
 
     if (allRingsFlag) {
       rc = ecmdQueryRing(target, queryRingData);
@@ -1025,14 +1035,10 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
         if (i % 2) {
           pattern = pattern0;
           ringBuffer.flushTo0();
-          printed = "Performing 0's test on " + ringName + " ...\n";
-          ecmdOutput(printed.c_str());
         }
         else {
           pattern = pattern1;
           ringBuffer.flushTo1();
-          printed = "Performing 1's test on " + ringName + " ...\n";
-          ecmdOutput(printed.c_str());
         }
 
         ringBuffer.setWord(0, pattern);  //write the pattern
@@ -1050,6 +1056,22 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
         else {
           validPosFound = true;
         }
+
+        /* Print out the current target */
+        if (!printedTarget) {
+          printedTarget = true;
+          printed = ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
+        }
+
+        if (i % 2) {
+          printed = "Performing 0's test on " + ringName + " ...\n";
+          ecmdOutput(printed.c_str());
+        }
+        else {
+          printed = "Performing 1's test on " + ringName + " ...\n";
+          ecmdOutput(printed.c_str());
+        }
+
 
         rc = getRing(target, ringName.c_str(), ringBuffer);
         if (rc) {
@@ -1141,10 +1163,12 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   }
 
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 

@@ -82,9 +82,12 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string arrayName = argv[1];
 
@@ -167,9 +170,12 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string arrayName = argv[1];
 

@@ -102,10 +102,12 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get spy name
   std::string spyName = argv[1];
@@ -276,10 +278,12 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //get chip name
+  //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get spy name
   std::string spyName = argv[1];

@@ -88,12 +88,14 @@ int ecmdQueryUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
-    //get chip name
-    ecmdChipTarget target;
     ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -103,7 +105,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
     rc = ecmdConfigLooperInit(target);
     if (rc) return rc;
 
-    char buf[100];
+    char buf[200];
 
     while ( ecmdConfigLooperNext(target) ) {
 
@@ -131,7 +133,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      printed = "\nAvailable rings for "; printed += ecmdWriteTarget(target); printed += " ec "; printed += chipdata.chipEc; printed += ":\n"; ecmdOutput(printed.c_str());
+      sprintf(buf,"\nAvailable rings for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       printed = "Ring Names                           Address    Length   Mask Chkable BroadSide ClockState\n"; ecmdOutput(printed.c_str());
       printed = "-----------------------------------  --------   ------   ---- ------- --------- ----------\n"; ecmdOutput(printed.c_str());
 
