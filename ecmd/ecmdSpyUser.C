@@ -530,7 +530,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
-    } else if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData.bitLength)) {
+    } else if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == (uint32_t) spyData.bitLength)) {
       /* We will go on if the user was going to write the whole spy anyway */
       ecmdOutputWarning("putspy - Problems reading group spy - found a mismatch - going ahead with write\n");
       rc = 0;
