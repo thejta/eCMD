@@ -781,7 +781,9 @@ class ecmdClientPerlapi
  <pre>
  #!/usr/bin/perl
 
- if (`uname` eq "AIX") {
+ my $osname = `uname`;
+ chomp $osname;
+ if ($osname eq "AIX") {
    require ecmd_aix_perl;
  } else {
    require ecmd_x86_perl;
@@ -835,7 +837,7 @@ Here is an example usage of the ecmdDataBuffer module:
 
   #Change the value
   $data->setWord(0,0xAAAA5555);
-  print("Data : $data->getWord(0));
+  printf("Data : %s\\n",$data->getWord(0));
 
   # Write my new value to the chip
   $rc = $ep->putRing("pu -p1", "idreg", $$data);
@@ -891,7 +893,9 @@ Most functions take a const char* i_target argument which is where you specify t
  require ecmdDataBuffer;
  require ChipTarget;
 
- if (`uname` eq "AIX") {
+ my $osname = `uname`;
+ chomp $osname;
+ if ($osname eq "AIX") {
    require ecmd_aix_perl; 
  } else {
    require ecmd_x86_perl; 
@@ -911,16 +915,18 @@ Most functions take a const char* i_target argument which is where you specify t
 
  # Setup my data
  my $data = new ecmdDataBuffer();
+ # Set the first word of data in this class
+ $data->setWord(0,0xFEEDBEEF);
 
  my $rc = 0;
 
  # put/getscom
  if (0) {
-    print "---- starting putscom -----";
+    print "---- starting putscom -----\\n";
     $data->setWord(0, 0xabebfeef);
     $rc = $ep->putScom($$target, "800000", $$data);
 
-    print "---- starting getscom -----";
+    print "---- starting getscom -----\\n";
     $rc = $ep->getScom($$target, "800000", \$$data);
     print "getscom 800000 = " . sprintf("%0.8X %0.8X\\n", $data->getWord(0), $data->getWord(1));
  }
@@ -929,16 +935,17 @@ Most functions take a const char* i_target argument which is where you specify t
  if (0) {
 
     print "---- starting putring -----";
+    $data->setBitLength(32);
     $data->flushTo0();
     $data->setBit(0, 10); # Set bits 0-10
  
     $rc = $ep->putRing($$target, "testring", $$data);
     if ($rc) {
-       print "Problems calling eCMD putring\n";
+       print "Problems calling eCMD putring\\n";
     }
-    print "---- starting getRing -----";
+    print "---- starting getRing -----\\n";
     $rc = $ep->getRing($$target, "testring", \$$data);
-    print "getRing string = $$data->getWord(0)\\n";
+    printf("getRing string = %s\\n", $data->getWord(0));
 
  }
 
