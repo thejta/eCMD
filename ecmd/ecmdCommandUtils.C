@@ -101,7 +101,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
     }
     else {
       uint32_t mask = 0x80000000;
-      for (int i = 0; i < numToFetch; i++, mask >>= 1) {
+      for (uint32_t i = 0; i < numToFetch; i++, mask >>= 1) {
         if ( (curData & mask) != (curExpected & mask) ) {
           return 0;
         }
@@ -179,7 +179,7 @@ uint32_t ecmdPrintHelp(const char* i_command) {
 uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos) {
 
   uint32_t tempB32 = 0;
-  int	counter = 0;
+  uint32_t counter = 0;
   char	twoChars[2] = "0";
 
   if ((o_numPtr == NULL) || (i_hexChars == NULL) || (strlen(i_hexChars) == 0))
