@@ -369,7 +369,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   if (argc > 1) {
     numEntries = atoi(argv[1]);
   }
-  for (idx = startEntry; idx < numEntries; idx ++) {
+  for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
     entry.index = idx;
     entries.push_back(entry);
   }
