@@ -21,7 +21,7 @@ Syntax: istep [<StepName1>[,<StepName2> ...] | -s<StepNumbers> | -i<SkipSteps> |
         --------------------------------------------------------------------------------
 
         Examples:       istep
-                        istep proc_cfam_init,proc_scan_init
-                        istep proc_cfam_init..proc_scom_init
+                        istep proc_cfaminit,proc_scaninit
+                        istep proc_cfaminit..proc_scominit
                         istep -s0,1..5,10,20
                         istep -i2,3
