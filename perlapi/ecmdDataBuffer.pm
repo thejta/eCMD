@@ -32,18 +32,12 @@ package ecmdDataBuffer;
 use strict;
 
 
-################################################
-# This is the only data string global variable #
-################################################
-my $iv_DataStr = "";
-
-
 sub new {
-	my $self = \$iv_DataStr;
-	bless $self;
-	$iv_DataStr = @_[1];
-	setWordLength(0,1);
-	return $self;
+  my $class = $_[0];
+  my $iv_DataStr = $_[1] || "";
+  my $self = \$iv_DataStr;
+  bless $self, $class;
+  return $self;
 }
 
 
@@ -57,13 +51,15 @@ sub new {
 =cut
 
 sub getWordLength {
-	my ($len) =0;
-	my ($needExtra) =0;
-	$len = length($iv_DataStr);
-	$needExtra = $len % 32;
-	$len = $len /32;
-	if ($needExtra!=0) {$len++;}
-	return $len;
+  my $self = $_[0];  # Me
+
+  my $len =0;
+  my $needExtra =0;
+  $len = length($$self);
+  $needExtra = $len % 32;
+  $len = $len /32;
+  if ($needExtra!=0) {$len++;}
+  return $len;
 }
 
 
@@ -77,13 +73,14 @@ sub getWordLength {
 =cut
 
 sub getByteLength() {
-	my ($len) =0;
-	my ($needExtra) =0;
-	$len = length($iv_DataStr);
-	$needExtra = $len % 8;
-	$len = $len /8;
-	if ($needExtra!=0) {$len++;}
-	return $len;
+  my $self = $_[0];  # Me
+  my $len =0;
+  my $needExtra =0;
+  $len = length($$self);
+  $needExtra = $len % 8;
+  $len = $len /8;
+  if ($needExtra!=0) {$len++;}
+  return $len;
 }
 
 
@@ -97,7 +94,8 @@ sub getByteLength() {
 =cut
 
 sub getBitLength() {
-	return length($iv_DataStr);
+  my $self = $_[0];  # Me
+  return length($$self);
 }
 
 
@@ -114,13 +112,14 @@ sub getBitLength() {
 =cut
 
 sub setWordLength() {
-	my ($i_newNumWords)= @_[1];
-	my ($looper)=0;
-	$iv_DataStr= "";
-	for($looper=0;$looper<$i_newNumWords;$looper++) {
-		$iv_DataStr = $iv_DataStr . "00000000000000000000000000000000";
-	}
-}  
+  my $self = $_[0];  # Me
+  my $i_newNumWords= @_[1];
+  my $looper=0;
+  $$self= "";
+  for($looper=0;$looper<$i_newNumWords;$looper++) {
+    $$self = $$self . "00000000000000000000000000000000";
+  }
+}
 
 
 #######################################################################################
@@ -136,12 +135,13 @@ sub setWordLength() {
 =cut
 
 sub setBitLength() {
-	my ($i_newNumBits)= @_[1];
-	my ($looper)=0;
-	$iv_DataStr= "";
-	for($looper=0;$looper<$i_newNumBits;$looper++) {
-		$iv_DataStr = $iv_DataStr . "0";
-	}
+  my $self = $_[0];  # Me
+  my $i_newNumBits= @_[1];
+  my $looper=0;
+  $$self= "";
+  for($looper=0;$looper<$i_newNumBits;$looper++) {
+    $$self = $$self . "0";
+  }
 }
 
 
@@ -156,21 +156,21 @@ sub setBitLength() {
 =cut
 
 sub setBit() {
-	my ($i_bit) = @_[1];
-	my ($len)   = @_[2];
-	if (($i_bit        >= getBitLength()) || 
-	    ($i_bit + $len >= getBitLength())   ) {
-		printf("**** ERROR : ecmdDataBuffer.pm::setBit: bit %d >= NumBits (%d)\n", $i_bit, getBitLength());
-        } else {
-		if ($len) {
-			while ($len != 0) {
-				substr($iv_DataStr,$i_bit+$len-1,1) ='1';
-				$len--;
-			}
-		} else {
-			substr($iv_DataStr,$i_bit,1) ='1';
-		}
-	}
+  my $self = $_[0];  # Me
+  my $i_bit = @_[1];
+  my $len   = @_[2];
+  if (($i_bit >= $self->getBitLength()) || ($i_bit + $len >= $self->getBitLength()) ) {
+    printf("**** ERROR : ecmdDataBuffer.pm::setBit: bit %d >= NumBits (%d)\n", $i_bit, $self->getBitLength());
+  } else {
+    if ($len) {
+      while ($len != 0) {
+        substr($$self,$i_bit+$len-1,1) ='1';
+        $len--;
+      }
+    } else {
+      substr($$self,$i_bit,1) ='1';
+    }
+  }
 }
 
 
@@ -185,21 +185,21 @@ sub setBit() {
 =cut
 
 sub clearBit() {
-	my ($i_bit) = @_[1];
-	my ($len)   = @_[2];
-	if (($i_bit        >= getBitLength()) || 
-	    ($i_bit + $len >= getBitLength())   ) {
-		printf("**** ERROR : ecmdDataBuffer.pm::clearBit: bit %d >= NumBits (%d)\n", $i_bit, getBitLength());
-        } else {
-		if ($len) {
-			while ($len != 0) {
-				substr($iv_DataStr,$i_bit+$len-1,1) ='0';
-				$len--;
-			}
-		} else {
-			substr($iv_DataStr,$i_bit,1) ='0';
-		}
-	}
+  my $self = $_[0];  # Me
+  my $i_bit = @_[1];
+  my $len   = @_[2];
+  if (($i_bit >= $self->getBitLength()) || ($i_bit + $len >= $self->getBitLength()) ) {
+    printf("**** ERROR : ecmdDataBuffer.pm::clearBit: bit %d >= NumBits (%d)\n", $i_bit, $self->getBitLength());
+  } else {
+    if ($len) {
+      while ($len != 0) {
+        substr($$self,$i_bit+$len-1,1) ='0';
+        $len--;
+      }
+    } else {
+      substr($$self,$i_bit,1) ='0';
+    }
+  }
 }
 
 
@@ -214,28 +214,29 @@ sub clearBit() {
 =cut
 
 sub setWord() {
-	my ($i_wordOffset) = @_[1];
-	my ($i_value) = @_[2];
-	my ($offset) =0;
+  my $self = $_[0];  # Me
+  my $i_wordOffset = @_[1];
+  my $i_value = @_[2];
+  my $offset =0;
 
-	if ($i_wordOffset >= getWordLength()) {
-		printf("**** ERROR : ecmdDataBuffer.pm::setWord: wordoffset %d >= NumWords (%d)\n", $i_wordOffset, getWordLength());
-        } else {
+  if ($i_wordOffset >= $self->getWordLength()) {
+    printf("**** ERROR : ecmdDataBuffer.pm::setWord: wordoffset %d >= NumWords (%d)\n", $i_wordOffset, $self->getWordLength());
+  } else {
 
-		my ($startBit) = $i_wordOffset * 32;
-    		my ($i) =0;
-		my ($mask) = 0x80000000;
-    		for ($i = 0; $i < 32; $i++) {
-			$offset = $startBit+$i;
-	      		if ($i_value & $mask) {
-				substr($iv_DataStr,$offset,1) ='1';
-		      	}
-      			else {
-				substr($iv_DataStr,$offset,1) ='0';
-	      		}
-			$mask >>= 1;
-		}
-	}
+    my $startBit = $i_wordOffset * 32;
+    my $i =0;
+    my $mask = 0x80000000;
+    for ($i = 0; $i < 32; $i++) {
+      $offset = $startBit+$i;
+      if ($i_value & $mask) {
+        substr($$self,$offset,1) ='1';
+      }
+      else {
+        substr($$self,$offset,1) ='0';
+      }
+      $mask >>= 1;
+    }
+  }
 }
 
 
@@ -250,9 +251,10 @@ sub setWord() {
 =cut
 
 sub getWord() {
+  my $self = $_[0];  # Me
 #	a zero is added to the function call because of the way the argument parsing is handled.
-	my $word = genHexLeftStr(0,@_[1]*32, 32);
-	return $word;
+  my $word = $self->genHexLeftStr(0,@_[1]*32, 32);
+  return $word;
 }
 
 
@@ -267,28 +269,29 @@ sub getWord() {
 =cut
 
 sub setByte() {
-	my ($i_byteOffset) = @_[1];
-	my ($i_value) = @_[2];
-	my ($offset) =0;
+  my $self = $_[0];  # Me
+  my $i_byteOffset = @_[1];
+  my $i_value = @_[2];
+  my $offset =0;
 
-	if ($i_byteOffset >= getByteLength()) {
-		printf("**** ERROR : ecmdDataBuffer.pm::setByte: Byteoffset %d >= NumBytes (%d)\n", $i_byteOffset, getByteLength());
-        } else {
+  if ($i_byteOffset >= $self->getByteLength()) {
+    printf("**** ERROR : ecmdDataBuffer.pm::setByte: Byteoffset %d >= NumBytes (%d)\n", $i_byteOffset, $self->getByteLength());
+  } else {
 
-		my ($startBit) = $i_byteOffset * 8;
-    		my ($i) =0;
-		my ($mask) = 0x80;
-    		for ($i = 0; $i < 8; $i++) {
-			$offset = $startBit+$i;
-	      		if ($i_value & $mask) {
-				substr($iv_DataStr,$offset,1) ='1';
-		      	}
-      			else {
-				substr($iv_DataStr,$offset,1) ='0';
-	      		}
-			$mask >>= 1;
-		}
-	}
+    my $startBit = $i_byteOffset * 8;
+    my $i =0;
+    my $mask = 0x80;
+    for ($i = 0; $i < 8; $i++) {
+      $offset = $startBit+$i;
+      if ($i_value & $mask) {
+        substr($$self,$offset,1) ='1';
+      }
+      else {
+        substr($$self,$offset,1) ='0';
+      }
+      $mask >>= 1;
+    }
+  }
 }
 
 #######################################################################################
@@ -301,10 +304,11 @@ sub setByte() {
   uint8_t getByte(int i_byteoffset);
 =cut
 sub getByte() {
-	my ($i_byteOffset) = @_[1];
-	my ($extracted) ="";
-	$extracted = substr($iv_DataStr,$i_byteOffset*8,8);
-	return $extracted;
+  my $self = $_[0];  # Me
+  my $i_byteOffset = @_[1];
+  my $extracted ="";
+  $extracted = substr($$self,$i_byteOffset*8,8);
+  return $extracted;
 }
 
 
@@ -319,29 +323,30 @@ sub getByte() {
 =cut
 
 sub flipBit() {
-	my ($bit) = @_[1];
-	my ($len) = @_[2];
-	my ($looper) =0;
-	if ($len) {
-
-	} else {
-		$len =1;
-	}
+  my $self = $_[0];  # Me
+  my $bit = @_[1];
+  my $len = @_[2];
+  my $looper =0;
+  if ($len) {
+    
+  } else {
+    $len =1;
+  }
 	
-	if (($bit+$len-1) >= getBitLength()) {
-		printf("**** ERROR : ecmdDataBuffer.pm::flipBit: bit %d + %d >= NumBits (%d)\n", $bit, $len, getBitLength());
-	}
-	$len -=1;
+  if (($bit+$len-1) >= $self->getBitLength()) {
+    printf("**** ERROR : ecmdDataBuffer.pm::flipBit: bit %d + %d >= NumBits (%d)\n", $bit, $len, $self->getBitLength());
+  }
+  $len -=1;
 
-	for($looper=0;$looper<=$len; $looper++) {
-		if (substr($iv_DataStr,$bit+$looper,1) == "1") {
-			substr($iv_DataStr,$bit+$looper,1) ='0';
-      		} elsif (substr($iv_DataStr,$bit+$looper,1) == "0") {
-			substr($iv_DataStr,$bit+$looper,1) ='1';
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::flipBit: cannot flip non-binary data at bit %d\n", $bit+$looper);
-		}
-	}
+  for($looper=0;$looper<=$len; $looper++) {
+    if (substr($$self,$bit+$looper,1) == "1") {
+      substr($$self,$bit+$looper,1) ='0';
+    } elsif (substr($$self,$bit+$looper,1) == "0") {
+      substr($$self,$bit+$looper,1) ='1';
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::flipBit: cannot flip non-binary data at bit %d\n", $bit+$looper);
+    }
+  }
 }
 
 
@@ -357,31 +362,32 @@ sub flipBit() {
 =cut
 
 sub isBitSet() {
-	my ($bit) = @_[1];
-	my ($len) = @_[2];
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $bit = @_[1];
+  my $len = @_[2];
+  my $looper =0;
 
-	if ($len) {
-	} else {
-		$len =1;
-	}
+  if ($len) {
+  } else {
+    $len =1;
+  }
 	
-	if (($bit+$len-1) >= getBitLength()) {
-		printf("**** ERROR : ecmdDataBuffer.pm::isBitSet: bit %d + %d >= NumBits (%d)\n", $bit, $len, getBitLength());
-	}
-	$len -=1;
+  if (($bit+$len-1) >= $self->getBitLength()) {
+    printf("**** ERROR : ecmdDataBuffer.pm::isBitSet: bit %d + %d >= NumBits (%d)\n", $bit, $len, $self->getBitLength());
+  }
+  $len -=1;
 
-	for($looper=0;$looper<=$len; $looper++) {
-      		if (substr($iv_DataStr,$bit+$looper,1) == "1") {
+  for($looper=0;$looper<=$len; $looper++) {
+    if (substr($$self,$bit+$looper,1) == "1") {
 #do nothing but know that a 1 is valid.
-		} elsif (substr($iv_DataStr,$bit+$looper,1) == "0") {
-			return 0;
-		} else {
-		      printf("**** ERROR : ecmdDataBuffer.pm::isBitSet: non-binary character detected in data at bit %d \n", $bit+$len);
-			return 0;
-		}
-	}
-	return 1;
+    } elsif (substr($$self,$bit+$looper,1) == "0") {
+      return 0;
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::isBitSet: non-binary character detected in data at bit %d \n", $bit+$len);
+      return 0;
+    }
+  }
+  return 1;
 }
 
 
@@ -397,31 +403,32 @@ sub isBitSet() {
 =cut
 
 sub isBitClear() {
-	my ($bit) = @_[1];
-	my ($len) = @_[2];
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $bit = @_[1];
+  my $len = @_[2];
+  my $looper =0;
 
-	if ($len) {
-	} else {
-		$len =1;
-	}
+  if ($len) {
+  } else {
+    $len =1;
+  }
 	
-	if (($bit+$len-1) >= getBitLength()) {
-		printf("**** ERROR : ecmdDataBuffer.pm::isBitClear: bit %d + %d >= NumBits (%d)\n", $bit, $len, getBitLength());
-	}
-	$len -=1;
+  if (($bit+$len-1) >= $self->getBitLength()) {
+    printf("**** ERROR : ecmdDataBuffer.pm::isBitClear: bit %d + %d >= NumBits (%d)\n", $bit, $len, $self->getBitLength());
+  }
+  $len -=1;
 
-	for($looper=0;$looper<=$len; $looper++) {
-      		if (substr($iv_DataStr,$bit+$looper,1) == "1") {
-			return 0;
-		} elsif (substr($iv_DataStr,$bit+$looper,1) == "0") {
+  for($looper=0;$looper<=$len; $looper++) {
+    if (substr($$self,$bit+$looper,1) == "1") {
+      return 0;
+    } elsif (substr($$self,$bit+$looper,1) == "0") {
 #do nothing but know that a 0 is valid.
-		} else {
-		      printf("**** ERROR : ecmdDataBuffer.pm::isBitSet: non-binary character detected in data at bit %d \n", $bit+$len);
-			return 0;
-		}
-	}
-	return 1;
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::isBitSet: non-binary character detected in data at bit %d \n", $bit+$len);
+      return 0;
+    }
+  }
+  return 1;
 }
 
 
@@ -437,31 +444,32 @@ sub isBitClear() {
 =cut
 
 sub getNumBitsSet() {
-	my ($bit) = @_[1];
-	my ($len) = @_[2];
-	my ($looper) =0;
-	my ($count) =0;
+  my $self = $_[0];  # Me
+  my $bit = @_[1];
+  my $len = @_[2];
+  my $looper =0;
+  my $count =0;
 
-	if ($len) {
-	} else {
-		$len =1;
-	}
+  if ($len) {
+  } else {
+    $len =1;
+  }
 	
-	if (($bit+$len-1) >= getBitLength()) {
-		printf("**** ERROR : ecmdDataBuffer.pm::getNumBitsSet: bit %d + %d >= NumBits (%d)\n", $bit, $len, getBitLength());
-	}
-	$len -=1;
+  if (($bit+$len-1) >= $self->getBitLength()) {
+    printf("**** ERROR : ecmdDataBuffer.pm::getNumBitsSet: bit %d + %d >= NumBits (%d)\n", $bit, $len, $self->getBitLength());
+  }
+  $len -=1;
 
-	for($looper=0;$looper<=$len; $looper++) {
-      		if (substr($iv_DataStr,$bit+$looper,1) == "1") {
-			$count++;
-		} elsif (substr($iv_DataStr,$bit+$looper,1) == "0") {
+  for($looper=0;$looper<=$len; $looper++) {
+    if (substr($$self,$bit+$looper,1) == "1") {
+      $count++;
+    } elsif (substr($$self,$bit+$looper,1) == "0") {
 #do nothing but know that a 0 is valid.
-		} else {
-		      printf("**** ERROR : ecmdDataBuffer.pm::getNumBitSet: non-binary character detected in data at bit %d \n", $bit+$len);
-		}
-	}
-    return $count;
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::getNumBitSet: non-binary character detected in data at bit %d \n", $bit+$len);
+    }
+  }
+  return $count;
 }
 
 
@@ -477,21 +485,20 @@ sub getNumBitsSet() {
 =cut
 
 sub shiftRight() {
-	my ($shiftNum) = @_[1];
-	my ($charHolder);
-	my ($looper) =0;
-	my ($tmpStr);
+  my $self = $_[0];  # Me
+  my $shiftNum = @_[1];
+  my $charHolder;
+  my $looper =0;
+  my $tmpStr;
 
-	if($shiftNum) {
-	#if it is zero, then just skip it all.
+  if($shiftNum) {
+    #if it is zero, then just skip it all.
 
-		for($looper=0;$looper<$shiftNum; $looper++) {
-			$charHolder = chop($iv_DataStr);
-			$iv_DataStr = 0 . $iv_DataStr;
-		}
-	}
-
-
+    for($looper=0;$looper<$shiftNum; $looper++) {
+      $charHolder = chop($$self);
+      $$self = "0" . $$self;
+    }
+  }
 }
 
 
@@ -507,20 +514,19 @@ sub shiftRight() {
 =cut
 
 sub shiftLeft() {
-	my ($shiftNum) = @_[1];
-	my ($looper) =0;
-	my ($tmpStr);
+  my $self = $_[0];  # Me
+  my $shiftNum = @_[1];
+  my $looper =0;
+  my $tmpStr;
 
-	if($shiftNum) {
-	#if it is zero, then just skip it all.
+  if($shiftNum) {
+    #if it is zero, then just skip it all.
 
-		for($looper=0;$looper<$shiftNum; $looper++) {
-			$tmpStr = substr($iv_DataStr,1,getBitLength()-1);
-			$iv_DataStr = $tmpStr . 0;
-		}
-
-	}
-
+    for($looper=0;$looper<$shiftNum; $looper++) {
+      $tmpStr = substr($$self,1,$self->getBitLength()-1);
+      $$self = $tmpStr . "0";
+    }
+  }
 }
 
 
@@ -535,21 +541,20 @@ sub shiftLeft() {
 =cut
 
 sub rotateRight() {
-	my ($shiftNum) = @_[1];
-	my ($charHolder);
-	my ($looper) =0;
-	my ($tmpStr);
+  my $self = $_[0];  # Me
+  my $shiftNum = @_[1];
+  my $charHolder;
+  my $looper =0;
+  my $tmpStr;
 
-	if($shiftNum) {
-	#if it is zero, then just skip it all.
+  if($shiftNum) {
+    #if it is zero, then just skip it all.
 
-		for($looper=0;$looper<$shiftNum; $looper++) {
-			$charHolder = chop($iv_DataStr);
-			$iv_DataStr = $charHolder . $iv_DataStr;
-		}
-	}
-
-
+    for($looper=0;$looper<$shiftNum; $looper++) {
+      $charHolder = chop($$self);
+      $$self = $charHolder . $$self;
+    }
+  }
 }
 
 
@@ -564,63 +569,63 @@ sub rotateRight() {
 =cut
 
 sub rotateLeft() {
-	my ($shiftNum) = @_[1];
-	my ($charHolder);
-	my ($looper) =0;
-	my ($tmpStr);
+  my $self = $_[0];  # Me
+  my $shiftNum = @_[1];
+  my $charHolder;
+  my $looper =0;
+  my $tmpStr;
 
-	if($shiftNum) {
-	#if it is zero, then just skip it all.
+  if($shiftNum) {
+    #if it is zero, then just skip it all.
 
-		for($looper=0;$looper<$shiftNum; $looper++) {
-	      		$charHolder = substr($iv_DataStr,0,1);
-			$tmpStr = substr($iv_DataStr,1,getBitLength()-1);
-			$iv_DataStr = $tmpStr . $charHolder;
-		}
-
-	}
-
+    for($looper=0;$looper<$shiftNum; $looper++) {
+      $charHolder = substr($$self,0,1);
+      $tmpStr = substr($$self,1,$self->getBitLength()-1);
+      $$self = $tmpStr . $charHolder;
+    }
+  }
 }
 
 
 #######################################################################################
 =for functionBrief
   /**
-   * @brief Clear entire buffer to 0's
+   * @brief Clear entire buffer to 0s
    */
   void  flushTo0();
 =cut
 
 sub flushTo0() {
-	my ($len) =0;
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $len =0;
+  my $looper =0;
 
-	$len = length($iv_DataStr);
-	$iv_DataStr =0;
-	for($looper=0;$looper<$len-1; $looper++) {
-		$iv_DataStr = $iv_DataStr . 0;
-	}
-
+  $len = length($$self);
+  $$self ="0";
+  for($looper=0;$looper<$len-1; $looper++) {
+    $$self = $$self . "0";
+  }
 }
 
 
 #######################################################################################
 =for functionBrief
   /**
-   * @brief Set entire buffer to 1's
+   * @brief Set entire buffer to 1s
    */
   void  flushTo1();
 =cut
 
 sub flushTo1() {
-	my ($len) =0;
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $len =0;
+  my $looper =0;
 
-	$len = length($iv_DataStr);
-	$iv_DataStr =1;
-	for($looper=0;$looper<$len-1; $looper++) {
-		$iv_DataStr = $iv_DataStr . 1;
-	}
+  $len = length($$self);
+  $$self ="1";
+  for($looper=0;$looper<$len-1; $looper++) {
+    $$self = $$self . "1";
+  }
 }
 
 
@@ -633,23 +638,23 @@ sub flushTo1() {
 =cut
 
 sub invert() {
+  my $self = $_[0];  # Me
 #  /* Performs bit inversion on entire DataBuffer class */
-	my ($len) =0;
-	my ($looper) =0;
+  my $len =0;
+  my $looper =0;
 
-	$len = length($iv_DataStr);
-	for($looper=0;$looper<$len; $looper++) {
+  $len = length($$self);
+  for($looper=0;$looper<$len; $looper++) {
 
 # /* data could be an xstate so don't invert anything other than 1's or 0's */
 
-		if(substr($iv_DataStr,$looper,1) == '1') {
-			substr($iv_DataStr,$looper,1) = 0;
-		}
-		elsif (substr($iv_DataStr,$looper,1) == '0') {
-			substr($iv_DataStr,$looper,1) = '1';
-		}
-	}
-
+    if(substr($$self,$looper,1) == '1') {
+      substr($$self,$looper,1) = 0;
+    }
+    elsif (substr($$self,$looper,1) == '0') {
+      substr($$self,$looper,1) = '1';
+    }
+  }
 }
 
 
@@ -664,28 +669,29 @@ sub invert() {
    void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
 =cut
 sub applyInversionMask() {
-	my ($i_invMask)    = @_[1];
-	my ($i_invByteLen) = @_[2];
-	my ($len) =0;
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $i_invMask    = @_[1];
+  my $i_invByteLen = @_[2];
+  my $len =0;
+  my $looper =0;
 
 #do the shorter of the three possible lenghts
 
-	$len = length($i_invMask);
-	if($len > $i_invByteLen * 4) { $len = $i_invByteLen * 4; }
-	if(length($iv_DataStr) < $len) { $len = legth($iv_DataStr); }
+  $len = length($i_invMask);
+  if($len > $i_invByteLen * 4) { $len = $i_invByteLen * 4; }
+  if(length($$self) < $len) { $len = legth($$self); }
 
-	for($looper=0;$looper<$len; $looper++) {
-		if(substr($i_invMask,$looper,1) == 1) {
+  for($looper=0;$looper<$len; $looper++) {
+    if(substr($i_invMask,$looper,1) == 1) {
 # /* data could be an xstate so don't invert anything other than 1's or 0's */
-			if(substr($iv_DataStr,$looper,1) == '1') {
-				substr($iv_DataStr,$looper,1) = 0;
-			}
-			elsif (substr($iv_DataStr,$looper,1) == '0') {
-				substr($iv_DataStr,$looper,1) = '1';
-			}
-		}
-	}
+      if(substr($$self,$looper,1) == '1') {
+        substr($$self,$looper,1) = 0;
+      }
+      elsif (substr($$self,$looper,1) == '0') {
+        substr($$self,$looper,1) = '1';
+      }
+    }
+  }
 }
 
 
@@ -701,6 +707,7 @@ sub applyInversionMask() {
   void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
 =cut
 sub insert() {
+  my $self = $_[0];  # Me
 #  void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
 }
 
@@ -717,6 +724,7 @@ sub insert() {
   void  insertFromRight(uint32_t * i_datain, int i_start, int i_len);
 =cut
 sub insertFromRight() {
+  my $self = $_[0];  # Me
 
 }
 
@@ -733,20 +741,20 @@ sub insertFromRight() {
   void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
 =cut
 sub extract() {
+  my $self = $_[0];  # Me
 #	my $o_bufferOut = @_[1];
-	my ($i_start)   = @_[2];
-	my ($i_len)     = @_[3];
-	my ($len) =0;
+  my $i_start   = @_[2];
+  my $i_len     = @_[3];
+  my $len =0;
 
-	$len = length($iv_DataStr);
-	if(($i_start + $i_len) > $len) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::extract: start + len %d > NumBits (%d)\n", $i_start + $i_len, $len);
-	}
-	else {
+  $len = length($$self);
+  if(($i_start + $i_len) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::extract: start + len %d > NumBits (%d)\n", $i_start + $i_len, $len);
+  }
+  else {
 #		$o_bufferOut = substr($iv_DataStr,$i_start,$i_len); doesn't work this way
-		@_[1] = substr($iv_DataStr,$i_start,$i_len);
-	}
-
+    @_[1] = substr($$self,$i_start,$i_len);
+  }
 }
 
 
@@ -763,23 +771,24 @@ sub extract() {
   void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
 =cut
 sub setOr() {
-	my ($i_bufferIn) = @_[1];
-	my ($i_startbit) = @_[2];
-	my ($i_len)      = @_[3];
-	my ($len) =0;
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $i_bufferIn = @_[1];
+  my $i_startbit = @_[2];
+  my $i_len      = @_[3];
+  my $len =0;
+  my $looper =0;
 
-	$len = length($iv_DataStr);
-	if(($i_startbit + $i_len) > $len) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::setOr: startbit + len %d > NumBits (%d)\n", $i_startbit + $i_len, $len);
-	}
-	else {
-		for($looper=0; $looper< $i_len; $looper++) {
-			if(substr($i_bufferIn,$looper,1) == '1') {
-				substr($iv_DataStr,$i_startbit + $looper,1) = '1';
-			}
-		}
-	}
+  $len = length($$self);
+  if(($i_startbit + $i_len) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::setOr: startbit + len %d > NumBits (%d)\n", $i_startbit + $i_len, $len);
+  }
+  else {
+    for($looper=0; $looper< $i_len; $looper++) {
+      if(substr($i_bufferIn,$looper,1) == '1') {
+        substr($$self,$i_startbit + $looper,1) = '1';
+      }
+    }
+  }
 }
 
 
@@ -793,19 +802,20 @@ sub setOr() {
   void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
 =cut
 sub merge() {
-	my ($i_bufferIn) = @_[1];
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $i_bufferIn = @_[1];
+  my $looper =0;
 
-	if(length($i_bufferIn) != length($iv_DataStr)) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::merge: NumBits in (%d) do not match NumBits (%d)\n", length($i_bufferIn), length($iv_DataStr));
-	}
-	else {
-		for($looper=0; $looper < length($iv_DataStr); $looper++) {
-			if(substr($i_bufferIn,$looper,1) == '1') {
-				substr($iv_DataStr,$looper,1) = '1';
-			}
-		}
-	}
+  if(length($i_bufferIn) != length($$self)) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::merge: NumBits in (%d) do not match NumBits (%d)\n", length($i_bufferIn), length($$self));
+  }
+  else {
+    for($looper=0; $looper < length($$self); $looper++) {
+      if(substr($i_bufferIn,$looper,1) == '1') {
+        substr($$self,$looper,1) = '1';
+      }
+    }
+  }
 }
 
 
@@ -822,23 +832,24 @@ sub merge() {
   void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
 =cut
 sub setAnd() {
-	my ($i_bufferIn) = @_[1];
-	my ($i_startbit) = @_[2];
-	my ($i_len)      = @_[3];
-	my ($len) =0;
-	my ($looper) =0;
+  my $self = $_[0];  # Me
+  my $i_bufferIn = @_[1];
+  my $i_startbit = @_[2];
+  my $i_len      = @_[3];
+  my $len =0;
+  my $looper =0;
 
-	$len = length($iv_DataStr);
-	if(($i_startbit + $i_len) > $len) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::setAnd: startbit + len %d > NumBits (%d)\n", $i_startbit + $i_len, $len);
-	}
-	else {
-		for($looper=0; $looper< $i_len; $looper++) {
-			if(substr($i_bufferIn,$looper,1) == '0') {
-				substr($iv_DataStr,$i_startbit + $looper,1) = '0';
-			}
-		}
-	}
+  $len = length($$self);
+  if(($i_startbit + $i_len) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::setAnd: startbit + len %d > NumBits (%d)\n", $i_startbit + $i_len, $len);
+  }
+  else {
+    for($looper=0; $looper< $i_len; $looper++) {
+      if(substr($i_bufferIn,$looper,1) == '0') {
+        substr($$self,$i_startbit + $looper,1) = '0';
+      }
+    }
+  }
 }
 
 
@@ -853,7 +864,8 @@ sub setAnd() {
   void  copy(ecmdDataBuffer & o_copyBuffer); 
 =cut
 sub copy() {
-	@_[1] = $iv_DataStr;
+  my $self = $_[0];  # Me
+  @_[1] = $$self;
 }
 
 
@@ -869,6 +881,7 @@ sub copy() {
   void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 =cut
 sub memCopyIn() {
+  my $self = $_[0];  # Me
 #  void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 }
 
@@ -884,6 +897,7 @@ sub memCopyIn() {
   void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 =cut
 sub memCopyOut() {
+  my $self = $_[0];  # Me
 #  void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 }
 
@@ -900,6 +914,7 @@ sub memCopyOut() {
   int  oddParity(int i_start, int i_stop, int i_insertpos); 
 =cut
 sub oddParity() { 
+  my $self = $_[0];  # Me
 #  int  oddParity(int i_start, int i_stop, int i_insertpos); 
 }
 
@@ -916,6 +931,7 @@ sub oddParity() {
   int  oddParity(int i_start, int i_stop, int i_insertpos); 
 =cut
 sub evenParity() {
+  my $self = $_[0];  # Me
 #  int  oddParity(int i_start, int i_stop, int i_insertpos); 
 }
 
@@ -931,100 +947,101 @@ sub evenParity() {
   std::string genHexLeftStr(int i_start, int i_bitlen);
 =cut
 sub genHexLeftStr() {
+  my $self = $_[0];  # Me
 #  std::string genHexLeftStr(int i_start, int i_bitlen);
 #  std::string genHexLeftStr();
-	my ($i_start)   = @_[1];
-	my ($i_bitlen)  = @_[2];
-	my ($len)       = 0;
-	my ($hexStr)    = "";
-	my ($remainder) = 0;
-	my ($nibbles)   = 0;
-	my ($looper)    = 0;
-	my ($thisNible) = 0;
-	my ($hexCnt)    = 0;
+  my $i_start   = @_[1];
+  my $i_bitlen  = @_[2];
+  my $len       = 0;
+  my $hexStr    = "";
+  my $remainder = 0;
+  my $nibbles   = 0;
+  my $looper    = 0;
+  my $thisNible = 0;
+  my $hexCnt    = 0;
 
-	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
-		      "1000","1001","1010","1011","1100","1101","1110","1111");
-	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+  my @theBin = ("0000","0001","0010","0011","0100","0101","0110","0111",
+                "1000","1001","1010","1011","1100","1101","1110","1111");
+  my @theHex = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
 
 
-	$len = length($iv_DataStr);
-	if(($i_start + $i_bitlen) > $len) {
-	    printf( "**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
-	}
+  $len = length($$self);
+  if(($i_start + $i_bitlen) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+  }
 	
-	if (hasXstate($i_start, $i_bitlen)) {
-		printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Cannot extract when non-binary (X-State) character present\n");
-		return "-1";
-	}
+  if (hasXstate($i_start, $i_bitlen)) {
+    printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Cannot extract when non-binary (X-State) character present\n");
+    return "-1";
+  }
 
-	$remainder = $i_bitlen %4;
-	$nibbles   = ($i_bitlen-$remainder) /4;
+  $remainder = $i_bitlen %4;
+  $nibbles   = ($i_bitlen-$remainder) /4;
 
-	for($looper=0; $looper < $nibbles; $looper++) {
-		$thisNible = substr($iv_DataStr,$i_start + $looper*4,4);
-		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
-			if( $thisNible eq $theBin[$hexCnt]) {
-				$hexStr = $hexStr . $theHex[$hexCnt];
-			}
-		}
-	}
+  for($looper=0; $looper < $nibbles; $looper++) {
+    $thisNible = substr($$self,$i_start + $looper*4,4);
+    for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+      if( $thisNible eq $theBin[$hexCnt]) {
+        $hexStr = $hexStr . $theHex[$hexCnt];
+      }
+    }
+  }
 	#hex string should now have all of the nibbles, we just need the remaining bits 
 	#easy and cheesey way is to do a big if+else method.
-	if($remainder == 1) {
+  if($remainder == 1) {
 		#looper is alread at the next nibble count.
-		$thisNible = substr($iv_DataStr,$i_start + $looper*4,1);
-		if($thisNible eq "0") {
-			$hexStr = $hexStr . "0";
-		} elsif ($thisNible eq "1") {
-			$hexStr = $hexStr . "8";
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
-			return -1;
-		}
-	} elsif ($remainder == 2) {
+    $thisNible = substr($$self,$i_start + $looper*4,1);
+    if($thisNible eq "0") {
+      $hexStr = $hexStr . "0";
+    } elsif ($thisNible eq "1") {
+      $hexStr = $hexStr . "8";
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
+      return -1;
+    }
+  } elsif ($remainder == 2) {
+    #looper is alread at the next nibble count.
+    $thisNible = substr($$self,$i_start + $looper*4,2);
+    if($thisNible eq "00") {
+      $hexStr = $hexStr . "0";
+    } elsif ($thisNible eq "01") {
+      $hexStr = $hexStr . "4";
+    } elsif ($thisNible eq "10") {
+      $hexStr = $hexStr . "8";
+    } elsif ($thisNible eq "11") {
+      $hexStr = $hexStr . "C";
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
+      return -1;
+    }
+  } elsif ($remainder ==3) {
 		#looper is alread at the next nibble count.
-		$thisNible = substr($iv_DataStr,$i_start + $looper*4,2);
-		if($thisNible eq "00") {
-			$hexStr = $hexStr . "0";
-		} elsif ($thisNible eq "01") {
-			$hexStr = $hexStr . "4";
-		} elsif ($thisNible eq "10") {
-			$hexStr = $hexStr . "8";
-		} elsif ($thisNible eq "11") {
-			$hexStr = $hexStr . "C";
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
-			return -1;
-		}
-	} elsif ($remainder ==3) {
-		#looper is alread at the next nibble count.
-		$thisNible = substr($iv_DataStr,$i_start + $looper*4,3);
-		if($thisNible eq "000") {
-			$hexStr = $hexStr . "0";
-		} elsif ($thisNible eq "001") {
-			$hexStr = $hexStr . "2";
-		} elsif ($thisNible eq "010") {
-			$hexStr = $hexStr . "4";
-		} elsif ($thisNible eq "011") {
-			$hexStr = $hexStr . "6";
-		} elsif ($thisNible eq "100") {
-			$hexStr = $hexStr . "8";
-		} elsif ($thisNible eq "101") {
-			$hexStr = $hexStr . "A";
-		} elsif ($thisNible eq "110") {
-			$hexStr = $hexStr . "C";
-		} elsif ($thisNible eq "111") {
-			$hexStr = $hexStr . "E";
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
-			return -1;
-		}
-	} else {
-	#must be 0 so do nothing extra.
-	}
+    $thisNible = substr($$self,$i_start + $looper*4,3);
+    if($thisNible eq "000") {
+      $hexStr = $hexStr . "0";
+    } elsif ($thisNible eq "001") {
+      $hexStr = $hexStr . "2";
+    } elsif ($thisNible eq "010") {
+      $hexStr = $hexStr . "4";
+    } elsif ($thisNible eq "011") {
+      $hexStr = $hexStr . "6";
+    } elsif ($thisNible eq "100") {
+      $hexStr = $hexStr . "8";
+    } elsif ($thisNible eq "101") {
+      $hexStr = $hexStr . "A";
+    } elsif ($thisNible eq "110") {
+      $hexStr = $hexStr . "C";
+    } elsif ($thisNible eq "111") {
+      $hexStr = $hexStr . "E";
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
+      return -1;
+    }
+  } else {
+    #must be 0 so do nothing extra.
+  }
 
-	return $hexStr;
+  return $hexStr;
 }
 
 
@@ -1039,104 +1056,104 @@ sub genHexLeftStr() {
   std::string genHexRightStr(int i_start, int i_bitlen); 
 =cut
 sub genHexRightStr() {
+  my $self = $_[0];  # Me
 #  std::string genHexRightStr(int i_start, int i_bitlen); 
 #  std::string genHexRightStr(); 
-	my ($i_start)   = @_[1];
-	my ($i_bitlen)  = @_[2];
-	my ($len)       = 0;
-	my ($hexStr)    = "";
-	my ($remainder) = 0;
-	my ($nibbles)   = 0;
-	my ($looper)    = 0;
-	my ($thisNible) = 0;
-	my ($hexCnt)    = 0;
+  my $i_start   = @_[1];
+  my $i_bitlen  = @_[2];
+  my $len       = 0;
+  my $hexStr    = "";
+  my $remainder = 0;
+  my $nibbles   = 0;
+  my $looper    = 0;
+  my $thisNible = 0;
+  my $hexCnt    = 0;
 
-	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
-		      "1000","1001","1010","1011","1100","1101","1110","1111");
-	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+  my @theBin = ("0000","0001","0010","0011","0100","0101","0110","0111",
+                  "1000","1001","1010","1011","1100","1101","1110","1111");
+  my @theHex = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
 
 
-	$len = length($iv_DataStr);
-	if(($i_start + $i_bitlen) > $len) {
-	    printf( "**** ERROR : ecmdDataBuffer.pm::genHexrightStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
-	}
+  $len = length($$self);
+  if(($i_start + $i_bitlen) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::genHexrightStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+  }
 	
-	if (hasXstate($i_start, $i_bitlen)) {
-		printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Cannot extract when non-binary (X-State) character present\n");
-		return "-1";
-	}
+  if (hasXstate($i_start, $i_bitlen)) {
+    printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Cannot extract when non-binary (X-State) character present\n");
+    return "-1";
+  }
 
-	$remainder = $i_bitlen %4;
-	$nibbles   = ($i_bitlen-$remainder) /4;
+  $remainder = $i_bitlen %4;
+  $nibbles   = ($i_bitlen-$remainder) /4;
 
 #	for($looper=0; $looper < $nibbles; $looper++) {
-	while ($nibbles) {
-		$thisNible = substr($iv_DataStr,$i_start + $nibbles*4 + $remainder -4,4);
-		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
-			if( $thisNible eq $theBin[$hexCnt]) {
-				$hexStr = $theHex[$hexCnt] . $hexStr;
-			}
-		}
-		$nibbles--;
-	}
-	#hex string should now have all of the nibbles, we just need the remaining bits 
-	#easy and cheesey way is to do a big if+else method.
-	if($remainder == 1) {
-		#looper is alread at the next nibble count.
-		$thisNible = substr($iv_DataStr,$i_start,1);
-		if($thisNible eq "0") {
-			$hexStr = "0" . $hexStr;
-		} elsif ($thisNible eq "1") {
-			$hexStr = "1" . $hexStr;
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
-			return -1;
-		}
-	} elsif ($remainder == 2) {
-		#looper is alread at the next nibble count.
-		$thisNible = substr($iv_DataStr,$i_start,2);
-		if($thisNible eq "00") {
-			$hexStr =  "0" . $hexStr;
-		} elsif ($thisNible eq "01") {
-			$hexStr =  "1" . $hexStr;
-		} elsif ($thisNible eq "10") {
-			$hexStr =  "2" . $hexStr;
-		} elsif ($thisNible eq "11") {
-			$hexStr =  "3" . $hexStr;
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
-			return -1;
-		}
-	} elsif ($remainder ==3) {
-		#looper is alread at the next nibble count.
-		$thisNible = substr($iv_DataStr,$i_start,3);
-		if($thisNible eq "000") {
-			$hexStr =  "0" . $hexStr;
-		} elsif ($thisNible eq "001") {
-			$hexStr =  "1" . $hexStr;
-		} elsif ($thisNible eq "010") {
-			$hexStr =  "2" . $hexStr;
-		} elsif ($thisNible eq "011") {
-			$hexStr =  "3" . $hexStr;
-		} elsif ($thisNible eq "100") {
-			$hexStr =  "4" . $hexStr;
-		} elsif ($thisNible eq "101") {
-			$hexStr =  "5" . $hexStr;
-		} elsif ($thisNible eq "110") {
-			$hexStr =  "6" . $hexStr;
-		} elsif ($thisNible eq "111") {
-			$hexStr =  "7" . $hexStr;
-		} else {
-			printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
-			return -1;
-		}
-	} else {
-	#must be 0 so do nothing extra.
-	}
+  while ($nibbles) {
+    $thisNible = substr($$self,$i_start + $nibbles*4 + $remainder -4,4);
+    for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+      if( $thisNible eq $theBin[$hexCnt]) {
+        $hexStr = $theHex[$hexCnt] . $hexStr;
+      }
+    }
+    $nibbles--;
+  }
+  #hex string should now have all of the nibbles, we just need the remaining bits 
+  #easy and cheesey way is to do a big if+else method.
+  if($remainder == 1) {
+    #looper is alread at the next nibble count.
+    $thisNible = substr($$self,$i_start,1);
+    if($thisNible eq "0") {
+      $hexStr = "0" . $hexStr;
+    } elsif ($thisNible eq "1") {
+      $hexStr = "1" . $hexStr;
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
+      return -1;
+    }
+  } elsif ($remainder == 2) {
+    #looper is alread at the next nibble count.
+    $thisNible = substr($$self,$i_start,2);
+    if($thisNible eq "00") {
+      $hexStr =  "0" . $hexStr;
+    } elsif ($thisNible eq "01") {
+      $hexStr =  "1" . $hexStr;
+    } elsif ($thisNible eq "10") {
+      $hexStr =  "2" . $hexStr;
+    } elsif ($thisNible eq "11") {
+      $hexStr =  "3" . $hexStr;
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
+      return -1;
+    }
+  } elsif ($remainder ==3) {
+    #looper is alread at the next nibble count.
+    $thisNible = substr($$self,$i_start,3);
+    if($thisNible eq "000") {
+      $hexStr =  "0" . $hexStr;
+    } elsif ($thisNible eq "001") {
+      $hexStr =  "1" . $hexStr;
+    } elsif ($thisNible eq "010") {
+      $hexStr =  "2" . $hexStr;
+    } elsif ($thisNible eq "011") {
+      $hexStr =  "3" . $hexStr;
+    } elsif ($thisNible eq "100") {
+      $hexStr =  "4" . $hexStr;
+    } elsif ($thisNible eq "101") {
+      $hexStr =  "5" . $hexStr;
+    } elsif ($thisNible eq "110") {
+      $hexStr =  "6" . $hexStr;
+    } elsif ($thisNible eq "111") {
+      $hexStr =  "7" . $hexStr;
+    } else {
+      printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
+      return -1;
+    }
+  } else {
+    #must be 0 so do nothing extra.
+  }
 
-	$hexStr = "0x" . $hexStr;
-	return $hexStr;
-
+  $hexStr = "0x" . $hexStr;
+  return $hexStr;
 }
 
 
@@ -1151,32 +1168,33 @@ sub genHexRightStr() {
   std::string genBinStr(int i_start, int i_bitlen); 
 =cut
 sub genBinStr() {
+  my $self = $_[0];  # Me
 #  std::string genBinStr(int i_start, int i_bitlen); 
 #  std::string genBinStr(); 
-	my ($i_start)  = @_[1];
-	my ($i_bitlen) = @_[2];
-	my ($len)      = 0;
+  my $i_start  = @_[1];
+  my $i_bitlen = @_[2];
+  my $len      = 0;
 
-	if (hasXstate($i_start, $i_bitlen)) {
-		printf("**** WARNING : ecmdDataBuffer.pm::genBinStr: Cannot extract when non-binary (X-State) character present\n");
-	}
+  if (hasXstate($i_start, $i_bitlen)) {
+    printf("**** WARNING : ecmdDataBuffer.pm::genBinStr: Cannot extract when non-binary (X-State) character present\n");
+  }
 
-	if($i_bitlen) {
+  if($i_bitlen) {
 #we have a start & bitlen so do the calculation.
-		my $ext;
-		$len = length($iv_DataStr);
-		if(($i_start + $i_bitlen) > $len) {
-			printf( "**** ERROR : ecmdDataBuffer.pm::genBinStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
-		}
-		else {
-			$ext = substr($iv_DataStr,$i_start,$i_bitlen);
-		}
-		return $ext;
-	} 
-	else {
+    my $ext;
+    $len = length($$self);
+    if(($i_start + $i_bitlen) > $len) {
+      printf( "**** ERROR : ecmdDataBuffer.pm::genBinStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+    }
+    else {
+      $ext = substr($$self,$i_start,$i_bitlen);
+    }
+    return $ext;
+  } 
+  else {
 #we don't have any parameters, so return the whole string.
-		return $iv_DataStr;
-	}
+    return $$self;
+  }
 }
 
 
@@ -1191,28 +1209,29 @@ sub genBinStr() {
   std::string genXstateStr(int i_start, int i_bitlen);
 =cut
 sub genXstateStr() {
+  my $self = $_[0];  # Me
 #  std::string genXstateStr(int i_start, int i_bitlen);
 #  std::string genXstateStr();
-	my ($i_start)  = @_[1];
-	my ($i_bitlen) = @_[2];
-	my ($len)      = 0;
+  my $i_start  = @_[1];
+  my $i_bitlen = @_[2];
+  my $len      = 0;
 
-	if($i_bitlen) {
+  if($i_bitlen) {
 #we have a start & bitlen so do the calculation.
-		my $ext;
-		$len = length($iv_DataStr);
-		if(($i_start + $i_bitlen) > $len) {
-			printf( "**** ERROR : ecmdDataBuffer.pm::genXstateStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
-		}
-		else {
-			$ext = substr($iv_DataStr,$i_start,$i_bitlen);
-		}
-		return $ext;
-	} 
-	else {
+    my $ext;
+    $len = length($$self);
+    if(($i_start + $i_bitlen) > $len) {
+      printf( "**** ERROR : ecmdDataBuffer.pm::genXstateStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+    }
+    else {
+      $ext = substr($$self,$i_start,$i_bitlen);
+    }
+    return $ext;
+  } 
+  else {
 #we don't have any parameters, so return the whole string.
-		return $iv_DataStr;
-	}
+    return $$self;
+  }
 }
 
 
@@ -1230,59 +1249,59 @@ sub genXstateStr() {
   int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
 =cut
 sub insertFromHexLeft() {
+  my $self = $_[0];  # Me
 #  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
-	my ($i_hexChars) = @_[1];
-	my ($i_start)    = @_[2];
-	my ($i_bitlen)   = @_[3];
-	my ($len)        = 0;
-	my ($remainder)  = 0;
-	my ($nibbles)    = 0;
-	my ($looper)     = 0;
-	my ($thisNible)  = 0;
-	my ($hexCnt)     = 0;
-	my ($newBin)     = "";
-	my ($tmpNewBin)     = "";
+  my $i_hexChars = @_[1];
+  my $i_start    = @_[2];
+  my $i_bitlen   = @_[3];
+  my $len        = 0;
+  my $remainder  = 0;
+  my $nibbles    = 0;
+  my $looper     = 0;
+  my $thisNible  = 0;
+  my $hexCnt     = 0;
+  my $newBin     = "";
+  my $tmpNewBin  = "";
 
-	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
-		        "1000","1001","1010","1011","1100","1101","1110","1111");
-	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+  my @theBin = ("0000","0001","0010","0011","0100","0101","0110","0111",
+                  "1000","1001","1010","1011","1100","1101","1110","1111");
+  my @theHex = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
 
 
-	$len = length($iv_DataStr);
-	if(($i_start + $i_bitlen) > $len) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexLeft: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
-		return -1;
-	}
+  $len = length($$self);
+  if(($i_start + $i_bitlen) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexLeft: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+    return -1;
+  }
 
-	$remainder = $i_bitlen %4;
-	$nibbles   = ($i_bitlen-$remainder) /4;
+  $remainder = $i_bitlen %4;
+  $nibbles   = ($i_bitlen-$remainder) /4;
 
-	if($remainder) {
-		# this will handle remainder
-		$nibbles++;
-	}
+  if($remainder) {
+    # this will handle remainder
+    $nibbles++;
+  }
 	
-	$len = length($i_hexChars);
-	if($len < $nibbles) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexLeft: Not enough data provided according to desired length\n");
-		return -1;
-	}
+  $len = length($i_hexChars);
+  if($len < $nibbles) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexLeft: Not enough data provided according to desired length\n");
+    return -1;
+  }
 
 
-	for($looper=0; $looper < $nibbles; $looper++) {
-		$thisNible = substr($i_hexChars, $looper,1);
-		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
-			if( $thisNible eq $theHex[$hexCnt]) {
-				$newBin = "$newBin" . "$theBin[$hexCnt]";
-			}
-		}
-	}
+  for($looper=0; $looper < $nibbles; $looper++) {
+    $thisNible = substr($i_hexChars, $looper,1);
+    for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+      if( $thisNible eq $theHex[$hexCnt]) {
+        $newBin = "$newBin" . "$theBin[$hexCnt]";
+      }
+    }
+  }
 
-	#remember newBin may be to big due to remainder bits, so use i_bitlen
-	$newBin = substr($newBin, 0, $i_bitlen);
-	substr($iv_DataStr, $i_start, $i_bitlen) = $newBin;
-	return 0;
-
+  #remember newBin may be to big due to remainder bits, so use i_bitlen
+  $newBin = substr($newBin, 0, $i_bitlen);
+  substr($$self, $i_start, $i_bitlen) = $newBin;
+  return 0;
 }
 
 
@@ -1300,70 +1319,71 @@ sub insertFromHexLeft() {
   int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
 =cut
 sub insertFromHexRight() {
+  my $self = $_[0];  # Me
 #  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
-	my ($i_hexChars) = @_[1];
-	my ($i_start)    = @_[2];
-	my ($i_bitlen)   = @_[3];
-	my ($len)        = 0;
-	my ($remainder)  = 0;
-	my ($nibbles)    = 0;
-	my ($looper)     = 0;
-	my ($thisNible)  = 0;
-	my ($hexCnt)     = 0;
-	my ($newBin)     = "";
-	my ($tmpNewBin)  = "";
-	my ($offset)     = 0;
+  my $i_hexChars = @_[1];
+  my $i_start    = @_[2];
+  my $i_bitlen   = @_[3];
+  my $len        = 0;
+  my $remainder  = 0;
+  my $nibbles    = 0;
+  my $looper     = 0;
+  my $thisNible  = 0;
+  my $hexCnt     = 0;
+  my $newBin     = "";
+  my $tmpNewBin  = "";
+  my $offset     = 0;
 
-	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
-		        "1000","1001","1010","1011","1100","1101","1110","1111");
-	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+  my @theBin = ("0000","0001","0010","0011","0100","0101","0110","0111",
+                "1000","1001","1010","1011","1100","1101","1110","1111");
+  my @theHex = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
 
 
-	$len = length($iv_DataStr);
-	if(($i_start + $i_bitlen) > $len) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexRight: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
-		return -1;
-	}
+  $len = length($$self);
+  if(($i_start + $i_bitlen) > $len) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexRight: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+    return -1;
+  }
 
-	$remainder = $i_bitlen %4;
-	$nibbles   = ($i_bitlen-$remainder) /4;
+  $remainder = $i_bitlen %4;
+  $nibbles   = ($i_bitlen-$remainder) /4;
 
-	if($remainder) {
-		# this will handle remainder
-		$nibbles++;
-	}
+  if($remainder) {
+    # this will handle remainder
+    $nibbles++;
+  }
 	
-	$len = length($i_hexChars);
-	if($len < $nibbles) {
-		printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexRight: Not enough data provided according to desired length\n");
-		return -1;
-	}
+  $len = length($i_hexChars);
+  if($len < $nibbles) {
+    printf( "**** ERROR : ecmdDataBuffer.pm::insertFromHexRight: Not enough data provided according to desired length\n");
+    return -1;
+  }
 
-	$offset = length($i_hexChars);
+  $offset = length($i_hexChars);
 
-	for($looper=0; $looper < $nibbles; $looper++) {
-		$thisNible = substr($i_hexChars, $offset-$looper,1);
-		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
-			if( $thisNible eq $theHex[$hexCnt]) {
-				$newBin = "$theBin[$hexCnt]" . "$newBin";
-			}
-		}
-	}
+  for($looper=0; $looper < $nibbles; $looper++) {
+    $thisNible = substr($i_hexChars, $offset-$looper,1);
+    for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+      if( $thisNible eq $theHex[$hexCnt]) {
+        $newBin = "$theBin[$hexCnt]" . "$newBin";
+      }
+    }
+  }
 
-	#remember newBin may be to big due to remainder bits, so use i_bitlen
-	if($remainder == 1) {
-		$offset =3;
-	} elsif ($remainder == 2) {
-		$offset =2;
-	} elsif ($remainder == 3) {
-		$offset =1;
-	} else {
-	#this should never happen
-	}
+  #remember newBin may be to big due to remainder bits, so use i_bitlen
+  if($remainder == 1) {
+    $offset =3;
+  } elsif ($remainder == 2) {
+    $offset =2;
+  } elsif ($remainder == 3) {
+    $offset =1;
+  } else {
+    #this should never happen
+  }
 
-	$newBin = substr($newBin, $offset, $i_bitlen);
-	substr($iv_DataStr, $i_start, $i_bitlen) = $newBin;
-	return 0;
+  $newBin = substr($newBin, $offset, $i_bitlen);
+  substr($$self, $i_start, $i_bitlen) = $newBin;
+  return 0;
 
 }
 
@@ -1382,6 +1402,7 @@ sub insertFromHexRight() {
   int insertFromBin (const char * i_binChars, int i_start = 0);
 =cut
 sub insertFromBin () {
+  my $self = $_[0];  # Me
 #  int insertFromBin (const char * i_binChars, int i_start = 0);
 }
 
@@ -1397,44 +1418,45 @@ sub insertFromBin () {
   int   hasXstate(int i_start, int i_length); /* check subset */
 =cut
 sub hasXstate() {
+  my $self = $_[0];  # Me
 #  int   hasXstate(int i_start, int i_length); /* check subset */
 #  int   hasXstate(); 
 
-	my ($i_start)  = @_[0];
-	my ($i_length) = @_[1];
-	my ($len)    =0;
-	my ($looper) =0;
-	my ($val) =0;
-	my $rc =0;
+  my $i_start  = @_[0];
+  my $i_length = @_[1];
+  my $len    =0;
+  my $looper =0;
+  my $val =0;
+  my $rc =0;
 
-	$len = length($iv_DataStr);
+  $len = length($$self);
 
-	if($i_length) {
+  if($i_length) {
 # we have both parameters
-		if($len < ($i_start + $i_length)) {
-			printf( "**** ERROR : ecmdDataBuffer.pm::hasXstate: start + len %d > NumBits (%d)\n", $i_start + $i_length, $len);
-		} else {
-			for($looper=0; $looper < $i_length; $looper++) {
-				$val = substr($iv_DataStr,$looper,1);
-				if( !($val eq "0") && !($val eq "1") ) {
-					$rc = 1;
-					return $rc;
-				}
-			}
-			return 0;
-		}
-	} 
-	else {
-#no parameters so check the whole thing.
-		for($looper=0;$looper < $len; $looper++) {
-			$val = substr($iv_DataStr,$looper,1);
-			if( !($val eq "0") && !($val eq "1") ) {
-				$rc = 1;
-				return $rc;
-			}
-		}
-		return 0;
-	}
+    if($len < ($i_start + $i_length)) {
+      printf( "**** ERROR : ecmdDataBuffer.pm::hasXstate: start + len %d > NumBits (%d)\n", $i_start + $i_length, $len);
+    } else {
+      for($looper=0; $looper < $i_length; $looper++) {
+        $val = substr($$self,$looper,1);
+        if( !($val eq "0") && !($val eq "1") ) {
+          $rc = 1;
+          return $rc;
+        }
+      }
+      return 0;
+    }
+  } 
+  else {
+    #no parameters so check the whole thing.
+    for($looper=0;$looper < $len; $looper++) {
+      $val = substr($$self,$looper,1);
+      if( !($val eq "0") && !($val eq "1") ) {
+        $rc = 1;
+        return $rc;
+      }
+    }
+    return 0;
+  }
 }
 
 
@@ -1449,6 +1471,7 @@ sub hasXstate() {
   char  getXstate(int i_bit);
 =cut
 sub getXstate() {
+  my $self = $_[0];  # Me
 #  char  getXstate(int i_bit);
 }
 
@@ -1463,6 +1486,7 @@ sub getXstate() {
   void setXstate(int i_bit, char i_value);
 =cut
 sub setXstate() {
+  my $self = $_[0];  # Me
 #  void setXstate(int i_bit, char i_value);
 }
 
@@ -1478,6 +1502,7 @@ sub setXstate() {
   void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 =cut
 sub memCopyInXstate() {
+  my $self = $_[0];  # Me
 #  void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 }
 
@@ -1493,17 +1518,34 @@ sub memCopyInXstate() {
    void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 =cut
 sub memCopyOutXstate() {
+  my $self = $_[0];  # Me
 #  void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 }
 
 
 
 sub getstr {
-	return $iv_DataStr;
+  # Error Checking
+  if ($#_ > 0) {
+    # error
+  }
+
+  # Get Args
+  my ($self) = $_[0];
+
+  # Do work
+  return $$self;
 }
 
 sub setstr {
-	$iv_DataStr = @_[1];
+  # Error Checking
+  if ($#_ > 1) {
+    # error
+  }
+
+  # Get Args
+  my ($self) = $_[0];  # Me
+  $$self = $_[1]; # The data the passed
 }
 
 
