@@ -13,7 +13,7 @@ package ecmdDataBuffer;
    <pre>
      require ecmdDataBuffer;
      my $data = new ecmdDataBuffer();
-     $target->setWord(2,0xFEEDBEEF);
+     $data->setWord(2,0xFEEDBEEF);
    </pre>
 */
 
@@ -24,7 +24,7 @@ package ecmdDataBuffer;
    <pre>
      require ecmdDataBuffer;
      my $data = new ecmdDataBuffer();
-     $target->setWord(2,0xFEEDBEEF);
+     $data->setWord(2,0xFEEDBEEF);
    </pre>
 */
 =cut
