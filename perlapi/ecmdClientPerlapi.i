@@ -28,6 +28,29 @@
   free($1);
 }
 
+
+%typemap(in) int *o_matchs (int dvalue),int &o_matchs (int dvalue)  {
+  SV *tempsv;
+  if (!SvROK($input)) {
+    SWIG_croak("expected a reference");
+  }
+  tempsv = SvRV($input);
+  if (!SvIOK(tempsv)) {
+    SWIG_croak("expected a integer reference");
+  }
+  dvalue = SvIV(tempsv);
+  $1 = &dvalue;
+}
+
+
+%typemap(argout) int *o_matchs, int &o_matchs {
+  SV *tempsv;
+  tempsv = SvRV($input);
+  if (!$1) SWIG_croak("expected a reference");
+  sv_setiv(tempsv, (IV) *$1);
+}
+
+
 %exception {
 	$function
 	if (ecmdPerlInterfaceErrorCheck(-1)) {

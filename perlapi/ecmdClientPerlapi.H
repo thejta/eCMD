@@ -177,7 +177,7 @@ class ecmdClientPerlapi
      NOTE : This function is ring cache enabled
 
      */
-    int getLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * o_data, int i_startBit, int i_numBits);
+    int getLatch (const char * i_target, const char* i_ringName, const char * i_latchName, char** o_data, int i_startBit, int i_numBits);
 
 
     /**
@@ -202,7 +202,7 @@ class ecmdClientPerlapi
      NOTE : This function is ring cache enabled
 
      */
-    int putLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * i_data, int i_startBit, int i_numBits, int & o_matchs);
+    int putLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * i_data, int i_startBit, int i_numBits, int &o_matchs);
 
     //@}
 
