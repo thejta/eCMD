@@ -48,6 +48,9 @@
 //  User Types
 //----------------------------------------------------------------------
 
+/**
+ @brief Provides a means to handle data from the eCMD C API
+*/
 
 class ecmdDataBuffer {
 
@@ -324,6 +327,24 @@ public:
    * @post Data is copied from datain into this DataBuffer at specified location
    */
   void  insert(uint32_t i_datain, int i_start, int i_len);
+  /**
+   * @brief Insert a right aligned (decimal) uint32_t array into this DataBuffer
+   * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @post Data is copied from datain into this DataBuffer at specified location
+   */
+  void  insertFromRight(uint32_t * i_datain, int i_start, int i_len);
+  /**
+   * @brief Insert a right aligned (decimal) uint32_t into the DataBuffer
+   * @param i_datain uint32_t value to copy into DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @post Data is copied from datain into this DataBuffer at specified location
+   */
+  void  insertFromRight(uint32_t i_datain, int i_start, int i_len);
+
+
   /**
    * @brief Copy data from this DataBuffer into another
    * @param o_bufferOut DataBuffer to copy into - data is placed left aligned
@@ -618,8 +639,17 @@ public:
    */
   void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
+  //@}
+
+  /** @name Operator overloads */
+  //@{
+  /**
+   * @brief Overload the == operator
+   */
+  int operator == (const ecmdDataBuffer& other) const;    
 
   //@}
+
 
 private:  //data
   int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords

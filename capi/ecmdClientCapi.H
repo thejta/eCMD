@@ -99,15 +99,6 @@ uint32_t ecmdCommandArgs(int * i_argc, char** i_argv[]);
 uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
 /**
- @brief Function calls ecmdQueryDllInfo and displays the output to stdout
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : This function does not affect ring caching
-*/
-uint32_t ecmdDisplayDllInfo();
-
-/**
  @brief Query configuration information from the DLL
  @param i_target Struct that contains partial information to limit query results
  @param o_queryData Return data from query
@@ -557,6 +548,10 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
 
  NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return
 
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
+
 */
 uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
 
@@ -600,6 +595,10 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
 
  NOTE : i_entries should be pre-loaded with address and data
 
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
+
 */
 uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 
@@ -619,11 +618,11 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @post IPL Steps are complete
+ @post iSteps are complete
  @param i_steps Bit mask defining which steps to run
 
 */
-uint32_t iplSys (uint64_t i_steps);
+uint32_t iSteps (ecmdDataBuffer & i_steps);
 
 //@}
 
@@ -633,6 +632,15 @@ uint32_t iplSys (uint64_t i_steps);
 
 /** @name Processor Functions */
 //@{
+
+
+/**
+ @brief Query Information about a Processor Register (SPR/GPR/FPR)
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_name Name of the Register to fetch data about
+ @param o_data Data retrieved about the register
+*/
+uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
@@ -661,6 +669,12 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param io_entries List of entries to fetch ecmdNameEntry.name field must be filled in
 
+ - NOTE : to fetch all SPR's available add only one entry to io_entries and set
+    ecmdNameEntry.name = "ALL"
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
 
 */
 uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
@@ -697,6 +711,9 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
  @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
 
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
 
 */
 uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries);
@@ -727,6 +744,10 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
 
 
 */
@@ -765,6 +786,11 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
 
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
+
+
 */
 uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
@@ -795,6 +821,9 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
 
 */
 uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
@@ -830,84 +859,50 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
+
 
 */
 uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
 
-/**
- @brief Start Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
-
-
-*/
-uint32_t startInstructions (ecmdChipTarget & i_target);
-
-/**
- @brief Stop Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
-
-
-*/
-uint32_t stopInstructions (ecmdChipTarget & i_target);
-
-/**
- @brief Step Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
- @param i_steps Number of steps to execute
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
-
-
-*/
-uint32_t stepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
-
-/**
- @brief Set Breakpoint in Processor
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
- @param i_address Address to set breakpoint at
- @param i_type Type of breakpoint to set
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
-
-
-*/
-uint32_t setBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
-
-/**
- @brief Clear Breakpoint from Processor
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
- @param i_address Address to clear breakpoint at
- @param i_type Type of breakpoint to set
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
-
-
-*/
-uint32_t clearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
-
 //@}
 /* End Processor Functions */
 
+
+
+/** @name Trace Array Functions */
+//@{
+
+/**
+ @brief Dump all entries of specified trace array
+ @param i_target Target info to specify what to configure (target states must be set)
+ @param i_name Name of trace array - names may vary for each product/chip
+ @param o_data Vector of trace array data retrieved
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+*/
+uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> o_data);
+
+/**
+ @brief Dump all entries of specified trace array
+ @param i_target Target info to specify what to configure (target states must be set)
+ @param o_data List of trace array data retrieved
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The function will still continue through all entries requested.
+  You must walk through the list returned to find out which entry caused the failure.
+
+ - NOTE : to fetch all Trace Arrays available add only one entry to io_entries and set
+    ecmdNameVectorEntry.name = "ALL"
+*/
+uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> o_data);
+
+//@}
 
 
 
@@ -1064,11 +1059,13 @@ uint32_t simecho(const char* i_message);
 
 /**
  @brief Close down the simulation model
+ @param i_rc [Optional] Send a testcase failure return code to the simulation
+ @param i_message [Optional[ Send a testcase failure message to the simulation
  @retval ECMD_SUCCESS if successful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval nonzero on failure
 */
-uint32_t simexit();
+uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
 
 /**
  @brief Perform expect on facility using name
@@ -1406,6 +1403,9 @@ uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
 
 #endif /* ecmdClientCapi_H */
 
+/*** -------------------------------------- ***/
+/*** The following is doxygen documentation ***/
+/*** -------------------------------------- ***/
 
 /**
  * @mainpage
@@ -1416,7 +1416,7 @@ Common Hardware Access Programming Interface (eCMD)
 
 This is the documentation of the eCMD C/C++ Programming Api
 
-@section inc Include Files
+@section inc eCMD Core Include Files
 
 To compile client code to use the C++ API, the following header files are required:
 <ul>
@@ -1444,6 +1444,19 @@ To create Linux ppc binaries, the following is required:
 <li>ecmdClientCapi_ppc.a
 <li>g++ ????
 </ul>
+<hr>
+@section ext eCMD Extensions
+These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.
+@subsection cip CIP (Cronus/IP) Extension
+<ul>
+This extensions provides interfaces to start/stop processor instructions and breakpoint handling.<br>
+Include files :
+<ul>
+<li> cipClientCapi.H</li>
+</ul>
+</ul>
+
+<hr>
 @section dllv DLL Version
 The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
 

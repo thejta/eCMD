@@ -81,7 +81,7 @@ bool operator< (const ecmdSlotData& lhs, const ecmdSlotData& rhs) {
 bool operator< (const ecmdChipData& lhs, const ecmdChipData& rhs) {
 
     if (lhs.chipType < rhs.chipType)
-      return 1
+      return 1;
     else if (lhs.pos < rhs.pos)
       return 1;
         
@@ -107,6 +107,11 @@ bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs) {
     return 0;
 
 }
+
+std::string ecmdGetSharedLibVersion() {
+  return ECMD_CAPI_VERSION;
+}
+
 
 // Change Log *********************************************************
 //                                                                      

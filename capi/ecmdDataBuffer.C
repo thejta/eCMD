@@ -823,6 +823,15 @@ void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
   this->insert(&dataIn, start, len);
 }
 
+void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_len) {
+
+}
+void  ecmdDataBuffer::insertFromRight(uint32_t i_datain, int i_start, int i_len) {
+  this->insertFromRight(&i_datain, i_start, i_len);
+}
+
+
+
 void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
 
   if (start + len > iv_NumBits) {
@@ -1408,6 +1417,55 @@ void ecmdDataBuffer::fillDataStr(char fillChar) {
   
 }
 #endif
+
+
+int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
+
+  /* Check the length */
+  uint32_t maxBits = 32;
+  uint32_t numBits = getBitLength();
+  uint32_t numToFetch = numBits < maxBits ? numBits : maxBits;
+  uint32_t myData, otherData;
+  int wordCounter = 0;
+
+  if (getBitLength() != other.getBitLength()) {
+    return 0;
+  }
+
+  /* Now run through the data */
+  while (numToFetch > 0) {
+
+    myData = iv_Data[wordCounter];
+    otherData = other.iv_Data[wordCounter];
+
+    if (numToFetch == maxBits) {
+      if (myData != otherData) 
+        return 0;
+    }
+    else {
+      uint32_t mask = 0x80000000;
+      for (int i = 0; i < numToFetch; i++, mask >>= 1) {
+        if ( (myData & mask) != (otherData & mask) ) {
+          return 0;
+        }
+      }
+    }
+
+    numBits -= numToFetch;
+    numToFetch = (numBits < maxBits) ? numBits : maxBits;
+    wordCounter++;
+  }
+
+#ifndef REMOVE_SIM
+  /* Check the X-state buffer */
+  if (strcmp(iv_DataStr, other.iv_DataStr)) {
+    return 0;
+  }
+#endif
+
+  /* Must have matched */
+  return 1;
+}
 
 void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to_extract, uint32_t *out_iv_Data_ptr)
 {

@@ -7,7 +7,8 @@ OS           := $(shell uname)
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
 INT_INCLUDES := ecmdDllCapi.H
-SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
+CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
+SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
@@ -17,9 +18,13 @@ CFLAGS       := -I. -g
 # *****************************************************************************
 ifeq (${OS},Linux)
   SUBDIR   := linux/
-  CC := g++
-  TARGET = ecmdClientCapi_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-25
+  CC       := g++
+  LD       := ${CC}
+  TARGET   := ecmdClientCapi_x86.a
+  SLIB     := libecmd_x86.so
+  CFLAGS   := ${CFLAGS} -ftemplate-depth-25
+  SLIBLDFLAGS :=  -shared  -e sdll.exp
+  GPATH   := ${SUBDIR}
 endif
 
 # *****************************************************************************
@@ -27,9 +32,12 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   SUBDIR  := aix/
-  CC := xlC -+
-  TARGET = ecmdClientCapi_aix.a
+  CC      := xlC -+
+  LD      := makeC++SharedLib
+  TARGET  := ecmdClientCapi_aix.a
+  SLIB    := libecmd_aix.so
   CFLAGS  := ${CFLAGS} -qstaticinline
+  SLIBLDFLAGS :=  -e libecmd_aix.export -p 0
 endif
 
 VPATH := ${SUBDIR}
@@ -38,16 +46,17 @@ VPATH := ${SUBDIR}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}
-	@touch t.o t.a
-	@mv *.o *.a ${SUBDIR}
-	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a
-	@echo "Exporting eCMD Client Api to export/ ..."
+all: dir ${TARGET} ${SLIB}
+	@touch t.o t.a t.so
+	@mv *.o *.a *.so ${SUBDIR}
+	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a ${SUBDIR}/t.so
+	@echo "Exporting eCMD Client Api/Shared Lib to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
+	@cp ${SUBDIR}${SLIB} export/
 	@cp ${INCLUDES} export/
 
 clean:
-	rm -rf ${SUBDIR}
+	rm -rf ${SUBDIR} export/
 	rm ecmdClientCapiFunc.C
 	rm ecmdDllCapi.H
 
@@ -60,23 +69,35 @@ dir:
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************
-SOURCE_OBJS  = $(basename $(SOURCE))
-SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
+CAPI_SOURCE_OBJS  = $(basename $(CAPI_SOURCE))
+CAPI_SOURCE_OBJS := $(addsuffix .o, $(CAPI_SOURCE_OBJS))
+SLIB_SOURCE_OBJS  = $(basename $(SLIB_SOURCE))
+SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(CAPI_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
+$(SLIB_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
-${TARGET}: ${SOURCE_OBJS}
+${TARGET}: ${CAPI_SOURCE_OBJS}
+	@echo "Creating Static client library ..."
 	ar r $@ $^
+
+# *****************************************************************************
+# Create the Shared Library
+# *****************************************************************************
+${SLIB}: ${SLIB_SOURCE_OBJS}
+	@echo "Linking Shared Library ..."
+	$(LD) ${SLIBLDFLAGS} -o $@ $^ 
 
 
 

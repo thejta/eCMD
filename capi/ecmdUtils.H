@@ -153,4 +153,11 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target);
  */
 uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
+/**
+ @brief Function calls ecmdQueryDllInfo and displays the output to stdout
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t ecmdDisplayDllInfo();
+
 #endif

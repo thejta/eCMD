@@ -27,6 +27,7 @@
 //--------------------------------------------------------------------
 #include <inttypes.h>
 #include <list>  /* For STL list */
+#include <vector>
 #include <string>
 
 #include <ecmdDataBuffer.H>
@@ -39,7 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION ".3"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "1.0"          ///< eCMD API Version
 
 
 
@@ -85,6 +86,7 @@ struct ecmdDllInfo {
   ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
   std::string           dllBuildDate;   ///< Date the Dll was built
   std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
+  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
 };
 
 
@@ -139,6 +141,10 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t coreState;            ///< core field state
   ecmdChipTargetState_t threadState;          ///< thread field state
+
+  std::string unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
+  ecmdChipTargetState_t unitIdState;          ///< unitId field state
+  
 };
 
 
@@ -273,6 +279,7 @@ struct ecmdArrayData {
 struct ecmdArrayEntry {
   ecmdDataBuffer address;               ///< Array address/element to access
   ecmdDataBuffer buffer;                ///< Array data from address
+  uint32_t       rc;                    ///< Error code in retrieving this entry
 };
 
 /**
@@ -281,6 +288,16 @@ struct ecmdArrayEntry {
 struct ecmdNameEntry {
   std::string    name;                  ///< Name of entry to Address
   ecmdDataBuffer buffer;                ///< Data to/from entry
+  uint32_t       rc;                    ///< Error code in retrieving this entry
+};
+
+/**
+ @brief Used by getTraceArrayMultiple function to pass data
+*/
+struct ecmdNameVectorEntry {
+  std::string    name;                  ///< Name of entry to Address
+  std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
+  uint32_t       rc;                    ///< Error code in retrieving this entry
 };
 
 /**
@@ -289,7 +306,18 @@ struct ecmdNameEntry {
 struct ecmdIndexEntry {
   int            index;                 ///< Index of entry to address
   ecmdDataBuffer buffer;                ///< Data to/from entry
+  uint32_t       rc;                    ///< Error code in retrieving this entry
 }; 
+
+
+/**
+ @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
+*/
+struct ecmdProcRegisterInfo {
+  int bitLength;    ///< Bit length of each entry
+  int totalEntries; ///< Total number of entries available
+};
+
 
 /**
  @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData
@@ -361,14 +389,6 @@ typedef enum {
 } ecmdGlobalVarType_t;
 
 
-/**
- @brief Used by setBreakpoint to specify what type of breakpoint to set
-*/
-typedef enum {
-  ECMD_BREAKPOINT_IABR,         ///< Instruction Address Breakpoint
-  ECMD_BREAKPOINT_DABR,         ///< Data Address Breakpoint
-  ECMD_BREAKPOINT_CIABR         ///< ?? Breakpoint
-} ecmdBreakpointType_t;
 
 /**
  @brief Used by ecmdSetTraceMode to specify which trace to control
@@ -408,5 +428,10 @@ bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs);
 //@}
 
 
+/* @name Misc functions */
+//@{
+
+/** @brief Returns the version of the shared lib so it can be compared with the other versions */
+std::string ecmdGetSharedLibVersion();
 
 #endif
