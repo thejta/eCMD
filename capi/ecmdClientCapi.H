@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
-#include "ecmdReturnCodes.H"
+#include <ecmdReturnCodes.H>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -31,7 +31,7 @@
        - Function also inits a symbol table of DLL functions.
        - Errors in loading are printed to STDOUT.
 */
-ecmdrc_t ecmdLoadDll();
+int ecmdLoadDll();
 
 /**
  @brief Unload the eCMD DLL
@@ -41,7 +41,7 @@ ecmdrc_t ecmdLoadDll();
  - Errors in unloading are printed to STDOUT.
 */
 
-ecmdrc_t ecmdUnloadDll(); 
+int ecmdUnloadDll(); 
 
 /**
  @brief Initialize the eCMD DLL
@@ -58,7 +58,7 @@ ecmdrc_t ecmdUnloadDll();
  - Position flags can be queried later with functions like wasposselected()
 */
 
-ecmdrc_t ecmdInitDll(int argc, char* argv[]); 
+int ecmdInitDll(int argc, char* argv[]); 
 
 //@}
 
@@ -67,11 +67,15 @@ ecmdrc_t ecmdInitDll(int argc, char* argv[]);
 //@{
 
 /**
- @brief Retrieve
+ @brief Retrieve additional error information for errorcode
+ @retval point to NULL terminated string containing error data, NULL if error occurs
 */
-ecmdrc_t ecmdGetErrorMsg(ecmdrc_t errorcode, char* message);
+const char* ecmdGetErrorMsg(int errorcode);
 
-ecmdrc_t ecmdRegisterErrorMsg(ecmdrc_t errorcode, const char* message);
+/**
+ @brief Register an Error Message that has occured
+*/
+int ecmdRegisterErrorMsg(int errorcode, const char* message);
 
 //@}
 

@@ -23,7 +23,7 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdClientCapi_C
-#include "ecmdClientCapi.h"
+#include <ecmdClientCapi.H>
 
 #undef ecmdClientCapi_C
 //----------------------------------------------------------------------
