@@ -1,26 +1,26 @@
 #ifndef ecmdSharedUtils_h
 #define ecmdSharedUtils_h
 // Copyright **********************************************************
-//                                                                      
-// File ecmdSharedUtils.H                                               
-//                                                                      
-// IBM Confidential                                                     
-// OCO Source Materials                                                 
-// 9400 Licensed Internal Code                                          
-// (C) COPYRIGHT IBM CORP. 1996                                         
-//                                                                      
-// The source code for this program is not published or otherwise       
-// divested of its trade secrets, irrespective of what has been         
-// deposited with the U.S. Copyright Office.                             
-//                                                                      
+//
+// File ecmdSharedUtils.H
+//
+// IBM Confidential
+// OCO Source Materials
+// 9400 Licensed Internal Code
+// (C) COPYRIGHT IBM CORP. 1996
+//
+// The source code for this program is not published or otherwise
+// divested of its trade secrets, irrespective of what has been
+// deposited with the U.S. Copyright Office.
+//
 // End Copyright ******************************************************
 
 // Class Description *************************************************
-//                                                                      
-//  Name:  ecmdSharedUtils
-//  Base class: 
 //
-//  Description: 
+//  Name:  ecmdSharedUtils
+//  Base class:
+//
+//  Description:
 //  Usage:
 //
 // End Class Description *********************************************
@@ -40,9 +40,11 @@
 #include <string>
 #include <vector>
 #include <ecmdDataBuffer.H>
+// AK: added for hash routine  10/07/2004
+#include <inttypes.h>
 
 //--------------------------------------------------------------------
-//  Forward References                                                
+//  Forward References
 //--------------------------------------------------------------------
 
 /** @name Command Line Parsing Functions */
@@ -89,14 +91,35 @@ std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
 
 //@}
 
+/**
+ * Converts strings to unsigned int values. The input format is
+ * 0xABCDEF.
+ * @param str String in hexadecimal notation
+ * @date Tue Sep 21 13:22:33 2004
+ */
+extern "C" uint32_t ecmdHexToUInt32(const char* str);
+
+/**
+ * Calculates a 32bit hash value for a given string.
+ *
+ * LICENSE:
+ * By Bob Jenkins, 1996.  bob_jenkins@burtleburtle.net.  You may use this
+ * code any way you wish, private, educational, or commercial.  It's free.
+ * See http://burtleburtle.net/bob/hash/doobs.html
+ *
+ * @param k String.
+ * @param c Start value for hash.
+ */
+extern "C" uint32_t ecmdHashString32(const char *k, uint32_t c);
 
 
 #endif /* ecmdSharedUtils_h */
 
 // Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
+//
+//  Flag Reason   Vers Date     Coder  Description
+//  ---- -------- ---- -------- -----  -------------------------------
 //                              cengel Initial Creation
+//                              kloss  added hash functions: hashString32, hexToUInt32
 //
 // End Change Log *****************************************************

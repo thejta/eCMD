@@ -1,21 +1,21 @@
 // Copyright ***********************************************************
-//                                                                      
-// File ecmdSharedUtils.C                                   
-//                                                                      
-// IBM Confidential                                                     
-// OCO Source Materials                                                 
-// 9400 Licensed Internal Code                                          
-// (C) COPYRIGHT IBM CORP. 1996                                         
-//                                                                      
-// The source code for this program is not published or otherwise       
-// divested of its trade secrets, irrespective of what has been         
-// deposited with the U.S. Copyright Office.                            
-//                                                                      
+//
+// File ecmdSharedUtils.C
+//
+// IBM Confidential
+// OCO Source Materials
+// 9400 Licensed Internal Code
+// (C) COPYRIGHT IBM CORP. 1996
+//
+// The source code for this program is not published or otherwise
+// divested of its trade secrets, irrespective of what has been
+// deposited with the U.S. Copyright Office.
+//
 // End Copyright *******************************************************
 
 // Module Description **************************************************
 //
-// Description: 
+// Description:
 //
 // End Module Description **********************************************
 
@@ -114,7 +114,7 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
   char *returnValue=NULL;
 
   for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) { 
+    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) {
 
       if (strlen((*argv)[counter])>strlen(option)) {
         returnValue = &((*argv)[counter][strlen(option)]);
@@ -130,7 +130,7 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
       }
       /* We found it , let's stop looping , we don't want to pull other args out if they are here, this fixes BZ#6 */
       break;
-      
+
     }
   }
 
@@ -204,10 +204,73 @@ std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen) {
   return ret;
 }
 
+#define mix(a,b,c) \
+{ \
+  a -= b; a -= c; a ^= (c>>13); \
+  b -= c; b -= a; b ^= (a<<8); \
+  c -= a; c -= b; c ^= (b>>13); \
+  a -= b; a -= c; a ^= (c>>12);  \
+  b -= c; b -= a; b ^= (a<<16); \
+  c -= a; c -= b; c ^= (b>>5); \
+  a -= b; a -= c; a ^= (c>>3);  \
+  b -= c; b -= a; b ^= (a<<10); \
+  c -= a; c -= b; c ^= (b>>15); \
+}
+
+uint32_t ecmdHashString32(const char *k, uint32_t c)
+{
+    uint32_t length;
+    register uint32_t a,b,len;
+
+    /* Set up the internal state */
+    len = strlen(k);
+    length = len;
+
+    a = b = 0x9e3779b9;  /* the golden ratio; an arbitrary value */
+
+    /*---------------------------------------- handle most of the key */
+    while (len >= 12)
+    {
+        a += (k[0] +((uint32_t)k[1]<<8) +((uint32_t)k[2]<<16) +((uint32_t)k[3]<<24));
+        b += (k[4] +((uint32_t)k[5]<<8) +((uint32_t)k[6]<<16) +((uint32_t)k[7]<<24));
+        c += (k[8] +((uint32_t)k[9]<<8) +((uint32_t)k[10]<<16)+((uint32_t)k[11]<<24));
+        mix(a,b,c);
+        k += 12; len -= 12;
+    }
+    /*------------------------------------- handle the last 11 bytes */
+    c += length;
+    switch(len)  /* all the case statements fall through */
+    {
+    case 11: c+=((uint32_t)k[10]<<24);
+    case 10: c+=((uint32_t)k[9]<<16);
+    case 9 : c+=((uint32_t)k[8]<<8);
+        /* the first byte of c is reserved for the length */
+    case 8 : b+=((uint32_t)k[7]<<24);
+    case 7 : b+=((uint32_t)k[6]<<16);
+    case 6 : b+=((uint32_t)k[5]<<8);
+    case 5 : b+=k[4];
+    case 4 : a+=((uint32_t)k[3]<<24);
+    case 3 : a+=((uint32_t)k[2]<<16);
+    case 2 : a+=((uint32_t)k[1]<<8);
+    case 1 : a+=k[0];
+        /* case 0: nothing left to add */
+    }
+    mix(a,b,c);
+
+    return(c);
+}
+
+uint32_t ecmdHexToUInt32(const char* str)
+{
+	const char* start = str + 2;
+	return strtoull(start, NULL, 16);
+}
+
 // Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
+//
+//  Flag Reason   Vers Date     Coder    Description
+//  ---- -------- ---- -------- -------- ------------------------------
 //                              CENGEL   Initial Creation
+//                     10/07/04 kloss    added the hashfunction ecmdHexToUInt32 and ecmdHashString32
 //
 // End Change Log *****************************************************
