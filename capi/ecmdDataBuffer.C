@@ -1028,7 +1028,7 @@ void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy fro
   setBitLength(bytes * 4);
   ecmdBigEndianMemCopy(iv_Data, buf, bytes);
 #ifndef REMOVE_SIM
-  strcpy(iv_DataStr, getBinStr(0,bytes*4).c_str());
+  strcpy(iv_DataStr, genBinStr(0,bytes*4).c_str());
 #endif
 }
 void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
