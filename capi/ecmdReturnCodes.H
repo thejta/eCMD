@@ -65,6 +65,7 @@
 #define ECMD_DBUF_XSTATE_ERROR                  0x2020 ///< An 'X' character occured where it was not expected
 #define ECMD_DBUF_UNDEFINED_FUNCTION            0x2030 ///< Function not included in this version of DataBuffer
 #define ECMD_DBUF_INVALID_ARGS                  0x2040 ///< Args provided to dataBuffer were invalid
+#define ECMD_DBUF_INVALID_DATA_FORMAT           0x2041 ///< String data didn't match expected input format
 
 
 
