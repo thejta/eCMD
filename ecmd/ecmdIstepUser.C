@@ -193,6 +193,13 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   //Check force option
   bool force = ecmdParseOption(&argc, &argv, "-force");
 
+  strcpy(clockDomain, "ALL");
+  
+  //Convenience Clock Domains
+  char * cDomain = ecmdParseOptionWithArgs(&argc, &argv, "-domain");
+  if (cDomain != NULL) {
+    strcpy(clockDomain, cDomain);
+  }
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -213,12 +220,15 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
+  std::string printed;
 
+  //Should be the case only if -domain wasn't specified
   if(argc == 2) {
+    if(strcmp(clockDomain,"ALL")!=0) {
+       printed = "startclocks - Convenience Domain '"+ (std::string)clockDomain + "' and Physical Domain '" + (std::string)argv[1] +"' both specified. Choosing Physical Domain.\n";
+       ecmdOutputWarning( printed.c_str() );
+    }
     strcpy(clockDomain, argv[1]);
-  }
-  else {
-    strcpy(clockDomain, "ALL");
   }
   
   /************************************************************************/
@@ -227,8 +237,7 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  std::string printed;
-
+  
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = startClocks(target, clockDomain, force);
@@ -297,6 +306,14 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   //Check force option
   bool force = ecmdParseOption(&argc, &argv, "-force");
 
+  strcpy(clockDomain, "ALL");
+  
+  //Convenience Clock Domains
+  char * cDomain = ecmdParseOptionWithArgs(&argc, &argv, "-domain");
+  if (cDomain != NULL) {
+    strcpy(clockDomain, cDomain);
+  }
+  
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -317,13 +334,16 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
+  std::string printed;
 
   if(argc == 2) {
-    strcpy(clockDomain, argv[1]);
+     if(strcmp(clockDomain,"ALL")!=0) {
+       printed = "stopclocks - Convenience Domain '"+ (std::string)clockDomain + "' and Physical Domain '" + (std::string)argv[1] +"' both specified. Choosing Physical Domain.\n";
+       ecmdOutputWarning( printed.c_str() );
+     }
+     strcpy(clockDomain, argv[1]);
   }
-  else {
-    strcpy(clockDomain, "ALL");
-  }
+  
   
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -331,8 +351,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  std::string printed;
-
+  
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = stopClocks(target, clockDomain, force);
