@@ -24,6 +24,10 @@
 #include <ctype.h>
 #include <inttypes.h>
 #include <netinet/in.h> /* for htonl */
+#include <fstream>
+#include <iostream>
+
+using namespace std;
 
 #include <ecmdDataBuffer.H>
 
@@ -2040,6 +2044,191 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
     start_bit_num += 32; /* increment start by a fw */
   }
   return ECMD_DBUF_SUCCESS;
+}
+
+uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  std::ofstream ops;
+  uint32_t tmphdrfield=0;
+  int szcount = 0;
+  std::string asciidatastr,xstatestr;
+  uint32_t numBytes = getByteLength();
+  uint32_t numBits = getBitLength();
+  
+  #ifndef REMOVE_SIM
+    if((hasXstate()) && (format != ECMD_SAVE_FORMAT_XSTATE)) {
+      printf( "**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration\n");
+      return(ECMD_DBUF_XSTATE_ERROR);
+    }
+  #endif
+  
+  ops.open(filename);
+  if (ops.fail()) {
+    printf("**** ERROR : Unable to open file : %s for write\n",filename);
+    return ECMD_DBUF_FOPEN_FAIL;  
+  }
+    
+  if (format == ECMD_SAVE_FORMAT_BINARY) {
+    ops.write("START",5);//Key
+    ops.seekp(3, ios::cur);
+    //Hdr
+    ops.write((char *)&numBits,4);//Bit length field
+    ops.write((char*)format,4);//Format field
+    //Leave 1 words extra room here
+    ops.write((char*)tmphdrfield,4);
+    ops.write((char *)iv_Data,numBytes);
+    ops.write("END",3);//Key
+  } else if(format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+    ops.write((char *)iv_Data,numBytes);
+  } else if( format == ECMD_SAVE_FORMAT_ASCII) {
+    ops << "START";
+    while (szcount < numBits) {
+      if(szcount+32 < numBits) {
+       asciidatastr = genHexLeftStr(szcount, 32);
+      } else {
+       asciidatastr = genHexLeftStr(szcount, numBits-(szcount));
+      }
+      if (szcount !=0 ) {
+       if((szcount%256) == 0) {
+         ops << "\n"; 
+       }
+       else if((szcount%32) == 0) {
+         ops << " ";
+       }
+      }
+      else {
+      //Hdr
+	ops.fill('0'); ops.width(8); ops << hex << uppercase << numBits;
+	ops.fill('0'); ops.width(8); ops << hex << uppercase  << format;
+	ops.fill('0'); ops.width(8); ops << hex << uppercase  << tmphdrfield;
+	ops << "\n";
+      }
+      ops << asciidatastr.c_str();
+      szcount+= 32;
+    }
+    ops << "\nEND\n";
+  } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
+    ops << "START";
+    while (szcount < numBits) {
+     if(szcount+64 < numBits) {
+      xstatestr = genXstateStr(szcount, 64) ;
+     } else {
+      xstatestr = genXstateStr(szcount, numBits-(szcount)) ;
+     }
+     if (szcount == 0) {
+        //Hdr
+        ops.fill('0'); ops.width(8); ops << hex << uppercase << numBits;
+        ops.fill('0'); ops.width(8); ops << hex << uppercase << format;
+        ops.fill('0'); ops.width(8); ops << hex << uppercase << tmphdrfield;
+	ops << "\n";
+     }
+     ops << xstatestr.c_str();
+     if (szcount+64<numBits)
+      ops << "\n";
+     szcount+= 64;
+    }
+    ops << "\nEND\n";
+  }
+  ops.close();
+  return(rc);
+}
+
+uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  std::ifstream ins;
+  uint32_t numBits=0,numBytes=0,numWords=0,NumDwords=0,hexbitlen=0;
+  char key[6],hexstr[8],binstr[64];
+  
+  ins.open(filename);
+    
+  if (ins.fail()) {
+    printf("**** ERROR : Unable to open file : %s for reading\n",filename);
+    return ECMD_DBUF_FOPEN_FAIL;  
+  }
+    
+  if ( format == ECMD_SAVE_FORMAT_BINARY) {
+    ins.read(key,5); key[5]='\0';
+    if(strcmp(key,"START")!=0) {
+      printf("**** ERROR : Keyword START not found.\n");
+      return ECMD_DBUF_FILE_FORMAT_MISMATCH; 
+    }
+    ins.seekg(3,ios::cur);
+    ins.read((char *)&numBits,4);
+    ins.read((char *)&format,4);
+    if (format != ECMD_SAVE_FORMAT_BINARY ) {
+      printf("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_BINARY.\n");
+      return ECMD_DBUF_FILE_FORMAT_MISMATCH;  
+    }
+    ins.seekg(4,ios::cur);//1 empty words in hdr
+    this->setBitLength(numBits);
+    numBytes=getByteLength();
+    ins.read((char *)iv_Data,numBytes);
+  } else if ( format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+    ins.seekg(0, ios::end);
+    numBytes = ins.tellg();
+    numBits = numBytes * 8;
+    this->setBitLength(numBits);
+    ins.seekg(0, ios::beg);
+    ins.read((char *)iv_Data,numBytes);
+  } else if(format ==  ECMD_SAVE_FORMAT_ASCII) {
+    ins.width(6); ins >> key; 
+    if(strcmp(key,"START")!=0) {
+      printf("**** ERROR : Keyword START not found.\n");
+      return ECMD_DBUF_FILE_FORMAT_MISMATCH; 
+    }
+    ins.width(9);  ins >> hexstr; 
+    numBits = strtoul(hexstr, NULL, 16); 
+    ins.width(9); ins >> hexstr;  
+    format = strtoul(hexstr, NULL, 16);
+    if (format != ECMD_SAVE_FORMAT_ASCII ) {
+      printf("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_ASCII.\n");
+      return ECMD_DBUF_FILE_FORMAT_MISMATCH;  
+    }
+    ins.seekg(9,ios::cur);//1 empty words in hdr + new line
+    this->setBitLength(numBits);
+    for (uint32_t i = 0; i < iv_NumWords; i++) {
+      ins.width(9);  ins >> hexstr;
+      if (((i*32)+32) > numBits) {
+        hexstr[strlen(hexstr)-1] = '\0'; //strip newline char
+	hexbitlen = numBits - (i*32);
+      } else {
+        hexbitlen = 32;
+      }
+      insertFromHexLeft (hexstr, i*32, hexbitlen);
+      ins.seekg(1,ios::cur);//Space or Newline char
+    }
+  } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
+    #ifdef REMOVE_SIM
+      printf("**** ERROR : ecmdDataBuffer: XState: Not defined in this configuration");
+      rc = ECMD_DBUF_XSTATE_ERROR;
+    #endif
+    ins.width(6); ins >> key; 
+    if(strcmp(key,"START")!=0) {
+      printf("**** ERROR : Keyword START not found.\n");
+      return ECMD_DBUF_FILE_FORMAT_MISMATCH;
+    }
+    ins.width(9);  ins >> hexstr;
+    numBits = strtoul(hexstr, NULL, 16);
+    ins.width(9); ins >> hexstr;
+    format = strtoul(hexstr, NULL, 16);
+    if (format != ECMD_SAVE_FORMAT_XSTATE ) {
+      printf("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_XSTATE.\n");
+      return ECMD_DBUF_FILE_FORMAT_MISMATCH;
+    }
+    
+    ins.seekg(9,ios::cur);//1 empty words in hdr + new line
+    this->setBitLength(numBits);
+    NumDwords = iv_NumBits % 64 ? (iv_NumBits / 64) + 1 : iv_NumBits / 64;
+    for (uint32_t i = 0; i < NumDwords; i++) {
+      ins.width(65);  ins >> binstr;
+      if ((i*64)+64 > numBits) 
+        binstr[strlen(binstr)-1] = '\0'; //strip newline char
+      setXstate(i*64, binstr);
+      ins.seekg(1,ios::cur);// New line char
+    }
+  }
+  ins.close();
+  return(rc);
 }
 
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)

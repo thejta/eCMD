@@ -48,6 +48,8 @@
  #define ECMD_DBUF_UNDEFINED_FUNCTION            (0x01000000 | 0x2030) ///< Function not included in this version of DataBuffer
  #define ECMD_DBUF_INVALID_ARGS                  (0x01000000 | 0x2040) ///< Args provided to dataBuffer were invalid
  #define ECMD_DBUF_INVALID_DATA_FORMAT           (0x01000000 | 0x2041) ///< String data didn't match expected input format
+ #define ECMD_DBUF_FOPEN_FAIL                    (0x01000000 | 0x2050) ///< File open on file for reading or writing the data buffer failed 
+ #define ECMD_DBUF_FILE_FORMAT_MISMATCH          (0x01000000 | 0x2051) ///< In readFile specified format not found in the data file
 #endif
 
 //--------------------------------------------------------------------
@@ -58,6 +60,20 @@
 //  Global Variables
 //----------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+//  Defines                                                
+//--------------------------------------------------------------------
+/**
+ @brief This is the different formats in which the output file will be written
+*/
+
+typedef enum {
+  ECMD_SAVE_FORMAT_BINARY,      ///< binary file with header with info like bit length etc
+  ECMD_SAVE_FORMAT_BINARY_DATA, ///< binary file with data only
+  ECMD_SAVE_FORMAT_ASCII,       ///< ascii text file with header having same info like binary hdr
+  ECMD_SAVE_FORMAT_XSTATE,      ///< xstate text file with header having same info like binary hdr
+
+} ecmdFormatType_t;
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -895,6 +911,25 @@ public:
    */
   uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
+  /**
+   * @brief Write buffer out into a file in the format specified. 
+   * @param filename file to write to
+   * @param format format to write in
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FOPEN_FAIL
+   */
+  uint32_t  writeFile(const char * filename, int format); /* Writes out the buffer (in the specified format) into the file */
+  
+  /**
+   * @brief Read data from the file into the buffer  
+   * @param filename to read from
+   * @param data format to expect in the file
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
+   * @retval ECMD_DBUF_FOPEN_FAIL
+   */
+  uint32_t  readFile(const char * filename, int format); /* Writes out the buffer (in the specified format) into the file */
+  
   //@}
 
   /** @name Operator overloads */

@@ -89,6 +89,8 @@
  #define ECMD_DBUF_UNDEFINED_FUNCTION            (ECMD_ERR_ECMD | 0x2030) ///< Function not included in this version of DataBuffer
  #define ECMD_DBUF_INVALID_ARGS                  (ECMD_ERR_ECMD | 0x2040) ///< Args provided to dataBuffer were invalid
  #define ECMD_DBUF_INVALID_DATA_FORMAT           (ECMD_ERR_ECMD | 0x2041) ///< String data didn't match expected input format
+ #define ECMD_DBUF_FOPEN_FAIL                    (ECMD_ERR_ECMD | 0x2050) ///< File open on file for reading or writing the data buffer failed 
+ #define ECMD_DBUF_FILE_FORMAT_MISMATCH          (ECMD_ERR_ECMD | 0x2051) ///< In readFile specified format not found in the data file
 #endif
 
 
