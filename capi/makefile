@@ -86,4 +86,4 @@ ${TARGET}: ${SOURCE_OBJS}
 ecmdClientCapiFunc.C ecmdDllCapi.H ecmdClientEnums.H: ecmdClientCapi.H makedll.pl 
 	@echo "==== Auto Generate Client Functions"
 	@chmod 777 makedll.pl
-	./makedll.pl 
+	./makedll.pl ecmd
