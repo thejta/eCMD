@@ -53,11 +53,21 @@ typedef enum {
 } ecmdDllType_t;
 
 /**
+ @brief This is used by ecmdQueryDllInfo to return what product the dll supports
+*/
+typedef enum {
+  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
+  ECMD_DLL_PRODUCT_ECLIPZ       ///< Eclipz
+} ecmdDllProduct_t;
+
+/**
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
 
 struct ecmdDllInfo {
   ecmdDllType_t         dllType;        ///< Dll instance type running
+  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllBuildDate;   ///< Date the Dll was built
 };
 
 /**
@@ -96,7 +106,7 @@ struct ecmdChipTarget {
 
   uint32_t    cage;             ///< cage that contains node with chip
   uint32_t    node;             ///< node that contains chip
-  std::string chipType;         ///< name of chip to access
+  std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   uint8_t     core;             ///< which core on chip to access, if chip is multi-core
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
@@ -120,48 +130,58 @@ typedef enum {
 } ecmdChipInterfaceType_t;
 
 /**
+ @brief Used by ecmdQueryConfig to specify detail level of query
+*/
+typedef enum {
+  ECMD_QUERY_DETAIL_LOW,             ///< Only config info is returned
+  ECMD_QUERY_DETAIL_HIGH             ///< All info is returned
+} ecmdQueryDetail_t;
+
+
+/**
  @brief Used for the ecmdQueryConfig function to return thread data
 */
 struct ecmdThreadData {
-  uint8_t threadId;
+  uint8_t threadId;                             ///< (Detail: Low) Thread number of this entry
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return core data
 */
 struct ecmdCoreData {
-  uint8_t                       coreId;         ///< core number of this entry
-  uint8_t                       numProcThreads; ///< Number of threads per core this entry supports - only valid for Processors
-  std::list<ecmdThreadData>     threadData;     ///< List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
+  uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
+  uint8_t                       numProcThreads; ///< (Detail: Low) Number of threads per core this entry supports - only valid for Processors
+  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return chip data
 */
 struct ecmdChipData {
-  std::string                   chipType;           ///< name of chip
-  uint32_t                      pos;                ///< Position of this entry
-  uint8_t                       numProcCores;       ///< Number of cores this entry supports - only valid for Processor compute cores
-  uint32_t                      chipEc;             ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
-  ecmdChipInterfaceType_t       interfaceType;      ///< Interface Macro used by the chip
-  uint32_t                      chipFlags;          ///< Various additional info about the chip - bitmask of defines
-  std::list<ecmdCoreData>       coreData;           ///< List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+  std::string                   chipType;           ///< (Detail: Low)  actual name of chip , ie. gr, ent (should be 3chars or less)
+  std::string                   chipCommonType;     ///< (Detail: Low)  common name of chip, ie. pu, riohub
+  uint32_t                      pos;                ///< (Detail: Low)  Position of this entry
+  uint8_t                       numProcCores;       ///< (Detail: Low)  Number of cores this entry supports - only valid for Processor compute cores
+  uint32_t                      chipEc;             ///< (Detail: High) EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
+  ecmdChipInterfaceType_t       interfaceType;      ///< (Detail: High) Interface Macro used by the chip
+  uint32_t                      chipFlags;          ///< (Detail: High) Various additional info about the chip - bitmask of defines
+  std::list<ecmdCoreData>       coreData;           ///< (Detail: Low)  List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return node data
 */
 struct ecmdNodeData {
-  uint32_t nodeId;                      ///< Node number of this entry
-  std::list<ecmdChipData> chipData;     ///< List of all chips requested in this node - in numerical order per chip by pos
+  uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
+  std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this node - in numerical order per chip by pos
 };
 
 /**
  @brief Used for the ecmdQueryConfig function to return cage data
 */
 struct ecmdCageData {
-  uint32_t cageId;                      ///< Cage number of this entry
-  std::list<ecmdNodeData> nodeData;     ///< List of all nodes requested in this cage - in numerical order by nodeId
+  uint32_t cageId;                      ///< (Detail: Low) Cage number of this entry
+  std::list<ecmdNodeData> nodeData;     ///< (Detail: Low) List of all nodes requested in this cage - in numerical order by nodeId
 };
 
 

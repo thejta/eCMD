@@ -121,7 +121,7 @@ int ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
    cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid><p>
 */
    
-int ecmdQueryConfig(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData);
+int ecmdQueryConfig(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
