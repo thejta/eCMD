@@ -208,6 +208,7 @@ extension example but all extensions work the same way just replace the prefix w
  <br>
  <hr>
  @section dform Data Passing
+ @subsection ecmdDataBuffer ecmdDataBuffer's
  Data is passed between the client Perl script and the eCMD shared object in the form of the same ecmdDataBuffer that is part of the C-Api.  The function set is the identical.  For additional documentation on the ecmdDataBuffer see the C/C++ Api Documentation.
 <br>
 Here is an example usage of the ecmdDataBuffer:
@@ -238,6 +239,13 @@ Here is an example usage of the ecmdDataBuffer:
 </pre>
 
  <b>WARNING: </b> The '=' operator DOES NOT work between ecmdDataBuffer's or any other structure like you would expect it to in C. See 'Perl API Usage' below
+<br>
+ @subsection uint64_t uint64_t (64 bit data)
+ Perl doesn't support 64 bit variables, so all 64 bit data is converted to a string.
+<pre>
+  my $addr = "0012a33e884bb338";
+  putMemProc($target, $addr, $data);
+</pre>
 
  <br><br>
  <hr>
@@ -365,7 +373,7 @@ Usage of a vector is identical to a list like above.
  </ol>
 
 <br>
- @subsection The '=' operator
+ @subsection operator The '=' operator
  <b>WARNING:</b> Because of the behavior of Perl the following statements results in two variables pointing to the same data:
 <pre>
   my $data1 = new ecmd::ecmdDataBuffer();
