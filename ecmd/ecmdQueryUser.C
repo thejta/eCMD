@@ -253,8 +253,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     /* Do they want to run in easy parse mode ? */
     bool easyParse = ecmdParseOption (&argc, &argv, "-ep");
-    bool verbose = ecmdParseOption (&argc, &argv, "-v");
-
+    
 
 
     target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -342,6 +341,89 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           if (!easyParse && strlen(buf) > 0) {
               strcat(buf, "\n"); ecmdOutput(buf);
           }
+        } /* curSlotIter */
+
+      } /* curNodeIter */
+
+    } /* curCageIter */
+
+
+    /* ---------- */
+    /* showconfig */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"showconfig")) {
+
+    //Setup the target that will be used to query the system config 
+    ecmdQueryData queryData;            ///< Query data
+    ecmdChipTarget target;              ///< Target to refine query
+    std::list<ecmdCageData>::iterator ecmdCurCage;      ///< Iterators
+    std::list<ecmdNodeData>::iterator ecmdCurNode;
+    std::list<ecmdSlotData>::iterator ecmdCurSlot;
+    std::list<ecmdChipData>::iterator ecmdCurChip;
+    std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdThreadData>::iterator ecmdCurThread;
+
+   
+    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = ECMD_TARGET_QUERY_IGNORE;
+
+    rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
+
+    char buf[500];
+    char buf2[100];
+    
+    for (ecmdCurCage = queryData.cageData.begin(); ecmdCurCage != queryData.cageData.end(); ecmdCurCage ++) {
+      
+      sprintf(buf,"Cage %d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+      //sprintf(buf,"  Details: CageUid=%d\n",ecmdCurCage->unitId); ecmdOutput(buf);
+            
+      for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+        
+	sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId ); ecmdOutput(buf);
+        //sprintf(buf,"    Details: NodeUid=%d\n",ecmdCurNode->unitId ); ecmdOutput(buf);
+
+        for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+          
+	  sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); 
+          //sprintf(buf,"      Details: SlotUid=%d\n",ecmdCurSlot->unitId); ecmdOutput(buf); buf[0] = '\0';
+
+          for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+	  
+	    buf[0] = '\0';
+	    //Common chip details
+	    sprintf(buf2, "      %s %d\n",ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);strcat(buf, buf2);
+	    //sprintf(buf2, "        Details: PosUid=%d, Name=%s, Common Name=%s,\n",ecmdCurChip->unitId, ecmdCurChip->chipType.c_str(),ecmdCurChip->chipCommonType.c_str());
+	    sprintf(buf2, "        Details: Name=%s, Common Name=%s,\n", ecmdCurChip->chipType.c_str(),ecmdCurChip->chipCommonType.c_str());
+	    strcat(buf, buf2);
+            sprintf(buf2, "                 Pos=%d, NumProcCores=%d, EC=%d, Model EC=%d,\n",ecmdCurChip->pos,ecmdCurChip->numProcCores, ecmdCurChip->chipEc,ecmdCurChip->simModelEc );  
+	    strcat(buf, buf2);
+	    if (ecmdCurChip->interfaceType == ECMD_INTERFACE_ACCESS)
+              sprintf(buf2,"                 Interface=ACCESS, ");
+            else if (ecmdCurChip->interfaceType == ECMD_INTERFACE_CFAM)
+              sprintf(buf2,"                 Interface=CFAM, ");
+            else
+              sprintf(buf2,"                 Interface=UNKNOWN, ");  
+	    strcat(buf, buf2);
+            sprintf(buf2,  "Flags=0x%.08X\n", ecmdCurChip->chipFlags); strcat(buf, buf2);
+	    ecmdOutput(buf);   buf[0] = '\0';
+	    	  
+            if ( (ecmdCurChip->numProcCores != 0) && ( !ecmdCurChip->coreData.empty() )) {
+              for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                sprintf(buf, "        Core %d\n", ecmdCurCore->coreId ); ecmdOutput(buf); 
+		//sprintf(buf, "          Details: CoreUid=%d\n", ecmdCurCore->unitId ); ecmdOutput(buf); 
+		if ((ecmdCurCore->numProcThreads != 0) || !ecmdCurCore->threadData.empty()) {
+                  /* For threaded chips */
+                  for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                    sprintf(buf, "          Thread %d\n", ecmdCurThread->threadId );ecmdOutput(buf); 
+		    //sprintf(buf, "            Details: ThreadUid=%d\n", ecmdCurThread->unitId );ecmdOutput(buf); 
+                  } 
+                }
+
+              } /* curCoreIter */
+            }
+
+          } /* curChipIter */
+              
         } /* curSlotIter */
 
       } /* curNodeIter */
