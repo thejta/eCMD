@@ -19,13 +19,6 @@ use strict;
 ################################################
 my $iv_DataStr = "";
 
-=for functionBrief
-  /**
-   * @brief Default Constructor
-   * @post buffer is not allocated, can be allocated later with setWordLength, setCapacity or setBitLength
-   */
-=cut
-
 sub new {
 	my $self = \$iv_DataStr;
 	bless $self;
@@ -40,6 +33,7 @@ sub new {
    * @brief Return the length of the buffer in words
    * @retval Buffer length in words rounded up
    */
+  int   getWordLength() const;
 =cut
 
 sub getWordLength {
@@ -59,6 +53,7 @@ sub getWordLength {
    * @brief Return the length of the buffer in bytes
    * @retval Buffer length in bytes rounded up
    */
+  int   getByteLength() const;
 =cut
 
 sub getByteLength() {
@@ -78,6 +73,7 @@ sub getByteLength() {
    * @brief Return the length of the buffer in bits
    * @retval Buffer length in bits
    */
+  int   getBitLength() const;
 =cut
 
 sub getBitLength() {
@@ -94,6 +90,7 @@ sub getBitLength() {
    *
    * CAUTION : All data stored in buffer will be lost
    */
+  void  setWordLength(int i_newNumWords);   
 =cut
 
 sub setWordLength() {
@@ -115,6 +112,7 @@ sub setWordLength() {
    *
    * CAUTION : All data stored in buffer will be lost
    */
+  void  setBitLength(int i_newNumBits);
 =cut
 
 sub setBitLength() {
@@ -134,6 +132,7 @@ sub setBitLength() {
    * @param i_bit Bit in buffer to turn on
    * @param i_len Number of consecutive bits from start bit to turn on
    */
+  void  setBit(int i_bit, int i_len);
 =cut
 
 sub setBit() {
@@ -161,6 +160,7 @@ sub setBit() {
    * @param i_bit Bit in buffer to turn off
    * @param i_len Number of consecutive bits from start bit to off
    */
+  void  clearBit(int i_bit, int i_len);
 =cut
 
 sub clearBit() {
@@ -189,6 +189,7 @@ sub clearBit() {
    * @param i_wordoffset Offset of word to set
    * @param i_value 32 bits of data to put into word
    */
+  void  setWord(int i_wordoffset, uint32_t i_value);
 =cut
 
 sub setWord() {
@@ -224,6 +225,7 @@ sub setWord() {
   * @param i_wordoffset Offset of word to fetch
   * @retval Value of word requested
   */
+  uint32_t getWord(int i_wordoffset);
 =cut
 
 sub getWord() {
@@ -241,6 +243,7 @@ sub getWord() {
    * @param i_byteoffset Offset of byte to set
    * @param i_value 8 bits of data to put into byte
    */
+  void  setByte(int i_buteoffset, uint32_t i_value);
 =cut
 
 sub setByte() {
@@ -276,6 +279,7 @@ sub setByte() {
    * @param i_bit Bit in buffer to invert
    * @param i_len Number of consecutive bits to invert
    */
+  void  flipBit(int i_bit, int i_len);
 =cut
 
 sub flipBit() {
@@ -313,6 +317,7 @@ sub flipBit() {
    * @param i_len Number of consecutive bits to test
    * @retval true if bit is set - false if bit is clear
    */
+  int   isBitSet(int i_bit, int i_len);
 =cut
 
 sub isBitSet() {
@@ -352,6 +357,7 @@ sub isBitSet() {
    * @param i_len Number of consecutive bits to test
    * @retval true if bit is clear - false if bit is set
    */
+  int   isBitClear(int i_bit, int i_len);
 =cut
 
 sub isBitClear() {
@@ -390,7 +396,8 @@ sub isBitClear() {
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval Number of bits set in range
-   */    
+   */
+  int   getNumBitsSet(int i_bit, int i_len);
 =cut
 
 sub getNumBitsSet() {
@@ -430,6 +437,7 @@ sub getNumBitsSet() {
    * @post Bits in buffer are shifted to right by specified number of bits - data is shifted off the end
    * @post Buffer size is unchanged
    */
+  void  shiftRight(int i_shiftnum);
 =cut
 
 sub shiftRight() {
@@ -459,6 +467,7 @@ sub shiftRight() {
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
    * @post Buffer size is unchanged
    */
+  void  shiftLeft(int i_shiftnum);
 =cut
 
 sub shiftLeft() {
@@ -486,6 +495,7 @@ sub shiftLeft() {
    * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the right by specified number of bits - data is rotated to the beginning
    */
+  void  rotateRight(int i_rotatenum);
 =cut
 
 sub rotateRight() {
@@ -514,6 +524,7 @@ sub rotateRight() {
    * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the left by specified number of bits - data is rotated to the end
    */
+  void  rotateLeft(int i_rotatenum);
 =cut
 
 sub rotateLeft() {
@@ -541,6 +552,7 @@ sub rotateLeft() {
   /**
    * @brief Clear entire buffer to 0's
    */
+  void  flushTo0();
 =cut
 
 sub flushTo0() {
@@ -561,6 +573,7 @@ sub flushTo0() {
   /**
    * @brief Set entire buffer to 1's
    */
+  void  flushTo1();
 =cut
 
 sub flushTo1() {
@@ -580,6 +593,7 @@ sub flushTo1() {
   /**
    * @brief Invert entire buffer
    */
+  void  invert();  /* Performs bit inversion on entire DataBuffer class */
 =cut
 
 sub invert() {
@@ -595,6 +609,7 @@ sub invert() {
    * @param i_invMask Buffer that stores inversion mask
    * @param i_invByteLen Buffer length provided in bytes
    */
+   void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
 =cut
 sub applyInversionMask() {
 #void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
@@ -611,6 +626,7 @@ sub applyInversionMask() {
    * @param i_len Length of bits to insert
    * @post Data is copied from bufferIn to this DataBuffer in specified location
    */
+  void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
 =cut
 sub insert() {
 #  void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
@@ -626,6 +642,7 @@ sub insert() {
    * @param i_len Length of consecutive bits to copy
    * @post Data is copied from specified location in this DataBuffer to bufferOut
    */
+  void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
 =cut
 sub extract() {
 #  void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
@@ -642,6 +659,7 @@ sub extract() {
    * @param i_len Length of bits to OR
    * @post Data is ORed from i_bufferIn to this DataBuffer in specified location
    */
+  void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
 =cut
 sub setOr() {
 #  void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
@@ -655,6 +673,7 @@ sub setOr() {
    * @param i_bufferIn DataBuffer to OR data from - data is taken left aligned
    * @post Entire data is ORed from bufferIn to this DataBuffer
    */
+  void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
 =cut
 sub merge() {
 #  void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
@@ -671,6 +690,7 @@ sub merge() {
    * @param i_len Length of bits to AND
    * @post Data is ANDed from bufferIn to this DataBuffer in specified location
    */
+  void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
 =cut
 sub setAnd() {
 #  void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
@@ -685,6 +705,7 @@ sub setAnd() {
    * @param o_copyBuffer DataBuffer to copy data into
    * @post copyBuffer is an exact duplicate of this DataBuffer
    */
+  void  copy(ecmdDataBuffer & o_copyBuffer); 
 =cut
 sub copy() {
 #  void  copy(ecmdDataBuffer & o_copyBuffer); 
@@ -700,6 +721,7 @@ sub copy() {
    * @param i_bytes Byte length to copy
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
+  void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 =cut
 sub memCopyIn() {
 #  void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
@@ -714,6 +736,7 @@ sub memCopyIn() {
    * @param i_bytes Byte length to copy
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
+  void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 =cut
 sub memCopyOut() {
 #  void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
@@ -729,6 +752,7 @@ sub memCopyOut() {
    * @param i_insertpos Bit position to insert parity
    * @retval 0 on success - nonzero on failure
    */
+  int  oddParity(int i_start, int i_stop, int i_insertpos); 
 =cut
 sub oddParity() { 
 #  int  oddParity(int i_start, int i_stop, int i_insertpos); 
@@ -744,6 +768,7 @@ sub oddParity() {
    * @param i_insertpos Bit position to insert parity
    * @retval 0 on success - nonzero on failure
    */
+  int  oddParity(int i_start, int i_stop, int i_insertpos); 
 =cut
 sub evenParity() {
 #  int  oddParity(int i_start, int i_stop, int i_insertpos); 
@@ -758,6 +783,7 @@ sub evenParity() {
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
+  std::string genHexLeftStr(int i_start, int i_bitlen);
 =cut
 sub genHexLeftStr() {
 #  std::string genHexLeftStr(int i_start, int i_bitlen);
@@ -774,6 +800,7 @@ sub genHexLeftStr() {
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
+  std::string genHexRightStr(int i_start, int i_bitlen); 
 =cut
 sub genHexRightStr() {
 #  std::string genHexRightStr(int i_start, int i_bitlen); 
@@ -789,6 +816,7 @@ sub genHexRightStr() {
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
+  std::string genBinStr(int i_start, int i_bitlen); 
 =cut
 sub genBinStr() {
 #  std::string genBinStr(int i_start, int i_bitlen); 
@@ -804,6 +832,7 @@ sub genBinStr() {
    * @param i_bitlen Number of consecutive bits to retrieve
    * @retval String containing requested data
    */
+  std::string genXstateStr(int i_start, int i_bitlen);
 =cut
 sub genXstateStr() {
 #  std::string genXstateStr(int i_start, int i_bitlen);
@@ -822,6 +851,7 @@ sub genXstateStr() {
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
+  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
 =cut
 sub insertFromHexLeft() {
 #  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
@@ -839,6 +869,7 @@ sub insertFromHexLeft() {
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
+  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
 =cut
 sub insertFromHexRight() {
 #  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
@@ -856,6 +887,7 @@ sub insertFromHexRight() {
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
+  int insertFromBin (const char * i_binChars, int i_start = 0);
 =cut
 sub insertFromBin () {
 #  int insertFromBin (const char * i_binChars, int i_start = 0);
@@ -870,6 +902,7 @@ sub insertFromBin () {
    * @param i_length Number of consecutive bits to test
    * @retval 1 if xstate found 0 if none
    */
+  int   hasXstate(int i_start, int i_length); /* check subset */
 =cut
 sub hasXstate() {
 #  int   hasXstate(int i_start, int i_length); /* check subset */
@@ -885,6 +918,7 @@ sub hasXstate() {
 
    * NOTE - To retrieve multiple bits use genXstateStr
    */
+  char  getXstate(int i_bit);
 =cut
 sub getXstate() {
 #  char  getXstate(int i_bit);
@@ -898,6 +932,7 @@ sub getXstate() {
    * @param i_bit Bit to set
    * @param i_value Xstate value to set
    */
+  void setXstate(int i_bit, char i_value);
 =cut
 sub setXstate() {
 #  void setXstate(int i_bit, char i_value);
@@ -912,6 +947,7 @@ sub setXstate() {
    * @param i_bytes Byte length to copy (char length)
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
+  void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 =cut
 sub memCopyInXstate() {
 #  void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
@@ -926,6 +962,7 @@ sub memCopyInXstate() {
    * @param i_bytes Byte length to copy (char length)
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
+   void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 =cut
 sub memCopyOutXstate() {
 #  void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
