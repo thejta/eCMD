@@ -1100,6 +1100,10 @@ uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
   /* get format flag, if it's there */
   std::string format;
+  uint32_t bitLength = 0;
+  uint32_t row = 0, numRows = 0;
+  ecmdDataBuffer buffer;
+
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr == NULL) {
     format = "xr";
@@ -1129,16 +1133,14 @@ uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
       ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in bitLength field\n");
       return ECMD_INVALID_ARGS;
     }
-    uint32_t bitLength = atoi(argv[2]);
+    bitLength = atoi(argv[2]);
 
-    ecmdDataBuffer buffer;
     rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
     if (rc) {
       ecmdOutputError("simunsticktcfac - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
     }
 
-    uint32_t row = 0, numRows = 0;
     if (argc > 3) {
       if (!ecmdIsAllDecimal(argv[3])) {
         ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in row field\n");
