@@ -513,25 +513,29 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
         if (lineit->length == 1) {
           if (bustype == ECMD_CHIPFLAG_FSI) {
             if (scan.isBitSet(lineit->offsetFSI))
-              extractbuffer->clearBit(curaliasbit++);
+              rc = extractbuffer->clearBit(curaliasbit++);
             else
-              extractbuffer->setBit(curaliasbit++);
+              rc = extractbuffer->setBit(curaliasbit++);
           } else { //JTAG
             if (scan.isBitSet(lineit->offsetJTAG))
-              extractbuffer->clearBit(curaliasbit++);
+              rc = extractbuffer->clearBit(curaliasbit++);
             else
-              extractbuffer->setBit(curaliasbit++);
+              rc = extractbuffer->setBit(curaliasbit++);
           }
+          if (rc) return rc;
         } else {
           /* We need to grab more data */
-          if (bustype == ECMD_CHIPFLAG_FSI)
-            scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+          /* scom's are not reversed so we grab like FSI mode */
+          if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) 
+            rc = scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
           else { // JTAG
-            scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
+            rc = scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
             tmpbuffer.reverse();
           }
+          if (rc) return rc;
           tmpbuffer.invert();   /* Invert bits */
-          extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+          rc = extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+          if (rc) return rc;
           curaliasbit += lineit->length;
         }
 
@@ -540,24 +544,28 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
         if (lineit->length == 1) {
           if (bustype == ECMD_CHIPFLAG_FSI) {
             if (scan.isBitSet(lineit->offsetFSI))
-              extractbuffer->setBit(curaliasbit++);
+              rc = extractbuffer->setBit(curaliasbit++);
             else
-              extractbuffer->clearBit(curaliasbit++);
+              rc = extractbuffer->clearBit(curaliasbit++);
           } else { //JTAG
             if (scan.isBitSet(lineit->offsetJTAG))
-              extractbuffer->setBit(curaliasbit++);
+              rc = extractbuffer->setBit(curaliasbit++);
             else
-              extractbuffer->clearBit(curaliasbit++);
+              rc = extractbuffer->clearBit(curaliasbit++);
           }
+          if (rc) return rc;
         } else {
           /* We need to grab more data */
-          if (bustype == ECMD_CHIPFLAG_FSI)
-            scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+          /* scom's are not reversed so we grab like FSI mode */
+          if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) 
+            rc = scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
           else { // JTAG
-            scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
+            rc = scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
             tmpbuffer.reverse();
           }
-          extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+          if (rc) return rc;
+          rc = extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+          if (rc) return rc;
           curaliasbit += lineit->length;
         }
       }
