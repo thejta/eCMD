@@ -45,7 +45,6 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
 ecmdClientPerlapi::ecmdClientPerlapi () {
 
-  myFormat = "pxr";
 
 }
 
@@ -78,28 +77,58 @@ int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) 
 
 
 
+int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_data) {
 
-char * ecmdClientPerlapi::getScom (const char * i_target, int i_address) {
+/* char * ecmdClientPerlapi::getScom (const char * i_target, int i_address) { */
+  ecmdChipTarget myTarget;
+  std::string dataStr;
+  std::string myFormat;
+
 
   int rc = setupTarget(i_target, myTarget);
   ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return NULL;
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
 
   ecmdDataBuffer buffer;
   rc = ::getScom(myTarget, i_address, buffer);
   ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return NULL;
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  myFormat = "b";
 
   dataStr = ecmdWriteDataFormatted(buffer, myFormat);
-  return (char*)(dataStr.c_str());
+
+  char* tmp;
+  tmp = new char[dataStr.length()+1];
+  strcpy(tmp,dataStr.c_str());
+  *o_data = tmp;
+
+/*  o_data = dataStr; */
+
+/*  return (char*)(dataStr.c_str());*/
+  return rc;
 }
 
+
+
 int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char * i_data) {
+
+  ecmdChipTarget myTarget;
+  std::string dataStr;
+  std::string myFormat;
 
   int rc = setupTarget(i_target, myTarget);
   if (rc) return rc;
 
-  ecmdDataBuffer buffer; 
+  ecmdDataBuffer buffer;
+
+  myFormat = "b";
   rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
@@ -110,26 +139,36 @@ int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char
   return rc;
 }
 
-
  
-/*char* ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName) {*/
+ 
 int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, char **o_data) {
 
   char* tmp;
-printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
+  std::string dataStr;
+  std::string::size_type dataStrLen;
+  std::string myFormat;
+  ecmdChipTarget myTarget;
 
-  printf("comming into c code o_data = %s.\n",*o_data);
+  myFormat = "b";
+
+  printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
+  if(o_data == NULL) {
+    printf("o_data is NULL\n");
+
+  }
+
+  printf("coming into c code o_data = %s.\n",*o_data);
   printf("in the c code printing o_data = %08X\n",*o_data);
 
   int rc = setupTarget(i_target, myTarget);
-/*  if (rc) return NULL; */
+
   if (rc) return rc;
+
 
   int flushrc = ecmdFlushRingCache();
   printf("just flushed\n");
   if (flushrc) {
-/*     return NULL;*/
-     return flushrc;
+   return flushrc;
   }
 
   ecmdDataBuffer buffer;
@@ -140,31 +179,41 @@ printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
   ecmdPerlInterfaceErrorCheck(rc);
   printf("after errorCheck\n");
 
-/*  if (rc) return NULL;*/
+  printf("This is buffer size is from 0 to 64 :%d\n", buffer.getBitLength()); 
+ 
   if (rc) return rc;
+
+  printf("yo yo  \n");
 
   dataStr = ecmdWriteDataFormatted(buffer, myFormat);
   printf("after writeDataFormatted\n");
+  dataStrLen = dataStr.length();
+  printf("dataStr.length = %d\n",dataStrLen);
+  printf("dataStr = %s\n",dataStr.c_str());
 
-  tmp = new char[dataStr.length()+1];
+  tmp = new char[dataStrLen+1];
+  printf("after new command\n");
   strcpy(tmp,dataStr.c_str());
-  *o_data = tmp;
+  printf("after strcpy command\n");
+  printf("in the c code printing o_data 08X = %08X\n",o_data);
+  o_data = &tmp; 
 
   printf("in the c code printing tmp = %s\n",tmp);
   printf("in the c code printing o_data = %s\n",*o_data);
+  printf("in the c code printing o_data 08X *o_data= %08X\n",*o_data);
 
-  printf("in the c code printing o_data = %08X\n",*o_data);
-printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
-printf("tmp %.08X : &tmp %.08X\n",tmp, &tmp);
-/*  return (char*)(dataStr.c_str());*/
-//  return rc;
-  return 10;
-
-
+  printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
+  printf("tmp %.08X : &tmp %.08X\n",tmp, &tmp);
+  return rc;
 }
 
 
 int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, const char * i_data) {
+
+  ecmdChipTarget myTarget;
+  std::string dataStr;
+  std::string myFormat;
+  myFormat = "b";
 
   int rc = setupTarget(i_target, myTarget);
   if (rc) return rc;
@@ -183,7 +232,7 @@ int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, 
 
 
 
-
+/***
 void ecmdClientPerlapi::add(char *retval) {
   printf("Inside function: %c %c %c\n",retval[0],retval[1],retval[2]);
 
@@ -199,7 +248,7 @@ void ecmdClientPerlapi::add2(char **retval) {
   *retval = (char*)malloc(sizeof (char[100]));
   strcpy(*retval,"Looky here - I made it");
 }
-
+***/
 
 
 
@@ -250,7 +299,10 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
 
   ecmdLooperData looperdata;
 
-  ecmdCommandArgs(&numArgs, &args);
+/* have to figure out how to handle the argc for this.  pvl 11/17/04 */
+  ecmdCommandArgs(&args);
+/*  ecmdCommandArgs(&numArgs, &args);*/
+
   rc = ecmdConfigLooperInit(o_target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
@@ -263,3 +315,216 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
 
   return rc;
 }
+
+
+int ecmdClientPerlapi::ecmdCommandArgs(char** i_argv[]){
+
+  return 0;
+}
+
+/***
+int ecmdClientPerlapi::ecmdCommandArgs(int* i_argc, char** i_argv[]) {
+
+  return 0;
+}
+
+***/
+int ecmdClientPerlapi::sendCmd(const char* i_target, int i_instruction, int i_modifier, char** o_status) {
+
+  return 0;
+}
+
+
+int ecmdClientPerlapi::getCfamRegister (const char* i_target, int i_address, char** o_data){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::putCfamRegister (const char* i_target, int i_address, const char* i_data){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::getSpy (const char* i_target, const char * i_spyName, char** o_data){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::getSpyEnum (const char* i_target, const char * i_spyName, char** o_enumValue){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::getSpyEccGrouping (const char* i_target, const char * i_spyEccGroupName, char** o_groupData, char** o_eccData, char** o_eccErrorMask){
+
+  return 0;
+}
+
+
+int ecmdClientPerlapi::putSpy (const char* i_target, const char * i_spyName, const char* i_data){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::putSpyEnum (const char* i_target, const char * i_spyName, const char* i_enumValue){
+
+  return 0;
+}
+
+void ecmdClientPerlapi::ecmdEnableRingCache(){
+
+  return ;
+}
+
+int  ecmdClientPerlapi::ecmdDisableRingCache(){
+
+  return 0;
+}
+
+int  ecmdClientPerlapi::ecmdFlushRingCache(){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::getArray (const char* i_target, const char * i_arrayName, const char* i_address, char** o_data){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::putArray (const char* i_target, const char * i_arrayName, const char* i_address, const char* i_data){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simaet(const char* i_function){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simcheckpoint(const char* i_checkpoint){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simclock(int i_cycles){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simecho(const char* i_message){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simexit(){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simEXPECTFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simexpecttcfac(const char* i_tcfacname, int i_bitlength, const char* i_expect, int i_row){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simgetcurrentcycle(char** o_cyclecount){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simGETFAC(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simGETFACX(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simgettcfac(const char* i_tcfacname, char** o_data, int i_row, int i_startbit, int i_bitlength){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::siminit(const char* i_checkpoint){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simPUTFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simPUTFACX(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simputtcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simrestart(const char* i_checkpoint){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simSTKFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simstktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simSUBCMD(const char* i_command){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simtckinterval(int i_tckinterval){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simUNSTICK(const char* i_facname, int i_bitlength, int i_row, int i_offset){
+
+  return 0;
+}
+
+int ecmdClientPerlapi::simunsticktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows){
+
+  return 0;
+}
+
+char* ecmdClientPerlapi::ecmdGetErrorMsg(int i_errorCode){
+
+  return NULL;
+}
+
+void ecmdClientPerlapi::ecmdOutputError(const char* i_message){
+
+  return ;
+}
+
+void ecmdClientPerlapi::ecmdOutputWarning(const char* i_message){
+
+  return ;
+}
+
+void ecmdClientPerlapi::ecmdOutput(const char* i_message){
+
+  return ;
+}
+
+
+

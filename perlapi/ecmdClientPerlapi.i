@@ -2,7 +2,7 @@
 %include typemaps.i
 %include pointer.i
 
-%typemap(perl5,in) char ** retval(char* cvalue) {
+%typemap(perl5,in) char ** o_data(char* cvalue) {
   SV* tempsv;
   if (!SvROK($source)) {
     croak("expected a reference\n");
@@ -17,7 +17,7 @@
   *$target = cvalue;
 }
 
-%typemap(perl5,argout) char ** retval {
+%typemap(perl5,argout) char ** o_data  {
   SV *tempsv;
   tempsv = SvRV($arg);
   sv_setpv(tempsv, *$source);

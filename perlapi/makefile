@@ -4,11 +4,12 @@
 # $Header$
 
 OS           := $(shell uname)
+SITE         := $(shell fs wscell | cut -d\' -f2)
 
-VPATH        := ../capi/export
+VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
-SOURCE       := ecmdClientPerlapi.C
+SOURCE       := ecmdClientPerlapi.C ecmdStructs.C ecmdSharedUtils.C ecmdDataBuffer.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g 
 SWIGFLAGS    := -c++ -perl5 -shadow 
@@ -26,7 +27,7 @@ ifeq (${OS},Linux)
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/linux/perl/lib/5.6.1/i386-linux/CORE
   SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib/swig_lib/perl5
+  SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib/swig_lib/perl5 -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/
   GPATH   := ${SUBDIR}
 endif
 
@@ -35,15 +36,19 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   SUBDIR    := aix/
-  CC        := xlC -+
+  ifeq (${SITE},rchland.ibm.com)
+    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC.6002
+  else
+    CC      := xlC
+  endif
   TARGET    := ecmd_aix_perl
-  LD        := makeC++SharedLib
+  LD        := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib
   LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE/perl.exp
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
-  CFLAGS    := ${CFLAGS} -qstaticinline
+  CFLAGS    := ${CFLAGS} -qstaticinline -+
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE
   SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/perl5 
+  SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/perl5 -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 
