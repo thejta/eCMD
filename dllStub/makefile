@@ -34,6 +34,7 @@ ifeq (${OS},AIX)
   LD := makeC++SharedLib
   TARGET = ecmdDllStub_aix.so
   LDFLAGS := ${LDFLAGS} -e ecmdDllStub.export -p 0
+  CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}

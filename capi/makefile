@@ -28,6 +28,7 @@ ifeq (${OS},AIX)
   SUBDIR  := aix/
   CC := xlC -+
   TARGET = ecmdClientCapi_aix.a
+  CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
 VPATH := ${SUBDIR}

@@ -88,7 +88,24 @@ int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
   return ECMD_SUCCESS;
 }
 
-int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData) { return ECMD_SUCCESS; } 
+int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData) {
+
+  ecmdCoreData coreData;
+  ecmdChipData chipData;
+  ecmdNodeData nodeData;
+  ecmdCageData cageData;
+
+
+  /* Let's return some dummy info , we will return a proc with cores and threads */
+  coreData.coreId = 0;
+  coreData.numProcThreads = 2;
+
+  chipData.coreData.push_front(coreData);
+ 
+
+  return ECMD_SUCCESS;
+
+} 
 
 int dllQueryRing(ecmdChipTarget & target, std::list<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
 

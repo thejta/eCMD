@@ -32,6 +32,7 @@ ifeq (${OS},AIX)
   SUBDIR  := aix/
   CC      := xlC -+
   TARGET  := ecmdClientTest_aix
+  CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}
