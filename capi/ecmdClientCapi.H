@@ -1045,7 +1045,7 @@ int main (int argc, char *argv[])
   // ----------------- 
   rc = getRing (target, "sgxbs", data);
   if (rc) return rc;
-  printf("Scanned ring sgxbs - length = %d",data.getBitLength());
+  printf("Scanned ring sgxbs - length = &#37;d",data.getBitLength());
 
   // We need to set a few bits
   // Set an entire word
@@ -1079,7 +1079,7 @@ int main (int argc, char *argv[])
   std::string enumval;
   rc = getSpyEnum (target, "MYENUMSPY", enumval);
   if (rc) return rc;
-  printf("pu 0:0 MYENUMSPY is set to : %s",enumval.c_str());
+  printf("pu 0:0 MYENUMSPY is set to : &#37;s",enumval.c_str());
   rc = putSpyEnum (target, "MYENUMSPY", "ENABLE");
   if (rc) return rc;
 
@@ -1127,7 +1127,7 @@ int main (int argc, char *argv[])
 
     // We will dump all the idregs 
     rc = getRing(target, "idreg", data);
-    printf("Idreg for %s : 0x%.08X", ecmdWriteTarget(target).c_str(), data.getWord(0));
+    printf("Idreg for &#37;s : 0x%.08X", ecmdWriteTarget(target).c_str(), data.getWord(0));
 
     // Signify that we looped at least once 
     validPosFound = true;
