@@ -692,7 +692,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       return rc;
     }
   }
-  else if (argc > 4) {
+  if (argc > 4) {
     ecmdOutputError("getbits - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("getbits - Type 'getbits -h' for usage.\n");
     return ECMD_INVALID_ARGS;

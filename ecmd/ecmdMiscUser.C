@@ -364,7 +364,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
 
   }
-  else if (argc > 2) { 
+  if (argc > 2) { 
     ecmdOutputError("getcfam - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("getcfam - Type 'getcfam -h' for usage.\n");
     return ECMD_INVALID_ARGS;

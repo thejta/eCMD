@@ -154,7 +154,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
 
   }
-  else if (argc > 2) {
+  if (argc > 2) {
     ecmdOutputError("getscom - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
