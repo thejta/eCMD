@@ -285,6 +285,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) 
   }
 #endif
 
+  /* We are at the end of the loop, nothing left to loop on, get out of here */
   if (io_state.ecmdCurCage == io_state.ecmdSystemConfigData.cageData.end()) {
     return 0;
   }
@@ -396,34 +397,40 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) 
   }
 #endif
 
+  /* Let's start incrementing our lowest pointer so it points to the next object for the subsequent call to this function */
   switch (level) {
 
     case THREAD:  //thread
       io_state.ecmdCurThread++;
+      /* Did we find another thread, if not we will try core */
       if (io_state.ecmdCurThread != (*io_state.ecmdCurCore).threadData.end()) {
         break;
       }
 
     case CORE:  //core
       io_state.ecmdCurCore++;
+      /* Did we find another core, if not we will try chip */
       if (io_state.ecmdCurCore != (*io_state.ecmdCurChip).coreData.end()) {
         break;
       }
 
     case CHIP:  //chip
       io_state.ecmdCurChip++;
+      /* Did we find another chip, if not we will try slot */
       if (io_state.ecmdCurChip != (*io_state.ecmdCurSlot).chipData.end()) {
         break;
       }
 
     case SLOT:  //slot
       io_state.ecmdCurSlot++;
+      /* Did we find another slot, if not we will try node */
       if (io_state.ecmdCurSlot != (*io_state.ecmdCurNode).slotData.end()) {
         break;
       }
 
     case NODE:  //node
       io_state.ecmdCurNode++;
+      /* Did we find another node, if not we will try cage */
       if (io_state.ecmdCurNode != (*io_state.ecmdCurCage).nodeData.end()) {
         break;
       }

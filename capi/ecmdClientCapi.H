@@ -164,6 +164,7 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
+
  NOTE : This function does not affect ring caching
 */
 int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
@@ -177,6 +178,7 @@ int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryDa
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
+
  NOTE : This function does not affect ring caching
 */
 int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName);
@@ -190,6 +192,7 @@ int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY if spy name is not valid for target
  @retval nonzero on failure
+
  NOTE : This function does not affect ring caching
 */
 int ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName);
@@ -202,6 +205,7 @@ int ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const cha
  @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
+
  NOTE : This function does not affect ring caching
 */
 int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
@@ -213,6 +217,7 @@ int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, 
  @param i_queryData If specified this data will be used, otherwise a call to ecmdQueryConfig will be made
  @retval true if Target is configured in system
  @retval false if Target is not configured in system
+
  NOTE : This function calls ecmdQueryConfig and searchs for the specified target
  NOTE : The target State fields must be filled in as either VALID or UNUSED
 */
@@ -236,6 +241,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
  @see putRing
+
  NOTE : This function is ring cache enabled
 
 
@@ -255,6 +261,7 @@ int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
  @see getRing
+
  NOTE : This function is ring cache enabled
 
 
@@ -280,6 +287,7 @@ int putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @param i_address Scom address to read from
  @param o_data DataBuffer object that holds data read from address
  @see putScom
+
  NOTE : This function forces a flush of the ring caches
 
 */
@@ -297,8 +305,9 @@ int getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_d
  @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to write
  @param i_address Scom address to write to
  @param i_data DataBuffer object that holds data to write into address
- NOTE : This function forces a flush of the ring caches
  @see getScom
+
+ NOTE : This function forces a flush of the ring caches
 
 */
 int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
@@ -319,6 +328,7 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
  @retval ECMD_SUCCESS if successful
  @retval ECMD_NON_JTAG_CHIP Chip Target is a non-jtag attached chip
  @retval nonzero if unsuccessful
+
  NOTE : Proper parity will be generated on the command and modifier
  NOTE : This function forces a flush of the ring caches
 */
@@ -342,6 +352,7 @@ int sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modif
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
  @param i_spyName Name of spy to read from
  @param o_data DataBuffer object that holds data read from spy
+
  NOTE : This function is ring cache enabled
 
 */
@@ -360,6 +371,7 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
  @param i_spyName Name of spy to read from
  @param o_enumValue Enum value read from the spy
+
  NOTE : This function is ring cache enabled
 
 */
@@ -379,6 +391,7 @@ int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string &
  @param o_eccData Return the Ecc data associated with the outbits of the eccGroup
  @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
  @retval nonzero if unsuccessful
+
  NOTE : This function is ring cache enabled
 */
 int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask);
@@ -396,6 +409,7 @@ int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
  @param i_spyName Name of spy to write to
  @param i_data DataBuffer object that holds data to write into spy
+
  NOTE : This function is ring cache enabled
 
 */
@@ -413,6 +427,7 @@ int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
  @param i_spyName Name of spy to write to
  @param i_enumValue String enum value to load into the spy
+
  NOTE : This function is ring cache enabled
 */
 int putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
@@ -438,6 +453,7 @@ void ecmdEnableRingCache();
  @brief Disable internal caching of reads/writes of scan rings
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
+
  NOTE: A Flush of the cache is performed before disabling the cache
 */
 int  ecmdDisableRingCache();
@@ -470,6 +486,7 @@ int  ecmdFlushRingCache();
  @param i_address Array Address to read from - length of DataBuffer should be set to length of valid address data
  @see putArray
  @see getArrayMultiple
+
  NOTE : This function forces a flush of the ring caches
 
 */
@@ -487,6 +504,7 @@ int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
  @param io_entries list of array entries to fetch
  @see putArray
  @see getArray
+
  NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return
  NOTE : This function forces a flush of the ring caches
 
@@ -509,6 +527,7 @@ int getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::
  @param i_data DataBuffer object that holds data to write into array
  @param i_address Array Address to write to - length of DataBuffer should be set to length of valid address data
  @see getArray
+
  NOTE : This function forces a flush of the ring caches
 
 */
@@ -528,6 +547,7 @@ int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
  @param i_arrayName Name of array to write to
  @param i_entries List of addresses and data to write to chip
  @see getArray
+
  NOTE : This function forces a flush of the ring caches
  NOTE : i_entries should be pre-loaded with address and data
 
@@ -550,6 +570,7 @@ int putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::
  * @retval nonzero if unsuccessful
  * @post The system is cleaned up and ready for iplsys
  * @see iplSys
+
  NOTE : This function forces a flush of the ring caches
 
 */
@@ -562,6 +583,7 @@ int flushSys ();
  * @pre An ecmdFlushSys call is generally required before iplsys
  * @post The system is IPLed
  * @see flushSys
+
  NOTE : This function forces a flush of the ring caches
 
 */
@@ -810,12 +832,14 @@ int simunsticktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i
  @brief Retrieve additional error information for errorcode
  @param i_errorCode Error code to lookup up message for
  @retval point to NULL terminated string containing error data, NULL if error occurs
+
  NOTE : This function does not affect ring caching
 */
 std::string ecmdGetErrorMsg(int i_errorCode);
 
 /**
  @brief Register an Error Message that has occured
+
  NOTE : This function does not affect ring caching
 */
 int ecmdRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message);
@@ -831,6 +855,7 @@ int ecmdRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_mess
 /**
  @brief Output a message related to an error
  @param i_message String to output
+
  NOTE : This function does not affect ring caching
 */
 void ecmdOutputError(const char* i_message);
@@ -838,6 +863,7 @@ void ecmdOutputError(const char* i_message);
 /**
  @brief Output a message related to an warning
  @param i_message String to output
+
  NOTE : This function does not affect ring caching
 */
 void ecmdOutputWarning(const char* i_message);
@@ -845,6 +871,7 @@ void ecmdOutputWarning(const char* i_message);
 /**
  @brief Output a message to the screen or logs
  @param i_message String to output
+
  NOTE : This function does not affect ring caching
 */
 void ecmdOutput(const char* i_message);
@@ -858,6 +885,7 @@ void ecmdOutput(const char* i_message);
  @brief Retrieve the value of some ecmdGlobalVars
  @param i_type Specifies which global var you are looking for
  @retval Value of global var
+
  NOTE : This function does not affect ring caching
 */
 int ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
