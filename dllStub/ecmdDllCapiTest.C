@@ -68,8 +68,6 @@ int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer &
 
 int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
 
-  data.setWord(0, 0xFEEDB0B0);
-  data.setWord(1, 0xDEADBEEF);
   return ECMD_SUCCESS;
 }
 
@@ -78,7 +76,9 @@ int dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data
 
 int dllGetSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
-int dllGetSpyEnum(ecmdChipTarget & target, const char * spyName, std::string enumValue){ return ECMD_SUCCESS; }
+int dllGetSpyEnum(ecmdChipTarget & target, const char * spyName, std::string & enumValue){ return ECMD_SUCCESS; }
+
+int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask) { return ECMD_SUCCESS; }
 
 int dllPutSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
@@ -93,7 +93,7 @@ int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
   return ECMD_SUCCESS;
 }
 
-int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData, ecmdQueryDetail_t i_detail) {
+int dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryDetail_t i_detail) {
 
   ecmdCoreData coreData;
   ecmdChipData chipData;
@@ -130,7 +130,7 @@ int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData,
   cageData.cageId = 0;
   cageData.nodeData.push_front(nodeData);
 
-  queryData.push_front(cageData);
+  queryData.cageData.push_front(cageData);
   
   return ECMD_SUCCESS;
 
