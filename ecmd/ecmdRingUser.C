@@ -1211,7 +1211,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           ringBuffer.flushTo1();
         }
 
-        ringBuffer.setWord(0, pattern);  //write the pattern
+        if (ringBuffer.getWordLength() > 1)
+          ringBuffer.setWord(1, pattern);  //write the pattern
 
         rc = putRing(target, ringName.c_str(), ringBuffer);
         if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -1251,16 +1252,21 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           return rc;
         }
 
-        if (ringBuffer.getWord(0) != pattern) {
-          sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
+        if ((ringBuffer.getWordLength() > 1) && (ringBuffer.getWord(1) != pattern)) {
+          sprintf(outstr, "checkrings - Data fetched from ring %s did not match shift pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(1));
           ecmdOutputWarning( outstr );
           printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(target) + "\n";
           ecmdOutputWarning( printed.c_str() );
         }
         else {
           /* Walk the ring looking for errors */
-          /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
-          for (int bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
+          /* We need to not check the very last bit in JTAG or first bit in FSI because it is the access latch and isn't actually scannable BZ#134 */
+          for (int bit = 1; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
+            if (bit == 32) {
+              /* The second word contains our shift pattern, so we ignore here */
+              bit = 63;
+              continue;
+            }
             if (i % 2) {
               if (ringBuffer.isBitSet(bit)) {
                 sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
