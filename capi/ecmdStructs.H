@@ -23,7 +23,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <stdint.h>
-#include <list.h>  /* For STL list */
+#include <vector>  /* For STL vector */
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -77,16 +77,40 @@ enum ecmdChipInterfaceType_t {
   ECMD_INTERFACE_CFAM
 };
 
+/**
+ @brief Used for the ecmdQueryConfig function to return core data
+*/
+struct ecmdCoreData {
+  uint32_t coreId;              ///< core number of this entry
+  uint8_t  numProcThreads;      ///< Number of threads per core this entry supports - only valid for Processors
+};
+
+/**
+ @brief Used for the ecmdQueryConfig function to return chip data
+*/
 struct ecmdChipData {
-  uint32_t pos;
+  char     chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  ///< name of chip
+  uint32_t pos;                 ///< Position of this entry
+  uint8_t  numProcCores;        ///< Number of cores this entry supports - only valid for Processor compute cores
+  uint32_t chipEc;              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id)
+  vector<ecmdCoreData> coreData;///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+};
 
-  uint8_t  procCores;
-  uint8_t  procThreads;
+/**
+ @brief Used for the ecmdQueryConfig function to return node data
+*/
+struct ecmdNodeData {
+  uint32_t nodeId;                ///< Node number of this entry
+  vector<ecmdChipData> chipData;  ///< Vector of all chips requested in this node - in numerical order per chip by pos
+};
 
-  uint32_t chipEc;
-
-
-}
+/**
+ @brief Used for the ecmdQueryConfig function to return cage data
+*/
+struct ecmdCageData {
+  uint32_t cageId;                ///< Cage number of this entry
+  vector<ecmdNodeData> nodeData;  ///< Vector of all nodes requested in this cage - in numerical order by nodeId
+};
 
 
 
