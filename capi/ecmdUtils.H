@@ -234,7 +234,7 @@ uint32_t ecmdDisplayDllInfo();
 /**
  @brief Print the parameters pass to a given function.
  @retval Void return
- @param int tCount is the trace count.
+ @param tCount is the trace count.
  @param inOut Tell Parm Printer if we are going into or out of the function
  @param fprototypeStr function prototype
  @param args function argument vector 

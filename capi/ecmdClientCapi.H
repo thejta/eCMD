@@ -1846,7 +1846,7 @@ uint32_t simFusionRand32(uint32_t i_min = 0,
  * if no range is specified 0 and MAXINT64 will be used
  * @param i_min lower bound for random number
  * @param i_max upper bound for random number
- * @param i_fusionRandObjet name of Fusion random number object to use; 
+ * @param i_fusionRandObject name of Fusion random number object to use; 
  *  if not specified, each this client will get a unique instance of the class
  * @return the random value
  */
@@ -2111,18 +2111,20 @@ To link the client code on AIX, the following is required:
 <ul>
 <li>ecmdClientCapi_aix.a
 <li>libecmd_aix.so
-<li>xlC v5.0
+<li>xlC v6.0.0.8
 </ul>
 To create Linux x86 binaries, the following is required:
 <ul>
 <li>ecmdClientCapi_x86.a
 <li>libecmd_x86.so
-<li>g++ ????
+<li>g++ 3.2.3
 </ul>
 
 <hr>
 @section ext eCMD Extensions
-These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.
+These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>
+To use an eCMD extension you will need to link in the appropriate library, see the example Makefiles under 'Use eCMD' for help.<br>
+
 @subsection cmd CMD Command line Extension
 This extensions provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
 
@@ -2130,6 +2132,7 @@ Include files :
 <ul>
 <li> cmdClientCapi.H</li>
 <li> cmdStructs.H</li>
+<li> Library : cmdClientCapi_aix.a / cmdClientCapi_x86.a</li>
 </ul>
 
 @subsection cip CIP (Cronus/IP) Extension
@@ -2138,7 +2141,18 @@ Include files :
 <ul>
 <li> cipClientCapi.H</li>
 <li> cipStructs.H</li>
+<li> Library : cipClientCapi_aix.a / cipClientCapi_x86.a</li>
 </ul>
+
+@subsection gip GIP GFW IP-Series Extension
+This extensions provides IP Series GFW only interfaces.<br>
+Include files :
+<ul>
+<li> gipClientCapi.H</li>
+<li> gipStructs.H</li>
+<li> Library : gipClientCapi_aix.a / gipClientCapi_x86.a</li>
+</ul>
+
 
 @subsection cronus Cronus Extension
 This extensions provides Cronus only interfaces.<br>
@@ -2146,6 +2160,7 @@ Include files :
 <ul>
 <li> croClientCapi.H</li>
 <li> croStructs.H</li>
+<li> Library : croClientCapi_aix.a / croClientCapi_x86.a</li>
 </ul>
 
 <hr>
