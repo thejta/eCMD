@@ -719,6 +719,7 @@ uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool
 /**
  @brief Run iSteps by number
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_ISTEPS_INVALID_STEP An invalid step number was provided
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @post iSteps specified  are complete
@@ -1479,10 +1480,11 @@ uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
 /**
  @brief Retrieve additional error information for errorcode
  @param i_errorCode Error code to lookup up message for
+ @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
  @retval point to NULL terminated string containing error data, NULL if error occurs
 
 */
-std::string ecmdGetErrorMsg(uint32_t i_errorCode);
+std::string ecmdGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode = true);
 
 /**
  @brief Register an Error Message that has occured
