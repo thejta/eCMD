@@ -547,7 +547,6 @@ class ecmdClientPerlapi
 
     int simexit(uint32_t i_rc = 0, const char* i_message = NULL);
 
-/*    int simexit();*/
 
     /**
      @brief Perform expect on facility using name
@@ -574,6 +573,7 @@ class ecmdClientPerlapi
      */
     int simexpecttcfac(const char* i_tcfacname, int i_bitlength, const char* i_expect, int i_row = 0);
 
+
     /**
      @brief Fetch current model cycle count
      @param o_cyclecount Current model cycle count
@@ -581,7 +581,8 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simgetcurrentcycle(char** o_cyclecount);
+    int simgetcurrentcycle(uint32_t & o_cyclecount);
+
 
     /**
      @brief Retrieve a Facility using a name
@@ -594,7 +595,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simGETFAC(const char* i_facname, int i_bitlength, char** o_data, int i_row = 0, int i_offset = 0);
+    int simGETFAC(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset);
 
     /**
      @brief Retrieve a Facility using a name - preserving Xstate
@@ -607,7 +608,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simGETFACX(const char* i_facname, int i_bitlength, char** o_data, int i_row = 0, int i_offset = 0);
+    int simGETFACX(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset);
 
     /**
      @brief Retrieve a TCFAC facility
@@ -620,7 +621,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simgettcfac(const char* i_tcfacname, char** o_data, int i_row = 0, int i_startbit = 0, int i_bitlength = 0);
+    int simgettcfac(const char* i_tcfacname, char** o_data, int i_row, int i_startbit, int i_bitlength);
 
     /**
      @brief Initialize the simulation
@@ -645,7 +646,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simPOLLFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row = 0, int i_offset = 0, int i_maxcycles = 1, int i_pollinterval = 1);
+    int simPOLLFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row = 0, int i_offset = 0, int i_maxcycles = 1, int i_pollinterval = 1);
 
     /**
      @brief Poll a TCFAC facility waiting for expected value
@@ -661,7 +662,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, int i_row = 0, int i_startbit = 0, int i_bitlength = 0, int i_maxcycles = 1, int i_pollinterval = 1);
+    int simpolltcfac(const char* i_tcfacname, const char* i_expect, int i_row = 0, int i_startbit = 0, int i_bitlength = 0, int i_maxcycles = 1, int i_pollinterval = 1);
 
 
     /**
