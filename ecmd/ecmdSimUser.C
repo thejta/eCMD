@@ -987,13 +987,17 @@ int ecmdSimSUBCMDUser(int argc, char * argv[]) {
 
   int rc = ECMD_SUCCESS;
 
+  char buf[1000];
+  buf[0] = '\0';
+
   if (argc < 1) {
     ecmdOutputError("simSUBCMD - At least one argument (a command to execute) is required for simSUBCMD.\n");
     return ECMD_INVALID_ARGS;
   }
-  else if (argc > 1) {
-    ecmdOutputError("simSUBCMD - Too many arguments to simSUBCMD, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
+
+  for (int idx = 0; idx < argc; idx ++) {
+    strcat(buf,argv[idx]);
+    strcat(buf," ");
   }
 
   rc = simSUBCMD(argv[0]);
