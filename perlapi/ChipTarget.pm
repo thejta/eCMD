@@ -1,6 +1,17 @@
 
 package ChipTarget;
 
+=for mainBrief
+/**
+ @file ChipTarget.H
+ @brief Perl Class to hold eCMD Targetting information
+
+ Usage : require ChipTarget;
+
+*/
+=cut
+
+
 sub new 
 {
 	my $proto = shift;
@@ -18,7 +29,7 @@ sub new
 	return $self;
 }
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the Cage
    * @param i_cage New Cage Value
@@ -52,7 +63,7 @@ sub cage
 	}
 }
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the Node
    * @param i_node New Node Value
@@ -86,7 +97,7 @@ sub node
 	}
 }
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the Slot
    * @param i_slot New Slot Value
@@ -121,7 +132,7 @@ sub slot
 }
 
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the chip name
    * @param i_chipname New Chipname
@@ -152,7 +163,7 @@ sub chip
 
 }
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the chip position
    * @param i_pos New Chip Position
@@ -187,7 +198,7 @@ sub pos
 }
 
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the chip core
    * @param i_core New Core Value
@@ -222,7 +233,7 @@ sub core
 }
 
 
-=for comment
+=for functionBrief
   /** 	
    * @brief Set the chip thread
    * @param i_thread New Thread Value
@@ -257,24 +268,4 @@ sub thread
 }
 
 1;
-
-# Following is doxygen documentation
-=for comment
-
-/**
- @file ChipTarget.H
- @brief Perl Class to hold eCMD Targetting information
-*/
-
-/* We create a dummy class to fake out doxygen */
-
-	
-class ChipTarget {
-
-  public:
-
-INSERT_FUNCTIONS_HERE
-
-}
-=cut
 
