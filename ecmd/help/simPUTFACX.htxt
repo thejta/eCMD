@@ -4,7 +4,7 @@ Syntax: simPUTFACX <facname> <data> [<row> <offset>]
         ECMD:           Core Common Function
 
         Function:       Write a simulation facility using a name.
-                        Write with Xstate data: format 'X'
+                        Write with Xstate data: format 'bX'
 
         Parameters:
         --------------------------------------------------------------------------------

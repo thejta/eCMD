@@ -4,7 +4,7 @@ Syntax: simGETFACX <facname> <length> [<row> <offset>]
         ECMD:           Core Common Function
 
         Function:       Read a Simulation Facility using a facility name 
-                        Displaying Xstate data. format: 'X'
+                        Displaying Xstate data. format: 'bX'
 
         Parameters:
         --------------------------------------------------------------------------------
