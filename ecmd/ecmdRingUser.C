@@ -225,11 +225,11 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
             numBits = atoi(splitArgs[0].c_str());
             if (bustype == ECMD_CHIPFLAG_FSI) {
               startBit = atoi(splitArgs[1].c_str());
-              ringBuffer.extract(buffer, startBit, numBits);
+              rc = ringBuffer.extract(buffer, startBit, numBits); if (rc) return rc;
             } else {
               /* When extracting JTAG we have to reverse the buffer */
               startBit = atoi(splitArgs[2].c_str());
-              ringBuffer.extract(buffer, startBit - numBits + 1, numBits);
+              rc = ringBuffer.extract(buffer, startBit - numBits + 1, numBits); if (rc) return rc;
               buffer.reverse();
             }
 
@@ -512,7 +512,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
         curOutputFormat = outputformat;
 
       /* Let's extract the piece the user wanted */
-      latchit->buffer.extract(buffer, 0, curNumBits );
+      rc = latchit->buffer.extract(buffer, 0, curNumBits ); if (rc) return rc;
 
       if (expectFlag) {
 
@@ -652,6 +652,9 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       sprintf(errbuf,"getbits - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
       ecmdOutputError(errbuf);
       return ECMD_DATA_BOUNDS_OVERFLOW;
+    } else if (numBits == 0) {
+      ecmdOutputError("getbits - Zero bit length requested\n");
+      return ECMD_DATA_UNDERFLOW;
     }
   }
 
@@ -696,7 +699,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
 
     numBits = (ringBuffer.getBitLength() - startBit < numBits) ? ringBuffer.getBitLength() - startBit : numBits;
-    ringBuffer.extract(buffer, startBit, numBits);
+    rc = ringBuffer.extract(buffer, startBit, numBits); if (rc) return rc;
 
     if (expectFlag) {
 
@@ -1377,7 +1380,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     ringBuffer.setBitLength(numBitsInRing);
     while (curOffset < numBitsInRing) {
       numBitsToInsert = (32 < numBitsInRing - curOffset) ? 32 : numBitsInRing - curOffset;
-      ringBuffer.insert(buffer, curOffset, numBitsToInsert);
+      rc = ringBuffer.insert(buffer, curOffset, numBitsToInsert); if (rc) return rc;
       curOffset += numBitsToInsert;
     }
 
