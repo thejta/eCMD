@@ -108,7 +108,7 @@ endif
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir extensions ${TARGET}
+all: dir ${TARGET}
 	@touch t.o t_x86 t_aix t_ppc
 	@mv *.o *_x86 *_aix *_ppc  ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
