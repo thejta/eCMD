@@ -96,23 +96,14 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
         break;
 
 
-
-
+        /************************/
+        /* The Unknown          */
+        /************************/
 
       default:
         /* We don't understand this function, let's let the caller know */
         rc = ECMD_INT_UNKNOWN_COMMAND;
         break;
-    }
-
-        
-    /************************/
-    /* The Unknown          */
-    /************************/
-    } else {
-      /* We don't understand this function, let's let the caller know */
-      rc = ECMD_INT_UNKNOWN_COMMAND;
-
     }
 
 

@@ -26,6 +26,7 @@
 #include <list>
 #include <inttypes.h>
 #include <string.h>
+#include <string>
 #include <stdio.h>
 
 #include <ecmdCommandUtils.H>
@@ -52,7 +53,7 @@
 //  Global Variables
 //----------------------------------------------------------------------
 
-static std::list<ecmdCageData> ecmdSystemConfigData;
+static ecmdQueryData ecmdSystemConfigData;
 static std::list<ecmdCageData>::iterator ecmdCurCage;
 static std::list<ecmdNodeData>::iterator ecmdCurNode;
 static std::list<ecmdChipData>::iterator ecmdCurChip;
@@ -96,7 +97,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
 
   rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
 
-  ecmdCurCage = ecmdSystemConfigData.begin();
+  ecmdCurCage = ecmdSystemConfigData.cageData.begin();
   ecmdLooperInitFlag = 1;
 
   return rc;
@@ -113,7 +114,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   uint8_t level = CAGE;
   uint8_t valid = 1;
 
-  if (ecmdCurCage == ecmdSystemConfigData.end()) {
+  if (ecmdCurCage == ecmdSystemConfigData.cageData.end()) {
     return 0;
   }
 
@@ -236,7 +237,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 }
 
 
-void ecmdWriteTarget (ecmdChipTarget & i_target) {
+std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
 
   std::string printed;
   char util[7];
@@ -291,11 +292,11 @@ void ecmdWriteTarget (ecmdChipTarget & i_target) {
   //set a space between the target info and the data
   printed += " "; 
 
-  ecmdOutput(printed.c_str());
+  return printed;
 
 }
 
-int ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format) {
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format) {
 
   std::string printed;
   int formTagLength = strlen(i_format);
@@ -340,25 +341,23 @@ int ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format) {
       while (numToFetch > 0) {
 
         if (state == HEXLEFT) {
-          printed = i_data.genHexLeftStr(startBit, numToFetch);
+          printed += i_data.genHexLeftStr(startBit, numToFetch);
         }
         else if (state == HEXRIGHT) {
-          printed = i_data.genHexRightStr(startBit, numToFetch);
+          printed += i_data.genHexRightStr(startBit, numToFetch);
         }
         else { //binary data
-          printed = i_data.genBinStr(startBit, numToFetch);
+          printed += i_data.genBinStr(startBit, numToFetch);
         }
 
-        ecmdOutput( printed.c_str() );
-        ecmdOutput(" ");
+        printed += " ";
 
         startBit += numToFetch;
         numBits -= numToFetch;
         numToFetch = (numBits < maxBits) ? numBits: maxBits;
       }
 
-      ecmdOutput("\n");
-      return ECMD_SUCCESS;
+      return printed;
     }
   }
   else {
@@ -376,14 +375,12 @@ int ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format) {
       // printed = i_data.genDecStr();  need to implement this
     }
 
-    ecmdOutput(printed.c_str());
-    ecmdOutput("\n");
-    return ECMD_SUCCESS;
+    return printed;
   }
 
   //if we made it this far, it's a special format 
 
-  return ECMD_SUCCESS;
+  return printed;
 }
 
 int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
