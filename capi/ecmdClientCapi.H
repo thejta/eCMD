@@ -306,6 +306,56 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
 uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
 
 
+/**
+ @brief Scans the specified number of bits from the selected chip and ring address into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position information of ring to read
+ @param i_address Address of ring to read from
+ @param i_bitLength Bit Length to scan for
+ @param o_data DataBuffer object that holds data read from ring
+ @see putRingWithModifier
+
+ NOTE : This is a debug interface and should not be used in normal situations
+ NOTE : This function does not handle processor cores for you, the i_address will be taken and used with no modifications
+          so you are responsible for specifying the correct core address
+ NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
+          corruption may occur
+
+
+*/
+uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
+
+/**
+ @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains chip and cage/node/slot/position information of ring to write
+ @param i_address Address of ring to write to
+ @param i_bitLength Bit Length to scan for
+ @param i_data DataBuffer object that holds data to write into ring
+ @see getRingWithModifier
+
+ NOTE : This is a debug interface and should not be used in normal situations
+ NOTE : This function does not handle processor cores for you, the i_address will be taken and used with no modifications
+          so you are responsible for specifying the correct core address
+ NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
+          corruption may occur
+
+
+*/
+uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
+
+
+
 //@}
 
 
@@ -1677,6 +1727,16 @@ This extensions provides interfaces to start/stop processor instructions and bre
 Include files :
 <ul>
 <li> cipClientCapi.H</li>
+<li> cipStructs.H</li>
+</ul>
+</ul>
+@subsection cronus Cronus Extension
+<ul>
+This extensions provides Cronus only interfaces.<br>
+Include files :
+<ul>
+<li> croClientCapi.H</li>
+<li> croStructs.H</li>
 </ul>
 </ul>
 
