@@ -1000,13 +1000,20 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
 
 uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  rc = this->insert(i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart);
+
+  if (i_sourceStart + i_len > i_bufferIn.iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > i_bufferIn.iv_NumBits (%d)\n", i_sourceStart, i_len, i_bufferIn.iv_NumBits);
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
+  } else {
+
+    rc = this->insert(i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart);
     /* Now apply the Xstate stuff */
 #ifndef REMOVE_SIM   
-    if (i_targetStart+i_len <= iv_NumBits) {
-      strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(0, i_len)).c_str(), i_len);
-    }
+      if (i_targetStart+i_len <= iv_NumBits) {
+        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(0, i_len)).c_str(), i_len);
+      }
 #endif
+  }
   return rc;
 }
 
@@ -1040,7 +1047,16 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
 }
 
 uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
-  return this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if ( i_sourceStart + i_len > 32 ) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > sizeof i_dataIn (32)\n", i_sourceStart, i_len );
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
+  } else {
+
+    rc = this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
+  }
+  return rc;
 }
 
 uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
@@ -1109,7 +1125,7 @@ uint32_t ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (start + len > iv_NumBits) {
-    printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
+    ETRAC2( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
     rc = ECMD_DBUF_BUFFER_OVERFLOW;
   } else {
 
@@ -1118,12 +1134,52 @@ uint32_t ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len
 #ifndef REMOVE_SIM
     /* If we are using this interface and find Xstate data we have a problem */
     if (hasXstate(start, len)) {
-      printf("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character present\n");
+      ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character present\n");
       rc = ECMD_DBUF_XSTATE_ERROR;
     }
 #endif
   }
   return rc;
+}
+
+// extractPreserve() takes data from current and inserts it in the passed in
+//  buffer at a given offset. This is the same as insert() with the args and
+//  the data flow reversed, so insert() is called to do the work
+uint32_t ecmdDataBuffer::extractPreserve(ecmdDataBuffer & bufferOut, uint32_t start, uint32_t len, uint32_t targetStart) const {
+  return bufferOut.insert( *this, targetStart, len, start );
+}
+
+// extractPreserve() with a generic data buffer is hard to work on, so the
+// output buffer is first copied into an ecmdDataBuffer object, then insert()
+// is called to do the work
+uint32_t ecmdDataBuffer::extractPreserve(uint32_t *outBuffer, uint32_t start, uint32_t len, uint32_t targetStart) const {
+  
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  const uint32_t numWords = ( targetStart + len + 31 ) / 32;
+  if ( numWords == 0 ) return rc;
+
+  ecmdDataBuffer *tempBuf = new ecmdDataBuffer;
+
+  if ( NULL == tempBuf ) {
+      ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : Unable to allocate memory for new databuffer\n");
+      return ECMD_DBUF_INIT_FAIL;
+  } 
+
+  rc = tempBuf->setWordLength( numWords );
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->memCopyIn( outBuffer, numWords * 4);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->insert( *this, targetStart, len, start);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->memCopyOut( outBuffer, numWords * 4);
+
+  delete tempBuf;
+  return rc;
+
 }
 
 uint32_t ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const {
