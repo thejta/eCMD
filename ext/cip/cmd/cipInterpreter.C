@@ -58,15 +58,15 @@
 
 uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_INT_UNKNOWN_COMMAND;
 
-
-  /* Let's make sure it is ours */
-  if (strncmp(argv[0],"cip",3)) {
-    return ECMD_INT_UNKNOWN_COMMAND;
-  }
 
   if (argc >= 1) {
+
+    /* Let's make sure it is ours */
+    if (strncmp(argv[0],"cip",3)) {
+      return ECMD_INT_UNKNOWN_COMMAND;
+    }
 
     /* Let's handle the '-h' arg right here */
     if (ecmdParseOption(&argc, &argv, "-h")) {
