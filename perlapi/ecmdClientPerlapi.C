@@ -83,7 +83,6 @@ int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) 
 
 int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_data) {
 
-/* char * ecmdClientPerlapi::getScom (const char * i_target, int i_address) { */
   ecmdChipTarget myTarget;
   std::string dataStr;
 
@@ -110,9 +109,6 @@ int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_da
   strcpy(tmp,dataStr.c_str());
   *o_data = tmp;
 
-/*  o_data = dataStr; */
-
-/*  return (char*)(dataStr.c_str());*/
   return rc;
 }
 
@@ -121,18 +117,14 @@ int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_da
 int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char * i_data) {
 
   ecmdChipTarget myTarget;
-  std::string dataStr;
-  std::string myFormat;
 
   int rc = setupTarget(i_target, myTarget);
   if (rc) return rc;
 
   ecmdDataBuffer buffer;
 
-  myFormat = "b";
-  rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return rc;
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
 
   rc = ::putScom(myTarget, i_address, buffer);
 
@@ -147,6 +139,7 @@ int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, 
   int rc = 0;
   ecmdDataBuffer buffer;
   ecmdChipTarget myTarget;
+  std::string dataStr;
 
   rc = setupTarget(i_target, myTarget);
   ecmdPerlInterfaceErrorCheck(rc);
@@ -156,8 +149,13 @@ int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, 
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
 
-  *o_data = (char*)malloc(buffer.getBitLength()+1);
-  strcpy(*o_data,ecmdWriteDataFormatted(buffer, perlFormat).c_str());
+
+  dataStr = buffer.genBinStr();
+
+  char* tmp;
+  tmp = new char[dataStr.length()+1];
+  strcpy(tmp,dataStr.c_str());
+  *o_data = tmp;
 
   return rc;
 }
@@ -166,16 +164,15 @@ int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, 
 int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, const char * i_data) {
 
   ecmdChipTarget myTarget;
-  std::string myFormat = "b";
 
   int rc = setupTarget(i_target, myTarget);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
 
-  ecmdDataBuffer buffer; 
-  rc = ecmdReadDataFormatted(buffer, i_data, myFormat);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return rc;
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
 
   rc = ::putRing(myTarget, i_ringName, buffer);
 
