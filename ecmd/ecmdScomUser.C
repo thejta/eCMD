@@ -26,6 +26,7 @@
 #define ecmdDaScomUser_C
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -454,16 +455,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
-  /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr != NULL) {
-    outputformat = formatPtr;
-  }
-  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
-  }
-
 
   //expect and mask flags check
   if ((curArg = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
@@ -487,10 +478,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
   if (curArg != NULL) {
-    if (!ecmdIsAllDecimal(curArg)) {
-      ecmdOutputError("pollscom - Non-decimal numbers detected in interval field\n");
-      return ECMD_INVALID_ARGS;
-    }
     interval = atoi(curArg);
     if (strstr(curArg, "c")) {
       intervalFlag = CYCLES_T;
@@ -498,14 +485,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     else {
       intervalFlag = SECONDS_T;
     }
+  } else {
+    /* The default */
+    interval = 5;
+    intervalFlag = SECONDS_T;
   }
+    
 
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-limit");
   if (curArg != NULL) {
-    if (!ecmdIsAllDecimal(curArg)) {
-      ecmdOutputError("pollscom - Non-decimal numbers detected in limit field\n");
-      return ECMD_INVALID_ARGS;
-    }
     maxPolls = atoi(curArg);
     if (strstr(curArg, "s")) {
       limitFlag = SECONDS_T;
@@ -514,10 +502,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     } else { 
       limitFlag = ITERATIONS_T;  /* default when using -limit */
     }
+  } else {
+    maxPolls  = 1000;
+    limitFlag = ITERATIONS_T;  /* default when using -limit */
   }
+    
 
   if (limitFlag != ITERATIONS_T && limitFlag != intervalFlag) {
-    ecmdOutputError("pollscom - Invalid interval/limit pair.\nType 'pollscom -h' for usage.\n");
+    ecmdOutputError("pollscom - Invalid interval/limit pair.\n");
+    ecmdOutputError("pollscom - Type 'pollscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -527,6 +520,17 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 #endif
+
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
 
 
   /************************************************************************/
@@ -576,7 +580,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
     printed = ecmdWriteTarget(target);
     char outstr[30];
-    sprintf(outstr, "Polling address %.4X...\n", address);
+    sprintf(outstr, "Polling address %.6X...\n", address);
     printed += outstr;
     ecmdOutput( printed.c_str() );
 
@@ -614,7 +618,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
           //mismatches
           if (done || verboseFlag) {
 
-            printed += "pollscom - Actual";
+            printed = "pollscom - Actual";
             if (maskFlag) {
               printed += " (with mask): ";
             }
@@ -667,6 +671,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
           rc = simclock(interval);
           if (rc) return rc;
 #endif
+        } else if (intervalFlag == SECONDS_T) {
+          sleep(interval);
         }
 
       }
@@ -680,7 +686,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
       }
       else if (limitFlag == SECONDS_T && intervalFlag == SECONDS_T) {
-        //do nothing
+        sleep(interval);
       }
       else {
 
