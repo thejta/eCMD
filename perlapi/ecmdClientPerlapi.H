@@ -181,6 +181,26 @@ class ecmdClientPerlapi
 
 
     /**
+     @brief Reads the selected spy into the data buffer (only full name matching supported)
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SUCCESS if successful read
+     @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+     @retval ECMD_INVALID_RING if ringname is not valid for target
+     @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core information
+     @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
+     @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
+     @param o_width Width of the latch 
+
+     NOTE : This function is ring cache enabled
+
+     */
+    int getLatchWidth (const char * i_target, const char* i_ringName, const char * i_latchName, int &o_width);
+
+
+    /**
      @brief Writes the data buffer into the all latches matching i_latchName (only full name matching supported)
      @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
      @retval ECMD_SUCCESS if successful
@@ -1172,6 +1192,7 @@ class ecmdClientPerlapi
 
   private:
     int setupTarget(const char * i_targetStr, ecmdChipTarget & o_target);
+    char* ecmdErrMsgBuff;
 
 };
 
