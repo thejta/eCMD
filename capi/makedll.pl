@@ -36,7 +36,6 @@ print OUT "#include <inttypes.h>\n";
 print OUT "#include <vector>\n";
 print OUT "#include <string>\n";
 print OUT "#include <ecmdStructs.H>\n";
-print OUT "#include <ecmdUtils.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 if ($ARGV[0] ne "ecmd") {
