@@ -10,18 +10,22 @@ package ecmdDataBuffer;
  * DataBuffers handle data as a binary string
  *
  * Usage : 
- *   require ecmdDataBuffer;
- *   my $data = new ecmdDataBuffer();
- *   $target->setWord(2,0xFEEDBEEF);
+   <pre>
+     require ecmdDataBuffer;
+     my $data = new ecmdDataBuffer();
+     $target->setWord(2,0xFEEDBEEF);
+   </pre>
 */
 
 /**
  * @brief Perl Class to provide a means to handle data from the eCMD Perl API
  * 
  * Usage : 
- *   require ecmdDataBuffer;
- *   my $data = new ecmdDataBuffer();
- *   $target->setWord(2,0xFEEDBEEF);
+   <pre>
+     require ecmdDataBuffer;
+     my $data = new ecmdDataBuffer();
+     $target->setWord(2,0xFEEDBEEF);
+   </pre>
 */
 =cut
 

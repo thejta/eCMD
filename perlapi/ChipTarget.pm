@@ -7,9 +7,11 @@ package ChipTarget;
  * @brief Perl Class to hold eCMD Targetting information
 
  * Usage : 
- *   require ChipTarget;
- *   my $target = new ChipTarget("pu -p1");
- *   $target->node(2);
+   <pre>
+     require ChipTarget;
+     my $target = new ChipTarget("pu -p1");
+     $target->node(2);
+   </pre>
 
 
 */
@@ -18,9 +20,11 @@ package ChipTarget;
  * @brief Perl Class to hold eCMD Targetting information
  * 
  * Usage : 
- *   require ChipTarget;
- *   my $target = new ChipTarget("pu -p1");
- *   $target->node(2);
+   <pre>
+     require ChipTarget;
+     my $target = new ChipTarget("pu -p1");
+     $target->node(2);
+   </pre>
 */
 =cut
 
