@@ -100,9 +100,25 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   ecmdChipTarget queryTarget = io_target;
 
 #ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &io_target);
+     args.push_back((void*) &i_looptype);
+     args.push_back((void*) &io_state);
+     args.push_back((void*) &rc);
+
+     if ((ecmdClientDebug == 8) && (rc ==0)) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+     }
+   }
+
+/***
   if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Entering\n"; ecmdOutput(printed.c_str());
   }
+***/
 #endif
 
   /* Setup the Query target */
@@ -143,9 +159,25 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   io_state.prevTarget = io_target;
 
 #ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &io_target);
+     args.push_back((void*) &i_looptype);
+     args.push_back((void*) &io_state);
+     args.push_back((void*) &rc);
+
+     if ((ecmdClientDebug == 8) && (rc ==0)) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+     }
+   }
+
+/***
   if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Exiting\n"; ecmdOutput(printed.c_str());
   }
+***/
 #endif
 
   return rc;
@@ -161,20 +193,51 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   const uint8_t THREAD = 5;
   bool done = false;
   uint8_t level;
+  uint32_t rc = 0;
 
   while (!done) {
     level = CAGE;
     uint8_t valid = 1;
 
 #ifndef ECMD_STRIP_DEBUG
-    if (ecmdClientDebug > 1) {
+  if (ecmdClientDebug >= 8) {
+     std::vector< void * > args;
+     args.push_back((void*) &io_target);
+     args.push_back((void*) &io_state);
+     args.push_back((void*) &rc);
+
+     if ((ecmdClientDebug == 8) && (rc ==0)) {
+        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+     } else {
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+     }
+   }
+
+/***
+   if (ecmdClientDebug > 1) {
       std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Entering\n"; ecmdOutput(printed.c_str());
     }
+***/
 #endif
 
     /* We are at the end of the loop, nothing left to loop on, get out of here */
     if (io_state.ecmdCurCage == io_state.ecmdSystemConfigData.cageData.end()) {
-      return 0;
+#ifndef ECMD_STRIP_DEBUG
+      if (ecmdClientDebug >= 8) {
+        std::vector< void * > args;
+        args.push_back((void*) &io_target);
+        args.push_back((void*) &io_state);
+        args.push_back((void*) &rc);
+
+        if ((ecmdClientDebug == 8) && (rc ==0)) {
+          ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+        } else {
+          ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+        }
+      }
+#endif
+
+      return rc;
     }
 
     /* ******** NOTE : The iterators in io_state always point to the next instance to use */
@@ -403,13 +466,24 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   /* Store away the target */
   io_state.prevTarget = io_target;
 
+  rc =1;
+
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Exiting\n"; ecmdOutput(printed.c_str());
+  if (ecmdClientDebug >= 8) {
+    std::vector< void * > args;
+    args.push_back((void*) &io_target);
+    args.push_back((void*) &io_state);
+    args.push_back((void*) &rc);
+
+    if ((ecmdClientDebug == 8) && (rc ==0)) {
+      ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+    } else {
+      ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+    }
   }
 #endif
 
-  return 1;
+  return rc;
 
 }
 
