@@ -23,6 +23,9 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdInterpreter_C
+#include <string>
+
+
 #include "ecmdInterpreter.H"
 #include "ecmdIntReturnCodes.H"
 
@@ -53,9 +56,55 @@
 
 
 int ecmdCommandInterpreter(int argc, char* argv[]) {
-  int rc = 0;
 
-  return ECMD_SUCCESS;
+  int rc = ECMD_SUCCESS;
+
+  if (argc >= 1) {
+
+
+    /************************/
+    /* The G's              */
+    /************************/
+    if (argv[0][0] == 'g') {
+
+      if (!strcmp(argv[0], "getscom")) {
+        rc = ecmdGetScomUser(argc - 1, argv + 1);
+      }
+
+
+
+    /************************/
+    /* The P's              */
+    /************************/
+    } else if (argv[0][0] == 'p') {
+
+      if (!strcmp(argv[0], "pollscom")) {
+        rc = ecmdPollScomUser(argc - 1, argv + 1);
+      } else if (!strcmp(argv[0], "putscom")) {
+        rc = ecmdPutScomUser(argc - 1, argv + 1);
+      }
+
+
+
+    /************************/
+    /* The Unknown          */
+    /************************/
+    } else {
+      /* We don't understand this function, let's let the caller know */
+      rc = ECMD_INT_UNKNOWN_COMMAND;
+
+    }
+
+
+    /* Let's process the errors returned by the command */
+    if (rc && (rc != ECMD_INT_UNKNOWN_COMMAND)) {
+      /* Do something here */
+    }
+
+
+  } /* End if (argc >= 1) */
+
+  return rc;
 }
 
 
