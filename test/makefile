@@ -5,7 +5,7 @@
 
 OS           := $(shell uname)
 
-VPATH        := ../capi/export:../dllStub:../capi:../ecmd/
+VPATH        := ../capi/export:../dllStub:../capi:../dll/
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
 SOURCE       := ecmdLoadTest.C
@@ -26,6 +26,7 @@ ifeq (${OS},Linux)
   EC_TARGET := ecmd_x86
   LD      := ${CC}
   LDFLAGS := -ldl
+  CFLAGS  := ${CFLAGS}  -ftemplate-depth-25
 endif
 
 # *****************************************************************************
