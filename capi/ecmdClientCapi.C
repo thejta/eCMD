@@ -112,15 +112,21 @@ int ecmdLoadDll(std::string i_dllName) {
     }
   }
 
-  printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) 
+    printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
+#endif
+
   dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
       printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
       return ECMD_DLL_LOAD_FAILURE;
     }
-  } else {
+#ifndef ECMD_STRIP_DEBUG
+  } else if (ecmdClientDebug > 1) {
     printf("loadDll: load successful\n");
+#endif
   }
 
   /* Now we need to call loadDll on the dll itself so it can initialize */
