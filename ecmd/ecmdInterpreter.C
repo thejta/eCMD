@@ -239,6 +239,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimUNSTICKUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simunsticktcfac")) {
           rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "simgethierarchy")) {
+          rc = ecmdSimGetHierarchyUser(argc - 1, argv + 1);
 #endif
         } else {
           /* We don't understand this function, let's let the caller know */
