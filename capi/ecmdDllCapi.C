@@ -98,7 +98,7 @@ std::string dllGetErrorMsg(int i_errorCode) {
 
   ecmdChipTarget dummy;
   std::string filePath;
-  int rc = ecmdQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
+  int rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
 
   if (rc) {
     ret = "ERROR FINDING DECODE FILE";
