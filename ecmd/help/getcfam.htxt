@@ -1,0 +1,41 @@
+
+Syntax: getcfam <ChipSelect> <CFAMAddr> [-k#] [-n#] [-s#] [-p#]
+                                 [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
+
+        ECMD:           Core Common Function
+
+        Function:       Gets CFAM Registers through FSI
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to get CFAM data from.
+
+        CFAMAddr        Address in hex.
+
+        -exp [optional] Provide expected data.  Returns error if expected != actual.  No
+                        error/no data returned if expected == actual.
+
+        -mask     [opt] Register data is AND'ed with the mask bits. Only for use with -exp.
+
+        -o<format>[opt] Specifies the format type of the output : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+        
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > getcfam pu 6 -p0,1 
+                        > getcfam memctrl 800009 -exp feed0000 -mask ffff0000

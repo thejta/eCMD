@@ -1,0 +1,32 @@
+
+Syntax: getmemmemctrl <Address> <NumBytes> [-k#] [-n#] [-s#] [-p#] [-o<format>]
+
+        ECMD:           Core Common Function
+
+        Function:       Display the contents of mainstore using the Memory Controller.
+                        NOTE : This operation typically is not cache coherent.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Address         64 Bit address to read from (Hex-Right)
+
+        NumBytes        Number of bytes to fetch (Decimal).
+
+        -o<format>[opt] Specifies the format type of the output : default 'mem'
+                        Run 'ecmdquery formats' to view available formats
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > getmemmemctrl 1000 128 -p0

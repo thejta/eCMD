@@ -1,0 +1,39 @@
+
+Syntax: putfpr <FprNum> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+
+        ECMD:           Core Common Function
+
+        Function:       Write the specified data to a Processor FPR (Floating Point Register)
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        FprNum          Fpr Entry to write (Decimal)
+
+        Data            Data to insert into FPR.
+                        Format specified by -i<format>
+
+        -i<format>[opt] Specifies the format type of input data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify
+                        -pall to act on all chips.
+
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
+                        -call to act on all cores.
+
+        -t#  [optional] Specify which processor thread to act on (0 is default). Specify
+                        -tall to act on all threads, -talive to act on all alive threads.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > putfpr 10 deadbeef80000000  -p0,1 -c1
