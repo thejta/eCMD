@@ -126,6 +126,7 @@ struct ecmdRingData {
   int      bitLength;                   ///< length of ring
   bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
   bool     supportsBroadsideLoad;       ///< This ring supports broadside load in simulation
+  bool     isCheckable;                 ///< This ring can be run through the check_rings command
 };
 
 /**
