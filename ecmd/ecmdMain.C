@@ -36,6 +36,7 @@
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
 #include <ecmdReturnCodes.H>
+#include <ecmdCommandUtils.H>
 
 
 #undef ecmdMain_C
@@ -76,6 +77,9 @@ int main (int argc, char *argv[])
       ecmdOutputError(buf);
     } else if (rc) {
       std::string parse = ecmdGetErrorMsg(rc);
+      /* Display the registered message right away BZ#160 */
+      ecmdOutputError(parse.c_str());
+      parse = ecmdParseReturnCode(rc);
       sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
       ecmdOutputError(buf);
     }

@@ -266,6 +266,62 @@ bool ecmdIsAllHex(const char* str) {
 }
 
 
+std::string ecmdParseReturnCode(uint32_t i_returnCode) {
+  std::string ret;
+
+  ecmdChipTarget dummy;
+  std::string filePath;
+  uint32_t rc = ecmdQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
+
+  if (rc || (filePath.length()==0)) {
+    ret = "ERROR FINDING DECODE FILE";
+    return ret;
+  }
+
+  filePath += "ecmdReturnCodes.H";
+
+
+  /* jtw 10/6/03 - code below largely copied from cronusrc.c */
+  char str[800];
+  char num[30];
+  char name[200];
+  int found = 0;
+  char* tempstr = NULL;
+  unsigned int comprc;
+
+  std::ifstream ins(filePath.c_str());
+
+  if (ins.fail()) {
+    ret = "ERROR OPENING DECODE FILE";
+    return ret;
+  }
+
+  while (!ins.eof()) { /*  && (strlen(str) != 0) */
+    ins.getline(str,799,'\n');
+    if (!strncmp(str,"#define",7)) {
+      strtok(str," \t");        /* get rid of the #define */
+      tempstr = strtok(NULL," \t");
+      if (tempstr == NULL) continue;
+      strcpy(name,tempstr);
+      tempstr = strtok(NULL," \t");
+      if (tempstr == NULL) continue;
+      strcpy(num,tempstr);
+      sscanf(num,"%x",&comprc);
+      if (comprc == i_returnCode) {
+        ret = name;
+        found = 1;
+        break;
+      }
+    }
+  }
+
+  ins.close();
+
+  if (!found) {
+    ret = "UNDEFINED";
+  }
+  return ret;
+}
 
 // Change Log *********************************************************
 //                                                                      

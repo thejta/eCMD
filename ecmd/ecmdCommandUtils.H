@@ -123,6 +123,12 @@ bool ecmdIsAllDecimal(const char* str);
 */
 bool ecmdIsAllHex(const char* str);
 
+/**
+ @brief Returns the string define name for specified returnCode (ie "ECMD_SPY_GROUP_MISMATCH")
+ @param i_returnCode Return code to lookup
+ @retval String name of return code ("UNDEFINED" if unknown)
+*/
+std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
 
 #endif /* ecmdCommandUtils_h */
