@@ -56,7 +56,7 @@ struct dllSpyData {
   dllSpyDataType_t              dataType;       ///< Field below to use
   std::string                   enum_data;      ///< Enum data
   ecmdDataBuffer*               int_data;       ///< Integer data
-  std::list< ecmdDataBuffer> *  group_data;     ///< Group Data
+  std::list< ecmdSpyGroupData > *  group_data;     ///< Group Data
 };
 
 //----------------------------------------------------------------------
@@ -207,6 +207,17 @@ uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::
   return rc;
 }
 
+uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups) {
+  uint32_t rc = ECMD_SUCCESS;
+  dllSpyData fdata;
+  fdata.dataType = SPYDATA_GROUPS;
+  fdata.group_data = &o_groups;
+
+  rc = dllGetSpy(i_target,i_spyName,fdata);
+  return rc;
+
+}
+
 uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data){
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
@@ -285,9 +296,9 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
   ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
 
-  ecmdGroupData groupTemp;
-  std::list<ecmdGroupData> groups;             ///< List to store all groups so that they can be compared in the end
-  std::list<ecmdGroupData>::iterator groupit;   ///< Iterator for group list
+  ecmdSpyGroupData groupTemp;
+  std::list<ecmdSpyGroupData> groups;             ///< List to store all groups so that they can be compared in the end
+  std::list<ecmdSpyGroupData>::iterator groupit;   ///< Iterator for group list
 
   int num;
   int curaliasbit = 0;
@@ -648,7 +659,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
     
 
   } else if (data.dataType == SPYDATA_GROUPS) {
-//    *(data.group_data) = groups;
+    *(data.group_data) = groups;
   }
 
   return rc;
