@@ -31,6 +31,16 @@ these formats please see the eCMD documentation.
 
         -obw#           Display data as binary words in '#' columns
 
+        -obX            Display data as X-State binary
+
+        -obXn           Display data as X-State binary nibbles
+
+        -obXn#          Display data as X-State binary nibbles in '#' columns
+
+        -obXw           Display data as X-State binary words
+
+        -obXw#          Display data as X-State binary words in '#' columns
+
         -omem           Display memory data in standard format
 
         -omema          Display memory data in standard format with ascii decode
