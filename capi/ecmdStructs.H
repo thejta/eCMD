@@ -40,7 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "1.3"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "2.0d"          ///< eCMD API Version
 
 
 /**
@@ -139,7 +139,7 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t coreState;            ///< core field state
   ecmdChipTargetState_t threadState;          ///< thread field state
 
-  std::string unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
+  uint32_t unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
   
 };
