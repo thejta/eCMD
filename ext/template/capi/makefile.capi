@@ -81,8 +81,6 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
 	rm -f ${EXTENSION_NAME}ClientCapi.C
 endif
 	rm -f ${EXTENSION_NAME}ClientEnums.H
-	rm -f ${EXTENSION_NAME}DllCapi.C
-	rm -f ${EXTENSION_NAME}DllCapi.H
 
 dir:
 	@mkdir -p ${SUBDIR}
