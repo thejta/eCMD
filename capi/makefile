@@ -44,6 +44,27 @@ VPATH := ${SUBDIR}
 
 
 # *****************************************************************************
+# The MPatrol Stuff
+# *****************************************************************************
+MPATROL_HOME := /afs/rchland/rel/common/bringup.tools/cronus/ecmd/mpatrol/
+ifeq (${MPATROL},yes) 
+  DEFINES   := ${DEFINES} -DENABLE_MPATROL
+
+  ifeq (${OS},Linux)
+    CFLAGS  := ${CFLAGS} -fcheck-memory-usage -I${MPATROL_HOME}include/
+    LDFLAGS := ${LDFLAGS} -L${MPATROL_HOME}x86/ -lmpatrol -lbfd 
+  endif
+
+  ifeq (${OS},AIX)
+    CFLAGS  := ${CFLAGS} -I${MPATROL_HOME}include/
+    EXTRA_LIBS := ${EXTRA_LIBS} libmpatrol.a
+    LDFLAGS := ${LDFLAGS} -lld
+  endif
+
+
+endif
+
+# *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} ${SLIB}
