@@ -585,7 +585,8 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer for portion user requested
   ecmdDataBuffer expected;              ///< Buffer to store expected data
   bool validPosFound = false;           ///< Did the looper find anything to execute on
-
+  bool outputformatflag = false;
+  bool inputformatflag = false; 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -598,12 +599,22 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
     outputformat = formatPtr;
+    outputformatflag = true;
   }
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     inputformat = formatPtr;
+    inputformatflag = true;
   }
-  
+  /* Get the filename if -f is specified */
+  char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-f");
+  std::string printed;
+
+  if((filename != NULL) && (inputformatflag || outputformatflag || expectFlag) ) {
+    printed = "getbits - Options '-f' cannot be specified with '-i', '-o' or '-exp' options.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  } 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -615,8 +626,12 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 4) {  //chip + address
+  if ((argc < 4) && (filename == NULL)) {  //chip + address
     ecmdOutputError("getbits - Too few arguments specified; you need at least a chip, ring, startbit, and numbits.\n");
+    ecmdOutputError("getbits - Type 'getbits -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if((argc < 2) && (filename != NULL)) {  //chip + address
+    ecmdOutputError("getbits - Too few arguments specified; you need at least a chip, ring, and outputfile.\n");
     ecmdOutputError("getbits - Type 'getbits -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -629,33 +644,40 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
   ringName = argv[1];
 
-  if (!ecmdIsAllDecimal(argv[2])) {
-    ecmdOutputError("getbits - Non-decimal numbers detected in startbit field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  startBit = atoi(argv[2]);
-
-  if (!strcmp(argv[3], "end")) {
+  if (filename != NULL) {
+    startBit = 0;
     numBits = 0xFFFFFFFF;
-  }
+  } 
   else {
-    if (!ecmdIsAllDecimal(argv[3])) {
-      ecmdOutputError("getbits - Non-decimal numbers detected in numbits field\n");
-      return ECMD_INVALID_ARGS;
-    }
-    numBits = atoi(argv[3]);
+  
+   if (!ecmdIsAllDecimal(argv[2])) {
+     ecmdOutputError("getbits - Non-decimal numbers detected in startbit field\n");
+     return ECMD_INVALID_ARGS;
+   }
+   startBit = atoi(argv[2]);
+
+   if (!strcmp(argv[3], "end")) {
+     numBits = 0xFFFFFFFF;
+   }
+   else {
+     if (!ecmdIsAllDecimal(argv[3])) {
+       ecmdOutputError("getbits - Non-decimal numbers detected in numbits field\n");
+       return ECMD_INVALID_ARGS;
+     }
+     numBits = atoi(argv[3]);
 
 
-    /* Bounds check */
-    if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
-      char errbuf[100];
-      sprintf(errbuf,"getbits - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
-      ecmdOutputError(errbuf);
-      return ECMD_DATA_BOUNDS_OVERFLOW;
-    } else if (numBits == 0) {
-      ecmdOutputError("getbits - Zero bit length requested\n");
-      return ECMD_DATA_UNDERFLOW;
-    }
+     /* Bounds check */
+     if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+       char errbuf[100];
+       sprintf(errbuf,"getbits - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+       ecmdOutputError(errbuf);
+       return ECMD_DATA_BOUNDS_OVERFLOW;
+     } else if (numBits == 0) {
+       ecmdOutputError("getbits - Zero bit length requested\n");
+       return ECMD_DATA_UNDERFLOW;
+     }
+   }
   }
 
 
@@ -679,8 +701,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   char outstr[30];
-  std::string printed;
-
+  
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getRing(target, ringName.c_str(), ringBuffer);
@@ -725,12 +746,25 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(target) + "  " + ringName;
       sprintf(outstr, "(%d:%d)", startBit, startBit + numBits - 1);
       printed += outstr;
-      std::string dataStr = ecmdWriteDataFormatted(buffer, outputformat);
-      if (dataStr[0] != '\n') {
-        printed += "\n";
-      }
-      printed += dataStr;
-      ecmdOutput( printed.c_str() );
+      if (filename != NULL) {
+        rc = buffer.writeFile(filename, ECMD_SAVE_FORMAT_ASCII);
+       
+        if (rc) {
+         printed += "getbits - Problems occurred writing data into file" + (std::string)filename + "\n";
+         ecmdOutputError(printed.c_str()); 
+         return rc;
+        }
+        ecmdOutput( printed.c_str() );
+      } 
+      else {
+       std::string dataStr = ecmdWriteDataFormatted(buffer, outputformat);
+       if (dataStr[0] != '\n') {
+         printed += "\n";
+       }
+       printed += dataStr;
+       ecmdOutput( printed.c_str() );
+      } 
+      
     }
 
   }
@@ -752,7 +786,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
   bool validPosFound = false;           ///< Did the looper find something ?
-
+  bool formatflag = false;
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -761,12 +795,23 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     format = formatPtr;
+    formatflag = true;
   }
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
     dataModifier = formatPtr;
   }
 
+  /* Get the filename if -f is specified */
+  char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-f");
+  std::string printed;
+
+  if((filename != NULL) && (formatflag) ) {
+    printed = "putbits - Options '-f' and '-i' can't be specified together for format. Specify either one.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }  
+  
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -778,8 +823,13 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 4) {  //chip + address
+  if ((argc < 4 ) && (filename == NULL)) {  //chip + address
     ecmdOutputError("putbits - Too few arguments specified; you need at least a chip, ring, startbit, and data block.\n");
+    ecmdOutputError("putbits - Type 'putbits -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if((argc < 2) && (filename != NULL) ) {
+    ecmdOutputError("putbits - Too few arguments specified; you need at least a chip, ring, and data file.\n");
     ecmdOutputError("putbits - Type 'putbits -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -797,22 +847,31 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   //get ring name and starting position
   std::string ringName = argv[1];
+  int startBit = 0;
 
-
-  if (!ecmdIsAllDecimal(argv[2])) {
+  if(filename != NULL) {
+    rc = buffer.readFile(filename, ECMD_SAVE_FORMAT_ASCII);
+    if (rc) {
+     printed = "putbits - Problems occurred parsing input data from file" + (std::string)filename + ", must be an invalid format\n";
+     ecmdOutputError(printed.c_str());
+     return rc;
+    }
+  }
+  else {
+   
+   if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("putbits - Non-decimal numbers detected in startbit field\n");
     return ECMD_INVALID_ARGS;
-  }
-  int startBit = atoi(argv[2]);
-  
-  //container to store data
-
-  rc = ecmdReadDataFormatted(buffer, argv[3], format);
-  if (rc) {
-    ecmdOutputError("putbits - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
+   }
+   startBit = atoi(argv[2]);
+   
+   //container to store data
+   rc = ecmdReadDataFormatted(buffer, argv[3], format);
+   if (rc) {
+     ecmdOutputError("putbits - Problems occurred parsing input data, must be an invalid format\n");
+     return rc;
+   }
+  } 
   
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -821,8 +880,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::string printed;
-
+  
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getRing(target, ringName.c_str(), ringBuffer);
@@ -1211,8 +1269,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           ringBuffer.flushTo1();
         }
 
-        if (ringBuffer.getWordLength() > 1)
-          ringBuffer.setWord(1, pattern);  //write the pattern
+        ringBuffer.setWord(0, pattern);  //write the pattern
 
         rc = putRing(target, ringName.c_str(), ringBuffer);
         if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -1252,21 +1309,16 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           return rc;
         }
 
-        if ((ringBuffer.getWordLength() > 1) && (ringBuffer.getWord(1) != pattern)) {
-          sprintf(outstr, "checkrings - Data fetched from ring %s did not match shift pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(1));
+        if (ringBuffer.getWord(0) != pattern) {
+          sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
           ecmdOutputWarning( outstr );
           printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(target) + "\n";
           ecmdOutputWarning( printed.c_str() );
         }
         else {
           /* Walk the ring looking for errors */
-          /* We need to not check the very last bit in JTAG or first bit in FSI because it is the access latch and isn't actually scannable BZ#134 */
-          for (int bit = 1; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
-            if (bit == 32) {
-              /* The second word contains our shift pattern, so we ignore here */
-              bit = 63;
-              continue;
-            }
+          /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
+          for (int bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
             if (i % 2) {
               if (ringBuffer.isBitSet(bit)) {
                 sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
