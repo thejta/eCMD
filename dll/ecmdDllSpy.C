@@ -31,6 +31,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <netinet/in.h>
 #include <ecmdSharedUtils.H>
 
 #include <ecmdDllCapi.H>
@@ -1408,10 +1409,8 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
 
     hashFile.seekg(cur * entrysize);         /* position into file */ 
     hashFile.read((char*)&(curhash.key), 4); /* read 4-byte key */
-#if defined (i386)
     /* We need to byte swap this guy */
-    curhash.key = ecmdGenByteSwap32(curhash.key);
-#endif
+    curhash.key = htonl(curhash.key);
 
     if (key > curhash.key)
       low = cur + 1;
@@ -1425,16 +1424,12 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
   do {  /* at least once */
 
     hashFile.read((char*)&(curhash.key), sizeof(curhash.key));
-#if defined (i386)
     /* We need to byte swap this guy */
-    curhash.key = ecmdGenByteSwap32(curhash.key);
-#endif
+    curhash.key = htonl(curhash.key);
     if (key != curhash.key) return 0;      /* we should have been at the right spot */
     hashFile.read((char*)&(curhash.filepos), sizeof(curhash.filepos));
-#if defined (i386)
     /* We need to byte swap this guy */
-    curhash.filepos = ecmdGenByteSwap32(curhash.filepos);
-#endif
+    curhash.filepos = htonl(curhash.filepos);
 
     spyFile.seekg(curhash.filepos);              /* go to that spot in the spy file */
     getline(spyFile,line,'\n');                 /* read the spy and then clean off the extras*/
