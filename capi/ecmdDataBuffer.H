@@ -70,7 +70,7 @@ public:
   /**
    * @brief Constructor
    * @param i_numWords Size of data to initialize in 32-bit words
-   * @post ecmdDataBuffer is initialzed with a buffer
+   * @post ecmdDataBuffer is initialized and zero'd out
    */
   ecmdDataBuffer(int i_numWords); 
 
@@ -108,13 +108,13 @@ public:
   int   getBitLength() const;
   /**
    * @brief Return the actual capacity of the internal buffer in words
-   * @retval Actual capacity of internal buffer
+   * @retval Actual capacity in words of internal buffer
    */
   int   getCapacity() const;
   /**
    * @brief Reinitialize the Buffer to specified length
    * @param i_newNumWords Length of new buffer in words
-   * @post Buffer is reinitialized
+   * @post Buffer is reinitialized and zero'd out
    *
    * CAUTION : All data stored in buffer will be lost
    */
@@ -122,7 +122,7 @@ public:
   /**
    * @brief Reinitialize the Buffer to specified length
    * @param i_newNumBits Length of new buffer in bits
-   * @post Buffer is reinitialized
+   * @post Buffer is reinitialized and zero'd out
    *
    * CAUTION : All data stored in buffer will be lost
    */
@@ -130,7 +130,7 @@ public:
   /**
    * @brief Reinitialize the internal buffer to specified length
    * @param i_newNumWords length of internal data buffer in words
-   * @post Internal buffer is reinitialzied
+   * @post Internal buffer is reinitialized and zero'd out.  Requests to decrease the capacity are ignored
    *
    * CAUTION : All data stored in buffer will be lost
    */
@@ -326,45 +326,50 @@ public:
   void applyInversionMask(ecmdDataBuffer & i_invMaskBuffer, int i_invByteLen);
 
   /**
-   * @brief Insert part of another DataBuffer into this one
+   * @brief Copy part of another DataBuffer into this one
    * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
    * @param i_start Start bit to insert to
    * @param i_len Length of bits to insert
-   * @post Data is copied from bufferIn to this DataBuffer in specified location for length or to end of this DataBuffer size whichever is less
+   * @pre DatBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
    */
   void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
   /**
-   * @brief Insert a uint32_t array into this DataBuffer
+   * @brief Copy a uint32_t array into this DataBuffer
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken left aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert
-   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
    */
   void  insert(uint32_t * i_datain, int i_start, int i_len);
   /**
-   * @brief Insert a uint32_t into the DataBuffer
+   * @brief Copy a uint32_t into the DataBuffer
    * @param i_datain uint32_t value to copy into DataBuffer - data is taken left aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert (must be <= 32)
-   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
    */
   void  insert(uint32_t i_datain, int i_start, int i_len);
   /**
-   * @brief Insert a right aligned (decimal) uint32_t array into this DataBuffer
+   * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert
-   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
   void  insertFromRight(uint32_t * i_datain, int i_start, int i_len);
   /**
-   * @brief Insert a right aligned (decimal) uint32_t into the DataBuffer
+   * @brief Copy a right aligned (decimal) uint32_t into the DataBuffer
    * @param i_datain uint32_t value to copy into DataBuffer - data is taken right aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert (must be <= 32)
-   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
    */
   void  insertFromRight(uint32_t i_datain, int i_start, int i_len);
 
@@ -374,7 +379,7 @@ public:
    * @param o_bufferOut DataBuffer to copy into - data is placed left aligned
    * @param i_start Start bit of data in this DataBuffer to copy
    * @param i_len Length of consecutive bits to copy
-   * @post Data is copied from specified location in this DataBuffer to bufferOut for length or to end of bufferOut size whichever is less
+   * @post Data is copied from specified location in this DataBuffer to bufferOut
    */
   void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
   /**
@@ -385,6 +390,39 @@ public:
    * @post Data is copied from specified location in this DataBuffer to o_data
    */
   void  extract(uint32_t * o_data, int i_start, int i_len);
+  /**
+   * @brief Copy data from this DataBuffer into another DataBuffer and right justify
+   * @param o_bufferOut DataBuffer to copy into - data is placed right aligned
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_bufferOut, right aligned.  Data is only right aligned if i_len < 32
+   */
+  void extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len);
+  /**
+   * @brief Copy data from this DataBuffer into a uint32_t buffer
+   * @param o_data uint32_t buffer to copy into - data is placed right aligned - must be pre-allocated
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_data, right aligned.  Data is only right aligned if i_len < 32
+   */
+  void extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len);
+
+  /**
+   * @brief Concatenate 2 DataBuffers into in this one
+   * @param i_buf0 First DataBuffer to concatenate; copied to beginning of this buffer
+   * @param i_buf1 Second DataBuffer to concatenate; copied to this buffer after the first buffer
+   * @post Space is allocated, and data from the 2 DataBuffers is concatenated and copied to this buffer
+   */
+  void concat(ecmdDataBuffer & i_buf0, ecmdDataBuffer & i_buf1);
+  /**
+   * @brief Concatenate 3 DataBuffers into in this one
+   * @param i_buf0 First DataBuffer to concatenate; copied to beginning of this buffer
+   * @param i_buf1 Second DataBuffer to concatenate; copied to this buffer after the first buffer
+   * @param i_buf1 Third DataBuffer to concatenate; copied to this buffer after the second buffer
+   * @post Space is allocated, and data from the 3 DataBuffers is concatenated and copied to this buffer
+   */
+  void concat(ecmdDataBuffer & i_buf0, ecmdDataBuffer & i_buf1, ecmdDataBuffer & i_buf2);
+
 
   /* these functions OR the datain into the DataBuffer buffer */
   /**
@@ -473,13 +511,14 @@ public:
   /**
    * @brief Copy entire contents of this ecmdDataBuffer into o_copyBuffer 
    * @param o_copyBuffer DataBuffer to copy data into
-   * @post copyBuffer is an exact duplicate of this DataBuffer
+   * @post copyBuffer is allocated, is an exact duplicate of this DataBuffer
    */
   void  copy(ecmdDataBuffer & o_copyBuffer); 
 
   /**
    * @brief Copy Constructor
    * @param i_master DataBuffer to copy from
+   * @post this DataBuffer is allocated, is an exact duplicate of the other
    */
   ecmdDataBuffer& operator=(const ecmdDataBuffer & i_master);
 
@@ -488,6 +527,7 @@ public:
    * @brief Copy buffer into this ecmdDataBuffer
    * @param i_buf Buffer to copy from
    * @param i_bytes Byte length to copy
+   * @pre DataBuffer must be pre-allocated
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
   void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
@@ -498,6 +538,34 @@ public:
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
   void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+
+  /**
+   * @brief Flatten all the object data into a uint8_t buffer
+   * @param o_data Byte buffer to write the flattened data to - should 
+   * @param i_len Number of bytes in the o_data buffer
+   * @post o_data buffer has a flattened version of the DataBuffer - must be pre-allocated
+   * Data format (all in network byte order):
+   * First Word:      iv_Capacity*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  void flatten(uint8_t * o_data, uint32_t i_len) const;
+  /**
+   * @brief Unflatten object data from a uint8_t buffer into this DataBuffer
+   * @param i_data Byte buffer to read the flattened data from
+   * @param i_len Number of bytes in the i_data buffer
+   * @post This DataBuffer is allocated and initialized with the unflattened version of i_data
+   * Data format (all in network byte order):
+   * First Word:      iv_Capacity*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  void unflatten(const uint8_t * i_data, uint32_t i_len);
+  /**
+   * @brief Return number of bytes needed for a buffer to flatten the object
+   * @retval Number of bytes needed
+   */
+  uint32_t flattenSize(void) const;
 
   //@}
 

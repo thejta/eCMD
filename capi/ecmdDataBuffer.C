@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <inttypes.h>
+#include <netinet/in.h> /* for htonl */
 
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
@@ -58,7 +59,7 @@ void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count);
 //  Constructors
 //---------------------------------------------------------------------
 ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
-: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL), iv_Capacity(0)
+: iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
@@ -66,17 +67,18 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 }
 
 ecmdDataBuffer::ecmdDataBuffer(int numWords)
-: iv_NumWords(numWords), iv_NumBits(numWords*32), iv_Capacity(0), iv_RealData(NULL), iv_Data(NULL)
+: iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
 #endif
-  setWordLength(numWords);
+  if (numWords > 0)
+    setWordLength(numWords);
 
 }
 
 ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) 
-: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL), iv_Capacity(0)
+: iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
@@ -92,14 +94,8 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 #ifndef REMOVE_SIM
     strcpy(iv_DataStr, other.iv_DataStr);
 #endif
-  } else {
-    /* We are copying an empty buffer */
-    iv_NumWords = iv_NumBits = iv_Capacity = 0;
-    iv_Data = iv_RealData = NULL;
-#ifndef REMOVE_SIM
-    iv_DataStr = NULL;
-#endif
   }
+  /* else do nothing.  already have an empty buffer */
 
 }
 
@@ -149,6 +145,9 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
 
 void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
+  if (newNumBits == iv_NumBits)
+    return;  /* nothing to do */
+
   int newNumWords = newNumBits % 32 ? newNumBits / 32 + 1 : newNumBits / 32;
   uint32_t randNum = 0x12345678;
 
@@ -182,6 +181,10 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 #endif
 
   }
+#ifndef REMOVE_SIM
+  else /* decreasing bit length to zero */
+    iv_DataStr[0] = '\0'; 
+#endif
 
   /* Ok, now setup the header, and tail */
   iv_RealData[0] = DATABUFFER_HEADER;
@@ -241,7 +244,6 @@ void  ecmdDataBuffer::setBit(int bit, int len) {
     printf("**** ERROR : ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return;
   } else {
-    int index = (bit + len) / 32;
     for (int idx = 0; idx < len; idx ++) this->setBit(bit + idx);    
   }
 }
@@ -367,7 +369,6 @@ void  ecmdDataBuffer::flipBit(int bit, int len) {
     printf("**** ERROR : ecmdDataBuffer::flipBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return;
   } else {
-    char temp[60];
     for (int i = 0; i < len; i++) {
       this->flipBit(bit+i);
     }
@@ -457,7 +458,7 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
 
-  int i, prevlen;
+  int i;
 
   // shift iv_Data array
   for (int iter = 0; iter < shiftNum; iter++) {
@@ -816,7 +817,6 @@ void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
 
 void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_len) {
 
-  int wordCount = i_len % 32 ? i_len / 32 + 1: i_len / 32;
   int offset = 32 - (i_len % 32);
 
   if (i_start+i_len > iv_NumBits) {
@@ -881,6 +881,39 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
     }
 #endif
   }
+}
+
+void ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) {
+
+  this->extract(o_bufferOut, i_start, i_len);
+
+  if (i_len < 32)
+    o_bufferOut.shiftRightAndResize(32 - i_len);
+}
+
+void ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) {
+
+  this->extract(o_data, i_start, i_len);
+
+  if (i_len < 32)
+    *o_data >>= 32 - i_len;
+}
+
+void ecmdDataBuffer::concat(ecmdDataBuffer & i_buf0,
+                            ecmdDataBuffer & i_buf1) {
+
+  this->setBitLength(i_buf0.iv_NumBits + i_buf1.iv_NumBits);
+  this->insert(i_buf0, 0, i_buf0.iv_NumBits);
+  this->insert(i_buf1, i_buf0.iv_NumBits, i_buf1.iv_NumBits);
+}
+
+void ecmdDataBuffer::concat(ecmdDataBuffer & i_buf0,
+                            ecmdDataBuffer & i_buf1,
+                            ecmdDataBuffer & i_buf2) {
+  this->setBitLength(i_buf0.iv_NumBits + i_buf1.iv_NumBits + i_buf2.iv_NumBits);
+  this->insert(i_buf0, 0, i_buf0.iv_NumBits);
+  this->insert(i_buf1, i_buf0.iv_NumBits, i_buf1.iv_NumBits);
+  this->insert(i_buf2, i_buf0.iv_NumBits + i_buf1.iv_NumBits, i_buf2.iv_NumBits);
 }
 
 void ecmdDataBuffer::setOr(ecmdDataBuffer& bufferIn, int startBit, int len) {
@@ -1187,7 +1220,6 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
 
 int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int expectedLength) {
   int rc = ECMD_SUCCESS;
-  int i;
   ecmdDataBuffer insertBuffer;
   int bitlength = expectedLength == 0 ? strlen(i_hexChars) * 4 : expectedLength;
 
@@ -1300,6 +1332,51 @@ void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy fr
   }
 }
 
+void ecmdDataBuffer::flatten(uint8_t * o_data, uint32_t i_len) const {
+
+  uint32_t * o_ptr = (uint32_t *) o_data;
+
+  if ((i_len < 8) || (iv_Capacity*32 > ((i_len - 8) * 8)))
+    printf("**** ERROR : ecmdDataBuffer::flatten: i_len %d bytes is too small to flatten a capacity of %d words \n", i_len, iv_Capacity);
+
+  else {
+    memset(o_data, 0, this->flattenSize());
+    o_ptr[0] = htonl(iv_Capacity*32);
+    o_ptr[1] = htonl(iv_NumBits);
+    if (iv_Capacity > 0) {
+      for (uint32_t i = 0; i < iv_Capacity; i++)
+        o_ptr[2+i] = htonl(iv_Data[i]);
+    }
+  }
+}
+
+void ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
+
+  uint32_t newCapacity;
+  uint32_t newBitLength;
+  uint32_t * i_ptr = (uint32_t *) i_data;
+
+  newCapacity = (ntohl(i_ptr[0]) + 31) / 32;
+  newBitLength = ntohl(i_ptr[1]);
+
+  if ((i_len < 8) || (newCapacity > ((i_len - 8) * 8)))
+    printf("**** ERROR : ecmdDataBuffer::unflatten: i_len %d bytes is too small to unflatten a capacity of %d words \n", i_len, newCapacity);
+
+  else if (newBitLength > newCapacity * 32)
+    printf("**** ERROR : ecmdDataBuffer::unflatten: iv_NumBits %d cannot be greater than iv_Capacity*32 %d\n", newBitLength, newCapacity*32);
+
+  else {
+    this->setCapacity(newCapacity);
+    this->setBitLength(newBitLength);
+    if (newCapacity > 0)
+      for (uint32_t i = 0; i < newCapacity; i++)
+        setWord(i, ntohl(i_ptr[i+2]));
+  }
+}
+
+uint32_t ecmdDataBuffer::flattenSize() const {
+  return (iv_Capacity + 2) * 4;
+}
 
 int   ecmdDataBuffer::hasXstate() {  
 #ifdef REMOVE_SIM
@@ -1480,6 +1557,9 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
   if (getBitLength() != other.getBitLength()) {
     return 0;
   }
+
+  if (getBitLength() == 0) /* two empty buffers are equal */
+    return 1;
 
   /* Now run through the data */
   while (numToFetch > 0) {
