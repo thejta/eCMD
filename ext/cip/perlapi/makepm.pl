@@ -6,14 +6,18 @@
 my $curdir = ".";
 
 #functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
-my @ignores = qw( initDll cleanup );
+my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs );
 my $ignore_re = join '|', @ignores;
 
 my $printout;
 my $DllFnTable;
 my @enumtable;
 
-open IN, "${curdir}/$ARGV[0]ClientPerlapi.H" or die "Could not find $ARGV[0]ClientPerlapi.H: $!\n";
+if ($ARGV[0] ne "ecmd") {
+  open IN, "${curdir}/../ext/$ARGV[0]/perlapi/$ARGV[0]ClientPerlapi.H" or die "Could not find $ARGV[0]ClientPerlapi.H: $!\n";
+} else {
+  open IN, "${curdir}/$ARGV[0]ClientPerlapi.H" or die "Could not find $ARGV[0]ClientPerlapi.H: $!\n";
+}
 open OUT, ">${curdir}/$ARGV[0]ClientPerlapiFunc.C" or die $!;
 
 
@@ -83,11 +87,15 @@ while (<IN>) {
           print OUT "$type $ARGV[0]ClientPerlapi::$funcname(@argnames) { \n";
           print OUT "  ::$funcname($argstring);\n";
           print OUT "}\n\n";
-        } else {
+        } elsif (($type eq "uint32_t") || ($type eq "int")) {
           print OUT "$type $ARGV[0]ClientPerlapi::$funcname(@argnames) { \n";
           print OUT "  $type rc = ::$funcname($argstring);\n";
           print OUT "  ecmdPerlInterfaceErrorCheck(rc);\n";
           print OUT "  return rc;\n";
+          print OUT "}\n\n";
+        } else {
+          print OUT "$type $ARGV[0]ClientPerlapi::$funcname(@argnames) { \n";
+          print OUT "  return ::$funcname($argstring);\n";
           print OUT "}\n\n";
         }
 

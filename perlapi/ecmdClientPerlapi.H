@@ -17,47 +17,43 @@
 //                                                                      
 // End Copyright ******************************************************
 
-//for Linux compiles
-#ifdef list
-#undef list
-#endif
+
+#define ECMD_PERLAPI_VERSION "1.0"          ///< eCMD API Version
 
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
 #include <string>
 #include <ecmdStructs.H>
+#include <ecmdDataBuffer.H>
+
+
 
 /**
  * @file ecmdClientPerlapi.H
  * @brief eCMD Perl API
-
- * Usage :
+ * Usage : 
    <pre>
- *   if (`uname` eq "AIX") {
- *     require ecmd_aix_perl;
- *   } else {
- *     require ecmd_x86_perl;
- *   }    
- *   my $ep = new ecmdClientPerlapi();
+ use ecmd;
+
+ my $ep;
+ $ep = new ecmd::ecmdClientPerlapi();
    </pre>
 
 */
 
-extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
-extern "C" int ecmdQuerySafeMode();
+int ecmdPerlInterfaceErrorCheck (int rc);
+int ecmdQuerySafeMode();
 
 /**
  * @brief eCMD Perl API
 
  * Usage : 
    <pre>
- *   if (`uname` eq "AIX") {
- *     require ecmd_aix_perl;
- *   } else {
- *     require ecmd_x86_perl;
- *   }    
- *   my $ep = new ecmdClientPerlapi();
+ use ecmd;
+
+ my $ep;
+ $ep = new ecmd::ecmdClientPerlapi();
    </pre>
 */
 
@@ -80,19 +76,30 @@ class ecmdClientPerlapi
    @brief Initialize the eCMD DLL
    @retval 0 if successful load  1 if unsuccessful
    @param i_dllName Full path and filename of the eCMD Dll to load
-   @param i_options Passed from Command line Arguments
+   @param i_clientVersion Comma seperated list of eCMD Perl api major numbers this script supports, see details
    @pre ecmdClientPerlapi constructor must have been called
-   @post Global options (ex. -p#, -c#) will be removed from arg list
 
    - initializes the eCMD Dll.
    - Global options such as -p#, -c# will be parsed out.
    - Position flags can be queried later with functions like wasposselected()
+
+   VERSIONS :
+   eCMD at times has to make changes to add/remove functionality and parameters to functions.  This could cause
+    incompatability in your script if you used functions that have changed.  The i_clientVersion string is used
+    to tell eCMD which major releases you support such that your script will not continue execution if it encounters
+    a version that is either not known about or not supported.  This is similar to how the eCMD C-Api works except in
+    Perl you can support multiple versions with one script as long as the changes that were made between the versions
+    do not affect your script.
+
+   USAGE :
+   if ($ep->initDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }
+
    */
-    int initDll(const char * i_dllName, const char * i_options = NULL);
+    int initDll(const char * i_dllName, const char * i_clientVersion);
 
 
     /**
-     @brief Clean up the Perl Module
+     @brief Clean up the Perl Module - MUST BE CALLED JUST BEFORE SCRIPT EXIT
      */
     void cleanup();
 
@@ -101,26 +108,171 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero if unsuccessful
      @param i_argv Passed from Command line Arguments
-     @pre loadDll must have been called
-     @post Global options (ex. -debug, -p#, -c#) will be removed from arg list
-     @see loadDll
+     @pre initDll must have been called
+     @post Global options (ex. -p#, -c#) will be removed from arg list
+     @see initDll
 
-     - argc/argv get passed to the eCMD DLL.
-     - Global options such as -debug flags and -p#, -c# will be parsed out.
-     - Position flags can be queried later with functions like ?????
+     - argv gets passed to the eCMD DLL.
+     - Global options such as -p#, -c# will be parsed out.
+     - Target flags can be queried later with functions like ecmdQuerySelected
      NOTE : This function does not affect ring caching
+
+     USAGE :
+     $ep->ecmdCommandArgs(\@ARGV);
+
      */
 
-    int ecmdCommandArgs(char* i_argv[]); 
+    int ecmdCommandArgs(char** i_argv); 
 
   //@}
 
 
 
-/** @name Chip Scan Functions */
-//@{
+    /** @name Query Functions */
+    //@{
+
     /**
-     @brief Scans the selected number of bits from the selected position in the selected ring into the data buffer
+     @brief Query information about the Dll that is loaded
+     @param o_dllInfo Return data with data from the current dll loaded
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     This interface allows you to query what particular instance of the DLL is loaded (i.e Cronus/IP/Z),
+     along with additional information.
+     NOTE : This function does not affect ring caching
+     */
+
+    uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
+
+    /**
+     @brief Query configuration information from the DLL
+     @param i_target Struct that contains partial information to limit query results
+     @param o_queryData Return data from query
+     @param i_detail Specify the level of detail that should be returned with the query
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     The Valid bits of the target are used to refine the query
+
+     The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
+     When a field state is set to ECMD_TARGET_QUERY_WILDCARD the query function will iterate on all possible values for that
+     entry and return the relevant data.
+     When a field state is set to ECMD_TARGET_QUERY_IGNORE the query function will stop iterating at that level and below
+
+
+     Ex: to query what positions of the Nova chip are on cage 1, node 2:<p>
+     cage = 1, node = 2, pos = 'wildcard', chipType = 'Nova', core = 'wildcard', thread = 'wildcard'<p>
+     Ex: to query what positions of the Nova chip are in the entire system:<p>
+     cage = 'wildcard', node = 'wildcard', pos = 'wildcard', chipType = 'Nova', core = 'wildcard', thread = 'wildcard'<p>
+     Ex: to query all the chips on cage 3, node 0:<p>
+     cage = 3, node = 0, pos = 'wildcard', chipType = 'wildcard', core = 'wildcard', thread = 'wildcard'<p>
+     Ex: to query all the chips in the entire system:<p>
+     cage = 'wildcard', node = 'wildcard', pos = 'wildcard', chipType = 'wildcard', core = 'wildcard', thread = 'wildcard'<p>
+     Ex: to query the total nodes in a system:<p>
+     cage = 'wildcard', node = 'wildcard', pos = 'ignore', chipType = 'ignore', core = 'ignore', thread = 'ignore'<p>
+     NOTE : This function does not affect ring caching
+     */
+
+    uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
+    /**
+     @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
+     @param io_target Struct that contains partial information to limit query results - chipType is unused
+     @param o_queryData Return data from query
+     @param i_looptype (Optional) Used by config looper to specify different query modes
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     This function acts just like ecmdQueryConfig except it operates on what targets were selected by the
+     user args -n#, -p#, -c#, -t#
+
+     Use of this function is the same as ecmdQueryConfig<p>
+     When -talive is specified all threads configured will be returned in o_queryData and io_target.threadState
+     will be set to ECMD_TARGET_THREAD_ALIVE.
+     NOTE : This function does not affect ring caching
+     */
+    uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+
+    /**
+     @brief Query Ring information from the DLL
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+     @param o_queryData Return list from query
+     @param i_ringName if != NULL used to refine query to a single ring
+     @retval ECMD_INVALID_RING if i_ringName is not valid for target
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     NOTE : This function does not affect ring caching
+     */
+    uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
+
+    /**
+     @brief Query Array information from the DLL
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+     @param o_queryData Return data from query
+     @param i_arrayName array to access data for
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     NOTE : This function does not affect ring caching
+     */
+    uint32_t ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName);
+
+    /**
+     @brief Query Spy information from the DLL
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+     @param o_queryData Return data from query
+     @param i_spyName Spy to access data for
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_INVALID_SPY if spy name is not valid for target
+     @retval nonzero on failure
+
+     NOTE : This function does not affect ring caching
+     */
+    uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName);
+
+    /**
+     @brief Query the location of a specific file type for the selected target
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
+     @param o_fileLocation Return string with full path and filename to location 
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_UNKNOWN_FILE if unable to find requested file
+     @retval nonzero if unsuccessful
+
+     NOTE : This function does not affect ring caching
+     */
+    uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
+
+
+    /**
+     @brief Query if a particular target is configured in the system
+     @param i_target Target to query in system configuration
+     @param i_queryData If specified this data will be used, otherwise a call to ecmdQueryConfig will be made
+     @retval true if Target is configured in system
+     @retval false if Target is not configured in system
+
+     NOTE : This function calls ecmdQueryConfig and searchs for the specified target
+     NOTE : The target State fields must be filled in as either VALID or UNUSED
+     */
+    bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
+
+
+
+    //@}
+
+
+
+
+
+    /** @name Scan Functions */
+    //@{
+    /**
+     @brief Scans the ring from the selected chip into the data buffer
      @retval ECMD_INVALID_RING if ringname is not valid for target
      @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
      @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -135,10 +287,10 @@ class ecmdClientPerlapi
 
 
      */
-    int getRing (const char * i_target, const char * i_ringName, char** o_data); 
+    uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
     /**
-     @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
+     @brief Scans ring from the data buffer into the selected chip in the selected ring
      @retval ECMD_SUCCESS if successful
      @retval nonzero if unsuccessful
      @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -153,13 +305,12 @@ class ecmdClientPerlapi
      @see getRing
 
 
+
      */
-    int putRing (const char * i_target, const char * i_ringName, const char * i_data); 
-
-
+    uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
     /**
-     @brief Reads the selected spy into the data buffer (only full name matching supported)
+     @brief Reads the selected spy into the data buffer
      @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
      @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
      @retval ECMD_SUCCESS if successful read
@@ -170,38 +321,17 @@ class ecmdClientPerlapi
      @param i_target Struct that contains chip and cage/node/slot/position/core information
      @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
      @param o_data list of Entries containing all latches found matching i_latchName
-     @param i_startBit Startbit in latchname to fetct data
-     @param i_numBits Number of bits to fetch from startbit
-     @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
+     @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
+     @param i_mode LatchName search mode
 
      NOTE : This function is ring cache enabled
 
      */
-    int getLatch (const char * i_target, const char* i_ringName, const char * i_latchName, char** o_data, int i_startBit, int i_numBits);
+    uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
 
 
     /**
-     @brief Reads the selected spy into the data buffer (only full name matching supported)
-     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
-     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
-     @retval ECMD_SUCCESS if successful read
-     @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
-     @retval ECMD_INVALID_RING if ringname is not valid for target
-     @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
-     @retval nonzero if unsuccessful
-     @param i_target Struct that contains chip and cage/node/slot/position/core information
-     @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
-     @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
-     @param o_width Width of the latch 
-
-     NOTE : This function is ring cache enabled
-
-     */
-    int getLatchWidth (const char * i_target, const char* i_ringName, const char * i_latchName, int &o_width);
-
-
-    /**
-     @brief Writes the data buffer into the all latches matching i_latchName (only full name matching supported)
+     @brief Writes the data buffer into the all latches matching i_latchName
      @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
      @retval ECMD_SUCCESS if successful
      @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -214,7 +344,8 @@ class ecmdClientPerlapi
      @param i_target Struct that contains chip and cage/node/slot/position/core information 
      @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
      @param i_data DataBuffer object that holds data to write into latch
-     @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
+     @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
+     @param i_mode LatchName search mode
      @param i_startBit Startbit in latchname to insert data
      @param i_numBits Number of bits to insert from startbit
      @param o_matchs Number of latchs found that matched your name and data was inserted
@@ -222,14 +353,66 @@ class ecmdClientPerlapi
      NOTE : This function is ring cache enabled
 
      */
-    int putLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * i_data, int i_startBit, int i_numBits, int &o_matchs);
+    uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
+
+
+    /**
+     @brief Scans the specified number of bits from the selected chip and ring address into the data buffer
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @param i_target Struct that contains chip and cage/node/slot/position information of ring to read
+     @param i_address Address of ring to read from
+     @param i_bitLength Bit Length to scan for
+     @param o_data DataBuffer object that holds data read from ring
+     @see putRingWithModifier
+
+     NOTE : This is a debug interface and should not be used in normal situations
+     NOTE : This function does not handle processor cores for you, the i_address will be taken and used with no modifications
+     so you are responsible for specifying the correct core address
+     NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
+     corruption may occur
+
+
+     */
+    uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
+
+    /**
+     @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @param i_target Struct that contains chip and cage/node/slot/position information of ring to write
+     @param i_address Address of ring to write to
+     @param i_bitLength Bit Length to scan for
+     @param i_data DataBuffer object that holds data to write into ring
+     @see getRingWithModifier
+
+     NOTE : This is a debug interface and should not be used in normal situations
+     NOTE : This function does not handle processor cores for you, the i_address will be taken and used with no modifications
+     so you are responsible for specifying the correct core address
+     NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
+     corruption may occur
+
+
+     */
+    uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
+
+
 
     //@}
 
 
 
-    /** @name Chip Scom Functions */
-    //@{ 
+
+    /** @name Scom Functions  */
+    //@{
 
     /**
      @brief Scoms bits from the selected address into the data buffer
@@ -243,9 +426,9 @@ class ecmdClientPerlapi
      @param o_data DataBuffer object that holds data read from address
      @see putScom
 
-
+     NOTE : For processor cores, only "core0 only" addresses are supported, other core addresses cause a failure
      */
-    int getScom (const char* i_target, int i_address, char** o_data);
+    uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
     /**
      @brief Scoms bits from the data buffer into the selected address
@@ -261,11 +444,15 @@ class ecmdClientPerlapi
      @param i_data DataBuffer object that holds data to write into address
      @see getScom
 
+     NOTE : For processor cores, only "core0 only" addresses are supported, other core addresses cause a failure
 
      */
-    int putScom (const char* i_target, int i_address, const char* i_data);
+    uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
     //@}
+    /* End Scom Functions */
+
+
 
 
 
@@ -286,11 +473,10 @@ class ecmdClientPerlapi
 
      NOTE : Proper parity will be generated on the command and modifier
      */
-    int sendCmd (const char* i_target, int i_instruction, int i_modifier, char** o_status);
+    uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
 
     //@}
     /* End Jtag Functions */
-
 
 
 
@@ -303,13 +489,14 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero if unsuccessful
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_NON_FSI_CHIP Targetted chip is not attached via FSI
      @param i_target Struct that contains chip and cage/node/slot/position information 
      @param i_address CFAM address to read from
      @param o_data DataBuffer object that holds data read from address
 
 
      */
-    int getCfamRegister (const char* i_target, int i_address, char** o_data);
+    uint32_t getCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
     /**
      @brief Write data into the selected CFAM register address 
@@ -318,6 +505,7 @@ class ecmdClientPerlapi
      @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval ECMD_SUCCESS if successful
+     @retval ECMD_NON_FSI_CHIP Targetted chip is not attached via FSI
      @retval nonzero if unsuccessful
      @param i_target Struct that contains chip and cage/node/slot/position information 
      @param i_address CFAM address to write to
@@ -325,7 +513,7 @@ class ecmdClientPerlapi
 
 
      */
-    int putCfamRegister (const char* i_target, int i_address, const char* i_data);
+    uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
     //@}
     /* End FSI Functions */
@@ -354,7 +542,7 @@ class ecmdClientPerlapi
      NOTE : This function is ring cache enabled
 
      */
-    int getSpy (const char* i_target, const char * i_spyName, char** o_data);
+    uint32_t getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
 
     /**
      @brief Reads the selected spy and returns it's assocaiated enum
@@ -374,7 +562,7 @@ class ecmdClientPerlapi
      NOTE : This function is ring cache enabled
 
      */
-    int getSpyEnum (const char* i_target, const char * i_spyName, char** o_enumValue);
+    uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
 
     /**
      @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
@@ -385,18 +573,36 @@ class ecmdClientPerlapi
      @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
      @retval nonzero if unsuccessful
      @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
-     @param i_spyEccGroupName Name of spy to read from
-     @param o_groupData Return the data for the input to the eccGroup
-     @param o_eccData Return the Ecc data associated with the outbits of the eccGroup
+     @param i_spyEpCheckersName Name of spy to read from
+     @param o_inLatchData Return the data for the input to the eccGroup
+     @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
      @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
      @retval nonzero if unsuccessful
 
      NOTE : This function is ring cache enabled
      */
-    int getSpyEpCheckers (const char* i_target, const char * i_spyEpCheckersName, char** o_inLatchData, char** o_outLatchData, char** o_eccErrorMask);
+    uint32_t getSpyEpCheckers (ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask);
 
     /**
-     @brief Writes the data buffer into the selected position in the selected spy
+     @brief Reads the selected spy and load all the spy groups into provided list
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+     @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
+     @param i_spyName Name of spy to read from
+     @param o_groups List of structures containing the group data and deadbits mask
+
+     NOTE : This function is ring cache enabled
+
+     */
+    uint32_t getSpyGroups (ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups);
+
+    /**
+     @brief Writes the data buffer into the selected spy
      @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
      @retval ECMD_SUCCESS if successful
      @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
@@ -412,10 +618,10 @@ class ecmdClientPerlapi
      NOTE : This function is ring cache enabled
 
      */
-    int putSpy (const char* i_target, const char * i_spyName, const char* i_data);
+    uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
 
     /**
-     @brief Writes the enum into the selected position in the selected spy
+     @brief Writes the enum into the selected spy
      @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
      @retval ECMD_SUCCESS if successful
      @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
@@ -429,7 +635,7 @@ class ecmdClientPerlapi
 
      NOTE : This function is ring cache enabled
      */
-    int putSpyEnum (const char* i_target, const char * i_spyName, const char* i_enumValue);
+    uint32_t putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
 
     //@}
 
@@ -455,14 +661,21 @@ class ecmdClientPerlapi
 
      NOTE: A Flush of the cache is performed before disabling the cache
      */
-    int  ecmdDisableRingCache();
+    uint32_t  ecmdDisableRingCache();
 
     /**
      @brief Flush all modified data from the internal cache to the hardware, then remove all rings from cache
      @retval ECMD_SUCCESS if successful
      @retval nonzero if unsuccessful
      */
-    int  ecmdFlushRingCache();
+    uint32_t  ecmdFlushRingCache();
+
+    /**
+     @brief Returns true/false to signify if caching is currently enabled
+     @retval true if ring caching is enabled
+     @retval false if ring caching is disabled
+     */
+    bool      ecmdIsRingCacheEnabled();
 
     //@}
 
@@ -489,7 +702,31 @@ class ecmdClientPerlapi
 
 
      */
-    int getArray (const char* i_target, const char * i_arrayName, const char* i_address, char** o_data);
+    uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
+
+    /**
+     @brief Reads bits from multiple array addresses/elements into the list of data buffers
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position information of array to read
+     @param i_arrayName Name of array to read from
+     @param io_entries list of array entries to fetch
+     @see putArray
+     @see getArray
+
+     NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return
+
+     The return value of this function is set to the first non-zero return code found when
+     retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+     the same return code. That data and all subsequent entries in the list will not be fetched and the data
+     should be considered invalid.
+
+     */
+    uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
 
 
     /**
@@ -511,15 +748,50 @@ class ecmdClientPerlapi
 
 
      */
-    int putArray (const char* i_target, const char * i_arrayName, const char* i_address, const char* i_data);
+    uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
+
+    /**
+     @brief Writes bits from the list of entries into the selected array
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @param i_target Struct that contains chip and cage/node/slot/position information of array to write
+     @param i_arrayName Name of array to write to
+     @param i_entries List of addresses and data to write to chip
+     @see getArray
+
+     NOTE : i_entries should be pre-loaded with address and data
+
+     The return value of this function is set to the first non-zero return code found when
+     writing multiple entries.  The function will NOT continue through all subsequent entries.
+
+     */
+    uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 
     //@}
 
 
 
-
     /** @name Clock Functions */
     //@{
+
+    /**
+     @brief Query the state of the clocks for a domain
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+     @param i_target Struct that contains chip and cage/node/slot/position information
+     @param i_clockDomain Clock domain to query - as defined in scandef - use "ALL" to check all domains
+     @param o_clockState State of clocks for that domain
+     */
+
+    uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState);
 
 
     /**
@@ -532,12 +804,13 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @param i_target Struct that contains chip and cage/node/slot/position information
      @param i_clockDomain Clock domain to start - as defined in scandef - use "ALL" to start all domains
+     @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
 
      * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
      If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
      documented in the eCMD system spec for your particular product.
      */
-    int startClocks (const char* i_target, const char * i_clockDomain);
+    uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
     /**
      @brief Stop the clocks in the domain specified
@@ -549,12 +822,13 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @param i_target Struct that contains chip and cage/node/slot/position information
      @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
+     @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
 
      * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
      If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
      documented in the eCMD system spec for your particular product.
      */
-    int stopClocks (const char* i_target, const char * i_clockDomain);
+    uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
     //@}
 
@@ -575,7 +849,7 @@ class ecmdClientPerlapi
      NOTE - function returns on first failure and remaining steps are not run
 
      */
-    int iStepsByNumber (const char* i_steps);
+    uint32_t iStepsByNumber (ecmdDataBuffer & i_steps);
 
     /**
      @brief Run a single iStep by name
@@ -587,7 +861,21 @@ class ecmdClientPerlapi
      @param i_stepName List of iStep names to run
 
      */
-    int iStepsByName(const char* i_stepName);
+    uint32_t iStepsByName(std::string i_stepName);
+
+    /**
+     @brief Run multiple iSteps by name
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_ISTEPS_INVALID_STEP An invalid step name was provided
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @post iSteps specified  are complete
+     @param i_stepNames List of iStep names to run
+
+     NOTE - Steps are run in order as is appropriate for proper system configuration, not by order provided in list
+     NOTE - function returns on first failure and remaining steps are not run
+     */
+    uint32_t iStepsByNameMultiple(std::list< std::string > i_stepNames);
 
     /**
      @brief Run all iSteps by name starting with i_stepNameBegin and ending with i_stepNameEnd
@@ -601,7 +889,7 @@ class ecmdClientPerlapi
 
      NOTE - function returns on first failure and remaining steps are not run
      */
-    int iStepsByNameRange(const char* i_stepNameBegin, const char* i_stepNameEnd);
+    uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepNameEnd);
 
 
     //@}
@@ -613,6 +901,19 @@ class ecmdClientPerlapi
     /** @name Processor Functions */
     //@{
 
+
+    /**
+     @brief Query Information about a Processor Register (SPR/GPR/FPR)
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param i_name Name of the Register to fetch data about (can be either a specific SPR or GPR/FPR)
+     @param o_data Data retrieved about the register
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_SPR Spr name is invalid
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     */
+    uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
 
     /**
      @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
@@ -629,7 +930,32 @@ class ecmdClientPerlapi
 
 
      */
-    int getSpr (const char* i_target, const char * i_sprName, char** o_data);
+    uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data);
+
+    /**
+     @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_SPR Spr name is invalid
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param io_entries List of entries to fetch ecmdNameEntry.name field must be filled in
+
+     - NOTE : There are special keywords that can be specified to fetch groups of entries, they
+     are used by adding only an entry to io_entries and setting ecmdNameEntry.name = <keyword>
+     - "ALLTHREADED" : To fetch all threaded (replicated) SPR's for particular target
+     - "ALLSHARED"   : To fetch all non-threaded SPR's for particular target
+
+     The return value of this function is set to the first non-zero return code found when
+     retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+     the same return code. That data and all subsequent entries in the list will not be fetched and the data
+     should be considered invalid.
+
+     */
+    uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
 
 
     /**
@@ -649,7 +975,27 @@ class ecmdClientPerlapi
 
 
      */
-    int putSpr (const char* i_target, const char * i_sprName, const char* i_data);
+    uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & i_data);
+
+    /**
+     @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_INVALID_SPR Spr name is invalid
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
+
+     The return value of this function is set to the first non-zero return code found when
+     writing multiple entries.  The function will NOT continue through all subsequent entries.
+
+     */
+    uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries);
 
     /**
      @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
@@ -666,7 +1012,29 @@ class ecmdClientPerlapi
 
 
      */
-    int getGpr (const char* i_target, int  i_gprNum, char** o_data);
+    uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & o_data);
+
+    /**
+     @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_GPR Gpr number is invalid
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
+
+     The return value of this function is set to the first non-zero return code found when
+     retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+     the same return code. That data and all subsequent entries in the list will not be fetched and the data
+     should be considered invalid.
+
+
+     */
+    uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+
 
     /**
      @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
@@ -685,7 +1053,29 @@ class ecmdClientPerlapi
 
 
      */
-    int putGpr (const char* i_target, int  i_gprNum, const char* i_data);
+    uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & i_data);
+
+    /**
+     @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_GPR Gpr number is invalid
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+
+
+     The return value of this function is set to the first non-zero return code found when
+     writing multiple entries.  The function will NOT continue through all subsequent entries.
+
+
+     */
+    uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
     /**
      @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
@@ -702,7 +1092,27 @@ class ecmdClientPerlapi
 
 
      */
-    int getFpr (const char* i_target, int  i_fprNum, char** o_data);
+    uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & o_data);
+
+    /**
+     @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_FPR Fpr number is invalid
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
+
+     The return value of this function is set to the first non-zero return code found when
+     retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+     the same return code. That data and all subsequent entries in the list will not be fetched and the data
+     should be considered invalid.
+
+     */
+    uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
     /**
      @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
@@ -721,10 +1131,143 @@ class ecmdClientPerlapi
 
 
      */
-    int putFpr (const char* i_target, int  i_fprNum, const char* i_data);
+    uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & i_data);
+
+    /**
+     @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_FPR Fpr number is invalid
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+
+     The return value of this function is set to the first non-zero return code found when
+     writing multiple entries.  The function will NOT continue through all subsequent entries.
+
+
+     */
+    uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+
+
+    /**
+     @brief Reads the selected Processor SLB Entry into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param i_slbNum Number of fpr to read from
+     @param o_data DataBuffer object that holds data read from fpr
+
+
+     */
+    uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & o_data);
+
+    /**
+     @brief Reads the selected Processor SLB Entry into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in with slb number
+
+     The return value of this function is set to the first non-zero return code found when
+     retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+     the same return code. That data and all subsequent entries in the list will not be fetched and the data
+     should be considered invalid.
+
+     */
+    uint32_t getSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+
+    /**
+     @brief Writes the data buffer into the selected Processor SLB Entry
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_slbNum Number of fpr to write to
+     @param i_data DataBuffer object that holds data to write into fpr
+
+
+     */
+    uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & i_data);
+
+    /**
+     @brief Writes the data buffer into the selected Processor SLB Entry
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
+
+     The return value of this function is set to the first non-zero return code found when
+     writing multiple entries.  The function will NOT continue through all subsequent entries.
+
+
+     */
+    uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
     //@}
     /* End Processor Functions */
+
+
+
+    /** @name Trace Array Functions */
+    //@{
+
+    /**
+     @brief Dump all entries of specified trace array
+     @param i_target Target info to specify what to configure (target states must be set)
+     @param i_name Name of trace array - names may vary for each product/chip
+     @param o_data Vector of trace array data retrieved
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     */
+    uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> & o_data);
+
+    /**
+     @brief Dump all entries of specified trace array
+     @param i_target Target info to specify what to configure (target states must be set)
+     @param o_data List of trace array data retrieved
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+
+     The return value of this function is set to the first non-zero return code found when
+     retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+     the same return code. That data and all subsequent entries in the list will not be fetched and the data
+     should be considered invalid.
+
+     - NOTE : to fetch all Trace Arrays available add only one entry to io_entries and set
+     ecmdNameVectorEntry.name = "ALL"
+     */
+    uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> & o_data);
+
+    //@}
 
 
 
@@ -746,7 +1289,7 @@ class ecmdClientPerlapi
 
 
      */
-    int getMemProc (const char* i_target, const char* i_address, int i_bytes, char** o_data);
+    uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
     /**
@@ -764,7 +1307,7 @@ class ecmdClientPerlapi
 
 
      */
-    int putMemProc (const char* i_target, const char* i_address, int i_bytes, const char* i_data);
+    uint32_t putMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
     /**
      @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
@@ -780,7 +1323,7 @@ class ecmdClientPerlapi
 
 
      */
-    int getMemDma (const char* i_target, const char*  i_address, int i_bytes, char** o_data);
+    uint32_t getMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
     /**
@@ -797,7 +1340,7 @@ class ecmdClientPerlapi
 
 
      */
-    int putMemDma (const char* i_target, const char* i_address, int i_bytes, const char* i_data);
+    uint32_t putMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
     /**
      @brief Reads System Mainstore through the memory controller using a real address
@@ -815,7 +1358,7 @@ class ecmdClientPerlapi
      WARNING : This operation is typically not cache-coherent
 
      */
-    int getMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, char** o_data);
+    uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
     /**
@@ -834,7 +1377,7 @@ class ecmdClientPerlapi
      WARNING : This operation is typically not cache-coherent
 
      */
-    int putMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, const char* i_data);
+    uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
 
     //@}
@@ -845,6 +1388,7 @@ class ecmdClientPerlapi
 
     /** @name Simulation Functions */
     //@{
+#ifndef REMOVE_SIM
 
     /**
      @brief Enable/Disable Simulation AET Logging
@@ -853,7 +1397,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simaet(const char* i_function);
+    uint32_t simaet(const char* i_function);
 
     /**
      @brief Store a checkpoint to specified file
@@ -862,7 +1406,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simcheckpoint(const char* i_checkpoint);
+    uint32_t simcheckpoint(const char* i_checkpoint);
 
     /**
      @brief Clock the model
@@ -871,7 +1415,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simclock(int i_cycles);
+    uint32_t simclock(uint32_t i_cycles);
 
     /**
      @brief Echo message to stdout and sim log
@@ -880,8 +1424,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simecho(const char* i_message);
-
+    uint32_t simecho(const char* i_message);
 
     /**
      @brief Close down the simulation model
@@ -891,9 +1434,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-
-    int simexit(uint32_t i_rc = 0, const char* i_message = NULL);
-
+    uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
 
     /**
      @brief Perform expect on facility using name
@@ -906,7 +1447,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simEXPECTFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row, int i_offset);
+    uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Perform expect on TCFAC facility
@@ -918,8 +1459,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simexpecttcfac(const char* i_tcfacname, int i_bitlength, const char* i_expect, int i_row);
-
+    uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
 
     /**
      @brief Fetch current model cycle count
@@ -928,8 +1468,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simgetcurrentcycle(uint32_t & o_cyclecount);
-
+    uint32_t simgetcurrentcycle(uint32_t & o_cyclecount);
 
     /**
      @brief Retrieve a Facility using a name
@@ -942,7 +1481,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simGETFAC(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset);
+    uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Retrieve a Facility using a name - preserving Xstate
@@ -955,7 +1494,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simGETFACX(const char* i_facname, int i_bitlength, char** o_data, int i_row, int i_offset);
+    uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Retrieve a TCFAC facility
@@ -968,7 +1507,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simgettcfac(const char* i_tcfacname, char** o_data, int i_row, int i_startbit, int i_bitlength);
+    uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
 
     /**
      @brief Initialize the simulation
@@ -977,7 +1516,8 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int siminit(const char* i_checkpoint);
+    uint32_t siminit(const char* i_checkpoint);
+
 
     /**
      @brief Poll a facility waiting for expected value
@@ -993,7 +1533,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simPOLLFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row, int i_offset, int i_maxcycles, int i_pollinterval);
+    uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
     /**
      @brief Poll a TCFAC facility waiting for expected value
@@ -1009,7 +1549,8 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simpolltcfac(const char* i_tcfacname, const char* i_expect, int i_row, int i_startbit, int i_bitlength, int i_maxcycles, int i_pollinterval);
+    uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+
 
 
     /**
@@ -1023,7 +1564,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simPUTFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row = 0, int i_offset = 0);
+    uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Write a Facility using a name - preserving Xstate
@@ -1036,7 +1577,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simPUTFACX(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset);
+    uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Write a TCFAC facility
@@ -1049,7 +1590,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simputtcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows);
+    uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
 
     /**
      @brief Load a checkpoint into model
@@ -1058,7 +1599,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simrestart(const char* i_checkpoint);
+    uint32_t simrestart(const char* i_checkpoint);
 
     /**
      @brief Stick a Facility using a name
@@ -1071,7 +1612,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simSTKFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset);
+    uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Stick a TCFAC facility
@@ -1084,7 +1625,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simstktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows);
+    uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
 
     /**
      @brief Run RTX SUBCMD
@@ -1093,7 +1634,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simSUBCMD(const char* i_command);
+    uint32_t simSUBCMD(const char* i_command);
 
 
     /**
@@ -1103,7 +1644,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simtckinterval(int i_tckinterval);
+    uint32_t simtckinterval(uint32_t i_tckinterval);
 
 
 
@@ -1117,7 +1658,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simUNSTICK(const char* i_facname, int i_bitlength, int i_row, int i_offset);
+    uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row = 0, uint32_t i_offset = 0);
 
     /**
      @brief Unstick a TCFAC facility
@@ -1130,10 +1671,54 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simunsticktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows); 
+    uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
 
+
+    /**
+     @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core information
+     @param o_hierarchy Return the model hierarchy for this target
+
+     NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_QUERY_FIELD_VALID
+     */
+    uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
+
+    /**
+     @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
+     @param i_target Target to query for information
+     @param o_timestamp Timestamp value from simulation model
+     @retval ECMD_SUCCESS on success
+     @retval non-zero on failure
+     */
+    uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+
+    /**
+     @brief Will retrieve the scandef timestamp from the scandef being used for the specified target
+     @param i_target Target to query for information
+     @param o_timestamp Timestamp value from scandef
+     @retval ECMD_SUCCESS on success
+     @retval non-zero on failure
+     */
+    uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+
+    /**
+     @brief Run a command on another Fusion module
+     @param i_fusionObject Name of Fusion module to run against
+     @param i_replicaID Id of Fusion module
+     @param i_command Command to run
+     @retval Results of command
+
+     NOTE - The fusion module has to provide the appropriate api for this call to be functional
+     */
+    std::string ecmdCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command);
+
+#endif /* ifndef REMOVE_SIM */
     //@}
     /* End Simulation Functions */
+
 
     /** @name Error Handling Functions */
     //@{
@@ -1141,26 +1726,20 @@ class ecmdClientPerlapi
     /**
      @brief Retrieve additional error information for errorcode
      @param i_errorCode Error code to lookup up message for
+     @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
      @retval point to NULL terminated string containing error data, NULL if error occurs
 
      */
-    char* ecmdGetErrorMsg(int i_errorCode);
+    std::string ecmdGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode = true);
 
     /**
-     @brief Set Error Handling mode.  Croak in perl on an internal error.
+     @brief Register an Error Message that has occured
 
      */
-    void ecmdEnableSafeMode();
-
-    /**
-     @brief Set Error Handling mode.  Do not Croak in perl on an internal error.
-
-     */
-    void ecmdDisableSafeMode();
-
-
+    uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message);
 
     //@}
+
 
 
 
@@ -1190,8 +1769,197 @@ class ecmdClientPerlapi
 
     //@}
 
-  private:
-    char* ecmdErrMsgBuff;
+    /** @name Misc Functions */
+    //@{
+
+    /**
+     @brief Retrieve the value of some ecmdGlobalVars
+     @param i_type Specifies which global var you are looking for
+     @retval Value of global var
+
+     */
+    uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
+
+
+    /**
+     @brief Enable/Disable a trace mode
+     @param i_type Specifies which trace mode to enable
+     @param i_enable Enable or disable
+     */
+    void ecmdSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
+
+    /**
+     @brief Query the state of a trace mode
+     @param i_type Specifies which trace mode to query
+     @retval Value of trace mode enable
+     */
+    bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
+
+    /** 
+     @brief Function to delay a procedure either by running sim cycles or by doing a millisecond delay
+     @param i_simCycles Number of sim cycles to run in simulation mode
+     @param i_msDelay Number of milliseconds to delay in hardware mode
+     @retval ECMD_SUCCESS on success
+     @retval non-zero on failure
+     */
+    uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
+
+    /**
+     @brief Make a system call on the targetted Service Processor or Service Element
+     @param i_target SP to run command on
+     @param i_command Command line call to make
+     @param o_stdout Standard out captured by running command
+     */
+    uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
+
+    //@}
+
+
+    /** @name Configuration Functions */
+    //@{
+
+    /**
+     @brief Retrieve the value of a Configuration Setting
+     @param i_target struct that contains chip and cage/node/slot/position/core information if necessary
+     @param i_name Name of setting as defined by eCMD Api
+     @param o_validOutput Indicator if o_valueAlpha, o_valueNumeric (or both) are valid.
+     @param o_valueAlpha Alpha value of setting (if appropriate)
+     @param o_valueNumeric Numeric value of setting (if appropriate)
+     @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     */
+
+    uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric);
+
+    /**
+     @brief Set the value of a Configuration Setting
+     @param i_target struct that contains chip and cage/node/slot/position/core information if necessary
+     @param i_name Name of setting as defined by eCMD Api
+     @param i_validInput Indicator if i_valueAlpha, i_valueNumeric (or both) are valid.
+     @param i_valueAlpha Alpha value of setting (if appropriate)
+     @param i_valueNumeric Numeric value of setting (if appropriate)
+     @retval ECMD_DBUF_INVALID_DATA_FORMAT Value is not in correct format for specified configuration setting
+     @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+     */
+
+    uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
+
+
+    /**
+     @brief Deconfigure a target in the system
+     @param i_target Target info to specify what to deconfigure (target states must be set)
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     NOTE - lowest state that is valid is level that is deconfigured.
+     ex - if coreState is VALID the core selected is deconfigured
+     ex - if coreState is UNUSED and posState is VALID then the pos is deconfigured
+
+     This interface allows you to deconfigure all levels cages, nodes, slots, pos's, cores
+
+     */
+    uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
+
+    /**
+     @brief Configure a target in the system - must be previously known to the system
+     @param i_target Target info to specify what to configure (target states must be set)
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system, or was not previously deconfigured
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero on failure
+
+     NOTE - lowest state that is valid is level that is configured.
+     ex - if coreState is VALID the core selected is configured
+     ex - if coreState is UNUSED and posState is VALID then the pos is configured
+
+     This interface allows you to configure all levels cages, nodes, slots, pos's, cores
+
+     */
+    uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
+
+
+    /**
+     *  @brief Converts an eCmd (physical) Target to a HOM Unit Id
+     *  @param io_target an ecmdChipTarget struct representing a specific eCmd target
+     *  @retval ECMD_SUCCESS if conversion successful
+     *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching Unit ID
+     *  @post HOM Unit Ids in ecmdChipTarget struct are set and valid
+     */
+    uint32_t ecmdTargetToUnitId(ecmdChipTarget & io_target);
+
+    /**
+     *  @brief Converts a Unit Id String to an eCmd (physical) Target
+     *  @param i_unitId a string representing the name of a unitId
+     *  @param o_targetList a list of targets that match the input unitId string
+     *  @retval ECMD_SUCCESS if conversion successful
+     *  @retval ECMD_INVALID_ARGS if unsuccessful in matching the string to a target
+     *  @post There will be a list ecmdChipTargets that represent the passed in unitId string
+     */
+    uint32_t ecmdUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget> & o_targetList);
+
+    /**
+     *  @brief Converts a Unit Id to an eCmd (physical) Target
+     *  @param i_unitId a uint32_t representing an unitID 
+     *  @param o_targetList a list of targets that match the unitId input 
+     *  @retval ECMD_SUCCESS if conversion successful
+     *  @retval ECMD_INVALID_ARGS if unsuccessful in matching the string to a target
+     *  @post ecmdChipTarget Fields are set and represent the passed in unitId string
+     */
+    uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targetList);
+
+
+    //@}
+
+
+    /** @name Utility Functions - ecmdUtils.H */
+    //@{
+
+    /**
+     @brief Initializes data structures and code to loop over configured and selected elements of the system
+     @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
+     @param i_looptype Specify type of all, all chips in system or all chips selected by user
+     @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
+     @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
+     @see ecmdConfigLooperNext
+
+     USAGE :
+     $target->{cageState} = ECMD_TARGET_QUERY_WILDCARD;
+     $target->{nodeState} = ECMD_TARGET_QUERY_WILDCARD;
+     $target->{slotState} = ECMD_TARGET_QUERY_WILDCARD;
+     $target->{chipTypeState} = ECMD_TARGET_QUERY_FIELD_VALID;
+     $target->{chipType} = "pu";
+     $target->{posState} = $target->{coreState} = ECMD_TARGET_QUERY_WILDCARD;
+     $target->{threadState} = ECMD_TARGET_FIELD_UNUSED;
+
+     my $looperData = new ecmd::ecmdLooperData();
+
+     $rc = $ep->ecmdConfigLooperInit($target, ECMD_ALL_TARGETS_LOOP, $looperData);
+
+     while ($ep->ecmdConfigLooperNext($target, $looperData)) {
+
+     $rc = $ep->getScom($target, $address, $edb1);
+     printf("- \$target: %s:k%d:n%d:s%s:p%02d:c%d\n", $target->{chipType}, $target->{cage}, $target->{node}, $target->{slot}, $target->{pos}, $target->{core});
+     printf("- \$data: %s\n",$edb1->genHexLeftStr());
+
+     }
+
+     */
+    uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state);
+
+    /**
+     @brief Loops over configured and selected elements of the system, updating target to point to them
+     @param io_target ecmdChipTarget that contains info about next target to process
+     @param io_state Used internally to keep track of state, must be passed from output of ecmdConfigLooperInit
+     @retval 1 if io_target is valid, 0 if it is not
+     @see ecmdConfigLooperInit
+     */
+    uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
+
+    //@} /* End utility functions */
 
 };
 
@@ -1212,60 +1980,76 @@ class ecmdClientPerlapi
 @section perlapi eCMD Perl API
  In addition to a C/C++ API, eCMD provides a Perl API.  To do this, Perl's DynaLoader module handles the loading of a special eCMD shared object and the Perl XS interface handles the function calls between eCMD C code and Perl.
 <br><br>
- The API interface is implemented as a "ecmdClientPerlapi" object.  The ecmdClientPerlapi class has methods to initialize eCMD, make standard function calls.  With the Perl API, scan data is passed with binary character strings between the client Perl script and the shared object's ecmdClientPerlapi class.
+ The API interface is implemented as a "ecmdClientPerlapi" object.  The ecmdClientPerlapi class has methods to initialize eCMD, make standard function calls. 
 
  <br>
  <hr>
- @section packs Packages
+ @section files Related Information
+  NOTE : Some of this documentation may look like C/C++ files/headers but that is a side effect of the tool we are using to generated the PerlAPI and documentation.  Treat as Perl functions and especially look at any usage information associated with each function description
 
- To load the eCMD shared object, Perl scripts should <i>use</i> (or <i>require</i>) the Perl package appropriate for the desired environment (Aix or Linux).  Keep in mind the ECMD_DLL_FILE env variable must be set to the appropriate eCMD Plugin that you would like to run.
+ <ul>
+ <li>ecmdClientPerlapi</li>
+ <li>ecmdDataBuffer</li>
+ <li>ecmdStructs.H</li>
+ </ul>
+
+@subsection ext Api Extensions
+
+ CIP (Cronus/IP) Extension<br>
+ <ul>
+ <li> cipClientPerlapi </li>
+ </ul>
+
 
  <br><br>
- It is possible to use the <i>require</i> command in Perl to dynamically load the correct module for the emvironment you are running in, so your code will work across multiple platforms.  For example:
 
- <br><br>
- <pre>
- #!/usr/bin/perl
-
- my $osname = `uname`;
- chomp $osname;
- if ($osname eq "AIX") {
-   require ecmd_aix_perl;
- } else {
-   require ecmd_x86_perl;
- }    
-
- </pre>
-
- <br>
  <hr>
  @section perlv Perl Version
- Scripts need Perl version 5.8.1.  eCMD provides the proper version for both the AIX and Linux in all our supported sites and remote installs.  All scripts using the perl module should start with the following: 
+ eCMD Scripts need Perl version 5.8.1 which is installed as part of the CTE package on all supported sites.  All scripts using the perl module should start with the following: 
 
  <pre>
  #!/bin/ksh 
  #! -*- perl -*-
 
  eval '
- if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set, please initialize your CTE environment"; exit 1; fi
- PERL5LIB=$CTEPATH/tools/perl/5.8.1/lib:$CTEPATH/tools/ecmd/rel/perlapi;
- export PERL5LIB;
+ if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
+ export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
+ export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+ export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/`ecmdVersion`/perlapi;
+
  exec $CTEPATH/tools/perl/5.8.1/bin/perl -x -S $0 ${1+"$@"}
  '
  if 0;
+
+ use strict;
+ use ecmd;
+
+ my $ep;
+ $ep = new ecmd::ecmdClientPerlapi();
+ my $rc = 0;
+
+ $| = 1;  # set autoflush
+
+ if ($ep->initDll("", "ver1")) { die "Fatal errors initializing DLL"; }
+
+
  </pre>
 
- This picks the proper perl based upon if you're running AIX or Linux and runs our copy in CRONUS_HOME.
 
  <br>
  <hr>
  @section dform Data Passing
- Data is passed between the client Perl script and the eCMD shared object in the form of binary character strings.  To make data manipulation in Perl much easier we have provided the ecmdDataBuffer Perl module.  This allows you to have the same bit manipulation functions that are available on the C++ Api. <br>
-Here is an example usage of the ecmdDataBuffer module:
+ Data is passed between the client Perl script and the eCMD shared object in the form of the same ecmdDataBuffer that is part of the C-Api.  The function set is the identical.  For additional documentation on the ecmdDataBuffer see the C/C++ Api Documentation.
+<br>
+Here is an example usage of the ecmdDataBuffer:
 <pre>
 
   # Create a pointer to an DataBuffer class
-  my $data = new ecmdDataBuffer();
+  my $data = new ecmd::ecmdDataBuffer();
+
+  # Set the size of my buffer
+  $data->setBitLength(32);
+
   # Set the first word of data in this class
   $data->setWord(0,0xFEEDBEEF);
 
@@ -1274,34 +2058,39 @@ Here is an example usage of the ecmdDataBuffer module:
   # The \$$ tells perl that we are passing in the class object by reference such that data can be returned out
   # The general rule is if the function is defined as char** in the Api documentation pass in your variable as &#92$$
   # If the function is defined as const char* then pass it in as $$ as seen below.
-  $rc = $ep->getRing("pu -p1", "idreg", \$$data);
+  $rc = $ep->getRing($target, "idreg", $data);
 
   # What is in the first word
   print("Data : $data->getWord(0));
 
   #Change the value
   $data->setWord(0,0xAAAA5555);
-  printf("Data : %s\\n",$data->getWord(0));
+  printf("Data : %s\n",$data->getWord(0));
 
   # Write my new value to the chip
-  $rc = $ep->putRing("pu -p1", "idreg", $$data);
+  $rc = $ep->putRing($target, "idreg", $data);
 </pre>
+
+ <b>WARNING: </b> The '=' operator DOES NOT work between ecmdDataBuffer's or any other structure like you would expect it to in C. See 'Perl API Usage' below
 
  <br><br>
  <hr>
 @section target Chip/Object targeting
-Most functions take a const char* i_target argument which is where you specify the target that you would like to operate on.  There are two ways to do this, you can pass in the target as a string that is formatted as it would be on the command line (ie "pu -k2 -s3 -p2") or you can use the ChipTarget perl module provided.  This allows for easier manipulation of the target you are operating on.
+Perl functions use the same ecmdChipTarget structure as the C-Api.
 
 <pre>
-  my $target = newChipTarget("pu -p2");
-  # The following two calls are equivalent
-  $rc = $ep->putRing("pu -p2", "idreg", $$data);
-  $rc = $ep->putRing($$target, "idreg", $$data);
+  my $target = new ecmd::ecmdChipTarget();
+  $target->{chipType} = "pu";
+  $target->{cage} = 0;
+  $target->{node} = 0;
+  $target->{slot} = 0;
+  $target->{pos} = 1;
+  $target->{core} = 0;
 
-  # Now I can go to the next position
-  $target->pos(3);
-  $rc = $ep->putRing($$target, "idreg", $$data);
+  $rc = $ep->putRing($target, "idreg", $data);
+
 </pre>
+ <b>WARNING: </b> The '=' operator DOES NOT work between ecmdChipTarget's or any other structure like you would expect it to in C. See 'Perl API Usage' below
 
 
 <br><br>
@@ -1311,11 +2100,34 @@ Most functions take a const char* i_target argument which is where you specify t
  The following should be observed when using the Perl API.
 
  <ol>
- <li> The client should instantiate a new ecmdClientPerlapi object.
- <li> The initDll() function should ALWAYS be the first function called.
- <li> Data is sent from Perl to Cronus via strings for functions like putalias, putscom, etc.
- <li> Perl should be picked up as shown in the example below to grab the eCMD supported version
+ <li> The client should instantiate a new ecmdClientPerlapi object.</li>
+ <li> The initDll() function should ALWAYS be the first function called.</li>
+ <li> The cleanup() function should be called just before script exit</li>
+ <li> Perl should be picked up as shown in the example below to grab the eCMD supported version</li>
  </ol>
+
+<br>
+ @subsection The '=' operator
+ <b>WARNING:</b> Because of the behavior of Perl the following statements results in two variables pointing to the same data:
+<pre>
+  my $data1 = new ecmd::ecmdDataBuffer();
+  $data1.setBitLength(32);
+  $data1.setWord(0,0xFEEDBEEF);
+
+  # Use the = operator
+  my $data2 = $data1;
+
+  printf("Data 1 : %.08X\n", $data1.getWord(0));        # This will echo 'Data 1 : FEEDBEEF'
+  printf("Data 2 : %.08X\n", $data2.getWord(0));        # This will echo 'Data 2 : FEEDBEEF'
+
+  # Now just set Data 2
+  $data2.setWord(0,0xAAAA5555);
+
+  printf("Data 1 : %.08X\n", $data1.getWord(0));        # This will echo 'Data 1 : AAAA5555'
+  printf("Data 2 : %.08X\n", $data2.getWord(0));        # This will echo 'Data 2 : AAAA5555'
+</pre>  
+ NOTE : Since both $data1 and $data2 point to the same memory space when one is modified they are both modified.  This behavior is the same for the ecmdDataBuffer and all eCMD structures found in ecmdStructs.H
+
 
  <br>
  <hr>
@@ -1327,7 +2139,7 @@ Most functions take a const char* i_target argument which is where you specify t
 
  eval '
  if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set, please initialize your CTE environment"; exit 1; fi
- PERL5LIB=$CTEPATH/tools/perl/5.8.1/lib:$CTEPATH/tools/ecmd/rel/perlapi;
+ PERL5LIB=$CTEPATH/tools/perl/5.8.1/lib:$CTEPATH/tools/ecmd/`ecmdVersion`/perlapi;
  export PERL5LIB;
  exec $CTEPATH/tools/perl/5.8.1/bin/perl -x -S $0 ${1+"$@"}
  '

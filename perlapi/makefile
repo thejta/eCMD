@@ -28,12 +28,14 @@ ifeq ($(strip $(CTEPATH)),)
 endif
 
 VPATH        := ../capi/export:../capi
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H
 INT_INCLUDES := 
 SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
+FUNC_SOURCE  := ecmdClientPerlapiFunc.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g -I../dll
 SWIGFLAGS    := -c++ -perl5 -exportall -const -I../dll 
+
 
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi/export:../ext/${ext}/perlapi)
@@ -51,7 +53,8 @@ ifeq (${OS},AIX)
 endif
 CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/perlapi)
 SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi)
-SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C)
+SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
+FUNC_SOURCE  := ${FUNC_SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.C)
 
 # *****************************************************************************
 # The Linux Setup stuff
@@ -145,7 +148,7 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
-${TARGET}.pm ecmdClientPerlapi_wrap.c: ecmdClientPerlapi.i std_string_ecmd.i operatorOverload.pl
+${TARGET}.pm ecmdClientPerlapi_wrap.c: ${INCLUDES} ecmdClientPerlapi.i std_string_ecmd.i operatorOverload.pl std_list_ecmd.i std_vector_ecmd.i 
 	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap.c ecmdClientPerlapi.i	
 
 ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
@@ -161,11 +164,14 @@ ${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o
 # *****************************************************************************
 # Autogenerate the Perl Wrapper
 # *****************************************************************************
-ecmdClientPerlapiFunc.C: ecmdClientPerlapi.H makepm.pl 
+${FUNC_SOURCE}: ${INCLUDES} makepm.pl 
 	@echo "==== Auto Generate Perl Wrapper Functions"
 	@chmod 777 makepm.pl
 ifeq (${SITE},awd.austin.ibm.com)
 	/afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ecmd
+	$(foreach ext, ${EXTENSIONS}, /afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ${ext})
 else
 	./makepm.pl ecmd
+	$(foreach ext, ${EXTENSIONS}, ./makepm.pl ${ext})
 endif
+

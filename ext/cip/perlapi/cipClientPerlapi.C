@@ -28,11 +28,6 @@
 #include <ecmdSharedUtils.H>
 
 
-//extern int myErrorCode = ECMD_SUCCESS;
-//extern int safeMode = 1;
-int setupTarget(const char * i_targetStr, ecmdChipTarget & o_target);
-int ecmdPerlInterfaceErrorCheck (int errorCode);
-
 cipClientPerlapi::cipClientPerlapi () {
 }
 
@@ -42,99 +37,5 @@ cipClientPerlapi::~cipClientPerlapi () {
 
 int cipClientPerlapi::cipInitExtension() {
   return ::cipInitExtension();
-}
-
-
-int cipClientPerlapi::cipStartInstructions (const char* i_target) {
-  ecmdChipTarget myTarget;
-  
-  int rc = setupTarget(i_target, myTarget);
-  if (rc) return rc;
-  
-  rc = ::cipStartInstructions(myTarget);
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
-
-int cipClientPerlapi::cipStartAllInstructions (){
-  int rc = 0;
-  
-  rc = ::cipStartAllInstructions();
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
-int cipClientPerlapi::cipStopInstructions (const char* i_target){
-  ecmdChipTarget myTarget;
-  
-  int rc = setupTarget(i_target, myTarget);
-  if (rc) return rc;
-  
-  rc = ::cipStopInstructions(myTarget);
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
-int cipClientPerlapi::cipStopAllInstructions (){
-  int rc = 0;
-  
-  rc = ::cipStopAllInstructions();
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
-int cipClientPerlapi::cipStepInstructions (const char* i_target, int i_steps){
-  ecmdChipTarget myTarget;
-  
-  int rc = setupTarget(i_target, myTarget);
-  if (rc) return rc;
-  
-  rc = ::cipStepInstructions(myTarget, i_steps);
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
-}
-
-int cipClientPerlapi::cipGetVr (const char* i_target, int i_vrNum, char** o_data) {
-  ecmdChipTarget myTarget;
-
-  int rc = setupTarget(i_target, myTarget);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) {
-    *o_data = NULL;
-    return rc;
-  }
-
-  ecmdDataBuffer buffer;
-  rc = ::cipGetVr(myTarget, i_vrNum, buffer);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) {
-    o_data = NULL;
-    return rc;
-  }
-
-  char* tmp;
-  tmp = new char[buffer.getBitLength()+1];
-  strcpy(tmp,buffer.genBinStr().c_str());
-  *o_data = tmp;
-
-  return rc;
-}
-
-int cipClientPerlapi::cipPutVr (const char* i_target, int i_vrNum, const char* i_data){
-  ecmdChipTarget myTarget;
-  
-  int rc = setupTarget(i_target, myTarget);
-  if (rc) return rc;
-
-  ecmdDataBuffer buffer;
-
-  buffer.setBitLength(strlen(i_data));
-  rc = buffer.insertFromBin(i_data);
-
-  rc = ::cipPutVr(myTarget, i_vrNum, buffer);
-
-  ecmdPerlInterfaceErrorCheck(rc);
-  return rc;
 }
 
