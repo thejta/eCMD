@@ -259,7 +259,7 @@ void ecmdDataBuffer::setCapacity (int newCapacity) {
 #ifndef REMOVE_SIM
     if (iv_DataStr != NULL)
       delete[] iv_DataStr;
-    iv_DataStr = new char[iv_NumBits+42];
+    iv_DataStr = new char[(iv_Capacity*32)+42];
   
     this->fillDataStr('0'); /* init to 0 */
 #endif
@@ -479,7 +479,122 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
 
+  int i, prevlen;
+
+  // shift iv_Data array
+  for (int iter = 0; iter < shiftNum; iter++) {
+    for (i = 0; i < iv_NumWords; i++) {
+
+      if (this->iv_Data[i] & 0x00000001) 
+        thisCarry = 0x80000000;
+      else
+        thisCarry = 0x00000000;
+
+      // perform shift
+      this->iv_Data[i] >>= 1;
+      this->iv_Data[i] &= 0x7fffffff;  // backfill with a zero
+
+      // add carry
+      this->iv_Data[i] |= prevCarry;
+
+      // set up for next time
+      prevCarry = thisCarry; 
+    }
+  }
+
+#ifndef REMOVE_SIM
+  // shift char
+  char* temp = new char[iv_NumBits+42];
+  for (i = 0; i < shiftNum+1; i++) temp[i] = '0'; // backfill with zeros
+  temp[iv_NumBits] = '\0';
+  strncpy(&temp[shiftNum], iv_DataStr, iv_NumBits-shiftNum);  
+  strcpy(iv_DataStr, temp); // copy back into iv_DataStr
+  delete[] temp;
+#endif
+}
+
+void   ecmdDataBuffer::shiftLeft(int shiftNum) {
+
+  uint32_t thisCarry;
+  uint32_t prevCarry = 0x00000000;
   int i;
+
+  /* If we are going to shift off the end we can just clear everything out */
+  if (shiftNum >= iv_NumBits) {
+    flushTo0();
+    return;
+  }
+
+  // shift iv_Data array
+  for (int iter = 0; iter < shiftNum; iter++) {
+    prevCarry = 0;
+    for (i = iv_NumWords-1; i >= 0; i--) {
+
+      if (this->iv_Data[i] & 0x80000000) 
+        thisCarry = 0x00000001;
+      else
+        thisCarry = 0x00000000;
+
+      // perform shift
+      this->iv_Data[i] <<= 1;
+      this->iv_Data[i] &= 0xfffffffe; // backfill with a zero
+
+      // add carry
+      this->iv_Data[i] |= prevCarry;
+
+      // set up for next time
+      prevCarry = thisCarry; 
+    }
+  }
+
+#ifndef REMOVE_SIM
+  // shift char
+  char* temp = new char[iv_NumBits+42];
+  for (i = iv_NumBits - shiftNum - 1; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
+  temp[iv_NumBits] = '\0';
+  strncpy(temp, &iv_DataStr[shiftNum], iv_NumBits - shiftNum);  
+  strcpy(iv_DataStr, temp); // copy back into iv_DataStr
+  delete[] temp;
+
+#endif
+
+}
+
+
+void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
+
+  uint32_t thisCarry;
+  uint32_t prevCarry = 0x00000000;
+
+  int i, prevlen;
+
+  /* We need to verify we have room to do this shifting */
+  /* Set our new length */
+  iv_NumWords = ((iv_NumBits + shiftNum) - 1) / 32 + 1;
+  if (iv_NumWords > iv_Capacity) {
+    /* UhOh we are out of room, have to resize */
+    prevlen = iv_Capacity;
+    uint32_t * tempBuf = new uint32_t[prevlen];
+    memcpy(tempBuf, iv_Data, prevlen * 4);
+
+#ifndef REMOVE_SIM
+    char* temp = new char[iv_NumBits+42];
+    strcpy(temp, iv_DataStr);
+#endif
+    /* Now resize with the new capacity */
+    setCapacity(iv_NumWords);
+
+    /* Restore the data */
+    memcpy(iv_Data, tempBuf, prevlen * 4);
+    delete[] tempBuf;
+
+#ifndef REMOVE_SIM
+    strcpy(iv_DataStr, temp); // copy back into iv_DataStr
+    delete[] temp;
+#endif
+  }
+
+  iv_RealData[iv_NumWords + 4] = 0x12345678;
 
   // shift iv_Data array
   for (int iter = 0; iter < shiftNum; iter++) {
@@ -506,8 +621,8 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
 
 #ifndef REMOVE_SIM
   // shift char
-  char* temp = new char[iv_NumBits+1];
-  for (i = 0; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
+  char* temp = new char[iv_NumBits+42];
+  for (i = 0; i < shiftNum; i++) temp[i] = '0'; // backfill with zeros
   temp[iv_NumBits] = '\0';
   strncpy(&temp[shiftNum], iv_DataStr, iv_NumBits-shiftNum);  
   strcpy(iv_DataStr, temp); // copy back into iv_DataStr
@@ -515,7 +630,7 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
 #endif
 }
 
-void   ecmdDataBuffer::shiftLeft(int shiftNum) {
+void   ecmdDataBuffer::shiftLeftAndResize(int shiftNum) {
 
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
@@ -549,12 +664,14 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
     }
   }
 
+  /* Adjust our lengths based on the shift */
   iv_NumBits -= shiftNum;
+  iv_NumWords = (iv_NumBits - 1) / 32 + 1;
+  iv_RealData[iv_NumWords + 4] = 0x12345678;
 
 #ifndef REMOVE_SIM
   // shift char
-  char* temp = new char[iv_NumBits+1];
-  for (i = 0; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
+  char* temp = new char[iv_NumBits+42];
   temp[iv_NumBits] = '\0';
   strncpy(temp, &iv_DataStr[shiftNum], iv_NumBits);  
   strcpy(iv_DataStr, temp); // copy back into iv_DataStr
@@ -610,16 +727,14 @@ void ecmdDataBuffer::invert() {
 }
 
 void  ecmdDataBuffer::insert(ecmdDataBuffer &bufferIn, int start, int len) {
-  this->insert(bufferIn.iv_Data, start, len);
+    this->insert(bufferIn.iv_Data, start, len);
 }
 
 void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
 
 
   if (start+len > iv_NumBits) {
-    char temp[50];
-    sprintf(temp, "ecmdDataBuffer::insert: bit %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
-    printf(temp);
+    printf("ecmdDataBuffer::insert: start %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
   } else {
     
     uint32_t mask = 0x80000000;
@@ -651,7 +766,6 @@ void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
 void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
 
   if (len > iv_NumBits) {
-    char temp[100];
     printf( "ecmdDataBuffer::extract: len %d > NumBits (%d)\n", len, iv_NumBits);
   } else {
 
@@ -677,7 +791,6 @@ void ecmdDataBuffer::setOr(ecmdDataBuffer& bufferIn, int startBit, int len) {
 void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
 
   if (startBit + len > iv_NumBits) {
-    char temp[100];
     printf("ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
@@ -699,7 +812,6 @@ void ecmdDataBuffer::setOr(uint32_t dataIn, int startBit, int len) {
 
 void ecmdDataBuffer::merge(ecmdDataBuffer& bufferIn) {
   if (iv_NumBits != bufferIn.iv_NumBits) {
-    char temp[100];
     printf("ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", bufferIn.iv_NumBits, iv_NumBits);
   } else {
     this->setOr(bufferIn, 0, iv_NumBits);
@@ -712,7 +824,6 @@ void ecmdDataBuffer::setAnd(ecmdDataBuffer& bufferIn, int startBit, int len) {
 
 void ecmdDataBuffer::setAnd(uint32_t * dataIn, int startBit, int len) {
   if (startBit + len > iv_NumBits) {
-    char temp[100];
     printf("ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
@@ -786,7 +897,6 @@ int   ecmdDataBuffer::evenParity(int start, int stop, int insertPos) {
 
 uint32_t ecmdDataBuffer::getWord(int wordOffset) {
   if (wordOffset > iv_NumWords-1) {
-    char temp[100];
     printf("ecmdDataBuffer::getWord: wordOffset %d > NumWords-1 (%d)\n", wordOffset, iv_NumWords-1);
     return 0;
   }
@@ -821,33 +931,20 @@ std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
 
 std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
 
-  int tempNumWords = (bitLen - 1)/32 + 1;
-//  int lastNibble = (bitLen - 1)/4 + 1;
+  /* Do gen a hex right string, we just shift the data right to nibble align and then do a genHexLeft - tricky eh */
+  int shiftAmt = bitLen % 4 ? 4 - (bitLen % 4) : 0;
   std::string ret;
-  int offsetNibble = 0;
 
-  tempNumWords++;
-  ecmdDataBuffer padded(tempNumWords); 
+  ecmdDataBuffer temp;
+  temp.setBitLength(bitLen);
+  extract(temp, start, bitLen);
 
-  /* resize iv_DataOutStr if necessary */
-
-  int shiftAmt = 32 - (bitLen % 32);
-  extract(padded, start, bitLen);
-  if (shiftAmt % 32) {
-    padded.shiftRight(shiftAmt); /* fill left side with zeros */
-    offsetNibble = shiftAmt/4;
+  if (shiftAmt) {
+    temp.shiftRightAndResize(shiftAmt);
   }
-  ret = padded.genHexLeftStr();  /* grab hex string into iv_DataOutStr */
+  ret = temp.genHexLeftStr();
 
-  //iv_DataOutStr = &iv_DataOutStr[offsetNibble];  /* chop off left side */
-  //iv_DataOutStr[lastNibble] = '\0'; /* chop off right side */
-
-  if (offsetNibble > 0) {
-    ret.erase(0, offsetNibble);
-  }
-
-//  ret.erase(lastNibble, ret.length());
-
+    
   return ret;
 }
 
@@ -929,6 +1026,9 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   for (i = 0; i < (int) strlen(i_hexChars); i++) {
     if ((i & 0xFFF8) == i)
       number_ptr[i>>3] = 0x0;
+    if (!isxdigit(i_hexChars[i])) {
+      return ECMD_DBUF_INVALID_DATA_FORMAT;
+    }
     nextOne[0] = i_hexChars[i];
     tmpb32 = strtoul(nextOne, NULL, 16);
     number_ptr[i>>3] |= (tmpb32 << (28 - (4 * (i & 0x07))));
@@ -953,16 +1053,30 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int 
     return rc;
   }
 
+  /* Number of valid nibbles */
   int nibbles = bitlength % 4 ? bitlength / 4 + 1 : bitlength / 4;
 
+  /* If they provided us more data then we expect we will have to offset into the data to start reading */
+  int dataOverFlowOffset = strlen(i_hexChars) > nibbles ? strlen(i_hexChars) - nibbles : 0;
+
   /* First we will insert it as if it is left aligned , then we will just shift it over */
-  /* We need to round up to the next nibble boundary */
-  insertBuffer.setBitLength(nibbles * 4);
-  insertBuffer.insertFromHexLeft(i_hexChars, 0, nibbles * 4);
+
+  /* First we set to the length of actual data */
+  insertBuffer.setBitLength(strlen(i_hexChars) * 4);
+
+  /* We need to offset into i_hexChars if they provided us more data then we expect */
+  rc = insertBuffer.insertFromHexLeft(&(i_hexChars[dataOverFlowOffset]), 0, strlen(i_hexChars) * 4);
+  if (rc) return rc;
+
+  /* Now we have to shiftRight to align if they didn't provide as much data as was expected */
+  /* So our data becomes right aligned in a buffer of size expectedlength */
+  if (strlen(i_hexChars) < nibbles) {
+    insertBuffer.shiftRightAndResize((nibbles - strlen(i_hexChars)) * 4);
+  }
 
   /* Now we have left aligned data, we just shift to right the odd bits of the nibble to align to the right */
   if (bitlength % 4)
-    insertBuffer.shiftLeft(bitlength % 4);
+    insertBuffer.shiftLeftAndResize(4 - (bitlength % 4));
   
   /* Now we have our data insert into ourselves */
 
@@ -983,7 +1097,7 @@ int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
     else if (i_binChars[i] == '1') {
       this->setBit(start+i);
     } else {
-      return ECMD_DBUF_INVALID_ARGS;
+      return ECMD_DBUF_INVALID_DATA_FORMAT;
     }
   }
 
@@ -994,9 +1108,8 @@ void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 
   newCopy.setBitLength(iv_NumBits);
   // iv_Data
-  for (int i = 0; i < iv_NumWords; i++) {
-    newCopy.iv_Data[i] = iv_Data[i];
-  }
+  memcpy(newCopy.iv_Data, iv_Data, iv_NumWords * 4);
+
   // char
 
 #ifndef REMOVE_SIM
@@ -1010,9 +1123,7 @@ int ecmdDataBuffer::operator=(ecmdDataBuffer & i_master) {
 
   setBitLength(i_master.iv_NumBits);
   // iv_Data
-  for (int i = 0; i < i_master.iv_NumWords; i++) {
-    iv_Data[i] = i_master.iv_Data[i];
-  }
+  memcpy(i_master.iv_Data, iv_Data, iv_NumWords * 4);
   // char
 
 #ifndef REMOVE_SIM
