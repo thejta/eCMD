@@ -148,14 +148,14 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       std::string scandefFile;
       rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
       if (rc) {
-        scandefFile = "getringdump - Error occured locating scandef file in dir: " + scandefFile + "\n";
+        scandefFile = "getringdump - Error occurred locating scandef file in dir: " + scandefFile + "\n";
         ecmdOutputError(scandefFile.c_str());
         return rc;
       }
  
       ins.open(scandefFile.c_str());
       if (ins.fail()) {
-        scandefFile = "getringdump - Error occured opening scandef file: " + scandefFile + "\n";
+        scandefFile = "getringdump - Error occurred opening scandef file: " + scandefFile + "\n";
         ecmdOutputError(scandefFile.c_str());
         return ECMD_INVALID_ARGS;  //change this
       }
@@ -165,7 +165,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         continue;
       }
       else if (rc) {
-        printed = "getringdump - Error occured performing getring on ";
+        printed = "getringdump - Error occurred performing getring on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -445,13 +445,13 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc == ECMD_INVALID_LATCHNAME) {
-        printed = "getlatch - Error occured performing getlatch on ";
+        printed = "getlatch - Error occurred performing getlatch on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
         return rc;
     } else if (rc) {
-        printed = "getlatch - Error occured performing getlatch on ";
+        printed = "getlatch - Error occurred performing getlatch on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -517,7 +517,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
         if (!ecmdCheckExpected(buffer, expected)) {
 
           //@ make this stuff sprintf'd
-          sprintf(temp, "getlatch - Data miscompare occured for latch: %s\n", latchit->latchName.c_str());
+          sprintf(temp, "getlatch - Data miscompare occurred for latch: %s\n", latchit->latchName.c_str());
           printed = temp;
           ecmdOutputError( printed.c_str() );
 
@@ -677,7 +677,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "getbits - Error occured performing getring on ";
+        printed = "getbits - Error occurred performing getring on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -819,7 +819,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "putbits - Error occured performing getring on ";
+        printed = "putbits - Error occurred performing getring on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -834,7 +834,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
     rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
-        printed = "putbits - Error occured performing putring on ";
+        printed = "putbits - Error occurred performing putring on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -990,13 +990,13 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc == ECMD_INVALID_LATCHNAME) {
-        printed = "putlatch - Error occured performing getlatch on ";
+        printed = "putlatch - Error occurred performing getlatch on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
         return rc;
     } else if (rc) {
-      printed = "putlatch - Error occured performing getlatch on ";
+      printed = "putlatch - Error occurred performing getlatch on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
@@ -1039,7 +1039,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       /* Let's apply our data */
       rc = ecmdApplyDataModifier(latchit->buffer, buffer, curStartBit - latchit->latchStartBit, dataModifier);
       if (rc) {
-        printed = "putlatch - Error occured inserting data of " + latchit->latchName + " on ";
+        printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -1051,7 +1051,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       else
         rc = putLatch(target, NULL, latchit->latchName.c_str(), latchit->buffer, ECMD_LATCHMODE_FULL);
       if (rc) {
-        printed = "putlatch - Error occured performing putlatch of " + latchit->latchName + " on ";
+        printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -1176,7 +1176,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           break;
         }
         else if (rc) {
-          printed = "checkrings - Error occured performing putring on ";
+          printed = "checkrings - Error occurred performing putring on ";
           printed += ecmdWriteTarget(target) + "\n";
           ecmdOutputError( printed.c_str() );
           return rc;
@@ -1203,7 +1203,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
         rc = getRing(target, ringName.c_str(), ringBuffer);
         if (rc) {
-          printed = "checkrings - Error occured performing getring on ";
+          printed = "checkrings - Error occurred performing getring on ";
           printed += ecmdWriteTarget(target) + "\n";
           ecmdOutputError( printed.c_str() );
           return rc;
@@ -1212,7 +1212,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (ringBuffer.getWord(0) != pattern) {
           sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
           ecmdOutputWarning( outstr );
-          printed = "checkrings - Error occured performing checkring on " + ecmdWriteTarget(target) + "\n";
+          printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(target) + "\n";
           ecmdOutputWarning( printed.c_str() );
         }
         else {
@@ -1223,14 +1223,14 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               if (ringBuffer.isBitSet(bit)) {
                 sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
                 ecmdOutputWarning( outstr );
-                printed = "checkrings - Error occured performing a checkring on " + ecmdWriteTarget(target) + "\n";
+                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(target) + "\n";
                 ecmdOutputWarning( printed.c_str() );
               }
             } else {
               if (ringBuffer.isBitClear(bit)) {
                 sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
                 ecmdOutputWarning( outstr);
-                printed = "checkrings - Error occured performing a checkring on " + ecmdWriteTarget(target) + "\n";
+                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(target) + "\n";
                 ecmdOutputWarning( printed.c_str() );
               }
             }
@@ -1316,7 +1316,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-      printed = "putpattern - Error occured retrieving scan ring data on ";
+      printed = "putpattern - Error occurred retrieving scan ring data on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
@@ -1341,7 +1341,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 
     rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
-        printed = "putpattern - Error occured performing putring on ";
+        printed = "putpattern - Error occurred performing putring on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
