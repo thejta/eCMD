@@ -45,38 +45,38 @@
 //
 //   These are just stubs, used for testing the out the DLL
 
-int dllInitDll() {
+uint32_t dllInitDll() {
   /* This is where we would init any local variables to the dll */
   return ECMD_SUCCESS;
 }
 
-int dllFreeDll() {
+uint32_t dllFreeDll() {
   return ECMD_SUCCESS;
 }
 
-int dllSpecificCommandArgs(int* argc, char** argv[]) {
+uint32_t dllSpecificCommandArgs(int* argc, char** argv[]) {
   return ECMD_SUCCESS;
 }
 
 
-int dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
-int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
-int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
+uint32_t dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
 
   return ECMD_SUCCESS;
 }
 
-int dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
-int dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
-int dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
-int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
+uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
   char tmp[100];
   o_dllInfo.dllType = ECMD_DLL_STUB;
   o_dllInfo.dllProduct = ECMD_DLL_PRODUCT_UNKNOWN;
@@ -87,7 +87,7 @@ int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
   return ECMD_SUCCESS;
 }
 
-int dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryDetail_t i_detail) {
 
   ecmdCoreData coreData;
   ecmdChipData chipData;
@@ -135,16 +135,16 @@ int dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryD
 
 } 
 
-int dllQueryRing(ecmdChipTarget & target, std::list<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
+uint32_t dllQueryRing(ecmdChipTarget & target, std::list<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
 
-int dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
+uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
-int dllQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string & fileLocation){ return ECMD_SUCCESS; } 
+uint32_t dllQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string & fileLocation){ return ECMD_SUCCESS; } 
 
 
-int dllFlushSys () { return ECMD_SUCCESS; } 
+uint32_t dllFlushSys () { return ECMD_SUCCESS; } 
 
-int dllIplSys () { return ECMD_SUCCESS; }
+uint32_t dllIplSys () { return ECMD_SUCCESS; }
 
 
 void dllOutputError(const char* message) {
@@ -161,13 +161,13 @@ void dllOutput(const char* message) {
 
 void dllEnableRingCache() { return ; }
 
-int dllDisableRingCache() { return ECMD_SUCCESS; }
+uint32_t dllDisableRingCache() { return ECMD_SUCCESS; }
 
-int dllFlushRingCache() { return ECMD_SUCCESS; }
+uint32_t dllFlushRingCache() { return ECMD_SUCCESS; }
 
-int dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
+uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
 
-int dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
+uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
 
 
 

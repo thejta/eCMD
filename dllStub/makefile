@@ -10,7 +10,7 @@ INCLUDES     := ecmdDataBuffer.H  ecmdReturnCodes.H
 INT_INCLUDES := ecmdDllCapi.H 
 SOURCE       := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDllSpy.C sedcDataContainer.C sedcParser.C sedcSpyClasses.C sedcSynonymClasses.C
 DEFINES      := -DUSE_ECMD_COMMON_SPY
-CFLAGS       := -I. -I../dll -I../dll/sedc -g
+CFLAGS       := -I. -I../capi -I../dll -I../dll/sedc -g
 LDFLAGS      := 
 
 
