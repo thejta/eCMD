@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+
+my $osname = `uname`;
+chomp $osname;
+
+if ($osname eq "AIX") {
+	system("ecmdVersion_aix");
+} else {
+	system("ecmdVersion_x86");
+}
+
+exit($?/256);  #return code from the system call above
+
