@@ -48,6 +48,13 @@
 //  User Types
 //----------------------------------------------------------------------
 
+/* Functions in here are defined as extern C for the following reasons:
+ 1)  Keeps Function names small by preventing C++ "mangling"
+ 2)  Allows (C-based) perl interpreter to access these functions
+
+*/
+extern "C" {
+
 /** @name Gen Functions */
 //@{
 /**
@@ -151,5 +158,7 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
  */
 std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address = 0);
 
+
+} /* Extern C */
 
 #endif
