@@ -28,7 +28,6 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdDllCapi.H>
-#include <ecmdClientCapiFunc.H>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -49,6 +48,8 @@
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+/* These are from ecmdClientCapiFunc.C */
+extern void * dlHandle;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -70,7 +71,7 @@ int ecmdLoadDll(string dllName) {
   const char* dlError;
   int rc = ECMD_SUCCESS;
 
-#ifndef LINUX
+#ifdef _AIX
   /* clean up the machine from previous tests */
   system("slibclean");
 #endif
@@ -78,7 +79,6 @@ int ecmdLoadDll(string dllName) {
   /* --------------------- */
   /* load DLL              */
   /* --------------------- */
-  char dllname[256];
   if (dllName.size() == 0) {
     /* Let's try to get it from the env var */
     char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
@@ -90,11 +90,11 @@ int ecmdLoadDll(string dllName) {
     }
   }
 
-  printf("loadDll: loading %s ...\n", dllname); 
-  dlHandle = dlopen(dllname, RTLD_NOW);
+  printf("loadDll: loading %s ...\n", dllName.c_str()); 
+  dlHandle = dlopen(dllName.c_str(), RTLD_NOW);
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
-      printf("ERROR: loadDll: %s\n", dlError);
+      printf("ERROR: loadDll: Problems loading '%s' : %s\n", dllName.c_str(), dlError);
       return ECMD_DLL_LOAD_FAILURE;
     }
   } else {
