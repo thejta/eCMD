@@ -103,6 +103,7 @@ int ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
  @brief Query configuration information from the DLL
  @param i_target Struct that contains partial information to limit query results
  @param o_queryData Return data from query
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
@@ -151,6 +152,8 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
  @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
  @param o_queryData Return vector from query
  @param i_ringName if != NULL used to refine query to a single ring
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
  NOTE : This function does not affect ring caching
@@ -162,6 +165,8 @@ int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryDa
  @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
  @param o_queryData Return vector from query
  @param i_arrayName array to access data for
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
  NOTE : This function does not affect ring caching
@@ -173,7 +178,9 @@ int ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_query
  @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
  @param o_queryData Return vector from query
  @param i_spyName Spy to access data for
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY if spy name is not valid for target
  @retval nonzero on failure
  NOTE : This function does not affect ring caching
 */
@@ -184,7 +191,7 @@ int ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData
  @param i_target Struct that contains chip and cage/node/position/core/thread information
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
  @param o_fileLocation Return string with full path and filename to location 
- @retval ECMD_SUCCESS if successful read
+ @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
  NOTE : This function does not affect ring caching
@@ -201,7 +208,10 @@ int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, 
 //@{
 /**
  @brief Scans the selected number of bits from the selected position in the selected ring into the data buffer
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to read
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
@@ -214,8 +224,11 @@ int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_RING if ringname is not valid for target
  @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to write
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
@@ -237,7 +250,9 @@ int putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
 
 /**
  @brief Scoms bits from the selected address into the data buffer
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to read
  @param i_address Scom address to read from
  @param o_data DataBuffer object that holds data read from address
@@ -249,7 +264,9 @@ int getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_d
 
 /**
  @brief Scoms bits from the data buffer into the selected address
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to write
  @param i_address Scom address to write to
@@ -272,6 +289,7 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
 
 /**
  @brief Reads the selected spy into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_SUCCESS if successful read
@@ -286,6 +304,7 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
 
 /**
  @brief Reads the selected spy and returns it's assocaiated enum
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
@@ -302,7 +321,8 @@ int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string &
 
 /**
  @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
- @retval ECMD_SUCCESS if successful read
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is not an ECC Grouping
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
  @retval nonzero if unsuccessful
@@ -318,7 +338,8 @@ int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName
 
 /**
  @brief Writes the data buffer into the selected position in the selected spy
- @retval ECMD_SUCCESS if successful read
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval nonzero if unsuccessful
@@ -332,7 +353,8 @@ int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
 
 /**
  @brief Writes the enum into the selected position in the selected spy
- @retval ECMD_SUCCESS if successful read
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
  @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
@@ -363,14 +385,16 @@ void ecmdEnableRingCache();
 
 /**
  @brief Disable internal caching of reads/writes of scan rings
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  NOTE: A Flush is performed before disabling the cache
 */
 int  ecmdDisableRingCache();
 
 /**
  @brief Flush all modified data from the internal cache to the hardware, then remove all rings from cache
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
 */
 int  ecmdFlushRingCache();
 
@@ -384,7 +408,10 @@ int  ecmdFlushRingCache();
 
 /**
  @brief Reads bits from the selected array into the data buffer
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of array to read
  @param i_arrayName Name of array to read from
  @param o_data DataBuffer object that holds data read from address
@@ -397,7 +424,10 @@ int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
 
 /**
  @brief Writes bits from the data buffer into the selected array
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @param i_target Struct that contains chip and cage/node/position/core/thread information of array to write
  @param i_arrayName Name of array to write to
@@ -421,7 +451,8 @@ int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
 
 /**
  * @brief System Flush
- * @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero if unsuccessful
  * @post The system is cleaned up and ready for iplsys
  * @see iplSys
  NOTE : This function forces a flush of the ring caches
@@ -431,7 +462,8 @@ int flushSys ();
 
 /**
  * @brief Initial Program Load
- * @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ * @retval ECMD_SUCCESS if successful
+ * @retval nonzero if unsuccessful
  * @pre An ecmdFlushSys call is generally required before iplsys
  * @post The system is IPLed
  * @see flushSys
@@ -583,7 +615,7 @@ int simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, int i_row = 0,
  * @retval ECMD_SUCCESS if successful
  * @retval nonzero on failure
 */
-int siminit(const char* checkpoint);
+int siminit(const char* i_checkpoint);
 
 /**
  * @brief Write a Facility using a symbol id

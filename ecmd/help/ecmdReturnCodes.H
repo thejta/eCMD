@@ -43,6 +43,8 @@
 #define ECMD_SPY_NOT_ENUMERATED                 0x1023 ///< getSpyEnum or putSpyEnum was called on a non-enumerated spy
 #define ECMD_INVALID_SPY                        0x1023 ///< Spy functions found an invalid Spy name or type
 #define ECMD_DATA_OVERFLOW                      0x1024 ///< To much data was provided to a write function
+#define ECMD_INVALID_RING                       0x1025 ///< Invalid ring name was provided
+#define ECMD_INVALID_ARRAY                      0x1026 ///< Invalid array name was provided
 
 /* dataBuffer specific return codes */
 #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
