@@ -420,26 +420,6 @@ int ecmdClientPerlapi::putArray (const char* i_target, const char * i_arrayName,
 }
 
 
-/***
-void ecmdClientPerlapi::add(char *retval) {
-  printf("Inside function: %c %c %c\n",retval[0],retval[1],retval[2]);
-
-  retval[0] = 'L'; retval[1] = 'p';
-
- strcpy(retval,"Looky here - I made it");
-}
-
-void ecmdClientPerlapi::add2(char **retval) {
-  printf("Inside function: %s\n",*retval);
-
-
-  *retval = (char*)malloc(sizeof (char[100]));
-  strcpy(*retval,"Looky here - I made it");
-}
-***/
-
-
-
 
 int ecmdClientPerlapi::ecmdCommandArgs(char* i_argv[]){
 
@@ -494,7 +474,7 @@ int ecmdClientPerlapi::getSpyEnum (const char* i_target, const char * i_spyName,
   return rc;
 }
 
-int ecmdClientPerlapi::getSpyEccGrouping (const char* i_target, const char * i_spyEccGroupName, char** o_groupData, char** o_eccData, char** o_eccErrorMask){
+int ecmdClientPerlapi::getSpyEpCheckers (const char* i_target, const char * i_spyEpCheckersName, char** o_inLatchData, char** o_outLatchData, char** o_eccErrorMask) {
 
   return 0;
 }
@@ -869,5 +849,94 @@ void ecmdClientPerlapi::ecmdOutput(const char* i_message){
   return ;
 }
 
+
+
+
+
+int ecmdClientPerlapi::startClocks (const char* i_target, const char * i_clockDomain) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::stopClocks (const char* i_target, const char * i_clockDomain) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::iStepsByNumber (const char* i_steps) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::iStepsByName(const char* i_stepName) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::iStepsByNameRange(const char* i_stepNameBegin, const char* i_stepNameEnd) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::getSpr (const char* i_target, const char * i_sprName, char** o_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::putSpr (const char* i_target, const char * i_sprName, const char* i_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::getGpr (const char* i_target, int  i_gprNum, char** o_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::putGpr (const char* i_target, int  i_gprNum, const char* i_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::getFpr (const char* i_target, int  i_fprNum, char** o_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::putFpr (const char* i_target, int  i_fprNum, const char* i_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::getMemProc (const char* i_target, const char* i_address, int i_bytes, char** o_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+
+int ecmdClientPerlapi::putMemProc (const char* i_target, const char* i_address, int i_bytes, const char* i_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::getMemDma (const char* i_target, const char*  i_address, int i_bytes, char** o_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::putMemDma (const char* i_target, const char* i_address, int i_bytes, const char* i_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::getMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, char** o_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
+
+int ecmdClientPerlapi::putMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, const char* i_data) {
+  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  return rc;
+}
 
 

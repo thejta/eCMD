@@ -373,7 +373,7 @@ class ecmdClientPerlapi
 
      NOTE : This function is ring cache enabled
      */
-    int getSpyEccGrouping (const char* i_target, const char * i_spyEccGroupName, char** o_groupData, char** o_eccData, char** o_eccErrorMask);
+    int getSpyEpCheckers (const char* i_target, const char * i_spyEpCheckersName, char** o_inLatchData, char** o_outLatchData, char** o_eccErrorMask);
 
     /**
      @brief Writes the data buffer into the selected position in the selected spy
@@ -494,6 +494,332 @@ class ecmdClientPerlapi
     int putArray (const char* i_target, const char * i_arrayName, const char* i_address, const char* i_data);
 
     //@}
+
+
+
+
+    /** @name Clock Functions */
+    //@{
+
+
+    /**
+     @brief Start the clocks in the domain specified
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+     @retval ECMD_CLOCKS_ALREADY_ON The clocks in the specified domain are already on
+     @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @param i_target Struct that contains chip and cage/node/slot/position information
+     @param i_clockDomain Clock domain to start - as defined in scandef - use "ALL" to start all domains
+
+     * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
+     If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
+     documented in the eCMD system spec for your particular product.
+     */
+    int startClocks (const char* i_target, const char * i_clockDomain);
+
+    /**
+     @brief Stop the clocks in the domain specified
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+     @retval ECMD_CLOCKS_ALREADY_OFF The clocks in the specified domain are already off
+     @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @param i_target Struct that contains chip and cage/node/slot/position information
+     @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
+
+     * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
+     If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
+     documented in the eCMD system spec for your particular product.
+     */
+    int stopClocks (const char* i_target, const char * i_clockDomain);
+
+    //@}
+
+
+    /** @name iSteps Functions */
+    //@{
+
+
+    /**
+     @brief Run iSteps by number
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_ISTEPS_INVALID_STEP An invalid step number was provided
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @post iSteps specified  are complete
+     @param i_steps Bit mask defining which steps to run
+
+     NOTE - function returns on first failure and remaining steps are not run
+
+     */
+    int iStepsByNumber (const char* i_steps);
+
+    /**
+     @brief Run a single iStep by name
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_ISTEPS_INVALID_STEP An invalid step name was provided
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @post iStep specified is complete
+     @param i_stepName List of iStep names to run
+
+     */
+    int iStepsByName(const char* i_stepName);
+
+    /**
+     @brief Run all iSteps by name starting with i_stepNameBegin and ending with i_stepNameEnd
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_ISTEPS_INVALID_STEP An invalid step name was provided
+     @retval ECMD_SUCCESS if successful
+     @retval nonzero if unsuccessful
+     @post iSteps specified  are complete
+     @param i_stepNameBegin Starting iStep to run
+     @param i_stepNameEnd Ending iStep to run
+
+     NOTE - function returns on first failure and remaining steps are not run
+     */
+    int iStepsByNameRange(const char* i_stepNameBegin, const char* i_stepNameEnd);
+
+
+    //@}
+
+
+
+
+
+    /** @name Processor Functions */
+    //@{
+
+
+    /**
+     @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_SPR Spr name is invalid
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param i_sprName Name of spr to read from
+     @param o_data DataBuffer object that holds data read from spr
+
+
+     */
+    int getSpr (const char* i_target, const char * i_sprName, char** o_data);
+
+
+    /**
+     @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_INVALID_SPR Spr name is invalid
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_sprName Name of spr to write to
+     @param i_data DataBuffer object that holds data to write into spr
+
+
+     */
+    int putSpr (const char* i_target, const char * i_sprName, const char* i_data);
+
+    /**
+     @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_GPR Gpr number is invalid
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param i_gprNum Number of gpr to read from
+     @param o_data DataBuffer object that holds data read from gpr
+
+
+     */
+    int getGpr (const char* i_target, int  i_gprNum, char** o_data);
+
+    /**
+     @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_INVALID_GPR Gpr number is invalid
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_gprNum Number of gpr to write to
+     @param i_data DataBuffer object that holds data to write into gpr
+
+
+     */
+    int putGpr (const char* i_target, int  i_gprNum, const char* i_data);
+
+    /**
+     @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_INVALID_FPR Fpr number is invalid
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+     @param i_fprNum Number of fpr to read from
+     @param o_data DataBuffer object that holds data read from fpr
+
+
+     */
+    int getFpr (const char* i_target, int  i_fprNum, char** o_data);
+
+    /**
+     @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_INVALID_FPR Fpr number is invalid
+     @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+     @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+     @param i_fprNum Number of fpr to write to
+     @param i_data DataBuffer object that holds data to write into fpr
+
+
+     */
+    int putFpr (const char* i_target, int  i_fprNum, const char* i_data);
+
+    //@}
+    /* End Processor Functions */
+
+
+
+    /** @name Memory Functions */
+    //@{
+
+    /**
+     @brief Reads System Mainstore through the processor chip using a real address
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position information
+     @param i_address Starting address to read from
+     @param i_bytes Number of bytes to write
+     @param o_data DataBuffer object that holds data read from memory
+
+
+     */
+    int getMemProc (const char* i_target, const char* i_address, int i_bytes, char** o_data);
+
+
+    /**
+     @brief Writes System Mainstore through the processor chip using a real address
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position information 
+     @param i_address Starting address to write to
+     @param i_bytes Number of bytes to write
+     @param i_data DataBuffer object that holds data to write into memory
+
+
+     */
+    int putMemProc (const char* i_target, const char* i_address, int i_bytes, const char* i_data);
+
+    /**
+     @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains cage/node information
+     @param i_address Starting address to read from
+     @param i_bytes Number of bytes to write
+     @param o_data DataBuffer object that holds data read from memory
+
+
+     */
+    int getMemDma (const char* i_target, const char*  i_address, int i_bytes, char** o_data);
+
+
+    /**
+     @brief Writes System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains cage/node information
+     @param i_address Starting address to write to
+     @param i_bytes Number of bytes to write
+     @param i_data DataBuffer object that holds data to write into memory
+
+
+     */
+    int putMemDma (const char* i_target, const char* i_address, int i_bytes, const char* i_data);
+
+    /**
+     @brief Reads System Mainstore through the memory controller using a real address
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval ECMD_SUCCESS if successful read
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position information
+     @param i_address Starting address to read from
+     @param i_bytes Number of bytes to write
+     @param o_data DataBuffer object that holds data read from memory
+
+     WARNING : This operation is typically not cache-coherent
+
+     */
+    int getMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, char** o_data);
+
+
+    /**
+     @brief Writes System Mainstore through the memory controller using a real address
+     @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
+     @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+     @retval ECMD_SUCCESS if successful
+     @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+     @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+     @retval nonzero if unsuccessful
+     @param i_target Struct that contains chip and cage/node/slot/position information 
+     @param i_address Starting address to write to
+     @param i_bytes Number of bytes to write
+     @param i_data DataBuffer object that holds data to write into memory
+
+     WARNING : This operation is typically not cache-coherent
+
+     */
+    int putMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, const char* i_data);
+
+
+    //@}
+    /* End Memory Functions */
+
 
 
 
