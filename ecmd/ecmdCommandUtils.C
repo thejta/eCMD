@@ -324,9 +324,9 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode) {
           /* This came from this source, we will save that as we may use it later */
           source = tokens[1];
         }
-      } else if (i_returnCode & 0xFF000000 != ECMD_ERR_ECMD) {
+      } else if ((i_returnCode & 0xFF000000) != ECMD_ERR_ECMD) {
         /* We aren't going to find this return code in here since it didn't come from us */
-      } else if (tokens.size() == 4) {
+      } else if (tokens.size() >= 4) {
         /* This is a standard return code define */
         sscanf(tokens[3].c_str(),"0x%x",&comprc);
         if ((i_returnCode & 0x00FFFFFF) == comprc) {
