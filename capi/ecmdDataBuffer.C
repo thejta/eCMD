@@ -919,7 +919,7 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   return rc;
 }
 
-int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int length) {
+int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int expectedLength, int start, int length) {
   int rc = ECMD_SUCCESS;
   int i;
 
@@ -927,8 +927,8 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int 
 
   //if the string isn't aligned along word boundaries, we
   //move it over
-  if (strLen % 8) {
-    start += 4*(8 - (strLen % 8));
+  if (expectedLength > 0) {
+    start += expectedLength - strLen*4;
   }
 
   if (length == 0) {
@@ -967,22 +967,10 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int 
   return rc;
 }
 
-int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start, int length) {
+int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
   int rc = ECMD_SUCCESS;
 
   int strLen = strlen(i_binChars);
-
-  if (length == 0) {
-
-    if (strLen > 0) {
-      length = strLen;
-    }
-    else {
-      //error out
-      return ECMD_DBUF_INVALID_ARGS;
-    }
-
-  }
 
   for (int i = 0; i < strLen; i++) {
     if (i_binChars[i] == '0') {
