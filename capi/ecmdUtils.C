@@ -579,6 +579,26 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
     o_data.setBitLength(bitlength);
     o_data.setXstate(0,i_dataStr);
   }
+  else if (localFormat == "d") {
+    if(strlen(i_dataStr) > 10) {
+     ecmdOutputError( "Integer overflow. Decimal number should be less that 4G.\n" );
+     rc = ECMD_INVALID_ARGS;
+    }
+    else if(strlen(i_dataStr) == 10) {
+      //Highest number for 32 bits is 4294967295
+      if( strcmp(i_dataStr, "4294967295") > 0 ) {
+        ecmdOutputError( "Integer overflow. Decimal number should be less that 4G.\n" );
+        rc = ECMD_INVALID_ARGS;
+      }
+    }
+    if(!rc) {
+     uint32_t decdata = decToUInt32(i_dataStr);
+     bitlength = 32;
+     if (i_expectedLength != 0) bitlength = i_expectedLength;
+     o_data.setBitLength(bitlength);
+     rc = o_data.setWord(0, decdata);
+    }
+  }   
   else {
     ecmdOutputError( ("Did not recognize input format string " + localFormat + "\n").c_str() );
     rc = ECMD_INVALID_ARGS;
@@ -590,6 +610,15 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
   return rc;
 }
 
+uint32_t decToUInt32(const char *decstr) {
+    uint32_t decdata;
+    
+    decdata=0;
+    for(int i=0; decstr[i] >= '0' && decstr[i] <= '9';++i) {
+     decdata = 10 * decdata + (decstr[i] - '0');
+    }
+    return decdata;
+}
 std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, uint64_t address) {
   std::string printed;
   int formTagLen = i_format.length();

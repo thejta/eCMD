@@ -154,6 +154,13 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength = 0);
 
 /**
+ @brief Converts decimal string to uint32_t
+ @retval uint32_t value of converted input string
+ @param i_decstr string of characters containing data
+ */
+uint32_t decToUInt32(const char *i_decstr);
+
+/**
  @brief Formats data from data buffer into a string according to format flag and returns the string
  @return String of formatted data
  @param i_data ecmdDataBuffer where data to format is stored
