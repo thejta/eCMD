@@ -1,0 +1,44 @@
+
+Syntax: getbits ChipSelect RingName StartPos NumBits  [-r] [-exp data] [-buffer] 
+						[-x | -xl | -xr | -b] [-X] [-p#] [-c#]
+
+
+	Function:	Long scans bits out of a chip's selected ring. (non-destructive)
+
+	Parameters:
+	--------------------------------------------------------------------------------
+	ChipSelect	Specifies the chip to operate on.  
+
+	RingName	Specifies chip ring to operate on.  For a list of available
+			rings, use the ecmdquery command.
+
+			Ex:  ecmdquery rings smi
+			     ecmdquery rings pu
+			
+	StartPos	Specifies starting bit position in Decimal.
+
+	NumBits		Specifies number of bits to get from starting position in Decimal.
+
+	-r   [optional]	Print out raw data, you must only do one chip at a time with 
+			this option.  Also do not specify StartPos and NumBits.
+
+	-exp [optional]	Provide expected data.  Returns error if expected != actual.  No
+			error/no data returned if expected == actual. 
+
+	-f<format>[opt] Specifies the format type of both the output and 
+			the expect-value: 
+	
+	[-X] [optional] For simulation use only.  Must be used to display any Xstates data
+			in ring.
+
+
+	-p#  [optional]	Specify which chip position to act on (0 is default). Specify -pall
+			to act on all chips.
+
+	-c#  [optional]	Specify which Spinnaker core to act on (0 is default). Specify
+			-call to act on all cores.
+
+	--------------------------------------------------------------------------------
+
+	Examples: 	getbits spinnaker stat 0 15 
+			getbits spinnaker cp_fxu 0 32 -x -exp feedbeef

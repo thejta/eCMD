@@ -1,5 +1,5 @@
 
-Syntax: getscom ChipSelect ScanCommAddr [-bits] [-s] [-b] [-v] [-n#] [-p#] [-c#]
+Syntax: getscom ChipSelect ScanCommAddr [-v] [-k#] [-n#] [-p#] [-c#] [-f<format>]
                 [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]]
 
 
@@ -7,20 +7,21 @@ Syntax: getscom ChipSelect ScanCommAddr [-bits] [-s] [-b] [-v] [-n#] [-p#] [-c#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get scancom data from.
+        ChipSelect      Chip to get scancomm data from.
 
         ScanCommAddr    Address in hex.
-
-        -bits     [opt] Print binary with number line.
-
-        -b   [optional] Print binary, defaults to hex (for formatting).
 
         -exp [optional] Provide expected data.  Returns error if expected != actual.  No
                         error/no data returned if expected == actual.
 
         -mask     [opt] Scom data is AND'ed with the mask bits. Only for use with -exp.
 
+	-f<format>[opt] Output Format : default ???? - See doc for details
+
         -v   [optional] Print out Scan Comm bit meaning if available
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
@@ -33,13 +34,4 @@ Syntax: getscom ChipSelect ScanCommAddr [-bits] [-s] [-b] [-v] [-n#] [-p#] [-c#]
         --------------------------------------------------------------------------------
 
         Examples:       > getscom pu 6 -p0,1 
-			pu  1:0	00000000 00000000
-			pu  1:0	00000000 00000000
-			ecmd.exe getscom pu 6 -p0,1 
-
 			> getscom spinnaker 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0
-			pu  1:0	
-			ERROR: (getscom::expect): Data Miscompare Found Addr : 800009
-			Actual   : 00000000 00000000 0000
-			Expected : FEEDxxxx xxxx0001 xxxx
-			ecmd.exe getscom spinnaker 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0
