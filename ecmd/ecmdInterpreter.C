@@ -109,6 +109,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         }
         else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getlatch")) {
+          rc = ecmdGetLatchUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getmemdma")) {
           rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_DMA);
         } else if (!strcmp(argv[0], "getmemmemctrl")) {
