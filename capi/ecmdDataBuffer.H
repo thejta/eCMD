@@ -459,7 +459,7 @@ class ecmdDataBuffer {
 
 
    private: //methods
-     void filldatastr(char fillChar);
+     void fillDataStr(char fillChar);
      ecmdDataBuffer(const ecmdDataBuffer &other);
      
 

@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include <ecmdDataBuffer.H>
+#include <ecmdClientCapi.H>
 
 //----------------------------------------------------------------------
 //  Constants
@@ -63,7 +64,7 @@ void * mybigEndianMemcpy(void * dest, const void *src, size_t count);
 ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 : iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_DataStr(NULL), iv_DataOutStr(NULL)
 {
-   ecmdRegisterErrorMsg(1,"ERROR: ecmdDataBuffer::ecmdDataBuffer: Default constructor used for ecmdDataBuffer creation!\n");
+   ecmdRegisterErrorMsg(ECMD_FAILURE,"ERROR: ecmdDataBuffer::ecmdDataBuffer: Default constructor used for ecmdDataBuffer creation!\n");
 }
 
 ecmdDataBuffer::ecmdDataBuffer(int numBits)
@@ -94,7 +95,7 @@ ecmdDataBuffer::ecmdDataBuffer(int numBits)
 
 ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
 
-  this->setwordlength(other.iv_NumWords);
+  this->setWordLength(other.iv_NumWords);
   for (int i = 0; i < iv_NumWords; i++) 
     iv_Data[i] = other.iv_Data[i];
 
@@ -205,7 +206,7 @@ void  ecmdDataBuffer::setBit(int bit) {
   if (bit >= iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::setBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     int index = bit/32;
     iv_Data[index] |= 0x00000001 << (31 - (bit-(index * 32)));
@@ -217,7 +218,7 @@ void  ecmdDataBuffer::setBit(int bit, int len) {
   if (bit+len > iv_NumBits) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return;
   } else {
     int index = (bit + len) / 32;
@@ -233,7 +234,7 @@ void  ecmdDataBuffer::setBit(int bitOffset, const char* binStr) {
   if (bitOffset+len > iv_NumBits) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::setBit: bitOffset %d + len %d > NumBits (%d)\n", bitOffset, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
 
     for (i = 0; i < len; i++) {
@@ -244,8 +245,8 @@ void  ecmdDataBuffer::setBit(int bitOffset, const char* binStr) {
       } 
       else {
         char temp[60];
-        sprintf(temp, "ecmdDataBuffer::setbit: unrecognized character: %c\n", binarystr[i]);
-        ecmdRegisterErrorMsg(1, temp);
+        sprintf(temp, "ecmdDataBuffer::setBit: unrecognized character: %c\n", binStr[i]);
+        ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
       }
     }
 
@@ -257,7 +258,7 @@ void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
   if (wordOffset >= iv_NumWords) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)\n", wordOffset, iv_NumWords);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     iv_Data[wordOffset] = value;
     
@@ -275,7 +276,7 @@ void  ecmdDataBuffer::clearBit(int bit) {
   if (bit >= iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {  
     int index = bit/32;
     iv_Data[index] &= ~(0x00000001 << (31 - (bit-(index * 32))));
@@ -287,7 +288,7 @@ void  ecmdDataBuffer::clearBit(int bit, int len) {
   if (bit+len > iv_NumBits) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::clearBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     for (int idx = 0; idx < len; idx ++) this->clearBit(bit + idx);    
   }
@@ -297,12 +298,12 @@ void  ecmdDataBuffer::flipBit(int bit) {
   if (bit >= iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
-    if (this->isxstate(bit, 1)) {
+    if (this->isXstate(bit, 1)) {
       char temp[60];
       sprintf(temp, "ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d\n", bit);
-      ecmdRegisterErrorMsg(1, temp);
+      ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     } else if (this->isBitSet(bit)) {
       this->clearBit(bit);      
     } else {
@@ -315,14 +316,14 @@ void  ecmdDataBuffer::flipBit(int bit, int len) {
   if (bit+len > iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::flipBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return;
   } else {
     char temp[60];
     for (int i = 0; i < len; i++) {
       if (this->isXstate(bit+i, 1)) {
         sprintf(temp, "ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d\n", bit+i);
-        ecmdRegisterErrorMsg(1, temp);
+        ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
         return;
       } else if (this->isBitSet(bit+i)) {
         this->clearBit(bit+i);
@@ -337,13 +338,13 @@ int   ecmdDataBuffer::isBitSet(int bit) {
   if (bit >= iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::isBitSet: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return 0;
   } else {
     if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
       char temp[70];
       sprintf(temp, "ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d\n", bit);
-      ecmdRegisterErrorMsg(1, temp);
+      ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
       return 0;
     }
     int index = bit/32;
@@ -355,7 +356,7 @@ int   ecmdDataBuffer::isBitSet(int bit, int len) {
   if (bit+len > iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::isBitSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return 0;
   } else {
     int rc = 1;
@@ -373,11 +374,11 @@ int   ecmdDataBuffer::isBitClear(int bit) {
   if (bit >= iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::isBitClear: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return 0;
   } else {
     if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
-      ecmdRegisterErrorMsg(1, "ecmdDataBuffer::isBitClear: non-binary character detected in data string\n");
+      ecmdRegisterErrorMsg(ECMD_FAILURE, "ecmdDataBuffer::isBitClear: non-binary character detected in data string\n");
       return 0;
     }
     int index = bit/32;
@@ -390,7 +391,7 @@ int   ecmdDataBuffer::isBitClear(int bit, int len)
   if (bit+len > iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::isBitClear: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return 0;
   } else {
     int rc = 1;
@@ -408,7 +409,7 @@ int   ecmdDataBuffer::getNumBitsSet(int bit, int len) {
   if (bit+len > iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::getNumBitsSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return 0;
   } else {
     int count = 0;
@@ -545,7 +546,7 @@ void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
   if (start+len > iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::insert: bit %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     
     uint32_t thisMask;
@@ -574,7 +575,7 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
   if (len > iv_NumBits) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::extract: len %d > NumBits (%d)\n", len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
 
     myextract(this->iv_Data, start, len, dataOut);
@@ -584,7 +585,7 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
         if (this->isXstate(start, 1)) {
           char temp[80];
           sprintf(temp, "ecmdDataBuffer::extract: Cannot extract non-binary character at bit %d\n", i);
-          ecmdRegisterErrorMsg(1, temp);
+          ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
         }
       }
     }
@@ -599,8 +600,8 @@ void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
 
   if (startBit + len > iv_NumBits) {
     char temp[50];
-    sprintf(temp, "ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startbit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    sprintf(temp, "ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
 
     for (int i = 0; i < len; i++) {
@@ -609,7 +610,7 @@ void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
   }  
 }
 
-void ecmdDataBuffer::setOr(uint32_t dataIn, int startbit, int len) {
+void ecmdDataBuffer::setOr(uint32_t dataIn, int startBit, int len) {
   this->setOr(&dataIn, startBit, len);
 }
 
@@ -617,7 +618,7 @@ void ecmdDataBuffer::merge(ecmdDataBuffer& bufferIn) {
   if (iv_NumBits != bufferIn.iv_NumBits) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", bufferIn.iv_NumBits, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     this->setOr(bufferIn, 0, iv_NumBits);
   }
@@ -631,10 +632,10 @@ void ecmdDataBuffer::setAnd(uint32_t * dataIn, int startBit, int len) {
   if (startBit + len > iv_NumBits) {
     char temp[60];
     sprintf(temp, "ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)\n", startBit, len, iv_NumBits);
-    ecmdRegisterErrorMsg(1, temp);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
   } else {
     for (int i = 0; i < len; i++) {
-      if (!(dataIn[i/32] & ECMD_MASK[i % 32])) this->clearbit(startBit + i);
+      if (!(dataIn[i/32] & ECMD_MASK[i % 32])) this->clearBit(startBit + i);
     }
   }
 }
@@ -651,7 +652,7 @@ int   ecmdDataBuffer::oddParity(int start, int stop) {
   int parity = 1;
 
   charOffset = start / 32;
-  posOffset = start - charoffset * 32;
+  posOffset = start - charOffset * 32;
 
   for (counter = 0; counter < (stop - start + 1); counter++) {
     if (ECMD_MASK[posOffset] & iv_Data[charOffset]) {
@@ -677,204 +678,151 @@ int   ecmdDataBuffer::evenParity(int start, int stop) {
 
 int   ecmdDataBuffer::oddParity(int start, int stop, int insertPos) {
   if (this->oddParity(start,stop))
-    this->setbit(insertPos);
+    this->setBit(insertPos);
   else 
-    this->clearbit(insertPos);
+    this->clearBit(insertPos);
   return 0;
 }
 
 int   ecmdDataBuffer::evenParity(int start, int stop, int insertPos) {
   if (this->evenParity(start,stop))
-    this->setbit(insertPos);
+    this->setBit(insertPos);
   else
-    this->clearbit(insertPos);
+    this->clearBit(insertPos);
   return 0;
 }
 
 uint32_t ecmdDataBuffer::getWord(int wordOffset) {
   if (wordOffset > iv_NumWords-1) {
     char temp[50];
-    sprintf(temp, "ecmdDataBuffer::getWord: wordOffset %d > NumWords-1 (%d)\n", wordoffset, iv_NumWords-1);
-    ecmdRegisterErrorMsg(1, temp);
+    sprintf(temp, "ecmdDataBuffer::getWord: wordOffset %d > NumWords-1 (%d)\n", wordOffset, iv_NumWords-1);
+    ecmdRegisterErrorMsg(ECMD_FAILURE, temp);
     return 0;
   }
   return this->iv_Data[wordOffset];
 }
 
-const char* ecmdDataBuffer::genhexlstr(int start, int bitlen) {
+const char* ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
 
-  int tempiv_NumWords = (bitlen - 1)/32 + 1;
-  int lastnibble = (bitlen - 1)/4 + 1;
-  char* cptr = iv_DataOutStr;
+  int tempNumWords = (bitLen - 1)/32 + 1;
+  int lastnibble = (bitLen - 1)/4 + 1;
+  char* cPtr = iv_DataOutStr;
 
   /* resize iv_DataOutStr if necessary */
   if (iv_DataOutStr == NULL) {
-    iv_DataOutStr = new char[tempiv_NumWords*8+1];
-    cptr = iv_DataOutStr;
-  } else if (strlen(iv_DataOutStr) < tempiv_NumWords*8) {
+    iv_DataOutStr = new char[tempNumWords*8+1];
+    cPtr = iv_DataOutStr;
+  } else if (strlen(iv_DataOutStr) < tempNumWords*8) {
     delete[] iv_DataOutStr;
-    iv_DataOutStr = new char[tempiv_NumWords*8+1];
-    cptr = iv_DataOutStr;
+    iv_DataOutStr = new char[tempNumWords*8+1];
+    cPtr = iv_DataOutStr;
   }
 
   /* extract iv_Data */
-  uint32_t* tempiv_Data = new uint32_t[tempiv_NumWords];
-  this->extract(&tempiv_Data[0], start, bitlen);
+  uint32_t* tempData = new uint32_t[tempNumWords];
+  this->extract(&tempData[0], start, bitLen);
 
-  for (int w = 0; w < tempiv_NumWords; w++) {
-    sprintf(cptr, "%.8X", tempiv_Data[w]);
-    cptr = &cptr[8];
+  for (int w = 0; w < tempNumWords; w++) {
+    sprintf(cPtr, "%.8X", tempData[w]);
+    cPtr = &cPtr[8];
   }
 
   iv_DataOutStr[lastnibble] = '\0';
-  delete[] tempiv_Data;
+  delete[] tempData;
   return iv_DataOutStr;
 }
 
-const char* ecmdDataBuffer::genhexrstr(int start, int bitlen) {
+const char* ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
 
-  int tempiv_NumWords = (bitlen - 1)/32 + 1;
-  int lastnibble = (bitlen - 1)/4 + 1;
+  int tempNumWords = (bitLen - 1)/32 + 1;
+  int lastNibble = (bitLen - 1)/4 + 1;
 
-  tempiv_NumWords++;
-  ecmdDataBuffer newbv(bitlen+32); /* pad with extra word */
-  newbv.setwordlength(tempiv_NumWords);
+  tempNumWords++;
+  ecmdDataBuffer padded(bitLen+32); /* pad with extra word */
+  padded.setWordLength(tempNumWords);
 
   /* resize iv_DataOutStr if necessary */
   if (iv_DataOutStr == NULL) {
-    iv_DataOutStr = new char[tempiv_NumWords*8+1];
-  } else if (strlen(iv_DataOutStr) < tempiv_NumWords*8) {
+    iv_DataOutStr = new char[tempNumWords*8+1];
+  } else if (strlen(iv_DataOutStr) < tempNumWords*8) {
     delete[] iv_DataOutStr;
-    iv_DataOutStr = new char[tempiv_NumWords*8+1];
+    iv_DataOutStr = new char[tempNumWords*8+1];
   }
 
-  int shiftamt = 32 - bitlen % 32;
-  extract(newbv, start, bitlen);
-  newbv.shiftr(shiftamt); /* fill left side with zeros */
-  strcpy(iv_DataOutStr, newbv.genhexlstr());  /* grab hex string into iv_DataOutStr */
-  int offsetnibble = (shiftamt - 1)/4;
-  iv_DataOutStr = &iv_DataOutStr[offsetnibble];  /* chop off left side */
-  iv_DataOutStr[lastnibble] = '\0'; /* chop off right side */
+  int shiftAmt = 32 - bitLen % 32;
+  extract(padded, start, bitLen);
+  padded.shiftRight(shiftAmt); /* fill left side with zeros */
+  strcpy(iv_DataOutStr, padded.genHexLeftStr());  /* grab hex string into iv_DataOutStr */
+  int offsetNibble = (shiftAmt - 1)/4;
+  iv_DataOutStr = &iv_DataOutStr[offsetNibble];  /* chop off left side */
+  iv_DataOutStr[lastNibble] = '\0'; /* chop off right side */
   return iv_DataOutStr;
 }
 
-const char* ecmdDataBuffer::genbinstr(int start, int bitlen) {
+const char* ecmdDataBuffer::genBinStr(int start, int bitLen) {
 
   /* resize iv_DataOutStr if necessary */
   if (iv_DataOutStr == NULL) {
-    iv_DataOutStr = new char[bitlen+1];
-  } else if (strlen(iv_DataOutStr) < bitlen) {
+    iv_DataOutStr = new char[bitLen+1];
+  } else if (strlen(iv_DataOutStr) < bitLen) {
     delete[] iv_DataOutStr;
-    iv_DataOutStr = new char[bitlen+1];
+    iv_DataOutStr = new char[bitLen+1];
   }
 
   // iv_DataStr should already have updated iv_Data
-  strncpy(iv_DataOutStr, &iv_DataStr[start], bitlen);
-  iv_DataOutStr[bitlen] = '\0';
+  strncpy(iv_DataOutStr, &iv_DataStr[start], bitLen);
+  iv_DataOutStr[bitLen] = '\0';
   return iv_DataOutStr;    
 }
 
-const char* ecmdDataBuffer::genhexlstr() { return genhexlstr(0, iv_NumBits); }
-const char* ecmdDataBuffer::genhexrstr() { return genhexrstr(0, iv_NumBits); }
-const char* ecmdDataBuffer::genbinstr() { return genbinstr(0, iv_NumBits); }
+const char* ecmdDataBuffer::genHexLeftStr() { return this->genHexLeftStr(0, iv_NumBits); }
+const char* ecmdDataBuffer::genHexRightStr() { return this->genHexRightStr(0, iv_NumBits); }
+const char* ecmdDataBuffer::genBinStr() { return this->genBinStr(0, iv_NumBits); }
 
 
-void ecmdDataBuffer::copy(ecmdDataBuffer &newcopy) {
+void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 
-  newcopy.setwordlength(iv_NumWords);
+  newCopy.setWordLength(iv_NumWords);
   // iv_Data
   for (int i = 0; i < iv_NumWords; i++) {
-    newcopy.iv_Data[i] = iv_Data[i];
+    newCopy.iv_Data[i] = iv_Data[i];
   }
   // char
-  strcpy(newcopy.iv_DataStr, iv_DataStr);
+  strcpy(newCopy.iv_DataStr, iv_DataStr);
 
 }
 
-void  ecmdDataBuffer::memcpyin(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   mybigEndianMemcpy(iv_Data, buf, bytes);
 }
-void  ecmdDataBuffer::memcpyout(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   mybigEndianMemcpy(buf, iv_Data, bytes);
 }
 
-int   ecmdDataBuffer::isxstate() {  /* check for only X's */
+int   ecmdDataBuffer::isXstate() {  /* check for only X's */
   return (strchr(iv_DataStr, 'x') || strchr(iv_DataStr, 'X'));
 }
 
 // actually use this for ANY non-binary char, not just X's
-int   ecmdDataBuffer::isxstate(int start, int length) {
+int   ecmdDataBuffer::isXstate(int start, int length) {
 
-  int stopbit = start + length;
-  int lstop = iv_NumBits < stopbit ? iv_NumBits : stopbit; /* pick the smallest */
+  int stopBit = start + length;
+  int minStop = iv_NumBits < stopBit ? iv_NumBits : stopBit; /* pick the smallest */
 
-  for (int i = start; i < lstop; i++) {
+  for (int i = start; i < minStop; i++) {
     if (iv_DataStr[i] != '0' && iv_DataStr[i] != '1')
       return 1;
   }
   return 0;
 }
 
-// copy iv_Data to character string
-void  ecmdDataBuffer::apply2char() {
-  
-  for (int i = 0; i < iv_NumBits; i++) {
-    if (this->isbitset(i))
-      iv_DataStr[i] = '1';
-    else
-      iv_DataStr[i] = '0';
-  }
-  iv_DataStr[iv_NumBits] = '\0';
-
-}
-
-// copy character string to BIT32 iv_Data
-void  ecmdDataBuffer::apply2b32() {
-
-  for (int i = 0; i < iv_NumBits; i++) {
-    if (iv_DataStr[i] == '1')
-      this->setbit(i);
-    else   // includes X's or any other non-binary char
-      this->clearbit(i);
-  }
-
-}
-
 
 //---------------------------------------------------------------------
 //  Private Member Function Specifications
 //---------------------------------------------------------------------
-void ecmdDataBuffer::ecmdRegisterErrorMsg(int errcode, const char* str) {
+void ecmdDataBuffer::fillDataStr(char fillChar) {
 
-  if (!err) {  /* freeze if we already have an error */
-    err = errcode;
-    if (errmode & 0x1) { /* store in errstr */
-    /* resize if necessary */
-      if (!errstr) {
-        errstr = new char[strlen(str) + 1];  
-      } else if (strlen(str) > strlen(errstr)) {
-        delete[] errstr;
-        errstr = new char[strlen(str) + 1];  
-      }
-      strcpy(errstr, str);
-    }
-  }
-  if (errmode & 0x2) {  /* print to stdout */
-    printf("ERROR: ");
-    printf(str);
-  }
-
-  if (errmode & 0x4) { /* print to stderr */
-    fprintf(stderr, "ERROR: ");
-    fprintf(stderr, str);
-  }
-  
-
-}
-
-void ecmdDataBuffer::fillDataStr(char fillchar) {
-
-  for (int i = 0; i < iv_NumBits; i++) iv_DataStr[i] = fillchar;
+  for (int i = 0; i < iv_NumBits; i++) iv_DataStr[i] = fillChar;
   iv_DataStr[iv_NumBits] = '\0';  
   
 }

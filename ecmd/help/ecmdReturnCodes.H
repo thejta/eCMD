@@ -22,7 +22,9 @@
 
 typedef enum {
 
-  ECMD_SUCCESS = 0x0
+  ECMD_SUCCESS = 0x0,
+  //@ adding this because I need it for ecmdDataBuffer, it's a temporary thing- jtw 9/4/03
+  ECMD_FAILURE = 0x1010,   
 
   /* For now let's define all return codes in the 0x1000-0x1FFF range */
   /* ex ECMD_FAILURE = 0x1010; */
