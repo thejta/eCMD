@@ -21,6 +21,14 @@
 
 /* $Header$ */
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -340,12 +348,13 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   uint8_t MULTI = 1;
   uint8_t ALL = 2;
 
-  uint8_t cageType;
-  uint8_t nodeType;
-  uint8_t slotType;
-  uint8_t posType;
-  uint8_t coreType;
-  uint8_t threadType;
+  //@01c Add init to 1
+  uint8_t cageType = 1;
+  uint8_t nodeType = 1;
+  uint8_t slotType = 1;
+  uint8_t posType  = 1;
+  uint8_t coreType = 1;
+  uint8_t threadType = 1;
 
   std::string allFlag = "all";
   std::string patterns = ",.";

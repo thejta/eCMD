@@ -20,6 +20,14 @@
 //
 // End Module Description **********************************************
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -334,7 +342,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 	      
 	     /* Do we want anything in here */
              /* Check if the bits are ordered from:to (0:10) or just (1) */
-             if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && ((uint32_t) curLatchBit <= curLatchInfo->latchEndBit)) ||
+             if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <= (int) curLatchInfo->latchEndBit)) ||
+             //@01c swapped type casting on curLatchBit and curLatchInfo->latchEndBit 
              /* Check if the bits are ordered to:from (10:0) */
              		 ((curLatchInfo->latchStartBit >  curLatchInfo->latchEndBit)  && ((uint32_t) curLatchBit <= curLatchInfo->latchStartBit))) {
 

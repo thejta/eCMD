@@ -20,6 +20,14 @@
 //
 // End Module Description **********************************************
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -386,7 +394,7 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
   bool isSlot = false;
   bool isPos = false;
   bool isCore = false;
-  char arg[5];
+  char arg[5] = ""; //@01a add init 
   
   if (strcmp(targetField, "cage")==0) {
     isCage = true;

@@ -19,6 +19,14 @@
 //
 // End Module Description **********************************************
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -172,12 +180,13 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   std::string configName;       ///< Name of config variable to fetch
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   ecmdConfigValid_t validInput;  ///< Indicator if valueAlpha, valueNumeric (or both) are valid
-  std::string  valueAlpha;       ///< Input of type Ascii
-  uint32_t  valueNumeric;        ///< Input of type Numeric  
+  std::string  valueAlpha = "";  ///< Input of type Ascii   @01c add init
+  uint32_t  valueNumeric= 0;     ///< Input of type Numeric @01c add init 
   ecmdDataBuffer inputBuffer;	 ///< Initialise data buffer with the numeric value(if input is Numeric)
   char inputVal[400];		 ///< Value to set configuration variable to
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperdata;     ///< Store internal Looper data
+
 
   /* get format flag, if it's there */
   std::string format;

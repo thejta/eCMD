@@ -20,6 +20,14 @@
 //
 // End Module Description **********************************************
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   
+// End Change Log *****************************************************
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -407,7 +415,8 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "default";  ///< Input data format
   std::string dataModifier = "insert";  ///< Default data modifier
-  uint32_t startBit, numBits = 0;
+  uint32_t startBit = 0;                //@01 add init 
+  uint32_t numBits  = 0; 
   ecmdDataBuffer buffer;                ///< Buffer to hold input data
   ecmdDataBuffer spyBuffer;             ///< Buffer to hold current spy data
   ecmdChipTarget target;                ///< Current target
