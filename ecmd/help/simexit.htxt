@@ -1,5 +1,5 @@
 
-Syntax: simexit
+Syntax: simexit [<rc> <message>]
         
         ECMD:           Core Common Function
 
@@ -7,6 +7,10 @@ Syntax: simexit
 
         Parameters:
         --------------------------------------------------------------------------------
+
+        rc        [opt] Testcase failure return code to pass to simulation
+
+        message   [opt] Testcase failure message to pass to simulation
 
         --------------------------------------------------------------------------------
 
