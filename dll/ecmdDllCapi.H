@@ -64,7 +64,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBu
 
 uint32_t dllGetSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue); 
 
-uint32_t dllGetSpyEccGrouping(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask); 
+uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask); 
 
 uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
 
@@ -198,9 +198,9 @@ void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type); 
 
-uint32_t dllGetConfiguration(std::string i_name, std::string & o_value); 
+uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
-uint32_t dllSetConfiguration(std::string i_name, std::string i_value); 
+uint32_t dllSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string & i_valueAlpha, uint32_t i_valueNumeric); 
 
 uint32_t dllDeconfigureTarget(ecmdChipTarget & i_target); 
 
