@@ -55,6 +55,7 @@
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
 #define ECMD_EXPECT_FAILURE                     0x1901  ///< An expect was performed and a miscompare was found
+#define ECMD_SCANDEF_LOOKUP_FAILURE             0x1902  ///< An Error occurred trying to process the scandef file
 
 
 /* dataBuffer specific return codes */
