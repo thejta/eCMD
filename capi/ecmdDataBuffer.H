@@ -317,6 +317,13 @@ public:
    */
   void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
 
+  /**
+   * @brief Apply an inversion mask to data inside buffer
+   * @brief Just a wrapper that takes in a ecmdDataBuffer and calls uint32_t applyInversionMask
+   * @param i_invMaskBuffer Buffer that stores inversion mask
+   * @param i_invByteLen Buffer length provided in bytes
+   */
+  void applyInversionMask(ecmdDataBuffer & i_invMaskBuffer, int i_invByteLen);
 
   /**
    * @brief Insert part of another DataBuffer into this one

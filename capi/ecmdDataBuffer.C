@@ -740,6 +740,11 @@ void ecmdDataBuffer::reverse() {
   } /* end for */
 }
 
+void ecmdDataBuffer::applyInversionMask(ecmdDataBuffer & i_invMaskBuffer, int i_invByteLen) {
+  applyInversionMask(i_invMaskBuffer.iv_Data, i_invMaskBuffer.getByteLength());
+}
+
+
 void ecmdDataBuffer::applyInversionMask(uint32_t * i_invMask, int i_invByteLen) {
 
   /* Do the smaller of data provided or size of buffer */
