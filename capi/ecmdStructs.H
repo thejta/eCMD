@@ -143,6 +143,7 @@ typedef enum {
 */
 struct ecmdChipTarget {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdChipTarget();
 
@@ -155,6 +156,7 @@ struct ecmdChipTarget {
   uint32_t flattenSize(void) const;
 #ifndef REMOVE_SIM
   void     printStruct(void) const;
+#endif
 #endif
     
   // Members
@@ -177,6 +179,7 @@ struct ecmdChipTarget {
   
 };
 
+#ifndef DOCUMENTATION
 // ecmdChipTarget Constructor
 inline ecmdChipTarget::ecmdChipTarget():
 cage(0),
@@ -199,6 +202,7 @@ unitIdState(ECMD_TARGET_UNKNOWN_STATE)
 
 // ecmdChipTarget Destructor
 inline ecmdChipTarget::~ecmdChipTarget() { }
+#endif
 
 /**
  @brief Used in ecmdChipData to describe the interface macro used by the chip
@@ -226,6 +230,7 @@ typedef enum {
 */
 struct ecmdThreadData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdThreadData();
 
@@ -239,12 +244,14 @@ struct ecmdThreadData {
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
+#endif
 
   // Members
   uint8_t   threadId;		///< (Detail: Low) Thread number of this entry
   uint32_t  unitId;		///< (Detail: High) Unit Id of this entry
 };
 
+#ifndef DOCUMENTATION
 // ecmdThreadData Constructor
 inline ecmdThreadData::ecmdThreadData():
 threadId(0),
@@ -254,7 +261,7 @@ unitId(0)
 
 // ecmdThreadData Destructor
 inline ecmdThreadData::~ecmdThreadData() { }
-
+#endif
 
 
 /**
@@ -265,6 +272,7 @@ inline ecmdThreadData::~ecmdThreadData() { }
 */
 struct ecmdCoreData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdCoreData();
 
@@ -278,6 +286,7 @@ struct ecmdCoreData {
 #ifndef REMOVE_SIM
 	void printStruct(void);
 #endif
+#endif
 
   // Members
   uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
@@ -286,6 +295,7 @@ struct ecmdCoreData {
   std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
 };
 
+#ifndef DOCUMENTATION
 // ecmdCoreData Constructor
 inline ecmdCoreData::ecmdCoreData():
 coreId(0),
@@ -296,6 +306,7 @@ unitId(0)
 
 // ecmdCoreData Destructor
 inline ecmdCoreData::~ecmdCoreData() { }
+#endif
 
 /**
  Defines for the ecmdChipData chipFlags field
@@ -315,6 +326,7 @@ inline ecmdCoreData::~ecmdCoreData() { }
 */
 struct ecmdChipData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdChipData();
 
@@ -327,6 +339,7 @@ struct ecmdChipData {
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
+#endif
 #endif
 
   // Members
@@ -343,6 +356,7 @@ struct ecmdChipData {
   std::list<ecmdCoreData>       coreData;           ///< (Detail: Low)  List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
+#ifndef DOCUMENTATION
 // ecmdChipData Constructor
 inline ecmdChipData::ecmdChipData():
 pos(0),
@@ -357,6 +371,7 @@ chipFlags(0)
 
 // ecmdChipData Destructor
 inline ecmdChipData::~ecmdChipData() { }
+#endif
 
 /**
  @brief Used for the ecmdQueryConfig function to return slot data
@@ -366,6 +381,7 @@ inline ecmdChipData::~ecmdChipData() { }
 */
 struct ecmdSlotData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdSlotData();
 
@@ -379,6 +395,7 @@ struct ecmdSlotData {
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
+#endif
 
   // Members
   uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
@@ -386,6 +403,7 @@ struct ecmdSlotData {
   std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in order by chipType and pos
 };
 
+#ifndef DOCUMENTATION
 // ecmdSlotData Constructor
 inline ecmdSlotData::ecmdSlotData():
 slotId(0),
@@ -395,7 +413,7 @@ unitId(0)
 
 // ecmdSlotData Destructor
 inline ecmdSlotData::~ecmdSlotData() { }
-
+#endif
 
 /**
  @brief Used for the ecmdQueryConfig function to return node data
@@ -405,6 +423,7 @@ inline ecmdSlotData::~ecmdSlotData() { }
 */
 struct ecmdNodeData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdNodeData();
 
@@ -418,6 +437,7 @@ struct ecmdNodeData {
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
+#endif
 
   // Members
   uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
@@ -425,6 +445,7 @@ struct ecmdNodeData {
   std::list<ecmdSlotData> slotData;     ///< (Detail: Low) List of all slots requested in this node - in numerical order by slotId
 };
 
+#ifndef DOCUMENTATION
 // ecmdNodeData Constructor
 inline ecmdNodeData::ecmdNodeData():
 nodeId(0),
@@ -434,7 +455,7 @@ unitId(0)
 
 // ecmdNodeData Destructor
 inline ecmdNodeData::~ecmdNodeData() { }
-
+#endif
 
 /**
  @brief Used for the ecmdQueryConfig function to return cage data
@@ -444,6 +465,7 @@ inline ecmdNodeData::~ecmdNodeData() { }
 */
 struct ecmdCageData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdCageData();
 
@@ -457,6 +479,7 @@ struct ecmdCageData {
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
+#endif
 
   // Members
   uint32_t cageId;                      ///< (Detail: Low) Cage number of this entry
@@ -464,6 +487,7 @@ struct ecmdCageData {
   std::list<ecmdNodeData> nodeData;     ///< (Detail: Low) List of all nodes requested in this cage - in numerical order by nodeId
 };
 
+#ifndef DOCUMENTATION
 // ecmdCageData Constructor
 inline ecmdCageData::ecmdCageData():
 cageId(0),
@@ -473,13 +497,14 @@ unitId(0)
 
 // ecmdCageData Destructor
 inline ecmdCageData::~ecmdCageData() { }
-
+#endif
 
 /**
  @brief Used by the ecmdQueryConfig function to return data
 */
 struct ecmdQueryData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdQueryData();
 
@@ -493,12 +518,14 @@ struct ecmdQueryData {
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
+#endif
 
   // Members
   ecmdQueryDetail_t       detailLevel;  ///< (Detail: Low) This is set to the detail level of the data contained within
   std::list<ecmdCageData> cageData;     ///< (Detail: Low) List of all cages in the system - in nummerical order by cageId
 };
 
+#ifndef DOCUMENTATION
 // ecmdQueryData Constructor
 inline ecmdQueryData::ecmdQueryData():
 detailLevel((ecmdQueryDetail_t)0x0)
@@ -507,6 +534,7 @@ detailLevel((ecmdQueryDetail_t)0x0)
 
 // ecmdQueryData Destructor
 inline ecmdQueryData::~ecmdQueryData() { }
+#endif
 
 /**
  @brief Used by Ring/Array/Spy Query functions to return a required clock state
@@ -629,6 +657,7 @@ typedef enum {
 */
 struct ecmdSpyData {
 
+#ifndef DOCUMENTATION
   // Constructor
   ecmdSpyData();
 
@@ -641,6 +670,7 @@ struct ecmdSpyData {
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
+#endif
 #endif
 
   // Members
@@ -658,6 +688,7 @@ struct ecmdSpyData {
   std::list<std::string> epCheckers;     ///< Possible epChecker names affected by this Spy
 };
 
+#ifndef DOCUMENTATION
 // ecmdSpyData Constructor
 inline ecmdSpyData::ecmdSpyData():
 bitLength(0),
@@ -669,6 +700,7 @@ isCoreRelated(false)
 
 // ecmdSpyData Destructor
 inline ecmdSpyData::~ecmdSpyData() { }
+#endif
 
 /**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
