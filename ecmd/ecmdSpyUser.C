@@ -61,7 +61,7 @@
 //---------------------------------------------------------------------
 
 uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, getspyrc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -77,7 +77,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::string enumValue;                ///< The enum value returned
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
-
+  std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
+  
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -98,7 +99,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   if (formatPtr != NULL) {
     inputformat = formatPtr;
   }
-
+  //Check verbose option
+  bool verbose = ecmdParseOption(&argc, &argv, "-v");
+  
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -233,24 +236,41 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       if (spyData.epCheckers.empty()) {
         ecmdOutputError("getspy - Got back the Spy Failed ECC return code, but no epcheckers specified\n");
       }
-      /* Must have entries - setup variables and iterators, start looping */
       ecmdDataBuffer inLatches, outLatches, errorMask;
       std::list<std::string>::iterator epcheckersIter = spyData.epCheckers.begin();
-      ecmdOutput("===== The following epcheckers mismatched for this spy =====\n");
+      int flag=0;
+      printed = "getspy - epcheckers \"";
       while (epcheckersIter != spyData.epCheckers.end()) {
         rc = getSpyEpCheckers(target, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
-        if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK) return rc;
-        printed = *epcheckersIter + "\n";
-        ecmdOutput(printed.c_str());
-        printed = "   In Latches: 0x" + inLatches.genHexLeftStr() + "\n";
-        ecmdOutput(printed.c_str());
-        printed = "  Out Latches: 0x" + outLatches.genHexLeftStr() + "\n";
-        ecmdOutput(printed.c_str());
-        printed = "   Error Mask: 0x" + errorMask.genHexLeftStr() + "\n";
-        ecmdOutput(printed.c_str());
-        epcheckersIter++;
+	if(errorMask.getNumBitsSet(0,errorMask.getBitLength())) {
+	  if(flag) 
+	    printed += ", ";
+	  printed += *epcheckersIter;
+	  flag = 1;
+	}
+	epcheckersIter++;
       }
-      ecmdOutput("============================================================\n");
+      printed += "\" mismatched on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      if ( !verbose ) {
+        ecmdOutputError("Use -v option to get the detailed failure information\n");
+	return rc;
+      } else {
+       ecmdOutput("============================================================\n");
+       getspyrc = rc;
+      }
+    } else if ((rc == ECMD_SPY_GROUP_MISMATCH) ) {
+      printed = "getspy - Problems reading group spy - found a mismatch on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      if(!verbose) {
+        ecmdOutputError("Use -v option to get the detailed failure information\n"); 
+	return(rc);
+      } else {
+       ecmdOutput("============================================================\n");
+       getspyrc = rc;
+      }
     } else if (rc) {
         printed = "getspy - Error occured performing getspy on ";
         printed += ecmdWriteTarget(target) + "\n";
@@ -318,7 +338,52 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       }
 
     }
-
+    /* Check if verbose then print details */
+    if (verbose) {
+      /* Get Spy Groups */
+      getSpyGroups(target, spyName.c_str(), spygroups);
+      if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) return rc;
+      std::list<ecmdSpyGroupData>::iterator groupiter = spygroups.begin();
+      ecmdOutput("===== GroupData information for this spy ");
+      printed = spyName + ": =====\n";
+      ecmdOutput(printed.c_str());
+      int i =0;
+      char gpnum[50];
+      while (groupiter != spygroups.end()) {
+        sprintf(gpnum,"%3.3d",i);
+        printed = "        Group " + (std::string)gpnum + ": 0x" + groupiter->extractBuffer.genHexLeftStr() + "\n";
+	ecmdOutput(printed.c_str());
+	printed = "   Dead Bits Mask: 0x" + groupiter->deadbitsMask.genHexLeftStr() + "\n";
+	ecmdOutput(printed.c_str());
+	i++;
+        groupiter++;
+      }
+      /* Ecc Checkers */
+      /* Must have entries - setup variables and iterators, start looping */
+      ecmdDataBuffer inLatches, outLatches, errorMask;
+      std::list<std::string>::iterator epcheckersIter = spyData.epCheckers.begin();
+      ecmdOutput("===== epcheckers information for this spy ");
+      printed = spyName + ": =====\n";
+      ecmdOutput(printed.c_str());
+      while (epcheckersIter != spyData.epCheckers.end()) {
+        rc = getSpyEpCheckers(target, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
+        if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK && rc != ECMD_SPY_GROUP_MISMATCH) return rc;
+        printed = *epcheckersIter + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "   In Latches: 0x" + inLatches.genHexLeftStr() + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "  Out Latches: 0x" + outLatches.genHexLeftStr() + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "   Error Mask: 0x" + errorMask.genHexLeftStr() + "\n";
+        ecmdOutput(printed.c_str());
+        epcheckersIter++;
+      }
+      ecmdOutput("============================================================\n");
+      
+    }
+    if(getspyrc) 
+      return(getspyrc);
+    
     /* Flush out the cache we don't need to keep entries from the previous chips */
     rc = ecmdFlushRingCache();
     if (rc) {
@@ -352,7 +417,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything?
   std::string printed;                  ///< Output data
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
-
+  
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     inputformat = formatPtr;
@@ -474,6 +539,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       printed = "putspy - Problems reading group spy - found a mismatch - to force write don't use start/numbits - on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
+      ecmdOutputError("Use getspy with the -v option to get the detailed failure information\n");
       return rc;
       
     } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
@@ -491,7 +557,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       ecmdOutputError( printed.c_str() );
       return rc;
     }
-
+    
     validPosFound = true;     
 
     if (inputformat != "enum") {
@@ -509,7 +575,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       }
 
     }
-
+    
     /* Flush out the cache to actually write the data to the chips */
     rc = ecmdFlushRingCache();
     if (rc) {
