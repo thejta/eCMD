@@ -1042,7 +1042,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
           /* Check if the bits are ordered to:from (10:0) */
           ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <= (int) curLatchInfo->latchStartBit))) {
 
-        bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+        bitsToFetch = (curLatchInfo->length  < (uint32_t) curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
 
         /* Setup the actual data bits displayed */
         if (dataStartBit == -1) {
@@ -1236,7 +1236,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
           /* If the data starts in the middle of this entry */
           curStartBitToInsert = (curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) ? i_startBit - curLatchInfo->latchStartBit : i_startBit - curLatchInfo->latchEndBit;
         }
-        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert) ? curLatchInfo->length - curStartBitToInsert : curBitsToInsert;
+        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < (uint32_t) curBitsToInsert) ? curLatchInfo->length - curStartBitToInsert : curBitsToInsert;
 
 
         /* ********* */
