@@ -212,7 +212,7 @@ struct ecmdError {
 /**
  * @brief Used to store position-selection related info a cmdline user passed in
  */
-struct ecmdUserInfo {
+struct ecmdUserSelectInfo {
   std::string cage;     ///< String containing cage info user passed in with -k option
   std::string node;     ///< String containing node info user passed in with -n option
   std::string pos;      ///< String containing position info user passed in -p option

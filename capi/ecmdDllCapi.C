@@ -27,7 +27,7 @@
 #define ecmdDllCapi_C
 #include <stdio.h>
 #include <list>
-#include <ifstream>
+#include <fstream.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -169,51 +169,90 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_qu
 
   //update target with useful info in the ecmdUserArgs struct
   //cage
-  if (!ecmdUserArgs.cage) {
-    i_target.cage = 0x0;
-    i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
-  }
-  else if (ecmdUserArgs.cage == "all" || ecmdUserArgs.cage.find(",") != std::string::npos) {
+  if (ecmdUserArgs.cage == "all" || ecmdUserArgs.cage.find(",") != std::string::npos) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+  else {
+
+    if (ecmdUserArgs.cage.length() != 0) {
+      i_target.cage = atoi(ecmdUserArgs.cage.c_str());
+    }
+    else {
+      i_target.cage = 0x0;
+    }
+
+    i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
 
   //node
-  if (!ecmdUserArgs.node) {
-    i_target.node = 0x0;
-    i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  }
-  else if (ecmdUserArgs.node == "all" || ecmdUserArgs.node.find(",") != std::string::npos) {
+  if (ecmdUserArgs.node == "all" || ecmdUserArgs.node.find(",") != std::string::npos) {
     i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+  else {
+
+    if (ecmdUserArgs.node.length() != 0) {
+      i_target.node = atoi(ecmdUserArgs.node.c_str());
+    }
+    else {
+      i_target.node = 0x0;
+    }
+
+    i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
 
   //position
-  if (!ecmdUserArgs.pos) {
-    i_target.pos = 0x0;
-    i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-  }
-  else if (ecmdUserArgs.pos == "all" || ecmdUserArgs.pos.find(",") != std::string::npos) {
+  if (ecmdUserArgs.pos == "all" || ecmdUserArgs.pos.find(",") != std::string::npos) {
     i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+  else {
+
+    if (ecmdUserArgs.pos.length() != 0) {
+      i_target.pos = atoi(ecmdUserArgs.pos.c_str());
+    }
+    else {
+      i_target.pos = 0x0;
+    }
+
+    i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
 
   //core
-  if (!ecmdUserArgs.core) {
-    i_target.core = 0x0;
-    i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
-  }
-  else if (ecmdUserArgs.core == "all" || ecmdUserArgs.core.find(",") != std::string::npos) {
+  if (ecmdUserArgs.core == "all" || ecmdUserArgs.core.find(",") != std::string::npos) {
     i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+  else {
+
+    if (ecmdUserArgs.core.length() != 0) {
+      i_target.core = atoi(ecmdUserArgs.core.c_str());
+    }
+    else {
+      i_target.core = 0x0;
+    }
+
+    i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
 
   //thread
-  if (!ecmdUserArgs.thread) {
-    i_target.thread = 0x0;
-    i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
-  }
-  else if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread.find(",") != std::string::npos) {
+  if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread.find(",") != std::string::npos) {
     i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
   }
+  else {
 
+    if (ecmdUserArgs.thread.length() != 0) {
+      i_target.thread = atoi(ecmdUserArgs.thread.c_str());
+    }
+    else {
+      i_target.thread = 0x0;
+    }
+
+    i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+
+
+  /* Okay, target setup as best we can, let's go out to query cnfg with it */
+  rc = dllQueryConfig(i_target, o_queryData);
   return rc;
+
 }
 
 int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
