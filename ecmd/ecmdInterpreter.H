@@ -40,6 +40,11 @@
 //--------------------------------------------------------------------
 #define ECMD_MAX_DATA_BITS        800000          ///< Maximum number of bits to allow as input/output for reasonable bounds/error checking
 
+typedef enum {  ///< An enum to tell us what path to call through in ecmdGetMem/ecmdPutMem
+  ECMD_MEM_DMA,
+  ECMD_MEM_MEMCTRL,
+  ECMD_MEM_PROC
+} ECMD_MEM_DA_TYPE;
 
 /**
  @brief Process user args and execute command requested
@@ -82,6 +87,10 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]);
 /* ecmdSpyUser.C */
 uint32_t ecmdGetSpyUser(int argc, char* argv[]);
 uint32_t ecmdPutSpyUser(int argc, char* argv[]);
+
+/* ecmdMemUser.C */
+uint32_t ecmdGetMemUser(int argc, char* argv[], ECMD_MEM_DA_TYPE memMode);
+uint32_t ecmdPutMemUser(int argc, char* argv[], ECMD_MEM_DA_TYPE memMode);
 
 /* ecmdQueryUser.C */
 uint32_t ecmdQueryUser(int argc, char* argv[]);

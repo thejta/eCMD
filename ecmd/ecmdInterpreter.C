@@ -109,8 +109,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         }
         else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "getlatch")) {
-          rc = ecmdGetLatchUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getmemdma")) {
+          rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_DMA);
+        } else if (!strcmp(argv[0], "getmemmemctrl")) {
+          rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_MEMCTRL);
+        } else if (!strcmp(argv[0], "getmemproc")) {
+          rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_PROC);
         } else if (!strcmp(argv[0], "getringdump")) {
           rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getscom")) {
@@ -142,6 +146,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putlatch")) {
           rc = ecmdPutLatchUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putmemdma")) {
+          rc = ecmdPutMemUser(argc - 1, argv + 1, ECMD_MEM_DMA);
+        } else if (!strcmp(argv[0], "putmemmemctrl")) {
+          rc = ecmdPutMemUser(argc - 1, argv + 1, ECMD_MEM_MEMCTRL);
+        } else if (!strcmp(argv[0], "putmemproc")) {
+          rc = ecmdPutMemUser(argc - 1, argv + 1, ECMD_MEM_PROC);
         } else if (!strcmp(argv[0], "putpattern")) {
           rc = ecmdPutPatternUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putscom")) {
