@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-#ifndef PERLAPI
+#ifndef ECMD_PERLAPI
 /** @name Load/Unload Functions */
 //@{
 /**
@@ -86,7 +86,7 @@ uint32_t ecmdUnloadDll();
 uint32_t ecmdCommandArgs(int * i_argc, char** i_argv[]); 
 
 //@}
-#endif
+#endif // ifndef ECMD_PERLAPI
 
 
 
@@ -2081,7 +2081,7 @@ uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_tar
 
 #endif /* ecmdClientCapi_H */
 
-#ifndef PERLAPI
+#ifndef ECMD_PERLAPI
 /*** -------------------------------------- ***/
 /*** The following is doxygen documentation ***/
 /*** -------------------------------------- ***/

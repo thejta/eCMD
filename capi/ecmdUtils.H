@@ -137,6 +137,8 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 //  User Types
 //----------------------------------------------------------------------
 
+/** @name eCMD Utility Functions */
+//@{
 
 /**
  @brief Initializes data structures and code to loop over configured and selected elements of the system
@@ -230,7 +232,7 @@ uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 */
 uint32_t ecmdDisplayDllInfo();
 
-#ifndef ECMD_STRIP_DEBUG
+#if !defined(ECMD_STRIP_DEBUG) && !defined(ECMD_PERLAPI)
 /**
  @brief Print the parameters pass to a given function.
  @retval Void return
@@ -242,5 +244,6 @@ uint32_t ecmdDisplayDllInfo();
 void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
 #endif
 
+//@}
 
 #endif

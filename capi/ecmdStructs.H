@@ -800,6 +800,7 @@ typedef enum {
 } ecmdConfigValid_t;
 
 
+#ifndef ECMD_PERLAPI
 /* @name Operators */
 //@{
 
@@ -824,6 +825,7 @@ bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs);
 
 
 //@}
+#endif
 
 
 /* @name Misc functions */

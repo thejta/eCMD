@@ -73,6 +73,8 @@ bool ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
  */
 char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
 
+//@}
+
 
 /**
  * @brief Breaks the string line into tokens based on all chars in seperators
@@ -90,7 +92,6 @@ void ecmdParseTokens (std::string line, const char* seperators, std::vector<std:
 */
 std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
 
-//@}
 
 /**
  * @brief Converts strings to unsigned int values. The input format is 0xABCDEF.

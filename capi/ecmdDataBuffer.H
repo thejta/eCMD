@@ -738,12 +738,14 @@ public:
    */
   uint32_t  copy(ecmdDataBuffer & o_copyBuffer) const;
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy Constructor
    * @param i_master DataBuffer to copy from
    * @post this DataBuffer is allocated, is an exact duplicate of the other
    */
   ecmdDataBuffer& operator=(const ecmdDataBuffer & i_master);
+#endif
 
   /* These are only to be used to apply a buffer to the entire ecmdDataBuffer, not just sections */
   /**
