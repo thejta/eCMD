@@ -88,7 +88,9 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string printed;                          ///< Output data
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
+#ifndef FIPSODE
   sedcScomdefEntry scomEntry;                   ///< Returns a class containing the scomdef entry read from the file
+#endif
   std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
   /************************************************************************/
