@@ -109,6 +109,8 @@ char **p_xargv;
 
 uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
 uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
+std::string dllParseReturnCode(uint32_t i_returnCode);
+
 
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
@@ -242,7 +244,7 @@ uint32_t dllUnloadDll() {
 }
 
 
-std::string dllGetErrorMsg(uint32_t i_errorCode) {
+std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::string ret;
   std::list<ecmdError>::iterator cur;
 
@@ -250,9 +252,17 @@ std::string dllGetErrorMsg(uint32_t i_errorCode) {
     if ( (*cur).errorCode == i_errorCode ) {
       ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
       ret += (*cur).message;
+      if (i_parseReturnCode) {
+        ret += "RETURN CODE : " + dllParseReturnCode(i_errorCode) + "\n";
+      }
       ret += "==============================================================\n";
       break;
     }
+  }
+
+  /* We want to parse the return code even if we didn't finded extended error info */
+  if ((ret.length() == 0) && (i_parseReturnCode)) {
+    ret += "ecmdGetErrorMsg - RETURN CODE : " + dllParseReturnCode(i_errorCode) + "\n";
   }
 
   return ret;
@@ -978,11 +988,11 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is greater then numBits requested to write\n");
-    rc = ECMD_DATA_OVERFLOW
+    rc = ECMD_DATA_OVERFLOW;
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is less then numBits requested to write\n");
-    rc = ECMD_DATA_UNDERFLOW
+    rc = ECMD_DATA_UNDERFLOW;
     return rc;
   }
 
@@ -1388,6 +1398,89 @@ uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   return rc;
 }
 
+
+std::string dllParseReturnCode(uint32_t i_returnCode) {
+  std::string ret = "";
+
+  ecmdChipTarget dummy;
+  std::string filePath;
+  uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
+
+  if (rc || (filePath.length()==0)) {
+    ret = "ERROR FINDING DECODE FILE";
+    return ret;
+  }
+
+  filePath += "ecmdReturnCodes.H";
+
+
+  std::string line;
+  std::vector< std::string > tokens;
+  std::string source, retdefine;
+  int found = 0;
+  uint32_t comprc;
+
+
+  std::ifstream ins(filePath.c_str());
+
+  if (ins.fail()) {
+    ret = "ERROR OPENING DECODE FILE";
+    return ret;
+  }
+
+  /* This is what I am trying to parse from ecmdReturnCodes.H */
+
+  /* #define ECMD_ERR_UNKNOWN                        0x00000000 ///< This error code wasn't flagged to which plugin it came from        */
+  /* #define ECMD_ERR_ECMD                           0x01000000 ///< Error came from eCMD                                               */
+  /* #define ECMD_ERR_CRONUS                         0x02000000 ///< Error came from Cronus                                             */
+  /* #define ECMD_ERR_IP                             0x04000000 ///< Error came from IP GFW                                             */
+  /* #define ECMD_ERR_Z                              0x08000000 ///< Error came from Z GFW                                              */
+  /* #define ECMD_INVALID_DLL_VERSION                (ECMD_ERR_ECMD | 0x1000) ///< Dll Version                                          */
+
+
+  while (!ins.eof()) { /*  && (strlen(str) != 0) */
+    getline(ins,line,'\n');
+    /* Let's strip off any comments */
+    line = line.substr(0, line.find_first_of("/"));
+    ecmdParseTokens(line, " \n()|", tokens);
+
+    /* Didn't find anything */
+    if (line.size() < 2) continue;
+
+    if (tokens[0] == "#define") {
+      /* Let's see if we have one of they return code source defines */
+      if ((tokens.size() == 3) && (tokens[1] != "ECMD_SUCCESS") && (tokens[1] != "ECMD_DBUF_SUCCESS")) {
+        sscanf(tokens[2].c_str(),"0x%x",&comprc);
+        if ((i_returnCode & 0xFF000000) == comprc) {
+          /* This came from this source, we will save that as we may use it later */
+          source = tokens[1];
+        }
+      } else if (i_returnCode & 0xFF000000 != ECMD_ERR_ECMD) {
+        /* We aren't going to find this return code in here since it didn't come from us */
+      } else if (tokens.size() == 4) {
+        /* This is a standard return code define */
+        sscanf(tokens[3].c_str(),"0x%x",&comprc);
+        if ((i_returnCode & 0x00FFFFFF) == comprc) {
+          /* This came from this source, we will save that as we may use it later */
+          retdefine = tokens[1];
+          found = 1;
+          break;
+        }
+      }        
+    }
+  }
+
+  ins.close();
+
+  if (!found && source.length() == 0) {
+    ret = "UNDEFINED";
+  } else if (!found) {
+    ret = "UNDEFINED FROM " + source;
+  } else {
+    ret = retdefine;
+  }
+  return ret;
+}
 
 // Change Log *********************************************************
 //                                                                      
