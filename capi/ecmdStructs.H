@@ -145,7 +145,8 @@ struct ecmdChipTarget {
 */
 typedef enum {
   ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Access Macro
-  ECMD_INTERFACE_CFAM                   ///< CommonFirmwareAccessMacro - Fsi interface
+  ECMD_INTERFACE_CFAM,                  ///< CommonFirmwareAccessMacro - Fsi interface
+  ECMD_INTERFACE_UNKNOWN                ///< Unknown Interface
 } ecmdChipInterfaceType_t;
 
 /**
