@@ -160,7 +160,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
     printLine = ecmdWriteTarget(target);
 
-    std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat);
+    std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, (uint32_t)address);
     if (dataStr[0] != '\n') {
       printLine += "\n";
     }

@@ -630,7 +630,14 @@ public:
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genBinStr(uint32_t i_start, uint32_t i_bitlen) const;
+  std::string genBinStr(uint32_t i_start, uint32_t i_bitlen) const; 
+  /**
+   * @brief Return Data as an ASCII char string.  If it's out of range, a . is printed.
+   * @param i_start Start bit of data to convert
+   * @param i_bitlen Number of consecutive bits to convert
+   * @retval String containing requested data
+   */
+  std::string genAsciiStr(uint32_t i_start, uint32_t i_bitlen) const; 
 
   /**
    * @brief Return entire buffer as a hex left aligned char string
@@ -647,6 +654,11 @@ public:
    * @retval String containing requested data
    */
   std::string genBinStr() const;
+  /**
+   * @brief Return Data as an ASCII char string.  If it's out of range, a . is printed.
+   * @retval String containing requested data
+   */
+  std::string genAsciiStr() const; 
 
   /**
    * @brief Retrieve a section of the Xstate Data

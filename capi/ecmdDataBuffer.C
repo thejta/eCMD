@@ -1161,6 +1161,40 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   return ret;
 }
 
+std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
+
+  int numwords = (bitLen - 1)/32 + 1;
+  int startWord = start/32;
+  std::string ret;
+  int i, j;
+  uint32_t temp;
+  char tempstr[4];
+
+  //if (!str || numbytes < 1) return 1;
+
+  for (i = 0; i < numwords; i++) { /* word loop */
+    for (j = 0; j < 4; j++) { /* byte loop */
+      temp = (iv_Data[(startWord + i)] >> (24-8*j)) & 0x000000ff;  /* grab 8 bits           */  	  
+      if (temp < 32 || temp > 126) {                /* decimal 32 == space, 127 == DEL */
+        tempstr[0] = '.';                           /* non-printing: use a . */
+        tempstr[1] = '\0';
+      } else {
+        sprintf(tempstr, "%c", temp);               /* convert to ascii      */
+      }  
+      ret.insert(ret.length(),tempstr);
+    } 
+  } 
+
+#ifndef REMOVE_SIM
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(start, bitLen)) {
+      printf("**** WARNING : ecmdDataBuffer::genAsciiStr: Cannot extract when non-binary (X-State) character present\n");
+    }
+#endif
+
+  return ret;
+}
+
 std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const {
   std::string ret;
 #ifndef REMOVE_SIM
@@ -1180,6 +1214,7 @@ std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const 
 std::string ecmdDataBuffer::genHexLeftStr() const { return this->genHexLeftStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genHexRightStr() const { return this->genHexRightStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genBinStr() const { return this->genBinStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genAsciiStr() const { return this->genAsciiStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
 
 uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t start, uint32_t length) {

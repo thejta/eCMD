@@ -39,6 +39,7 @@
 //--------------------------------------------------------------------
 #include <string>
 #include <vector>
+#include <ecmdDataBuffer.H>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -77,6 +78,14 @@ char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_
  * @param tokens Vector of strings that contain all the tokens
 */
 void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens);
+
+/**
+ * @brief Turns the data in the buffer into ebcdic text
+ * @param i_data Data to convert
+ * @param start Bit to start at
+ * @param bitLen Number of bits
+*/
+std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
 
 //@}
 

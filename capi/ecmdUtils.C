@@ -54,7 +54,11 @@ typedef enum {
   ECMD_FORMAT_BW,
   ECMD_FORMAT_BX,
   ECMD_FORMAT_BXN,
-  ECMD_FORMAT_BXW
+  ECMD_FORMAT_BXW,
+  ECMD_FORMAT_MEM,
+  ECMD_FORMAT_MEMA,
+  ECMD_FORMAT_MEMD,
+  ECMD_FORMAT_MEME
 } ecmdFormatState_t;
 
 
@@ -510,64 +514,93 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
   int numCols = 0;
   bool good = true;
-  bool perlMode = false;
 
-  for (int i = 0; i < formTagLen; i++) {
+  // We have to check for the memory types before we fall into the looping below
+  if (i_format.substr(0,3) == "mem") {
+    if (i_format[3] == 'a')
+      curState = ECMD_FORMAT_MEMA;
+    else if (i_format[3] == 'd')
+      curState = ECMD_FORMAT_MEMD;
+    else if (i_format[3] == 'e')
+      curState = ECMD_FORMAT_MEME;
+    else
+      curState = ECMD_FORMAT_MEM;
+  } else { // No mem
+    for (int i = 0; i < formTagLen; i++) {
 
-    if (i_format[i] == 'x') {
-      if (curState != ECMD_FORMAT_NONE) {
-        good = false;
+      if (i_format[i] == 'x') {
+        if (curState != ECMD_FORMAT_NONE) {
+          good = false;
+          break;
+        }
+
+        curState = ECMD_FORMAT_X;
+      }
+      else if (i_format[i] == 'l') {
+        if (curState != ECMD_FORMAT_X) {
+          good = false;
+          break;
+        }
+
+      }
+      else if (i_format[i] == 'r') {
+        if (curState != ECMD_FORMAT_X) {
+          good = false;
+          break;
+        }
+
+        curState = ECMD_FORMAT_XR;
+      }
+      else if (i_format[i] == 'b') {
+        if (curState != ECMD_FORMAT_NONE) {
+          good = false;
+          break;
+        }
+
+        curState = ECMD_FORMAT_B;
+      }
+      else if (i_format[i] == 'n') {
+        if (curState == ECMD_FORMAT_B) {
+          curState = ECMD_FORMAT_BN;
+        } else if (curState == ECMD_FORMAT_BX) {
+          curState = ECMD_FORMAT_BXN;
+        } else {
+          good = false;
+          break;
+        }
+
+      }
+      else if (i_format[i] == 'w') {
+        if (curState == ECMD_FORMAT_X) {
+          curState = ECMD_FORMAT_XW;
+        }
+        else if (curState == ECMD_FORMAT_XR) {
+          curState = ECMD_FORMAT_XRW;
+        }
+        else if (curState == ECMD_FORMAT_B) {
+          curState = ECMD_FORMAT_BW;
+        }
+        else if (curState == ECMD_FORMAT_BX) {
+          curState = ECMD_FORMAT_BXW;
+        }
+        else {
+          good = false;
+          break;
+        }
+
+      }
+      else if (i_format[i] == 'X') {
+        if (curState != ECMD_FORMAT_B) {
+          good = false;
+          break;
+        }
+
+        curState = ECMD_FORMAT_BX;
+      }
+      else if (isdigit(i_format[i])) {
+        numCols *= 10;
+        numCols += atoi(&i_format[i]);
         break;
-      }
-
-      curState = ECMD_FORMAT_X;
-    }
-    else if (i_format[i] == 'l') {
-      if (curState != ECMD_FORMAT_X) {
-        good = false;
-        break;
-      }
-
-    }
-    else if (i_format[i] == 'r') {
-      if (curState != ECMD_FORMAT_X) {
-        good = false;
-        break;
-      }
-
-      curState = ECMD_FORMAT_XR;
-    }
-    else if (i_format[i] == 'b') {
-      if (curState != ECMD_FORMAT_NONE) {
-        good = false;
-        break;
-      }
-
-      curState = ECMD_FORMAT_B;
-    }
-    else if (i_format[i] == 'n') {
-      if (curState == ECMD_FORMAT_B) {
-        curState = ECMD_FORMAT_BN;
-      } else if (curState == ECMD_FORMAT_BX) {
-        curState = ECMD_FORMAT_BXN;
-      } else {
-        good = false;
-        break;
-      }
-
-    }
-    else if (i_format[i] == 'w') {
-      if (curState == ECMD_FORMAT_X) {
-        curState = ECMD_FORMAT_XW;
-      }
-      else if (curState == ECMD_FORMAT_XR) {
-        curState = ECMD_FORMAT_XRW;
-      }
-      else if (curState == ECMD_FORMAT_B) {
-        curState = ECMD_FORMAT_BW;
-      }
-      else if (curState == ECMD_FORMAT_BX) {
-        curState = ECMD_FORMAT_BXW;
       }
       else {
         good = false;
@@ -575,34 +608,10 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       }
 
     }
-    else if (i_format[i] == 'X') {
-      if (curState != ECMD_FORMAT_B) {
-        good = false;
-        break;
-      }
-
-      curState = ECMD_FORMAT_BX;
-    }
-    else if (i_format[i] == 'p') {
-      perlMode = true;
-    }
-    else if (isdigit(i_format[i])) {
-      numCols = atoi(&i_format[i]);
-      break;
-    }
-    else {
-      good = false;
-      break;
-    }
-
   }
 
   if (curState == ECMD_FORMAT_NONE) {
     good = false;
-  }
-
-  if (!good) {
-    //check for other possible formats the string might match
   }
 
   if (!good) {
@@ -614,21 +623,86 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   }
 
   if (curState == ECMD_FORMAT_X) {
-    printed += i_data.genHexLeftStr();
-    if (!perlMode) printed = "0x" + printed;
+    printed = "0x" + i_data.genHexLeftStr();
   }
   else if (curState == ECMD_FORMAT_XR) {
-    printed = i_data.genHexRightStr();
-    if (!perlMode) printed = "0xr" + printed;
+    printed = "0xr" + i_data.genHexRightStr();
   }
   else if (curState == ECMD_FORMAT_B) {
-    printed = i_data.genBinStr();
-    if (!perlMode) printed = "0b" + printed;
+    printed = "0b" + i_data.genBinStr();
   }
   else if (curState == ECMD_FORMAT_BX) {
     //do something
-    printed = i_data.genXstateStr();
-    if (!perlMode) printed = "0bX" + printed;
+    printed = "0bX" + i_data.genXstateStr();
+  }
+  else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
+    int myAddr = address;
+    int wordsDone = 0;
+    char tempstr[400];
+    uint32_t wordsDonePrev;
+    // Loop through the complete 4 word blocks
+    while ((i_data.getWordLength() - wordsDone) > 3) {
+      wordsDonePrev = wordsDone;
+      sprintf(tempstr,"%0.16X: %0.8X %0.8X %0.8X %0.8X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+      printed += tempstr;
+      // ASCII
+      if (curState == ECMD_FORMAT_MEMA) {
+        sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, 128).c_str());
+      }
+      // EBCDIC
+      if (curState == ECMD_FORMAT_MEME) {
+        sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
+      }
+      printed += tempstr;
+      printed += "\n";
+      myAddr += 16;
+      wordsDone += 4;
+    }
+    // Done with all the 4 word blocks, see if we've got some straglers left
+    if ((i_data.getWordLength() - wordsDone) != 0) {
+      wordsDonePrev = wordsDone;
+      // Print the address
+      sprintf(tempstr,"%0.16X:", myAddr);
+      printed += tempstr;
+      // Now throw on the words
+      while (wordsDone < i_data.getWordLength()) {
+        sprintf(tempstr," %0.8X",i_data.getWord(wordsDone++));
+        printed += tempstr;
+      }
+      // Text printing additions
+      if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
+        // Insert spaces from the end of the last incomplete line for alignment
+        for (int y = 0; y < (4 - (wordsDone - wordsDonePrev)); y++) {
+          printed.insert(printed.length(),"         ");
+        }
+        // ASCII
+        if (curState == ECMD_FORMAT_MEMA) {
+          sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+        }
+        // EBCDIC
+        if (curState == ECMD_FORMAT_MEME) {
+          sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+        }
+        printed += tempstr;
+      }
+      printed += "\n";
+    }
+  }
+  else if (curState == ECMD_FORMAT_MEMD) {
+    int myAddr = address;
+    int wordsDone = 0;
+    char tempstr[400];
+    // Print out the data
+    for (int x = 0; x < (i_data.getWordLength() / 2); x++) {
+      sprintf(tempstr,"D %0.16X: %0.8X%0.8X\n", myAddr, i_data.getWord(x), i_data.getWord(x+1));
+      printed += tempstr;
+      myAddr += 8;
+    }
+
+    if (i_data.getWordLength() % 2) {
+      sprintf(tempstr,"D %0.16X: %0.8X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+      printed += tempstr;
+    }
   }
   else {
 
@@ -690,10 +764,9 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     outstr = NULL;
   }
 
-  if (!perlMode) {
-    printed += "\n";
-  }
-
+  // Tack this onto the end of anything returned
+  printed += "\n";
+    
   return printed;
 
 }
