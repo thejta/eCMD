@@ -1,17 +1,24 @@
 
-Syntax: stopclocks [<ChipSelect> [<ClockDomain>]] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: stopclocks                                   [-force] [-k#] [-n#] [-s#] 
+        stopclocks -domain <ConvenienceClockDomain>] [-force] [-k#] [-n#] [-s#]
+        stopclocks <ChipSelect> [<ClockDomain>]      [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
-        Function:       Stop clocks on a particular domain or the whole system
+        Function:       Stop clocks on a particular domain/chip or the whole system.
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect[opt] Chip name to stop clocks on
+        ChipSelect      Chip name to stop clocks on
 
-        ClockDomain[o]  Clock domain to start on target. Must specify with ChipSelect
-                        Names are documented in the eCMD System specific document 
-                        for your system type.
+        ClockDomain     Clock domain to stop on chip target. Must specify with ChipSelect
+                        Names are documented in the scandef for the targetted chip.
+
+        -domain         Specifies we are using a convenience clock domain.
+
+        ConvenienceClockDomain The convenience clock domains are documented in the eCMD
+                        System specific document for your system type. Must be specified
+                        with -domain
 
         -force    [opt] Force clocks off regardless of current state
 
@@ -35,3 +42,4 @@ Syntax: stopclocks [<ChipSelect> [<ClockDomain>]] [-force] [-k#] [-n#] [-s#] [-p
         Examples:       > stopclocks pu -k0 -n1 -p3
                         > stopclocks pu FBC_DOMAIN -k1 -n2
                         > stopclocks 
+                        > stopclocks -domain ALL_PU_CHIPS

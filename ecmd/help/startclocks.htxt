@@ -1,9 +1,11 @@
 
-Syntax: startclocks [<ChipSelect> [<ClockDomain>]] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: startclocks                                   [-force] [-k#] [-n#] [-s#] 
+        startclocks -domain <ConvenienceClockDomain>] [-force] [-k#] [-n#] [-s#]
+        startclocks <ChipSelect> [<ClockDomain>]      [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
-        Function:       Start clocks on a particular domain or the entire system
+        Function:       Start clocks on a particular domain/chip or the entire system
 
                         NOTE : This command typically does not start clocks in a way
                         that the chip will be functional to run instructions.  To do
@@ -11,11 +13,16 @@ Syntax: startclocks [<ChipSelect> [<ClockDomain>]] [-force] [-k#] [-n#] [-s#] [-
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect[opt] Chip name to start clocks on
+        ChipSelect      Chip name to start clocks on
 
-        ClockDomain[o]  Clock domain to start on target. Must specify ChipSelect.
-                        Names are documented in the eCMD System specific document 
-                        for your system type
+        ClockDomain     Clock domain to start on chip target. Must specify with ChipSelect
+                        Names are documented in the scandef for the targetted chip.
+
+        -domain         Specifies we are using a convenience clock domain.
+
+        ConvenienceClockDomain The convenience clock domains are documented in the eCMD
+                        System specific document for your system type. Must be specified
+                        with -domain
 
         -force    [opt] Force clocks on regardless of current state
 
@@ -39,3 +46,5 @@ Syntax: startclocks [<ChipSelect> [<ClockDomain>]] [-force] [-k#] [-n#] [-s#] [-
         Examples:       > startclocks pu -k0 -n1 -p3
                         > startclocks pu FBC_DOMAIN -k1 -n2
                         > startclocks 
+                        > startclocks -domain ALL_PU_CHIPS
+
