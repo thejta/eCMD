@@ -74,7 +74,9 @@ typedef enum {
 
   ECMD_TARGET_QUERY_FIELD_VALID,///< Associated State Field is valid for the query
   ECMD_TARGET_QUERY_WILDCARD,   ///< Associated State Field should be itterated on and all valid results returned
-  ECMD_TARGET_QUERY_IGNORE      ///< Query should be limited to data above this field, ignoring data 
+  ECMD_TARGET_QUERY_IGNORE,     ///< Query should be limited to data above this field, ignoring data 
+
+  ECMD_TARGET_THREAD_ALIVE      ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
 } ecmdChipTargetState_t;
 
 
@@ -113,16 +115,24 @@ struct ecmdChipTarget {
  @brief Used in ecmdChipData to describe the interface macro used by the chip
 */
 typedef enum {
-  ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Rochester Access Macro
+  ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Access Macro
   ECMD_INTERFACE_CFAM                   ///< CommonFirmwareAccessMacro - Fsi interface
 } ecmdChipInterfaceType_t;
+
+/**
+ @brief Used for the ecmdQueryConfig function to return thread data
+*/
+struct ecmdThreadData {
+  uint8_t threadId;
+}
 
 /**
  @brief Used for the ecmdQueryConfig function to return core data
 */
 struct ecmdCoreData {
-  uint32_t coreId;                      ///< core number of this entry
-  uint8_t  numProcThreads;              ///< Number of threads per core this entry supports - only valid for Processors
+  uint8_t                       coreId;         ///< core number of this entry
+  uint8_t                       numProcThreads; ///< Number of threads per core this entry supports - only valid for Processors
+  std::list<ecmdThreadData>     threadData;     ///< List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
 };
 
 /**
@@ -135,7 +145,7 @@ struct ecmdChipData {
   uint32_t                      chipEc;             ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
   ecmdChipInterfaceType_t       interfaceType;      ///< Interface Macro used by the chip
   uint32_t                      chipFlags;          ///< Various additional info about the chip - bitmask of defines
-  std::list<ecmdCoreData>     coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+  std::list<ecmdCoreData>       coreData;           ///< List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
 /**
@@ -143,7 +153,7 @@ struct ecmdChipData {
 */
 struct ecmdNodeData {
   uint32_t nodeId;                      ///< Node number of this entry
-  std::list<ecmdChipData> chipData;   ///< Vector of all chips requested in this node - in numerical order per chip by pos
+  std::list<ecmdChipData> chipData;     ///< List of all chips requested in this node - in numerical order per chip by pos
 };
 
 /**
@@ -151,7 +161,7 @@ struct ecmdNodeData {
 */
 struct ecmdCageData {
   uint32_t cageId;                      ///< Cage number of this entry
-  std::list<ecmdNodeData> nodeData;   ///< Vector of all nodes requested in this cage - in numerical order by nodeId
+  std::list<ecmdNodeData> nodeData;     ///< List of all nodes requested in this cage - in numerical order by nodeId
 };
 
 
@@ -159,7 +169,7 @@ struct ecmdCageData {
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
-  std::list<std::string> ringNames;   ///< Names used to reference this ring
+  std::list<std::string> ringNames;     ///< Names used to reference this ring
   uint32_t address;                     ///< Address modifier
   int      bitLength;                   ///< length of ring
   bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
@@ -226,7 +236,8 @@ typedef enum {
   ECMD_FILE_SCANDEF,    ///< Scandef file type
   ECMD_FILE_SPYDEF,     ///< Spy Definition file
   ECMD_FILE_ARRAYDEF,   ///< Array Definition file
-  ECMD_FILE_HELPTEXT    ///< eCMD Help Text file
+  ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file
+  ECMD_FILE_SCOMDATA    ///< eCMD ScanComm Parse data files, used by getscom
 } ecmdFileType_t;
 
 

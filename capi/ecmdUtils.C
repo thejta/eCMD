@@ -38,6 +38,15 @@
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
+/**
+ * @brief Iterates over argv, removing null pointers and decrementing argc
+ * @retval None
+ * @param io_argc Pointer to number of elements in io_argv array
+ * @param io_argv Array of strings passed in from command line
+
+ - Utility function for ecmdParseOption and ecmdParseOptionWithArgs
+ */
+void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
 
 //----------------------------------------------------------------------
 //  Global Variables

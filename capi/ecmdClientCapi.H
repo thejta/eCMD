@@ -125,7 +125,7 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_query
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
- @param i_target Struct that contains partial information to limit query results - chipType is unused
+ @param io_target Struct that contains partial information to limit query results - chipType is unused
  @param o_queryData Return vector from query - in numerical order by cageId
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
@@ -133,9 +133,11 @@ int ecmdQueryConfig(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_query
  This function acts just like ecmdQueryConfig except it operates on what targets were selected by the
   user args -n#, -p#, -c#, -t#
 
- Use of this function is the same as ecmdQueryConfig except chipType is not used
+ Use of this function is the same as ecmdQueryConfig except chipType is not used.<p>
+ When -talive is specified all threads configured will be returned in o_queryData and io_target.threadState
+   will be set to ECMD_TARGET_THREAD_ALIVE.
 */
-int ecmdQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData);
+int ecmdQuerySelected(ecmdChipTarget & io_target, std::list<ecmdCageData> & o_queryData);
 
 /**
  @brief Query Ring information from the DLL
@@ -457,6 +459,7 @@ To compile client code to use the C++ API, the following header files are requir
 <li> ecmdDataBuffer.H
 <li> ecmdStructs.H
 <li> ecmdReturnCodes.H
+<li> ecmdUtils.H
 </ul>
 
 @section link Link objects

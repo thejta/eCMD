@@ -455,31 +455,31 @@ public:
    * @brief Convert data from a hex left-aligned string and insert it into this data buffer
    * @retval 0 on success- non-zero on failure
    * @param i_hexChars Hex Left-aligned string of data to insert 
-   * @param start Starting position in data buffer to insert to, 0 by default
-   * @param length Length of data to insert, defaults to length of i_hexChars
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @param i_length Length of data to insert, defaults to length of i_hexChars
 
    */
-  int insertFromHexLeft (const char * i_hexChars, int start = 0, int length = 0);
+  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
 
   /**
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer
    * @retval 0 on success- non-zero on failure
-   * @param i_hexChars Hex Right-aligned string of data to insert 
-   * @param start Starting position in data buffer to insert to, 0 by default
-   * @param length Length of data to insert, defaults to length of i_hexChars
+   * @param i_hexChars Hex Right-aligned string of data to insert
+   * @param i_expectedLength The expected length of the string data, zeros are padded to the left if necessary to fit the length
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @param i_length Length of data to insert, defaults to length of i_hexChars
 
    */
-  int insertFromHexRight (const char * i_hexChars, int expectedLength = 0, int start = 0, int length = 0);
+  int insertFromHexRight (const char * i_hexChars, int i_expectedLength = 0, int i_start = 0, int i_length = 0);
 
   /**
-   * @brief Convert data from a hex left-aligned string and insert it into this data buffer
+   * @brief Convert data from a binary string and insert it into this data buffer
    * @retval 0 on success- non-zero on failure
    * @param i_binChars String of 0's and 1's to insert 
-   * @param start Starting position in data buffer to insert to, 0 by default
-   * @param length Length of data to insert, defaults to length of i_binChar
+   * @param i_start Starting position in data buffer to insert to, 0 by default
 
    */
-  int insertFromBin (const char * i_binChars, int start = 0);
+  int insertFromBin (const char * i_binChars, int i_start = 0);
 
   //@}
 
