@@ -27,7 +27,7 @@
 #define ecmdDllCapi_C
 #include <stdio.h>
 #include <list>
-#include <fstream.h>
+#include <fstream>
 #include <string.h>
 #include <stdlib.h>
 
