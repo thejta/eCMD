@@ -1031,7 +1031,7 @@ uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, u
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint32_t len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (start + len > iv_NumBits) {
+  if ((start > iv_NumBits) || (start + len > iv_NumBits)) {
     printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
     rc = ECMD_DBUF_BUFFER_OVERFLOW;
   } else {
