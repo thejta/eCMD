@@ -492,6 +492,12 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
     o_data.setBitLength(bitlength);
     rc = o_data.insertFromBin(i_dataStr);
   }
+  else if (localFormat == "bX") {
+    bitlength = strlen(i_dataStr);
+    if (i_expectedLength != 0) bitlength = i_expectedLength;
+    o_data.setBitLength(bitlength);
+    o_data.setXstate(0,i_dataStr);
+  }
   else {
     ecmdOutputError( ("Did not recognize input format string " + localFormat + "\n").c_str() );
     rc = ECMD_INVALID_ARGS;
@@ -547,7 +553,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     else if (i_format[i] == 'n') {
       if (curState == ECMD_FORMAT_B) {
         curState = ECMD_FORMAT_BN;
-      } else if (cur_state == ECMD_FORMAT_BX) {
+      } else if (curState == ECMD_FORMAT_BX) {
         curState = ECMD_FORMAT_BXN;
       } else {
         good = false;
@@ -565,8 +571,9 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       else if (curState == ECMD_FORMAT_B) {
         curState = ECMD_FORMAT_BW;
       }
-      else if (cur_state == ECMD_FORMAT_BX) {
+      else if (curState == ECMD_FORMAT_BX) {
         curState = ECMD_FORMAT_BXW;
+      }
       else {
         good = false;
         break;
