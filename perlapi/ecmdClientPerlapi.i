@@ -2,7 +2,7 @@
 %include typemaps.i
 %include cpointer.i
 
-%typemap(in) char ** o_data (char* cvalue) {
+%typemap(in) char ** o_data (char* cvalue), char ** o_status (char* cvalue) {
   SV* tempsv;
   if (!SvROK($input)) {
     croak("ecmdClientPerlapi.i::expected a reference\n");
@@ -17,7 +17,7 @@
   *$1 = cvalue;
 }
 
-%typemap(argout) char ** o_data {
+%typemap(argout) char ** o_data, char ** o_status {
   SV *tempsv;
   if (*$1 != NULL) {
     tempsv = SvRV($arg);
@@ -27,6 +27,9 @@
   *$1 = NULL;
   free($1);
 }
+
+
+
 
 %typemap(in) char ** o_enumValue (char* cvalue) {
   SV* tempsv;

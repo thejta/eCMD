@@ -489,7 +489,29 @@ int ecmdClientPerlapi::ecmdCommandArgs(char* i_argv[]){
 
 int ecmdClientPerlapi::sendCmd(const char* i_target, int i_instruction, int i_modifier, char** o_status) {
 
-  return 0;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_status = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::sendCmd(myTarget, i_instruction, i_modifier, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_status = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_status = tmp;
+
+  return rc;
 }
 
 
@@ -562,7 +584,7 @@ int ecmdClientPerlapi::getSpyEnum (const char* i_target, const char * i_spyName,
 }
 
 int ecmdClientPerlapi::getSpyEpCheckers (const char* i_target, const char * i_spyEpCheckersName, char** o_inLatchData, char** o_outLatchData, char** o_eccErrorMask) {
-
+  
   return 0;
 }
 
