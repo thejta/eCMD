@@ -38,7 +38,14 @@ ifeq (${OS},AIX)
   else
     CC      := xlC
   endif
-  LD      := makeC++SharedLib
+  ifeq (${SITE},awd.austin.ibm.com)
+    LD      := /usr/vacpp/bin/makeC++SharedLib
+  else
+    LD      := makeC++SharedLib
+  endif
+  ifeq (${SITE},rchland.ibm.com)
+    LD      := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib
+  endif
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
@@ -51,7 +58,12 @@ VPATH := ${SUBDIR}
 # *****************************************************************************
 # The MPatrol Stuff
 # *****************************************************************************
-MPATROL_HOME := /afs/rchland/rel/common/bringup.tools/cronus/ecmd/mpatrol/
+ifeq (${SITE},rchland.ibm.com)
+  MPATROL_HOME := /afs/rchland/rel/common/cte/tools/ecmd/mpatrol
+endif
+ifeq (${SITE},awd.austin.ibm.com)
+  MPATROL_HOME := /afs/awd.austin.ibm.com/projects/cte/tools/ecmd/mpatrol
+endif
 ifeq (${MPATROL},yes) 
   DEFINES   := ${DEFINES} -DENABLE_MPATROL
 
@@ -141,4 +153,8 @@ ${SLIB}: ${SLIB_SOURCE_OBJS}
 ecmdClientCapiFunc.C ecmdDllCapi.H ecmdClientEnums.H: ecmdClientCapi.H makedll.pl 
 	@echo "==== Auto Generate Client Functions"
 	@chmod 777 makedll.pl
+ifeq (${SITE},awd.austin.ibm.com)
+	/afs/awd/projects/gr/lab/local/perl5/bin/perl makedll.pl ecmd
+else
 	./makedll.pl ecmd
+endif

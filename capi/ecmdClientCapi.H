@@ -761,8 +761,9 @@ uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDom
  @param i_clockDomain Clock domain to start - as defined in scandef - use "ALL" to start all domains
  @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
 
- * NOTE : i_clockDomain has to be "ALL" unless i_target refers to a specific chip
- *         if i_target refers to a Node or Cage then an individual clockDomain cannot be specified
+ * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
+          If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
+            documented in the eCMD system spec for your particular product.
 */
 uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
@@ -778,8 +779,9 @@ uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, boo
  @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
  @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
 
- * NOTE : i_clockDomain has to be "ALL" unless i_target refers to a specific chip
- *         if i_target refers to a Node or Cage then an individual clockDomain cannot be specified
+ * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
+          If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
+            documented in the eCMD system spec for your particular product.
 */
 uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
