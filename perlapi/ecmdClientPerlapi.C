@@ -17,6 +17,7 @@
 //--------------------------------------------------------------------
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
