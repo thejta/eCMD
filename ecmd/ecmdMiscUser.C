@@ -635,6 +635,79 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   return rc;
 }
 
+uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  std::string command;          ///< Print Buffer
+  std::string standardop;       ///< Standard out captured by running command
+  ecmdLooperData looperdata;    ///< Store internal Looper data
+
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  //Pull out the system call
+  if(argc == 0) {
+      ecmdOutputError("makespsystemcall - Command to run on the SE/SP not specified.\n");
+      ecmdOutputError("makespsystemcall - Type 'makespsystemcall -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+  }
+  else {
+      command = "";
+      for(int i=0; i<argc; i++) {
+        command += argv[i];
+        command += " ";
+      }
+  }
+
+  target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+  target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    /* Actually go fetch the data */
+    rc =  makeSPSystemCall(target, command, standardop);
+
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;
+    }
+
+    printed = "Output from executing the command '" + command + "':\n";
+    ecmdOutput( printed.c_str() );
+    ecmdOutput( standardop.c_str() );
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+
+
+}
+
 
 uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
