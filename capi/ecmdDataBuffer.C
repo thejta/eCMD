@@ -921,7 +921,7 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
 
   }
 
-  int wordLength = (strLen - 1)/32 + 1;
+  int wordLength = (strLen - 1)/8 + 1;
 
   uint32_t * number_ptr = new uint32_t[wordLength];
   for (i = 0; i < wordLength; i++) {
@@ -969,7 +969,7 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int expectedLen
 
   }
 
-  int wordLength = (strLen - 1)/32 + 1;
+  int wordLength = (strLen - 1)/8 + 1;
 
   uint32_t * number_ptr = new uint32_t[wordLength];
   for (i = 0; i < wordLength; i++) {
