@@ -203,6 +203,8 @@ uint32_t dllQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_
 
 uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
 
+std::string dllCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command); 
+
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
@@ -230,6 +232,12 @@ uint32_t dllSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmd
 uint32_t dllDeconfigureTarget(ecmdChipTarget & i_target); 
 
 uint32_t dllConfigureTarget(ecmdChipTarget & i_target); 
+
+uint32_t dllTargetToUnitId(ecmdChipTarget & io_target); 
+
+uint32_t dllUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget> & o_targetList); 
+
+uint32_t dllUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targetList); 
 
 } //extern C
 

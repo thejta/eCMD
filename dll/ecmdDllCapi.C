@@ -1190,10 +1190,10 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
         o_matchs ++;
       }
 
-      /* Check if the bits are ordered from:to (0:10) or just (1) */
-      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (i_startBit <= curLatchInfo->latchEndBit) && (i_startBit + bitsToInsert >= curLatchInfo->latchStartBit)) ||
+      /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (i_startBit <= curLatchInfo->latchEndBit) && (i_startBit + i_data.getBitLength() >= curLatchInfo->latchStartBit)) ||
           /* Check if the bits are ordered to:from (10:0) */
-          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (i_startBit <= curLatchInfo->latchStartBit) && (i_startBit + bitsToInsert >= curLatchInfo->latchEndBit))) {
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (i_startBit <= curLatchInfo->latchStartBit) && (i_startBit + i_data.getBitLength() >= curLatchInfo->latchEndBit))) {
 
         if (i_startBit < curLatchInfo->latchStartBit) {
           /* If the data started before this entry */
