@@ -1,5 +1,5 @@
 
-Syntax: setconfig [<ChipSelect>] <ConfigName> [-i<format>] 
+Syntax: setconfig [<ChipSelect>] <ConfigName> <Value> [-i<format>] 
                                   [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -11,6 +11,8 @@ Syntax: setconfig [<ChipSelect>] <ConfigName> [-i<format>]
         ChipSelect[opt] Chip to write data to.
 
         ConfigName      Name of configuration variable to write
+
+        Value           Value to set configuration variable to
 
         -i<format>[opt] Output Format : default is ascii. 
                         Run 'ecmdquery formats' to view available formats
