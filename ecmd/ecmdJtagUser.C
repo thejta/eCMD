@@ -61,8 +61,8 @@
 uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
-  bool expectFlag = false;
-  bool xstateFlag = false;
+/*  bool expectFlag = false; */
+/*  bool xstateFlag = false; */
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target being operated on
   uint32_t instruction;                 ///< Instruction to send to chip
@@ -141,7 +141,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  char outstr[30];
+/*  char outstr[30]; */
   std::string printed;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
@@ -192,7 +192,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
       printed += "\t\t " + (std::string)resvd + " Reserved Bits(13:15). (Hex Left)" + "\n";
  
       char clockstr[14];
-      sprintf(clockstr,"%0.4X", strtoul((statusBuffer.genHexLeftStr(16, 14)).c_str(), NULL, 16));
+      sprintf(clockstr,"%04X", strtoul((statusBuffer.genHexLeftStr(16, 14)).c_str(), NULL, 16));
       printed += "\t      " + (std::string)clockstr + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
  
       printed += "\t\t " + statusBuffer.genHexRightStr(30, 1) + " IEEE defined 0"  + "\n";
