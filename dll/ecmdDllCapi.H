@@ -91,7 +91,7 @@ uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDa
 
 uint32_t dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
 
-uint32_t dllQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t o_clockState); 
+uint32_t dllQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState); 
 
 uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
 
@@ -195,6 +195,10 @@ uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdD
 
 uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
 
+uint32_t dllQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
+
+uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
+
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
@@ -210,6 +214,8 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type);
 void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable); 
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type); 
+
+uint32_t dllDelay(uint32_t i_simCycles, uint32_t i_msDelay); 
 
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
