@@ -62,30 +62,35 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   bool expectFlag = false;
   bool enumFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string outputformat = "x";       ///< Output format
+  std::string inputformat = "x";        ///< Expect data input format
+  std::string expectArg;                ///< String containing expect data
+  ecmdDataBuffer spyBuffer;             ///< Buffer to hold entire spy contents
+  ecmdDataBuffer buffer;                ///< Buffer to hold user requested part of spy
+  ecmdDataBuffer expected;              ///< Buffer to hold expected data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   //expect and mask flags check
   char * expectArgTmp = ecmdParseOptionWithArgs(&argc, &argv, "-exp");
-  std::string expectArg;
   if (expectArgTmp != NULL) {
     expectFlag = true;
     expectArg = expectArgTmp;
   }
 
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "x";
-  }
-  else {
-    format = formatPtr;
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
   }
 
-  if (format == "enum") {
+  if (outputformat == "enum") {
     enumFlag = true;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
 
   /************************************************************************/
@@ -116,7 +121,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   std::string spyName = argv[1];
   uint32_t startBit = 0x0, numBits = 0x0;
 
-  if (enumFlag) {
+  if (!enumFlag) {
     if (argc > 2) {
       startBit = atoi(argv[2]);
     }
@@ -132,19 +137,11 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
     }
   }
 
-  ecmdDataBuffer * spyBuffer = NULL;
-  ecmdDataBuffer * buffer = NULL;
-  ecmdDataBuffer * expected = NULL;
 
-  if (!enumFlag) {
-    spyBuffer = new ecmdDataBuffer;
-    buffer = new ecmdDataBuffer;
-  }
 
   if (expectFlag) {
-    uint32_t expectBits = expectArg.length() << 2;
-    expected = new ecmdDataBuffer( 1 + (expectBits/32) );
-    expected->insertFromHexLeft(expectArg.c_str(), 0, expectBits);
+    rc = ecmdReadDataFormatted(expected, expectArg.c_str(), inputformat);
+    if (rc) return rc;
   }
 
 
@@ -164,7 +161,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       rc = getSpyEnum(target, spyName.c_str(), enumValue);
     }
     else {
-      rc = getSpy(target, spyName.c_str(), *spyBuffer);
+      rc = getSpy(target, spyName.c_str(), spyBuffer);
     }
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -190,14 +187,14 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 
       uint32_t bitsToFetch = 0x0;
       if (numBits = 0xFFFFFFFF) {
-        bitsToFetch = spyBuffer->getBitLength();
+        bitsToFetch = spyBuffer.getBitLength();
       }
       else {
         bitsToFetch = numBits;
       }
 
-      buffer->setBitLength(bitsToFetch);
-      buffer->insert(*spyBuffer, startBit, bitsToFetch);
+      buffer.setBitLength(bitsToFetch);
+      buffer.insert(spyBuffer, startBit, bitsToFetch);
 
       if (!expectFlag) {
 
@@ -205,7 +202,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
         sprintf(outstr, "(%d:%d)", startBit, startBit + bitsToFetch - 1);
         printed += outstr;
 
-        std::string dataStr = ecmdWriteDataFormatted(*buffer, format);
+        std::string dataStr = ecmdWriteDataFormatted(buffer, outputformat);
         if (dataStr[0] != '\n') {
           printed += "\n";
         }
@@ -214,13 +211,13 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       }
       else {
 
-        if (!ecmdCheckExpected(*buffer, *expected)) {
+        if (!ecmdCheckExpected(buffer, expected)) {
           //@ make this stuff sprintf'd
           printed =  "getspy - Actual            : ";
-          printed += ecmdWriteDataFormatted(*buffer, format);
+          printed += ecmdWriteDataFormatted(buffer, outputformat);
 
           printed += "getspy - Expected          : ";
-          printed += ecmdWriteDataFormatted(*expected, format);
+          printed += ecmdWriteDataFormatted(expected, outputformat);
           ecmdOutputError( printed.c_str() );
         }
 
@@ -240,24 +237,6 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 
   }
 
-  if (expectFlag && expected != NULL) {
-    delete expected;
-    expected = NULL;
-  }
-
-  if (!enumFlag) {
-
-    if (buffer != NULL) {
-      delete buffer;
-      buffer = NULL;
-    }
-    if (spyBuffer != NULL) {
-      delete spyBuffer;
-      spyBuffer = NULL;
-    }
-
-  }
-
   if (!validPosFound) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
@@ -271,18 +250,23 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
   bool enumFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string format = "x";             ///< Input data format
+  std::string dataModifier = "insert";  ///< Default data modifier
+  uint32_t startBit, numBits = 0;
+  ecmdDataBuffer buffer;                ///< Buffer to hold input data
+  ecmdDataBuffer spyBuffer;             ///< Buffer to hold current spy data
 
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "x";
-  }
-  else {
+  if (formatPtr != NULL) {
     format = formatPtr;
   }
-
   if (format == "enum") {
     enumFlag = true;
+  }
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
   }
 
   /************************************************************************/
@@ -308,7 +292,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   std::string spyName = argv[1];
   std::string spyData = argv[argc-1]; //always the last arg
 
-
+#if 0
   if (enumFlag) {
     for (int i = 0; i < spyData.length(); i++) {
       if (!isxdigit(spyData[i])) {
@@ -319,20 +303,10 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     //under the assumption the data is not an enum
     //enumFlag = false;
   }
-
-  uint32_t startBit, numBits;
-  ecmdDataBuffer * buffer;
-  ecmdDataBuffer * spyBuffer;
+#endif
 
   if (!enumFlag) {
 
-    buffer = new ecmdDataBuffer;
-    spyBuffer = new ecmdDataBuffer;
-    rc = ecmdReadDataFormatted(*buffer, spyData.c_str() , format);
-    if (rc) {
-      ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
-      return rc;
-    }
 
     if (argc > 3) {
       startBit = atoi(argv[2]);
@@ -343,10 +317,14 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
     if (argc > 4) {
       numBits = atoi(argv[3]);
-    } else {
-      numBits = buffer->getBitLength();
-
     }
+
+    rc = ecmdReadDataFormatted(buffer, spyData.c_str() , format, numBits);
+    if (rc) {
+      ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+
   }
 
   /************************************************************************/
@@ -368,7 +346,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
       rc = putSpyEnum(target, spyName.c_str(), spyData);
     }
     else {
-      rc = getSpy(target, spyName.c_str(), *spyBuffer);
+      rc = getSpy(target, spyName.c_str(), spyBuffer);
     }
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -392,16 +370,11 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
 
     if (!enumFlag) {
 
-      if (spyBuffer->getBitLength() < numBits) {
-        printed = "putspy - Number of bits specified is longer than number of bits in spy on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
 
-      }
+      rc = ecmdApplyDataModifier(spyBuffer, buffer,  startBit, dataModifier);
+      if (rc) return rc;
 
-      spyBuffer->insert(*buffer, startBit, numBits);
-
-      rc = putSpy(target, spyName.c_str(), *spyBuffer);
+      rc = putSpy(target, spyName.c_str(), spyBuffer);
       if (rc) {
         printed = "putspy - Error occured performing putspy on ";
         printed += ecmdWriteTarget(target) + "\n";
