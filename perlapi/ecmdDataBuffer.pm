@@ -7,7 +7,21 @@ package ecmdDataBuffer;
  * @file ecmdDataBuffer.H
  * @brief Provides a means to handle data from the eCMD Perl API
  *
- * DataBuffers handle data in a Big Endian fashion with Bit 0 being the MSB
+ * DataBuffers handle data as a binary string
+ *
+ * Usage : 
+ *   require ecmdDataBuffer;
+ *   my $data = new ecmdDataBuffer();
+ *   $target->setWord(2,0xFEEDBEEF);
+*/
+
+/**
+ * @brief Perl Class to provide a means to handle data from the eCMD Perl API
+ * 
+ * Usage : 
+ *   require ecmdDataBuffer;
+ *   my $data = new ecmdDataBuffer();
+ *   $target->setWord(2,0xFEEDBEEF);
 */
 =cut
 

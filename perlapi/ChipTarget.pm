@@ -3,10 +3,13 @@ package ChipTarget;
 
 =for mainBrief
 /**
- @file ChipTarget.H
- @brief Perl Class to hold eCMD Targetting information
+ * @file ChipTarget.H
+ * @brief Perl Class to hold eCMD Targetting information
 
- Usage : require ChipTarget;
+ * Usage : 
+ *   require ChipTarget;
+ *   my $target = new ChipTarget("pu -p1");
+ *   $target->node(2);
 
 
 */
@@ -14,7 +17,10 @@ package ChipTarget;
 /**
  * @brief Perl Class to hold eCMD Targetting information
  * 
- * Usage : require ChipTarget;
+ * Usage : 
+ *   require ChipTarget;
+ *   my $target = new ChipTarget("pu -p1");
+ *   $target->node(2);
 */
 =cut
 
