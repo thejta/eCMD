@@ -43,6 +43,7 @@ ifeq (${OS},AIX)
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE
   SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/bin/swig
   SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/perl5 
+  DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}
@@ -53,7 +54,7 @@ VPATH     := ${VPATH}:${SUBDIR}
 all: dir ${TARGET}.so
 	@touch t.o t_x86 t_aix t_ppc
 	@mv *.o ${SUBDIR}
-	@mv *x86* *aix* *ppc*  ${SUBDIR}
+	@mv *x86* *_aix* *_ppc*  ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET}.so export/
 	@cp ${SUBDIR}${TARGET}.pm export/
