@@ -51,7 +51,11 @@ int dllInitDll() {
   return ECMD_SUCCESS;
 }
 
-int dllCommandArgs(int argc, char* argv[]) {
+int dllFreeDll() {
+  return ECMD_SUCCESS;
+}
+
+int dllSpecificCommandArgs(int* argc, char** argv[]) {
   return ECMD_SUCCESS;
 }
 
