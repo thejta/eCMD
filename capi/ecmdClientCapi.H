@@ -1324,6 +1324,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @param i_name Name of trace array - names may vary for each product/chip
  @param o_data Vector of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
  TARGET DEPTH  : Core
@@ -1337,6 +1338,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vecto
  @param i_target Target info to specify what to configure (target states must be set)
  @param o_data List of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
  The return value of this function is set to the first non-zero return code found when
