@@ -362,7 +362,7 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
     rc = o_data.insertFromBin(i_dataStr);
   }
   else {
-    ecmdOutputError( ("Did not recognize input format string " + localFormat).c_str() );
+    ecmdOutputError( ("Did not recognize input format string " + localFormat + "\n").c_str() );
     rc = ECMD_INVALID_ARGS;
   }
 
