@@ -258,7 +258,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
       return ECMD_TARGET_NOT_CONFIGURED;
     }
 
-  } else if ("format") {
+  } else if ("formats") {
     /* We will just print this from the format helpfile */
     return ecmdPrintHelp("format");
 
