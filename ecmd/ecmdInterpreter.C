@@ -50,6 +50,10 @@
  #include <croClientCapi.H>
  #include <croInterpreter.H>
 #endif
+#ifdef ECMD_EIP_EXTENSION_SUPPORT
+ #include <eipClientCapi.H>
+ #include <eipInterpreter.H>
+#endif
 #undef ecmdInterpreter_C
 //----------------------------------------------------------------------
 //  User Types
@@ -104,6 +108,16 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     rc = croInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = croCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_EIP_EXTENSION_SUPPORT
+  /* Eclipz IP Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("eip",argv[0],3))) {
+    rc = eipInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = eipCommandInterpreter(argc, argv);
     }
   }
 #endif

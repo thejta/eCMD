@@ -23,7 +23,7 @@ CFLAGS       := ${CFLAGS} -IsedcScomdef
 VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
-EXTENSIONS   := cip cro
+EXTENSIONS   := cip cro eip
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
 #These are needed to define a space char for substitutions later on

@@ -34,6 +34,8 @@
 /* The Cronus Extension */
 #define ECMD_CRO_EXTENSION_SUPPORT
 
+/* The Eclipz IP/Cronus Extension */
+#define ECMD_EIP_EXTENSION_SUPPORT
 
 
 #endif /* ecmdPluginExtensionSupport_h */
