@@ -10,12 +10,14 @@ Syntax: simputtcfac <facname> <data> [<row> <# of rows>] -i<format>
         facname         Must be a facility name
 
         data            Data to put
+                        Format specified by -i<format>
 
         row  [optional] Facility row
  
         # of rows [opt] Number of rows to put
 
-        -i<format>[opt] Specifies the format type of the input data: default 'xr'
+        -i<format>[opt] Specifies the format type of input data : default 'xr'
+                        Run 'ecmdquery formats' to view available formats
 
         --------------------------------------------------------------------------------
 

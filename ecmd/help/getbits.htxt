@@ -23,11 +23,13 @@ Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>]
 
         -exp [optional] Provide expected data.  Returns error if expected != actual.  No
                         error/no data returned if expected == actual.  
-                        <data> is left aligned hex
+                        Format specified by -i<format>
 
-        -o<format>[opt] Specifies the format type of the output: default 'b'
+        -o<format>[opt] Specifies the format type of the output : default 'b'
+                        Run 'ecmdquery formats' to view available formats
 
-        -i<format>[opt] Specifies the format type of expect data
+        -i<format>[opt] Specifies the format type of expect data : default 'b'
+                        Run 'ecmdquery formats' to view available formats
         
         -X   [optional] For simulation use only.  Must be used to display any Xstates
                         data in ring.

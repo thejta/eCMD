@@ -15,7 +15,8 @@ Syntax: simgettcfac <facname> [<row> | -subset <startbit> <numbits>] [-o<format>
 
         numbits   [opt] Number of bits from startbit to read - not valid with row
 
-        -o<format>[opt] Specifies the format type of the output: default 'xr'
+        -o<format>[opt] Specifies the format type of the output : default 'xr'
+                        Run 'ecmdquery formats' to view available formats
 
         --------------------------------------------------------------------------------
 

@@ -40,13 +40,16 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
         -nocompress[opt]Displays Latches as they are broken up in the scandef.
 
         -exp [optional] Provide an expected-value as the last argument. Returns error if
-                        data miscompare, else nothing. Data is hex left aligned
+                        data miscompare, else nothing.
+                        Format specified by -i<format>
 
         -o<format>[opt] Specifies the format type of both the output and 
                         the expect-value
-                        Defaults to binary for < 8 bits and hex for >= 8 bits.
+                        Defaults to 'b' for < 8 bits and 'xl' for >= 8 bits.
+                        Run 'ecmdquery formats' to view available formats
 
         -i<format>[opt] Specifies the format type of expect data
+                        Run 'ecmdquery formats' to view available formats
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
@@ -66,4 +69,4 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
         --------------------------------------------------------------------------------
 
         Examples:       getlatch pu cp_abist LATCH0
-                        getlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -ox -exact -compress -expect feed
+                        getlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -ox -exact -compress -expect feed -ix

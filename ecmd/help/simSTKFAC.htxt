@@ -10,6 +10,7 @@ Syntax: simSTKFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
         facname         Must be a facility name
 
         data            Data for operation
+                        Format specified by -i<format>
 
         length          Bit length of data
 
@@ -17,7 +18,8 @@ Syntax: simSTKFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
  
         offset    [opt] Facility offset
 
-        -i<format>[opt] Specifies the format type of input data. default: "xr"
+        -i<format>[opt] Specifies the format type of input data : default 'xr'
+                        Run 'ecmdquery formats' to view available formats
 
         --------------------------------------------------------------------------------
 

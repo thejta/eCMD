@@ -20,10 +20,12 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<fo
         -mask     [opt] Scom data is AND'ed with the mask bits before checking against
                         expected value.
 
-        -i<format>[opt] Specifies the format type of expect and mask data : default 'x'
+        -o<format>[opt] Specifies the format type of the output : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
 
-        -o<format>[opt] Specifies the format type of the output. : default: 'x'
-
+        -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+        
         -limit #  [opt] Max polling number in iterations, seconds, or cycles. To specify
                         in seconds, append an 's' to #.  To specify number of cycles for 
                         simulation, append a 'c' to #.  If limit is not specified, 

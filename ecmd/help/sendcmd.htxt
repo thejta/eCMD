@@ -3,7 +3,8 @@ Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s
         
         ECMD:           Core Common Function
 
-        Function:       Send a JTAG Instruction to the chip
+        Function:       Send a JTAG Instruction to the chip and display
+                        instruction status from previous command
 
         Parameters:
         --------------------------------------------------------------------------------

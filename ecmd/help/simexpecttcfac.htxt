@@ -10,6 +10,7 @@ Syntax: simexpecttcfac <facname> <data>  [<row> | -subset <startbit> <numbits>] 
         facname         Must be a facility name
 
         data            Data for expect
+                        Format specified by -i<format>
 
         row  [optional] Facility row - not valid with -subset
  
@@ -17,7 +18,8 @@ Syntax: simexpecttcfac <facname> <data>  [<row> | -subset <startbit> <numbits>] 
 
         numbits   [opt] Number of bits from startbit to read - not valid with row
  
-        -i<format>[opt] Specifies the format type of the input data: default 'xr'
+        -i<format>[opt] Specifies the format type of input data : default 'xr'
+                        Run 'ecmdquery formats' to view available formats
 
         --------------------------------------------------------------------------------
 

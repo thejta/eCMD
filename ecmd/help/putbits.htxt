@@ -1,6 +1,6 @@
 
 Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>]
-                                 [-X] [-k#] [-n#] [-s#] [-p#] [-c#]
+                                 [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -18,11 +18,14 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
 
         StartPos        Specifies starting bit position in Decimal.
 
-        Data            Bits to insert into chip ring.  Default is binary.
+        Data            Bits to insert into chip ring.
+                        Format specified by -i<format>
 
-        -i<format>[opt] Specifies the format type of input data
+        -i<format>[opt] Specifies the format type of input data : default 'b'
+                        Run 'ecmdquery formats' to view available formats
 
         -b<mod>[opt]    Bit modifier to apply to current ring data.
+                        Run 'ecmdquery formats' to view available modifiers
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
@@ -41,5 +44,5 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
 
         --------------------------------------------------------------------------------
 
-        Example:        putbits pu int 567 ABAB -x -p0,1 -c1
-                        putbits pu int 23 011X001X -p0
+        Example:        putbits pu int 567 ABAB -ix -p0,1 -c1
+                        putbits pu int 23 011X001X -p0 -iX

@@ -17,7 +17,8 @@ Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>]
         NumEntries[opt] Number of consecutive entries to display
                         Address is incremented by 1
 
-        -o<format>[opt] Output Format : default x - See doc for details
+        -o<format>[opt] Output Format : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

@@ -1,16 +1,16 @@
 
-Syntax: simPUTFACX <facname> <data> [<row> <offset>] [-i<format>]
+Syntax: simPUTFACX <facname> <data> [<row> <offset>]
         
         ECMD:           Core Common Function
 
         Function:       Write a simulation facility using a name.
-                        Write with Xstate data: format "b"
+                        Write with Xstate data: format 'X'
 
         Parameters:
         --------------------------------------------------------------------------------
         facname         Must be a facility name
 
-        data            Data to write to facility
+        data            X-State Data to write to facility
 
         row  [optional] Facility row
  

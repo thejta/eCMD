@@ -15,7 +15,8 @@ Syntax: simGETFAC <facname> <length> [<row> <offset>] [-o<format>]
  
         offset    [opt] Facility offset
 
-        -o<format>[opt] Specifies the format type of the output: default 'xr'
+        -o<format>[opt] Specifies the format type of the output : default 'xr'
+                        Run 'ecmdquery formats' to view available formats
 
         --------------------------------------------------------------------------------
 

@@ -16,9 +16,11 @@ Syntax: putpattern <ChipSelect> <RingType> <Data> [-i<format>]
                         Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu
                         
-        Data            32bit pattern to write.  (default: hex-right)
+        Data            32bit pattern to write.  
+                        Format specified by -i<format>
         
-        -i<format>[opt] Specifies the format type of input data
+        -i<format>[opt] Specifies the format type of input data : default 'xr'
+                        Run 'ecmdquery formats' to view available formats
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
