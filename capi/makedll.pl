@@ -10,14 +10,14 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured main ecmdDisplayDllInfo);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured ecmdDisplayDllInfo);
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
 my @no_gen = qw( ecmdQueryConfig ecmdQuerySelected ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
-my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode ecmdQueryTraceMode );
+my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode );
 my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
  
 my $printout;
@@ -65,6 +65,7 @@ while (<IN>) {
 
     if (/^(uint32_t|std::string|void|bool|int)/) {
 	
+
 	next if (/$ignore_re/o);
 
 	my $type_flag = $INT;
@@ -88,6 +89,9 @@ while (<IN>) {
 
         my $enumname;
         my $orgfuncname = $funcname;
+
+        # WE never want to include a main function if it is in there
+        next if ($funcname eq "main");
 
         if ($funcname =~ /ecmd/) {
 
