@@ -40,7 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "2.1"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "2.2d"          ///< eCMD API Version
 
 
 /**
