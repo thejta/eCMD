@@ -44,6 +44,7 @@ foreach (@ARGV) {
 
 
 $temp = $command . " " . $functionname;
+print $temp
 exec($temp);
 exit($?/256);
 
