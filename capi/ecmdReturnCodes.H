@@ -20,6 +20,14 @@
  * @brief All Return Codes for the eCmd Capi
 */
 
+typedef enum {
+
+  ECMD_SUCCESS = 0x0
+
+  /* For now let's define all return codes in the 0x1000-0x1FFF range */
+  /* ex ECMD_FAILURE = 0x1010; */
+
+} ecmdrc_t;
 
 
 #endif /* ecmdReturnCodes_h */
