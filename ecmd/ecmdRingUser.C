@@ -903,7 +903,10 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       if (!ecmdCheckExpected(buffer, expected)) {
 
         //@ make this stuff sprintf'd
-        printed = ecmdWriteTarget(target) + "  " + ringName + "\n";
+        printed = ecmdWriteTarget(target) + "  " + ringName;
+        sprintf(outstr, "(%d:%d)\n", startBit, startBit + numBits - 1);
+        printed += outstr;
+        ecmdOutputError( printed.c_str() );
         printed =  "Actual            : ";
         printed += ecmdWriteDataFormatted(buffer, outputformat);
         ecmdOutputError( printed.c_str() );
