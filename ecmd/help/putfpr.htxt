@@ -3,7 +3,8 @@ Syntax: putfpr <FprNum> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
 
-        Function:       Write the specified data to a Processor FPR (Floating Point Register)
+        Function:       Write the specified data to a Processor FPR 
+                        (Floating Point Register)
 
         Parameters:
         --------------------------------------------------------------------------------

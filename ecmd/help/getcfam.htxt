@@ -15,7 +15,8 @@ Syntax: getcfam <ChipSelect> <CFAMAddr> [-k#] [-n#] [-s#] [-p#]
         -exp [optional] Provide expected data.  Returns error if expected != actual.  No
                         error/no data returned if expected == actual.
 
-        -mask     [opt] Register data is AND'ed with the mask bits. Only for use with -exp.
+        -mask     [opt] Register data is AND'ed with the mask bits. 
+                        Only for use with -exp.
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Run 'ecmdquery formats' to view available formats

@@ -1,5 +1,5 @@
 
-Syntax: getmemproc <Address> <NumBytes> [-k#] [-n#] [-s#] [-p#] [-o<format>]
+Syntax: getmemproc <MemAddress> <NumBytes> [-k#] [-n#] [-s#] [-p#] [-o<format>]
 
         ECMD:           Core Common Function
 
@@ -7,7 +7,7 @@ Syntax: getmemproc <Address> <NumBytes> [-k#] [-n#] [-s#] [-p#] [-o<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        Address         64 Bit address to read from (Hex-Right)
+        MemAddress      64 Bit address to read from (Hex-Right)
 
         NumBytes        Number of bytes to fetch (Decimal).
 

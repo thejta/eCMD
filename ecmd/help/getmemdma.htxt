@@ -1,5 +1,5 @@
 
-Syntax: getmemdma <Address> <NumBytes> [-k#] [-n#] [-o<format>]
+Syntax: getmemdma <MemAddress> <NumBytes> [-k#] [-n#] [-o<format>]
 
         ECMD:           Core Common Function
 
@@ -7,7 +7,7 @@ Syntax: getmemdma <Address> <NumBytes> [-k#] [-n#] [-o<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        Address         64 Bit address to read from (Hex-Right)
+        MemAddress      64 Bit address to read from (Hex-Right)
 
         NumBytes        Number of bytes to fetch (Decimal).
 

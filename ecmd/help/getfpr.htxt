@@ -1,5 +1,6 @@
 
-Syntax: getfpr <FprStartNum> [<numEntries>] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#] [-o<format>]
+Syntax: getfpr <FprStartNum> [<numEntries>] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#] 
+                                            [-o<format>]
 
         ECMD:           Core Common Function
 

@@ -4,7 +4,8 @@ Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>]
 
         ECMD:           Core Common Function
 
-        Function:       Write the specified data to a Processor SPR (Special Purpose Register).
+        Function:       Write the specified data to a Processor SPR 
+                        (Special Purpose Register).
 
         Parameters:
         --------------------------------------------------------------------------------

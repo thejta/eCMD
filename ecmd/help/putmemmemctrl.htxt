@@ -1,5 +1,6 @@
 
-Syntax: putmemmemctrl <Address> <Data> | -f[d|b]<filename>  [-i<format>] [-k#] [-n#] [-s#] [-p#]
+Syntax: putmemmemctrl <MemAddress> <Data> | -f[d|b]<filename>  [-i<format>] 
+                                                               [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -8,7 +9,7 @@ Syntax: putmemmemctrl <Address> <Data> | -f[d|b]<filename>  [-i<format>] [-k#] [
 
         Parameters:
         --------------------------------------------------------------------------------
-        Address         64 Bit address to write to (Hex-Right)
+        MemAddress      64 Bit address to write to (Hex-Right)
 
         -fd <filename>  Specify full path and filename to file in D-Card format to load
 

@@ -3,7 +3,8 @@ Syntax: putgpr <GprNum> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
 
-        Function:       Write the specified data to a Processor GPR (General Purpose Register)
+        Function:       Write the specified data to a Processor GPR 
+                        (General Purpose Register)
 
         Parameters:
         --------------------------------------------------------------------------------
