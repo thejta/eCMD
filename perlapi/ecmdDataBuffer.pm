@@ -301,7 +301,7 @@ sub setByte() {
 sub getByte() {
 	my ($i_byteOffset) = @_[1];
 	my ($extracted) ="";
-	$extracted = substr($iv_DataStr,$i_wordOffset*8,8);
+	$extracted = substr($iv_DataStr,$i_byteOffset*8,8);
 	return $extracted;
 }
 
@@ -632,6 +632,22 @@ sub flushTo1() {
 
 sub invert() {
 #  /* Performs bit inversion on entire DataBuffer class */
+	my ($len) =0;
+	my ($looper) =0;
+
+	$len = length($iv_DataStr);
+	for($looper=0;$looper<$len; $looper++) {
+
+# /* data could be an xstate so don't invert anything other than 1's or 0's */
+
+		if(substr($iv_DataStr,$looper,1) == '1') {
+			substr($iv_DataStr,$looper,1) = 0;
+		}
+		elsif (substr($iv_DataStr,$looper,1) == '0') {
+			substr($iv_DataStr,$looper,1) = '1';
+		}
+	}
+
 }
 
 
