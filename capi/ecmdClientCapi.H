@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
-
+#include "ecmdReturnCodes.H"
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -21,7 +21,7 @@
 //@{
 /**
  @brief Load the eCMD DLL
- @retval 0 if successful load   1 if unsuccessful
+ @retval ECMD_SUCCESS if successful load   nonzero if unsuccessful
  @post eCMD DLL is loaded into memory
  @see initDll
  @see unloadDll
@@ -31,37 +31,54 @@
        - Function also inits a symbol table of DLL functions.
        - Errors in loading are printed to STDOUT.
 */
-int loadDll();
+ecmdrc_t ecmdLoadDll();
 
 /**
  @brief Unload the eCMD DLL
- @retval 0 if successful load  1 if unsuccessful
+ @retval ECMD_SUCCESS if successful load  nonzero if unsuccessful
  @see loadDll
 
  - Errors in unloading are printed to STDOUT.
 */
 
-int unloadDll(); 
+ecmdrc_t ecmdUnloadDll(); 
 
 /**
  @brief Initialize the eCMD DLL
- @retval 0 if successful load  1 if unsuccessful
+ @retval ECMD_SUCCESS if successful load  nonzero if unsuccessful
  @param argc Passed from Command line Arguments
  @param argv Passed from Command line Arguments
  @pre loadDll must have been called
  @post Global options (ex. -debug, -p#, -c#) will be removed from arg list
  @see loadDll
 
- - initializes Cronus objects in the DLL.
- - argc/argv get passed to the Cronus DLL.
+ - initializes objects in the DLL.
+ - argc/argv get passed to the eCMD DLL.
  - Global options such as -debug flags and -p#, -c# will be parsed out.
  - Position flags can be queried later with functions like wasposselected()
 */
 
-int initDll(int argc, char* argv[]); 
+ecmdrc_t ecmdInitDll(int argc, char* argv[]); 
 
 //@}
 
+
+/** @name Error Handling Functions */
+//@{
+
+/**
+ @brief Retrieve
+*/
+ecmdrc_t ecmdGetErrorMsg(ecmdrc_t errorcode, char* message);
+
+ecmdrc_t ecmdRegisterErrorMsg(ecmdrc_t errorcode, const char* message);
+
+//@}
+
+/** @name Output Functions */
+//@{
+
+//@}
 
 
 
