@@ -67,7 +67,6 @@
 uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
-  bool newFileFormat = false;           ///< This is set if we find the new Eclipz scandef format 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string ringName;                 ///< Ring name being worked on
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
@@ -76,7 +75,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find something ?
   std::string format = "default";       ///< Output format
   std::ifstream ins;                    ///< File stream
-
+  ecmdChipData chipData;                ///< Chip data to find out bus info
+  uint32_t bustype;                     ///< Stores if the chip was JTAG or FSI attached 
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
@@ -112,15 +112,37 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
   std::string printed;
   std::string curLine;
-  std::string ringPrefix = "ring=";
-  char outstr[30];
+  char outstr[500];
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
+    /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
+    rc = ecmdGetChipData(target, chipData);
+    if (rc) {
+      printed = "getringdump - Problems retrieving chip information on : ";
+      printed += ecmdWriteTarget(target);
+      printed += "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    /* Now make sure the plugin gave us some bus info */
+    if (!(chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK)) {
+      printed = "getringdump - eCMD plugin did not implement ecmdChipData.chipFlags unable to determine if FSI or JTAG attached chip\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_DLL_INVALID;
+    } else if (((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_JTAG) &&
+               ((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_FSI) ) {
+      printed = "getringdump - eCMD plugin returned an invalid bustype in ecmdChipData.chipFlags\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_DLL_INVALID;
+    }
+    /* Store our type */
+    bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
+
+      
     for (int i = 1; i < argc; i++) {
 
       std::string ringName = argv[i];
-      std::string ringArg = ringPrefix + ringName;
 
       /* find scandef file */
       std::string scandefFile;
@@ -160,15 +182,6 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       sprintf(outstr, "* Position %d:%d, ", target.pos, target.core);
       printed += outstr;
       printed += target.chipType + " " + ringName + " Ring\n";
-      ecmdChipData chipData;
-      rc = ecmdGetChipData(target, chipData);
-      if (rc) {
-        printed = "getringdump - Error occured retrieving chip data on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
 
       sprintf(outstr, "* Chip EC %d\n", chipData.chipEc);
       printed += outstr;
@@ -186,41 +199,53 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         if (found) {
 
-          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+          if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
             done = true;
           }
-          else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
-            done = true;
+          else if ((curLine[0] == 'L') && curLine.find("Length") != std::string::npos) {
+            /* Let's do a length check */
+            ecmdParseTokens(curLine, " \t\n=", splitArgs);
+            if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != atoi(splitArgs[1].c_str())) {
+              sprintf(outstr, "getringdump - Warning : Length mismatch between ring fetched and scandef : fetched(%d) scandef(%d) on ring (%s)\n", ringBuffer.getBitLength(),atoi(splitArgs[1].c_str()),ringName.c_str());
+              ecmdOutputWarning(outstr);
+            }
           }
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
             //do nothing
           }
-          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
+          else if ((curLine[0] != ' ') && (curLine[0] != '\t')) {
             // do nothing
           }
           else {
 
             ecmdParseTokens(curLine, " \t\n", splitArgs);
 
-            printed = splitArgs[3];
+            printed = splitArgs[4];
 
             numBits = atoi(splitArgs[0].c_str());
-            startBit = atoi(splitArgs[1].c_str());
+            if (bustype == ECMD_CHIPFLAG_FSI) {
+              startBit = atoi(splitArgs[1].c_str());
+              ringBuffer.extract(buffer, startBit, numBits);
+            } else {
+              /* When extracting JTAG we have to reverse the buffer */
+              startBit = atoi(splitArgs[2].c_str());
+              ringBuffer.extract(buffer, startBit - numBits + 1, numBits);
+              buffer.reverse();
+            }
 
             if (format == "default") {
 
               if (numBits <= 8) {
-                printed += " 0b" + ringBuffer.genBinStr(startBit, numBits);
+                printed += " 0b" + buffer.genBinStr();
               }
               else {
-                printed += " 0x" + ringBuffer.genHexLeftStr(startBit, numBits);
+                printed += " 0x" + buffer.genHexLeftStr();
               }
 
               printed += "\n";
 
             }
             else {
-              ringBuffer.extract(buffer, startBit, numBits);
               printed += ecmdWriteDataFormatted(buffer, format);
             }
 
@@ -230,12 +255,10 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         }
         /* Can we find the ring we are looking for on this line */
-        else if (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
-                 ((curLine[0] == 'N') && (curLine.find(ringName) != std::string::npos))) {
-          found = true;
-          if (curLine.substr(0,4) == "Name") {
-            newFileFormat = true;
-          }
+        else if ((curLine[0] == 'N') && (curLine.find(ringName) != std::string::npos)) {
+          ecmdParseTokens(curLine, " \t\n=", splitArgs);
+          if ((splitArgs.size() >= 2) && splitArgs[1] == ringName)
+            found = true;
         }
 
       }
