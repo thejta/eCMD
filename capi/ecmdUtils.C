@@ -746,7 +746,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     // Loop through the complete 4 word blocks
     while ((i_data.getWordLength() - wordsDone) > 3) {
       wordsDonePrev = wordsDone;
-      sprintf(tempstr,"%0.16X: %0.8X %0.8X %0.8X %0.8X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+      sprintf(tempstr,"%016X: %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
       printed += tempstr;
       // Text printing additions
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
@@ -768,17 +768,17 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     if ((i_data.getWordLength() - wordsDone) != 0) {
       wordsDonePrev = wordsDone;
       // Print the address
-      sprintf(tempstr,"%0.16X:", myAddr);
+      sprintf(tempstr,"%016X:", myAddr);
       printed += tempstr;
       // Now throw on the words
-      while (wordsDone < i_data.getWordLength()) {
-        sprintf(tempstr," %0.8X",i_data.getWord(wordsDone++));
+      while ((uint32_t) wordsDone < i_data.getWordLength()) {
+        sprintf(tempstr," %08X",i_data.getWord(wordsDone++));
         printed += tempstr;
       }
       // Text printing additions
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
         // Insert spaces from the end of the last incomplete line for alignment
-        for (int y = 0; y < (4 - (wordsDone - wordsDonePrev)); y++) {
+        for (uint32_t y = 0; y < (4 - (wordsDone - wordsDonePrev)); y++) {
           printed.insert(printed.length(),"         ");
         }
         // ASCII
@@ -796,17 +796,17 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   }
   else if (curState == ECMD_FORMAT_MEMD) {
     int myAddr = address;
-    int wordsDone = 0;
+/*    int wordsDone = 0; */
     char tempstr[400];
     // Print out the data
-    for (int x = 0; x < (i_data.getWordLength() / 2); x++) {
-      sprintf(tempstr,"D %0.16X: %0.8X%0.8X\n", myAddr, i_data.getWord(x), i_data.getWord(x+1));
+    for (uint32_t x = 0; x < (i_data.getWordLength() / 2); x++) {
+      sprintf(tempstr,"D %016X: %08X%08X\n", myAddr, i_data.getWord(x), i_data.getWord(x+1));
       printed += tempstr;
       myAddr += 8;
     }
 
     if (i_data.getWordLength() % 2) {
-      sprintf(tempstr,"D %0.16X: %0.8X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+      sprintf(tempstr,"D %016X: %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
       printed += tempstr;
     }
   }
@@ -1101,7 +1101,7 @@ uint32_t ecmdDisplayDllInfo() {
 /*void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, ...) {*/
 void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args) {
 /* declare variables */
-  int commaCount, looper, parmCount, looper2;
+  int looper, looper2;
   std::vector<std::string> tokens;
   std::vector<std::string> parmTokens;
   std::vector<std::string> parmEntryTokens;
@@ -1112,7 +1112,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
   std::string printed;
 
   int mysize;
-  int look4rc,outputRC,dataLooper,remainder;
+  int look4rc,outputRC,dataLooper;
 
   char tempIntStr[400];
 
@@ -1214,9 +1214,9 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 
   mysize = parmTokens.size();
 
-  for(looper =0; looper < parmTokens.size() + outputRC; looper++) {
+  for(looper =0; (uint32_t) looper < parmTokens.size() + outputRC; looper++) {
 
-    if((looper == parmTokens.size()) && (outputRC ==1)) {
+    if(((uint32_t)looper == parmTokens.size()) && (outputRC ==1)) {
       /* we are on the last parameter we need to say the parm is a return code. */
 
       strcpy(variableType,fReturnType[0].c_str());
@@ -1297,7 +1297,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += " : variable name : ";
       printed += variableName[0];
       printed += " = ";
-      sprintf(tempIntStr,"%c",dummy);
+      sprintf(tempIntStr,"%c",*dummy);
       printed += tempIntStr;
       printed += "\n";
       ecmdOutput(printed.c_str());
@@ -1438,7 +1438,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       if(dummy ==0) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
-        sprintf(tempIntStr,"%#0.16lX",*dummy);
+        sprintf(tempIntStr,"%#016lX",*dummy);
       }
       printed += tempIntStr;
       printed += "\n";
@@ -1965,7 +1965,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
         printed += "\t \t \t\t"+tabStop+"";
       }
 
-      for (dataLooper = 0; dataLooper < i_data.getWordLength(); dataLooper ++) {
+      for (dataLooper = 0; (uint32_t) dataLooper < i_data.getWordLength(); dataLooper ++) {
         if (!(dataLooper % 4) && (dataLooper != 0)) {
           printed += "\n";
           ecmdOutput(printed.c_str());

@@ -54,8 +54,7 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 //PTRAC needs to use a workaround and explicitly include the .a which
 //contains this object... example: (ask Adam Loeffler if questions)
 //  libsomelib.so_OFILES = normalobject.o libecmdclientcapi.a
-//  libsomelib.ndso_SHLDFLAGS libsomelib.so_SHLDFLAGS += -Wl,--whole-archive \
-//        -lecmdclientcapi -Wl,--no-whole-archive
+//  libsomelib.ndso_SHLDFLAGS libsomelib.so_SHLDFLAGS += -Wl,--whole-archive -lecmdclientcapi -Wl,--no-whole-archive
 
 #ifdef FIPSODE
 #define PTRAC0(fmt) \

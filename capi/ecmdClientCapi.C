@@ -260,8 +260,8 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   if (ecmdClientDebug >= 8) {
     printf("ECMD DEBUG (ecmdFPP) : ENTER : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n");
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : int* : variable name : i_argc = %d\n",i_argc);
-      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : char** : variable name : i_argv = **not implemented yet**\n",i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : int* : variable name : i_argc = %d\n",*i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : char** : variable name : i_argv = **not implemented yet**\n");
     }
     printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
   }
@@ -296,8 +296,8 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
       printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
     }
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : int* : variable name : i_argc = %d\n",i_argc);
-      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : char** : variable name : i_argv = **not implemented yet**\n",i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : int* : variable name : i_argc = %d\n",*i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : char** : variable name : i_argv = **not implemented yet**\n");
       printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
     }
     printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");

@@ -2200,7 +2200,7 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
     memCopyOut(buffer, numBytes);
     //Convert into Network Byte order-Big Endian before writing
     int len=0;
-    for(int i=0; i< getWordLength(); i++) {
+    for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
      if (((i+1)*4) > numBytes) {
       len = numBytes - (i*4);
@@ -2215,7 +2215,7 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
     memCopyOut(buffer, numBytes);
     int len=0;
     //Convert into Network Byte order-Big Endian before writing
-    for(int i=0; i< getWordLength(); i++) {
+    for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
      if (((i+1)*4) > numBytes) {
       len = numBytes - (i*4);
@@ -2226,8 +2226,8 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
     }
   } else if( format == ECMD_SAVE_FORMAT_ASCII) {
     ops << "START";
-    while (szcount < numBits) {
-      if(szcount+32 < numBits) {
+    while ((uint32_t)szcount < numBits) {
+      if((uint32_t)szcount+32 < numBits) {
        asciidatastr = genHexLeftStr(szcount, 32);
       } else {
        asciidatastr = genHexLeftStr(szcount, numBits-(szcount));
@@ -2243,9 +2243,9 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
       else {
       //Hdr
 	char tmpstr[8];
-	sprintf(tmpstr,"%0.8X",numBits); ops.write(tmpstr,8);
-	sprintf(tmpstr,"%0.8X",format); ops.write(tmpstr,8);
-	sprintf(tmpstr,"%0.8X",tmphdrfield); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%08X",format); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
 	ops << "\n";
       }
       ops << asciidatastr.c_str();
@@ -2254,8 +2254,8 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
     ops << "\nEND\n";
   } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
     ops << "START";
-    while (szcount < numBits) {
-     if(szcount+64 < numBits) {
+    while ((uint32_t)szcount < numBits) {
+     if((uint32_t)szcount+64 < numBits) {
       xstatestr = genXstateStr(szcount, 64) ;
      } else {
       xstatestr = genXstateStr(szcount, numBits-(szcount)) ;
@@ -2263,13 +2263,13 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
      if (szcount == 0) {
         //Hdr
         char tmpstr[8];
-        sprintf(tmpstr,"%0.8X",numBits); ops.write(tmpstr,8);
-        sprintf(tmpstr,"%0.8X",format); ops.write(tmpstr,8);
-	sprintf(tmpstr,"%0.8X",tmphdrfield); ops.write(tmpstr,8);
+        sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
+        sprintf(tmpstr,"%08X",format); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
 	ops << "\n";
      }
      ops << xstatestr.c_str();
-     if (szcount+64<numBits)
+     if ((uint32_t)szcount+64<numBits)
       ops << "\n";
      szcount+= 64;
     }
@@ -2282,7 +2282,7 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
 uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t format) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
-  uint32_t numBits=0,numBytes=0,numWords=0,NumDwords=0,hexbitlen=0, *buffer;
+  uint32_t numBits=0,numBytes=0,NumDwords=0,hexbitlen=0, *buffer;
   char key[6],hexstr[8],binstr[64];
   
   ins.open(filename);
@@ -2312,7 +2312,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t forma
     //Read Data
     buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
     ins.read((char *)buffer,numBytes);
-    for(int i=0; i< getWordLength(); i++) {
+    for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
     }
     memCopyIn(buffer, numBytes);
@@ -2324,7 +2324,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t forma
     ins.seekg(0, ios::beg);
     buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
     ins.read((char *)buffer,numBytes);
-    for(int i=0; i< getWordLength(); i++) {
+    for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
     }
     memCopyIn(buffer, numBytes);

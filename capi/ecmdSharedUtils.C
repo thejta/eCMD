@@ -110,7 +110,6 @@ bool ecmdParseOption (int *argc, char **argv[], const char *option) {
 /* ----------------------------------------------------------------- */
 char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
   int counter = 0;
-  int foundit = 0;
   char *returnValue=NULL;
 
   for (counter = 0; counter < *argc ; counter++) {
@@ -147,7 +146,7 @@ void ecmdParseTokens (std::string line, const char* seperators, std::vector<std:
 
   while (1) {
     curStart = line.find_first_not_of(seperators, curEnd);
-    if (curStart == std::string::npos) break;
+    if ((uint32_t)curStart == std::string::npos) break;
     curEnd = line.find_first_of(seperators,curStart);
     tokens.push_back(line.substr(curStart, curEnd-curStart));
   }
