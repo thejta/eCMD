@@ -321,7 +321,11 @@ void  ecmdDataBuffer::setByte(int byteOffset, uint8_t value) {
   if (byteOffset >= getByteLength()) {
     printf("**** ERROR : ecmdDataBuffer::setByte: byteOffset %d >= NumBytes (%d)\n", byteOffset, getByteLength());
   } else {
+#if defined (i386)
+    ((uint8_t*)(this->iv_Data))[byteOffset^3] = value;
+#else
     ((uint8_t*)(this->iv_Data))[byteOffset] = value;
+#endif
     
 #ifndef REMOVE_SIM
     int startBit = byteOffset * 8;
@@ -346,7 +350,11 @@ uint8_t ecmdDataBuffer::getByte(int byteOffset) {
     printf("**** ERROR : ecmdDataBuffer::getByte: byteOffset %d > NumBytes-1 (%d)\n", byteOffset, getByteLength()-1);
     return 0;
   }
+#if defined (i386)
+  return ((uint8_t*)(this->iv_Data))[byteOffset^3];
+#else
   return ((uint8_t*)(this->iv_Data))[byteOffset];
+#endif
 }
 
 
@@ -1504,7 +1512,7 @@ void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to
 
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
 {
-#ifdef __GNU__
+#ifdef (i386)
   char *tmp = (char *) dest, *s = (char *) src;
   int remainder = 0, whole_num = 0;
 

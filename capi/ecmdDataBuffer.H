@@ -22,7 +22,7 @@
  * @file ecmdDataBuffer.H
  * @brief Provides a means to handle data from the eCMD C API
  *
- * DataBuffers handle data in a Big Endian fashion with Bit 0 being the MSB
+ * DataBuffers handle and store data in a Big Endian fashion with Bit 0 being the MSB
 */
 
 
