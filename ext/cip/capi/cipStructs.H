@@ -15,15 +15,13 @@
 //                                                                      
 // End Copyright ******************************************************
 
-// Class Description *************************************************
-//                                                                      
-//  Name:  cipStructs
-//  Base class: 
-//
-//  Description: 
-//  Usage:
-//
-// End Class Description *********************************************
+
+/**
+ * @file cipStructs.H
+ * @brief Cronus & IP eCMD Extension Structures
+
+ * Extension Owner : Chris Engel
+*/
 
 //--------------------------------------------------------------------
 // Includes
