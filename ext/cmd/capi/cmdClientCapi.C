@@ -1,11 +1,3 @@
-/* NOTE : This file has been generated from the eCMD extension temp-late */
-/* DO NOT EDIT THISFILE (unless you are editing the temp-late */
-
-
-
-
-
-
 // Copyright ***********************************************************
 //                                                                      
 // File cmdClientCapi.C                                   
