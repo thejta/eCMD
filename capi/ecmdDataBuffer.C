@@ -2046,7 +2046,7 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
   return ECMD_DBUF_SUCCESS;
 }
 
-uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
+uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ofstream ops;
   uint32_t tmphdrfield=0;
@@ -2054,6 +2054,7 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
   std::string asciidatastr,xstatestr;
   uint32_t numBytes = getByteLength();
   uint32_t numBits = getBitLength();
+  uint32_t *buffer;
   
   #ifndef REMOVE_SIM
     if((hasXstate()) && (format != ECMD_SAVE_FORMAT_XSTATE)) {
@@ -2072,14 +2073,43 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
     ops.write("START",5);//Key
     ops.seekp(3, ios::cur);
     //Hdr
+    numBits = htonl(numBits);
     ops.write((char *)&numBits,4);//Bit length field
-    ops.write((char*)format,4);//Format field
+    format = (ecmdFormatType_t)htonl(format);
+    ops.write((char*)&format,4);//Format field
     //Leave 1 words extra room here
-    ops.write((char*)tmphdrfield,4);
-    ops.write((char *)iv_Data,numBytes);
+    tmphdrfield = htonl(tmphdrfield);
+    ops.write((char*)&tmphdrfield,4);
+    
+    //Write Data
+    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    memCopyOut(buffer, numBytes);
+    //Convert into Network Byte order-Big Endian before writing
+    int len=0;
+    for(int i=0; i< getWordLength(); i++) {
+     buffer[i]=htonl(buffer[i]);
+     if (((i+1)*4) > numBytes) {
+      len = numBytes - (i*4);
+     } else {
+       len = 4;
+     }
+     ops.write((char *)&buffer[i],len);
+    }
     ops.write("END",3);//Key
   } else if(format == ECMD_SAVE_FORMAT_BINARY_DATA) {
-    ops.write((char *)iv_Data,numBytes);
+    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    memCopyOut(buffer, numBytes);
+    int len=0;
+    //Convert into Network Byte order-Big Endian before writing
+    for(int i=0; i< getWordLength(); i++) {
+     buffer[i]=htonl(buffer[i]);
+     if (((i+1)*4) > numBytes) {
+      len = numBytes - (i*4);
+     } else {
+       len = 4;
+     }
+     ops.write((char *)&buffer[i],len);
+    }
   } else if( format == ECMD_SAVE_FORMAT_ASCII) {
     ops << "START";
     while (szcount < numBits) {
@@ -2135,10 +2165,10 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
   return(rc);
 }
 
-uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
+uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t format) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
-  uint32_t numBits=0,numBytes=0,numWords=0,NumDwords=0,hexbitlen=0;
+  uint32_t numBits=0,numBytes=0,numWords=0,NumDwords=0,hexbitlen=0, *buffer;
   char key[6],hexstr[8],binstr[64];
   
   ins.open(filename);
@@ -2149,14 +2179,15 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
   }
     
   if ( format == ECMD_SAVE_FORMAT_BINARY) {
+    // Read Hdr
     ins.read(key,5); key[5]='\0';
     if(strcmp(key,"START")!=0) {
       printf("**** ERROR : Keyword START not found.\n");
       return ECMD_DBUF_FILE_FORMAT_MISMATCH; 
     }
     ins.seekg(3,ios::cur);
-    ins.read((char *)&numBits,4);
-    ins.read((char *)&format,4);
+    ins.read((char *)&numBits,4);    numBits = htonl(numBits);
+    ins.read((char *)&format,4);    format = (ecmdFormatType_t)htonl(format);
     if (format != ECMD_SAVE_FORMAT_BINARY ) {
       printf("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_BINARY.\n");
       return ECMD_DBUF_FILE_FORMAT_MISMATCH;  
@@ -2164,14 +2195,25 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
     ins.seekg(4,ios::cur);//1 empty words in hdr
     this->setBitLength(numBits);
     numBytes=getByteLength();
-    ins.read((char *)iv_Data,numBytes);
+    //Read Data
+    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    ins.read((char *)buffer,numBytes);
+    for(int i=0; i< getWordLength(); i++) {
+     buffer[i]=htonl(buffer[i]);
+    }
+    memCopyIn(buffer, numBytes);
   } else if ( format == ECMD_SAVE_FORMAT_BINARY_DATA) {
     ins.seekg(0, ios::end);
     numBytes = ins.tellg();
     numBits = numBytes * 8;
     this->setBitLength(numBits);
     ins.seekg(0, ios::beg);
-    ins.read((char *)iv_Data,numBytes);
+    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    ins.read((char *)buffer,numBytes);
+    for(int i=0; i< getWordLength(); i++) {
+     buffer[i]=htonl(buffer[i]);
+    }
+    memCopyIn(buffer, numBytes);
   } else if(format ==  ECMD_SAVE_FORMAT_ASCII) {
     ins.width(6); ins >> key; 
     if(strcmp(key,"START")!=0) {
@@ -2181,7 +2223,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
     ins.width(9);  ins >> hexstr; 
     numBits = strtoul(hexstr, NULL, 16); 
     ins.width(9); ins >> hexstr;  
-    format = strtoul(hexstr, NULL, 16);
+    format = (ecmdFormatType_t) strtoul(hexstr, NULL, 16);
     if (format != ECMD_SAVE_FORMAT_ASCII ) {
       printf("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_ASCII.\n");
       return ECMD_DBUF_FILE_FORMAT_MISMATCH;  
@@ -2191,7 +2233,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
     for (uint32_t i = 0; i < iv_NumWords; i++) {
       ins.width(9);  ins >> hexstr;
       if (((i*32)+32) > numBits) {
-        hexstr[strlen(hexstr)-1] = '\0'; //strip newline char
+        hexstr[strlen(hexstr)] = '\0'; //strip newline char
 	hexbitlen = numBits - (i*32);
       } else {
         hexbitlen = 32;
@@ -2212,7 +2254,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
     ins.width(9);  ins >> hexstr;
     numBits = strtoul(hexstr, NULL, 16);
     ins.width(9); ins >> hexstr;
-    format = strtoul(hexstr, NULL, 16);
+    format = (ecmdFormatType_t) strtoul(hexstr, NULL, 16);
     if (format != ECMD_SAVE_FORMAT_XSTATE ) {
       printf("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_XSTATE.\n");
       return ECMD_DBUF_FILE_FORMAT_MISMATCH;
@@ -2224,7 +2266,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, int format) {
     for (uint32_t i = 0; i < NumDwords; i++) {
       ins.width(65);  ins >> binstr;
       if ((i*64)+64 > numBits) 
-        binstr[strlen(binstr)-1] = '\0'; //strip newline char
+        binstr[strlen(binstr)] = '\0'; //strip newline char
       setXstate(i*64, binstr);
       ins.seekg(1,ios::cur);// New line char
     }
