@@ -102,17 +102,48 @@ struct ecmdUserInfo {
 uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 
   /* First off let's check our version */
-  if (strcmp(i_clientVersion,ECMD_CAPI_VERSION)) {
-    fprintf(stderr,"**** FATAL : eCMD DLL and your client are not compatible\n");
+  /* Let's found our '.' char because we only fail if the Major number changes */
+  int majorlength = (int)(strchr(i_clientVersion, '.') - i_clientVersion);
+
+  if (strncmp(i_clientVersion,ECMD_CAPI_VERSION,majorlength)) {
+    fprintf(stderr,"**** FATAL : eCMD DLL and your client Major version numbers don't match, they are not compatible\n");
     fprintf(stderr,"**** FATAL : Client Version : %s   : DLL Version : %s\n",i_clientVersion, ECMD_CAPI_VERSION);
-/*
-    if (version < DLL_VERSION)
-      fprintf(stderr,"**** FATAL : You must rebuild your client to continue\n");
-    else
-      fprintf(stderr,"**** FATAL : Contact the Cronus team to have the DLL rebuilt to match your client to continue\n");
-*/
+
+    if (atoi(i_clientVersion) < atoi(ECMD_CAPI_VERSION)) {
+      fprintf(stderr,"**** FATAL : Your client is older then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : You must grab the latest client libraries and rebuild your client to continue\n");
+      fprintf(stderr,"**** FATAL : Information on where to obtain these files is at http://rhea.rchland.ibm.com/eCMD/\n");
+    } else {
+      fprintf(stderr,"**** FATAL : It appears your client is newer then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : Contact the eCMD team to have the Plugin rebuilt to match your client\n");
+      fprintf(stderr,"**** FATAL : Or get ahold of down level client libraries and rebuild your client to match\n");
+      fprintf(stderr,"**** FATAL : Contact information can be found at http://rhea.rchland.ibm.com/eCMD/\n");
+
+    }
+
     exit(999);
   }
+
+  /* Now we are going to check the version of the shared lib we loaded */
+  if (strncmp(ecmdGetSharedLibVersion().c_str(),ECMD_CAPI_VERSION,majorlength)) {
+    fprintf(stderr,"**** FATAL : eCMD Shared Library and your Plugin Major version numbers don't match, they are not compatible\n");
+    fprintf(stderr,"**** FATAL : Shared Library Version : %s   : DLL Version : %s\n",ecmdGetSharedLibVersion().c_str(), ECMD_CAPI_VERSION);
+
+    if (atoi(ecmdGetSharedLibVersion().c_str()) < atoi(ECMD_CAPI_VERSION)) {
+      fprintf(stderr,"**** FATAL : Your shared library is older then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : You must grab the latest library to continue\n");
+      fprintf(stderr,"**** FATAL : Information on where to obtain these files is at http://rhea.rchland.ibm.com/eCMD/\n");
+    } else {
+      fprintf(stderr,"**** FATAL : It appears your shared library is newer then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : Contact the eCMD team to have the Plugin rebuilt to match\n");
+      fprintf(stderr,"**** FATAL : Or get ahold of a down level shared library and rerun\n");
+      fprintf(stderr,"**** FATAL : Contact information can be found at http://rhea.rchland.ibm.com/eCMD/\n");
+
+    }
+
+    exit(999);
+  }
+
 
   ecmdGlobal_DllDebug = debugLevel;
 
