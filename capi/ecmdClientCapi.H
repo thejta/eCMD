@@ -31,7 +31,9 @@
  2)  Allows (C-based) perl interpreter to access these functions
 
 */
+#ifndef DOCUMENTATION
 extern "C" {
+#endif
 
 #ifndef PERLAPI
 /** @name Load/Unload Functions */
@@ -2077,8 +2079,9 @@ uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_tar
 
 
 
+#ifndef DOCUMENTATION
 }  //extern "C"
-
+#endif
 
 #endif /* ecmdClientCapi_H */
 

@@ -40,7 +40,9 @@
 
 */
 
+#ifndef DOCUMENTATION
 namespace ECMDPERLAPI {
+#endif
 
   int ecmdPerlInterfaceErrorCheck (int rc);
   bool ecmdQuerySafeMode();
@@ -126,8 +128,9 @@ namespace ECMDPERLAPI {
 
   //@}
 
+#ifndef DOCUMENTATION
 }
-
+#endif
 
 
 
