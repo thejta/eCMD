@@ -177,15 +177,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     }
     
     printLine = ecmdWriteTarget(target);
-    if (formatPtr != NULL) {
-     
-     std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
-     if (dataStr[0] != '\n') {
-       printLine += "\n";
-     }
-     printLine += dataStr;
-     ecmdOutput( printLine.c_str() );
-    } else if (filename != NULL) {
+    if (filename != NULL) {
       rc = returnData.writeFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
        
       if (rc) {
@@ -194,8 +186,17 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
        return rc;
       }
       ecmdOutput( printLine.c_str() );
-    } 
-   
+    } else  {
+     
+     std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
+     if (dataStr[0] != '\n') {
+       printLine += "\n";
+     }
+     printLine += dataStr;
+     ecmdOutput( printLine.c_str() );
+    }
+
+    
   }
 
   if (!validPosFound) {
@@ -253,14 +254,19 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  if (argc < 2) {  //chip + address
+  if ((argc < 2)&&(filename == NULL)) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
+  }else if((argc < 1)&&(filename != NULL)) { 
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and input data file.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
   }
-
   //Setup the target that will be used to query the system config 
   if (memMode == ECMD_MEM_DMA) {
     target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
@@ -291,22 +297,21 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   }
   
   // Read in the input data
-  if (formatPtr != NULL) {
+  if(filename != NULL) {
+    rc = inputData.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+    if (rc) {
+     printLine = cmdlineName + " - Problems occurred parsing input data from file" + filename +", must be an invalid format\n";
+     ecmdOutputError(printLine.c_str());
+     return rc;
+    }
+  } else  {
    rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
    if (rc) {
      printLine = cmdlineName + " - Problems occurred parsing input data, must be an invalid format\n";
      ecmdOutputError(printLine.c_str());
      return rc;
    }
-  } else if(filename != NULL) {
-    rc = inputData.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
-    if (rc) {
-     printLine = cmdlineName + " - Problems occurred parsing input data from file" + filename +", must be an invalid format\n";
-     ecmdOutputError(printLine.c_str());
-     return rc;
-   }
   }
-  
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
