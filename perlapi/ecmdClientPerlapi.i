@@ -13,7 +13,7 @@
 // These are used to map C types that swig doesn't understand to types swig does understand
 %apply unsigned int { uint32_t }
 %apply unsigned char { uint8_t }
-%apply int &REFERENCE { int &c };
+%apply unsigned int &REFERENCE { uint32_t & };
 /*********** End Applies ***********/
 
 /*********** Start Insert Code ***********/
