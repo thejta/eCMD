@@ -75,6 +75,7 @@ uint32_t ecmdSendCmdUser(int argc, char* argv[]);
 /* ecmdArrayUser.C */
 uint32_t ecmdGetArrayUser(int argc, char* argv[]);
 uint32_t ecmdPutArrayUser(int argc, char* argv[]);
+uint32_t ecmdGetTraceArrayUser(int argc, char* argv[]);
 
 /* ecmdScomUser.C */
 uint32_t ecmdGetScomUser(int argc, char* argv[]);

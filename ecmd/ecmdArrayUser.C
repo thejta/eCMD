@@ -346,4 +346,100 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   return rc;
 }
 
+uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  std::string arrayName;        ///< Name of array to access
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  bool printedHeader;           ///< Have we printed the array name and pos
+  std::vector <ecmdDataBuffer> arrayData; ///< Trace Array Data retrieved
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  int loop; 			///<loop around the array data
+  
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr == NULL) {
+    format = "x";
+  }
+  else {
+    format = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {
+    ecmdOutputError("gettracearray - Too few arguments specified; you need at least a chip and an array.\n");
+    ecmdOutputError("gettracearray - Type 'gettracearray -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  arrayName = argv[1];
+
+  
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    printedHeader = false;
+
+    /* Actually go fetch the data */
+    rc = getTraceArray(target, arrayName.c_str(), arrayData);
+    
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "gettracearray - Error occured performing getTraceArray on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+    
+    for(loop =0; loop < arrayData.size() ; loop++) {
+      if (!printedHeader) {
+        printed = ecmdWriteTarget(target) + " " + arrayName + "\n";
+	ecmdOutput( printed.c_str() );
+        printedHeader = true;
+      } 
+
+      printed = ecmdWriteDataFormatted(arrayData[loop], format);
+
+      ecmdOutput( printed.c_str() );
+    }
+
+    arrayData.clear();
+
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("gettracearray - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
 
