@@ -20,6 +20,18 @@
 //
 // End Module Description **********************************************
 
+
+/* Here will be the magic to enable/disable interpreters from being compiled in */
+#define CIP_INTERPRETER_SUPPORTED
+
+#if !defined(FIPSODE)
+#define CRO_INTERPRETER_SUPPORTED
+#endif
+
+
+
+
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -33,6 +45,15 @@
 #include <ecmdUtils.H>
 #include <ecmdSharedUtils.H>
 
+/* Extension Interpreters */
+#ifdef CIP_INTERPRETER_SUPPORTED
+ #include <cipInterpreter.H>
+ #include <cipClientCapi.H>
+#endif
+#ifdef CRO_INTERPRETER_SUPPORTED
+ #include <croClientCapi.H>
+ #include <croInterpreter.H>
+#endif
 #undef ecmdInterpreter_C
 //----------------------------------------------------------------------
 //  User Types
@@ -58,6 +79,41 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
+uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+
+  if (argc == 0) {
+    /* How did we get here ? */
+    rc = ECMD_INT_UNKNOWN_COMMAND;
+    return rc;
+  }
+
+  /* Core interpreter */
+  rc = ecmdCommandInterpreter(argc, argv);
+
+#ifdef CIP_INTERPRETER_SUPPORTED
+  /* Cronus/IP Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("cip",argv[0],3))) {
+    rc = cipInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = cipCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef CRO_INTERPRETER_SUPPORTED
+  /* Cronus Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("cro",argv[0],3))) {
+    rc = croInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = croCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+  return rc;
+}
 
 uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 

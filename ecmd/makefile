@@ -14,6 +14,26 @@ DEFINES      :=
 CFLAGS       := -I. -I../capi/export -g 
 
 
+# Common stuff for all extension interpreters
+EXTENSIONS   := cip cro
+
+VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd:../ext/${ext}/capi/export)
+INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
+SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.C)
+ifeq (${OS},Linux)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
+endif
+ifeq (${OS},AIX)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_aix.a)
+endif
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/cmd)
+
+# The CIP Interpreter specific source
+SOURCE       := ${SOURCE} cipProcUser.C
+
+# The Cro Interpreter specific source
+
+
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
@@ -23,7 +43,7 @@ ifeq (${OS},Linux)
   TARGET  := ecmd_x86
   LD      := ${CC}
   LDFLAGS := -ldl -L../capi/export -lecmd_x86
-  LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
+  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30
   GPATH   := ${SUBDIR}
 endif
@@ -41,7 +61,7 @@ ifeq (${OS},AIX)
   TARGET  := ecmd_aix
   LD      := ${CC}
   LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export -lecmd_aix
-  LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
+  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
@@ -106,6 +126,6 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
+	${LD} ${LDFLAGS} $^ -o $@ 
 
 

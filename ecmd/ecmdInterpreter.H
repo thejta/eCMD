@@ -44,6 +44,16 @@ typedef enum {
 
 
 /**
+ @brief Walk through all interpreters, including the extensions
+ @param argc Command line arguments
+ @param argv Command line arguments
+ @retval ECMD_SUCCESS On successful command
+ @retval ECMD_INT_UNKNOWN_COMMAND If command is not valid
+ @retval nonzero On command failure
+*/
+uint32_t ecmdCallInterpreters(int argc, char* argv[]);
+
+/**
  @brief Process user args and execute command requested
  @param argc Command line arguments
  @param argv Command line arguments

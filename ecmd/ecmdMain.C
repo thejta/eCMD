@@ -125,7 +125,7 @@ int main (int argc, char *argv[])
             }
 
             /* We now want to call the command interpreter to handle what the user provided us */
-            if (!rc) rc = ecmdCommandInterpreter(c_argc, c_argv);
+            if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
 
 
             if (rc == ECMD_INT_UNKNOWN_COMMAND) {
@@ -159,7 +159,7 @@ int main (int argc, char *argv[])
       /* Standard command line command */
 
       /* We now want to call the command interpreter to handle what the user provided us */
-      rc = ecmdCommandInterpreter(argc - 1, argv + 1);
+      rc = ecmdCallInterpreters(argc - 1, argv + 1);
 
 
       if (rc == ECMD_INT_UNKNOWN_COMMAND) {
