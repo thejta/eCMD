@@ -52,10 +52,13 @@ all: dir ${TARGET} ${TARGET}_static
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 	@cp ${SUBDIR}${TARGET}_static export/
-	@cp ${SUBDIR}${EC_TARGET} export/
 
 
 cmd: ${EC_TARGET}
+	@touch t.o t_x86 t_aix t_ppc t_static
+	@mv *.o *_x86 *_aix *_ppc *_static ${SUBDIR}
+	@echo "Exporting eCMD Client to export/ ..."
+	@cp ${SUBDIR}${EC_TARGET} export/
 
 clean:
 	rm -rf ${SUBDIR}
