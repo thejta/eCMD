@@ -1033,7 +1033,7 @@ class ecmdClientPerlapi
 
 
      */
-    uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+    uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>& io_entries);
 
 
     /**

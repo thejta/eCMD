@@ -1,151 +1,79 @@
-%module MODULE_NAME
+%module ecmd
+/*********** Start Typemaps ***********/
 %include typemaps.i
 %include cpointer.i
+%include ecmdString.i
+%include ecmdVector.i
+%include ecmdList.i
+%include ecmdCommon.i
+/*********** End Typemaps ***********/
 
-%typemap(in) char ** o_data (char* cvalue), char ** o_status (char* cvalue) {
-  SV* tempsv;
-  if (!SvROK($input)) {
-    croak("ecmdClientPerlapi.i::expected a reference\n");
-  }
-  tempsv = SvRV($input);
-  if (!SvPOK(tempsv)) {
-    croak("ecmdClientPerlapi.i::expected a string reference\n");
-  }
-  cvalue = SvPV(tempsv,PL_na);
-  $1 = (char**)malloc(sizeof(char*));
+/*********** Start Applies ***********/
+// These are used to map C types that swig doesn't understand to types swig does understand
+%apply unsigned int { uint32_t }
+%apply unsigned char { uint8_t }
+%apply int &REFERENCE { int &c };
+/*********** End Applies ***********/
 
-  *$1 = cvalue;
-}
+/*********** Start Insert Code ***********/
+// Insert C code into the file swig generates
+%{
+#include "ecmdClientPerlapi.H"
+#include "ecmdDataBuffer.H"
+#include "ecmdStructs.H"
+#include "ecmdClientPerlapiIterators.H"
 
-%typemap(argout) char ** o_data, char ** o_status {
-  SV *tempsv;
-  if (*$1 != NULL) {
-    tempsv = SvRV($arg);
-    sv_setpv(tempsv, *$1);
-    free(*$1);
-  }
-  *$1 = NULL;
-  free($1);
-}
+#include "ecmdPluginExtensionSupport.H"
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
+  #include "cipClientPerlapi.H"
+#endif
+%}
+/*********** End Insert Code ***********/
 
+/*********** Start Templates ***********/
+// Templates for vector support - one of these have to be created for every type needed
+// From ecmdStructs.H
+%template(listEcmdThreadData)        std::list<ecmdThreadData>;
+%template(listEcmdCoreData)          std::list<ecmdCoreData>;
+%template(listEcmdchipData)          std::list<ecmdChipData>;
+%template(listEcmdSlotData)          std::list<ecmdSlotData>;
+%template(listEcmdNodeData)          std::list<ecmdNodeData>;
+%template(listEcmdCageData)          std::list<ecmdCageData>;
+%template(listString)                std::list<std::string>;
+%template(vectorEcmdDataBuffer)      std::vector<ecmdDataBuffer>;
+// From ecmdClientPerlapi.H
+%template(listEcmdRingData)          std::list<ecmdRingData>;
+%template(listEcmdLatchEntry)        std::list<ecmdLatchEntry>;
+%template(listEcmdSpyGroupData)      std::list<ecmdSpyGroupData>;
+%template(listEcmdArrayEntry)        std::list<ecmdArrayEntry>;
+%template(listEcmdNameEntry)         std::list<ecmdNameEntry>;
+%template(listEcmdNameVectorEntry)   std::list<ecmdNameVectorEntry>;
+%template(listEcmdIndexEntry)        std::list<ecmdIndexEntry>;
+%template(listEcmdChipTarget)        std::list<ecmdChipTarget>;
+/*********** End Templates ***********/
 
+/*********** Start Renames ***********/
+// This has to be done before the files to swigify get pulled in, otherwise they won't be applied
+%rename(operatorEqualTo)    operator==(const ecmdDataBuffer& other) const;
+%rename(operatorNotEqualTo) operator!=(const ecmdDataBuffer& other) const;
+%rename(operatorAnd) operator&(const ecmdDataBuffer& other) const;
+%rename(operatorOr) operator|(const ecmdDataBuffer& other) const;
+// Pull in the auto generated renames
+%include ecmdRename.i
+/*********** End Renames ***********/
 
+/*********** Start Files to swigify ***********/
+%include ecmdClientPerlapi.H
+%include ecmdDataBuffer.H
+%include ecmdStructs.H
+%include ecmdClientPerlapiIterators.H
 
-%typemap(in) char ** o_enumValue (char* cvalue) {
-  SV* tempsv;
-  if (!SvROK($input)) {
-    croak("ecmdClientPerlapi.i::expected a reference\n");
-  }
-  tempsv = SvRV($input);
-  if (!SvPOK(tempsv)) {
-    croak("ecmdClientPerlapi.i::expected a string reference\n");
-  }
-  cvalue = SvPV(tempsv,PL_na);
-  $1 = (char**)malloc(sizeof(char*));
-
-  *$1 = cvalue;
-}
-
-%typemap(argout) char ** o_enumValue {
-  SV *tempsv;
-  if (*$1 != NULL) {
-    tempsv = SvRV($arg);
-    sv_setpv(tempsv, *$1);
-    free(*$1);
-  }
-  *$1 = NULL;
-  free($1);
-}
-
-#%typemap(freearg) char ** o_enumValue {
-#	free($1);
-#}
-
-
-%typemap(in) int *o_matchs (int dvalue),int &o_matchs (int dvalue)  {
-  SV *tempsv;
-  if (!SvROK($input)) {
-    SWIG_croak("ecmdClientPerlapi.i::expected a reference");
-  }
-  tempsv = SvRV($input);
-  if (!SvIOK(tempsv)) {
-    SWIG_croak("ecmdClientPerlapi.i::expected a integer reference");
-  }
-  dvalue = SvIV(tempsv);
-  $1 = &dvalue;
-}
-
-%typemap(in) int *o_width (int dvalue),int &o_width (int dvalue)  {
-  SV *tempsv;
-  if (!SvROK($input)) {
-    SWIG_croak("ecmdClientPerlapi.i::expected a reference");
-  }
-  tempsv = SvRV($input);
-  if (!SvIOK(tempsv)) {
-    SWIG_croak("ecmdClientPerlapi.i::expected a integer reference");
-  }
-  dvalue = SvIV(tempsv);
-  $1 = &dvalue;
-}
-
-
-%typemap(argout) int *o_matchs, int &o_matchs {
-  SV *tempsv;
-  tempsv = SvRV($input);
-  if (!$1) SWIG_croak("ecmdClientPerlapi.i::expected a reference");
-  sv_setiv(tempsv, (IV) *$1);
-}
-
-%typemap(argout) int *o_width, int &o_width {
-  SV *tempsv;
-  tempsv = SvRV($input);
-  if (!$1) SWIG_croak("ecmdClientPerlapi.i::expected a reference");
-  sv_setiv(tempsv, (IV) *$1);
-}
-
-%typemap(in) char * i_argv[] {
-	AV *tempav;
-	I32 len;
-	int i;
-	SV **tv;
-	if (!SvROK($input))
-	   croak("ecmdClientPerlapi.i::Argumen $argnum is not a reference.\n");
-	if (SvTYPE(SvRV($input)) != SVt_PVAV)
-	   croak("ecmdClientPerlapi.i::Argumen $argnum is not an array.\n");
-	tempav = (AV*)SvRV($input);
-	len = av_len(tempav);
-	$1 = (char **) malloc((len+2)*sizeof(char *));
-	for(i=0; i <= len; i++) {
-	   tv = av_fetch(tempav, i, 0);
-	   $1[i] = (char *) SvPV(*tv,PL_na);
-	}
-	$1[i] = NULL;
-};
-
-%typemap(freearg) char *i_argv[] {
-	free($1);
-}
-
-
-%typemap(argout) char **i_argv {
-
-	AV *myav;
-	SV **svs;
-	int i = 0, len = 0;
-	/* figure out how many elements we have */
-	while($1[len]) len++;
-	svs = (SV **) malloc(len*sizeof(SV *));
-	for (i =0; i < len; i++) {
-	  svs[i] = sv_newmortal();
-	  sv_setpv((SV*)svs[i],$1[i]);
-	}
-	myav = av_make(len,svs);
-	free(svs);
-	$result = newRV((SV*)myav);
-	sv_2mortal($result);
-	argvi++;
-}
-
+// The extensions
+%include ecmdPluginExtensionSupport.H
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
+  %include cipClientPerlapi.H
+#endif
+/*********** End Files to swigify ***********/
 
 %exception {
 	$function
@@ -155,21 +83,7 @@
 	}
 }
 
-%{
-#include "ecmdClientPerlapi.H"
-
-
-#include "ecmdPluginExtensionSupport.H"
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
-# include "cipClientPerlapi.H"
-#endif
-%}
-
-%include ecmdClientPerlapi.H
-
-# The extensions
-%include ecmdPluginExtensionSupport.H
-
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
-%include cipClientPerlapi.H
-#endif
+// This line inserts a straight copy of the file below into the beginning of the swig generated perl module
+%pragma(perl5) include="ecmdClientPerlapi.pl"
+// Pull in the generated operator code
+%pragma(perl5) include="ecmdClientPerlapiIterators.pl"
