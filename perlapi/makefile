@@ -41,7 +41,7 @@ ifeq (${OS},Linux)
   LD        := ${CC}
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
-  CFLAGS    := ${CFLAGS} -ftemplate-depth-30
+  CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
   SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
