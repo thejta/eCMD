@@ -33,23 +33,26 @@ extern "C" {
  @param dllName Specify the full path and name of the dll to load, 
  @retval ECMD_SUCCESS if successful load
  @retval ECMD_INVALID_DLL_VERSION if Dll version loaded doesn't match client version
+ @retval ECMD_INVALID_DLL_FILENAME if dllName and ECMD_DLL_FILE are not specified
+ @retval ECMD_DLL_LOAD_FAILURE if failure occurs on call to dlopen
  @retval nonzero if unsuccessful
  @post eCMD DLL is loaded into memory and initialized
  @see unloadDll
 
        - This function loads the DLL based on dllName if specified, otherwise the env var ECMD_DLL_FILE is used
        - Name limit of 255 characters.
-       - Errors in loading are printed to STDOUT.
+       - Errors in loading are printed to STDERR.
 */
 int ecmdLoadDll(string dllName);
 
 /**
  @brief Unload the eCMD DLL
  @retval ECMD_SUCCESS if successful unload
- @retval nonzero if unsuccessful
+ @retval ECMD_DLL_LOAD_FAILURE if failure occurs on call to dlclose
+ @retval nonzero if failure on dll's unload
  @see loadDll
 
- - Errors in unloading are printed to STDOUT.
+ - Errors in unloading are printed to STDERR
 */
 
 int ecmdUnloadDll(); 
