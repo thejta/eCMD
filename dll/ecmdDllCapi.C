@@ -56,6 +56,9 @@ char * dllParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_o
 
 uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 
+/* Returns true if all chars of str are decimal numbers */
+bool dllIsAllDecimal(std::string str);
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -227,6 +230,10 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   else {
 
     if (ecmdUserArgs.cage.length() != 0) {
+      if (!dllIsAllDecimal(ecmdUserArgs.cage)) {
+        dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
+        return ECMD_INVALID_ARGS;
+      }
       i_target.cage = atoi(ecmdUserArgs.cage.c_str());
     }
     else {
@@ -249,6 +256,10 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   else {
 
     if (ecmdUserArgs.node.length() != 0) {
+      if (!dllIsAllDecimal(ecmdUserArgs.cage)) {
+        dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
+        return ECMD_INVALID_ARGS;
+      }
       i_target.node = atoi(ecmdUserArgs.node.c_str());
     }
     else {
@@ -271,6 +282,10 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   else {
 
     if (ecmdUserArgs.slot.length() != 0) {
+      if (!dllIsAllDecimal(ecmdUserArgs.cage)) {
+        dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
+        return ECMD_INVALID_ARGS;
+      }
       i_target.slot = atoi(ecmdUserArgs.slot.c_str());
     }
     else {
@@ -293,6 +308,10 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   else {
 
     if (ecmdUserArgs.pos.length() != 0) {
+      if (!dllIsAllDecimal(ecmdUserArgs.cage)) {
+        dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
+        return ECMD_INVALID_ARGS;
+      }
       i_target.pos = atoi(ecmdUserArgs.pos.c_str());
     }
     else {
@@ -315,6 +334,10 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   else {
 
     if (ecmdUserArgs.core.length() != 0) {
+      if (!dllIsAllDecimal(ecmdUserArgs.cage)) {
+        dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
+        return ECMD_INVALID_ARGS;
+      }
       i_target.core = atoi(ecmdUserArgs.core.c_str());
     }
     else {
@@ -337,6 +360,10 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   else {
 
     if (ecmdUserArgs.thread.length() != 0) {
+      if (!dllIsAllDecimal(ecmdUserArgs.cage)) {
+        dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
+        return ECMD_INVALID_ARGS;
+      }
       i_target.thread = atoi(ecmdUserArgs.thread.c_str());
     }
     else {
@@ -599,6 +626,20 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
   }
 
   return remove;
+}
+
+/* Returns true if all chars of str are decimal numbers */
+bool dllIsAllDecimal(std::string str) {
+
+  bool ret = true;
+  for (int x = 0; x < str.length(); x ++) {
+    if (!isdigit(str[x])) {
+      ret = false;
+      break;
+    }
+  }
+
+  return ret;
 }
 
 // Change Log *********************************************************
