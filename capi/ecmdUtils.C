@@ -588,7 +588,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
 
   if (!good) {
     printed = "Unrecognized format string: ";
-    printed += i_format;
+    printed += i_format + "\n";
     ecmdOutputError(printed.c_str());
     printed = "";
     return printed;

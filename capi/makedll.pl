@@ -13,7 +13,7 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured main);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured main ecmdDisplayDllInfo);
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
