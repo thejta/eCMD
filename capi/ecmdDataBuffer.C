@@ -766,6 +766,28 @@ void ecmdDataBuffer::invert() {
   this->flipBit(0, iv_NumBits);
 }
 
+void ecmdDataBuffer::reverse() {
+  /* For now we will just do this bit by bit */
+  int middle = iv_NumBits / 2;
+  for (int i = 0; i < middle; i ++ ) {
+    if (isBitSet(i)) {
+      if (isBitSet(iv_NumBits - 1 - i)) {
+        setBit(i);
+      } else {
+        clearBit(i);
+      }
+      setBit(iv_NumBits - 1 - i);
+    } else {
+      if (isBitSet(iv_NumBits - 1 - i)) {
+        setBit(i);
+      } else {
+        clearBit(i);
+      }
+      clearBit(iv_NumBits - 1 - i);
+    }
+  } /* end for */
+}
+
 void ecmdDataBuffer::applyInversionMask(uint32_t * i_invMask, int i_invByteLen) {
 
   /* Do the smaller of data provided or size of buffer */

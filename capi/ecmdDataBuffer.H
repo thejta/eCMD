@@ -303,7 +303,12 @@ public:
   /**
    * @brief Invert entire buffer
    */
-  void  invert();  /* Performs bit inversion on entire DataBuffer class */
+  void  invert();
+
+  /**
+   * @brief Bit reverse entire buffer
+   */
+  void reverse();
 
   /**
    * @brief Apply an inversion mask to data inside buffer
