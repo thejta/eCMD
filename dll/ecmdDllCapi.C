@@ -110,6 +110,8 @@ struct ecmdUserInfo {
 
 } ecmdUserArgs;
 
+/* This is used by the ecmdPush/PopCommandArgs functions */
+std::list<ecmdUserInfo> ecmdArgsStack;
 
 //----------------------------------------------------------------------
 //  Constants
@@ -753,7 +755,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdUserArgs.allTargetSpecified = true;
     
 
-  //cage - the "-k" was Larry's idea, I just liked it - jtw
+  //cage - the "-k" was Larry's idea, I just liked it - 
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -k# at the same time\n");
@@ -835,6 +837,18 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   rc = dllSpecificCommandArgs(io_argc,io_argv);
 
   return rc;
+}
+
+void dllPushCommandArgs() {
+  ecmdArgsStack.push_back(ecmdUserArgs);
+  ecmdUserArgs.cage = ecmdUserArgs.node = ecmdUserArgs.slot = ecmdUserArgs.pos = ecmdUserArgs.core = ecmdUserArgs.thread = "";
+}
+
+void dllPopCommandArgs() {
+  if (!ecmdArgsStack.empty()) {
+    ecmdUserArgs = ecmdArgsStack.back();
+    ecmdArgsStack.pop_back();
+  }
 }
 
 

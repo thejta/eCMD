@@ -113,9 +113,14 @@ uint32_t cmdRunCommand(std::string i_command) {
     }
   }
 
+  /* We need to push the current state of the target args so that when the user functions call ecmdCommandArgs again, the current state doesn't get lost - CQ #5146 */
+  ecmdPushCommandArgs();
+
   /* We now want to call the command interpreter to handle what the user provided us */
   if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
 
+  /* Restore the state of the target args */
+  ecmdPopCommandArgs();
 
   if (rc == ECMD_INT_UNKNOWN_COMMAND) {
     sprintf(buf,"cmdRunCommand -  Unknown Command specified '%s'\n", c_argv[0]);

@@ -251,6 +251,10 @@ uint32_t dllUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget>
 
 uint32_t dllUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targetList); 
 
+void dllPushCommandArgs(); 
+
+void dllPopCommandArgs(); 
+
 } //extern C
 
 #endif

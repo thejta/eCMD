@@ -1851,7 +1851,9 @@ uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* 
   if not specified, each this client will get a unique instance of the class
  @retval Random number
  */
+#ifndef ECMD_PERLAPI    /* Perl doesn't handle 64 bit numbers, so this interface isn't allowed */
 uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
+#endif
 
 #endif /* ifndef REMOVE_SIM */
 //@}
@@ -2073,6 +2075,23 @@ uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_tar
 
 //@}
 
+#ifndef DOCUMENTATION
+/** @name BackDoor Target Arg functions */
+//@{
+/**
+ * @brief Push current arg state onto a stack so it can be restored
+ NOTE : This is meant to be used by the command line extension where ecmdCommandArgs is called multiple times
+  This causes the previous state of the target args to get lost, the command line extension will do a push/pop
+  to save restore the state
+*/
+void ecmdPushCommandArgs();
+/**
+ * @brief Pop current arg state off the stack so it can be restored
+*/
+void ecmdPopCommandArgs();
+
+//@}
+#endif
 
 
 #ifndef DOCUMENTATION
