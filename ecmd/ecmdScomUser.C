@@ -197,9 +197,10 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         printed = ecmdWriteTarget(target);
         sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
         printed += outstr;
+        ecmdOutputError( printed.c_str() );
 
 
-        printed += "getscom - Actual";
+        printed = "getscom - Actual";
         if (maskFlag) {
           printed += " (with mask): ";
         }
@@ -208,8 +209,9 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         }
 
         printed += ecmdWriteDataFormatted(buffer, outputformat);
+        ecmdOutputError( printed.c_str() );
 
-        printed += "getscom - Expected          : ";
+        printed = "getscom - Expected          : ";
         printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
       }
