@@ -11,7 +11,7 @@ my $release = "";
 my $home = "/afs/watson/projects/vlsi/cte/tools/ecmd/";
 my $cvsroot = ":pserver:cengel\@rhea.rchland.ibm.com:11020/home/cvs/ecmd";
 my $x;
-my @cvs_gmake_modules = ("capi", "ext/cip/capi", "ext/scand/capi", "ext/cro/capi", "ecmd" );
+my @cvs_gmake_modules = ("capi", "ext/cip/capi", "ext/scand/capi", "ext/cro/capi", "ecmd", "perlapi" );
 my @cvs_nogmake_modules = ("bin", "dll", "ext/template/capi", "ext/template/cmd", "ext/cip/cmd", "ext/cro/cmd");
 my $module;
 my $input;
@@ -193,7 +193,18 @@ if ($type eq "linux") {
   } # End input="y"
 
 
-  printf("\nStart CTE Shadow (assuming rel/prod links are updated) (y/n) : ");
+  printf("\nStart CTE Shadow (y/n) : ");
+  $input = get_entry();
+
+  if ($input eq "y") {
+    $command = "export CTEPATH=/afs/rch/rel/common/cte;/afs/rch/rel/common/cte/tools/bin/ctepass -email cjengel\@us.ibm.com -c ALL tools/ecmd/$release";
+    if ($debug) { printf("DEBUG | $command\n"); 
+    } else {
+     $rc = system($command); if ($rc) {exit;}
+    }
+  }
+
+  printf("\nStart CTE Shadow of rel/prod links (y/n) : ");
   $input = get_entry();
 
   if ($input eq "y") {
