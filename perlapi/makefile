@@ -26,7 +26,7 @@ endif
 VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
-SOURCE       := ecmdClientPerlapi.C ecmdStructs.C ecmdSharedUtils.C ecmdDataBuffer.C
+SOURCE       := ecmdClientPerlapi.C 
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g 
 SWIGFLAGS    := -c++ -perl5 -shadow 
@@ -39,7 +39,7 @@ ifeq (${OS},Linux)
   CC        := g++
   TARGET    := ecmd_x86_perl
   LD        := ${CC}
-  LDFLAGS   := -shared -e dll.exp
+  LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30
   PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
@@ -59,8 +59,10 @@ ifeq (${OS},AIX)
     CC      := xlC
   endif
   TARGET    := ecmd_aix_perl
-  LD        := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib
-  LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp
+  LD        := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib_r
+  LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp ../capi/export/libecmd_aix.so
+# Can't seem to get aix to take the shared lib
+# -L../capi/export -lecmd_aix
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
