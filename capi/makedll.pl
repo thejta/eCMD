@@ -150,13 +150,13 @@ while (<IN>) {
 
 	$printout .= "     if (DllFnTable[$enumname] == NULL) {\n";
 	if ($type_flag == $STRING) {
-	    $printout .= "     return \"ECMD_DLL_INVALID\";\n";
+	    $printout .= "       return \"ECMD_DLL_INVALID\";\n";
 	}
 	elsif ($type_flag == $INT) {
-	    $printout .= "     return ECMD_DLL_INVALID;\n";
+	    $printout .= "       return ECMD_DLL_INVALID;\n";
 	}
 	else { #type is VOID
-	    $printout .= "     return;\n";
+	    $printout .= "       return;\n";
 	}
 	$printout .= "     }\n";
 	
