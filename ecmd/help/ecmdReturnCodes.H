@@ -33,6 +33,12 @@
 #define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
 #define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
 
+/* dataBuffer specific return codes */
+#define DBUF_SUCCESS 0x0
+#define DBUF_INIT_FAIL 0x1000
+#define DBUF_BUFFER_OVERFLOW 0x1010
+#define DBUF_XSTATE_ERROR 0x1020
+#define DBUF_UNDEFINED_FUNCTION 0x1030
 
 
 #endif /* ecmdReturnCodes_h */

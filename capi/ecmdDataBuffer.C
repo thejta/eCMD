@@ -24,6 +24,7 @@
 #include <inttypes.h>
 
 #include <ecmdDataBuffer.H>
+#include <ecmdReturnCodes.H>
 
 //----------------------------------------------------------------------
 //  Constants
