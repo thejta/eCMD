@@ -163,6 +163,20 @@ public:
   uint32_t getWord(int i_wordoffset);
 
   /**
+   * @brief Set a byte of data in buffer
+   * @param i_byteoffset Offset of byte to set
+   * @param i_value 8 bits of data to put into byte
+   */
+  void  setByte(int i_byteoffset, uint8_t i_value);
+
+  /**
+   * @brief Fetch a byte from ecmdDataBuffer
+   * @param i_byteoffset Offset of byte to fetch
+   * @retval Value of byte requested
+   */
+  uint8_t getByte(int i_byteoffset);
+
+  /**
    * @brief Clear a bit in buffer
    * @param i_bit Bit in buffer to turn off
    */

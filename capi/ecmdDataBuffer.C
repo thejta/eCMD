@@ -316,6 +316,40 @@ void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
   }
 }
 
+void  ecmdDataBuffer::setByte(int byteOffset, uint8_t value) {
+
+  if (byteOffset >= getByteLength()) {
+    printf("**** ERROR : ecmdDataBuffer::setByte: byteOffset %d >= NumBytes (%d)\n", byteOffset, getByteLength());
+  } else {
+    ((uint8_t*)(this->iv_Data))[byteOffset] = value;
+    
+#ifndef REMOVE_SIM
+    int startBit = byteOffset * 8;
+    uint8_t mask = 0x80;
+    for (int i = 0; i < 8; i++) {
+      if (value & mask) {
+        iv_DataStr[startBit+i] = '1';
+      }
+      else {
+        iv_DataStr[startBit+i] = '0';
+      }
+
+      mask >>= 1;
+    }
+#endif
+
+  }
+}
+
+uint8_t ecmdDataBuffer::getByte(int byteOffset) {
+  if (byteOffset > getByteLength()-1) {
+    printf("**** ERROR : ecmdDataBuffer::getByte: byteOffset %d > NumBytes-1 (%d)\n", byteOffset, getByteLength()-1);
+    return 0;
+  }
+  return ((uint8_t*)(this->iv_Data))[byteOffset];
+}
+
+
 void  ecmdDataBuffer::clearBit(int bit) {
   if (bit >= iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
