@@ -30,7 +30,6 @@
 #define ecmdMain_C
 
 #include <ecmdClientCapi.H>
-#include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
 
 #undef ecmdMain_C

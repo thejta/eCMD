@@ -29,7 +29,6 @@
 #include <ecmdCommandUtils.H>
 #include <ecmdIntReturnCodes.H>
 #include <ecmdClientCapi.H>
-
 #undef ecmdCommandUtils_C
 //----------------------------------------------------------------------
 //  User Types

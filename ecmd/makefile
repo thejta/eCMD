@@ -34,7 +34,7 @@ ifeq (${OS},AIX)
   CC      := xlC -+
   TARGET  := ecmd_aix
   LD      := ${CC}
-  LDFLAGS := 
+  LDFLAGS := -bloadmap:PARM
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
   CFLAGS  := ${CFLAGS} -qstaticinline
 endif
