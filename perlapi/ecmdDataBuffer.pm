@@ -851,7 +851,7 @@ sub setAnd() {
   void  copy(ecmdDataBuffer & o_copyBuffer); 
 =cut
 sub copy() {
-#  void  copy(ecmdDataBuffer & o_copyBuffer); 
+	@_[1] = $iv_DataStr;
 }
 
 
