@@ -289,6 +289,22 @@ sub setByte() {
 	}
 }
 
+#######################################################################################
+=for functionBrief
+/**
+   * @brief Fetch a byte from ecmdDataBuffer
+   * @param i_byteoffset Offset of byte to fetch
+   * @retval Value of byte requested
+   */
+  uint8_t getByte(int i_byteoffset);
+=cut
+sub getByte() {
+	my ($i_byteOffset) = @_[1];
+	my ($extracted) ="";
+	$extracted = substr($iv_DataStr,$i_wordOffset*8,8);
+	return $extracted;
+}
+
 
 #######################################################################################
 =for functionBrief
@@ -648,6 +664,22 @@ sub applyInversionMask() {
 =cut
 sub insert() {
 #  void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Insert a right aligned (decimal) uint32_t array into this DataBuffer
+   * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @post Data is copied from datain into this DataBuffer at specified location
+   */
+  void  insertFromRight(uint32_t * i_datain, int i_start, int i_len);
+=cut
+sub insertFromRight() {
+
 }
 
 
