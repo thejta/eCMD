@@ -151,12 +151,23 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
       fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
       rc = ECMD_DLL_LOAD_FAILURE;
     } else {
-      rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
+#ifndef ECMD_STRIP_DEBUG
+	rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
+#else
+	rc = (*Function)(ECMD_CAPI_VERSION, 0);
+#endif
     }
 
 #else
-    rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
 
+#ifndef ECMD_STRIP_DEBUG
+    rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
+#else
+    rc = dllLoadDll(ECMD_CAPI_VERSION, 0);
+#endif
+	    
+
+    
 #endif /* ECMD_STATIC_FUNCTIONS */
 
 
