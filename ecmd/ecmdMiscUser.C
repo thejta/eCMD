@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------
 #define ecmdMiscUser_C
 #include <stdio.h>
+#include <ctype.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
