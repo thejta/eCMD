@@ -1,0 +1,4 @@
+These are eCMD testcases
+
+ecmdClientTest - tests dynamic library runtime
+ecmdClientTest_static - tests static linking of library
