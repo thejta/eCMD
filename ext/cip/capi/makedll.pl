@@ -177,11 +177,7 @@ while (<IN>) {
 #		    chop ($pp_typestring, $pp_argstring);
 #		    chop ($pp_typestring, $pp_argstring);
 #		    $printout .= "," . $pp_argstring . ");\n\n";
-		    $printout .= "     if (ecmdClientDebug == 8) {\n";
-		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,\"$type $orgfuncname(@argnames)\",args);\n";
-		    $printout .= "     } else {\n";
-		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
-		    $printout .= "     }\n";
+		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
 		    $printout .= "  }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 
@@ -319,17 +315,9 @@ while (<IN>) {
 #		    chop ($pp_typestring, $pp_argstring);
 
 		    $printout .= "\n";
-		    if(($type_flag == $VOID) || ($type_flag == $STRING)) {
-			$printout .= "     if (ecmdClientDebug == 8) {\n";
-		    } else {
-			$printout .= "     if ((ecmdClientDebug == 8) && (rc ==0)) {\n";
-		    }
-		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,\"$type $orgfuncname(@argnames)\",args);\n";
-		    $printout .= "     } else {\n";
 
-		    $printout .= "        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
+		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
 		    #	    
-		    $printout .= "     }\n";
 		    $printout .= "   }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 

@@ -107,11 +107,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
      args.push_back((void*) &io_state);
      args.push_back((void*) &rc);
 
-     if ((ecmdClientDebug == 8) && (rc ==0)) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
-     }
+     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
    }
 
 /***
@@ -166,11 +162,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
      args.push_back((void*) &io_state);
      args.push_back((void*) &rc);
 
-     if ((ecmdClientDebug == 8) && (rc ==0)) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
-     }
+     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
    }
 
 /***
@@ -206,11 +198,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
      args.push_back((void*) &io_state);
      args.push_back((void*) &rc);
 
-     if ((ecmdClientDebug == 8) && (rc ==0)) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
-     }
+     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
    }
 
 /***
@@ -229,11 +217,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         args.push_back((void*) &io_state);
         args.push_back((void*) &rc);
 
-        if ((ecmdClientDebug == 8) && (rc ==0)) {
-          ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
-        } else {
-          ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
-        }
+        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
       }
 #endif
 
@@ -475,11 +459,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
     args.push_back((void*) &io_state);
     args.push_back((void*) &rc);
 
-    if ((ecmdClientDebug == 8) && (rc ==0)) {
-      ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
-    } else {
-      ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
-    }
+    ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
   }
 #endif
 
@@ -1127,10 +1107,10 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 
   look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
-  if((inOut == ECMD_FPP_FUNCTIONIN) || (inOut == ECMD_FPP_JUSTIN)) {
+  if(inOut == ECMD_FPP_FUNCTIONIN) {
     look4rc =0;
     sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER : ");
-  } else if ((inOut == ECMD_FPP_FUNCTIONOUT) || (inOut == ECMD_FPP_JUSTOUT)) {
+  } else if (inOut == ECMD_FPP_FUNCTIONOUT) {
     look4rc =1;
     sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT  : ");
   } else {
@@ -1148,9 +1128,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
   ecmdOutput(printed.c_str());
 
 
-  if((inOut == ECMD_FPP_JUSTIN) || (inOut == ECMD_FPP_JUSTOUT)) {
-    return;
-  }
+
 
 /* parse the parameters */
   ecmdParseTokens(fprototypeStr, "()", tokens); /* this chops off the leading junk */
@@ -1175,6 +1153,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
     }
   }  
 
+
   ecmdParseTokens(tokens[1].c_str(), ",", parmTokens); /* this tokenizes the meat and potatoes */
 
 /* example: */
@@ -1182,6 +1161,33 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 /* parmTokens[1] = " char *fprototypeStr" */
 /* parmTokens[2] = " ..."                 */
 /* parmTokens.size90 = 3                    */
+
+/* exit if we are on a functionin and debug level 8 */
+  if((ecmdClientDebug == 8) && (inOut == ECMD_FPP_FUNCTIONIN)) {
+    return;
+  }
+
+/* exit if we are on a functionOut, debug level 8 and no return code */
+  if((ecmdClientDebug == 8) && (inOut == ECMD_FPP_FUNCTIONOUT) && (outputRC ==0)) {
+    return;
+  }
+
+
+/* exit if we are on a functionOut, debug level 8 and no return code */
+  if((ecmdClientDebug == 8) && (inOut == ECMD_FPP_FUNCTIONOUT) && (outputRC ==1)) {
+
+/* go check return code to see if it's zero or not. */
+    if((!strcmp(fReturnType[0].c_str(),"uint32_t")) && (look4rc)) {
+      uint32_t* dummy = (uint32_t*)(args[parmTokens.size()]);
+      if (*dummy ==0) return;  /* normal return code so just exit */
+    } else {
+    /* if return type is something other than uint32_t then we should probably return since it would not */
+    /* match the intended meening of the debug8 exit plan */
+      return;
+    }
+  }
+
+
 
 /* remember the leading and trailing spaces, they could mess up a compare */
 
