@@ -102,12 +102,30 @@ while (<IN>) {
 
 close IN;
 
+open OUT, ">ecmdClientCapiFunc.H" or die $!;
+
+print OUT "#ifndef ecmdClientCapiFunc_H\n";
+print OUT "#define ecmdClientCapiFunc_H\n\n";
+
 push @enumtable, "ECMD_NUMFUNCTIONS";
 $" = ",\n";
-print "typedef enum {\n@enumtable\n} ecmdFunctionIndex_t;\n\n";
+print OUT "typedef enum {\n@enumtable\n} ecmdFunctionIndex_t;\n\n";
 $" = " ";
 
-print "void * dlHandle = NULL;\n";
-print "void * DllFnTable[ECMD_NUMFUNCTIONS];\n\n";
+print OUT "void * dlHandle = NULL;\n";
+print OUT "void * DllFnTable[ECMD_NUMFUNCTIONS];\n\n";
 
-print $printout;
+print OUT "#endif\n";
+
+close OUT;
+
+open OUT, ">ecmdClientCapiFunc.C" or die $!;
+
+print OUT "\n#include <dlfcn.h>\n\n";
+print OUT "#include <ecmdClientCapi.H>\n";
+print OUT "#include <ecmdDllCapi.H>\n";
+print OUT "#include <ecmdClientCapiFunc.H>\n\n\n";
+
+print OUT $printout;
+
+close OUT;
