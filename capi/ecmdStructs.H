@@ -24,6 +24,7 @@
 //--------------------------------------------------------------------
 #include <inttypes.h>
 #include <vector.h>  /* For STL vector */
+#include <string>  /* For string */
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -150,7 +151,7 @@ typedef enum {
 struct ecmdSpyData {
   string spyName;        ///< Names used to reference this ring
   int bitLength;         ///< length of spy
-  ecmdSpyType spyType;   ///< Type of spy - do we need this ?
+  ecmdSpyType_t spyType; ///< Type of spy - do we need this ?
   
   vector<string> enums;  ///< Possible enum values for Spy - can GFW provide this?
 };
