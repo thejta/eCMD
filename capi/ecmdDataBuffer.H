@@ -34,6 +34,14 @@
 #ifdef ENABLE_MPATROL
  #include <mpatrol.h>
 #endif
+#ifdef FIPSODE
+#include <tracinterface.H>
+#include <hutlTrace.H>
+#endif
+
+//----------------------------------------------------------------------
+//  Global Variables
+//----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
 //  Constants
@@ -50,12 +58,12 @@
  #define ECMD_DBUF_INVALID_DATA_FORMAT           (0x01000000 | 0x2041) ///< String data didn't match expected input format
  #define ECMD_DBUF_FOPEN_FAIL                    (0x01000000 | 0x2050) ///< File open on file for reading or writing the data buffer failed 
  #define ECMD_DBUF_FILE_FORMAT_MISMATCH          (0x01000000 | 0x2051) ///< In readFile specified format not found in the data file
+ #define ECMD_DBUF_NOT_OWNER                     (0x01000000 | 0x2060) ///< Don't own this buffer so can't do this operation
 #endif
 
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-
 #ifdef FIPSODE
 #define ETRAC0(fmt) \
   TRACFCOMP0(hutlTrace::hreg, fmt);
@@ -183,6 +191,7 @@ public:
   /**
    * @brief Called by the destructor, available to user to reset buffer to default constructor state
    * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    * @retval nonzero on failure
    * @post Memory deallocated and size set to 0
    */
@@ -213,6 +222,7 @@ public:
    * @post Buffer is reinitialized and zero'd out
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    * 
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
@@ -223,6 +233,7 @@ public:
    * @param i_newNumBits Length of new buffer in bits
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    * @post Buffer is reinitialized and zero'd out
    *
    * NOTE : Capacity will be adjusted to fit new size if neccesary
@@ -234,6 +245,7 @@ public:
    * @param i_newNumWords length of internal data buffer in words
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    * @post Internal buffer is reinitialized and zero'd out.  Requests to decrease the capacity are ignored
    *
    * CAUTION : All data stored in buffer will be lost
@@ -405,6 +417,7 @@ public:
    * @post Bits in buffer are shifted to right by specified number of bits
    * @post Buffer size is resized to accomodate shift
    * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    */
   uint32_t  shiftRightAndResize(uint32_t i_shiftnum);
   /**
@@ -413,6 +426,7 @@ public:
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
    * @post Buffer size is resized to accomodate shift
    * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    */
   uint32_t  shiftLeftAndResize(uint32_t i_shiftnum);
   /**
@@ -973,11 +987,6 @@ public:
    */
   uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
-  //@}
-
-  /** @name File IO functions */
-  //@{
-
   /**
    * @brief Write buffer out into a file in the format specified. 
    * @param i_filename file to write to
@@ -999,6 +1008,13 @@ public:
    */
   uint32_t  readFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
   
+  /**
+   * @brief This function will take the passed in buffer, delete any current data it holds, and point its data var to that which is owned by the one being called with.  It will not have iv_UserOwned flag set, so it should not delete the buffer it points to, nor resize it, but it can alter the data.  The use of this function is for caching data for reads.
+   * @param i_sharingBuffer, input buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   */	
+  uint32_t shareBuffer(ecmdDataBuffer* i_sharingBuffer);
+
   //@}
 
   /** @name Operator overloads */
@@ -1032,7 +1048,7 @@ protected:  //data
   uint32_t iv_NumBits;          ///< Specified buffer size in bits
   uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
   uint32_t * iv_RealData;       ///< Real buffer - with header and tail
-
+  bool	iv_UserOwned;		///< Whether or not this buffer owns the data
 
 protected: //methods
 
