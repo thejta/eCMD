@@ -17,13 +17,11 @@
 
 
 
-#if 0
 /* We are making sure they are compiling with the right compiler here */
 #if defined(__GNUC__) && !defined(FIPSODE)
-# if (__GNUC__ != 2) && (__GNUC_MINOR__ != 96)
-#  error "YOU MUST USE THE GCC 2.96 COMPILER AS THAT IS THE ONLY SUPPORTED COMPILER BY ECMD CURRENTLY FOR LINUX"
+# if (__GNUC__ != 3) && (__GNUC_MINOR__ != 2)
+#  error "YOU MUST USE THE GCC 3.2 COMPILER AS THAT IS THE ONLY SUPPORTED COMPILER BY ECMD CURRENTLY FOR LINUX"
 # endif
-#endif
 #endif
 
 //--------------------------------------------------------------------
@@ -144,6 +142,7 @@ uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData,
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
  @param io_target Struct that contains partial information to limit query results - chipType is unused
  @param o_queryData Return data from query
+ @param i_looptype (Optional) Used by config looper to specify different query modes
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
@@ -155,7 +154,7 @@ uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData,
    will be set to ECMD_TARGET_THREAD_ALIVE.
  NOTE : This function does not affect ring caching
 */
-uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
+uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query Ring information from the DLL

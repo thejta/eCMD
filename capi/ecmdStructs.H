@@ -431,8 +431,11 @@ typedef enum {
  @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
 */
 typedef enum {
-  ECMD_SELECTED_TARGETS_LOOP,   ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc
-  ECMD_ALL_TARGETS_LOOP         ///< Loop on all valid targets in the system
+  ECMD_SELECTED_TARGETS_LOOP,           ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to 0
+  ECMD_SELECTED_TARGETS_LOOP_DEFALL,    ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to all
+  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to 0
+  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to all
+  ECMD_ALL_TARGETS_LOOP                 ///< Loop on all valid targets in the system
 } ecmdConfigLoopType_t;
 
 /**
