@@ -347,7 +347,7 @@ int ecmdClientPerlapi::getLatch (const char * i_target, const char* i_ringName, 
 int ecmdClientPerlapi::getLatchWidth (const char * i_target, const char* i_ringName, const char * i_latchName, int &o_width) {
 
   int rc = 0;
-  int foundOne;
+//  int foundOne;
   ecmdDataBuffer buffer;
   ecmdChipTarget myTarget;
 
@@ -683,7 +683,7 @@ int ecmdClientPerlapi::simGETFACX(const char* i_facname, int i_bitlength, char**
 
   char* tmp;
   tmp = new char[buffer.getBitLength()+1];
-  strcpy(tmp,buffer.genBinStr().c_str());
+  strcpy(tmp,buffer.genXstateStr().c_str());
   *o_data = tmp;
 
   return rc;
@@ -771,7 +771,7 @@ int ecmdClientPerlapi::simPUTFACX(const char* i_facname, int i_bitlength, const 
   ecmdDataBuffer buffer;
 
   buffer.setBitLength(strlen(i_data));
-  rc = buffer.insertFromBin(i_data);
+  rc = buffer.memCopyInXstate(i_data, buffer.getBitLength());
 
   rc = ::simPUTFACX(i_facname, i_bitlength, buffer, i_row, i_offset);
   ecmdPerlInterfaceErrorCheck(rc);
