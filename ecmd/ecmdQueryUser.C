@@ -232,6 +232,31 @@ int ecmdQueryUser(int argc, char* argv[]) {
     ecmdOutput("================================================\n");
 
     
+  } else if (!strcmp(argv[0],"configd")) {
+
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for configd; you need at least a query configd <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+    if (ecmdQueryTargetConfigured(target)) {
+      printed = "ecmdquery - Target ";
+      printed += ecmdWriteTarget(target);
+      printed += " is configured!\n";
+      ecmdOutput(printed.c_str());
+    } else {
+      printed = "ecmdquery - Target ";
+      printed += ecmdWriteTarget(target);
+      printed += " is not configured!\n";
+      ecmdOutputError(printed.c_str());
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
 
   } else {
     /* Invalid Query Mode */
