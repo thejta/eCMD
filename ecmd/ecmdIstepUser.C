@@ -67,6 +67,12 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
 
   char * stepPtr = ecmdParseOptionWithArgs(&argc, &argv, "-s");
   char * skipStepPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+
+
+  /* Now pull off the common args */
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
   if ((stepPtr != NULL) || (skipStepPtr != NULL) || (argc == 0)) {
 
     if ((stepPtr == NULL) && (skipStepPtr == NULL)) {
@@ -129,15 +135,10 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
     }
 
 
-    rc = ecmdCommandArgs(&argc, &argv);
-    if (rc) return rc;
 
     rc = iStepsByNumber(steps);
 
   } else {
-
-    rc = ecmdCommandArgs(&argc, &argv);
-    if (rc) return rc;
 
     /* Let's just push all the args into one string */
     userArgs = "";
