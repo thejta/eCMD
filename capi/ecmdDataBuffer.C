@@ -611,10 +611,11 @@ void  ecmdDataBuffer::insert(ecmdDataBuffer &bufferIn, int start, int len) {
 
 void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
 
+
   if (start+len > iv_NumBits) {
     char temp[50];
     sprintf(temp, "ecmdDataBuffer::insert: bit %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
-    registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, temp);
+    printf(temp);
   } else {
     
     uint32_t mask = 0x80000000;

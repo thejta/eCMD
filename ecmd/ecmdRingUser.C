@@ -117,7 +117,8 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 2) {
-    ecmdOutputError("Too few arguments specified; you need at least a chip and a ring name.\nType 'getring -h' for usage.\n");
+    ecmdOutputError("Too few arguments specified; you need at least a chip and a ring name.\n");
+    ecmdOutputError("Type 'getring -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -163,7 +164,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
  
       ins.open(scandefFile.c_str());
       if (ins.fail()) {
-        scandefFile = "Error occured opening scandef file: " + scandefFile;
+        scandefFile = "Error occured opening scandef file: " + scandefFile + "\n";
         ecmdOutputError(scandefFile.c_str());
         return ECMD_INVALID_ARGS;  //change this
       }
@@ -308,7 +309,8 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 3) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, and latch name.\nType 'getlatch -h' for usage.");
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, and latch name.\n");
+    ecmdOutputError("Type 'getlatch -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -352,7 +354,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     }
     else if (rc) {
       printed = "Error occured performing getring on ";
-      printed += ecmdWriteTarget(target);
+      printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
@@ -526,7 +528,8 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 4) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and numbits.\nType 'getbits -h' for usage.");
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and numbits.\n");
+    ecmdOutputError("Type 'getbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -563,7 +566,8 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
   }
   else if (argc > 4) {
-    ecmdOutputError("Too many arguments specified; you probably added an option that wasn't recognized.\nType 'getbits -h' for usage.");
+    ecmdOutputError("Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("Type 'getbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -585,7 +589,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
     }
     else if (rc) {
         printed = "Error occured performing getring on ";
-        printed += ecmdWriteTarget(target);
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -605,8 +609,9 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
         //@ make this stuff sprintf'd
         printed =  "Actual            : ";
         printed += ecmdWriteDataFormatted(buffer, format);
+        ecmdOutputError( printed.c_str() );
 
-        printed += "Expected          : ";
+        printed = "Expected          : ";
         printed += ecmdWriteDataFormatted(*expected, format);
         ecmdOutputError( printed.c_str() );
       }
@@ -673,11 +678,13 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 4) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and data block.\nType 'putbits -h' for usage.");
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and data block.\n");
+    ecmdOutputError("Type 'putbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 4) {
-    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'putbits -h' for usage.");
+    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("Type 'putbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -717,7 +724,7 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
     }
     else if (rc) {
         printed = "Error occured performing getring on ";
-        printed += ecmdWriteTarget(target);
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -735,7 +742,7 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
     rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
         printed = "Error occured performing putring on ";
-        printed += ecmdWriteTarget(target);
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -771,7 +778,8 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 4) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, latch name, and data.\nType 'putlatch -h' for usage.");
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, latch name, and data.\n");
+    ecmdOutputError("Type 'putlatch -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -818,7 +826,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     }
     else if (rc) {
       printed = "Error occured performing getring on ";
-      printed += ecmdWriteTarget(target);
+      printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
@@ -923,7 +931,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
         printed = "Error occured performing putring on ";
-        printed += ecmdWriteTarget(target);
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -951,11 +959,13 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 2) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip and a ring.\nType 'checkrings -h' for usage.");
+    ecmdOutputError("Too few arguments specified; you need at least a chip and a ring.\n");
+    ecmdOutputError("Type 'checkrings -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
   if (argc > 2) {
-    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'checkrings -h' for usage.");
+    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("Type 'checkrings -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -973,7 +983,7 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
   
   ecmdDataBuffer ringBuffer(1048);  //nice and big
   std::string printed;
-  char outstr[20];
+  char outstr[200];
   uint32_t pattern0 = 0xAAAA0000;
   uint32_t pattern1 = 0x5555FFFF;
   uint32_t pattern = 0x0;
@@ -1014,10 +1024,14 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
         if (i % 2) {
           pattern = pattern0;
           ringBuffer.flushTo0();
+          printed = "Performing 0's test on " + ringName + " ...\n";
+          ecmdOutput(printed.c_str());
         }
         else {
           pattern = pattern1;
           ringBuffer.flushTo1();
+          printed = "Performing 1's test on " + ringName + " ...\n";
+          ecmdOutput(printed.c_str());
         }
 
         ringBuffer.setWord(0, pattern);  //write the pattern
@@ -1028,7 +1042,7 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
         }
         else if (rc) {
           printed = "Error occured performing putring on ";
-          printed += ecmdWriteTarget(target);
+          printed += ecmdWriteTarget(target) + "\n";
           ecmdOutputError( printed.c_str() );
           return rc;
         }
@@ -1039,28 +1053,40 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
         rc = getRing(target, ringName.c_str(), ringBuffer);
         if (rc) {
           printed = "Error occured performing getring on ";
-          printed += ecmdWriteTarget(target);
+          printed += ecmdWriteTarget(target) + "\n";
           ecmdOutputError( printed.c_str() );
           return rc;
         }
 
         if (ringBuffer.getWord(0) != pattern) {
-          sprintf(outstr, "Pattern: %.8X Data: %.8X\n", pattern, ringBuffer.getWord(0));
-          printed = "Data fetched from ring " + ringName + " did not match ";
-          printed += outstr;
-          printed += "\nError occured performing checkring on " + ecmdWriteTarget(target);
+          sprintf(outstr, "Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
+          ecmdOutputWarning( outstr );
+          printed = "Error occured performing checkring on " + ecmdWriteTarget(target) + "\n";
           ecmdOutputWarning( printed.c_str() );
         }
-        else if (ringBuffer.isBitSet(32, ringBuffer.getBitLength() - 32)) {
-          if (i % 2) {
-            printed = "Non-zero";
+        else {
+          /* Walk the ring looking for errors */
+          for (int bit = 32; bit < ringBuffer.getBitLength(); bit ++ ) {
+            if (i % 2) {
+              if (ringBuffer.isBitSet(bit)) {
+                printed += "Non-one bits found in 1's ring test at bit " + bit;
+                printed += " for ring " + ringName;
+                printed += "\n";
+                ecmdOutputWarning( printed.c_str() );
+                printed = "Error occured performing checkring on " + ecmdWriteTarget(target) + "\n";
+                ecmdOutputWarning( printed.c_str() );
+              }
+            } else {
+              if (ringBuffer.isBitClear(bit)) {
+                printed += "Non-zero bits found in 0's ring test at bit " + bit;
+                printed += " for ring " + ringName;
+                printed += "\n";
+                ecmdOutputWarning( printed.c_str() );
+                printed = "Error occured performing checkring on " + ecmdWriteTarget(target) + "\n";
+                ecmdOutputWarning( printed.c_str() );
+              }
+            }
           }
-          else {
-            printed = "Non-one";
-          }
-          printed += " bits found after pattern in ring " + ringName;
-          printed += "\nError occured performing checkring on " + ecmdWriteTarget(target);
-          ecmdOutputWarning( printed.c_str() );
         }
 
       }
@@ -1084,6 +1110,7 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 int ecmdPutPatternUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
+  std::list<ecmdRingData> queryRingData;
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -1102,11 +1129,13 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 3) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, and pattern.\nType 'putpattern -h' for usage.");
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, and pattern.\n");
+    ecmdOutputError("Type 'putpattern -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
   if (argc > 3) {
-    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'putpattern -h' for usage.");
+    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("Type 'putpattern -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1131,23 +1160,28 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
 
   while (ecmdConfigLooperNext(target)) {
 
-    rc = getRing(target, ringName.c_str(), ringBuffer);
+    rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-      printed = "Error occured performing getring on ";
-      printed += ecmdWriteTarget(target);
+      printed = "Error occured retrieving scan ring data on ";
+      printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
-    }
-    else {
+    } else if (queryRingData.empty()) {
+      printed = "Unable to lookup data on ring " + ringName + ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_INVALID_ARGS;
+
+    } else {
       validPosFound = true;     
     }
 
     uint32_t curOffset = 0;
     uint32_t numBitsToInsert = 0;
-    uint32_t numBitsInRing = ringBuffer.getBitLength();
+    uint32_t numBitsInRing = queryRingData.front().bitLength;
+    ringBuffer.setBitLength(numBitsInRing);
     while (curOffset < numBitsInRing) {
       numBitsToInsert = (32 < numBitsInRing - curOffset) ? 32 : numBitsInRing - curOffset;
       ringBuffer.insert(buffer, curOffset, numBitsToInsert);
@@ -1157,7 +1191,7 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
     rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
         printed = "Error occured performing putring on ";
-        printed += ecmdWriteTarget(target);
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
