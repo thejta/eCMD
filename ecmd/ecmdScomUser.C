@@ -71,6 +71,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
 
 uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t e_rc = ECMD_SUCCESS;                 ///< Expect rc
 
   bool expectFlag = false;
   bool maskFlag = false;
@@ -231,6 +232,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         printed = "getscom - Expected          : ";
         printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
+        e_rc = ECMD_EXPECT_FAILURE;
       }
 
     }
@@ -316,6 +318,9 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     ecmdOutputError("getscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+
+  /* If we failed an expect let's return that */
+  if (e_rc) return e_rc;
 
   return rc;
 }
