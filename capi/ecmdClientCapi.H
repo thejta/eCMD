@@ -189,7 +189,7 @@ int ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData
  @retval nonzero if unsuccessful
  NOTE : This function does not affect ring caching
 */
-int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string o_fileLocation);
+int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
 
 //@}
 

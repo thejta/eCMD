@@ -27,9 +27,9 @@
 //--------------------------------------------------------------------
 #include <inttypes.h>
 #include <ecmdUtils.H>
-
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 //----------------------------------------------------------------------
 //  Constants
@@ -191,3 +191,29 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
   return returnValue;
 }
 
+void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens) {
+
+  tokens.clear();
+  bool done = false;
+  std::string curToken;
+  int curOffset = 0;
+  bool nonSpace = false;
+
+  for (int i = 0; i < line.length(); i++) {
+
+    if (isspace(line[i]) && nonSpace) {
+      tokens.push_back(line.substr(curOffset, i - curOffset));
+      nonSpace = false;
+    }
+    else if (!isspace(line[i]) && !nonSpace) {
+      nonSpace = true;
+      curOffset = i;
+    }
+
+  }
+
+  if (nonSpace) {
+    tokens.push_back(line.substr(curOffset, line.length()));
+  }
+
+}

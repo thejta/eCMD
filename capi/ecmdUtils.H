@@ -29,6 +29,8 @@
 // Includes
 //--------------------------------------------------------------------
 #include <inttypes.h>
+#include <string>
+#include <vector>
 
 //----------------------------------------------------------------------
 //  Constants
@@ -107,6 +109,10 @@ int ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
 
  */
 char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
+
+
+void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens);
+
 //@}
 
 #endif

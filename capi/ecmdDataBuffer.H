@@ -431,6 +431,9 @@ public:
    * @retval String containing requested data
    */
   std::string genBinStr(int i_start, int i_bitlen); 
+
+  std::string genXstateStr(int i_start, int i_bitlen);
+
   /**
    * @brief Return entire buffer as a hex left aligned char string
    * @retval String containing requested data
@@ -447,6 +450,8 @@ public:
    */
   std::string genBinStr();
   //@}
+
+  std::string genXstateStr();
 
   /** @name String to Data conversion functions*/
   //@{
@@ -486,18 +491,31 @@ public:
 
   /** @name Simulation Buffer Functions */
   //@{
+
   /**
+   * @brief Set the X state for this data buffer
+   * @retval 0 on success, non-zero if there was an issue setting the state
+   * @param state Value to set internal state to (must be 0 or 1)
+   */
+  int   setXstate(int state);
+  /**
+   * @brief See if this data buffer is X-state enabled
+   * @retval 1 if this data buffer is X-state enabled, 0 otherwise
+   */
+  int   isXstate(); 
+  
+/**
    * @brief Check Entire buffer for any X-state values
    * @retval 1 if xstate found 0 if none
    */
-  int   isXstate(); /* check the whole DataBuffer */
+  int   hasXstate(); /* check the whole DataBuffer */
   /**
    * @brief Check section buffer for any X-state values
    * @param i_start Start bit to test
    * @param i_length Number of consecutive bits to test
    * @retval 1 if xstate found 0 if none
    */
-  int   isXstate(int i_start, int i_length); /* check subset */
+  int   hasXstate(int i_start, int i_length); /* check subset */
 
   //@}
 
@@ -538,7 +556,7 @@ private: //methods
 #ifndef REMOVE_SIM_BUFFERS
 private:
   char* iv_DataStr; /* binary or x data */
-
+  int iv_isXstate;  /* flag to set if this is an x-state enabled data buffer */
   void fillDataStr(char fillChar);
 #endif
 

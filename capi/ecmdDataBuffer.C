@@ -71,7 +71,7 @@ ecmdDataBuffer::ecmdDataBuffer(int numWords)
 #ifndef REMOVE_SIM_BUFFERS
   iv_DataStr = new char[iv_NumBits + 1];
   this->fillDataStr('0'); /* init to 0 */
-  
+  iv_isXstate = 0;
 #endif
 
   /* Ok, now setup the header, and tail */
@@ -91,6 +91,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
 
 #ifndef REMOVE_SIM_BUFFERS
   strcpy(iv_DataStr, other.iv_DataStr);
+  iv_isXstate = other.iv_isXstate;
 #endif
 
 }
@@ -355,7 +356,7 @@ void  ecmdDataBuffer::flipBit(int bit) {
     registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, temp);
   } else {
 #ifndef REMOVE_SIM_BUFFERS
-    if (this->isXstate(bit, 1)) {
+    if (this->hasXstate(bit, 1)) {
       char temp[60];
       sprintf(temp, "ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d\n", bit);
       registerErrorMsg(ECMD_DBUF_BUFFER_OVERFLOW, temp);
@@ -504,6 +505,8 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
     }
   }
 
+  iv_NumBits += shiftNum;
+
 #ifndef REMOVE_SIM_BUFFERS
   // shift char
   char* temp = new char[iv_NumBits+1];
@@ -542,6 +545,8 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
     }
   }
 
+  iv_NumBits -= shiftNum;
+
 #ifndef REMOVE_SIM_BUFFERS
   // shift char
   char* temp = new char[iv_NumBits+1];
@@ -551,6 +556,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
   strcpy(iv_DataStr, temp); // copy back into iv_DataStr
   delete[] temp;
 #endif
+
 }
 
 void  ecmdDataBuffer::rotateRight(int rotateNum) {
@@ -634,6 +640,7 @@ void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
 
 void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
   this->extract(bufferOut.iv_Data, start, len);
+  bufferOut.setBitLength(len);
 }
 
 void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
@@ -647,9 +654,9 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
     ecmdExtract(this->iv_Data, start, len, dataOut);
 
 #ifndef REMOVE_SIM_BUFFERS
-    if (this->isXstate()) {  /* fast strchr */
+    if (this->hasXstate()) {  /* fast strchr */
       for (int i = start; i < len; i++) { /* now get exact bit */
-        if (this->isXstate(start, 1)) {
+        if (this->hasXstate(start, 1)) {
           char temp[80];
           sprintf(temp, "ecmdDataBuffer::extract: Cannot extract non-binary character at bit %d\n", i);
           registerErrorMsg(ECMD_DBUF_XSTATE_ERROR, temp);
@@ -874,10 +881,26 @@ std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
   return ret;
 }
 
+std::string ecmdDataBuffer::genXstateStr(int start, int bitLen) { 
+  std::string ret;
+#ifndef REMOVE_SIM_BUFFERS
+  char * copyStr = new char[strlen(iv_DataStr)];
+  strcpy(copyStr, &iv_DataStr[start]);
+  if (bitLen < strlen(copyStr)) {
+    copyStr[bitLen+1] = '\0';
+  }
+
+  ret = copyStr;
+#else
+  registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: genXstateStr: Not defined in this configuration");
+#endif
+  return ret;
+}
+
 std::string ecmdDataBuffer::genHexLeftStr() { return this->genHexLeftStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genHexRightStr() { return this->genHexRightStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genBinStr() { return this->genBinStr(0, iv_NumBits); }
-
+std::string ecmdDataBuffer::genXstateStr() { return this->genXstateStr(0, iv_NumBits); }
 
 int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int length) {
   int rc = ECMD_SUCCESS;
@@ -1009,9 +1032,34 @@ void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy fr
 }
 
 
-int   ecmdDataBuffer::isXstate() {  /* check for only X's */
+int ecmdDataBuffer::setXstate (int state) {
+#ifdef REMOVE_SIM_BUFFERS
+  registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: setXstate: Not defined in this configuration");
+  return ECMD_DBUF_UNDEFINED_FUNCTION;
+#else
+  if (state == 0 || state == 1) {
+    iv_isXstate = state;
+    return 0;
+  }
+  else {
+    registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: setXstate: Invalid state- must be 0 or 1");
+    return ECMD_DBUF_INVALID_ARGS;
+  }
+#endif
+}
+
+int  ecmdDataBuffer::isXstate() {
 #ifdef REMOVE_SIM_BUFFERS
   registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: isXstate: Not defined in this configuration");
+  return 0;
+#else
+  return iv_isXstate;
+#endif
+}
+
+int   ecmdDataBuffer::hasXstate() {  /* check for only X's */
+#ifdef REMOVE_SIM_BUFFERS
+  registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
   return (strchr(iv_DataStr, 'x') || strchr(iv_DataStr, 'X'));
@@ -1019,9 +1067,9 @@ int   ecmdDataBuffer::isXstate() {  /* check for only X's */
 }
 
 // actually use this for ANY non-binary char, not just X's
-int   ecmdDataBuffer::isXstate(int start, int length) {
+int   ecmdDataBuffer::hasXstate(int start, int length) {
 #ifdef REMOVE_SIM_BUFFERS
-  registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: isXstate: Not defined in this configuration");
+  registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
   int stopBit = start + length;
