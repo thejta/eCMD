@@ -1537,7 +1537,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       if(dummy ==0) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
-        sprintf(tempIntStr,"%#016lX",*dummy);
+        sprintf(tempIntStr,"0x%016lluX",(uint64_t)(*dummy));
       }
       printed += tempIntStr;
       printed += "\n";
