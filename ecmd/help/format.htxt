@@ -1,0 +1,69 @@
+ECMD Format modifiers
+
+
+OUTPUT FORMATS
+--------------------------------------------------------------------------------
+
+Output modifiers are specified with the -o<format> argument and allow you to
+change the format that eCMD will display return data to you. Where '#' is shown
+below any arbitrary number should be used (ie 1,2,10,...).  For examples of
+these formats please see the eCMD documentation.
+
+        -ox or -oxl     Display data as hex left aligned
+
+        -oxw            Display data as hex left aligned words
+
+        -oxw#           Display data as hex left aligned words in '#' columns
+
+        -oxr            Display data as hex right aligned
+
+        -oxrw           Display data as hex right aligned words
+
+        -oxrw#          Display data as hex right aligned words in '#' columns
+
+        -ob             Display data as binary
+
+        -obn            Display data as binary nibbles
+
+        -obn#           Display data as binary nibbles in '#' columns
+
+        -obw            Display data as binary words
+
+        -obw#           Display data as binary words in '#' columns
+
+        -omem           Display memory data in standard format
+
+        -omema          Display memory data in standard format with ascii decode
+
+        -omeme          Display memory data in standard format with ebcedic decode
+
+        -omemd          Display memory in D-card format
+
+        -oenum          Display spy data as enumeration (only valid with getspy)
+
+
+INPUT FORMATS
+--------------------------------------------------------------------------------
+
+Input formats are specified with the -i<format> argument and allow you to 
+specify what format you are providing data in.
+
+        -ix or -ixl     Data is hex left aligned
+
+        -ixr            Data is hex right aligned
+
+        -ib             Data is binary
+
+        -ienum          Data is an enumeration (only valid with putspy)
+
+BIT MODIFIERS
+--------------------------------------------------------------------------------
+
+Bit modifiers are specified with the -b<modifier> argument and allow you to
+change the operation used to modify the data.  Using a bit modifier will force
+a read/modify/write of the data where not needed in some cases.
+
+        -band           And the data with the existing data
+
+        -bor            Or in the data with the existing data
+
