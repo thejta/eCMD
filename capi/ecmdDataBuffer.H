@@ -635,7 +635,7 @@ public:
    * Second Word:     iv_NumBits
    * Remaining Words: Buffer data
    */
-  void flatten(uint8_t * o_data, uint32_t i_len) const;
+  uint32_t flatten(uint8_t * o_data, uint32_t i_len) const;
   /**
    * @brief Unflatten object data from a uint8_t buffer into this DataBuffer
    * @param i_data Byte buffer to read the flattened data from
@@ -646,7 +646,7 @@ public:
    * Second Word:     iv_NumBits
    * Remaining Words: Buffer data
    */
-  void unflatten(const uint8_t * i_data, uint32_t i_len);
+  uint32_t unflatten(const uint8_t * i_data, uint32_t i_len);
   /**
    * @brief Return number of bytes needed for a buffer to flatten the object
    * @retval Number of bytes needed

@@ -1543,14 +1543,16 @@ uint32_t  ecmdDataBuffer::memCopyOut(uint32_t* buf, uint32_t bytes) const { /* D
   return rc;
 }
 
-void ecmdDataBuffer::flatten(uint8_t * o_data, uint32_t i_len) const {
+uint32_t ecmdDataBuffer::flatten(uint8_t * o_data, uint32_t i_len) const {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
   uint32_t * o_ptr = (uint32_t *) o_data;
 
-  if ((i_len < 8) || (iv_Capacity*32 > ((i_len - 8) * 8)))
+  if ((i_len < 8) || (iv_Capacity*32 > ((i_len - 8) * 8))) {
     printf("**** ERROR : ecmdDataBuffer::flatten: i_len %d bytes is too small to flatten a capacity of %d words \n", i_len, iv_Capacity);
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
 
-  else {
+  } else {
     memset(o_data, 0, this->flattenSize());
     o_ptr[0] = htonl(iv_Capacity*32);
     o_ptr[1] = htonl(iv_NumBits);
@@ -1559,9 +1561,11 @@ void ecmdDataBuffer::flatten(uint8_t * o_data, uint32_t i_len) const {
         o_ptr[2+i] = htonl(iv_Data[i]);
     }
   }
+  return rc;
 }
 
-void ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
+uint32_t ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
   uint32_t newCapacity;
   uint32_t newBitLength;
@@ -1570,19 +1574,21 @@ void ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
   newCapacity = (ntohl(i_ptr[0]) + 31) / 32;
   newBitLength = ntohl(i_ptr[1]);
 
-  if ((i_len < 8) || (newCapacity > ((i_len - 8) * 8)))
+  if ((i_len < 8) || (newCapacity > ((i_len - 8) * 8))) {
     printf("**** ERROR : ecmdDataBuffer::unflatten: i_len %d bytes is too small to unflatten a capacity of %d words \n", i_len, newCapacity);
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
 
-  else if (newBitLength > newCapacity * 32)
+  } else if (newBitLength > newCapacity * 32) {
     printf("**** ERROR : ecmdDataBuffer::unflatten: iv_NumBits %d cannot be greater than iv_Capacity*32 %d\n", newBitLength, newCapacity*32);
-
-  else {
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
+  } else {
     this->setCapacity(newCapacity);
     this->setBitLength(newBitLength);
     if (newCapacity > 0)
       for (uint32_t i = 0; i < newCapacity; i++)
         setWord(i, ntohl(i_ptr[i+2]));
   }
+  return rc;
 }
 
 uint32_t ecmdDataBuffer::flattenSize() const {
