@@ -63,6 +63,7 @@ int ecmdUnloadDll();
  @retval nonzero if unsuccessful
  @param argc Passed from Command line Arguments
  @param argv Passed from Command line Arguments
+ @param target Target struct to be initialized by command line args
  @pre loadDll must have been called
  @post Global options (ex. -debug, -p#, -c#) will be removed from arg list
  @see loadDll
@@ -72,7 +73,7 @@ int ecmdUnloadDll();
  - Position flags can be queried later with functions like ?????
 */
 
-int ecmdCommandArgs(int argc, char* argv[]); 
+int ecmdCommandArgs(int argc, char* argv[], ecmdChipTarget & target); 
 
 //@}
 

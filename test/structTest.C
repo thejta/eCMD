@@ -40,6 +40,8 @@ int main (int argc, char *argv[])
   //i wonder how it handles recursive copy...
   vector<ecmdCageData> systemCopy = systemData;
 
+  ecmdCageData tst = dynamic_cast<ecmdCageData>systemCopy[0];
+
   cout << "Cage Id: " << systemCopy[0].cageId << endl
        << "Node Id: " << systemCopy[0].nodeData[0].nodeId << endl
        << "ChipType: " << systemCopy[0].nodeData[0].chipData[0].chipType << endl;
@@ -75,6 +77,15 @@ int dummy1 (ecmdChipTarget & target, vector<ecmdCageData> & queryData) {
 
 /* Change Log
 <@log@>
+
+Wed Sep 24 2003  11:28:07  by Joshua Wills
+<reason><version><Brief description and why change was made.>
+
+Wed Sep 24 2003  11:27:36  by Joshua Wills
+<reason><version><Brief description and why change was made.>
+
+Wed Sep 24 2003  11:22:57  by Joshua Wills
+<reason><version><Brief description and why change was made.>
 
 Wed Sep 17 2003  17:10:33  by Joshua Wills
 <reason><version><Brief description and why change was made.>
