@@ -46,28 +46,52 @@ int cipClientPerlapi::cipInitExtension() {
 
 
 int cipClientPerlapi::cipStartInstructions (const char* i_target) {
-  int rc = 0;
+  ecmdChipTarget myTarget;
+  
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+  
+  rc = ::cipStartInstructions(myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 
 int cipClientPerlapi::cipStartAllInstructions (){
   int rc = 0;
+  
+  rc = ::cipStartAllInstructions();
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int cipClientPerlapi::cipStopInstructions (const char* i_target){
-  int rc = 0;
+  ecmdChipTarget myTarget;
+  
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+  
+  rc = ::cipStopInstructions(myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int cipClientPerlapi::cipStopAllInstructions (){
   int rc = 0;
+  
+  rc = ::cipStopAllInstructions();
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int cipClientPerlapi::cipStepInstructions (const char* i_target, int i_steps){
-  int rc = 0;
+  ecmdChipTarget myTarget;
+  
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+  
+  rc = ::cipStepInstructions(myTarget, i_steps);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
