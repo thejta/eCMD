@@ -167,6 +167,52 @@ int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_messa
 int dllQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData) {
   int rc = ECMD_SUCCESS;
 
+  //update target with useful info in the ecmdUserArgs struct
+  //cage
+  if (!ecmdUserArgs.cage) {
+    i_target.cage = 0x0;
+    i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else if (ecmdUserArgs.cage == "all" || ecmdUserArgs.cage.find(",") != std::string::npos) {
+    i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+
+  //node
+  if (!ecmdUserArgs.node) {
+    i_target.node = 0x0;
+    i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else if (ecmdUserArgs.node == "all" || ecmdUserArgs.node.find(",") != std::string::npos) {
+    i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+
+  //position
+  if (!ecmdUserArgs.pos) {
+    i_target.pos = 0x0;
+    i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else if (ecmdUserArgs.pos == "all" || ecmdUserArgs.pos.find(",") != std::string::npos) {
+    i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+
+  //core
+  if (!ecmdUserArgs.core) {
+    i_target.core = 0x0;
+    i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else if (ecmdUserArgs.core == "all" || ecmdUserArgs.core.find(",") != std::string::npos) {
+    i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+
+  //thread
+  if (!ecmdUserArgs.thread) {
+    i_target.thread = 0x0;
+    i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+  else if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread.find(",") != std::string::npos) {
+    i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+  }
+
   return rc;
 }
 
