@@ -1310,7 +1310,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
             ecmdParseTokens(curLine, " \t\n", curArgs);
 
-            if (latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
+            if ((curArgs.size() >= 5) && latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
               curLatch.length = atoi(curArgs[0].c_str());
               curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
               curLatch.jtagRingOffset = atoi(curArgs[2].c_str());

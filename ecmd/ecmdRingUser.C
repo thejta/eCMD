@@ -1726,10 +1726,13 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
             transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 
             ecmdParseTokens(curLine, " \t\n", curArgs);
-            curLatch.length = atoi(curArgs[0].c_str());
-            curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
-            curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
-            curLatch.latchName = curArgs[4];
+            if (curArgs.size() >= 5) {
+              curLatch.length = atoi(curArgs[0].c_str());
+              curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
+              curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
+              curLatch.latchName = curArgs[4];
+            } else /* Not enought tokens for a valid latch line */
+              continue;
           }
           
 
