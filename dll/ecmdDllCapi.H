@@ -189,7 +189,7 @@ uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdD
 
 uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
 
-std::string dllGetErrorMsg(uint32_t i_errorCode); 
+std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
 
