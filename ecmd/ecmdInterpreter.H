@@ -38,6 +38,8 @@
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
+#define ECMD_MAX_DATA_BITS        800000          ///< Maximum number of bits to allow as input/output for reasonable bounds/error checking
+
 
 /**
  @brief Process user args and execute command requested

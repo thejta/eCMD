@@ -189,6 +189,15 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         return ECMD_INVALID_ARGS;
       }
         
+
+      /* Bounds check */
+      if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+        char errbuf[100];
+        sprintf(errbuf,"getspy - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+        ecmdOutputError(errbuf);
+        return ECMD_DATA_BOUNDS_OVERFLOW;
+      }
+
     } else if (argc > 2) {
       ecmdOutputError("getspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
       ecmdOutputError("getspy - It is also possible you specified <start> <numbits> with an enumerated alias or dial\n");

@@ -425,6 +425,15 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       }
       numBits = atoi(argv[4]);
     }
+
+    /* Bounds check */
+    if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+      char errbuf[100];
+      sprintf(errbuf,"getlatch - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+      ecmdOutputError(errbuf);
+      return ECMD_DATA_BOUNDS_OVERFLOW;
+    }
+
   }
 
 
@@ -832,6 +841,15 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
     numBits = atoi(argv[3]);
+
+
+    /* Bounds check */
+    if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+      char errbuf[100];
+      sprintf(errbuf,"getbits - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+      ecmdOutputError(errbuf);
+      return ECMD_DATA_BOUNDS_OVERFLOW;
+    }
   }
 
 
