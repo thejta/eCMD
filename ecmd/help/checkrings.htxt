@@ -1,10 +1,10 @@
 
-Syntax: checkrings <ChipSelect> <RingSelect> [-k#] [-n#] [-p#] [-c#]
+Syntax: checkrings <ChipSelect> <RingSelect> [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
         Function:       checks for stuck bits and verifies scanring length by scanning
-                        ones and zeros to scan chain
+                        ones and zeros to scan chain.
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -21,6 +21,9 @@ Syntax: checkrings <ChipSelect> <RingSelect> [-k#] [-n#] [-p#] [-c#]
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.

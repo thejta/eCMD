@@ -1,5 +1,5 @@
 
-Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-p#]
+Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -18,6 +18,9 @@ Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-p
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.

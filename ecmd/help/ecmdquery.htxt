@@ -9,7 +9,7 @@ Syntax: ecmdquery <Mode> [Mode Options]
         --------------------------------------------------------------------------------
         Mode            Query type to perform
 
-        Mode Values     rings ChipSelect [-k#] [-n#] [-p#]
+        Mode Values     rings ChipSelect [-k#] [-n#] [-s#] [-p#]
                             - Display all rings available for chip
 
         --------------------------------------------------------------------------------

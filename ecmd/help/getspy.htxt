@@ -1,6 +1,6 @@
 
 Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>] 
-                                    [-o<format>] [-k#] [-n#] [-p#] [-c#]
+                                    [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
 
@@ -33,6 +33,9 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.

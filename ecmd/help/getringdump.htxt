@@ -1,5 +1,5 @@
 
-Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-k#] [-n#] [-p#] [-c#] 
+Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-k#] [-n#] [-s#] [-p#] [-c#] 
                                          
         ECMD:           Core Common Function
         
@@ -20,6 +20,9 @@ Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-k#] [-n#] [-p#]
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.

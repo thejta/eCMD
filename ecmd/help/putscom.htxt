@@ -1,5 +1,6 @@
 
-Syntax: putscom <ChipSelect> <ScanCommAddr> <Bits0-31> <Bits32-63> <Bits64-96> [-and | -or] [-k#] [-n#] [-p#] [-c#]
+Syntax: putscom <ChipSelect> <ScanCommAddr> <Bits0-31> <Bits32-63> <Bits64-96> [-and | -or] 
+                             [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -26,6 +27,9 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> <Bits0-31> <Bits32-63> <Bits64-96> [
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
                         to act on all chips.

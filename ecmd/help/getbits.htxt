@@ -1,6 +1,6 @@
 
-Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>] [-k#] [-n#] [-p#] [-c#]
-                        [-o<format>]
+Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>] 
+                        [-k#] [-n#] [-s#] [-p#] [-c#] [-o<format>]
 
         ECMD:           Core Common Function
 
@@ -35,6 +35,9 @@ Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>] [-k#
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
