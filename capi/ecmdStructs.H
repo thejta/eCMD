@@ -65,7 +65,7 @@ struct ecmdChipTarget {
   uint8_t posLoopValid;   ///< Tell the calling function that this function operates at a pos level
   uint8_t coreLoopValid;  ///< Tell the calling function that this function operates at a core level
   uint8_t threadLoopValid; ///< Tell the calling function that this function operates at a thread level
-
+  uint8_t loopValidChecked;  ///< Flag that indicates that we have signaled to the user level how to loop 
 };
 
 
