@@ -8,7 +8,7 @@ my $curdir = ".";
 
 
 #functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
-my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode simFusionRand );
+my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode simFusionRand getLatch putLatch);
 my $ignore_re = join '|', @ignores;
 
 
