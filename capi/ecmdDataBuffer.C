@@ -107,8 +107,8 @@ ecmdDataBuffer::~ecmdDataBuffer()
     /* Let's check our header,tail info */
     if ((iv_RealData[0] != DATABUFFER_HEADER) || (iv_RealData[1] != iv_NumWords) || (iv_RealData[3] != iv_RealData[iv_NumWords + 4])) {
       /* Ok, something is wrong here */
-      printf("iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X\n",iv_RealData[0],iv_RealData[1],iv_NumWords);
-      printf("iv_RealData[3]: %X, iv_RealData[iv_NumWords + 4]: %X\n",iv_RealData[3],iv_RealData[iv_NumWords + 4]);
+      printf("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X\n",iv_RealData[0],iv_RealData[1],iv_NumWords);
+      printf("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + 4]: %X\n",iv_RealData[3],iv_RealData[iv_NumWords + 4]);
       printf("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/TAIL\n");
       exit(1);
     }
@@ -268,7 +268,7 @@ void ecmdDataBuffer::setCapacity (int newCapacity) {
 
 void  ecmdDataBuffer::setBit(int bit) {
   if (bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::setBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::setBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
   } else {
     int index = bit/32;
     iv_Data[index] |= 0x00000001 << (31 - (bit-(index * 32)));
@@ -280,7 +280,7 @@ void  ecmdDataBuffer::setBit(int bit) {
 
 void  ecmdDataBuffer::setBit(int bit, int len) {
   if (bit+len > iv_NumBits) {
-    printf("ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return;
   } else {
     int index = (bit + len) / 32;
@@ -294,7 +294,7 @@ void  ecmdDataBuffer::setBit(int bit, int len) {
 void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
 
   if (wordOffset >= iv_NumWords) {
-    printf("ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)\n", wordOffset, iv_NumWords);
+    printf("**** ERROR : ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)\n", wordOffset, iv_NumWords);
   } else {
     iv_Data[wordOffset] = value;
     
@@ -318,7 +318,7 @@ void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
 
 void  ecmdDataBuffer::clearBit(int bit) {
   if (bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
   } else {  
     int index = bit/32;
     iv_Data[index] &= ~(0x00000001 << (31 - (bit-(index * 32))));
@@ -330,7 +330,7 @@ void  ecmdDataBuffer::clearBit(int bit) {
 
 void  ecmdDataBuffer::clearBit(int bit, int len) {
   if (bit+len > iv_NumBits) {
-    printf("ecmdDataBuffer::clearBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::clearBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
   } else {
     for (int idx = 0; idx < len; idx ++) this->clearBit(bit + idx);    
   }
@@ -338,11 +338,11 @@ void  ecmdDataBuffer::clearBit(int bit, int len) {
 
 void  ecmdDataBuffer::flipBit(int bit) {
   if (bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
   } else {
 #ifndef REMOVE_SIM
     if (this->hasXstate(bit, 1)) {
-      printf("ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d\n", bit);
+      printf("**** ERROR : ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d\n", bit);
     } else {
 #endif
       if (this->isBitSet(bit)) {
@@ -358,7 +358,7 @@ void  ecmdDataBuffer::flipBit(int bit) {
 
 void  ecmdDataBuffer::flipBit(int bit, int len) {
   if (bit+len > iv_NumBits) {
-    printf("ecmdDataBuffer::flipBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::flipBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return;
   } else {
     char temp[60];
@@ -370,12 +370,12 @@ void  ecmdDataBuffer::flipBit(int bit, int len) {
 
 int   ecmdDataBuffer::isBitSet(int bit) {
   if (bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::isBitSet: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::isBitSet: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
     return 0;
   } else {
 #ifndef REMOVE_SIM
     if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
-      printf("ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d\n", bit);
+      printf("**** ERROR : ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d\n", bit);
       return 0;
     }
 #endif
@@ -386,7 +386,7 @@ int   ecmdDataBuffer::isBitSet(int bit) {
 
 int   ecmdDataBuffer::isBitSet(int bit, int len) {
   if (bit+len > iv_NumBits) {
-    printf("ecmdDataBuffer::isBitSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::isBitSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return 0;
   } else {
     int rc = 1;
@@ -402,12 +402,12 @@ int   ecmdDataBuffer::isBitSet(int bit, int len) {
 
 int   ecmdDataBuffer::isBitClear(int bit) {
   if (bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::isBitClear: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::isBitClear: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
     return 0;
   } else {
 #ifndef REMOVE_SIM
     if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
-      printf( "ecmdDataBuffer::isBitClear: non-binary character detected in data string\n");
+      printf( "**** ERROR : ecmdDataBuffer::isBitClear: non-binary character detected in data string\n");
       return 0;
     }
 #endif
@@ -419,7 +419,7 @@ int   ecmdDataBuffer::isBitClear(int bit) {
 int   ecmdDataBuffer::isBitClear(int bit, int len)
 {
   if (bit+len > iv_NumBits) {
-    printf("ecmdDataBuffer::isBitClear: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::isBitClear: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return 0;
   } else {
     int rc = 1;
@@ -435,7 +435,7 @@ int   ecmdDataBuffer::isBitClear(int bit, int len)
 
 int   ecmdDataBuffer::getNumBitsSet(int bit, int len) {
   if (bit+len > iv_NumBits) {
-    printf("ecmdDataBuffer::getNumBitsSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::getNumBitsSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return 0;
   } else {
     int count = 0;
@@ -751,7 +751,7 @@ void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
 
 
   if (start+len > iv_NumBits) {
-    printf("ecmdDataBuffer::insert: start %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::insert: start %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
   } else {
     
     uint32_t mask = 0x80000000;
@@ -783,7 +783,7 @@ void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
 void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
 
   if (start + len > iv_NumBits) {
-    printf( "ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
+    printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
   } else {
 
     ecmdExtract(this->iv_Data, start, len, dataOut);
@@ -793,7 +793,7 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
       for (int i = start; i < len; i++) { /* now get exact bit */
         if (this->hasXstate(start, 1)) {
           char temp[100];
-          printf("ecmdDataBuffer::extract: Cannot extract non-binary character at bit %d\n", i);
+          printf("**** ERROR : ecmdDataBuffer::extract: Cannot extract non-binary character at bit %d\n", i);
         }
       }
     }
@@ -808,7 +808,7 @@ void ecmdDataBuffer::setOr(ecmdDataBuffer& bufferIn, int startBit, int len) {
 void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
 
   if (startBit + len > iv_NumBits) {
-    printf("ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
     for (int i = 0; i < len; i++) {
@@ -829,7 +829,7 @@ void ecmdDataBuffer::setOr(uint32_t dataIn, int startBit, int len) {
 
 void ecmdDataBuffer::merge(ecmdDataBuffer& bufferIn) {
   if (iv_NumBits != bufferIn.iv_NumBits) {
-    printf("ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", bufferIn.iv_NumBits, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", bufferIn.iv_NumBits, iv_NumBits);
   } else {
     this->setOr(bufferIn, 0, iv_NumBits);
   }
@@ -841,7 +841,7 @@ void ecmdDataBuffer::setAnd(ecmdDataBuffer& bufferIn, int startBit, int len) {
 
 void ecmdDataBuffer::setAnd(uint32_t * dataIn, int startBit, int len) {
   if (startBit + len > iv_NumBits) {
-    printf("ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)\n", startBit, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
     for (int i = 0; i < len; i++) {
@@ -914,7 +914,7 @@ int   ecmdDataBuffer::evenParity(int start, int stop, int insertPos) {
 
 uint32_t ecmdDataBuffer::getWord(int wordOffset) {
   if (wordOffset > iv_NumWords-1) {
-    printf("ecmdDataBuffer::getWord: wordOffset %d > NumWords-1 (%d)\n", wordOffset, iv_NumWords-1);
+    printf("**** ERROR : ecmdDataBuffer::getWord: wordOffset %d > NumWords-1 (%d)\n", wordOffset, iv_NumWords-1);
     return 0;
   }
   return this->iv_Data[wordOffset];
@@ -1008,7 +1008,7 @@ std::string ecmdDataBuffer::genXstateStr(int start, int bitLen) {
 
   ret = copyStr;
 #else
-  printf( "ecmdDataBuffer: genXstateStr: Not defined in this configuration");
+  printf( "**** ERROR : ecmdDataBuffer: genXstateStr: Not defined in this configuration");
 #endif
   return ret;
 }
@@ -1166,7 +1166,7 @@ void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy fr
 
 int   ecmdDataBuffer::hasXstate() {  
 #ifdef REMOVE_SIM
-  printf( "ecmdDataBuffer: hasXstate: Not defined in this configuration");
+  printf( "**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
   return (hasXstate(0,iv_NumBits));
@@ -1175,7 +1175,7 @@ int   ecmdDataBuffer::hasXstate() {
 
 int   ecmdDataBuffer::hasXstate(int start, int length) {
 #ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: hasXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
   int stopBit = start + length;
@@ -1197,11 +1197,11 @@ int   ecmdDataBuffer::hasXstate(int start, int length) {
  */
 char ecmdDataBuffer::getXstate(int i_bit) {
 #ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: getXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: getXstate: Not defined in this configuration");
   return '0';
 #else
   if (i_bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::getXstate: bit %d >= NumBits (%d)\n", i_bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::getXstate: bit %d >= NumBits (%d)\n", i_bit, iv_NumBits);
     return '0';
   }
   return iv_DataStr[i_bit];
@@ -1214,11 +1214,11 @@ char ecmdDataBuffer::getXstate(int i_bit) {
  */
 void ecmdDataBuffer::setXstate(int i_bit, char i_value) {
 #ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: setXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
 
 #else
   if (i_bit >= iv_NumBits) {
-    printf("ecmdDataBuffer::setXstate: bit %d >= NumBits (%d)\n", i_bit, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::setXstate: bit %d >= NumBits (%d)\n", i_bit, iv_NumBits);
     return;
   }
   if (i_value == '0') clearBit(i_bit);
@@ -1228,7 +1228,7 @@ void ecmdDataBuffer::setXstate(int i_bit, char i_value) {
     clearBit(i_bit);
     iv_DataStr[i_bit] = i_value;
   } else {
-    printf("ecmdDataBuffer::setXstate: unrecognized Xstate character: %c\n", i_value);
+    printf("**** ERROR : ecmdDataBuffer::setXstate: unrecognized Xstate character: %c\n", i_value);
   }
 #endif
 }
@@ -1241,14 +1241,14 @@ void ecmdDataBuffer::setXstate(int i_bit, char i_value) {
 void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
 
 #ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: setXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
 
 #else
   int len = strlen(i_datastr);
   int i;
 
   if (bitOffset+len > iv_NumBits) {
-    printf("ecmdDataBuffer::setXstate: bitOffset %d + len %d > NumBits (%d)\n", bitOffset, len, iv_NumBits);
+    printf("**** ERROR : ecmdDataBuffer::setXstate: bitOffset %d + len %d > NumBits (%d)\n", bitOffset, len, iv_NumBits);
   } else {
 
     for (i = 0; i < len; i++) {
@@ -1259,7 +1259,7 @@ void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
         iv_DataStr[bitOffset+i] = i_datastr[i];
       } 
       else {
-        printf("ecmdDataBuffer::setXstate: unrecognized Xstate character: %c\n", i_datastr[i]);
+        printf("**** ERROR : ecmdDataBuffer::setXstate: unrecognized Xstate character: %c\n", i_datastr[i]);
       }
     }
 
@@ -1278,7 +1278,7 @@ void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a mem
 
   int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
 #ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
 #else
   /* Put the data into the Xstate array */
   strncpy(iv_DataStr, i_buf, cbytes);
@@ -1305,7 +1305,7 @@ void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a mem
 void  ecmdDataBuffer::memCopyOutXstate(char * o_buf, int i_bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
 #ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
 #else
 
   strncpy(o_buf, iv_DataStr, cbytes);
@@ -1344,7 +1344,7 @@ void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to
   /*----------------------------line 98--------------------------------*/
 
   if (num_bits_to_extract == 0){
-    printf("ERROR: extract: Number of bits to extract = 0\n");
+    printf("**** ERROR : extract: Number of bits to extract = 0\n");
     out_iv_Data_ptr = NULL;
     return;
   }
