@@ -107,9 +107,9 @@ uint32_t dllPutFpr(ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer 
 
 uint32_t dllPutFprMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
-uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> o_data); 
+uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> & o_data); 
 
-uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> o_data); 
+uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> & o_data); 
 
 uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
