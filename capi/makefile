@@ -76,4 +76,4 @@ ${TARGET}: ${SOURCE_OBJS}
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
 ecmdClientCapiFunc.C : ecmdClientCapi.H
-	./makedll.pl > ecmdClientCapiFunc.C
+	./makedll.pl 
