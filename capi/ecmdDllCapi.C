@@ -380,13 +380,13 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
           }
         }
 
-        std::list<ecmdChipData>::iterator curChip = (*curNode).chipData.begin();
+        std::list<ecmdChipData>::iterator curChip = (*curSlot).chipData.begin();
 
-        while (curChip != (*curNode).chipData.end()) {
+        while (curChip != (*curSlot).chipData.end()) {
 
           if (posType == MULTI) {
             if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
-              curChip = (*curNode).chipData.erase(curChip);
+              curChip = (*curSlot).chipData.erase(curChip);
               continue;
             }
           }
