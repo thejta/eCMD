@@ -112,10 +112,20 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = "pu";
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  if (memMode == ECMD_MEM_DMA) {
+    target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (memMode == ECMD_MEM_MEMCTRL) {
+    target.chipType = ECMD_CHIPT_MEM_CNTRL;
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (memMode == ECMD_MEM_PROC) {
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  }
 
   // Get the address
   if (!ecmdIsAllHex(argv[0])) {
@@ -225,10 +235,21 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = "pu";
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  if (memMode == ECMD_MEM_DMA) {
+    target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (memMode == ECMD_MEM_MEMCTRL) {
+    target.chipType = ECMD_CHIPT_MEM_CNTRL;
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (memMode == ECMD_MEM_PROC) {
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  }
+
 
   // Get the address
   if (!ecmdIsAllHex(argv[0])) {
