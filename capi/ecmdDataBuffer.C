@@ -296,6 +296,12 @@ void  ecmdDataBuffer::setBit(int bit, int len) {
 }
 
 
+void ecmdDataBuffer::writeBit(int i_bit, int i_value) {
+  if (i_value) setBit(i_bit);
+  else clearBit(i_bit);
+}
+
+
 
 
 void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
@@ -1274,20 +1280,28 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
 void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   int cbytes = bytes < getByteLength() ? bytes : getByteLength();
-  ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
+  if (cbytes == 0) {
+    printf("**** ERROR : ecmdDataBuffer: memCopyIn: Copy performed on buffer with length of 0\n");
+  } else {
+    ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
 #ifndef REMOVE_SIM
-  strcpy(iv_DataStr, genBinStr().c_str());
+    strcpy(iv_DataStr, genBinStr().c_str());
 #endif
+  }
 }
 void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   int cbytes = bytes < getByteLength() ? bytes : getByteLength();
-  ecmdBigEndianMemCopy(buf, iv_Data, cbytes);
+  if (cbytes == 0) {
+    printf("**** ERROR : ecmdDataBuffer: memCopyOut: Copy performed on buffer with length of 0\n");
+  } else {
+    ecmdBigEndianMemCopy(buf, iv_Data, cbytes);
+  }
 }
 
 
 int   ecmdDataBuffer::hasXstate() {  
 #ifdef REMOVE_SIM
-  printf( "**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
+  printf( "**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration\n");
   return 0;
 #else
   return (hasXstate(0,iv_NumBits));
@@ -1296,7 +1310,7 @@ int   ecmdDataBuffer::hasXstate() {
 
 int   ecmdDataBuffer::hasXstate(int start, int length) {
 #ifdef REMOVE_SIM
-  printf("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
+  printf("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration\n");
   return 0;
 #else
   int stopBit = start + length;
@@ -1498,6 +1512,10 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
 
   /* Must have matched */
   return 1;
+}
+
+int ecmdDataBuffer::operator != (const ecmdDataBuffer& other) const {
+  return !(*this == other);
 }
 
 void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to_extract, uint32_t *out_iv_Data_ptr)

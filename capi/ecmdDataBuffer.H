@@ -155,6 +155,13 @@ public:
   void  setBit(int i_bit, int i_len);
 
   /**
+   * @brief Write a bit to specified value in buffer
+   * @param i_bit Bit in buffer to turn on
+   * @param i_value Value to write
+   */
+  void writeBit(int i_bit, int i_value);
+
+  /**
    * @brief Set a word of data in buffer
    * @param i_wordoffset Offset of word to set
    * @param i_value 32 bits of data to put into word
@@ -311,7 +318,7 @@ public:
    * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
    * @param i_start Start bit to insert to
    * @param i_len Length of bits to insert
-   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @post Data is copied from bufferIn to this DataBuffer in specified location for length or to end of this DataBuffer size whichever is less
    */
   void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
   /**
@@ -319,7 +326,7 @@ public:
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken left aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert
-   * @post Data is copied from datain into this DataBuffer at specified location
+   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
    */
   void  insert(uint32_t * i_datain, int i_start, int i_len);
   /**
@@ -327,7 +334,7 @@ public:
    * @param i_datain uint32_t value to copy into DataBuffer - data is taken left aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert (must be <= 32)
-   * @post Data is copied from datain into this DataBuffer at specified location
+   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
    */
   void  insert(uint32_t i_datain, int i_start, int i_len);
   /**
@@ -335,7 +342,7 @@ public:
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert
-   * @post Data is copied from datain into this DataBuffer at specified location
+   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
@@ -345,7 +352,7 @@ public:
    * @param i_datain uint32_t value to copy into DataBuffer - data is taken right aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert (must be <= 32)
-   * @post Data is copied from datain into this DataBuffer at specified location
+   * @post Data is copied from datain into this DataBuffer at specified location for length or to end of this DataBuffer size whichever is less
    */
   void  insertFromRight(uint32_t i_datain, int i_start, int i_len);
 
@@ -355,7 +362,7 @@ public:
    * @param o_bufferOut DataBuffer to copy into - data is placed left aligned
    * @param i_start Start bit of data in this DataBuffer to copy
    * @param i_len Length of consecutive bits to copy
-   * @post Data is copied from specified location in this DataBuffer to bufferOut
+   * @post Data is copied from specified location in this DataBuffer to bufferOut for length or to end of bufferOut size whichever is less
    */
   void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
   /**
@@ -652,6 +659,11 @@ public:
    * @brief Overload the == operator
    */
   int operator == (const ecmdDataBuffer& other) const;    
+
+  /**
+   * @brief Overload the != operator
+   */
+  int operator != (const ecmdDataBuffer& other) const;    
 
   //@}
 
