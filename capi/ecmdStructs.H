@@ -483,8 +483,11 @@ typedef enum {
 */
 
 typedef enum {
+  ECMD_FPP_RETOUT,                      ///< Designates the failing return code out of the api function
   ECMD_FPP_FUNCTIONIN,                  ///< Designates the call in of the api function
-  ECMD_FPP_FUNCTIONOUT                  ///< Designatest the call out of the api function
+  ECMD_FPP_FUNCTIONOUT,                 ///< Designatest the call out of the api function
+  ECMD_FPP_JUSTIN,                      ///< Designatest the call in of the api function in debug 8 mode
+  ECMD_FPP_JUSTOUT                      ///< Designatest the call out of the api function in debug 8 mode and rc==0
 } efppInOut_t;
 
 /**
