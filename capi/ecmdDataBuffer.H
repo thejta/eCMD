@@ -69,10 +69,10 @@ public:
 
   /**
    * @brief Constructor
-   * @param i_numWords Size of data to initialize in 32-bit words
+   * @param i_numBits Size of data in bits to initialize
    * @post ecmdDataBuffer is initialized and zero'd out
    */
-  ecmdDataBuffer(int i_numWords); 
+  ecmdDataBuffer(uint32_t i_numBits); 
 
 
   /**
@@ -84,7 +84,7 @@ public:
   /**
    * @brief Default Destructor
    */
-  ~ecmdDataBuffer();
+  virtual ~ecmdDataBuffer();
   //@}
 
 
@@ -95,22 +95,22 @@ public:
    * @brief Return the length of the buffer in words
    * @retval Buffer length in words rounded up
    */
-  int   getWordLength() const;
+  uint32_t   getWordLength() const;
   /**
    * @brief Return the length of the buffer in bytes
    * @retval Buffer length in bytes rounded up
    */
-  int   getByteLength() const;
+  uint32_t   getByteLength() const;
   /**
    * @brief Return the length of the buffer in bits
    * @retval Buffer length in bits
    */
-  int   getBitLength() const;
+  uint32_t   getBitLength() const;
   /**
    * @brief Return the actual capacity of the internal buffer in words
    * @retval Actual capacity in words of internal buffer
    */
-  int   getCapacity() const;
+  uint32_t   getCapacity() const;
   /**
    * @brief Reinitialize the Buffer to specified length
    * @param i_newNumWords Length of new buffer in words
@@ -118,7 +118,7 @@ public:
    *
    * CAUTION : All data stored in buffer will be lost
    */
-  void  setWordLength(int i_newNumWords);   
+  void  setWordLength(uint32_t i_newNumWords);   
   /**
    * @brief Reinitialize the Buffer to specified length
    * @param i_newNumBits Length of new buffer in bits
@@ -126,7 +126,7 @@ public:
    *
    * CAUTION : All data stored in buffer will be lost
    */
-  void  setBitLength(int i_newNumBits);
+  void  setBitLength(uint32_t i_newNumBits);
   /**
    * @brief Reinitialize the internal buffer to specified length
    * @param i_newNumWords length of internal data buffer in words
@@ -134,7 +134,7 @@ public:
    *
    * CAUTION : All data stored in buffer will be lost
    */
-  void setCapacity (int i_newNumWords);
+  void setCapacity (uint32_t i_newNumWords);
 
   //@}
 
@@ -146,106 +146,106 @@ public:
    * @brief Turn on a bit in buffer
    * @param i_bit Bit in buffer to turn on
    */
-  void  setBit(int i_bit);
+  void  setBit(uint32_t i_bit);
   /**
    * @brief Turn on a bit in buffer
    * @param i_bit start bit in buffer to turn on
    * @param i_len Number of consecutive bits from start bit to turn on
    */
-  void  setBit(int i_bit, int i_len);
+  void  setBit(uint32_t i_bit, uint32_t i_len);
 
   /**
    * @brief Write a bit to specified value in buffer
    * @param i_bit Bit in buffer to turn on
    * @param i_value Value to write
    */
-  void writeBit(int i_bit, int i_value);
+  void writeBit(uint32_t i_bit, uint32_t i_value);
 
   /**
    * @brief Set a word of data in buffer
    * @param i_wordoffset Offset of word to set
    * @param i_value 32 bits of data to put into word
    */
-  void  setWord(int i_wordoffset, uint32_t i_value);
+  void  setWord(uint32_t i_wordoffset, uint32_t i_value);
 
   /**
    * @brief Fetch a word from ecmdDataBuffer
    * @param i_wordoffset Offset of word to fetch
    * @retval Value of word requested
    */
-  uint32_t getWord(int i_wordoffset);
+  uint32_t getWord(uint32_t i_wordoffset) const;
 
   /**
    * @brief Set a byte of data in buffer
    * @param i_byteoffset Offset of byte to set
    * @param i_value 8 bits of data to put into byte
    */
-  void  setByte(int i_byteoffset, uint8_t i_value);
+  void  setByte(uint32_t i_byteoffset, uint8_t i_value);
 
   /**
    * @brief Fetch a byte from ecmdDataBuffer
    * @param i_byteoffset Offset of byte to fetch
    * @retval Value of byte requested
    */
-  uint8_t getByte(int i_byteoffset);
+  uint8_t getByte(uint32_t i_byteoffset) const;
 
   /**
    * @brief Clear a bit in buffer
    * @param i_bit Bit in buffer to turn off
    */
-  void  clearBit(int i_bit);
+  void  clearBit(uint32_t i_bit);
   /**
    * @brief Clear multiple bits in buffer
    * @param i_bit Start bit in buffer to turn off
    * @param i_len Number of consecutive bits from start bit to off
    */
-  void  clearBit(int i_bit, int i_len);
+  void  clearBit(uint32_t i_bit, uint32_t i_len);
 
   /**
    * @brief Invert bit
    * @param i_bit Bit in buffer to invert
    */
-  void  flipBit(int i_bit);
+  void  flipBit(uint32_t i_bit);
   /**
    * @brief Invert multiple bits
    * @param i_bit Start bit in buffer to invert
    * @param i_len Number of consecutive bits to invert
    */
-  void  flipBit(int i_bit, int i_len);
+  void  flipBit(uint32_t i_bit, uint32_t i_len);
 
   /**
    * @brief Test if bit is set
    * @param i_bit Bit to test
    * @retval true if bit is set - false if bit is clear
    */
-  int   isBitSet(int i_bit);
+  uint32_t   isBitSet(uint32_t i_bit) const;
   /**
    * @brief Test if multiple bits are set
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval true if all bits in range are set - false if any bit is clear
    */
-  int   isBitSet(int i_bit, int i_len);
+  uint32_t   isBitSet(uint32_t i_bit, uint32_t i_len) const;
   /**
    * @brief Test if bit is clear
    * @param i_bit Bit to test
    * @retval true if bit is clear - false if bit is set
    */
-  int   isBitClear(int i_bit);
+  uint32_t   isBitClear(uint32_t i_bit) const;
   /**
    * @brief Test if multiple bits are clear
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval true if all bits in range are clear - false if any bit is set
    */
-  int   isBitClear(int i_bit, int i_len);
+  uint32_t   isBitClear(uint32_t i_bit, uint32_t i_len) const;
   /**
    * @brief Count number of bits set in a range
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval Number of bits set in range
    */      
-  int   getNumBitsSet(int i_bit, int i_len);
+  uint32_t   getNumBitsSet(uint32_t i_bit, uint32_t i_len) const;
   //@}
 
 
@@ -257,40 +257,40 @@ public:
    * @post Bits in buffer are shifted to right by specified number of bits - data is shifted off the end
    * @post Buffer size is unchanged
    */
-  void  shiftRight(int i_shiftnum);
+  void  shiftRight(uint32_t i_shiftnum);
   /**
    * @brief Shift data to left
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
    * @post Buffer size is unchanged
    */
-  void  shiftLeft(int i_shiftnum);
+  void  shiftLeft(uint32_t i_shiftnum);
   /**
    * @brief Shift data to right - resizing buffer
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to right by specified number of bits
    * @post Buffer size is resized to accomodate shift
    */
-  void  shiftRightAndResize(int i_shiftnum);
+  void  shiftRightAndResize(uint32_t i_shiftnum);
   /**
    * @brief Shift data to left - resizing buffer
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
    * @post Buffer size is resized to accomodate shift
    */
-  void  shiftLeftAndResize(int i_shiftnum);
+  void  shiftLeftAndResize(uint32_t i_shiftnum);
   /**
    * @brief Rotate data to right
    * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the right by specified number of bits - data is rotated to the beginning
    */
-  void  rotateRight(int i_rotatenum);
+  void  rotateRight(uint32_t i_rotatenum);
   /**
    * @brief Rotate data to left
    * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the left by specified number of bits - data is rotated to the end
    */
-  void  rotateLeft(int i_rotatenum);
+  void  rotateLeft(uint32_t i_rotatenum);
 
   /**
    * @brief Clear entire buffer to 0's
@@ -315,7 +315,7 @@ public:
    * @param i_invMask Buffer that stores inversion mask
    * @param i_invByteLen Buffer length provided in bytes
    */
-  void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
+  void applyInversionMask(const uint32_t * i_invMask, uint32_t i_invByteLen);
 
   /**
    * @brief Apply an inversion mask to data inside buffer
@@ -323,35 +323,38 @@ public:
    * @param i_invMaskBuffer Buffer that stores inversion mask
    * @param i_invByteLen Buffer length provided in bytes
    */
-  void applyInversionMask(ecmdDataBuffer & i_invMaskBuffer, int i_invByteLen);
+  void applyInversionMask(const ecmdDataBuffer & i_invMaskBuffer, uint32_t i_invByteLen);
 
   /**
    * @brief Copy part of another DataBuffer into this one
    * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
-   * @param i_start Start bit to insert to
+   * @param i_targetStart Start bit to insert to
    * @param i_len Length of bits to insert
-   * @pre DatBuffer must be pre-allocated
-   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @param i_sourceStart Start bit in i_bufferIn - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_bufferIn to this DataBuffer in specified location
    */
-  void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
+  void  insert(const ecmdDataBuffer & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
   /**
-   * @brief Copy a uint32_t array into this DataBuffer
+   * @brief Copy part of a uint32_t array into this DataBuffer
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken left aligned
-   * @param i_start Start bit to insert into
+   * @param i_targetStart Start bit to insert into
    * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_datain - default value is zero
    * @pre DataBuffer must be pre-allocated
-   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @post Data is copied from i_datain to this DataBuffer in specified location
    */
-  void  insert(uint32_t * i_datain, int i_start, int i_len);
+  void  insert(const uint32_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
   /**
-   * @brief Copy a uint32_t into the DataBuffer
+   * @brief Copy part of a uint32_t into the DataBuffer
    * @param i_datain uint32_t value to copy into DataBuffer - data is taken left aligned
-   * @param i_start Start bit to insert into
+   * @param i_targetStart Start bit to insert into
    * @param i_len Length of bits to insert (must be <= 32)
+   * @param i_sourceStart Start bit in i_datain - default value is zero
    * @pre DataBuffer must be pre-allocated
    * @post Data is copied from bufferIn to this DataBuffer in specified location
    */
-  void  insert(uint32_t i_datain, int i_start, int i_len);
+  void  insert(uint32_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
   /**
    * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
@@ -362,7 +365,7 @@ public:
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
-  void  insertFromRight(uint32_t * i_datain, int i_start, int i_len);
+  void  insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len);
   /**
    * @brief Copy a right aligned (decimal) uint32_t into the DataBuffer
    * @param i_datain uint32_t value to copy into DataBuffer - data is taken right aligned
@@ -371,7 +374,7 @@ public:
    * @pre DataBuffer must be pre-allocated
    * @post Data is copied from datain into this DataBuffer at specified location
    */
-  void  insertFromRight(uint32_t i_datain, int i_start, int i_len);
+  void  insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len);
 
 
   /**
@@ -381,7 +384,7 @@ public:
    * @param i_len Length of consecutive bits to copy
    * @post Data is copied from specified location in this DataBuffer to bufferOut
    */
-  void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
+  void  extract(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
   /**
    * @brief Copy data from this DataBuffer into another
    * @param o_data uint32_t buffer to copy into - data is placed left aligned - must be pre-allocated
@@ -389,7 +392,7 @@ public:
    * @param i_len Length of consecutive bits to copy
    * @post Data is copied from specified location in this DataBuffer to o_data
    */
-  void  extract(uint32_t * o_data, int i_start, int i_len);
+  void  extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
   /**
    * @brief Copy data from this DataBuffer into another DataBuffer and right justify
    * @param o_bufferOut DataBuffer to copy into - data is placed right aligned
@@ -397,7 +400,7 @@ public:
    * @param i_len Length of consecutive bits to copy
    * @post Data is copied from specified location in this DataBuffer to o_bufferOut, right aligned.  Data is only right aligned if i_len < 32
    */
-  void extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len);
+  void extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
   /**
    * @brief Copy data from this DataBuffer into a uint32_t buffer
    * @param o_data uint32_t buffer to copy into - data is placed right aligned - must be pre-allocated
@@ -405,7 +408,7 @@ public:
    * @param i_len Length of consecutive bits to copy
    * @post Data is copied from specified location in this DataBuffer to o_data, right aligned.  Data is only right aligned if i_len < 32
    */
-  void extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len);
+  void extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
   /**
    * @brief Concatenate 2 DataBuffers into in this one
@@ -413,7 +416,7 @@ public:
    * @param i_buf1 Second DataBuffer to concatenate; copied to this buffer after the first buffer
    * @post Space is allocated, and data from the 2 DataBuffers is concatenated and copied to this buffer
    */
-  void concat(ecmdDataBuffer & i_buf0, ecmdDataBuffer & i_buf1);
+  void concat(const ecmdDataBuffer & i_buf0, const ecmdDataBuffer & i_buf1);
   /**
    * @brief Concatenate 3 DataBuffers into in this one
    * @param i_buf0 First DataBuffer to concatenate; copied to beginning of this buffer
@@ -421,7 +424,7 @@ public:
    * @param i_buf1 Third DataBuffer to concatenate; copied to this buffer after the second buffer
    * @post Space is allocated, and data from the 3 DataBuffers is concatenated and copied to this buffer
    */
-  void concat(ecmdDataBuffer & i_buf0, ecmdDataBuffer & i_buf1, ecmdDataBuffer & i_buf2);
+  void concat(const ecmdDataBuffer & i_buf0, const ecmdDataBuffer & i_buf1, const ecmdDataBuffer & i_buf2);
 
 
   /* these functions OR the datain into the DataBuffer buffer */
@@ -432,7 +435,7 @@ public:
    * @param i_len Length of bits to OR
    * @post Data is ORed from i_bufferIn to this DataBuffer in specified location
    */
-  void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+  void setOr(const ecmdDataBuffer & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief OR data into DataBuffer
    * @param i_datain uint32_t buffer to OR data from - data is taken left aligned
@@ -440,7 +443,7 @@ public:
    * @param i_len Length of bits to OR
    * @post Data is ORed from datain to this DataBuffer in specified location
    */
-  void setOr(uint32_t * i_datain, int i_startbit, int i_len);
+  void setOr(const uint32_t * i_datain, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief OR data into DataBuffer
    * @param i_datain uint32_t to OR data from - data is taken left aligned
@@ -448,13 +451,13 @@ public:
    * @param i_len Length of bits to OR (must be <= 32)
    * @post Data is ORed from datain to this DataBuffer in specified location
    */
-  void setOr(uint32_t i_datain, int i_startbit, int i_len);
+  void setOr(uint32_t i_datain, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief OR data into DataBuffer
    * @param i_bufferIn DataBuffer to OR data from - data is taken left aligned
    * @post Entire data is ORed from bufferIn to this DataBuffer
    */
-  void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
+  void merge(const ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
 
   /* these functions XOR the datain into the DataBuffer buffer */
   /**
@@ -464,7 +467,7 @@ public:
    * @param i_len Length of bits to XOR
    * @post Data is XORed from i_bufferIn to this DataBuffer in specified location
    */
-  void setXor(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+  void setXor(const ecmdDataBuffer & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief XOR data into DataBuffer
    * @param i_datain uint32_t buffer to XOR data from - data is taken left aligned
@@ -472,7 +475,7 @@ public:
    * @param i_len Length of bits to XOR
    * @post Data is XORed from datain to this DataBuffer in specified location
    */
-  void setXor(uint32_t * i_datain, int i_startbit, int i_len);
+  void setXor(const uint32_t * i_datain, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief XOR data into DataBuffer
    * @param i_datain uint32_t to XOR data from - data is taken left aligned
@@ -480,7 +483,7 @@ public:
    * @param i_len Length of bits to XOR (must be <= 32)
    * @post Data is XORed from datain to this DataBuffer in specified location
    */
-  void setXor(uint32_t i_datain, int i_startbit, int i_len);
+  void setXor(uint32_t i_datain, uint32_t i_startbit, uint32_t i_len);
 
   /* these functions AND the datain into the DataBuffer buffer */
   /**
@@ -490,7 +493,7 @@ public:
    * @param i_len Length of bits to AND
    * @post Data is ANDed from bufferIn to this DataBuffer in specified location
    */
-  void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+  void setAnd(const ecmdDataBuffer & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief AND data into DataBuffer
    * @param i_datain uint32_t buffer to AND data from - data is taken left aligned
@@ -498,7 +501,7 @@ public:
    * @param i_len Length of bits to AND
    * @post Data is ANDed from datain to this DataBuffer in specified location
    */
-  void setAnd(uint32_t * i_datain, int i_startbit, int i_len);
+  void setAnd(const uint32_t * i_datain, uint32_t i_startbit, uint32_t i_len);
   /**
    * @brief AND data into DataBuffer
    * @param i_datain uint32_t to AND data from - data is taken left aligned
@@ -506,14 +509,14 @@ public:
    * @param i_len Length of bits to AND (must be <= 32)
    * @post Data is ANDed from datain to this DataBuffer in specified location
    */
-  void setAnd(uint32_t i_datain, int i_startbit, int i_len);
+  void setAnd(uint32_t i_datain, uint32_t i_startbit, uint32_t i_len);
 
   /**
    * @brief Copy entire contents of this ecmdDataBuffer into o_copyBuffer 
    * @param o_copyBuffer DataBuffer to copy data into
    * @post copyBuffer is allocated, is an exact duplicate of this DataBuffer
    */
-  void  copy(ecmdDataBuffer & o_copyBuffer); 
+  void  copy(ecmdDataBuffer & o_copyBuffer) const;
 
   /**
    * @brief Copy Constructor
@@ -530,14 +533,14 @@ public:
    * @pre DataBuffer must be pre-allocated
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
-  void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  void  memCopyIn(const uint32_t * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
    * @brief Copy DataBuffer into supplied uint32_t buffer
    * @param o_buf Buffer to copy into - must be pre-allocated
    * @param i_bytes Byte length to copy
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
-  void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  void  memCopyOut(uint32_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   /**
    * @brief Flatten all the object data into a uint8_t buffer
@@ -578,14 +581,14 @@ public:
    * @param i_stop Stop bit of range
    * @retval 0 or 1 depending on parity of range
    */
-  int  oddParity(int i_start, int i_stop);
+  uint32_t  oddParity(uint32_t i_start, uint32_t i_stop) const;
   /**
    * @brief Generate even parity over a range of bits
    * @param i_start Start bit of range
    * @param i_stop Stop bit of range
    * @retval 0 or 1 depending on parity of range
    */
-  int  evenParity(int i_start, int i_stop);
+  uint32_t  evenParity(uint32_t i_start, uint32_t i_stop) const;
   /**
    * @brief Generate odd parity over a range of bits and insert into DataBuffer
    * @param i_start Start bit of range
@@ -593,7 +596,7 @@ public:
    * @param i_insertpos Bit position to insert parity
    * @retval 0 on success - nonzero on failure
    */
-  int  oddParity(int i_start, int i_stop, int i_insertpos); 
+  uint32_t  oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos);
   /**
    * @brief Generate even parity over a range of bits and insert into DataBuffer
    * @param i_start Start bit of range
@@ -601,7 +604,7 @@ public:
    * @param i_insertpos Bit position to insert parity
    * @retval 0 on success - nonzero on failure
    */
-  int  evenParity(int i_start, int i_stop, int i_insertpos); 
+  uint32_t  evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos); 
   //@}
 
 
@@ -613,37 +616,37 @@ public:
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genHexLeftStr(int i_start, int i_bitlen);
+  std::string genHexLeftStr(uint32_t i_start, uint32_t i_bitlen) const;
   /**
    * @brief Return Data as a hex right aligned char string
    * @param i_start Start bit of data to convert
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genHexRightStr(int i_start, int i_bitlen); 
+  std::string genHexRightStr(uint32_t i_start, uint32_t i_bitlen) const;
   /**
    * @brief Return Data as a binary char string
    * @param i_start Start bit of data to convert
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genBinStr(int i_start, int i_bitlen); 
+  std::string genBinStr(uint32_t i_start, uint32_t i_bitlen) const;
 
   /**
    * @brief Return entire buffer as a hex left aligned char string
    * @retval String containing requested data
    */
-  std::string genHexLeftStr();
+  std::string genHexLeftStr() const;
   /**
    * @brief Return entire buffer as a hex right aligned char string
    * @retval String containing requested data
    */
-  std::string genHexRightStr(); 
+  std::string genHexRightStr() const;
   /**
    * @brief Return entire buffer as a binary char string
    * @retval String containing requested data
    */
-  std::string genBinStr();
+  std::string genBinStr() const;
 
   /**
    * @brief Retrieve a section of the Xstate Data
@@ -651,13 +654,13 @@ public:
    * @param i_bitlen Number of consecutive bits to retrieve
    * @retval String containing requested data
    */
-  std::string genXstateStr(int i_start, int i_bitlen);
+  std::string genXstateStr(uint32_t i_start, uint32_t i_bitlen) const;
 
   /**
    * @brief Retrieve entire Xstate Data buffer
    * @retval String containing requested data
    */
-  std::string genXstateStr();
+  std::string genXstateStr() const;
 
 
   //@}
@@ -675,7 +678,7 @@ public:
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
-  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
+  uint32_t insertFromHexLeft (const char * i_hexChars, uint32_t i_start = 0, uint32_t i_length = 0);
 
   /**
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer
@@ -686,7 +689,7 @@ public:
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
-  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
+  uint32_t insertFromHexRight (const char * i_hexChars, uint32_t i_start = 0, uint32_t i_expectedLength = 0);
 
   /**
    * @brief Convert data from a binary string and insert it into this data buffer
@@ -698,7 +701,7 @@ public:
    * @retval non-zero on failure
 
    */
-  int insertFromBin (const char * i_binChars, int i_start = 0);
+  uint32_t insertFromBin (const char * i_binChars, uint32_t i_start = 0);
 
   //@}
 
@@ -711,14 +714,14 @@ public:
    * @brief Check Entire buffer for any X-state values
    * @retval 1 if xstate found 0 if none
    */
-  int   hasXstate(); /* check the whole DataBuffer */
+  uint32_t   hasXstate() const; /* check the whole DataBuffer */
   /**
    * @brief Check section of buffer for any X-state values
    * @param i_start Start bit to test
    * @param i_length Number of consecutive bits to test
    * @retval 1 if xstate found 0 if none
    */
-  int   hasXstate(int i_start, int i_length); /* check subset */
+  uint32_t   hasXstate(uint32_t i_start, uint32_t i_length) const; /* check subset */
 
   /**
    * @brief Retrieve an Xstate value from the buffer
@@ -726,21 +729,21 @@ public:
 
    * NOTE - To retrieve multiple bits use genXstateStr
    */
-  char  getXstate(int i_bit);
+  char  getXstate(uint32_t i_bit) const;
 
   /**
    * @brief Set an Xstate value in the buffer
    * @param i_bit Bit to set
    * @param i_value Xstate value to set
    */
-  void setXstate(int i_bit, char i_value);
+  void setXstate(uint32_t i_bit, char i_value);
 
   /**
    * @brief Set a range of Xstate values in buffer
    * @param i_bitoffset bit in buffer to start inserting
    * @param i_datastr Character value to set bit - can be "0XX0", "1", "X"
    */
-  void  setXstate(int i_bitoffset, const char* i_datastr); 
+  void  setXstate(uint32_t i_bitoffset, const char* i_datastr); 
 
   /**
    * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
@@ -748,14 +751,14 @@ public:
    * @param i_bytes Byte length to copy (char length)
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    */
-  void  memCopyInXstate(const char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  void  memCopyInXstate(const char * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
    * @brief Copy DataBuffer into supplied char buffer from Xstate data
    * @param o_buf Buffer to copy into - must be pre-allocated
    * @param i_bytes Byte length to copy (char length)
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    */
-  void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  void  memCopyOutXstate(char * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   //@}
 
@@ -784,18 +787,18 @@ public:
   //@}
 
 
-private:  //data
-  int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords
-  int iv_NumWords;              ///< Specified buffer size rounded to next word
-  int iv_NumBits;               ///< Specified buffer size in bits
+protected:  //data
+  uint32_t iv_Capacity;         ///< Actual buffer capacity - always >= iv_NumWords
+  uint32_t iv_NumWords;         ///< Specified buffer size rounded to next word
+  uint32_t iv_NumBits;          ///< Specified buffer size in bits
   uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
   uint32_t * iv_RealData;       ///< Real buffer - with header and tail
 
 
-private: //methods
+protected: //methods
 
 
-private:
+protected:
 #ifndef REMOVE_SIM
   char* iv_DataStr; /* binary or x data */
   void fillDataStr(char fillChar);
@@ -805,5 +808,3 @@ private:
 
 
 #endif  /* ecmdDataBuffer_H */
-
-    

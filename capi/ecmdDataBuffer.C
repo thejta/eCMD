@@ -66,14 +66,14 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 #endif
 }
 
-ecmdDataBuffer::ecmdDataBuffer(int numWords)
+ecmdDataBuffer::ecmdDataBuffer(uint32_t numBits)
 : iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
 #endif
-  if (numWords > 0)
-    setWordLength(numWords);
+  if (numBits > 0)
+    setBitLength(numBits);
 
 }
 
@@ -87,7 +87,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
   if (other.iv_NumBits != 0) {
 
     this->setBitLength(other.iv_NumBits);
-    for (int i = 0; i < iv_NumWords; i++) 
+    for (uint32_t i = 0; i < iv_NumWords; i++) 
       iv_Data[i] = other.iv_Data[i];
 
 
@@ -132,23 +132,23 @@ ecmdDataBuffer::~ecmdDataBuffer()
 //---------------------------------------------------------------------
 //  Public Member Function Specifications
 //---------------------------------------------------------------------
-int   ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
-int   ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
-int   ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}
-int   ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
+uint32_t   ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
+uint32_t   ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
+uint32_t   ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}
+uint32_t   ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
 
-void  ecmdDataBuffer::setWordLength(int newNumWords) {
+void  ecmdDataBuffer::setWordLength(uint32_t newNumWords) {
 
   setBitLength(newNumWords * 32);
 
 }  
 
-void  ecmdDataBuffer::setBitLength(int newNumBits) {
+void  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
 
   if (newNumBits == iv_NumBits)
     return;  /* nothing to do */
 
-  int newNumWords = newNumBits % 32 ? newNumBits / 32 + 1 : newNumBits / 32;
+  uint32_t newNumWords = newNumBits % 32 ? newNumBits / 32 + 1 : newNumBits / 32;
   uint32_t randNum = 0x12345678;
 
   iv_NumWords = newNumWords;
@@ -195,7 +195,7 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
 }  
 
-void ecmdDataBuffer::setCapacity (int newCapacity) {
+void ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
 
   /* only resize to make the capacity bigger */
   if (iv_Capacity < newCapacity) {
@@ -227,7 +227,7 @@ void ecmdDataBuffer::setCapacity (int newCapacity) {
 
 }
 
-void  ecmdDataBuffer::setBit(int bit) {
+void  ecmdDataBuffer::setBit(uint32_t bit) {
   if (bit >= iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::setBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
   } else {
@@ -239,17 +239,17 @@ void  ecmdDataBuffer::setBit(int bit) {
   }
 }
 
-void  ecmdDataBuffer::setBit(int bit, int len) {
+void  ecmdDataBuffer::setBit(uint32_t bit, uint32_t len) {
   if (bit+len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return;
   } else {
-    for (int idx = 0; idx < len; idx ++) this->setBit(bit + idx);    
+    for (uint32_t idx = 0; idx < len; idx ++) this->setBit(bit + idx);    
   }
 }
 
 
-void ecmdDataBuffer::writeBit(int i_bit, int i_value) {
+void ecmdDataBuffer::writeBit(uint32_t i_bit, uint32_t i_value) {
   if (i_value) setBit(i_bit);
   else clearBit(i_bit);
 }
@@ -257,7 +257,7 @@ void ecmdDataBuffer::writeBit(int i_bit, int i_value) {
 
 
 
-void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
+void  ecmdDataBuffer::setWord(uint32_t wordOffset, uint32_t value) {
 
   if (wordOffset >= iv_NumWords) {
     printf("**** ERROR : ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)\n", wordOffset, iv_NumWords);
@@ -282,7 +282,7 @@ void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
   }
 }
 
-void  ecmdDataBuffer::setByte(int byteOffset, uint8_t value) {
+void  ecmdDataBuffer::setByte(uint32_t byteOffset, uint8_t value) {
 
   if (byteOffset >= getByteLength()) {
     printf("**** ERROR : ecmdDataBuffer::setByte: byteOffset %d >= NumBytes (%d)\n", byteOffset, getByteLength());
@@ -311,9 +311,9 @@ void  ecmdDataBuffer::setByte(int byteOffset, uint8_t value) {
   }
 }
 
-uint8_t ecmdDataBuffer::getByte(int byteOffset) {
-  if (byteOffset > getByteLength()-1) {
-    printf("**** ERROR : ecmdDataBuffer::getByte: byteOffset %d > NumBytes-1 (%d)\n", byteOffset, getByteLength()-1);
+uint8_t ecmdDataBuffer::getByte(uint32_t byteOffset) const {
+  if (byteOffset >= getByteLength()) {
+    printf("**** ERROR : ecmdDataBuffer::getByte: byteOffset %d >= NumBytes (%d)\n", byteOffset, getByteLength());
     return 0;
   }
 #if defined (i386)
@@ -324,7 +324,7 @@ uint8_t ecmdDataBuffer::getByte(int byteOffset) {
 }
 
 
-void  ecmdDataBuffer::clearBit(int bit) {
+void  ecmdDataBuffer::clearBit(uint32_t bit) {
   if (bit >= iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
   } else {  
@@ -336,15 +336,15 @@ void  ecmdDataBuffer::clearBit(int bit) {
   }
 }
 
-void  ecmdDataBuffer::clearBit(int bit, int len) {
+void  ecmdDataBuffer::clearBit(uint32_t bit, uint32_t len) {
   if (bit+len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::clearBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
   } else {
-    for (int idx = 0; idx < len; idx ++) this->clearBit(bit + idx);    
+    for (uint32_t idx = 0; idx < len; idx ++) this->clearBit(bit + idx);    
   }
 }
 
-void  ecmdDataBuffer::flipBit(int bit) {
+void  ecmdDataBuffer::flipBit(uint32_t bit) {
   if (bit >= iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
   } else {
@@ -364,18 +364,18 @@ void  ecmdDataBuffer::flipBit(int bit) {
   }
 }
 
-void  ecmdDataBuffer::flipBit(int bit, int len) {
+void  ecmdDataBuffer::flipBit(uint32_t bit, uint32_t len) {
   if (bit+len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::flipBit: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return;
   } else {
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
       this->flipBit(bit+i);
     }
   }
 }
 
-int   ecmdDataBuffer::isBitSet(int bit) {
+uint32_t   ecmdDataBuffer::isBitSet(uint32_t bit) const {
   if (bit >= iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::isBitSet: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
     return 0;
@@ -391,13 +391,13 @@ int   ecmdDataBuffer::isBitSet(int bit) {
   }
 }
 
-int   ecmdDataBuffer::isBitSet(int bit, int len) {
+uint32_t   ecmdDataBuffer::isBitSet(uint32_t bit, uint32_t len) const {
   if (bit+len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::isBitSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return 0;
   } else {
     int rc = 1;
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
       if (!this->isBitSet(bit + i)) {
         rc = 0;
         break;
@@ -407,7 +407,7 @@ int   ecmdDataBuffer::isBitSet(int bit, int len) {
   }
 }
 
-int   ecmdDataBuffer::isBitClear(int bit) {
+uint32_t   ecmdDataBuffer::isBitClear(uint32_t bit) const {
   if (bit >= iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::isBitClear: bit %d >= NumBits (%d)\n", bit, iv_NumBits);
     return 0;
@@ -423,14 +423,14 @@ int   ecmdDataBuffer::isBitClear(int bit) {
   }
 }
 
-int   ecmdDataBuffer::isBitClear(int bit, int len)
+uint32_t   ecmdDataBuffer::isBitClear(uint32_t bit, uint32_t len) const
 {
   if (bit+len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::isBitClear: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return 0;
   } else {
     int rc = 1;
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
       if (!this->isBitClear(bit + i)) {
         rc = 0;
         break;
@@ -440,28 +440,28 @@ int   ecmdDataBuffer::isBitClear(int bit, int len)
   }
 }
 
-int   ecmdDataBuffer::getNumBitsSet(int bit, int len) {
+uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t bit, uint32_t len) const {
   if (bit+len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::getNumBitsSet: bit %d + len %d > NumBits (%d)\n", bit, len, iv_NumBits);
     return 0;
   } else {
     int count = 0;
-    for (int i = bit; i < len; i++) {
+    for (uint32_t i = bit; i < len; i++) {
       if (this->isBitSet(bit)) count++;
     }
     return count;
   }
 }
 
-void   ecmdDataBuffer::shiftRight(int shiftNum) {
+void   ecmdDataBuffer::shiftRight(uint32_t shiftNum) {
 
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
 
-  int i;
+  uint32_t i;
 
   // shift iv_Data array
-  for (int iter = 0; iter < shiftNum; iter++) {
+  for (uint32_t iter = 0; iter < shiftNum; iter++) {
     for (i = 0; i < iv_NumWords; i++) {
 
       if (this->iv_Data[i] & 0x00000001) 
@@ -492,7 +492,7 @@ void   ecmdDataBuffer::shiftRight(int shiftNum) {
 #endif
 }
 
-void   ecmdDataBuffer::shiftLeft(int shiftNum) {
+void   ecmdDataBuffer::shiftLeft(uint32_t shiftNum) {
 
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
@@ -505,7 +505,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
   }
 
   // shift iv_Data array
-  for (int iter = 0; iter < shiftNum; iter++) {
+  for (uint32_t iter = 0; iter < shiftNum; iter++) {
     prevCarry = 0;
     for (i = iv_NumWords-1; i >= 0; i--) {
 
@@ -529,7 +529,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
 #ifndef REMOVE_SIM
   // shift char
   char* temp = new char[iv_NumBits+42];
-  for (i = iv_NumBits - shiftNum - 1; i < iv_NumBits; i++) temp[i] = '0'; // backfill with zeros
+  for (uint32_t j = iv_NumBits - shiftNum - 1; j < iv_NumBits; j++) temp[j] = '0'; // backfill with zeros
   temp[iv_NumBits] = '\0';
   strncpy(temp, &iv_DataStr[shiftNum], iv_NumBits - shiftNum);  
   strcpy(iv_DataStr, temp); // copy back into iv_DataStr
@@ -540,16 +540,16 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
 }
 
 
-void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
+void   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
 
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
 
-  int i, prevlen;
+  uint32_t i, prevlen;
 
   /* We need to verify we have room to do this shifting */
   /* Set our new length */
-  iv_NumWords = ((iv_NumBits + shiftNum) - 1) / 32 + 1;
+  iv_NumWords = (iv_NumBits + shiftNum + 31) / 32;
   if (iv_NumWords > iv_Capacity) {
     /* UhOh we are out of room, have to resize */
     prevlen = iv_Capacity;
@@ -581,14 +581,14 @@ void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
     /* We will do this faster if we are shifting nice word boundaries */
     int numwords = shiftNum / 32;
 
-    for (int witer = iv_NumWords - numwords - 1; witer >= 0; witer --) {
+    for (int witer = (int)iv_NumWords - (int)numwords - 1; witer >= 0; witer --) {
       iv_Data[witer + numwords] = iv_Data[witer];
     }
     /* Zero out the bottom of the array */
     for (int w = 0; w < numwords; w ++) iv_Data[w] = 0;
 
   } else {
-    for (int iter = 0; iter < shiftNum; iter++) {
+    for (uint32_t iter = 0; iter < shiftNum; iter++) {
       for (i = 0; i < iv_NumWords; i++) {
 
         if (this->iv_Data[i] & 0x00000001) 
@@ -622,7 +622,7 @@ void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
 #endif
 }
 
-void   ecmdDataBuffer::shiftLeftAndResize(int shiftNum) {
+void   ecmdDataBuffer::shiftLeftAndResize(uint32_t shiftNum) {
 
   uint32_t thisCarry;
   uint32_t prevCarry = 0x00000000;
@@ -635,9 +635,9 @@ void   ecmdDataBuffer::shiftLeftAndResize(int shiftNum) {
   }
 
   // shift iv_Data array
-  for (int iter = 0; iter < shiftNum; iter++) {
+  for (uint32_t iter = 0; iter < shiftNum; iter++) {
     prevCarry = 0;
-    for (i = iv_NumWords-1; i >= 0; i--) {
+    for (i = (int)iv_NumWords-1; i >= 0; i--) {
 
       if (this->iv_Data[i] & 0x80000000) 
         thisCarry = 0x00000001;
@@ -658,7 +658,7 @@ void   ecmdDataBuffer::shiftLeftAndResize(int shiftNum) {
 
   /* Adjust our lengths based on the shift */
   iv_NumBits -= shiftNum;
-  iv_NumWords = (iv_NumBits - 1) / 32 + 1;
+  iv_NumWords = (iv_NumBits +31) / 32;
   iv_RealData[1] = iv_NumWords;
   iv_RealData[iv_NumWords + 4] = 0x12345678;
 
@@ -673,11 +673,11 @@ void   ecmdDataBuffer::shiftLeftAndResize(int shiftNum) {
 
 }
 
-void  ecmdDataBuffer::rotateRight(int rotateNum) {
+void  ecmdDataBuffer::rotateRight(uint32_t rotateNum) {
 
   int lastBitSet;
   // rotate iv_Data
-  for (int iter = 0; iter < rotateNum; iter++) {
+  for (uint32_t iter = 0; iter < rotateNum; iter++) {
     lastBitSet = this->isBitSet(iv_NumBits-1);   // save the last bit
     this->shiftRight(1);   // right-shift
     if (lastBitSet)    // insert into beginning
@@ -687,11 +687,11 @@ void  ecmdDataBuffer::rotateRight(int rotateNum) {
   }
 }
 
-void  ecmdDataBuffer::rotateLeft(int rotateNum) {
+void  ecmdDataBuffer::rotateLeft(uint32_t rotateNum) {
 
   int firstBitSet;
   // rotate iv_Data
-  for (int iter = 0; iter < rotateNum; iter++) {
+  for (uint32_t iter = 0; iter < rotateNum; iter++) {
     firstBitSet = this->isBitSet(0);   // save the first bit
     this->shiftLeft(1);   // left-shift
     if (firstBitSet)   // insert at the end
@@ -702,17 +702,21 @@ void  ecmdDataBuffer::rotateLeft(int rotateNum) {
 }
 
 void  ecmdDataBuffer::flushTo0() {
-  memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+  if (iv_NumWords > 0) {
+    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
-  this->fillDataStr('0');
+    this->fillDataStr('0');
 #endif
+  }
 }
 
 void  ecmdDataBuffer::flushTo1() {
-  for (int i = 0; i < iv_NumWords; i++) iv_Data[i] = 0xFFFFFFFF;
+  if (iv_NumWords > 0) {
+    for (uint32_t i = 0; i < iv_NumWords; i++) iv_Data[i] = 0xFFFFFFFF;
 #ifndef REMOVE_SIM   
-  this->fillDataStr('1');
+    this->fillDataStr('1');
 #endif
+  }
 }
 
 void ecmdDataBuffer::invert() { 
@@ -741,12 +745,12 @@ void ecmdDataBuffer::reverse() {
   } /* end for */
 }
 
-void ecmdDataBuffer::applyInversionMask(ecmdDataBuffer & i_invMaskBuffer, int i_invByteLen) {
+void ecmdDataBuffer::applyInversionMask(const ecmdDataBuffer & i_invMaskBuffer, uint32_t i_invByteLen) {
   applyInversionMask(i_invMaskBuffer.iv_Data, i_invMaskBuffer.getByteLength());
 }
 
 
-void ecmdDataBuffer::applyInversionMask(uint32_t * i_invMask, int i_invByteLen) {
+void ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t i_invByteLen) {
 
   /* Do the smaller of data provided or size of buffer */
   int wordlen = (i_invByteLen / 4) + 1 < iv_NumWords ? (i_invByteLen / 4) + 1 : iv_NumWords;
@@ -777,30 +781,31 @@ void ecmdDataBuffer::applyInversionMask(uint32_t * i_invMask, int i_invByteLen) 
 }
 
 
-void  ecmdDataBuffer::insert(ecmdDataBuffer &bufferIn, int start, int len) {
-    this->insert(bufferIn.iv_Data, start, len);
+void  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+    this->insert(i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart);
     /* Now apply the Xstate stuff */
 #ifndef REMOVE_SIM   
-    if (start+len <= iv_NumBits) {
-      strncpy(&(iv_DataStr[start]), (bufferIn.genXstateStr(0, len)).c_str(), len);
+    if (i_targetStart+i_len <= iv_NumBits) {
+      strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(0, i_len)).c_str(), i_len);
     }
 #endif
 }
 
-void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
+void  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
 
 
-  if (start+len > iv_NumBits) {
-    printf("**** ERROR : ecmdDataBuffer::insert: start %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
+  if (i_targetStart+i_len > iv_NumBits) {
+    printf("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)\n", i_targetStart, i_len, iv_NumBits);
   } else {
     
-    uint32_t mask = 0x80000000;
-    for (int i = 0; i < len; i++) {
-      if (dataIn[i/32] & mask) {
-        this->setBit(start+i);
+    uint32_t mask = 0x80000000 >> (i_sourceStart % 32);
+    const uint32_t * sourcePtr = i_dataIn;
+    for (uint32_t i = 0; i < i_len; i++) {
+      if (sourcePtr[(i+i_sourceStart)/32] & mask) {
+        this->setBit(i_targetStart+i);
       }
       else { 
-        this->clearBit(start+i);
+        this->clearBit(i_targetStart+i);
       }
 
       mask >>= 1;
@@ -811,11 +816,11 @@ void  ecmdDataBuffer::insert(uint32_t *dataIn, int start, int len) {
   }
 }
 
-void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
-  this->insert(&dataIn, start, len);
+void  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+  this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
 }
 
-void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_len) {
+void  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
 
   int offset = 32 - (i_len % 32);
 
@@ -824,7 +829,7 @@ void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_le
   } else {
     
     uint32_t mask = 0x80000000 >> offset;
-    for (int i = 0; i < i_len; i++) {
+    for (uint32_t i = 0; i < i_len; i++) {
       if (i_datain[(i+offset)/32] & mask) {
         this->setBit(i_start+i);
       }
@@ -840,13 +845,13 @@ void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_le
   }
 
 }
-void  ecmdDataBuffer::insertFromRight(uint32_t i_datain, int i_start, int i_len) {
+void  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
   this->insertFromRight(&i_datain, i_start, i_len);
 }
 
 
 
-void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
+void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint32_t len) const {
 
   if (start + len > iv_NumBits) {
     printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
@@ -866,7 +871,7 @@ void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
 
 }
 
-void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
+void ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len) const {
 
   if (start + len > iv_NumBits) {
     printf( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
@@ -883,7 +888,7 @@ void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {
   }
 }
 
-void ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) {
+void ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const {
 
   this->extract(o_bufferOut, i_start, i_len);
 
@@ -891,7 +896,7 @@ void ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_sta
     o_bufferOut.shiftRightAndResize(32 - i_len);
 }
 
-void ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) {
+void ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const {
 
   this->extract(o_data, i_start, i_len);
 
@@ -899,34 +904,34 @@ void ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uint32_
     *o_data >>= 32 - i_len;
 }
 
-void ecmdDataBuffer::concat(ecmdDataBuffer & i_buf0,
-                            ecmdDataBuffer & i_buf1) {
+void ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
+                            const ecmdDataBuffer & i_buf1) {
 
   this->setBitLength(i_buf0.iv_NumBits + i_buf1.iv_NumBits);
   this->insert(i_buf0, 0, i_buf0.iv_NumBits);
   this->insert(i_buf1, i_buf0.iv_NumBits, i_buf1.iv_NumBits);
 }
 
-void ecmdDataBuffer::concat(ecmdDataBuffer & i_buf0,
-                            ecmdDataBuffer & i_buf1,
-                            ecmdDataBuffer & i_buf2) {
+void ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
+                            const ecmdDataBuffer & i_buf1,
+                            const ecmdDataBuffer & i_buf2) {
   this->setBitLength(i_buf0.iv_NumBits + i_buf1.iv_NumBits + i_buf2.iv_NumBits);
   this->insert(i_buf0, 0, i_buf0.iv_NumBits);
   this->insert(i_buf1, i_buf0.iv_NumBits, i_buf1.iv_NumBits);
   this->insert(i_buf2, i_buf0.iv_NumBits + i_buf1.iv_NumBits, i_buf2.iv_NumBits);
 }
 
-void ecmdDataBuffer::setOr(ecmdDataBuffer& bufferIn, int startBit, int len) {
+void ecmdDataBuffer::setOr(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
   this->setOr(bufferIn.iv_Data, startBit, len);
 }
 
-void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
+void ecmdDataBuffer::setOr(const uint32_t * dataIn, uint32_t startBit, uint32_t len) {
 
   if (startBit + len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
       if (dataIn[i/32] & mask) {
         this->setBit(startBit + i);
       }
@@ -938,21 +943,21 @@ void ecmdDataBuffer::setOr(uint32_t * dataIn, int startBit, int len) {
   }  
 }
 
-void ecmdDataBuffer::setOr(uint32_t dataIn, int startBit, int len) {
+void ecmdDataBuffer::setOr(uint32_t dataIn, uint32_t startBit, uint32_t len) {
   this->setOr(&dataIn, startBit, len);
 }
 
-void ecmdDataBuffer::setXor(ecmdDataBuffer& bufferIn, int startBit, int len) {
+void ecmdDataBuffer::setXor(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
   this->setXor(bufferIn.iv_Data, startBit, len);
 }
 
-void ecmdDataBuffer::setXor(uint32_t * dataIn, int startBit, int len) {
+void ecmdDataBuffer::setXor(const uint32_t * dataIn, uint32_t startBit, uint32_t len) {
 
   if (startBit + len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
       this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
       mask >>= 1;
       if (mask == 0x00000000) {
@@ -962,11 +967,11 @@ void ecmdDataBuffer::setXor(uint32_t * dataIn, int startBit, int len) {
   }  
 }
 
-void ecmdDataBuffer::setXor(uint32_t dataIn, int startBit, int len) {
+void ecmdDataBuffer::setXor(uint32_t dataIn, uint32_t startBit, uint32_t len) {
   this->setXor(&dataIn, startBit, len);
 }
 
-void ecmdDataBuffer::merge(ecmdDataBuffer& bufferIn) {
+void ecmdDataBuffer::merge(const ecmdDataBuffer& bufferIn) {
   if (iv_NumBits != bufferIn.iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", bufferIn.iv_NumBits, iv_NumBits);
   } else {
@@ -974,16 +979,16 @@ void ecmdDataBuffer::merge(ecmdDataBuffer& bufferIn) {
   }
 }
 
-void ecmdDataBuffer::setAnd(ecmdDataBuffer& bufferIn, int startBit, int len) {
+void ecmdDataBuffer::setAnd(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
   this->setAnd(bufferIn.iv_Data, startBit, len);
 }
 
-void ecmdDataBuffer::setAnd(uint32_t * dataIn, int startBit, int len) {
+void ecmdDataBuffer::setAnd(const uint32_t * dataIn, uint32_t startBit, uint32_t len) {
   if (startBit + len > iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)\n", startBit, len, iv_NumBits);
   } else {
     uint32_t mask = 0x80000000;
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
       if (!(dataIn[i/32] & mask)) {
         this->clearBit(startBit + i);
       }
@@ -995,15 +1000,15 @@ void ecmdDataBuffer::setAnd(uint32_t * dataIn, int startBit, int len) {
   }
 }
 
-void ecmdDataBuffer::setAnd(uint32_t dataIn, int startBit, int len) {
+void ecmdDataBuffer::setAnd(uint32_t dataIn, uint32_t startBit, uint32_t len) {
   this->setAnd(&dataIn, startBit, len);
 }
 
-int   ecmdDataBuffer::oddParity(int start, int stop) {
+uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
 
   int charOffset;
   int posOffset;
-  int counter;
+  uint32_t counter;
   int parity = 1;
   uint32_t mask;
 
@@ -1028,14 +1033,14 @@ int   ecmdDataBuffer::oddParity(int start, int stop) {
 
 }
 
-int   ecmdDataBuffer::evenParity(int start, int stop) {
+uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop) const {
   if (this->oddParity(start, stop))
     return 0;
   else
     return 1;
 }
 
-int   ecmdDataBuffer::oddParity(int start, int stop, int insertPos) {
+uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop, uint32_t insertPos) {
   if (this->oddParity(start,stop))
     this->setBit(insertPos);
   else 
@@ -1043,7 +1048,7 @@ int   ecmdDataBuffer::oddParity(int start, int stop, int insertPos) {
   return 0;
 }
 
-int   ecmdDataBuffer::evenParity(int start, int stop, int insertPos) {
+uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop, uint32_t insertPos) {
   if (this->evenParity(start,stop))
     this->setBit(insertPos);
   else
@@ -1051,17 +1056,17 @@ int   ecmdDataBuffer::evenParity(int start, int stop, int insertPos) {
   return 0;
 }
 
-uint32_t ecmdDataBuffer::getWord(int wordOffset) {
-  if (wordOffset > iv_NumWords-1) {
-    printf("**** ERROR : ecmdDataBuffer::getWord: wordOffset %d > NumWords-1 (%d)\n", wordOffset, iv_NumWords-1);
+uint32_t ecmdDataBuffer::getWord(uint32_t wordOffset) const {
+  if (wordOffset >= iv_NumWords) {
+    printf("**** ERROR : ecmdDataBuffer::getWord: wordOffset %d >= NumWords (%d)\n", wordOffset, iv_NumWords);
     return 0;
   }
   return this->iv_Data[wordOffset];
 }
 
-std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
+std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const {
 
-  int tempNumWords = (bitLen - 1)/32 + 1;
+  int tempNumWords = (bitLen + 31) / 32;
   std::string ret;
 
   char cPtr[10];
@@ -1076,7 +1081,7 @@ std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
     ret.append(cPtr);
   }
 
-  int overCount = (32*tempNumWords - bitLen) / 4;
+  int overCount = (int)(32*tempNumWords - bitLen) / 4;
 
   if (overCount > 0) {
     ret.erase(ret.length() - overCount, ret.length()-1);
@@ -1092,7 +1097,7 @@ std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
   return ret;
 }
 
-std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
+std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) const {
 
   /* Do gen a hex right string, we just shift the data right to nibble align and then do a genHexLeft - tricky eh */
   int shiftAmt = bitLen % 4 ? 4 - (bitLen % 4) : 0;
@@ -1117,9 +1122,9 @@ std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
   return ret;
 }
 
-std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
+std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 
-  int tempNumWords = (bitLen - 1)/32 + 1;
+  int tempNumWords = (bitLen + 31) / 32;
   std::string ret;
   /* extract iv_Data */
   uint32_t* tempData = new uint32_t[tempNumWords];
@@ -1127,7 +1132,7 @@ std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
   uint32_t mask = 0x80000000;
   int curWord = 0;
 
-  for (int w = 0; w < bitLen; w++) {
+  for (uint32_t w = 0; w < bitLen; w++) {
     if (tempData[curWord] & mask) {
       ret.append("1");
     }
@@ -1156,7 +1161,7 @@ std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
   return ret;
 }
 
-std::string ecmdDataBuffer::genXstateStr(int start, int bitLen) { 
+std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const {
   std::string ret;
 #ifndef REMOVE_SIM
   char * copyStr = new char[bitLen + 4];
@@ -1172,12 +1177,12 @@ std::string ecmdDataBuffer::genXstateStr(int start, int bitLen) {
   return ret;
 }
 
-std::string ecmdDataBuffer::genHexLeftStr() { return this->genHexLeftStr(0, iv_NumBits); }
-std::string ecmdDataBuffer::genHexRightStr() { return this->genHexRightStr(0, iv_NumBits); }
-std::string ecmdDataBuffer::genBinStr() { return this->genBinStr(0, iv_NumBits); }
-std::string ecmdDataBuffer::genXstateStr() { return this->genXstateStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genHexLeftStr() const { return this->genHexLeftStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genHexRightStr() const { return this->genHexRightStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genBinStr() const { return this->genBinStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
 
-int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int length) {
+uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t start, uint32_t length) {
   int rc = ECMD_SUCCESS;
   int i;
 
@@ -1218,7 +1223,7 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   return rc;
 }
 
-int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int expectedLength) {
+uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t start, uint32_t expectedLength) {
   int rc = ECMD_SUCCESS;
   ecmdDataBuffer insertBuffer;
   int bitlength = expectedLength == 0 ? strlen(i_hexChars) * 4 : expectedLength;
@@ -1229,10 +1234,10 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int 
   }
 
   /* Number of valid nibbles */
-  int nibbles = bitlength % 4 ? bitlength / 4 + 1 : bitlength / 4;
+  uint32_t nibbles = bitlength % 4 ? bitlength / 4 + 1 : bitlength / 4;
 
   /* If they provided us more data then we expect we will have to offset into the data to start reading */
-  int dataOverFlowOffset = strlen(i_hexChars) > nibbles ? strlen(i_hexChars) - nibbles : 0;
+  uint32_t dataOverFlowOffset = strlen(i_hexChars) > nibbles ? strlen(i_hexChars) - nibbles : 0;
 
   /* First we will insert it as if it is left aligned , then we will just shift it over */
 
@@ -1260,7 +1265,7 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int 
   return rc;
 }
 
-int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
+uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t start) {
   int rc = ECMD_SUCCESS;
 
   int strLen = strlen(i_binChars);
@@ -1279,7 +1284,7 @@ int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
   return rc;
 }
 
-void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
+void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) const {
 
   newCopy.setBitLength(iv_NumBits);
 
@@ -1311,7 +1316,7 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
 }
 
 
-void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+void  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   int cbytes = bytes < getByteLength() ? bytes : getByteLength();
   if (cbytes == 0) {
@@ -1323,7 +1328,7 @@ void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy fro
 #endif
   }
 }
-void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+void  ecmdDataBuffer::memCopyOut(uint32_t* buf, uint32_t bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   int cbytes = bytes < getByteLength() ? bytes : getByteLength();
   if (cbytes == 0) {
     printf("**** ERROR : ecmdDataBuffer: memCopyOut: Copy performed on buffer with length of 0\n");
@@ -1378,7 +1383,7 @@ uint32_t ecmdDataBuffer::flattenSize() const {
   return (iv_Capacity + 2) * 4;
 }
 
-int   ecmdDataBuffer::hasXstate() {  
+uint32_t   ecmdDataBuffer::hasXstate() const {
 #ifdef REMOVE_SIM
   printf( "**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration\n");
   return 0;
@@ -1387,15 +1392,15 @@ int   ecmdDataBuffer::hasXstate() {
 #endif
 }
 
-int   ecmdDataBuffer::hasXstate(int start, int length) {
+uint32_t   ecmdDataBuffer::hasXstate(uint32_t start, uint32_t length) const {
 #ifdef REMOVE_SIM
   printf("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration\n");
   return 0;
 #else
-  int stopBit = start + length;
-  int minStop = iv_NumBits < stopBit ? iv_NumBits : stopBit; /* pick the smallest */
+  uint32_t stopBit = start + length;
+  uint32_t minStop = iv_NumBits < stopBit ? iv_NumBits : stopBit; /* pick the smallest */
 
-  for (int i = start; i < minStop; i++) {
+  for (uint32_t i = start; i < minStop; i++) {
     if (iv_DataStr[i] != '0' && iv_DataStr[i] != '1')
       return 1;
   }
@@ -1409,7 +1414,7 @@ int   ecmdDataBuffer::hasXstate(int start, int length) {
 
  * NOTE - To retrieve multipe bits use genXstateStr
  */
-char ecmdDataBuffer::getXstate(int i_bit) {
+char ecmdDataBuffer::getXstate(uint32_t i_bit) const {
 #ifdef REMOVE_SIM
   printf("**** ERROR : ecmdDataBuffer: getXstate: Not defined in this configuration");
   return '0';
@@ -1426,7 +1431,7 @@ char ecmdDataBuffer::getXstate(int i_bit) {
  * @brief Set an Xstate value in the buffer
  * @param i_bit Bit to set
  */
-void ecmdDataBuffer::setXstate(int i_bit, char i_value) {
+void ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value) {
 #ifdef REMOVE_SIM
   printf("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
 
@@ -1452,7 +1457,7 @@ void ecmdDataBuffer::setXstate(int i_bit, char i_value) {
  * @param i_bitoffset bit in buffer to start inserting
  * @param i_datastr Character value to set bit - can be "0", "1", "X"
  */
-void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
+void ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
 
 #ifdef REMOVE_SIM
   printf("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
@@ -1488,7 +1493,7 @@ void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
  * @param i_buf Buffer to copy from
  * @param i_bytes Byte length to copy (char length)
  */
-void  ecmdDataBuffer::memCopyInXstate(const char * i_buf, int i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+void  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   /* cbytes is equal to the bit length of data */
   int cbytes = i_bytes < getBitLength() ? i_bytes : getBitLength();
@@ -1519,7 +1524,7 @@ void  ecmdDataBuffer::memCopyInXstate(const char * i_buf, int i_bytes) { /* Does
  * @param o_buf Buffer to copy into - must be pre-allocated
  * @param i_bytes Byte length to copy
  */
-void  ecmdDataBuffer::memCopyOutXstate(char * o_buf, int i_bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+void  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
 #ifdef REMOVE_SIM
   printf("**** ERROR : ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
@@ -1537,10 +1542,10 @@ void  ecmdDataBuffer::memCopyOutXstate(char * o_buf, int i_bytes) { /* Does a me
 //---------------------------------------------------------------------
 #ifndef REMOVE_SIM
 void ecmdDataBuffer::fillDataStr(char fillChar) {
-
-  memset(iv_DataStr, fillChar, iv_NumBits);
-  iv_DataStr[iv_NumBits] = '\0';  
-  
+  if (iv_NumWords > 0) {
+    memset(iv_DataStr, fillChar, iv_NumBits);
+    iv_DataStr[iv_NumBits] = '\0';  
+  }
 }
 #endif
 
@@ -1573,7 +1578,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
     }
     else {
       uint32_t mask = 0x80000000;
-      for (int i = 0; i < numToFetch; i++, mask >>= 1) {
+      for (uint32_t i = 0; i < numToFetch; i++, mask >>= 1) {
         if ( (myData & mask) != (otherData & mask) ) {
           return 0;
         }
@@ -1631,7 +1636,7 @@ void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to
   uint32_t mask2;
   uint32_t offset;
   uint32_t index; 
-  int   count; 
+  uint32_t count; 
 
   /*------------------------------------------------------------------*/
   /* calculate number of fws (32-bit pieces) of the destination buffer*/
@@ -1644,7 +1649,7 @@ void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to
     return;
   }
 
-  count = ((num_bits_to_extract-1)/32) + 1;
+  count = (num_bits_to_extract + 31) / 32;
 
   for /* all 32-bit (or < 32 bits) pieces of the destination buffer */
     (i = 0; i < count; i++)
@@ -1767,7 +1772,8 @@ void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
 {
 #if defined (i386)
   char *tmp = (char *) dest, *s = (char *) src;
-  int remainder = 0, whole_num = 0;
+  int remainder = 0;
+  uint32_t whole_num = 0;
 
   remainder = count % 4;
   whole_num = count - remainder;
