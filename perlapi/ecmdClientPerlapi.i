@@ -72,8 +72,28 @@
   $1 = &dvalue;
 }
 
+%typemap(in) int *o_width (int dvalue),int &o_width (int dvalue)  {
+  SV *tempsv;
+  if (!SvROK($input)) {
+    SWIG_croak("ecmdClientPerlapi.i::expected a reference");
+  }
+  tempsv = SvRV($input);
+  if (!SvIOK(tempsv)) {
+    SWIG_croak("ecmdClientPerlapi.i::expected a integer reference");
+  }
+  dvalue = SvIV(tempsv);
+  $1 = &dvalue;
+}
+
 
 %typemap(argout) int *o_matchs, int &o_matchs {
+  SV *tempsv;
+  tempsv = SvRV($input);
+  if (!$1) SWIG_croak("ecmdClientPerlapi.i::expected a reference");
+  sv_setiv(tempsv, (IV) *$1);
+}
+
+%typemap(argout) int *o_width, int &o_width {
   SV *tempsv;
   tempsv = SvRV($input);
   if (!$1) SWIG_croak("ecmdClientPerlapi.i::expected a reference");
