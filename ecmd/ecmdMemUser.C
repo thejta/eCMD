@@ -60,7 +60,7 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_MEM_DA_TYPE memMode) {
+uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -177,7 +177,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_MEM_DA_TYPE memMode) {
   return rc;
 }
 
-uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_MEM_DA_TYPE memMode) {
+uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
