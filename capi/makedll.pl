@@ -150,12 +150,14 @@ while (<IN>) {
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
 		    $printout .= "  if (ecmdClientDebug >= 9) {\n";
+		    $printout .= "     std::vector< void * > args;\n";
 
-		    $printout .= "//    ecmdFunctionParmPrinter(FUNCTIONIN,\"$type $orgfuncname(@argnames)\"";
+
+#		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\"";
 
 		    #
-		    my $pp_argstring;
-		    my $pp_typestring;
+#		    my $pp_argstring;
+#		    my $pp_typestring;
 		    foreach my $curarg (@argnames) {
 
 			my @pp_argsplit = split /\s+/, $curarg;
@@ -169,15 +171,16 @@ while (<IN>) {
 			    $tmptypestring .= "[]";
 			}
 
-			$pp_typestring .= $tmptypestring . ", ";
-			$pp_argstring .= $tmparg . ", ";
+#			$pp_typestring .= $tmptypestring . ", ";
+#			$pp_argstring .= $tmparg . ", ";
+			$printout .= "     args.push_back((void*) &" . $tmparg . ");\n";
 		    }
 
-		    chop ($pp_typestring, $pp_argstring);
-		    chop ($pp_typestring, $pp_argstring);
-
-		    $printout .= "," . $pp_argstring . ");\n\n";
-		    #	    
+#		    chop ($pp_typestring, $pp_argstring);
+#		    chop ($pp_typestring, $pp_argstring);
+#		    $printout .= "," . $pp_argstring . ");\n\n";
+		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
+		    
 		    $printout .= "  }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 
@@ -276,15 +279,21 @@ while (<IN>) {
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
 		    $printout .= "  if (ecmdClientDebug >= 9) {\n";
+		    $printout .= "     std::vector< void * > args;\n";
 
-		    $printout .= "//    ecmdFunctionParmPrinter(FUNCTIONOUT,\"$type $orgfuncname(@argnames)\"";
 		    #
-		    my $pp_argstring;
-		    my $pp_typestring;
+#		    my $pp_argstring;
+#		    my $pp_typestring;
 
-		    if($type_flag != $VOID) {
-			$printout .= ",rc";
-		    }
+		    @argnames = split /,/ , $args;
+
+                    #remove the default initializations
+                    foreach my $i (0..$#argnames) {
+                       if ($argnames[$i] =~ /=/) {
+                          $argnames[$i] =~ s/=.*//;
+		       }
+	            }
+	            $" = ",";
 
 		    foreach my $curarg (@argnames) {
 
@@ -299,14 +308,15 @@ while (<IN>) {
 			    $tmptypestring .= "[]";
 			}
 
-			$pp_typestring .= $tmptypestring . ", ";
-			$pp_argstring .= $tmparg . ", ";
+#			$pp_typestring .= $tmptypestring . ", ";
+#			$pp_argstring .= $tmparg . ", ";
+			$printout .= "     args.push_back((void*) &" . $tmparg . ");\n";
 		    }
 
-		    chop ($pp_typestring, $pp_argstring);
-		    chop ($pp_typestring, $pp_argstring);
+#		    chop ($pp_typestring, $pp_argstring);
+#		    chop ($pp_typestring, $pp_argstring);
 
-		    $printout .= "," . $pp_argstring . ");\n\n";
+		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
 		    #	    
 		    $printout .= "  }\n";
 		} # end if there are no args
