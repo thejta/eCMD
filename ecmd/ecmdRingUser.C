@@ -143,6 +143,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     for (int i = 1; i < argc; i++) {
 
       std::string ringName = argv[i];
+      transform(ringName.begin(), ringName.end(), ringName.begin(), tolower);
+
 
       /* find scandef file */
       std::string scandefFile;
@@ -255,8 +257,10 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         }
         /* Can we find the ring we are looking for on this line */
-        else if ((curLine[0] == 'N') && (curLine.find(ringName) != std::string::npos)) {
+        else if ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos)) {
           ecmdParseTokens(curLine, " \t\n=", splitArgs);
+          /* Push the ring name to lower case */
+          transform(splitArgs[1].begin(), splitArgs[1].end(), splitArgs[1].begin(), tolower);
           if ((splitArgs.size() >= 2) && splitArgs[1] == ringName)
             found = true;
         }
