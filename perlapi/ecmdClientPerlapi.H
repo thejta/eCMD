@@ -172,7 +172,6 @@ class ecmdClientPerlapi
      @param i_startBit Startbit in latchname to fetct data
      @param i_numBits Number of bits to fetch from startbit
      @param i_ringName Name of ring to search for latch if == "", entire scandef is searched
-     @param i_mode LatchName search mode
 
      NOTE : This function is ring cache enabled
 

@@ -54,7 +54,7 @@ endif
 ifeq (${OS},AIX)
   SUBDIR    := aix/
 # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
+  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC_r.6002
   ifeq (${SITE},apd.pok.ibm.com)
     CC      := xlC_r
   endif
@@ -62,7 +62,7 @@ ifeq (${OS},AIX)
     CC      := xlC_r
   endif
 # And the Shared Lib linker - same rules as above
-  LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
+  LD      := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib_r
   ifeq (${SITE},awd.austin.ibm.com)
     LD      := /usr/vacpp/bin/makeC++SharedLib_r
   endif
