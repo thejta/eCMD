@@ -23,7 +23,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <inttypes.h>
-#include <vector>  /* For STL vector */
+#include <vector.h>  /* For STL vector */
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -35,25 +35,23 @@
 
 #define ECMD_CAPI_VERSION ".1"          ///< eCMD API Version
 
-#define ECMD_MAX_CHIP_TYPE_LENGTH 15    ///< @see ecmdChipTarget
 
 
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              willsj Initial Creation
-//
-// End Change Log *****************************************************
 
 /**
  @brief Structure used to designate which cec object you would like the function to operate on
 
+  - The valid bits are used by D/A functions to tell the calling function what level of granularity the function operates on
+    Ex.  putmem/getmem display memory through the processor, they are only dependent on cage/node/pos because they do not use
+          the cores to perform their function
+         However put/getspr display architected registers from the processor, they will signify that cage/node/pos/core and depending
+          on the particular spr referenced threads may be valid
+  - The valid bits are used slightly differently for the queryFunctions they are used there to signify the
+     what data coming in is valid to refine a query
 */
 struct ecmdChipTarget {
 
-  char chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  ///< name of chip to access
+  string chipType;///< name of chip to access
 
   uint32_t cage;  ///< cage that contains node with chip
   uint32_t node;  ///< node that contains chip
@@ -61,20 +59,22 @@ struct ecmdChipTarget {
   uint32_t core;  ///< which core on chip to access, if chip is multi-core
   uint32_t thread; ///< which thread on chip to access, if chip is multi-threaded
 
-  uint8_t cageLoopValid;  ///< Tell the calling function that this function operates at a cage level
-  uint8_t nodeLoopValid;  ///< Tell the calling function that this function operates at a node level
-  uint8_t posLoopValid;   ///< Tell the calling function that this function operates at a pos level
-  uint8_t coreLoopValid;  ///< Tell the calling function that this function operates at a core level
-  uint8_t threadLoopValid; ///< Tell the calling function that this function operates at a thread level
-  uint8_t loopValidChecked;  ///< Flag that indicates that we have signaled to the user level how to loop 
+  uint8_t cageValid;  ///< cage variable is valid
+  uint8_t nodeValid;  ///< cage variable is valid
+  uint8_t posValid;   ///< cage variable is valid
+  uint8_t coreValid;  ///< cage variable is valid
+  uint8_t threadValid; ///< cage variable is valid
+  uint8_t ValidChecked;  ///< valid bits are valid 
 };
 
 
 
-
+/**
+ @brief Used in ecmdChipData to describe the interface macro used by the chip
+*/
 typedef enum {
-  ECMD_INTERFACE_ACCESS,
-  ECMD_INTERFACE_CFAM
+  ECMD_INTERFACE_ACCESS,        ///< Standard Jtag Rochester Access Macro
+  ECMD_INTERFACE_CFAM           ///< CommonFirmwareAccessMacro - Fsi interface
 } ecmdChipInterfaceType_t;
 
 /**
@@ -89,10 +89,12 @@ struct ecmdCoreData {
  @brief Used for the ecmdQueryConfig function to return chip data
 */
 struct ecmdChipData {
-  char     chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  ///< name of chip
+  string   chipType;            ///< name of chip
   uint32_t pos;                 ///< Position of this entry
   uint8_t  numProcCores;        ///< Number of cores this entry supports - only valid for Processor compute cores
   uint32_t chipEc;              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id)
+  ecmdChipInterfaceType_t interfaceType; ///< Interface Macro used by the chip
+  uint32_t chipFlags;           ///< Various additional info about the chip - bitmask of defines
   vector<ecmdCoreData> coreData;///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
@@ -110,6 +112,47 @@ struct ecmdNodeData {
 struct ecmdCageData {
   uint32_t cageId;                ///< Cage number of this entry
   vector<ecmdNodeData> nodeData;  ///< Vector of all nodes requested in this cage - in numerical order by nodeId
+};
+
+
+/**
+ @brief Used for the ecmdQueryRing function to return ring info
+*/
+struct ecmdRingData {
+  vector<string> ringNames;      ///< Names used to reference this ring
+  uint32_t address;              ///< Address modifier
+  int bitLength;                 ///< length of ring
+};
+
+/**
+ @brief Used for the ecmdQueryArray function to return array info
+*/
+struct ecmdArrayData {
+  string arrayName;      ///< Names used to reference this ring
+  int length;            ///< length of array
+  int width;             ///< width of array
+};
+
+
+/**
+ @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData
+*/
+typedef enum {
+  ECMD_SPYTYPE_ALIAS,   ///< Spy is an alias
+  ECMD_SPYTYPE_IDIAL,   ///< Spy is an iDial
+  ECMD_SPYTYPE_EDIAL,   ///< Spy is an eDial
+  ECMD_SPYTYPE_ECC      ///< Spy is an eccdef - do we need this ?
+} ecmdSpyType_t;
+
+/**
+ @brief Used for the ecmdQuerySpy function to return spy info
+*/
+struct ecmdSpyData {
+  string spyName;        ///< Names used to reference this ring
+  int bitLength;         ///< length of spy
+  ecmdSpyType spyType;   ///< Type of spy - do we need this ?
+  
+  vector<string> enums;  ///< Possible enum values for Spy - can GFW provide this?
 };
 
 
