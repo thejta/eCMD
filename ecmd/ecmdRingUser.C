@@ -12,6 +12,7 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
+/* $Header$ */
 
 // Module Description **************************************************
 //
@@ -302,8 +303,9 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   std::list<ecmdLatchInfo>::iterator latchit;
   ecmdLatchBufferEntry curEntry;
+  char* expectDataPtr = NULL;
 
-  if (ecmdParseOption(&argc, &argv, "-exp")) {
+  if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
   }
 
@@ -332,26 +334,20 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-#if 0
-  ecmdDataBuffer * expected = NULL;  //don't want to allocate this unless I have to
+  ecmdDataBuffer expected; 
 
   if (expectFlag) {
-    int argLength = argc - 4;  //account for chip, ringname, startbit, and numbits args args
-    expected = new ecmdDataBuffer(argLength);
-
-    for (int i = 0; i < argLength; i++) {
-      expected->insertFromHexLeft(argv[i+4], i * 32, 32);
-    }
-
+    /* Grab the data for the expect */
+    expected.setBitLength(strlen(expectDataPtr) * 4);
+    expected.insertFromHexLeft(expectDataPtr);
   }
-  else if (argc > 4) {
-    ecmdOutputError("getbits - Too many arguments specified; you probably added an option that wasn't recognized.\n");
-    ecmdOutputError("getbits - Type 'getbits -h' for usage.\n");
+
+  if (expectFlag && noCompressFlag) {
+    ecmdOutputError("getlatch - Using -exp and -nocompress is not allowed\n");
     return ECMD_INVALID_ARGS;
   }
-#endif
 
-  if (argc < 3) {  //chip + address
+  if (argc < 3) {  //chip + ring + latch
     ecmdOutputError("getlatch - Too few arguments specified; you need at least a chip, ring, and latch name.\n");
     ecmdOutputError("getlatch - Type 'getlatch -h' for usage.");
     return ECMD_INVALID_ARGS;
@@ -375,7 +371,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
     /* We don't allow start and numbits with the -nocompress */
     if (noCompressFlag) {
-      ecmdOutputError("getlatch - Using startbit and numbits is not allowed in combination with the -nocompressflag");
+      ecmdOutputError("getlatch - Using startbit and numbits is not allowed in combination with the -nocompressflag\n");
       return ECMD_INVALID_ARGS;
     }
 
@@ -590,22 +586,32 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
         /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
         if (((dataStartBit != -1) && (curLatchBit != curLatchInfo->latchStartBit) && (curLatchBit != curLatchInfo->latchEndBit)) ||
             ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length())))) {
-//printf("I'm in here dumping things\n");
           /* I have some good data here */
           if (latchname != "") {
-            char temp[20];
-            printed =  latchname;
-            sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
-            printed += temp;
-            buffer.extract(buffertemp, 0, dataEndBit - dataStartBit + 1);
-            if (format == "default") {
-              if (buffer.getBitLength() <= 8)  printed += " 0b" + buffertemp.genBinStr();
-              else printed += " 0x" + buffertemp.genHexLeftStr();
-              printed += "\n";
-            } else {
-              printed += ecmdWriteDataFormatted(buffertemp, format);
+
+                            
+            /* Display this if we aren't expecting or the expect failed */
+            if (!expectFlag || (expectFlag && !ecmdCheckExpected(expected, buffer))) {
+              char temp[20];
+              printed =  latchname;
+              sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
+              printed += temp;
+              buffer.extract(buffertemp, 0, dataEndBit - dataStartBit + 1);
+              if (format == "default") {
+                if (buffertemp.getBitLength() <= 8)  printed += " 0b" + buffertemp.genBinStr();
+                else printed += " 0x" + buffertemp.genHexLeftStr();
+                printed += "\n";
+              } else {
+                printed += ecmdWriteDataFormatted(buffertemp, format);
+              }
+              ecmdOutput( printed.c_str());
+
+              /* They did an expect and we must have failed */
+              if (expectFlag) {
+                ecmdOutputError("getlatch - Data miscompare found\n");
+                return ECMD_EXPECT_FAILURE;
+              }
             }
-            ecmdOutput( printed.c_str());
           }
           /* If this is a fresh one we need to reset everything */
           if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
@@ -624,10 +630,8 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
             curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
           }
         }
-//printf("New Entry : %s : %d:%d\n",latchname.c_str(), curLatchInfo->latchStartBit, curLatchInfo->latchEndBit);
 
         /* Do we want anything in here */
-//printf("fetlen %d : curStartBit %d : curLatchBit %d : curBufferBit %d : curBitsToFetch %d : dataStartBit %d : dataEndBit %d\n",bitsToFetch, curStartBit, curLatchBit, curBufferBit, curBitsToFetch, dataStartBit, dataEndBit);
 
         /* Check if the bits are ordered from:to (0:10) or just (1) */
         if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
@@ -671,7 +675,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
           curStartBit -= curLatchInfo->length;
         }
-//printf("fetlen %d : curStartBit %d : curLatchBit %d : curBufferBit %d : curBitsToFetch %d : dataStartBit %d : dataEndBit %d\n",bitsToFetch, curStartBit, curLatchBit, curBufferBit, curBitsToFetch, dataStartBit, dataEndBit);
       }
     }
 
@@ -680,18 +683,27 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
       char temp[20];
       /* Do we have previous data here , and some missing bits in the scandef latchs ?*/
       if ((curLatchBit != -1)) {
-        printed =  latchname;
-        sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
-        printed += temp;
-        buffer.extract(buffertemp, 0, dataEndBit - dataStartBit + 1);
-        if (format == "default") {
-          if (buffer.getBitLength() <= 8)  printed += " 0b" + buffertemp.genBinStr();
-          else printed += " 0x" + buffertemp.genHexLeftStr();
-          printed += "\n";
-        } else {
-          printed += ecmdWriteDataFormatted(buffertemp, format);
+        /* Display this if we aren't expecting or the expect failed */
+        if (!expectFlag || (expectFlag && !ecmdCheckExpected(expected, buffer))) {
+          printed =  latchname;
+          sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
+          printed += temp;
+          buffer.extract(buffertemp, 0, dataEndBit - dataStartBit + 1);
+          if (format == "default") {
+            if (buffertemp.getBitLength() <= 8)  printed += " 0b" + buffertemp.genBinStr();
+            else printed += " 0x" + buffertemp.genHexLeftStr();
+            printed += "\n";
+          } else {
+            printed += ecmdWriteDataFormatted(buffertemp, format);
+          }
+          ecmdOutput( printed.c_str());
+          /* They did an expect and we must have failed */
+          if (expectFlag) {
+            ecmdOutputError("getlatch - Data miscompare found\n");
+            return ECMD_EXPECT_FAILURE;
+          }
+
         }
-        ecmdOutput( printed.c_str());
       }
     }
   }
@@ -710,12 +722,13 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
   bool expectFlag = false;
   bool xstateFlag = false;
+  char* expectDataPtr = NULL;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   //expect and mask flags check
-  if (ecmdParseOption(&argc, &argv, "-exp")) {
+  if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
   }
 
@@ -772,16 +785,11 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   //container to store data
   ecmdDataBuffer ringBuffer;
   ecmdDataBuffer buffer; 
-  ecmdDataBuffer * expected = NULL;  //don't want to allocate this unless I have to
+  ecmdDataBuffer expected;
 
   if (expectFlag) {
-    int argLength = argc - 4;  //account for chip, ringname, startbit, and numbits args args
-    expected = new ecmdDataBuffer(argLength);
-
-    for (int i = 0; i < argLength; i++) {
-      expected->insertFromHexLeft(argv[i+4], i * 32, 32);
-    }
-
+    expected.setBitLength(strlen(expectDataPtr) * 4);
+    expected.insertFromHexLeft(expectDataPtr);
   }
   else if (argc > 4) {
     ecmdOutputError("getbits - Too many arguments specified; you probably added an option that wasn't recognized.\n");
@@ -821,7 +829,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
     if (expectFlag) {
 
-      if (!ecmdCheckExpected(buffer, *expected)) {
+      if (!ecmdCheckExpected(buffer, expected)) {
 
         //@ make this stuff sprintf'd
         printed =  "Actual            : ";
@@ -829,8 +837,9 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
         ecmdOutputError( printed.c_str() );
 
         printed = "Expected          : ";
-        printed += ecmdWriteDataFormatted(*expected, format);
+        printed += ecmdWriteDataFormatted(expected, format);
         ecmdOutputError( printed.c_str() );
+        return ECMD_EXPECT_FAILURE;
       }
 
     }
@@ -846,11 +855,6 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
       ecmdOutput( printed.c_str() );
     }
 
-  }
-
-  if (expectFlag && expected != NULL) {
-    delete expected;
-    expected = NULL;
   }
 
   if (!validPosFound) {

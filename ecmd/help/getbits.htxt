@@ -22,7 +22,8 @@ Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>]
                         Specify the keyword 'end' to fetch from startPos to end of ring.
 
         -exp [optional] Provide expected data.  Returns error if expected != actual.  No
-                        error/no data returned if expected == actual. 
+                        error/no data returned if expected == actual.  
+                        <data> is left aligned hex
 
         -o<format>[opt] Specifies the format type of both the output and 
                         the expect-value: default 'b'

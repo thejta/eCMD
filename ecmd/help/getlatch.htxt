@@ -39,7 +39,7 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
         -nocompress[opt]Displays Latches as they are broken up in the scandef.
 
         -exp [optional] Provide an expected-value as the last argument. Returns error if
-                        data miscompare, else nothing. Automatically turns on -nop. 
+                        data miscompare, else nothing. Data is hex left aligned
 
         -o<format>[opt] Specifies the format type of both the output and 
                         the expect-value
