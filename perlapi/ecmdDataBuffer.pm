@@ -252,8 +252,9 @@ sub setWord() {
 
 sub getWord() {
   my $self = $_[0];  # Me
+  my $wordNum = @_[1];
 #	a zero is added to the function call because of the way the argument parsing is handled.
-  my $word = $self->genHexLeftStr(0,@_[1]*32, 32);
+  my $word = $self->genHexLeftStr($wordNum*32, 32);
   return $word;
 }
 
@@ -970,7 +971,7 @@ sub genHexLeftStr() {
     printf( "**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
   }
 	
-  if (hasXstate($i_start, $i_bitlen)) {
+  if ($self->hasXstate($i_start, $i_bitlen)) {
     printf("**** ERROR : ecmdDataBuffer.pm::genHexLeftStr: Cannot extract when non-binary (X-State) character present\n");
     return "-1";
   }
@@ -1079,7 +1080,7 @@ sub genHexRightStr() {
     printf( "**** ERROR : ecmdDataBuffer.pm::genHexrightStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
   }
 	
-  if (hasXstate($i_start, $i_bitlen)) {
+  if ($self->hasXstate($i_start, $i_bitlen)) {
     printf("**** ERROR : ecmdDataBuffer.pm::genHexRightStr: Cannot extract when non-binary (X-State) character present\n");
     return "-1";
   }
@@ -1175,7 +1176,7 @@ sub genBinStr() {
   my $i_bitlen = @_[2];
   my $len      = 0;
 
-  if (hasXstate($i_start, $i_bitlen)) {
+  if ($self->hasXstate($i_start, $i_bitlen)) {
     printf("**** WARNING : ecmdDataBuffer.pm::genBinStr: Cannot extract when non-binary (X-State) character present\n");
   }
 
