@@ -120,8 +120,7 @@ uint32_t ecmdDataBuffer::clear() {
       printf("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X\n",iv_RealData[0],iv_RealData[1],iv_NumWords);
       printf("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + 4]: %X\n",iv_RealData[3],iv_RealData[iv_NumWords + 4]);
       printf("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/TAIL\n");
-      rc = ECMD_DBUF_BUFFER_OVERFLOW;
-      exit(rc);
+      abort();
     }
 
     /* That looked okay, reset everything else */
