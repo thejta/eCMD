@@ -1125,14 +1125,14 @@ int main (int argc, char *argv[])
 
     // We will dump all the idregs 
     rc = getRing(target, "idreg", data);
-    printf("pu: %d  0x%.08X\n", target.pos, data.getWord(0));
+    printf("pu: %d  0x%.08X", target.pos, data.getWord(0));
 
     // Signify that we looped at least once 
     validPosFound = true;
   }
   if (!validPosFound) {
     // We never went into the while loop this means the positions the user selected where not in the system 
-    printf("**** ERROR : Position selected was not valid\n");
+    printf("**** ERROR : Position selected was not valid");
   }
 
 
