@@ -1831,15 +1831,13 @@ std::string ecmdCallFusionCommand(const char* i_fusionObject, const char* i_repl
  Random32BitNumber object, but the user can specify the object's name
  and reuse the same object across multiple clients;
  if no range is specified 0 and MAXINT32 will be used
- @param o_randNum Random number
  @param i_min lower bound for random number
  @param i_max upper bound for random number
  @param i_fusionRandObject name of Fusion random number object to use; 
   if not specified, each this client will get a unique instance of the class
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
+ @retval Random number
  */
-uint32_t simFusionRand32(uint32_t & o_randNum, uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* i_fusionRandObject = NULL);
+uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* i_fusionRandObject = NULL);
 
 /**
  @brief Returns a random 64 bit number in the range [min,max] using the Fusion MasterSeed;
@@ -1847,15 +1845,13 @@ uint32_t simFusionRand32(uint32_t & o_randNum, uint32_t i_min = 0, uint32_t i_ma
  Random64BitNumber object, but the user can specify the object's name
  and reuse the same object across multiple clients;
  if no range is specified 0 and MAXINT64 will be used
- @param o_randNum Random number
  @param i_min lower bound for random number
  @param i_max upper bound for random number
  @param i_fusionRandObject name of Fusion random number object to use; 
   if not specified, each this client will get a unique instance of the class
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
+ @retval Random number
  */
-uint32_t simFusionRand64(uint64_t & o_randNum, uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
+uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
 
 #endif /* ifndef REMOVE_SIM */
 //@}
