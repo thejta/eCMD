@@ -1023,10 +1023,10 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 
   look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
-  if(inOut == ECMD_FPP_FUNCTIONIN) {
+  if((inOut == ECMD_FPP_FUNCTIONIN) || (inOut == ECMD_FPP_JUSTIN)) {
     look4rc =0;
     sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER : ");
-  } else if (inOut == ECMD_FPP_FUNCTIONOUT) {
+  } else if ((inOut == ECMD_FPP_FUNCTIONOUT) || (inOut == ECMD_FPP_JUSTOUT)) {
     look4rc =1;
     sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT  : ");
   } else {
@@ -1043,6 +1043,10 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
   printed += "\n";
   ecmdOutput(printed.c_str());
 
+
+  if((inOut == ECMD_FPP_JUSTIN) || (inOut == ECMD_FPP_JUSTOUT)) {
+    return;
+  }
 
 /* parse the parameters */
   ecmdParseTokens(fprototypeStr, "()", tokens); /* this chops off the leading junk */
@@ -1287,6 +1291,13 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
+
+      if((inOut == ECMD_FPP_FUNCTIONOUT) &&
+         (ecmdClientDebug == 8)          &&
+         (*dummy == 0)                     ) {
+        return;
+      }
+
       ecmdOutput(printed.c_str());
 
     } else if(!strcmp(variableType,"uint64_t")) {
