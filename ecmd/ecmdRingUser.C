@@ -257,7 +257,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       uint32_t bitsToFetch = 0x0FFFFFFF;  // Grab all bits
       int curLatchBit = -1;               // This is the actual latch bit we are looking for next
       int curBufferBit = 0;               // Current bit to insert into buffered register
-      int curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+      uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
       int dataStartBit = -1;              // Actual start bit of buffered register
       int dataEndBit = -1;                // Actual end bit of buffered register
       std::string latchname = "";
