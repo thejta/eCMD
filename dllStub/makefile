@@ -22,7 +22,8 @@ ifeq (${OS},Linux)
   CC := g++
   LD := ${CC}
   TARGET = ecmdDllStub_x86.so
-  LDFLAGS := ${LDFLAGS} -shared  -e dll.exp 
+  LDFLAGS := ${LDFLAGS} -shared  -L../capi/export -lecmd_x86
+  GPATH   := ${SUBDIR}
 endif
 
 # *****************************************************************************
@@ -33,7 +34,7 @@ ifeq (${OS},AIX)
   CC := xlC -+
   LD := makeC++SharedLib
   TARGET = ecmdDllStub_aix.so
-  LDFLAGS := ${LDFLAGS} -e ecmdDllStub_aix.export -p 0
+  LDFLAGS := ${LDFLAGS} -brtl -L../capi/export -lecmd_aix -p 0
   CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
@@ -49,7 +50,7 @@ all: dir ${TARGET}
 	@echo "Exporting eCMD Dll Stub to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 ifeq (${OS},AIX)
-	@cp ecmdDllStub_aix.export export/
+#	@cp ecmdDllStub_aix.export export/
 endif
 
 clean:
