@@ -59,7 +59,7 @@ public:
 
   /**
    * @brief Constructor
-   * @param numBits Size of data to initialize in bits
+   * @param i_numBits Size of data to initialize in bits
    * @post ecmdDataBuffer is initialzed with a buffer
    */
   ecmdDataBuffer(int i_numBits); 
@@ -156,14 +156,14 @@ public:
   void  clearBit(int i_bit);
   /**
    * @brief Clear multiple bits in buffer
-   * @param bit Start bit in buffer to turn off
-   * @param len Number of consecutive bits from start bit to off
+   * @param i_bit Start bit in buffer to turn off
+   * @param i_len Number of consecutive bits from start bit to off
    */
   void  clearBit(int i_bit, int i_len);
 
   /**
    * @brief Invert bit
-   * @param bit Bit in buffer to invert
+   * @param i_bit Bit in buffer to invert
    */
   void  flipBit(int i_bit);
   /**
@@ -225,7 +225,7 @@ public:
   void  shiftLeft(int i_shiftnum);
   /**
    * @brief Rotate data to right
-   * @param o_rotatenum Number of bits to rotate
+   * @param i_rotatenum Number of bits to rotate
    * @post Bits in buffer are rotated to the right by specified number of bits - data is rotated to the beginning
    */
   void  rotateRight(int i_rotatenum);

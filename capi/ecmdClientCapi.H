@@ -369,19 +369,19 @@ int ecmdRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_mess
 
 /**
  @brief Output a message related to an error
- @param message String to output
+ @param i_message String to output
 */
 void ecmdOutputError(const char* i_message);
 
 /**
  @brief Output a message related to an warning
- @param message String to output
+ @param i_message String to output
 */
 void ecmdOutputWarning(const char* i_message);
 
 /**
  @brief Output a message to the screen or logs
- @param message String to output
+ @param i_message String to output
 */
 void ecmdOutput(const char* i_message);
 
