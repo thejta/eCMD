@@ -81,6 +81,7 @@ struct ecmdDllInfo {
   ecmdDllProduct_t      dllProduct;     ///< Dll product supported
   ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
   std::string           dllBuildDate;   ///< Date the Dll was built
+  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
 };
 
 

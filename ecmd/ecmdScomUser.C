@@ -103,6 +103,7 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
@@ -262,6 +263,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
   if (address == 0xFFFFFFFF) {
@@ -450,6 +452,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);

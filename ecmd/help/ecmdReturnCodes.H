@@ -45,6 +45,7 @@
 #define ECMD_DATA_OVERFLOW                      0x1024 ///< To much data was provided to a write function
 #define ECMD_INVALID_RING                       0x1025 ///< Invalid ring name was provided
 #define ECMD_INVALID_ARRAY                      0x1026 ///< Invalid array name was provided
+#define ECMD_INVALID_CONFIG                     0x1027 ///< There was an error processing the configuration information
 
 /* dataBuffer specific return codes */
 #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully

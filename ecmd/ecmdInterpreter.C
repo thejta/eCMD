@@ -64,6 +64,19 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
     switch (argv[0][0]) {
 
         /************************/
+        /* The E's              */
+        /************************/
+      case 'e':
+
+        if (!strcmp(argv[0], "ecmdquery")) {
+          rc = ecmdQueryUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+        /************************/
         /* The G's              */
         /************************/
       case 'g':

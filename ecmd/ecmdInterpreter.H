@@ -71,6 +71,8 @@ int ecmdPutScomUser(int argc, char* argv[]);
 
 int ecmdPollScomUser(int argc, char* argv[]);
 
+int ecmdQueryUser(int argc, char* argv[]);
+
 //@}
 
 
