@@ -30,10 +30,10 @@ endif
 VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
-SOURCE       := ecmdClientPerlapi.C 
+SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g -I../dll
-SWIGFLAGS    := -c++ -perl5 -shadow -I../dll 
+SWIGFLAGS    := -c++ -perl5 -exportall -const -I../dll 
 
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi/export:../ext/${ext}/perlapi)
@@ -59,7 +59,7 @@ SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C)
 ifeq (${OS},Linux)
   SUBDIR    := linux/
   CC        := g++
-  TARGET    := ecmd_x86_perl
+  TARGET    := ecmd
   LD        := ${CC}
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
@@ -92,7 +92,7 @@ ifeq (${OS},AIX)
     LD      := /usr/vacpp/bin/makeC++SharedLib_r
   endif
 
-  TARGET    := ecmd_aix_perl
+  TARGET    := ecmd
   LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
@@ -108,13 +108,11 @@ VPATH     := ${VPATH}:${SUBDIR}
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET}.so ${TARGET}.pm
-	@touch t.o t_x86 t_aix t_ppc
-	@mv *.o ${SUBDIR}
-	@mv *x86* *_aix* *_ppc*  ${SUBDIR}
+	@touch t.o tecmd.so tecmd.pm t_wrap.c
+	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
 	@echo "Exporting eCMD PerlApi to export/ ..."
 	@cp ${SUBDIR}${TARGET}.so export/
 	@cp ${SUBDIR}${TARGET}.pm export/
-	@cp ChipTarget.pm ecmdDataBuffer.pm export/
 ifeq (${OS},AIX)
 	@slibclean
 endif
@@ -122,10 +120,14 @@ endif
 clean:
 	rm -rf ${SUBDIR}
 	rm -f *.o *wrap*
+	rm -f ecmdClientPerlapiFunc.C
 
 dir:
 	@mkdir -p ${SUBDIR}
-	@mkdir -p export
+	@mkdir -p .export-$(shell sys | tr 'A-Z' 'a-z')
+	@rm -rf export
+	@ln -s  ".export-@sys" export
+
 
 
 
@@ -141,19 +143,29 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
+	$(CC) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
-${TARGET}.pm ecmdClientPerlapi_wrap${TARGET}.c: ecmdClientPerlapi.i
-	sed "s/MODULE_NAME/${TARGET}/g" ecmdClientPerlapi.i > ecmdClientPerlApi_new${TARGET}.i
-	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap${TARGET}.c ecmdClientPerlApi_new${TARGET}.i	
+${TARGET}.pm ecmdClientPerlapi_wrap.c: ecmdClientPerlapi.i std_string_ecmd.i operatorOverload.pl
+	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap.c ecmdClientPerlapi.i	
 
-ecmdClientPerlapi_wrap${TARGET}.o: ecmdClientPerlapi_wrap${TARGET}.c
+ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
 	${CC} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
-# Create the Client 
+# Create the Perl Shared Library
 # *****************************************************************************
-${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap${TARGET}.o
+${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o
 	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
 
 
+# *****************************************************************************
+# Autogenerate the Perl Wrapper
+# *****************************************************************************
+ecmdClientPerlapiFunc.C: ecmdClientPerlapi.H makepm.pl 
+	@echo "==== Auto Generate Perl Wrapper Functions"
+	@chmod 777 makepm.pl
+ifeq (${SITE},awd.austin.ibm.com)
+	/afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ecmd
+else
+	./makepm.pl ecmd
+endif
