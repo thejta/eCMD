@@ -36,6 +36,8 @@
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
+#include <ecmdSharedUtils.H>
+
 #undef ecmdCommandUtils_C
 //----------------------------------------------------------------------
 //  User Types
@@ -267,7 +269,7 @@ bool ecmdIsAllHex(const char* str) {
 
 
 std::string ecmdParseReturnCode(uint32_t i_returnCode) {
-  std::string ret;
+  std::string ret = "";
 
   ecmdChipTarget dummy;
   std::string filePath;
@@ -281,13 +283,12 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode) {
   filePath += "ecmdReturnCodes.H";
 
 
-  /* jtw 10/6/03 - code below largely copied from cronusrc.c */
-  char str[800];
-  char num[30];
-  char name[200];
+  std::string line;
+  std::vector< std::string > tokens;
+  std::string source, retdefine;
   int found = 0;
-  char* tempstr = NULL;
-  unsigned int comprc;
+  uint32_t comprc;
+
 
   std::ifstream ins(filePath.c_str());
 
@@ -296,29 +297,56 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode) {
     return ret;
   }
 
+  /* This is what I am trying to parse from ecmdReturnCodes.H */
+
+  /* #define ECMD_ERR_UNKNOWN                        0x00000000 ///< This error code wasn't flagged to which plugin it came from        */
+  /* #define ECMD_ERR_ECMD                           0x01000000 ///< Error came from eCMD                                               */
+  /* #define ECMD_ERR_CRONUS                         0x02000000 ///< Error came from Cronus                                             */
+  /* #define ECMD_ERR_IP                             0x04000000 ///< Error came from IP GFW                                             */
+  /* #define ECMD_ERR_Z                              0x08000000 ///< Error came from Z GFW                                              */
+  /* #define ECMD_INVALID_DLL_VERSION                (ECMD_ERR_ECMD | 0x1000) ///< Dll Version                                          */
+
+
   while (!ins.eof()) { /*  && (strlen(str) != 0) */
-    ins.getline(str,799,'\n');
-    if (!strncmp(str,"#define",7)) {
-      strtok(str," \t");        /* get rid of the #define */
-      tempstr = strtok(NULL," \t");
-      if (tempstr == NULL) continue;
-      strcpy(name,tempstr);
-      tempstr = strtok(NULL," \t");
-      if (tempstr == NULL) continue;
-      strcpy(num,tempstr);
-      sscanf(num,"%x",&comprc);
-      if (comprc == i_returnCode) {
-        ret = name;
-        found = 1;
-        break;
-      }
+    getline(ins,line,'\n');
+    /* Let's strip off any comments */
+    line = line.substr(0, line.find_first_of("/"));
+    ecmdParseTokens(line, " \n()|", tokens);
+
+    /* Didn't find anything */
+    if (line.size() < 2) continue;
+
+    if (tokens[0] == "#define") {
+      /* Let's see if we have one of they return code source defines */
+      if ((tokens.size() == 3) && (tokens[1] != "ECMD_SUCCESS") && (tokens[1] != "ECMD_DBUF_SUCCESS")) {
+        sscanf(tokens[2].c_str(),"0x%x",&comprc);
+        if ((i_returnCode & 0xFF000000) == comprc) {
+          /* This came from this source, we will save that as we may use it later */
+          source = tokens[1];
+        }
+      } else if (i_returnCode & 0xFF000000 != ECMD_ERR_ECMD) {
+        /* We aren't going to find this return code in here since it didn't come from us */
+      } else if (tokens.size() == 4) {
+        /* This is a standard return code define */
+        sscanf(tokens[3].c_str(),"0x%x",&comprc);
+        if ((i_returnCode & 0x00FFFFFF) == comprc) {
+          /* This came from this source, we will save that as we may use it later */
+          retdefine = tokens[1];
+          found = 1;
+          break;
+        }
+      }        
     }
   }
 
   ins.close();
 
-  if (!found) {
+  if (!found && source.length() == 0) {
     ret = "UNDEFINED";
+  } else if (!found) {
+    ret = "UNDEFINED FROM " + source;
+  } else {
+    ret = retdefine;
   }
   return ret;
 }
