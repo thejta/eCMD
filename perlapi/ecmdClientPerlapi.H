@@ -794,7 +794,6 @@ class ecmdClientPerlapi
   private:
     int setupTarget(const char * i_targetStr, ecmdChipTarget & o_target);
 
-    std::string perlFormat;
 };
 
 
