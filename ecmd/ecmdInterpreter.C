@@ -223,6 +223,20 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
 
         /************************/
+        /* The M's              */
+        /************************/
+      case 'm':
+
+        if (!strcmp(argv[0], "makespsystemcall")) {
+          rc = ecmdMakeSPSystemCallUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+
+        /************************/
         /* The P's              */
         /************************/
       case 'p':

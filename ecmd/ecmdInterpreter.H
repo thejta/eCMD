@@ -148,6 +148,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]);
 uint32_t ecmdGetConfigUser(int argc, char * argv[]);
 uint32_t ecmdSetConfigUser(int argc, char * argv[]);
 uint32_t ecmdGetCfamUser(int argc, char* argv[]);
+uint32_t ecmdMakeSPSystemCallUser(int argc, char* argv[]);
 uint32_t ecmdPutCfamUser(int argc, char* argv[]);
 
 //@}
