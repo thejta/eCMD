@@ -1090,6 +1090,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   std::list<ecmdRingData> queryRingData;///< Ring data 
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool printedTarget;                   ///< Have we printed the target out yet?
+  bool foundProblem;                    ///< Did we find a mismatch ?
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1152,6 +1153,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
       ringName = (*curRingData).ringNames.front();
       ringBuffer.setBitLength((*curRingData).bitLength);
+      foundProblem = false;
 
       if (!curRingData->isCheckable && allRingsFlag) {
         curRingData++;
@@ -1223,18 +1225,21 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               if (ringBuffer.isBitSet(bit)) {
                 sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
                 ecmdOutputWarning( outstr );
-                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(target) + "\n";
-                ecmdOutputWarning( printed.c_str() );
+                foundProblem = true;
               }
             } else {
               if (ringBuffer.isBitClear(bit)) {
                 sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
                 ecmdOutputWarning( outstr);
-                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(target) + "\n";
-                ecmdOutputWarning( printed.c_str() );
+                foundProblem = true;
               }
             }
           }
+          if (foundProblem) {
+            printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(target) + "\n";
+            ecmdOutputWarning( printed.c_str() );
+          }
+
         }
 
       }
