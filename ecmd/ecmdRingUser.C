@@ -928,12 +928,228 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
 int ecmdCheckRingsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
+  bool allRingsFlag = false;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 2) {  //chip + address
+    ecmdOutputError("Too few arguments specified; you need at least a chip and a ring.\nType 'checkrings -h' for usage.");
+    return ECMD_INVALID_ARGS;
+  }
+  if (argc > 2) {
+    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'checkrings -h' for usage.");
+    return ECMD_INVALID_ARGS;
+  }
+
+
+  //get chip name
+  ecmdChipTarget target;
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  std::string ringName = argv[1];
+
+  if (ringName == "all")
+    allRingsFlag = true;
+
+  
+  ecmdDataBuffer ringBuffer(1048);  //nice and big
+  std::string printed;
+  char outstr[20];
+  uint32_t pattern0 = 0xAAAA0000;
+  uint32_t pattern1 = 0x5555FFFF;
+  uint32_t pattern = 0x0;
+
+  bool validPosFound = false;
+  rc = ecmdConfigLooperInit(target);
+  if (rc) return rc;
+
+  std::list<ecmdRingData> queryRingData;
+
+  while (ecmdConfigLooperNext(target)) {
+
+    if (allRingsFlag) {
+      rc = ecmdQueryRing(target, queryRingData);
+    }
+    else {
+      rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
+    }
+
+    if (rc) {
+      return rc;
+    }
+
+    std::list<ecmdRingData>::iterator curRingData = queryRingData.begin();
+
+    while (curRingData != queryRingData.end()) {
+
+      ringName = (*curRingData).ringNames.front();
+      ringBuffer.setBitLength((*curRingData).bitLength);
+
+      for (int i = 0; i < 2; i++) {
+
+        if (i % 2) {
+          pattern = pattern0;
+          ringBuffer.flushTo0();
+        }
+        else {
+          pattern = pattern1;
+          ringBuffer.flushTo1();
+        }
+
+        ringBuffer.setWord(0, pattern);  //write the pattern
+
+        rc = putRing(target, ringName.c_str(), ringBuffer);
+        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+          break;
+        }
+        else if (rc) {
+          printed = "Error occured performing putring on ";
+          printed += ecmdWriteTarget(target);
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        }
+        else {
+          validPosFound = true;
+        }
+
+        rc = getRing(target, ringName.c_str(), ringBuffer);
+        if (rc) {
+          printed = "Error occured performing getring on ";
+          printed += ecmdWriteTarget(target);
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        }
+
+        if (ringBuffer.getWord(0) != pattern) {
+          sprintf(outstr, "Pattern: %.8X Data: %.8X\n", pattern, ringBuffer.getWord(0));
+          printed = "Data fetched from ring " + ringName + " did not match ";
+          printed += outstr;
+          printed += "\nError occured performing checkring on " + ecmdWriteTarget(target);
+          ecmdOutputWarning( printed.c_str() );
+        }
+        else if (ringBuffer.isBitSet(32, ringBuffer.getBitLength() - 32)) {
+          if (i % 2) {
+            printed = "Non-zero";
+          }
+          else {
+            printed = "Non-one";
+          }
+          printed += " bits found after pattern in ring " + ringName;
+          printed += "\nError occured performing checkring on " + ecmdWriteTarget(target);
+          ecmdOutputWarning( printed.c_str() );
+        }
+
+      }
+
+      curRingData++;
+    }
+    
+
+
+  }
+  
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
   return rc;
 }
 
 
 int ecmdPutPatternUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
+
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr == NULL) {
+    format = "xr";
+  }
+  else {
+    format = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 3) {  //chip + address
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, and pattern.\nType 'putpattern -h' for usage.");
+    return ECMD_INVALID_ARGS;
+  }
+  if (argc > 3) {
+    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'putpattern -h' for usage.");
+    return ECMD_INVALID_ARGS;
+  }
+
+
+  //get chip name
+  ecmdChipTarget target;
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  std::string ringName = argv[1];
+
+  ecmdDataBuffer buffer(3);
+  rc = ecmdReadDataFormatted(buffer, argv[2], format);
+  if (rc) return rc;
+
+  ecmdDataBuffer ringBuffer(3);
+  std::string printed;
+
+  bool validPosFound = false;
+  rc = ecmdConfigLooperInit(target);
+  if (rc) return rc;
+
+  while (ecmdConfigLooperNext(target)) {
+
+    rc = getRing(target, ringName.c_str(), ringBuffer);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "Error occured performing getring on ";
+      printed += ecmdWriteTarget(target);
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    uint32_t curOffset = 0;
+    uint32_t numBitsToInsert = 0;
+    uint32_t numBitsInRing = ringBuffer.getBitLength();
+    while (curOffset < numBitsInRing) {
+      numBitsToInsert = (32 < numBitsInRing - curOffset) ? 32 : numBitsInRing - curOffset;
+      ringBuffer.insert(buffer, curOffset, numBitsToInsert);
+      curOffset += numBitsToInsert;
+    }
+
+    rc = putRing(target, ringName.c_str(), ringBuffer);
+    if (rc) {
+        printed = "Error occured performing putring on ";
+        printed += ecmdWriteTarget(target);
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
 
   return rc;
 }

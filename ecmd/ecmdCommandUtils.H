@@ -56,14 +56,45 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target);
  */
 int ecmdConfigLooperNext (ecmdChipTarget & io_target);
 
+/**
+ @brief Fetch the detailed chip data structure for the selected target
+ @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
+ @param i_target ecmdChipTarget that information is requested for
+ @param o_data ecmdChipData struct that contains detailed info on chip ec level, etc.
+ */
 int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
+/**
+ @brief Returns a formatted string containing the data in the given ecmdChipTarget
+ @retval String with formatted target data
+ @param i_target ecmdChipTarget containing data to format into string
+ */
 std::string ecmdWriteTarget (ecmdChipTarget & i_target);
 
+/**
+ @brief Reads data from data string into data buffer based on a format type
+ @retval ECMD_SUCCESS if data is well-formatted, non-zero otherwise
+ @param o_data ecmdDataBuffer where data from data string is placed.
+ @param i_dataStr string of characters containing data
+ @param i_format Flag that tells how to parse the data string, e.g., "b" = binary, "x" = hex left
+ */
 int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format);
 
+/**
+ @brief Formats data from data buffer into a string according to format flag and returns the string
+ @retval String of formatted data
+ @param o_data ecmdDataBuffer where data to format is stored
+ @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
+ @param address A base address value that can be used in formating certain data- i.e., data from memory
+ */
 std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address = 0);
 
+/**
+ @brief Compares the two data buffers to see if they contain the same data
+ @retval 1 if match, 0 if mismatch
+ @param i_data The actual data fetched from the chip
+ @param i_expected The user-supplied data to match the fetched data to
+ */
 int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
 
 

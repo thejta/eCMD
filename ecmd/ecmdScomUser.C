@@ -103,7 +103,6 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
@@ -263,7 +262,6 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
   if (address == 0xFFFFFFFF) {
@@ -276,7 +274,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
 
   //parse data to write
   for (int i = 0; i < argc-2; i++) {
-    buffer.insertFromHexRight(argv[i+2], 0, i*32, 32);
+    buffer.insertFromHexRight(argv[i+2], i*32, 32);
   }
 
   ecmdDataBuffer * fetchBuffer = NULL;  //only allocate if I have to
@@ -381,7 +379,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   uint8_t limitFlag = NONE_T;
   uint32_t interval = 5;
   uint32_t maxPolls = 1050;
-  uint32_t numPolls = 0x1;
+  uint32_t numPolls = 1;
   uint32_t timerStart = 0x0;
 
   /************************************************************************/
@@ -423,6 +421,18 @@ int ecmdPollScomUser(int argc, char* argv[]) {
     }
   }
 
+  if (limitFlag != ITERATIONS_T && limitFlag != intervalFlag) {
+    ecmdRegisterErrorMsg(ECMD_INVALID_ARGS, "ecmdPollScom", "Invalid interval/limit pair.\nType 'pollscom -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+#ifdef REMOVE_SIM
+  if (intervalFlag == CYCLES_T) {
+    ecmdRegisterErrorMsg(ECMD_INVALID_ARGS, "ecmdPollScom", "Can't use cycles in non-simulation mode");
+    return ECMD_INVALID_ARGS;
+  }
+#endif
+
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -452,7 +462,6 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
@@ -526,8 +535,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
       /* ------------------------ */
       /* check for last iteration */
       /* ------------------------ */
-      if (limitFlag == ITERATIONS_T && numPolls >= maxPolls) done = 1;
-      else if (limitFlag == CYCLES_T && numPolls > maxPolls) done = 1;
+      if ((limitFlag == ITERATIONS_T || limitFlag == CYCLES_T) && numPolls >= maxPolls) done = 1;
       else if (limitFlag == SECONDS_T && maxPolls != 0 && (time(NULL) > timerStart + maxPolls)) done = 1;
 
       if (expectFlag) {
@@ -585,6 +593,40 @@ int ecmdPollScomUser(int argc, char* argv[]) {
         ecmdOutput( printed.c_str() );
       }
 
+      //update poll counters
+      if (limitFlag == ITERATIONS_T) {
+        numPolls++;
+
+        if (intervalFlag == CYCLES_T) {
+#ifndef REMOVE_SIM
+          rc = simclock(interval);
+          if (rc) return rc;
+#endif
+        }
+
+      }
+      else if (limitFlag == CYCLES_T && intervalFlag == CYCLES_T) {
+
+#ifndef REMOVE_SIM
+        numPolls += interval;
+        rc = simclock(interval);
+        if (rc) return rc;
+#endif
+
+      }
+      else if (limitFlag == SECONDS_T && intervalFlag == SECONDS_T) {
+        //do nothing
+      }
+      else {
+
+        ecmdRegisterErrorMsg(ECMD_INVALID_ARGS, "ecmdPollScom", "Invalid limit/interval argument pair");
+        return ECMD_INVALID_ARGS;
+
+      }
+        
+    
+    
+      
     }  //while (!done)
 
   }

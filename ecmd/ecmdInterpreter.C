@@ -97,6 +97,8 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getspy")) {
+          rc = ecmdGetSpyUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -118,8 +120,12 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putlatch")) {
           rc = ecmdPutLatchUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putpattern")) {
+          rc = ecmdPutPatternUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putscom")) {
           rc = ecmdPutScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putspy")) {
+          rc = ecmdPutSpyUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
