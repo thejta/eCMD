@@ -9,7 +9,7 @@ INCLUDES     := cipClientCapi.H cipStructs.H
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
 SOURCE       := cipClientCapiFunc.C
 DEFINES      := 
-CFLAGS       := -I. -I../../capi/export -g
+CFLAGS       := -I. -I../../../capi/export -g
 
 
 # *****************************************************************************
@@ -33,7 +33,7 @@ ifeq (${OS},AIX)
   CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
-VPATH := ${SUBDIR}:../../capi/export
+VPATH := ${SUBDIR}:../../../capi/export
 
 
 # *****************************************************************************
