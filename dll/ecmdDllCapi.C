@@ -236,9 +236,10 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
   }
 
 
-  ecmdGlobal_DllDebug = debugLevel;
 
 #ifndef ECMD_STRIP_DEBUG
+  ecmdGlobal_DllDebug = debugLevel;
+
   if (ecmdGlobal_DllDebug > 0) {
     printf("ECMD DEBUG : Client Version     '%s'\n", i_clientVersion);
     printf("ECMD DEBUG : Plugin Version     '%s'\n", ECMD_CAPI_VERSION);
