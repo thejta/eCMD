@@ -418,7 +418,7 @@ uint32_t ecmdSimGETFACXUser(int argc, char * argv[]) {
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr == NULL) {
-    format = "xr";
+    format = "bX";
   }
   else {
     format = formatPtr;
@@ -680,7 +680,7 @@ uint32_t ecmdSimPUTFACXUser(int argc, char * argv[]) {
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr == NULL) {
-    format = "xr";
+    format = "bX";
   }
   else {
     format = formatPtr;
