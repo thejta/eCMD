@@ -131,6 +131,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
  @param i_initCharOffset char offset on screen to start printing
  @param i_blockSize Binary block size (ie. column char size)
  @param i_numCols Number of columns to display
+ @param i_maxBitWidth Maximum number of bits to display - this is actual data valid so we don't display more columns then we need
  @return String of formatted data
 */
 std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols, int i_maxBitWidth);
