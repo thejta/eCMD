@@ -448,30 +448,18 @@ class ecmdDataBuffer {
 
      //@}
 
-     /** @name Error Functions */
-     //@{
-     int   getError() const { return err; } /* return > 0 if error */
-     char* getErrorStr() { return errstr; }
-     void  setErrorMode(int mode) { errmode = mode; }
-                             /* mode & 0x1 : store in errstr */
-                             /* mode & 0x2 : print to stdout */
-                             /* mode & 0x4 : print to stderr */
-     //@}
+
+   private:  //data
+     int iv_NumWords;
+     int iv_NumBits;
+     uint32_t * iv_Data;
+     uint32_t * iv_RealData;
+     char* iv_DataOutStr; /* buffer for gethexlstr functions */
+     char* iv_DataStr; /* binary or x data */
 
 
-   private:
-     int numwords;
-     int numbits;
-     uint32_t * data;
-     uint32_t * real_data;
-     char* dataoutstr; /* buffer for gethexlstr functions */
-     char* datastr; /* binary or x data */
-     void filldatastr(char fillchar);
-     char* errstr;
-     int err;
-     int errmode;
-     void seterr(int errcode, const char* str);     
-
+   private: //methods
+     void filldatastr(char fillChar);
      ecmdDataBuffer(const ecmdDataBuffer &other);
      
 
