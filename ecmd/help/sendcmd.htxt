@@ -1,0 +1,27 @@
+Syntax: sendcmd ChipSelect ScanInstrCode ScanInstrMod [-s] [-v] [-p#] 
+        
+Supported Products:  All
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to send ScanInstrCode to. Possibe chip names:              
+                        pu, pulsar, cerberusio, scimitar, speedwagon, radar, bcalp,
+                        midway, python, mack, etc.
+
+        ScanInstrCode   Scan instruction code to be sent (in hex).
+
+        ScanInstrMod    Scan instruction modifier (for ACCESS).
+
+        -s   [optional] Print out the instruction status for scan chain.
+
+        -v   [optional] Verbose mode.  When used with -s, parses the instruction
+                        status in an easy-to-read format.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
+        --------------------------------------------------------------------------------
+
+        Notes:          Leading zeros ARE NECESSARY if the command is not a full
+                        16 bits (e.g. ACCESS)
+
+        Example:        sendcmd spinnaker 12 C00008 -s -p0,1

@@ -1,0 +1,28 @@
+
+Syntax: checkrings ChipSelect RingSelect [-p#] [-c#]
+
+Supported Products:  All
+
+        Clocks must be OFF.
+
+        Function:       checks for stuck bits and verifies scanring length
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Specifies the chip to operate on.
+
+        RingSelect      Specifies chip ring to operate on.  Use "all" for all rings.
+                        For a list of available rings, use the query command.
+
+                        Ex:  query rings outrigger
+                             query rings pu                     
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
+
+        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
+                        -call to act on all cores.
+        --------------------------------------------------------------------------------
+
+        Example:        checkrings pu all -p0,1 -c0
+                        checkrings sunfish int -pall

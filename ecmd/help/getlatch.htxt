@@ -1,0 +1,70 @@
+
+Sytnax: getreg ChipSelect RingType RegName [Start Numbits] [-nop] [-noecho] [-compress] [-buffer] [-exp value]
+                                                                        [-x | -xl | -xr | -b] [-p#] [-c#]
+
+Supported Products:  All
+
+        Clocks must be OFF.
+
+        Function:       Gets values for specified register names in a ring.  The 
+                        register names in the scandef file are searched for the
+                        substring RegName for a match.  Each register containing the
+                        pattern-matched substring will be printed to the screen.  With 
+                        the -nop option, Cronus searches for an exact match, and will 
+                        return only the first register that exactly matches (exlcuding any
+                        parentheses). The -compress flag searches past the first match for 
+                        more matches and concatenates data if the register is broken into 
+                        separate lines.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to get data from.  Possibe chip names: 
+                        pu, spinnaker, pulsar, outrigger, etc.
+        
+        RingType        Specifies chip ring to operate on.  For a list of available
+                        rings, use the query command.
+
+                        Ex:  query rings outrigger
+                             query rings pu
+
+        RegName         Desired register to find in the ring.  Lowercase or uupercase.
+
+        Start [opt]     Starting bit position within the register. Specify with Numbits.
+
+        Numbits [opt]   Number of bits to get. Specify along with Start. If out of range,
+                        and -nop not selected, prints a warning message instead of the data.
+                        If -nop is selected, immediately return an error.
+
+        -nop [opt]      No pattern matching. Instead, search for exact register name.
+
+        -noecho   [opt] Do not echo the Cronus dump header or the command
+                        to the screen.
+
+        -compress [opt] Displays as a single line any registers that are broken up 
+                        into multiple lines in the scandef file.
+
+        -buffer   [opt] Reads data from on-disk buffer.
+
+        -exp [optional] Provide an expected-value as the last argument. Returns error if
+                        data miscompare, else nothing. Automatically turns on -nop. 
+
+        [-x | -xl | -xr | -b] [opt]     Specifies the format type of both the output and 
+                        the expect-value: hex (= hex left), hex left, hex right, or binary. 
+                        Defaults to binary for < 8 bits and hex for >= 8 bits.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
+
+        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
+                        -call to act on all cores.
+        --------------------------------------------------------------------------------
+
+        Notes:          Ring values are defined as above.  Each scandef file must be
+                        modified so that the above ring names are in the correct places  
+                        in the scandef files for their respective rings. 
+
+                        Cronus scandef files are located in:
+                        /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/regatta/scandefs/               
+        
+        Examples:       getreg pu cp_abist LATCH0
+                        getreg pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -x -nop -compress -expect feed

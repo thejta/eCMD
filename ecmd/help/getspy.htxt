@@ -1,0 +1,82 @@
+
+Syntax: getalias ChipSelect AliasName [Start Numbits] [-noecho] [-buffer] [-exp value] 
+                                                [-x | -xl | -xr | -b] [-v type] [-p#] [-c#]
+                                                                  
+Supported Products:  All
+
+
+
+        Function:       Searches file for alias name and returns bits from the registers
+                        specified in the alias. Alias may contain registers from multiple 
+                        rings.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to get data from.  Possibe chip names: 
+                        pu, spinnaker, pulsar, outrigger, etc.
+
+        AliasName       Desired alias name, lowercase or uppercase.  
+
+        Start [opt]     Starting bit position within the alias. Specify with Numbits.
+
+        Numbits [opt]   Number of bits to get. Specify along with Start.
+        
+        -noecho [opt]   Do not echo the Cronus dump header or the command
+                        to the screen.
+
+        -buffer [opt]   Reads data from on-disk buffer.
+
+        -exp [opt]      Provides an expected value as the last argument. Returns error only
+                        if miscompare. Expected value string is read as hex or bin depending 
+                        on format flag.
+
+        [-x | -xl | -xr | -b]  [opt]    Specifies the format type of both the output and 
+                        the expect-value: hex (= hex left), hex left, hex right, binary.
+                        Default = binary if < 8 bits, hex if >= 8 bits.
+
+        [-X] [optional] For simulation use only.  Must be used to display any Xstates data
+                        in ring
+
+        [-v type] [opt] Displays additional alias information setting the value "type"
+                        as follows:
+                        type = 1 -> print non-zero data registers
+                        type = 2 -> print zero'ed data registers
+                        type = 4 -> print all data registers
+                        type = 8 -> print alias name
+                        type = 16 -> print ring names
+                        type = sum of previous values 
+
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
+
+        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
+                        -call to act on all cores.
+        --------------------------------------------------------------------------------
+
+        Notes:          Alias file location:
+                        $CRONUS_HOME/scandefs
+
+                        Alias filename format:
+                        CHIPNAME_all_ECLEVEL.alias, where CHIPNAME and ECLEVEL are 
+                        replaced by the chip name and ec level. 
+
+                        Alias defintions are limited to 750 non-commented lines.
+
+                        Alias file sample:
+                          {MYALIAS}
+                          ring gps_fuse
+                          1  0  0  a.reg.here  all data
+                          7  32 0  a.reg.here  all data
+                          # comment line here
+                          1  4  0  a.reg.here  all data
+                          1  6  0  a.reg.here  all data
+                          2  0  0  deadbits   write data
+                          ring cp_abist
+                          1  23 0  b.reg.here  all data
+                          1  21 0  b.reg.here  all data
+                          1  19 0  b.reg.here  all data
+                          1  17 0  b.reg.here  all data                                                
+        
+        Examples:       getalias pu MYALIAS 
+                        getalias pu REVERSE 16 64 -x -exp aaaa5555

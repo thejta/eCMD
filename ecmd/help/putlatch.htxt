@@ -1,0 +1,52 @@
+
+Syntax: putreg ChipSelect RingType RegName [Start Numbits] Data [-buffer] [-noecho]
+                                                        [-x | -xl | -xr | -b] [-p#] [-c#]
+
+Supported Products:  All
+
+
+        Clocks must be OFF.
+
+        Function:       Puts a value for a specified register into a ring.  The first register 
+                        in the scandef file that exactly matches the RegName (not including 
+                        parenthesis) will be used. If the register is broken into successive 
+                        lines, the register lengths are concatenated to form one complete register.
+
+        Parmeters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to put data to.  Possibe chip names: 
+                        pu, spinnaker, outrigger, smi, etc.
+
+        RingType        Specifies chip ring to operate on.  For a list of available
+                        rings, use the query command.
+
+                        Ex:  query rings outrigger
+                             query rings pu
+
+        RegName         Desired registers to put in the ring.  
+
+        Start [opt]     Offset at which to begin writing data.  Also specify Numbits.
+
+        Numbits [opt]   Number of bits to insert.  If not specified, start = 0 and 
+                        numbits is calculated from the length of the Data string.  
+
+        Data            Data to be written to the register specified.  Format depends on
+                        format flag (default hex-left).
+
+        -buffer  [opt]  Writes data to an on-disk buffer.
+
+        [-x | -xl | -xr | -b]  [opt]    Specifies the format type of both the output and 
+                        the expect-value: hex (= hex left), hex left, hex right, or binary
+                        (default: hex-left). 
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
+
+        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
+                        -call to act on all cores.
+        --------------------------------------------------------------------------------
+        
+        Notes:          Cronus scandef files are located in:
+                        /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/regatta/scandefs
+
+        Example:        putreg spinnaker cp_fpu GCP.PFPU.FP_UNIT0.FPA_LATCH -x feed
