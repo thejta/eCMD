@@ -9,6 +9,7 @@ EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 
 OS           := $(shell uname)
+SITE         := $(shell fs wscell | cut -d\' -f2)
 
 INCLUDES     := ${EXTENSION_NAME}ClientCapi.H ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}DllCapi.H
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
@@ -46,9 +47,13 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   SUBDIR  := aix/
-  CC := xlC -+
+  ifeq (${SITE},rchland.ibm.com)
+    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC.6002
+  else
+    CC      := xlC
+  endif
   TARGET = ${EXTENSION_NAME}ClientCapi_aix.a
-  CFLAGS  := ${CFLAGS} -qstaticinline
+  CFLAGS  := ${CFLAGS} -+ -qstaticinline
 endif
 
 VPATH := ${SUBDIR}:../../../capi/export:../../template/capi
@@ -67,11 +72,11 @@ all: dir ${TARGET} ${EXTENSION_NAME}DllCapi.C
 
 clean:
 	rm -rf ${SUBDIR}
-	rm ${EXTENSION_NAME}ClientCapiFunc.C
-	rm ${EXTENSION_NAME}ClientCapi.C
-	rm ${EXTENSION_NAME}ClientEnums.H
-	rm ${EXTENSION_NAME}DllCapi.C
-	rm ${EXTENSION_NAME}DllCapi.H
+	rm -f ${EXTENSION_NAME}ClientCapiFunc.C
+	rm -f ${EXTENSION_NAME}ClientCapi.C
+	rm -f ${EXTENSION_NAME}ClientEnums.H
+	rm -f ${EXTENSION_NAME}DllCapi.C
+	rm -f ${EXTENSION_NAME}DllCapi.H
 
 dir:
 	@mkdir -p ${SUBDIR}

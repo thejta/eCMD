@@ -4,6 +4,7 @@
 # $Header$
 
 OS           := $(shell uname)
+SITE         := $(shell fs wscell | cut -d\' -f2)
 
 VPATH        := ../../../capi/export:../capi/export:../../../ecmd/
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H ecmdCommandUtils.H
@@ -32,12 +33,16 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   SUBDIR  := aix/
-  CC      := xlC -+
+  ifeq (${SITE},rchland.ibm.com)
+    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC.6002
+  else
+    CC      := xlC
+  endif
   TARGET  := cipecmd_aix
   LD      := ${CC}
   LDFLAGS := -brtl -bloadmap:PARM -w -L../../../capi/export -lecmd_aix
   LINK_OBJS := ../../../capi/export/ecmdClientCapi_aix.a ../capi/export/cipClientCapi_aix.a
-  CFLAGS  := ${CFLAGS}  # -qstaticinline
+  CFLAGS  := ${CFLAGS}  -+ -qstaticinline
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}

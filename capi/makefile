@@ -4,6 +4,7 @@
 # $Header$
 
 OS           := $(shell uname)
+SITE         := $(shell fs wscell | cut -d\' -f2)
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H
 INT_INCLUDES := ecmdDllCapi.H
@@ -32,11 +33,15 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   SUBDIR  := aix/
-  CC      := xlC -+
+  ifeq (${SITE},rchland.ibm.com)
+    CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/xlC.6002
+  else
+    CC      := xlC
+  endif
   LD      := makeC++SharedLib
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
-  CFLAGS  := ${CFLAGS} -qstaticinline
+  CFLAGS  := ${CFLAGS} -+ -qstaticinline
   SLIBLDFLAGS :=  -e libecmd_aix.export -p 0
 endif
 
@@ -84,8 +89,10 @@ all: dir ${TARGET} ${SLIB}
 
 clean:
 	rm -rf ${SUBDIR} export/
-	rm ecmdClientCapiFunc.C
-	rm ecmdDllCapi.H
+	rm -f ecmdClientCapiFunc.C
+	rm -f ecmdDllCapi.H
+	rm -f ecmdClientEnums.H
+
 
 dir:
 	@mkdir -p ${SUBDIR}
