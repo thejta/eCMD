@@ -913,22 +913,24 @@ public:
 
   /**
    * @brief Write buffer out into a file in the format specified. 
-   * @param filename file to write to
-   * @param format format to write in
+   * @param i_filename file to write to
+   * @param i_format format to write in
    * @retval ECMD_DBUF_SUCCESS on success
-   * @retval ECMD_DBUF_FOPEN_FAIL
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for write
+   * @retval ECMD_DBUF_XSTATE_ERROR If Xstate values are detected on non-Xstate format request
    */
-  uint32_t  writeFile(const char * filename, int format); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
   
   /**
    * @brief Read data from the file into the buffer  
-   * @param filename to read from
-   * @param data format to expect in the file
+   * @param i_filename to read from
+   * @param i_format data format to expect in the file
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
-   * @retval ECMD_DBUF_FOPEN_FAIL
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
+   * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
    */
-  uint32_t  readFile(const char * filename, int format); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  readFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
   
   //@}
 
