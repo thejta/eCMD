@@ -104,6 +104,15 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 //---------------------------------------------------------------------
 ecmdDataBuffer::~ecmdDataBuffer()
 {
+  clear();
+}
+
+//---------------------------------------------------------------------
+//  Public Member Function Specifications
+//---------------------------------------------------------------------
+uint32_t ecmdDataBuffer::clear() {
+
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if ((iv_RealData != NULL)) {
     /* Let's check our header,tail info */
@@ -112,12 +121,16 @@ ecmdDataBuffer::~ecmdDataBuffer()
       printf("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X\n",iv_RealData[0],iv_RealData[1],iv_NumWords);
       printf("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + 4]: %X\n",iv_RealData[3],iv_RealData[iv_NumWords + 4]);
       printf("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/TAIL\n");
-      exit(1);
+      rc = ECMD_DBUF_BUFFER_OVERFLOW;
+      exit(rc);
     }
 
+    /* That looked okay, reset everything else */
     delete[] iv_RealData;
     iv_RealData = NULL;
-
+    iv_Capacity = 0;
+    iv_NumWords = 0;
+    iv_NumBits = 0;
   }
 
 #ifndef REMOVE_SIM
@@ -127,11 +140,10 @@ ecmdDataBuffer::~ecmdDataBuffer()
   }
 #endif
 
+  return rc;
 }
 
-//---------------------------------------------------------------------
-//  Public Member Function Specifications
-//---------------------------------------------------------------------
+
 uint32_t   ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
 uint32_t   ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
 uint32_t   ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}

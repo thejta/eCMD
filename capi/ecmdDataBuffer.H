@@ -92,6 +92,10 @@ public:
   /** @name Buffer Size Function */
   //@{
   /**
+   * @brief Called by the destructor, available to user to reset buffer to default constructor state
+   */
+  uint32_t clear();
+  /**
    * @brief Return the length of the buffer in words
    * @retval Buffer length in words rounded up
    */
