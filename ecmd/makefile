@@ -8,9 +8,9 @@ OS           := $(shell uname)
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := ecmdInterpreter.H ecmdIntReturnCodes.H
-SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdDaScomUser.C
+SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdDaScomUser.C ecmdCommandUtils.C
 DEFINES      := 
-CFLAGS       := -I. -I../capi/export -g
+CFLAGS       := -I. -I../capi/export -g 
 
 
 # *****************************************************************************
@@ -23,6 +23,7 @@ ifeq (${OS},Linux)
   LD      := ${CC}
   LDFLAGS := -ldl
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
+  CFLAGS := ${CFLAGS} -ftemplate-depth-20
 endif
 
 # *****************************************************************************

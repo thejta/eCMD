@@ -1,8 +1,8 @@
-#ifndef ecmdInterpreter_h
-#define ecmdInterpreter_h
+#ifndef ecmdCommandUtils_h
+#define ecmdCommandUtils_h
 // Copyright **********************************************************
 //                                                                      
-// File ecmdInterpreter.H                                               
+// File ecmdCommandUtils.H                                               
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
@@ -17,7 +17,7 @@
 
 // Class Description *************************************************
 //                                                                      
-//  Name:  ecmdInterpreter
+//  Name:  ecmdCommandUtils
 //  Base class: 
 //
 //  Description: 
@@ -26,51 +26,32 @@
 // End Class Description *********************************************
 
 /**
- @file ecmdInterpreter.H
- @brief eCMD Command Interpreter
+ @file ecmdCommandUtils.H
+ @brief eCMD Command Utilities
 */
 
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <ecmdStructs.H>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
 
-/**
- @brief Process user args and execute command requested
- @param argc Command line arguments
- @param argv Command line arguments
- @retval ECMD_SUCCESS On successful command
- @retval ECMD_INT_UNKNOWN_COMMAND If command is not valid
- @retval nonzero On command failure
- @pre Dll must be loaded - if applicable
-*/
- 
-int ecmdCommandInterpreter(int argc, char* argv[]);
+int ecmdConfigLooperInit (ecmdChipTarget & io_target);
+
+int ecmdConfigLooperNext (ecmdChipTarget & io_target);
 
 
 
-/** @name User Functions */
-//@{
 
-int ecmdGetScomUser(int argc, char* argv[]);
-
-int ecmdPutScomUser(int argc, char* argv[]);
-
-int ecmdPollScomUser(int argc, char* argv[]);
-
-//@}
-
-
-
-#endif /* ecmdInterpreter_h */
+#endif /* ecmdCommandUtils_h */
 
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder  Description                       
 //  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
+//                              willsj Initial Creation
 //
 // End Change Log *****************************************************

@@ -23,9 +23,9 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdInterpreter_C
-#include <string>
+#include <inttypes.h>
 
-
+#include <ecmdClientCapi.H>
 #include "ecmdInterpreter.H"
 #include "ecmdIntReturnCodes.H"
 
