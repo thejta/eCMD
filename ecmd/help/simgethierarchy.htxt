@@ -1,0 +1,26 @@
+
+Syntax: simgethierarchy <ChipSelect> [-k#] [-n#] [-s#] [-p#]
+        
+        ECMD:           Core Common Function
+
+        Function:       Retrieve the Simulation hierarchy for a give chip position
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Specifies the chip to operate on.  
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        --------------------------------------------------------------------------------
+
+        Example:        simgethierarchy pu -p2
