@@ -59,6 +59,8 @@ uint32_t cipInitExtension();
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
+ TARGET DEPTH  : Thread
+ TARGET STATES : Unused
 
 */
 uint32_t cipStartInstructions (ecmdChipTarget & i_target);
@@ -82,6 +84,8 @@ uint32_t cipStartAllInstructions ();
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
+ TARGET DEPTH  : Thread
+ TARGET STATES : Unused
 
 */
 uint32_t cipStopInstructions (ecmdChipTarget & i_target);
@@ -106,6 +110,8 @@ uint32_t cipStopAllInstructions ();
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
+ TARGET DEPTH  : Thread
+ TARGET STATES : Unused
 
 */
 uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
@@ -121,6 +127,8 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
+ TARGET DEPTH  : Core
+ TARGET STATES : Unused
 
 */
 uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
@@ -136,6 +144,8 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
+ TARGET DEPTH  : Core
+ TARGET STATES : Unused
 
 */
 uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
@@ -154,6 +164,8 @@ uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmd
  @param rNum Number of vr to read from
  @param o_data DataBuffer object that holds data read from vr
 
+ TARGET DEPTH  : Core
+ TARGET STATES : Unused
 */
 uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & o_data);
 
@@ -174,6 +186,8 @@ uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
+ TARGET DEPTH  : Core
+ TARGET STATES : Unused
 */
 uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
@@ -193,6 +207,8 @@ uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  @param i_vrNum Number of vr to write to
  @param i_data DataBuffer object that holds data to write into vr
 
+ TARGET DEPTH  : Core
+ TARGET STATES : Unused
 */
 uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & i_data);
 
@@ -214,6 +230,8 @@ uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.
 
+ TARGET DEPTH  : Core
+ TARGET STATES : Unused
 */
 uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
@@ -241,6 +259,8 @@ uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
 */
 uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags);
 
@@ -262,6 +282,8 @@ uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
 
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
 */
 uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags);
 
@@ -282,6 +304,8 @@ uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
 */
 uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags);
 
@@ -302,6 +326,8 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
 
 */
 uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags);

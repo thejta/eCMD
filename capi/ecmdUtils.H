@@ -145,6 +145,9 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
  @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
+
+ TARGET DEPTH  : Thread
+ TARGET STATES : Must Be Initialized
  */
 uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state);
 
@@ -154,6 +157,9 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
  @param io_state Used internally to keep track of state, must be passed from output of ecmdConfigLooperInit
  @retval 1 if io_target is valid, 0 if it is not
  @see ecmdConfigLooperInit
+
+ TARGET DEPTH  : Thread
+ TARGET STATES : Must be Initialized (from ecmdConfigLooperInit)
  */
 uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
 
@@ -199,6 +205,9 @@ std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols
  @brief Returns a formatted string containing the data in the given ecmdChipTarget
  @return String with formatted target data
  @param i_target ecmdChipTarget containing data to format into string
+
+ TARGET DEPTH  : Thread
+ TARGET STATES : Must be Initialized
  */
 std::string ecmdWriteTarget (ecmdChipTarget & i_target);
 
@@ -208,6 +217,9 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target);
  @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
  @param i_target ecmdChipTarget that information is requested for
  @param o_data ecmdChipData struct that contains detailed info on chip ec level, etc.
+
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
  */
 uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
