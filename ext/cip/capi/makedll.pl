@@ -312,6 +312,7 @@ while (<IN>) {
 #			$pp_argstring .= $tmparg . ", ";
 			$printout .= "     args.push_back((void*) &" . $tmparg . ");\n";
 		    }
+		    $printout .= "     args.push_back((void*) &rc);\n" unless ($type_flag == $VOID);
 
 #		    chop ($pp_typestring, $pp_argstring);
 #		    chop ($pp_typestring, $pp_argstring);
