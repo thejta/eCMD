@@ -740,7 +740,7 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  @param o_clockState State of clocks for that domain
 */
 
-uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t o_clockState);
+uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState);
 
 
 /**
@@ -1616,6 +1616,15 @@ void ecmdSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
  @retval Value of trace mode enable
 */
 bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
+
+/** 
+ @brief Function to delay a procedure either by running sim cycles or by doing a millisecond delay
+ @param i_simCycles Number of sim cycles to run in simulation mode
+ @param i_msDelay Number of milliseconds to delay in hardware mode
+*/
+uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
+
+
 
 //@}
 
