@@ -15,10 +15,9 @@ CFLAGS       := -I. -I../capi/export -I../dll -g
 
 
 # Tell the SEDC code we import that we just want the scomdef parser
-CFLAGS       := ${CFLAGS} -DSCOMDEF_ONLY
-INCLUDES     := ${INCLUDES} sedcParser.H sedcScomdefClasses.H
-SOURCE       := ${SOURCE} sedcParser.c sedcScomdefClasses.C
-VPATH        := ${VPATH}:sedc
+#INCLUDES     := ${INCLUDES} sedcScomdefParser.H sedcScomdefClasses.H
+#SOURCE       := ${SOURCE} sedcScomdefParser.H.C sedcScomdefClasses.C
+#VPATH        := ${VPATH}:sedcScomdef
 
 VER_SOURCE   := ecmdVersion.C
 
