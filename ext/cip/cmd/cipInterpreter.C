@@ -100,6 +100,30 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
         break;
+        /************************/
+        /* The G's              */
+        /************************/
+      case 'g':
+
+        if (!strcmp(argv[0], "cipgetvpr")) {
+          rc = cipGetVprUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+	/************************/
+        /* The P's              */
+        /************************/
+      case 'p':
+
+        if (!strcmp(argv[0], "cipputvpr")) {
+          rc = cipPutVprUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
       default:
         /* We don't understand this function, let's let the caller know */
         rc = ECMD_INT_UNKNOWN_COMMAND;
