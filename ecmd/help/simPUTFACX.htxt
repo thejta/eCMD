@@ -1,0 +1,22 @@
+
+Syntax: simPUTFACX <facname> <data> [<row> <offset>] [-i<format>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Write a simulation facility using a name.
+                        Write with Xstate data: format "b"
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        data            Data to write to facility
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+
+        --------------------------------------------------------------------------------
+
+        Example:        simPUTFACX TITAN.TCKFREQ 11XX01

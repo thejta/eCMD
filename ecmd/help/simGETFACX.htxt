@@ -1,0 +1,22 @@
+
+Syntax: simGETFACX <facname> <length> [<row> <offset>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Read a Simulation Facility using a facility name 
+                        Displaying Xstate data. format: "b"
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        length          Bit length of symbol to read
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+
+        --------------------------------------------------------------------------------
+
+        Example:        simGETFACX TITAN.TCKFREQ 4
