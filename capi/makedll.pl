@@ -129,11 +129,14 @@ while (<IN>) {
         $printout .= "    exit(ECMD_DLL_INVALID);\n";
 	$printout .= "  }\n\n";
 
-        $printout .= "  if (!".$ARGV[0]."Initialized) {\n";
-        $printout .= "    fprintf(stderr,\"$funcname: eCMD Extension not initialized before function called\\n\");\n";
-        $printout .= "    fprintf(stderr,\"$funcname: OR eCMD $ARGV[0] Extension not supported by plugin\\n\");\n";
-        $printout .= "    exit(ECMD_DLL_INVALID);\n";
-	$printout .= "  }\n\n";
+        if ($ARGV[0] ne "ecmd") {
+          $printout .= "  if (!".$ARGV[0]."Initialized) {\n";
+          $printout .= "    fprintf(stderr,\"$funcname: eCMD Extension not initialized before function called\\n\");\n";
+          $printout .= "    fprintf(stderr,\"$funcname: OR eCMD $ARGV[0] Extension not supported by plugin\\n\");\n";
+          $printout .= "    exit(ECMD_DLL_INVALID);\n";
+          $printout .= "  }\n\n";
+        }
+
 	$printout .= "#endif\n\n";
 
 
