@@ -98,6 +98,14 @@ int ecmdCommandArgs(int * i_argc, char** i_argv[]);
 
 int ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
+/**
+ @brief Function calls ecmdQueryDllInfo and displays the output to stdout
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching
+*/
+int ecmdDisplayDllInfo();
 
 /**
  @brief Query configuration information from the DLL
