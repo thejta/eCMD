@@ -212,7 +212,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  std::string inputformat = "mem";      ///< Output format - default to 'mem'
+  std::string inputformat = "x";      ///< Output format - default to 'mem'
   ecmdDataBuffer inputData;             ///< Buffer to hold the data intended for memory
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
@@ -255,7 +255,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (rc) return rc;
 
   if ((argc < 2)&&(filename == NULL)) {  //chip + address
-    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and data to write.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
@@ -266,6 +266,13 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
+  }else if(((argc > 2)&&(filename == NULL)) || ((argc > 1)&&(filename != NULL))) {
+    printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  
   }
   //Setup the target that will be used to query the system config 
   if (memMode == ECMD_MEM_DMA) {
