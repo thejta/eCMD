@@ -37,12 +37,14 @@ ifeq (${OS},AIX)
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
 endif
 
-
+VPATH     := ${VPATH}:${SUBDIR}
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET}
+	@touch t.o t_x86 t_aix t_ppc
+	@mv *.o *_x85 *_aix *_ppc
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 
@@ -67,13 +69,13 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o ${SUBDIR}$@ $(DEFINES)
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
 # *****************************************************************************
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	${LD} ${LDFLAGS} $(addprefix ${SUBDIR}, $^) ${LINK_OBJS} -o ${SUBDIR}$@ 
+	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
 
 
