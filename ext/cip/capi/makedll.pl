@@ -391,9 +391,13 @@ if ($ARGV[0] eq "ecmd") {
 } else {
   print OUT "/* This is from ecmdClientCapiFunc.C */\n";
   print OUT " extern void * dlHandle;\n";
-  print OUT " void * $ARGV[0]DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
+  # If enumtable only has one entry this means this extension doesn't have any functions in it
+  if ($#enumtable == 0) {
+    print OUT " void * $ARGV[0]DllFnTable[1 /* NO FUNCTIONS DEFAULT TO 1 - ".uc($ARGV[0])."_NUMFUNCTIONS */];\n";
+  } else {
+    print OUT " void * $ARGV[0]DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
+  }
 
-  print OUT "/* Our initialization flag */\n";
 }       
 
 print OUT "\n#else\n\n";
@@ -403,6 +407,7 @@ print OUT " #include <$ARGV[0]DllCapi.H>\n\n";
 print OUT "#endif\n\n\n";
 
 if ($ARGV[0] ne "ecmd") {
+  print OUT "/* Our initialization flag */\n";
   print OUT " bool $ARGV[0]Initialized = false;\n";
 }
 
