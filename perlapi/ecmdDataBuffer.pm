@@ -761,7 +761,23 @@ sub extract() {
   void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
 =cut
 sub setOr() {
-#  void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+	my ($i_bufferIn) = @_[1];
+	my ($i_startbit) = @_[2];
+	my ($i_len)      = @_[3];
+	my ($len) =0;
+	my ($looper) =0;
+
+	$len = length($iv_DataStr);
+	if(($i_startbit + $i_len) > $len) {
+		printf( "**** ERROR : ecmdDataBuffer::setOr: startbit + len %d > NumBits (%d)\n", $i_startbit + $i_len, $len);
+	}
+	else {
+		for($looper=0; $looper< $i_len; $looper++) {
+			if(substr($i_bufferIn,$looper,1) == '1') {
+				substr($iv_DataStr,$i_startbit + $looper,1) = '1';
+			}
+		}
+	}
 }
 
 
@@ -775,7 +791,19 @@ sub setOr() {
   void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
 =cut
 sub merge() {
-#  void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
+	my ($i_bufferIn) = @_[1];
+	my ($looper) =0;
+
+	if(length($i_bufferIn) != length($iv_DataStr)) {
+		printf( "**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", length($i_bufferIn), length($iv_DataStr));
+	}
+	else {
+		for($looper=0; $looper < length($iv_DataStr); $looper++) {
+			if(substr($i_bufferIn,$looper,1) == '1') {
+				substr($iv_DataStr,$looper,1) = '1';
+			}
+		}
+	}
 }
 
 
@@ -792,7 +820,23 @@ sub merge() {
   void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
 =cut
 sub setAnd() {
-#  void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+	my ($i_bufferIn) = @_[1];
+	my ($i_startbit) = @_[2];
+	my ($i_len)      = @_[3];
+	my ($len) =0;
+	my ($looper) =0;
+
+	$len = length($iv_DataStr);
+	if(($i_startbit + $i_len) > $len) {
+		printf( "**** ERROR : ecmdDataBuffer::setAnd: startbit + len %d > NumBits (%d)\n", $i_startbit + $i_len, $len);
+	}
+	else {
+		for($looper=0; $looper< $i_len; $looper++) {
+			if(substr($i_bufferIn,$looper,1) == '0') {
+				substr($iv_DataStr,$i_startbit + $looper,1) = '0';
+			}
+		}
+	}
 }
 
 
