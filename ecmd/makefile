@@ -22,6 +22,7 @@ ifeq (${OS},Linux)
   TARGET  := ecmd_x86
   LD      := ${CC}
   LDFLAGS := -ldl
+  LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
 endif
 
 # *****************************************************************************
@@ -31,6 +32,9 @@ ifeq (${OS},AIX)
   SUBDIR  := aix/
   CC      := xlC -+
   TARGET  := ecmd_aix
+  LD      := ${CC}
+  LDFLAGS := 
+  LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
 endif
 
 
@@ -70,6 +74,6 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	${LD} ${LDFLAGS} $(addprefix ${SUBDIR}, $^) ../capi/export/ecmdClientCapi_x86.a -o ${SUBDIR}$@ 
+	${LD} ${LDFLAGS} $(addprefix ${SUBDIR}, $^) ${LINK_OBJS} -o ${SUBDIR}$@ 
 
 
