@@ -157,7 +157,7 @@ namespace ECMDPERLAPI {
 
  <ul>
  <li>ecmdClientPerlapi.H</li>
- <li>ecmdDataBuffer.H</li>
+ <li>ecmdDataBuffer</li>
  <li>ecmdStructs.H</li>
  </ul>
 
@@ -243,7 +243,7 @@ Here is an example usage of the ecmdDataBuffer:
 
   #Change the value
   $data->setWord(0,0xAAAA5555);
-  printf("Data : %s\n",$data->getWord(0));
+  printf("Data : %s",$data->getWord(0));
 
   # Write my new value to the chip
   $rc = $ep->putRing($target, "idreg", $data);
@@ -294,14 +294,14 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
   # Use the = operator
   my $data2 = $data1;
 
-  printf("Data 1 : %.08X\n", $data1.getWord(0));        # This will echo 'Data 1 : FEEDBEEF'
-  printf("Data 2 : %.08X\n", $data2.getWord(0));        # This will echo 'Data 2 : FEEDBEEF'
+  printf("Data 1 : %.08X", $data1.getWord(0));        # This will echo 'Data 1 : FEEDBEEF'
+  printf("Data 2 : %.08X", $data2.getWord(0));        # This will echo 'Data 2 : FEEDBEEF'
 
   # Now just set Data 2
   $data2.setWord(0,0xAAAA5555);
 
-  printf("Data 1 : %.08X\n", $data1.getWord(0));        # This will echo 'Data 1 : AAAA5555'
-  printf("Data 2 : %.08X\n", $data2.getWord(0));        # This will echo 'Data 2 : AAAA5555'
+  printf("Data 1 : %.08X", $data1.getWord(0));        # This will echo 'Data 1 : AAAA5555'
+  printf("Data 2 : %.08X", $data2.getWord(0));        # This will echo 'Data 2 : AAAA5555'
 </pre>  
  NOTE : Since both $data1 and $data2 point to the same memory space when one is modified they are both modified.  This behavior is the same for the ecmdDataBuffer and all eCMD structures found in ecmdStructs.H
 
@@ -310,97 +310,8 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
  <hr>
  @section perlscript Example Perl Script
 
- <pre>
- #!/bin/ksh 
- #! -*- perl -*-
+ Please see the eCMD web page under 'Use eCMD' for an example Perl script at : http://rhea.rchland.ibm.com/eCMD/
 
- eval '
- if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set, please initialize your CTE environment"; exit 1; fi
- PERL5LIB=$CTEPATH/tools/perl/5.8.1/lib:$CTEPATH/tools/ecmd/`ecmdVersion`/perlapi;
- export PERL5LIB;
- exec $CTEPATH/tools/perl/5.8.1/bin/perl -x -S $0 ${1+"$@"}
- '
- if 0;
-
- # Grab the additional eCMD Modules;
- require ecmdDataBuffer;
- require ChipTarget;
-
- my $osname = `uname`;
- my $ep;
-
- chomp $osname;
- if ($osname eq "AIX") {
-   require ecmd_aix_perl; 
-   $ep = new ecmd_aix_perl::ecmdClientPerlapi();
- } else {
-   require ecmd_x86_perl; 
-   $ep = new ecmd_x86_perl::ecmdClientPerlapi();
- }
-
- $| = 1;  # set autoflush
-
- if ($ep->initDll("")) { die "Fatal errors initializing DLL"; }
-
-
- # Setup my target
- my $target = new ChipTarget("pu");
- $target->pos(0);
- $target->core(0);
- $target->node(0);
-
- # Setup my data
- my $data = new ecmdDataBuffer();
- # Set the first word of data in this class
- $data->setWord(0,0xFEEDBEEF);
-
- my $rc = 0;
-
- # put/getscom
- if (1) {
-    print "---- starting putscom -----\\n";
-    $data->setWord(0, 0xabebfeef);
-    printf("word 0 = %s\\n", $data->getWord(0));
-    printf("word 1 = %s\\n", $data->getWord(1));
-    printf("string = %s\\n",$data->genHexLeftStr(0,64));
-
-    $rc = $ep->putScom($$target, "800000", $$data);
-    printf("string = %s\\n",$data->getstr());
-
-    print "---- starting getscom -----\\n";
-    $rc = $ep->getScom($$target, "800000", \$$data);
-    printf("word count= %d\n",$data->getWordLength());
-
-    printf("getscom string word 0 = %s\\n", $data->getWord(0));
-    printf("getscom genHLS word 0 = %s\\n", $data->genHexLeftStr(0,32));
-    printf("getscom string word 1 = %s\\n", $data->getWord(1));
-    printf("getscom genHLS word 1 = %s\\n", $data->genHexLeftStr(32,32));
-    printf("getscom string word 2 = %s\\n", $data->getWord(2));
- }
-
- # put/getring
- if (0) {
-
-    print "---- starting putring -----\\n";
-    $data->setBitLength(32); # length of your ring goes here
-    $data->flushTo0();
-    $data->setBit(0, 10); # Set bits 0-10
- 
-    printf("putRing word 0 = %s\\n", $data->getWord(0));
-    $rc = $ep->putRing($$target, "testring", $$data);
-    if ($rc) {
-       print "Problems calling eCMD putring\\n";
-    }
-    print "---- starting getRing -----\\n";
-    $rc = $ep->getRing($$target, "testring", \$$data);
-    printf("getRing word 0 = %s\\n", $data->getWord(0));
-    printf("actual length  = %s\\n", $data->getBitLength());
-
- }
-
-
- $ep->cleanup();
- </pre>
 
 */
 
