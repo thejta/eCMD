@@ -30,16 +30,10 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<fo
                         in seconds, append an 's' to #.  To specify number of cycles for 
                         simulation, append a 'c' to #.  If limit is not specified, 
                         defaults to 1000 iterations.  If limit = 0, polls indefinitely.
-                        If limit = 0 and -interval is not specified, the interval defaults
-                        to 5 seconds.
 
         -interval # [opt] Time between getscoms. To specify in seconds, append an 's' 
                         to #.  To specify number of cycles for simulation, append a 
-                        'c' to # (number of cycles must be > 1000).  If -limit is not 
-                        specified with -interval, the limit defaults to ~240 seconds
-                        or 1 million cycles, depending on how -interval is specified.
-                        If neither -limit or -interval are specified, limit defaults to
-                        60 seconds and interval defaults to 5 seconds.
+                        'c' to #.  If interval is not specified it defaults to 5secs.
         
         -verbose  [opt] Prints warning message after each getscom if actual != expected.
 
