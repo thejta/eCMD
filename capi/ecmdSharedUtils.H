@@ -114,14 +114,6 @@ extern "C" uint32_t ecmdHexToUInt32(const char* i_str);
  */
 extern "C" uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 
-/**
- * @brief  byteswaps 32 bits for linux
- * @param  data            The data to be swapped
- * @retval unsigned int    The data post swap
-*/
-uint32_t ecmdGenByteSwap32(uint32_t data);
-
-
 
 #endif /* ecmdSharedUtils_h */
 
