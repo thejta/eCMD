@@ -1010,7 +1010,7 @@ uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_ta
     /* Now apply the Xstate stuff */
 #ifndef REMOVE_SIM   
       if (i_targetStart+i_len <= iv_NumBits) {
-        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(0, i_len)).c_str(), i_len);
+        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
       }
 #endif
   }
@@ -1446,6 +1446,8 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 
   int tempNumWords = (bitLen + 31) / 32;
   std::string ret;
+  char* data = new char[bitLen + 1];
+
   /* extract iv_Data */
   uint32_t* tempData = new uint32_t[tempNumWords];
   this->extract(&tempData[0], start, bitLen);
@@ -1454,10 +1456,10 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 
   for (uint32_t w = 0; w < bitLen; w++) {
     if (tempData[curWord] & mask) {
-      ret.append("1");
+      data[w] = '1';
     }
     else {
-      ret.append("0");
+      data[w] = '0';
     }
 
     mask >>= 1;
@@ -1468,8 +1470,13 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
     }
 
   }
+  /* Terminate this puppy */
+  data[bitLen] = '\0';
 
   delete[] tempData;
+
+  ret = data;
+  delete[] data;
 
 #ifndef REMOVE_SIM
     /* If we are using this interface and find Xstate data we have a problem */
