@@ -1037,7 +1037,12 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  int offset = 32 - (i_len % 32);
+  int offset;
+  if((i_len % 32) == 0) {
+    offset = 0;
+  } else {
+    offset = 32 - (i_len % 32);
+  }  
 
   if (i_start+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
