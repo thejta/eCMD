@@ -68,7 +68,11 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'g':
 
-        if (!strcmp(argv[0], "getscom")) {
+        if (!strcmp(argv[0], "getbits")) {
+          rc = ecmdGetBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getring")) {
+          rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
@@ -85,7 +89,9 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'p':
 
-        if (!strcmp(argv[0], "pollscom")) {
+        if (!strcmp(argv[0], "putbits")) {
+          rc = ecmdPutBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "pollscom")) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putscom")) {
           rc = ecmdPutScomUser(argc - 1, argv + 1);

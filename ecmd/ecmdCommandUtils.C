@@ -28,6 +28,8 @@
 #include <string.h>
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdIntReturnCodes.H>
@@ -60,6 +62,18 @@ static std::list<ecmdChipData>::iterator ecmdCurChip;
 static std::list<ecmdCoreData>::iterator ecmdCurCore;
 static std::list<ecmdThreadData>::iterator ecmdCurThread;
 static uint8_t ecmdLooperInitFlag;
+
+typedef enum {
+  ECMD_FORMAT_NONE,
+  ECMD_FORMAT_X,
+  ECMD_FORMAT_XR,
+  ECMD_FORMAT_XW,
+  ECMD_FORMAT_XRW,
+  ECMD_FORMAT_B,
+  ECMD_FORMAT_BN,
+  ECMD_FORMAT_BW,
+  ECMD_FORMAT_BX,
+} ecmdFormatState_t;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -96,6 +110,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   }
 
   rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
+  if (rc) return rc;
 
   ecmdCurCage = ecmdSystemConfigData.cageData.begin();
   ecmdLooperInitFlag = 1;
@@ -243,8 +258,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
   char util[7];
 
   if (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
-    printed = i_target.chipType + ":";
-    //printed += " ";  //space vs. colon?
+    printed = i_target.chipType + "\t";
   }
 
   //always do cage
@@ -296,92 +310,170 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
 
 }
 
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format) {
-
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format, int address) {
   std::string printed;
-  int formTagLength = strlen(i_format);
+  int formTagLen = strlen(i_format);
+  ecmdFormatState_t curState = ECMD_FORMAT_NONE;
+  int numCols = 0;
+  bool good = true;
 
-  if (formTagLength > 1 && (i_format[formTagLength-1] == 'w' || i_format[formTagLength-1] == 'b')) {
+  for (int i = 0; i < formTagLen; i++) {
 
-    uint8_t state = 0;
-    uint8_t HEXLEFT = 1;
-    uint8_t HEXRIGHT = 2;
-    uint8_t BINARY = 3;
-
-    if (formTagLength == 2) {
-      if (i_format[0] == 'x') {
-        state = HEXLEFT;
+    if (i_format[i] == 'x') {
+      if (curState != ECMD_FORMAT_NONE) {
+        good = false;
+        break;
       }
-      else if (i_format[0] == 'b') {
-        state = BINARY;
-      }
+
+      curState = ECMD_FORMAT_X;
     }
-    else if (formTagLength == 3) {
-      if (i_format[0] == 'x') {
-        if (i_format[1] == 'l') {
-          state = HEXLEFT;
-        }
-        else if (i_format[1] == 'r') {
-          state = HEXRIGHT;
-        }
+    else if (i_format[i] == 'l') {
+      if (curState != ECMD_FORMAT_X) {
+        good = false;
+        break;
       }
+
+    }
+    else if (i_format[i] == 'r') {
+      if (curState != ECMD_FORMAT_X) {
+        good = false;
+        break;
+      }
+
+      curState = ECMD_FORMAT_XR;
+    }
+    else if (i_format[i] == 'b') {
+      if (curState != ECMD_FORMAT_NONE) {
+        good = false;
+        break;
+      }
+
+      curState = ECMD_FORMAT_B;
+    }
+    else if (i_format[i] == 'n') {
+      if (curState != ECMD_FORMAT_B) {
+        good = false;
+        break;
+      }
+
+      curState = ECMD_FORMAT_BN;
+    }
+    else if (i_format[i] == 'w') {
+      if (curState == ECMD_FORMAT_X) {
+        curState = ECMD_FORMAT_XW;
+      }
+      else if (curState == ECMD_FORMAT_XR) {
+        curState = ECMD_FORMAT_XRW;
+      }
+      else if (curState == ECMD_FORMAT_B) {
+        curState = ECMD_FORMAT_BW;
+      }
+      else {
+        good = false;
+        break;
+      }
+
+    }
+    else if (i_format[i] == 'X') {
+      if (curState != ECMD_FORMAT_B) {
+        good = false;
+        break;
+      }
+
+      curState = ECMD_FORMAT_BX;
+    }
+    else if (isdigit(i_format[i])) {
+      numCols = atoi(&i_format[i]);
+    }
+    else {
+      good = false;
+      break;
     }
 
-    if (state) {
-
-      int numBits = i_data.getBitLength();
-      int maxBits = 32;
-      if (i_format[formTagLength-1] == 'b') {
-        maxBits = 4;
-      }
-
-      int startBit = 0;
-      int numToFetch = numBits < maxBits ? numBits : maxBits;
-
-      while (numToFetch > 0) {
-
-        if (state == HEXLEFT) {
-          printed += i_data.genHexLeftStr(startBit, numToFetch);
-        }
-        else if (state == HEXRIGHT) {
-          printed += i_data.genHexRightStr(startBit, numToFetch);
-        }
-        else { //binary data
-          printed += i_data.genBinStr(startBit, numToFetch);
-        }
-
-        printed += " ";
-
-        startBit += numToFetch;
-        numBits -= numToFetch;
-        numToFetch = (numBits < maxBits) ? numBits: maxBits;
-      }
-
-      return printed;
-    }
   }
-  else {
 
-    if (!strcmp(i_format, "x") || !strcmp(i_format, "xl")) {
-      printed = i_data.genHexLeftStr();
-    }
-    else if (!strcmp(i_format, "xr")) {
-      printed = i_data.genHexRightStr();
-    }
-    else if (!strcmp(i_format, "b")) {
-      printed = i_data.genBinStr();
-    }
-    else if (!strcmp(i_format, "d")) {
-      // printed = i_data.genDecStr();  need to implement this
-    }
+  if (curState == ECMD_FORMAT_NONE) {
+    good = false;
+  }
 
+  if (!good) {
+    //check for other possible formats the string might match
+  }
+
+  if (!good) {
+    printed = "Unrecognized format string: ";
+    printed += i_format;
+    ecmdOutputError(printed.c_str());
     return printed;
   }
 
-  //if we made it this far, it's a special format 
+  if (curState == ECMD_FORMAT_X) {
+    printed = i_data.genHexLeftStr();
+  }
+  else if (curState == ECMD_FORMAT_XR) {
+    printed = i_data.genHexRightStr();
+  }
+  else if (curState == ECMD_FORMAT_B) {
+    printed = i_data.genBinStr();
+  }
+  else if (curState == ECMD_FORMAT_BX) {
+    //do something
+  }
+  else {
 
+    char * outstr = new char[40];
+    int curCol = 0;
+    int colCount = 0;
+    int blockSize = 32;
+    if (curState == ECMD_FORMAT_BN) blockSize = 4;
+    int curOffset = 0;
+    int numBlocks = (i_data.getWordLength() * 32) / blockSize;
+    
+    if (numCols) {
+      printed = "\n00: ";
+    }
+
+    for (int i = 0; i < numBlocks; i++) {
+
+      if (curState == ECMD_FORMAT_XW) {
+        printed += i_data.genHexLeftStr(curOffset, blockSize);
+      }
+      else if (curState == ECMD_FORMAT_XRW) {
+        printed += i_data.genHexRightStr(curOffset, blockSize);
+      }
+      else {
+        printed += i_data.genBinStr(curOffset, blockSize);
+      }
+
+      colCount++;
+      if (numCols && colCount == numCols && (i != numBlocks-1) ) {
+        curCol += numCols;
+        if (curCol < 10) {
+          sprintf(outstr, "\n0%d: ", curCol);
+        }
+        else {
+          sprintf(outstr, "\n%d: ", curCol % 100);
+        }
+
+        printed += outstr;
+        colCount = 0;
+      }
+      else {
+        printed += " ";
+      }
+
+      curOffset += blockSize;
+    }
+
+    delete outstr;
+    outstr = NULL;
+  }
+
+  printed += "\n";
   return printed;
+
 }
+
 
 int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
 

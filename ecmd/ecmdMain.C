@@ -34,12 +34,21 @@
 #include <ecmdIntReturnCodes.H>
 
 #include <stdio.h>
+#include <string>
 
 #undef ecmdMain_C
 
 int main (int argc, char *argv[])
 {
   int rc = 0;
+
+  std::string cmdsave;
+  for (int i = 0; i < argc; i++) {
+    cmdsave += argv[i];
+    cmdsave += " ";
+  }
+
+  cmdsave += "\n";
 
 #ifdef _AIX
   rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_aix.so");
@@ -61,6 +70,7 @@ int main (int argc, char *argv[])
 
   }
 
+  ecmdOutput(cmdsave.c_str());
 
   ecmdUnloadDll();
 

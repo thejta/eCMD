@@ -59,7 +59,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target);
 
 std::string ecmdWriteTarget (ecmdChipTarget & i_target);
 
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format);
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format, int address = 0);
 
 int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
 

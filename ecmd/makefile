@@ -8,7 +8,7 @@ OS           := $(shell uname)
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := ecmdInterpreter.H ecmdIntReturnCodes.H
-SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdDaScomUser.C ecmdCommandUtils.C
+SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdDaScomUser.C ecmdCommandUtils.C ecmdRingUser.C
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g 
 
