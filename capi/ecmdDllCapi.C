@@ -307,7 +307,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
 
   /* Okay, target setup as best we can, let's go out to query cnfg with it */
-  rc = dllQueryConfig(i_target, o_queryData);
+  rc = dllQueryConfig(i_target, o_queryData, ECMD_QUERY_DETAIL_LOW);
 
 
   /* now I need to go in and clean out any excess stuff */

@@ -33,6 +33,8 @@
 #include <ecmdInterpreter.H>
 #include <ecmdIntReturnCodes.H>
 
+#include <stdio.h>
+
 #undef ecmdMain_C
 
 int main (int argc, char *argv[])

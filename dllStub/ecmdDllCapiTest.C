@@ -68,6 +68,8 @@ int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer &
 
 int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
 
+  data.setWord(0, 0xFEEDB0B0);
+  data.setWord(1, 0xDEADBEEF);
   return ECMD_SUCCESS;
 }
 
@@ -91,7 +93,7 @@ int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
   return ECMD_SUCCESS;
 }
 
-int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData) {
+int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData, ecmdQueryDetail_t i_detail) {
 
   ecmdCoreData coreData;
   ecmdChipData chipData;
@@ -124,7 +126,6 @@ int dllQueryConfig(ecmdChipTarget & target, std::list<ecmdCageData> & queryData)
   nodeData.chipData.push_back(cd2);
 
   nodeData.nodeId = 0;
-  printf("Node data length: %d\n", nodeData.chipData.size());
 
   cageData.cageId = 0;
   cageData.nodeData.push_front(nodeData);

@@ -76,7 +76,7 @@ SOURCE_OBJS  = $(basename $(SOURCE))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 STATIC_SOURCE_OBJS  = $(basename $(SOURCE)) $(basename $(STATIC_SOURCE))
 STATIC_SOURCE_OBJS := $(addsuffix _static.o, $(STATIC_SOURCE_OBJS))
-EC_SOURCE_OBJS  = $(basename $(ECMD_SOURCE))
+EC_SOURCE_OBJS = $(basename $(ECMD_SOURCE))
 EC_SOURCE_OBJS := $(addsuffix _static.o, $(EC_SOURCE_OBJS))
 
 

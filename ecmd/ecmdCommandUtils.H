@@ -59,7 +59,9 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target);
 
 void ecmdWriteTarget (ecmdChipTarget & i_target);
 
-int ecmdWriteDataFormatted (const char * i_format, ecmdDataBuffer & i_data);
+int ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format);
+
+int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
 
 #endif /* ecmdCommandUtils_h */
 

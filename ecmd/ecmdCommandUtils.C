@@ -26,6 +26,7 @@
 #include <list>
 #include <inttypes.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdIntReturnCodes.H>
@@ -98,8 +99,6 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   ecmdCurCage = ecmdSystemConfigData.begin();
   ecmdLooperInitFlag = 1;
 
-  ecmdOutput("Looper Initialized\n");
-
   return rc;
 }
 
@@ -114,10 +113,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   uint8_t level = CAGE;
   uint8_t valid = 1;
 
-  ecmdOutput("Entering Looper Next\n");
-
   if (ecmdCurCage == ecmdSystemConfigData.end()) {
-    ecmdOutput("Immediate bailout\n");
     return 0;
   }
 
@@ -203,17 +199,11 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
       if (ecmdCurThread != (*ecmdCurCore).threadData.end()) {
         break;
       }
-      else {
-        ecmdOutput("Fell through thread\n");
-      }
 
     case 3:  //core
       ecmdCurCore++;
       if (ecmdCurCore != (*ecmdCurChip).coreData.end()) {
         break;
-      }
-      else {
-        ecmdOutput("Fell through core\n");
       }
 
     case 2:  //chip
@@ -221,17 +211,11 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
       if (ecmdCurChip != (*ecmdCurNode).chipData.end()) {
         break;
       }
-      else {
-        ecmdOutput("Fell through chip\n");
-      }
 
     case 1:  //node
       ecmdCurNode++;
       if (ecmdCurNode != (*ecmdCurCage).nodeData.end()) {
         break;
-      }
-      else {
-        ecmdOutput("Fell through node\n");
       }
 
     case 0:  //cage
@@ -289,17 +273,17 @@ void ecmdWriteTarget (ecmdChipTarget & i_target) {
           printed += util;
         }
         else {
-          printed += "   ";
+          printed += "   ";  //adjust spacing
         }
 
       } //core
       else {
-        printed += "      ";
+        printed += "      ";  //adjust spacing
       }
 
     } //pos
     else {
-      printed += "          ";
+      printed += "          ";  //adjust spacing
     }
     
   } //node
@@ -311,7 +295,7 @@ void ecmdWriteTarget (ecmdChipTarget & i_target) {
 
 }
 
-int ecmdWriteDataFormatted (const char * i_format, ecmdDataBuffer & i_data) {
+int ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format) {
 
   std::string printed;
   int formTagLength = strlen(i_format);
@@ -373,6 +357,7 @@ int ecmdWriteDataFormatted (const char * i_format, ecmdDataBuffer & i_data) {
         numToFetch = (numBits < maxBits) ? numBits: maxBits;
       }
 
+      ecmdOutput("\n");
       return ECMD_SUCCESS;
     }
   }
@@ -391,12 +376,49 @@ int ecmdWriteDataFormatted (const char * i_format, ecmdDataBuffer & i_data) {
       // printed = i_data.genDecStr();  need to implement this
     }
 
+    ecmdOutput(printed.c_str());
+    ecmdOutput("\n");
     return ECMD_SUCCESS;
   }
 
   //if we made it this far, it's a special format 
 
   return ECMD_SUCCESS;
+}
+
+int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
+
+  int wordCounter = 0;
+  uint32_t maxBits = 32;
+  uint32_t numBits = i_data.getBitLength();
+  uint32_t numToFetch = numBits < maxBits ? numBits : maxBits;
+  uint32_t curData, curExpected;
+
+  while (numToFetch > 0) {
+
+    curData = i_data.getWord(wordCounter);
+    curExpected = i_expected.getWord(wordCounter);
+
+    if (numToFetch == maxBits) {
+      if (curData != curExpected) 
+        return 0;
+    }
+    else {
+      uint32_t mask = 0x80000000;
+      for (int i = 0; i < numToFetch; i++, mask >>= 1) {
+        if ( (curData & mask) != (curExpected & mask) ) {
+          return 0;
+        }
+      }
+    }
+
+    numBits -= numToFetch;
+    numToFetch = (numBits < maxBits) ? numBits : maxBits;
+    wordCounter++;
+  }
+
+  return 1;
+        
 }
 
 // Change Log *********************************************************
