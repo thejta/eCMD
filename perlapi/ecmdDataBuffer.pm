@@ -249,10 +249,9 @@ sub setWord() {
 =cut
 
 sub getWord() {
-	my ($i_wordOffset) = @_[1];
-	my ($extracted) ="";
-	$extracted = substr($iv_DataStr,$i_wordOffset*32,32);
-	return $extracted;
+#	a zero is added to the function call because of the way the argument parsing is handled.
+	my $word = genHexLeftStr(0,@_[1]*32, 32);
+	return $word;
 }
 
 
@@ -936,7 +935,7 @@ sub genHexLeftStr() {
 	my ($i_start)   = @_[1];
 	my ($i_bitlen)  = @_[2];
 	my ($len)       = 0;
-	my ($hexStr)    = "0x";
+	my ($hexStr)    = "";
 	my ($remainder) = 0;
 	my ($nibbles)   = 0;
 	my ($looper)    = 0;
