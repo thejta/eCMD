@@ -1051,6 +1051,10 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "Unknown\n";
   ecmdOutput(printed.c_str());
 
+  printed = "Dll Product Type : ";
+  printed += info.dllProductType + "\n";
+  ecmdOutput(printed.c_str());
+
   printed = "Dll Environment  : ";
   if (info.dllEnv == ECMD_DLL_ENV_HW)
     printed += "Hardware\n";
