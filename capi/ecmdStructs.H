@@ -304,7 +304,7 @@ struct ecmdArrayEntry {
  @brief Used by get/putSprMultiple function to pass data
 */
 struct ecmdNameEntry {
-  std::string    name;                  ///< Name of entry to Address
+  std::string    name;                  ///< Name of entry 
   ecmdDataBuffer buffer;                ///< Data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
@@ -313,7 +313,7 @@ struct ecmdNameEntry {
  @brief Used by getTraceArrayMultiple function to pass data
 */
 struct ecmdNameVectorEntry {
-  std::string    name;                  ///< Name of entry to Address
+  std::string    name;                  ///< Name of entry 
   std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
@@ -322,7 +322,7 @@ struct ecmdNameVectorEntry {
  @brief Used by get/put Gpr/Fpr Multiple function to pass data
 */
 struct ecmdIndexEntry {
-  int            index;                 ///< Index of entry to address
+  int            index;                 ///< Index of entry
   ecmdDataBuffer buffer;                ///< Data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 }; 
@@ -418,6 +418,13 @@ typedef enum {
 } ecmdTraceType_t;
 
 
+/**
+ @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
+*/
+typedef enum {
+  ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
+  ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
+} ecmdLatchMode_t;
 
 
 

@@ -77,10 +77,10 @@ all: dir ${TARGET} ${SLIB}
 	@mv *.o *.a *.so ${SUBDIR}
 	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a ${SUBDIR}/t.so
 	@echo "Exporting eCMD Client Api/Shared Lib to export/ ..."
-	@cp ${SUBDIR}${TARGET} export/
-	@cp ${SUBDIR}${SLIB} export/
-	@cp ${INCLUDES} export/
-	-@cp ecmdDllCapi.H ../dll/
+	@cp -p ${SUBDIR}${TARGET} export/
+	@cp -p ${SUBDIR}${SLIB} export/
+	@cp -p ${INCLUDES} export/
+	-@cp -p ecmdDllCapi.H ../dll/
 
 clean:
 	rm -rf ${SUBDIR} export/

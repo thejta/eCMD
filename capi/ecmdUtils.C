@@ -58,6 +58,9 @@ typedef enum {
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
+
+void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state);
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -170,147 +173,222 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   const uint8_t CHIP = 3;
   const uint8_t CORE = 4;
   const uint8_t THREAD = 5;
+  bool done = false;
+  uint8_t level;
 
-  uint8_t level = CAGE;
-  uint8_t valid = 1;
+  while (!done) {
+    level = CAGE;
+    uint8_t valid = 1;
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Entering\n"; ecmdOutput(printed.c_str());
-  }
+    if (ecmdClientDebug > 1) {
+      std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Entering\n"; ecmdOutput(printed.c_str());
+    }
 #endif
 
-  /* We are at the end of the loop, nothing left to loop on, get out of here */
-  if (io_state.ecmdCurCage == io_state.ecmdSystemConfigData.cageData.end()) {
-    return 0;
-  }
+    /* We are at the end of the loop, nothing left to loop on, get out of here */
+    if (io_state.ecmdCurCage == io_state.ecmdSystemConfigData.cageData.end()) {
+      return 0;
+    }
 
-  /* ******** NOTE : The iterators in io_state always point to the next instance to use */
-  /*           (the one that should be returned from this function ****************     */
+    /* ******** NOTE : The iterators in io_state always point to the next instance to use */
+    /*           (the one that should be returned from this function ****************     */
 
-  /* Enter if : */
-  /* First time in config looper */
-  /* last cage != current cage */
-  if (io_state.ecmdLooperInitFlag || io_target.cage != (*io_state.ecmdCurCage).cageId) {
+    /* Enter if : */
+    /* First time in config looper */
+    /* last cage != current cage */
+    /* node state changed since last call */
+    if (io_state.ecmdLooperInitFlag ||
+        io_target.cage != (*io_state.ecmdCurCage).cageId ||
+        io_state.prevTarget.nodeState != io_target.nodeState) {
 
-    io_target.cage = (*io_state.ecmdCurCage).cageId;
-    io_state.ecmdCurNode = (*io_state.ecmdCurCage).nodeData.begin();
-    valid = 0;
+      if ((io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
+        /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
+        /* Increment the iterators to point to the next target */
+        ecmdIncrementLooperIterators(level, io_state);
+        /* Restart the process */
+        io_state.prevTarget = io_target;
+        continue;
+      }
 
-    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end()) {
-      io_target.node = 0;
+      io_target.cage = (*io_state.ecmdCurCage).cageId;
+      io_state.ecmdCurNode = (*io_state.ecmdCurCage).nodeData.begin();
+      valid = 0;
+
+      if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end()) {
+        io_target.node = 0;
+      }
+      else {
+        level = NODE;
+      }
+
     }
     else {
       level = NODE;
     }
 
-  }
-  else {
-    level = NODE;
-  }
+    /* Enter if : */
+    /* Level == Node (the user is looping with nodes  */
+    /* !valid - current node iterator isn't valid */
+    /* last node != current node */
+    /* slot state changed since last call */
+    if (level == NODE &&
+        (!valid ||
+         io_target.node != (*io_state.ecmdCurNode).nodeId ||
+         io_state.prevTarget.slotState != io_target.slotState)) {
 
-  /* Enter if : */
-  /* Level == Node (the user is looping with nodes  */
-  /* !valid - current node iterator isn't valid */
-  /* last node != current node */
-  if (level == NODE && (!valid || io_target.node != (*io_state.ecmdCurNode).nodeId)) {
+      if ((io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_target.slotState == ECMD_TARGET_FIELD_UNUSED)) {
+        /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
+        /* Increment the iterators to point to the next target */
+        ecmdIncrementLooperIterators(level, io_state);
+        /* Restart the process */
+        io_state.prevTarget = io_target;
+        continue;
+      }
 
-    io_target.node = (*io_state.ecmdCurNode).nodeId;
-    io_state.ecmdCurSlot = (*io_state.ecmdCurNode).slotData.begin();
-    valid = 0;
-  
-    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end()) {
-      io_target.slot = 0;
+      io_target.node = (*io_state.ecmdCurNode).nodeId;
+      io_state.ecmdCurSlot = (*io_state.ecmdCurNode).slotData.begin();
+      valid = 0;
+
+      if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end()) {
+        io_target.slot = 0;
+      }
+      else {
+        level = SLOT;
+      }
+
     }
-    else {
+    else if (valid) {
       level = SLOT;
     }
 
-  }
-  else if (valid) {
-    level = SLOT;
-  }
+    /* Enter if : */
+    /* Level == Slot (the user is looping with Slots  */
+    /* !valid - current Slot iterator isn't valid */
+    /* last Slot != current Slot */
+    /* chippos or chiptype state changed since last call */
+    if (level == SLOT &&
+        (!valid ||
+         io_target.slot != (*io_state.ecmdCurSlot).slotId || 
+         io_state.prevTarget.chipTypeState != io_target.chipTypeState ||
+         io_state.prevTarget.posState != io_target.posState )) {
 
-  /* Enter if : */
-  /* Level == Slot (the user is looping with Slots  */
-  /* !valid - current Slot iterator isn't valid */
-  /* last Slot != current Slot */
-  if (level == SLOT && (!valid || io_target.slot != (*io_state.ecmdCurSlot).slotId)) {
+      if ((io_state.prevTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED) ||
+          (io_state.prevTarget.posState != ECMD_TARGET_FIELD_UNUSED) && (io_target.posState == ECMD_TARGET_FIELD_UNUSED)) {
+        /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
+        /* Increment the iterators to point to the next target */
+        ecmdIncrementLooperIterators(level, io_state);
+        /* Restart the process */
+        io_state.prevTarget = io_target;
+        continue;
+      }
 
-    io_target.slot = (*io_state.ecmdCurSlot).slotId;
-    io_state.ecmdCurChip = (*io_state.ecmdCurSlot).chipData.begin();
-    valid = 0;
-  
-    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end()) {
-      io_target.chipType = "";
-      io_target.pos = 0;
+      io_target.slot = (*io_state.ecmdCurSlot).slotId;
+      io_state.ecmdCurChip = (*io_state.ecmdCurSlot).chipData.begin();
+      valid = 0;
+
+      if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end()) {
+        io_target.chipType = "";
+        io_target.pos = 0;
+      }
+      else {
+        level = CHIP;
+      }
+
     }
-    else {
+    else if (valid) {
       level = CHIP;
     }
 
-  }
-  else if (valid) {
-    level = CHIP;
-  }
 
+    /* Enter if : */
+    /* Level == Chip (the user is looping with Chips  */
+    /* !valid - current Chip iterator isn't valid */
+    /* last ChipType != current ChipType */
+    /* last Chip pos != current Chip pos */
+    /* Core state changed since last call */
+    if (level == CHIP &&
+        (!valid ||
+         io_target.chipType != (*io_state.ecmdCurChip).chipType ||
+         io_target.pos != (*io_state.ecmdCurChip).pos ||
+         io_state.prevTarget.coreState != io_target.coreState)) {
 
-  /* Enter if : */
-  /* Level == Chip (the user is looping with Chips  */
-  /* !valid - current Chip iterator isn't valid */
-  /* last ChipType != current ChipType */
-  /* last Chip pos != current Chip pos */
-  if (level == CHIP && (!valid || io_target.chipType != (*io_state.ecmdCurChip).chipType || io_target.pos != (*io_state.ecmdCurChip).pos )) {
+      if ((io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_target.coreState == ECMD_TARGET_FIELD_UNUSED)) {
+        /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
+        /* Increment the iterators to point to the next target */
+        ecmdIncrementLooperIterators(level, io_state);
+        /* Restart the process */
+        io_state.prevTarget = io_target;
+        continue;
+      }
 
-    io_target.chipType = (*io_state.ecmdCurChip).chipType;
-    io_target.pos = (*io_state.ecmdCurChip).pos;
-    io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
-    valid = 0;
+      io_target.chipType = (*io_state.ecmdCurChip).chipType;
+      io_target.pos = (*io_state.ecmdCurChip).pos;
+      io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
+      valid = 0;
 
-    if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end()) {
-      io_target.core = 0;
-      io_target.thread = 0;
+      if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end()) {
+        io_target.core = 0;
+        io_target.thread = 0;
+      }
+      else {
+        level = CORE;
+      }
+
     }
-    else {
+    else if (valid) {
       level = CORE;
     }
 
-  }
-  else if (valid) {
-    level = CORE;
-  }
+    /* Enter if : */
+    /* Level == Core (the user is looping with Cores  */
+    /* !valid - current Core iterator isn't valid */
+    /* last Core != current Core */
+    /* thread state changed since last call */
+    if (level == CORE &&
+        (!valid ||
+         io_target.core != (*io_state.ecmdCurCore).coreId ||
+         io_state.prevTarget.threadState != io_target.threadState)) {
 
-  /* Enter if : */
-  /* Level == Core (the user is looping with Cores  */
-  /* !valid - current Core iterator isn't valid */
-  /* last Core != current Core */
-  if (level == CORE && (!valid || io_target.core != (*io_state.ecmdCurCore).coreId)) {
+      if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_target.threadState == ECMD_TARGET_FIELD_UNUSED)) {
+        /* When we called into the plugin they told us that whatever we are doing is not thread dependent, so stop looping on it */
+        /* Increment the iterators to point to the next target */
+        ecmdIncrementLooperIterators(level, io_state);
+        /* Restart the process */
+        io_state.prevTarget = io_target;
+        continue;
+      }
 
-    io_target.core = (*io_state.ecmdCurCore).coreId;
-    io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
-    valid = 0;
+      io_target.core = (*io_state.ecmdCurCore).coreId;
+      io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
+      valid = 0;
 
-    if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end()) {
-      io_target.thread = 0;
+      if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end()) {
+        io_target.thread = 0;
+      }
+      else {
+        level = THREAD;
+      }
+
     }
-    else {
+    else if (valid) {
       level = THREAD;
     }
 
-  }
-  else if (valid) {
-    level = THREAD;
-  }
+    /* Enter if : */
+    /* Level == Thread (the user is looping with Threads  */
+    /* !valid - current Thread iterator isn't valid */
+    /* last Thread != current Thread */
+    if (level == THREAD && (!valid || io_target.thread != (*io_state.ecmdCurThread).threadId)) {
 
-  /* Enter if : */
-  /* Level == Thread (the user is looping with Threads  */
-  /* !valid - current Thread iterator isn't valid */
-  /* last Thread != current Thread */
-  if (level == THREAD && (!valid || io_target.thread != (*io_state.ecmdCurThread).threadId)) {
+      io_target.thread = (*io_state.ecmdCurThread).threadId;
 
-    io_target.thread = (*io_state.ecmdCurThread).threadId;
+    }
 
-  }
+    /* We got here, must be done */
+    done = true;
+
+  } /* End while */
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug > 1) {
@@ -319,7 +397,34 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   }
 #endif
 
+  /* Increment the iterators to point to the next target */
+  ecmdIncrementLooperIterators(level, io_state);
+
+  if (io_state.ecmdLooperInitFlag) {
+    io_state.ecmdLooperInitFlag = false;
+  }
+  /* Store away the target */
+  io_state.prevTarget = io_target;
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+  return 1;
+
+}
+
+void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
   /* Let's start incrementing our lowest pointer so it points to the next object for the subsequent call to this function */
+  const uint8_t CAGE = 0;
+  const uint8_t NODE = 1;
+  const uint8_t SLOT = 2;
+  const uint8_t CHIP = 3;
+  const uint8_t CORE = 4;
+  const uint8_t THREAD = 5;
+
   switch (level) {
 
     case THREAD:  //thread
@@ -365,20 +470,8 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       //shouldn't get here
       break;
   }
-
-  if (io_state.ecmdLooperInitFlag) {
-    io_state.ecmdLooperInitFlag = false;
-  }
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Exiting\n"; ecmdOutput(printed.c_str());
-  }
-#endif
-
-  return 1;
-
 }
+
 
 uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format, int i_expectedLength) {
   uint32_t rc = ECMD_SUCCESS;

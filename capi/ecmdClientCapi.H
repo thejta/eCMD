@@ -259,6 +259,38 @@ uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
 */
 uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
+/**
+ @brief Reads the selected spy into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
+ @param o_data list of Entries containing all latches found matching i_latchName
+ @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
+
+ NOTE : This function is ring cache enabled
+
+*/
+uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdNameEntry> & o_data, ecmdLatchMode_t i_mode);
+
+
+/**
+ @brief Writes the data buffer into the all latches matching i_latchName
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
+ @param i_data DataBuffer object that holds data to write into latch
+ @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
+
+ NOTE : This function is ring cache enabled
+
+*/
+uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode);
 
 //@}
 
@@ -437,7 +469,7 @@ uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::str
 uint32_t getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask);
 
 /**
- @brief Writes the data buffer into the selected position in the selected spy
+ @brief Writes the data buffer into the selected spy
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
@@ -456,7 +488,7 @@ uint32_t getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGrou
 uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
 
 /**
- @brief Writes the enum into the selected position in the selected spy
+ @brief Writes the enum into the selected spy
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
@@ -606,15 +638,34 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
 
 
 
+/* This change is going into v2.0 not now */
+#if 0
+/** @name Clock Functions */
+//@{
+
+/**
+ @brief Query the state of the clocks for a domain
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_clockDomain Clock domain to query - as defined in scandef - use "ALL" to check all domains
+ @param o_clockState State of clocks for that domain
+*/
+
+uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t o_clockState);
 
 
+//@}
+#endif
 
-/** @name Flush and IPL Functions */
+
+/** @name iSteps Functions */
 //@{
 
 
 /**
- @brief Initial Program Load
+ @brief Run iSteps
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful

@@ -57,6 +57,7 @@
 #define ECMD_RING_CACHE_ENABLED                 0x1037 ///< Ring Cache enabled during call non-cache enabled function
 #define ECMD_INVALID_CONFIG_NAME                0x1038 ///< An Invalid name was used to set/get a configuation setting
 #define ECMD_SPY_GROUP_MISMATCH                 0x1039 ///< A mismatch was found reading a group spy not all groups set the same
+#define ECMD_INVALID_CLOCK_DOMAIN               0x1040 ///< An invalid clock domain name was specified
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
