@@ -79,7 +79,7 @@ void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
 //----------------------------------------------------------------------
 #ifndef ECMD_STRIP_DEBUG
 /* This is from ecmdClientCapi.C */
-extern bool ecmdDebug;
+extern int ecmdClientDebug;
 #endif
 
 //----------------------------------------------------------------------
@@ -256,7 +256,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   ecmdChipTarget queryTarget = io_target;
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdDebug) {
+  if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Entering\n"; ecmdOutput(printed.c_str());
   }
 #endif
@@ -294,7 +294,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
 
 #ifndef ECMD_STRIP_DEBUG
   /* Let's walk through the entire structure to see what the dll gave us back */
-  if (ecmdDebug) {
+  if (ecmdClientDebug > 5) {
     char buf[100];
     ecmdOutput("ECMD DEBUG (ecmdConfigLooperInit) : Query Selected Return Value\n");
     for (ecmdCurCage = ecmdSystemConfigData.cageData.begin(); ecmdCurCage != ecmdSystemConfigData.cageData.end(); ecmdCurCage ++) {
@@ -333,7 +333,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   ecmdLooperInitFlag = 1;
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdDebug) {
+  if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Exiting\n"; ecmdOutput(printed.c_str());
   }
 #endif
@@ -354,7 +354,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   uint8_t valid = 1;
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdDebug) {
+  if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Entering\n"; ecmdOutput(printed.c_str());
   }
 #endif
@@ -464,7 +464,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   }
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdDebug) {
+  if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Found next Target : " + ecmdWriteTarget(io_target); printed += "\n";
     ecmdOutput(printed.c_str());
   }
@@ -516,7 +516,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   }
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdDebug) {
+  if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Exiting\n"; ecmdOutput(printed.c_str());
   }
 #endif

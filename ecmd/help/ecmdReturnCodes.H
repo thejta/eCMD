@@ -41,11 +41,16 @@
 #define ECMD_INVALID_SPY_ENUM                   0x1021 ///< getSpyEnum or putSpyEnum used an invalid enum
 #define ECMD_SPY_FAILED_ECC_CHECK               0x1022 ///< getSpy or getSpyEnum failed with invalid ECC detected in the hardware
 #define ECMD_SPY_NOT_ENUMERATED                 0x1023 ///< getSpyEnum or putSpyEnum was called on a non-enumerated spy
-#define ECMD_INVALID_SPY                        0x1023 ///< Spy functions found an invalid Spy name or type
-#define ECMD_DATA_OVERFLOW                      0x1024 ///< To much data was provided to a write function
-#define ECMD_INVALID_RING                       0x1025 ///< Invalid ring name was provided
-#define ECMD_INVALID_ARRAY                      0x1026 ///< Invalid array name was provided
-#define ECMD_INVALID_CONFIG                     0x1027 ///< There was an error processing the configuration information
+#define ECMD_SPY_IS_EDIAL                       0x1024 ///< getSpy or Putspy was called on an edial
+#define ECMD_INVALID_SPY                        0x1025 ///< Spy functions found an invalid Spy name or type
+#define ECMD_DATA_OVERFLOW                      0x1026 ///< Too much data was provided to a write function
+#define ECMD_DATA_UNDERFLOW                     0x1027 ///< Too little data was provided to a write function
+#define ECMD_INVALID_RING                       0x1028 ///< Invalid ring name was provided
+#define ECMD_INVALID_ARRAY                      0x1029 ///< Invalid array name was provided
+#define ECMD_INVALID_CONFIG                     0x1030 ///< There was an error processing the configuration information
+#define ECMD_CLOCKS_IN_INVALID_STATE            0x1031 ///< Chip Clocks were in an invalid state to perform the operation
+#define ECMD_NON_JTAG_CHIP                      0x1032 ///< JTag function called  on non-jtag attached chip
+#define ECMD_NON_FSI_CHIP                       0x1033 ///< Fsi function called on non-fsi attached chip
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command

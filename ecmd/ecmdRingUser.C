@@ -218,7 +218,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         if (found) {
 
-          if (curLine.find(ringPrefix) != std::string::npos) {
+          if (curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
             done = true;
           }
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
@@ -255,7 +255,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
           }
 
         }
-        else if (curLine.find(ringArg) != std::string::npos) {
+        else if (curLine[0] == '*' && curLine.find(ringArg) != std::string::npos) {
           found = true;
         }
 
@@ -297,7 +297,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr == NULL) {
-    format = "b";
+    format = "default";
   }
   else {
     format = formatPtr;
@@ -396,7 +396,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
       if (found) {
 
-        if (curLine.find(ringPrefix) != std::string::npos) {
+        if ((curLine[0] == '*') && curLine.find(ringPrefix) != std::string::npos) {
           done = true;
         }
         else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
@@ -425,7 +425,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
       }
       else {
-        if (curLine.find(ringArg) != std::string::npos) {
+        if (curLine[0] == '*' && curLine.find(ringArg) != std::string::npos) {
           found = true;
         }
       }
@@ -466,6 +466,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     printed = ecmdWriteTarget(target) + "\n";
+    ecmdOutput(printed.c_str());
     uint32_t bitsToFetch = numBits;
     uint32_t bitsFetched = 0;
 
@@ -474,13 +475,28 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
       bitsToFetch = ((*curLatchInfo).length < numBits) ? (*curLatchInfo).length : numBits;
       ringBuffer.extract(buffer, (*curLatchInfo).ringOffset, bitsToFetch);
 
-      printed += (*curLatchInfo).latchName + " " + ecmdWriteDataFormatted(buffer, format);
+      printed = curLatchInfo->latchName + " ";
+      if (format == "default") {
+
+        if (bitsToFetch <= 8) {
+          printed += " 0b" + buffer.genBinStr();
+        }
+        else {
+          printed += " 0x" + buffer.genHexLeftStr();
+        }
+
+        printed += "\n";
+
+      }
+      else {
+        printed += ecmdWriteDataFormatted(buffer, format);
+      }
+      ecmdOutput( printed.c_str());
       numBits -= bitsToFetch;
       bitsFetched += bitsToFetch;
   
     }
     
-    ecmdOutput( printed.c_str() );
 
   }
 
@@ -769,7 +785,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr == NULL) {
-    format = "b";
+    format = "x";
   }
   else {
     format = formatPtr;
@@ -871,13 +887,13 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     while (getline(ins, curLine) && !done) {
 
       if (found) {
-        if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+        if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '#') {
           //nada
         }
         else if (curLine.find(ringPrefix) != std::string::npos) {
           done = true;
         }
-        else if (curLine.find(latchName) != std::string::npos) {
+        else if ((curLine[0] != '*') && curLine.find(latchName) != std::string::npos) {
 
           ecmdParseTokens(curLine, curArgs);
           curLatch.length = atoi(curArgs[0].c_str());
@@ -887,7 +903,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
         }
       }
       else {
-        if (curLine.find(ringArg) != std::string::npos) {
+        if ((curLine[0] == '*') && curLine.find(ringArg) != std::string::npos) {
           found = true;
         }
       }
@@ -908,30 +924,48 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
 
     latchInfo.sort();
 
-    //confirm that we only fetched ONE latch name
-    curLatchInfo = latchInfo.begin();
-    while (curLatchInfo != latchInfo.end()) {
-
-      curLatch = (*curLatchInfo);
-      curLatchInfo++;
-      if (curLatchInfo == latchInfo.end()) break;
-
-      if (curLatch != (*curLatchInfo)) {
-        std::string printed = "putlatch - Multiple latch names found: ";
-        printed += curLatch.latchName + " and ";
-        printed += (*curLatchInfo).latchName + "\n";
-        ecmdOutputError( printed.c_str() );
+    /* Let's make sure the latches we found all have the same name */
+    /* We might also want to verify that we found consecutive bits for the latch */
+    std::string curLatchName;
+    for (curLatchInfo = latchInfo.begin(); curLatchInfo != latchInfo.end(); curLatchInfo++) {
+      if (curLatchInfo == latchInfo.begin())
+        curLatchName = curLatchInfo->latchName;
+      else if (curLatchName != curLatchInfo->latchName) {
+        ecmdOutputError("putlatch - Found multiple latches that match name provided, please provide additional latch name - unable to perform putlatch\n");
         return ECMD_INVALID_ARGS;
       }
     }
 
+    buffer.copy(bufferCopy);
 
-    bufferCopy.copy(buffer);
-   
-    for (curLatchInfo = latchInfo.begin(); bufferCopy.getBitLength() > 0 && curLatchInfo != latchInfo.end(); curLatchInfo++) {
 
-      ringBuffer.insert(bufferCopy, (*curLatchInfo).ringOffset, (*curLatchInfo).length);
-      bufferCopy.shiftLeft((*curLatchInfo).length);
+
+    int curstartbit = 0;
+    int curoffset = 0;
+    int totallen = 0, insertlen;
+    bool foundit = false;
+    for (curLatchInfo = latchInfo.begin(); curLatchInfo != latchInfo.end(); curLatchInfo++) {
+
+      /* Let's look for the beginning of the range we are looking for */
+      if (!foundit && (startBit < curstartbit + curLatchInfo->length)) {
+        curoffset = startBit - curstartbit;
+        foundit = true;
+        insertlen = curLatchInfo->length - curoffset;
+      } else if (foundit) {
+        curoffset = 0;
+        insertlen = curLatchInfo->length;
+      }
+      if (foundit) {
+        insertlen = totallen + insertlen > numBits ? numBits - totallen : insertlen;
+
+        ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curoffset, insertlen);
+        bufferCopy.shiftLeft(insertlen);
+
+        totallen += insertlen;
+
+        /* We are done, let's get out of here */
+        if (totallen >= numBits) break;
+      }
     }
 
     rc = putRing(target, ringName.c_str(), ringBuffer);

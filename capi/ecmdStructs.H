@@ -262,6 +262,13 @@ struct ecmdArrayData {
   ecmdClockState_t       clockState;    ///< Required clock state to access this spy
 };
 
+/**
+ @brief Used by the getArrayMultiple function to pass data
+*/
+struct ecmdArrayEntry {
+  uint32_t       address;               ///< Array address/element to access
+  ecmdDataBuffer buffer;                ///< Array data from address
+};
 
 /**
  @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData

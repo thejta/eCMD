@@ -40,7 +40,7 @@ print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 print OUT "extern \"C\" {\n\n";
 
 print OUT "/* Dll Common load function - verifies version */\n";
-print OUT "int dllLoadDll (const char * i_version);\n";
+print OUT "int dllLoadDll (const char * i_version, int debugLevel);\n";
 print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/\n";
 print OUT "int dllInitDll ();\n\n";
 print OUT "/* Dll Common unload function */\n";

@@ -350,7 +350,7 @@ public:
   void setAnd(uint32_t i_datain, int i_startbit, int i_len);
 
   /**
-   * @brief Copy entire contents of this ecmdDataBuffer into newcopy 
+   * @brief Copy entire contents of this ecmdDataBuffer into o_copyBuffer 
    * @param o_copyBuffer DataBuffer to copy data into
    * @post copyBuffer is an exact duplicate of this DataBuffer
    */

@@ -542,6 +542,14 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
   uint32_t prevCarry = 0x00000000;
   int i;
 
+  /* If we are going to shift off the end we can just clear everything out */
+  if (shiftNum >= iv_NumBits) {
+    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+    this->fillDataStr('0'); /* init to 0 */
+    iv_NumBits = ivNumWords = 0;
+    return;
+  }
+
   // shift iv_Data array
   for (int iter = 0; iter < shiftNum; iter++) {
     prevCarry = 0;
@@ -1034,7 +1042,7 @@ int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
 
 void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 
-  newCopy.setWordLength(iv_NumWords);
+  newCopy.setBitLength(iv_NumBits);
   // iv_Data
   for (int i = 0; i < iv_NumWords; i++) {
     newCopy.iv_Data[i] = iv_Data[i];
@@ -1042,7 +1050,7 @@ void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
   // char
 
 #ifndef REMOVE_SIM
-  strcpy(newCopy.iv_DataStr, iv_DataStr);
+  strncpy(newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
 #endif
 
 }

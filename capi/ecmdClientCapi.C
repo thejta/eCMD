@@ -58,7 +58,8 @@ extern void * dlHandle;
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
-bool ecmdDebug = false;
+/* @brief This is used to output Debug messages on the Client side */
+int ecmdClientDebug = 0;
 #endif
 
 //---------------------------------------------------------------------
@@ -80,6 +81,14 @@ int ecmdLoadDll(std::string i_dllName) {
 
   const char* dlError;
   int rc = ECMD_SUCCESS;
+
+#ifdef ECMD_STRIP_DEBUG
+  char* tmpptr = getenv("ECMD_DEBUG");
+  if (tmpptr != NULL)
+    ecmdClientDebug = atoi(tmpptr);
+  else
+    ecmdClientDebug = 0;
+#endif
 
 #ifndef ECMD_STATIC_FUNCTIONS
 #ifdef _AIX
@@ -114,17 +123,17 @@ int ecmdLoadDll(std::string i_dllName) {
 
   /* Now we need to call loadDll on the dll itself so it can initialize */
 
-  int (*Function)(const char *) = 
-      (int(*)(const char *))(void*)dlsym(dlHandle, "dllLoadDll");
+  int (*Function)(const char *,int) = 
+      (int(*)(const char *,int))(void*)dlsym(dlHandle, "dllLoadDll");
   if (!Function) {
     fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
     rc = ECMD_DLL_LOAD_FAILURE;
   } else {
-    rc = (*Function)(ECMD_CAPI_VERSION);
+    rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
   }
 
 #else
-  rc = dllLoadDll(ECMD_CAPI_VERSION);
+  rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
 
 #endif /* ECMD_STATIC_FUNCTIONS */
 
@@ -174,12 +183,6 @@ int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
   int rc = ECMD_SUCCESS;
 
-#ifndef ECMD_STRIP_DEBUG
-  /* Let's look for the ecmdDebug statement */
-  if (ecmdParseOption(i_argc, i_argv, "-ecmddebug")) {
-    ecmdDebug = true;
-  }
-#endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllCommonCommandArgs(i_argc, i_argv);

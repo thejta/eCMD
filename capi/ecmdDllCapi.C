@@ -60,6 +60,11 @@ uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+#ifndef ECMD_STRIP_DEBUG
+/* @brief This is used to output Debug messages on the DLL side */
+int ecmdDllDebug = 0;
+#endif
+
 /**
  * @brief Used for storing error messages internally to dll
  */
@@ -86,7 +91,7 @@ struct ecmdUserInfo {
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int dllLoadDll (const char* i_clientVersion) {
+int dllLoadDll (const char* i_clientVersion, int debugLevel) {
 
   /* First off let's check our version */
   if (strcmp(i_clientVersion,ECMD_CAPI_VERSION)) {
@@ -100,6 +105,8 @@ int dllLoadDll (const char* i_clientVersion) {
 */
     exit(999);
   }
+
+  ecmdDllDebug = debugLevel;
 
   return dllInitDll();
 

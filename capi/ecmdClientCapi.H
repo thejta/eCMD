@@ -221,6 +221,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
  @brief Scans the selected number of bits from the selected position in the selected ring into the data buffer
  @retval ECMD_INVALID_RING if ringname is not valid for target
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to read
@@ -238,8 +239,10 @@ int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to write
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
@@ -262,6 +265,7 @@ int putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
 /**
  @brief Scoms bits from the selected address into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to read
@@ -276,6 +280,9 @@ int getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_d
 /**
  @brief Scoms bits from the data buffer into the selected address
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -302,6 +309,7 @@ int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_d
  @param o_status Instruction status register value retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
+ @retval ECMD_NON_JTAG_CHIP Chip Target is a non-jtag attached chip
  @retval nonzero if unsuccessful
  NOTE : Proper parity will be generated on the command and modifier
  NOTE : This function forces a flush of the ring caches
@@ -318,6 +326,8 @@ int sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modif
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
@@ -335,6 +345,7 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
  @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
@@ -351,6 +362,7 @@ int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string &
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is not an ECC Grouping
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
  @param i_spyEccGroupName Name of spy to read from
@@ -368,6 +380,9 @@ int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
  @param i_spyName Name of spy to write to
@@ -384,7 +399,7 @@ int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
  @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
  @param i_spyName Name of spy to write to
@@ -437,6 +452,7 @@ int  ecmdFlushRingCache();
  @brief Reads bits from the selected array into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of array to read
@@ -444,16 +460,39 @@ int  ecmdFlushRingCache();
  @param o_data DataBuffer object that holds data read from address
  @param i_address Array Address to read from - length of DataBuffer should be set to length of valid address data
  @see putArray
+ @see getArrayMultiple
  NOTE : This function forces a flush of the ring caches
 
 */
 int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
 
 /**
+ @brief Reads bits from multiple array addresses/elements into the list of data buffers
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of array to read
+ @param i_arrayName Name of array to read from
+ @param io_entries list of array entries to fetch
+ @see putArray
+ @see getArray
+ NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return
+ NOTE : This function forces a flush of the ring caches
+
+*/
+int getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> io_entries);
+
+
+/**
  @brief Writes bits from the data buffer into the selected array
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_SUCCESS if successful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @param i_target Struct that contains chip and cage/node/position/core/thread information of array to write
@@ -465,6 +504,26 @@ int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
 
 */
 int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
+
+/**
+ @brief Writes bits from the list of entries into the selected array
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of array to write
+ @param i_arrayName Name of array to write to
+ @param i_entries List of addresses and data to write to chip
+ @see getArray
+ NOTE : This function forces a flush of the ring caches
+ NOTE : i_entries should be pre-loaded with address and data
+
+*/
+int putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> i_entries);
 
 //@}
 
