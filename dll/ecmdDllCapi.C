@@ -1658,7 +1658,11 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
              /* Transform to upper case */
              transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 	     ecmdParseTokens(curLine, " \t\n", curArgs);
-
+             if(curArgs.size() != 5) {
+	       rc = ECMD_SCANDEF_LOOKUP_FAILURE;
+               dllRegisterErrorMsg(rc, "dllReadScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
+               break;
+	     }
              if (latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
 	       curLatch.length = atoi(curArgs[0].c_str());
                curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
