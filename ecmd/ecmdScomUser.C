@@ -392,6 +392,14 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   bool expectFlag = false;
   bool maskFlag = false;
   bool verboseFlag = false;
+  std::string outputformat = "x";               ///< Output format
+  std::string inputformat = "x";                ///< Input format
+  ecmdChipTarget target;                        ///< Target we are operating on
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdDataBuffer buffer;                        ///< Store current scom data
+  ecmdDataBuffer expected;                      ///< Store expected data
+  ecmdDataBuffer mask;                          ///< Store mask data
 
   uint8_t NONE_T = 0;
   uint8_t SECONDS_T = 1;
@@ -405,15 +413,36 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   uint32_t numPolls = 1;
   uint32_t timerStart = 0x0;
 
+  char * curArg;                                ///< Used for arg parsing
+
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+
   //expect and mask flags check
-  if (ecmdParseOption(&argc, &argv, "-exp")) {
+  if ((curArg = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
 
-    if (ecmdParseOption(&argc, &argv, "-mask")) {
+    rc = ecmdReadDataFormatted(expected, curArg, inputformat);
+    if (rc) return rc;
+
+    if ((curArg = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
       maskFlag = true;
+
+      rc = ecmdReadDataFormatted(mask, curArg, inputformat);
+      if (rc) return rc;
+      
     }
   }
 
@@ -421,7 +450,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
     verboseFlag = true;
   }
 
-  char * curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
+  curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
   if (curArg != NULL) {
     interval = atoi(curArg);
     if (strstr(curArg, "c")) {
@@ -445,26 +474,17 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   }
 
   if (limitFlag != ITERATIONS_T && limitFlag != intervalFlag) {
-    ecmdRegisterErrorMsg(ECMD_INVALID_ARGS, "ecmdPollScom", "Invalid interval/limit pair.\nType 'pollscom -h' for usage.\n");
+    ecmdOutputError("pollscom - Invalid interval/limit pair.\nType 'pollscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
 #ifdef REMOVE_SIM
   if (intervalFlag == CYCLES_T) {
-    ecmdRegisterErrorMsg(ECMD_INVALID_ARGS, "ecmdPollScom", "Can't use cycles in non-simulation mode");
+    ecmdOutputError("pollscom - Can't use cycles in non-simulation mode");
     return ECMD_INVALID_ARGS;
   }
 #endif
 
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "xw";
-  }
-  else {
-    format = formatPtr;
-  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -483,7 +503,6 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
@@ -497,37 +516,10 @@ int ecmdPollScomUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //container to store data
-  ecmdDataBuffer buffer(3);  //the 3 is just a placeholder
-  ecmdDataBuffer * expected = NULL;  //don't want to allocate this unless I have to
-  ecmdDataBuffer * mask = NULL;  //ditto as for expected
-
-  if (expectFlag) {
-    int argLength = argc - 2;  //account for chip and address args
-
-    if (maskFlag) {
-      argLength /= 2;
-      mask = new ecmdDataBuffer(argLength);
-    }
-
-    expected = new ecmdDataBuffer(argLength);
-
-    for (int i = 0; i < argLength; i++) {
-
-      expected->insertFromHexLeft(argv[i+2], i * 32, 32);
-
-      if (maskFlag)
-        mask->insertFromHexLeft(argv[i+2+argLength], i * 32, 32);
- 
-    }
-
-  }
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  bool validPosFound = false;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   std::string printed;
@@ -569,10 +561,10 @@ int ecmdPollScomUser(int argc, char* argv[]) {
       if (expectFlag) {
 
         if (maskFlag) {
-          buffer.setAnd(*mask, 0, buffer.getBitLength());
+          buffer.setAnd(mask, 0, buffer.getBitLength());
         }
 
-        if (!ecmdCheckExpected(buffer, *expected)) {
+        if (!ecmdCheckExpected(buffer, expected)) {
 
           //mismatches
           if (done || verboseFlag) {
@@ -585,10 +577,10 @@ int ecmdPollScomUser(int argc, char* argv[]) {
               printed += "            : ";
             }
 
-            printed += ecmdWriteDataFormatted(buffer, format);
+            printed += ecmdWriteDataFormatted(buffer, outputformat);
 
             printed += "pollscom - Expected          : ";
-            printed += ecmdWriteDataFormatted(*expected, format);
+            printed += ecmdWriteDataFormatted(expected, outputformat);
 
             if (done) {
               char outstr[50];
@@ -611,7 +603,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
       else {
 
         printed = "Actual            : ";
-        printed += ecmdWriteDataFormatted(buffer, format);
+        printed += ecmdWriteDataFormatted(buffer, outputformat);
 
         if (done) {
           printed += ecmdWriteTarget(target);
@@ -647,7 +639,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
       }
       else {
 
-        ecmdRegisterErrorMsg(ECMD_INVALID_ARGS, "ecmdPollScom", "Invalid limit/interval argument pair");
+        ecmdOutputError("pollscom - Invalid limit/interval argument pair");
         return ECMD_INVALID_ARGS;
 
       }
@@ -659,16 +651,6 @@ int ecmdPollScomUser(int argc, char* argv[]) {
 
   }
 
-  if (expectFlag) {
-    delete expected;
-    expected = NULL;
-
-    if (maskFlag) {
-      delete mask;
-      mask = NULL;
-    }
-
-  }
 
   if (!validPosFound) {
     ecmdOutputError("pollscom - Unable to find a valid chip to execute command on\n");
