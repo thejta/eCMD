@@ -30,6 +30,7 @@
 */
 extern "C" {
 
+#ifndef PERLAPI
 /** @name Load/Unload Functions */
 //@{
 
@@ -45,6 +46,7 @@ uint32_t cipInitExtension();
 
 
 //@}
+#endif
 
 
 /** @name Processor Functions */

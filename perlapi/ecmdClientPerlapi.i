@@ -19,6 +19,7 @@
 // Insert C code into the file swig generates
 %{
 #include "ecmdClientPerlapi.H"
+#include "ecmdClientPerlapiFunc.H"
 #include "ecmdDataBuffer.H"
 #include "ecmdStructs.H"
 #include "ecmdClientPerlapiIterators.H"
@@ -26,6 +27,7 @@
 #include "ecmdPluginExtensionSupport.H"
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
   #include "cipClientPerlapi.H"
+  #include "cipClientPerlapiFunc.H"
 #endif
 
 %}
@@ -65,6 +67,7 @@
 
 /*********** Start Files to swigify ***********/
 %include ecmdClientPerlapi.H
+%include ecmdClientPerlapiFunc.H
 %include ecmdDataBuffer.H
 %include ecmdStructs.H
 %include ecmdClientPerlapiIterators.H
@@ -73,6 +76,7 @@
 %include ecmdPluginExtensionSupport.H
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
   %include cipClientPerlapi.H
+  %include cipClientPerlapiFunc.H
 #endif
 /*********** End Files to swigify ***********/
 

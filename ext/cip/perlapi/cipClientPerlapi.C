@@ -29,14 +29,7 @@
 #include <ecmdSharedUtils.H>
 
 
-cipClientPerlapi::cipClientPerlapi () {
-}
-
-cipClientPerlapi::~cipClientPerlapi () {
-}
-
-
-int cipClientPerlapi::cipInitExtension() {
+int CIPPERLAPI::cipInitExtension() {
   return ::cipInitExtension();
 }
 

@@ -30,10 +30,6 @@
 #include <ecmdClientPerlapi.H>
 #include <ecmdSharedUtils.H>
 
-void TEST::hellWorld() { printf("Hello World!\n\n"); }
-
-
-
 static int myErrorCode = ECMD_SUCCESS;
 static bool safeMode = true;
 
@@ -112,11 +108,3 @@ int ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
   ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
-
-
-
-/* This is hand created because we can't croak on a non-zero return code as it is used to control looping */
-uint32_t ECMDPERLAPI::ecmdConfigLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) { 
-  return ::ecmdConfigLooperNext(io_target, io_state);
-}
-

@@ -31,7 +31,7 @@ VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H
 INT_INCLUDES := 
 SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
-MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRenames.i
+MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRenames.i
 DEFINES      := 
 CFLAGS       := -I. -I../capi/export -g -I../dll
 SWIGFLAGS    := -c++ -perl5 -exportall -const -I../dll 
@@ -54,6 +54,7 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/exp
 SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.C)
+MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.H)
 
 # *****************************************************************************
 # The Linux Setup stuff
@@ -122,8 +123,7 @@ endif
 clean:
 	rm -rf ${SUBDIR}
 	rm -f *.o *wrap*
-	rm -f ecmdClientPerlapiFunc.C
-	rm -f cipClientPerlapiFunc.C
+	rm -f *ClientPerlapiFunc.*
 	rm -f ecmdClientPerlapiIterators.pl
 	rm -f ecmdClientPerlapiIterators.H
 	rm -f ecmdRename.i
