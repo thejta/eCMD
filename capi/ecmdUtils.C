@@ -202,7 +202,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         io_target.cage != (*io_state.ecmdCurCage).cageId ||
         io_state.prevTarget.nodeState != io_target.nodeState) {
 
-      if ((io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
+      /* If our cage didn't change from the last loop, but our node state did we may need to force an increment */
+      if ((io_target.cage == (*io_state.ecmdCurCage).cageId) &&
+          (io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
         /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
         /* Increment the iterators to point to the next target */
         ecmdIncrementLooperIterators(level, io_state);
@@ -237,7 +239,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
          io_target.node != (*io_state.ecmdCurNode).nodeId ||
          io_state.prevTarget.slotState != io_target.slotState)) {
 
-      if ((io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_target.slotState == ECMD_TARGET_FIELD_UNUSED)) {
+      /* If our node didn't change from the last loop, but our slot state did we may need to force an increment */
+      if ((io_target.node == (*io_state.ecmdCurNode).nodeId) &&
+          (io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_target.slotState == ECMD_TARGET_FIELD_UNUSED)) {
         /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
         /* Increment the iterators to point to the next target */
         ecmdIncrementLooperIterators(level, io_state);
@@ -273,8 +277,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
          io_state.prevTarget.chipTypeState != io_target.chipTypeState ||
          io_state.prevTarget.posState != io_target.posState )) {
 
-      if ((io_state.prevTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED) ||
-          (io_state.prevTarget.posState != ECMD_TARGET_FIELD_UNUSED) && (io_target.posState == ECMD_TARGET_FIELD_UNUSED)) {
+      /* If our slot  didn't change from the last loop, but our pos/chiptype state did we may need to force an increment */
+      if ((io_target.slot == (*io_state.ecmdCurSlot).slotId) &&
+          ((io_state.prevTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED) ||
+          (io_state.prevTarget.posState != ECMD_TARGET_FIELD_UNUSED) && (io_target.posState == ECMD_TARGET_FIELD_UNUSED))) {
         /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
         /* Increment the iterators to point to the next target */
         ecmdIncrementLooperIterators(level, io_state);
@@ -313,7 +319,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
          io_target.pos != (*io_state.ecmdCurChip).pos ||
          io_state.prevTarget.coreState != io_target.coreState)) {
 
-      if ((io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_target.coreState == ECMD_TARGET_FIELD_UNUSED)) {
+      /* If our pos/chiptype didn't change from the last loop, but our core state did we may need to force an increment */
+      if ((io_target.chipType == (*io_state.ecmdCurChip).chipType) &&
+          (io_target.pos == (*io_state.ecmdCurChip).pos) &&
+          (io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_target.coreState == ECMD_TARGET_FIELD_UNUSED)) {
         /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
         /* Increment the iterators to point to the next target */
         ecmdIncrementLooperIterators(level, io_state);
@@ -350,7 +359,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
          io_target.core != (*io_state.ecmdCurCore).coreId ||
          io_state.prevTarget.threadState != io_target.threadState)) {
 
-      if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_target.threadState == ECMD_TARGET_FIELD_UNUSED)) {
+      /* If our core didn't change from the last loop, but our thread state did we may need to force an increment */
+      if ((io_target.core == (*io_state.ecmdCurCore).coreId) &&
+          (io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_target.threadState == ECMD_TARGET_FIELD_UNUSED)) {
         /* When we called into the plugin they told us that whatever we are doing is not thread dependent, so stop looping on it */
         /* Increment the iterators to point to the next target */
         ecmdIncrementLooperIterators(level, io_state);
