@@ -49,6 +49,10 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
 uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode); 
 
+uint32_t dllGetRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
+
+uint32_t dllPutRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
+
 uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
@@ -65,7 +69,7 @@ uint32_t dllGetSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::s
 
 uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask); 
 
-uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char* i_spyName, std::list < ecmdDataBuffer > & o_groups); 
+uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups); 
 
 uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
 
