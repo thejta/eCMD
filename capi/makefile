@@ -23,7 +23,7 @@ ifeq (${OS},Linux)
   LD       := ${CC}
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
-  CFLAGS   := ${CFLAGS} -ftemplate-depth-25
+  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   SLIBLDFLAGS :=  -shared  -e sdll.exp
   GPATH   := ${SUBDIR}
 endif
