@@ -2,7 +2,7 @@
 %include typemaps.i
 %include cpointer.i
 
-%typemap(in) char ** o_data(char* cvalue) {
+%typemap(in) char ** o_data (char* cvalue) {
   SV* tempsv;
   if (!SvROK($input)) {
     croak("ecmdClientPerlapi.i::expected a reference\n");
@@ -27,6 +27,36 @@
   *$1 = NULL;
   free($1);
 }
+
+%typemap(in) char ** o_enumValue (char* cvalue) {
+  SV* tempsv;
+  if (!SvROK($input)) {
+    croak("ecmdClientPerlapi.i::expected a reference\n");
+  }
+  tempsv = SvRV($input);
+  if (!SvPOK(tempsv)) {
+    croak("ecmdClientPerlapi.i::expected a string reference\n");
+  }
+  cvalue = SvPV(tempsv,PL_na);
+  $1 = (char**)malloc(sizeof(char*));
+
+  *$1 = cvalue;
+}
+
+%typemap(argout) char ** o_enumValue {
+  SV *tempsv;
+  if (*$1 != NULL) {
+    tempsv = SvRV($arg);
+    sv_setpv(tempsv, *$1);
+    free(*$1);
+  }
+  *$1 = NULL;
+  free($1);
+}
+
+#%typemap(freearg) char ** o_enumValue {
+#	free($1);
+#}
 
 
 %typemap(in) int *o_matchs (int dvalue),int &o_matchs (int dvalue)  {
