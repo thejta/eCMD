@@ -64,10 +64,10 @@ VPATH := ${SUBDIR}
 # The MPatrol Stuff
 # *****************************************************************************
 ifeq (${SITE},rchland.ibm.com)
-  MPATROL_HOME := /afs/rchland/rel/common/cte/tools/ecmd/mpatrol
+  MPATROL_HOME := /afs/rchland/rel/common/cte/tools/ecmd/utils/mpatrol/
 endif
 ifeq (${SITE},awd.austin.ibm.com)
-  MPATROL_HOME := /afs/awd.austin.ibm.com/projects/cte/tools/ecmd/mpatrol
+  MPATROL_HOME := /afs/awd.austin.ibm.com/projects/cte/tools/ecmd/utils/mpatrol/
 endif
 ifeq (${MPATROL},yes) 
   DEFINES   := ${DEFINES} -DENABLE_MPATROL
