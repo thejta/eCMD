@@ -937,6 +937,9 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
   
   if( i_mode == ECMD_LATCHMODE_FULL) {
     rc = dllReadScandefHash(target, i_ringName, i_latchName, curEntry);
+    if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)))) {
+      return rc;
+    }
   }
   if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
     rc = dllReadScandef(target, i_ringName, i_latchName, i_mode, curEntry);
@@ -1133,6 +1136,9 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
   if( i_mode == ECMD_LATCHMODE_FULL) {
     rc = dllReadScandefHash(i_target, i_ringName, i_latchName, curEntry);
+    if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)))) {
+      return rc;
+    }
   }
   if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
     rc = dllReadScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
