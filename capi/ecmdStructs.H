@@ -23,8 +23,8 @@
 // Includes
 //--------------------------------------------------------------------
 #include <inttypes.h>
-#include <vector.h>  /* For STL vector */
-#include <string>  /* For string */
+#include <vector>  /* For STL vector */
+#include <string>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
