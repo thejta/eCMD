@@ -23,7 +23,7 @@ ifeq (${OS},Linux)
   LD        := ${CC}
   LDFLAGS   := -shared -e dll.exp
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
-  CFLAGS    := ${CFLAGS} -ftemplate-depth-20
+  CFLAGS    := ${CFLAGS} -ftemplate-depth-30
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/linux/perl/lib/5.6.1/i386-linux/CORE
   SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/bin/swig
   SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib/swig_lib/perl5
