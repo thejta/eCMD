@@ -949,12 +949,26 @@ void ecmdClientPerlapi::ecmdOutput(const char* i_message){
 
 
 int ecmdClientPerlapi::startClocks (const char* i_target, const char * i_clockDomain) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+  bool i_forceState=false;
+  
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  rc = ::startClocks(myTarget, i_clockDomain, i_forceState);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int ecmdClientPerlapi::stopClocks (const char* i_target, const char * i_clockDomain) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+  bool i_forceState=false;
+  
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  rc = ::stopClocks(myTarget, i_clockDomain, i_forceState);
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
