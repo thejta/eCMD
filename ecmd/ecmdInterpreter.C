@@ -164,6 +164,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetArrayUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getcfam")) {
+          rc = ecmdGetCfamUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getconfig")) {
           rc = ecmdGetConfigUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getfpr")) {
@@ -220,6 +222,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutArrayUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putbits")) {
           rc = ecmdPutBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putcfam")) {
+          rc = ecmdPutCfamUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putfpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_FPR);
         } else if (!strcmp(argv[0], "putgpr")) {
