@@ -60,11 +60,12 @@ struct ecmdChipTarget {
   uint32_t core;  ///< which core on chip to access, if chip is multi-core
   uint32_t thread; ///< which thread on chip to access, if chip is multi-threaded
 
-  uint8_t cageValid;  ///< cage variable is valid
-  uint8_t nodeValid;  ///< cage variable is valid
-  uint8_t posValid;   ///< cage variable is valid
-  uint8_t coreValid;  ///< cage variable is valid
-  uint8_t threadValid; ///< cage variable is valid
+  uint8_t chipTypeValid; ///< chipType field is valid
+  uint8_t cageValid;  ///< cage field is valid
+  uint8_t nodeValid;  ///< cage field is valid
+  uint8_t posValid;   ///< cage field is valid
+  uint8_t coreValid;  ///< cage field is valid
+  uint8_t threadValid; ///< cage field is valid
   uint8_t ValidChecked;  ///< valid bits are valid 
 };
 
