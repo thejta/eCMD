@@ -1272,6 +1272,19 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             if (i_ringName != NULL) done = true;
             continue;
           }
+	  else if ((i_ringName == NULL) &&
+                   ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
+            ecmdParseTokens(curLine, " \t\n=", curArgs);
+            if (curArgs.size() != 2) {
+              rc = ECMD_SCANDEF_LOOKUP_FAILURE;
+              dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
+              break;
+            }
+            transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
+            /* Get just the ringname */
+            curRing = curArgs[1];
+	    continue;
+          }         
           else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
             //do nothing
             continue;
