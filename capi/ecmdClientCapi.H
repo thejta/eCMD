@@ -1475,7 +1475,7 @@ For Cronus these files can be found in your location at .../cronus/ecommon/dll<p
 @subsection Aixmake Aix
 <pre>
 testclient: testclient.o dll/ecmdClientCapi_aix.a
-	xlC -+ -g testclient.o dll/ecmdClientCapi_aix.a -o testclient
+	xlC -+ -g -brtl -L../capi/export -lecmd_aix testclient.o dll/ecmdClientCapi_aix.a -o testclient
 
 testclient.o: testclient.C dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/ecmdReturnCodes.H dll/ecmdStructs.H dll/ecmdUtils.H
 	xlC -+ -g -c -Idll/ testclient.C -o testclient.o
@@ -1484,7 +1484,7 @@ testclient.o: testclient.C dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/ecmdRet
 @subsection Linuxmake Linux x86
 <pre>
 testclient.linux: testclient_linux.o dll/ecmdClientCapi_x86.a
-	g++ -g -ldl testclient_linux.o dll/ecmdClientCapi_x86.a -o testclient.linux
+	g++ -g -ldl -L../capi/export -lecmd_x86 testclient_linux.o dll/ecmdClientCapi_x86.a -o testclient.linux
 
 testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/ecmdReturnCodes.H dll/ecmdStructs.H 
 	g++ -g -c -Idll/  -ftemplate-depth-30 testclient.c -o testclient_linux.o
