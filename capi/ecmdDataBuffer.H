@@ -142,12 +142,7 @@ public:
    * @param i_len Number of consecutive bits from start bit to turn on
    */
   void  setBit(int i_bit, int i_len);
-  /**
-   * @brief Turn on a bit in buffer
-   * @param i_bitoffset bit in buffer to turn on
-   * @param i_datastr Character value to set bit - can be "0", "1", "X"
-   */
-  void  setBit(int i_bitoffset, const char* i_datastr); // data can be 0,1,'x','X' 
+
   /**
    * @brief Set a word of data in buffer
    * @param i_wordoffset Offset of word to set
@@ -279,6 +274,14 @@ public:
   void  invert();  /* Performs bit inversion on entire DataBuffer class */
 
   /**
+   * @brief Apply an inversion mask to data inside buffer
+   * @param i_invMask Buffer that stores inversion mask
+   * @param i_invByteLen Buffer length provided in bytes
+   */
+  void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
+
+
+  /**
    * @brief Insert part of another DataBuffer into this one
    * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
    * @param i_start Start bit to insert to
@@ -395,6 +398,7 @@ public:
    * @brief Copy buffer into this ecmdDataBuffer
    * @param i_buf Buffer to copy from
    * @param i_bytes Byte length to copy
+   * @post  Xstate and Raw buffer are setup and buffer bit length is adjusted to i_bytes * 8
    */
   void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
@@ -466,8 +470,6 @@ public:
    */
   std::string genBinStr(int i_start, int i_bitlen); 
 
-  std::string genXstateStr(int i_start, int i_bitlen);
-
   /**
    * @brief Return entire buffer as a hex left aligned char string
    * @retval String containing requested data
@@ -483,9 +485,24 @@ public:
    * @retval String containing requested data
    */
   std::string genBinStr();
+
+  /**
+   * @brief Retrieve a section of the Xstate Data
+   * @param i_start Start bit of data to retrieve
+   * @param i_bitlen Number of consecutive bits to retrieve
+   * @retval String containing requested data
+   */
+  std::string genXstateStr(int i_start, int i_bitlen);
+
+  /**
+   * @brief Retrieve entire Xstate Data buffer
+   * @retval String containing requested data
+   */
+  std::string genXstateStr();
+
+
   //@}
 
-  std::string genXstateStr();
 
   /** @name String to Data conversion functions*/
   //@{
@@ -530,51 +547,74 @@ public:
   /** @name Simulation Buffer Functions */
   //@{
 
+ 
   /**
-   * @brief Set the X state for this data buffer
-   * @retval 0 on success, non-zero if there was an issue setting the state
-   * @param state Value to set internal state to (must be 0 or 1)
-   */
-  int   setXstate(int state);
-  /**
-   * @brief See if this data buffer is X-state enabled
-   * @retval 1 if this data buffer is X-state enabled, 0 otherwise
-   */
-  int   isXstate(); 
-  
-/**
    * @brief Check Entire buffer for any X-state values
    * @retval 1 if xstate found 0 if none
    */
   int   hasXstate(); /* check the whole DataBuffer */
   /**
-   * @brief Check section buffer for any X-state values
+   * @brief Check section of buffer for any X-state values
    * @param i_start Start bit to test
    * @param i_length Number of consecutive bits to test
    * @retval 1 if xstate found 0 if none
    */
   int   hasXstate(int i_start, int i_length); /* check subset */
 
+  /**
+   * @brief Retrieve an Xstate value from the buffer
+   * @param i_bit Bit to retrieve
+
+   * NOTE - To retrieve multiple bits use genXstateStr
+   */
+  char  getXstate(int i_bit);
+
+  /**
+   * @brief Set an Xstate value in the buffer
+   * @param i_bit Bit to set
+   */
+  void setXstate(int i_bit, char i_value);
+
+  /**
+   * @brief Set a range of Xstate values in buffer
+   * @param i_bitoffset bit in buffer to start inserting
+   * @param i_datastr Character value to set bit - can be "0", "1", "X"
+   */
+  void  setXstate(int i_bitoffset, const char* i_datastr); 
+
+  /**
+   * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
+   * @param i_buf Buffer to copy from
+   * @param i_bytes Byte length to copy (char length)
+   * @post  Xstate and Raw buffer are setup and buffer bit length is adjusted to i_bytes * 8
+   */
+  void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  /**
+   * @brief Copy DataBuffer into supplied char buffer from Xstate data
+   * @param o_buf Buffer to copy into - must be pre-allocated
+   * @param i_bytes Byte length to copy (char length)
+   */
+  void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+
+
   //@}
 
 private:  //data
-  int iv_Capacity;
-  int iv_NumWords;
-  int iv_NumBits;
-  uint32_t * iv_Data;
-  uint32_t * iv_RealData;
+  int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords
+  int iv_NumWords;              ///< Specified buffer size rounded to next word
+  int iv_NumBits;               ///< Specified buffer size in bits
+  uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
+  uint32_t * iv_RealData;       ///< Real buffer - with header and tail
 
 
 private: //methods
 
 
-#ifndef REMOVE_SIM
 private:
+#ifndef REMOVE_SIM
   char* iv_DataStr; /* binary or x data */
-  int iv_isXstate;  /* flag to set if this is an x-state enabled data buffer */
   void fillDataStr(char fillChar);
 #endif
-
 
 };
 

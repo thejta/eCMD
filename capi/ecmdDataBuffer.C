@@ -56,7 +56,6 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
-  iv_isXstate = 0;
 #endif
 }
 
@@ -65,7 +64,6 @@ ecmdDataBuffer::ecmdDataBuffer(int numWords)
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
-  iv_isXstate = 0;
 #endif
   setWordLength(numWords);
 
@@ -82,7 +80,6 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
 
 #ifndef REMOVE_SIM
     strcpy(iv_DataStr, other.iv_DataStr);
-    iv_isXstate = other.iv_isXstate;
 #endif
   } else {
     /* We are copying an empty buffer */
@@ -90,7 +87,6 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
     iv_Data = iv_RealData = NULL;
 #ifndef REMOVE_SIM
     iv_DataStr = NULL;
-    iv_isXstate = 0;
 #endif
   }
 
@@ -157,7 +153,6 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
 
     iv_DataStr = new char[iv_NumBits + 42];
     this->fillDataStr('0'); /* init to 0 */
-    iv_isXstate = 0;
 #endif
 
     /* Ok, now setup the header, and tail */
@@ -171,7 +166,6 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
 
 #ifndef REMOVE_SIM
     this->fillDataStr('0'); /* init to 0 */
-    iv_isXstate = 0;
 #endif
 
     /* Ok, now setup the header, and tail */
@@ -207,7 +201,6 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
     iv_DataStr = new char[iv_NumBits + 42];
     this->fillDataStr('0'); /* init to 0 */
-    iv_isXstate = 0;
 #endif
 
     /* Ok, now setup the header, and tail */
@@ -222,7 +215,6 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
 #ifndef REMOVE_SIM
     this->fillDataStr('0'); /* init to 0 */
-    iv_isXstate = 0;
 #endif
 
     /* Ok, now setup the header, and tail */
@@ -291,32 +283,6 @@ void  ecmdDataBuffer::setBit(int bit, int len) {
 }
 
 
-void  ecmdDataBuffer::setBit(int bitOffset, const char* binStr) {
-#ifdef REMOVE_SIM
-
-#else
-  int len = strlen(binStr);
-  int i;
-
-  if (bitOffset+len > iv_NumBits) {
-    printf("ecmdDataBuffer::setBit: bitOffset %d + len %d > NumBits (%d)\n", bitOffset, len, iv_NumBits);
-  } else {
-
-    for (i = 0; i < len; i++) {
-      if (binStr[i] == '0') clearBit(bitOffset+i);
-      else if (binStr[i] == '1') setBit(bitOffset+i);
-      else if (binStr[i] == 'x' || binStr[i] == 'X') {
-        iv_DataStr[bitOffset+i] = 'X';
-      } 
-      else {
-        printf("ecmdDataBuffer::setBit: unrecognized character: %c\n", binStr[i]);
-      }
-    }
-
-  }
-#endif
-
-}
 
 
 void  ecmdDataBuffer::setWord(int wordOffset, uint32_t value) {
@@ -597,23 +563,35 @@ void   ecmdDataBuffer::shiftRightAndResize(int shiftNum) {
   iv_RealData[iv_NumWords + 4] = 0x12345678;
 
   // shift iv_Data array
-  for (int iter = 0; iter < shiftNum; iter++) {
-    for (i = 0; i < iv_NumWords; i++) {
+  if (!(shiftNum % 32)) {
+    /* We will do this faster if we are shifting nice word boundaries */
+    int numwords = shiftNum / 32;
 
-      if (this->iv_Data[i] & 0x00000001) 
-        thisCarry = 0x80000000;
-      else
-        thisCarry = 0x00000000;
+    for (int witer = iv_NumWords - numwords - 1; witer >= 0; witer --) {
+      iv_Data[witer + numwords] = iv_Data[witer];
+    }
+    /* Zero out the bottom of the array */
+    for (int w = 0; w < numwords; w ++) iv_Data[w] = 0;
 
-      // perform shift
-      this->iv_Data[i] >>= 1;
-      this->iv_Data[i] &= 0x7fffffff;  // backfill with a zero
+  } else {
+    for (int iter = 0; iter < shiftNum; iter++) {
+      for (i = 0; i < iv_NumWords; i++) {
 
-      // add carry
-      this->iv_Data[i] |= prevCarry;
+        if (this->iv_Data[i] & 0x00000001) 
+          thisCarry = 0x80000000;
+        else
+          thisCarry = 0x00000000;
 
-      // set up for next time
-      prevCarry = thisCarry; 
+        // perform shift
+        this->iv_Data[i] >>= 1;
+        this->iv_Data[i] &= 0x7fffffff;  // backfill with a zero
+
+        // add carry
+        this->iv_Data[i] |= prevCarry;
+
+        // set up for next time
+        prevCarry = thisCarry; 
+      }
     }
   }
 
@@ -725,6 +703,37 @@ void  ecmdDataBuffer::flushTo1() {
 void ecmdDataBuffer::invert() { 
   this->flipBit(0, iv_NumBits);
 }
+
+void ecmdDataBuffer::applyInversionMask(uint32_t * i_invMask, int i_invByteLen) {
+
+  /* Do the smaller of data provided or size of buffer */
+  int wordlen = (i_invByteLen / 4) + 1 < iv_NumWords ? (i_invByteLen / 4) + 1 : iv_NumWords;
+
+  for (int i = 0; i < wordlen; i++) {
+    iv_Data[i] = iv_Data[i] ^ i_invMask[i]; /* Xor */
+  }
+     
+#ifndef REMOVE_SIM   
+  int xbuf_size = (i_invByteLen * 8) < iv_NumBits ? (i_invByteLen * 8) : iv_NumBits;
+  int curbit = 0;
+
+  for (int word = 0; word < wordlen; word ++) {
+    for (int bit = 0; bit < 32; bit ++) {
+
+      if (curbit >= xbuf_size) break;
+
+      if (i_invMask[word] & (0x80000000 >> bit)) {
+        if (iv_DataStr[curbit] == '0') iv_DataStr[curbit] = '1';
+        else if (iv_DataStr[curbit] == '1') iv_DataStr[curbit] = '0';
+      }
+      curbit ++;
+    }
+  }
+#endif
+  return ;
+
+}
+
 
 void  ecmdDataBuffer::insert(ecmdDataBuffer &bufferIn, int start, int len) {
     this->insert(bufferIn.iv_Data, start, len);
@@ -1145,31 +1154,6 @@ void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy fr
 }
 
 
-int ecmdDataBuffer::setXstate (int state) {
-#ifdef REMOVE_SIM
-  printf("ecmdDataBuffer: setXstate: Not defined in this configuration");
-  return ECMD_DBUF_UNDEFINED_FUNCTION;
-#else
-  if (state == 0 || state == 1) {
-    iv_isXstate = state;
-    return 0;
-  }
-  else {
-    printf( "ecmdDataBuffer: setXstate: Invalid state- must be 0 or 1");
-    return ECMD_DBUF_INVALID_ARGS;
-  }
-#endif
-}
-
-int  ecmdDataBuffer::isXstate() {
-#ifdef REMOVE_SIM
-  printf( "ecmdDataBuffer: isXstate: Not defined in this configuration");
-  return 0;
-#else
-  return iv_isXstate;
-#endif
-}
-
 int   ecmdDataBuffer::hasXstate() {  
 #ifdef REMOVE_SIM
   printf( "ecmdDataBuffer: hasXstate: Not defined in this configuration");
@@ -1179,7 +1163,6 @@ int   ecmdDataBuffer::hasXstate() {
 #endif
 }
 
-// actually use this for ANY non-binary char, not just X's
 int   ecmdDataBuffer::hasXstate(int start, int length) {
 #ifdef REMOVE_SIM
   printf("ecmdDataBuffer: hasXstate: Not defined in this configuration");
@@ -1196,13 +1179,137 @@ int   ecmdDataBuffer::hasXstate(int start, int length) {
 #endif
 }
 
+/**
+ * @brief Retrieve an Xstate value from the buffer
+ * @param i_bit Bit to retrieve
+
+ * NOTE - To retrieve multipe bits use genXstateStr
+ */
+char ecmdDataBuffer::getXstate(int i_bit) {
+#ifdef REMOVE_SIM
+  printf("ecmdDataBuffer: getXstate: Not defined in this configuration");
+  return '0';
+#else
+  if (i_bit >= iv_NumBits) {
+    printf("ecmdDataBuffer::getXstate: bit %d >= NumBits (%d)\n", i_bit, iv_NumBits);
+    return '0';
+  }
+  return iv_DataStr[i_bit];
+#endif
+}
+
+/**
+ * @brief Set an Xstate value in the buffer
+ * @param i_bit Bit to set
+ */
+void ecmdDataBuffer::setXstate(int i_bit, char i_value) {
+#ifdef REMOVE_SIM
+  printf("ecmdDataBuffer: setXstate: Not defined in this configuration");
+
+#else
+  if (i_bit >= iv_NumBits) {
+    printf("ecmdDataBuffer::setXstate: bit %d >= NumBits (%d)\n", i_bit, iv_NumBits);
+    return;
+  }
+  if (i_value == '0') clearBit(i_bit);
+  else if (i_value == '1') setBit(i_bit);
+  else if (!isxdigit(i_value)) {
+    /* We call clearbit to write the raw bit to 0 */
+    clearBit(i_bit);
+    iv_DataStr[i_bit] = i_value;
+  } else {
+    printf("ecmdDataBuffer::setXstate: unrecognized Xstate character: %c\n", i_value);
+  }
+#endif
+}
+
+/**
+ * @brief Set a range of Xstate values in buffer
+ * @param i_bitoffset bit in buffer to start inserting
+ * @param i_datastr Character value to set bit - can be "0", "1", "X"
+ */
+void ecmdDataBuffer::setXstate(int bitOffset, const char* i_datastr) {
+
+#ifdef REMOVE_SIM
+  printf("ecmdDataBuffer: setXstate: Not defined in this configuration");
+
+#else
+  int len = strlen(i_datastr);
+  int i;
+
+  if (bitOffset+len > iv_NumBits) {
+    printf("ecmdDataBuffer::setXstate: bitOffset %d + len %d > NumBits (%d)\n", bitOffset, len, iv_NumBits);
+  } else {
+
+    for (i = 0; i < len; i++) {
+      if (i_datastr[i] == '0') clearBit(bitOffset+i);
+      else if (i_datastr[i] == '1') setBit(bitOffset+i);
+      else if (!isxdigit(i_datastr[i])) {
+        clearBit(bitOffset+i);
+        iv_DataStr[bitOffset+i] = i_datastr[i];
+      } 
+      else {
+        printf("ecmdDataBuffer::setXstate: unrecognized Xstate character: %c\n", i_datastr[i]);
+      }
+    }
+
+  }
+#endif
+
+}
+
+
+/**
+ * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
+ * @param i_buf Buffer to copy from
+ * @param i_bytes Byte length to copy (char length)
+ */
+void  ecmdDataBuffer::memCopyInXstate(char * i_buf, int i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+#ifdef REMOVE_SIM
+  printf("ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
+#else
+  /* Put the data into the Xstate array */
+  setBitLength(i_bytes * 8);
+  strncpy(iv_DataStr, i_buf, i_bytes);
+  iv_DataStr[i_bytes] = '\0';
+
+  /* Now slide it over to the raw buffer */
+
+  for (int counter = 0; counter < i_bytes; counter++) {
+    if (i_buf[counter] == '1') {
+      iv_Data[counter>>5] |= 0x80000000 >> counter&0x1F;
+    } else {
+      iv_Data[counter>>5] &= ~(0x80000000 >> counter&0x1F);
+    }
+  }
+
+#endif
+}
+
+/**
+ * @brief Copy DataBuffer into supplied char buffer from Xstate data
+ * @param o_buf Buffer to copy into - must be pre-allocated
+ * @param i_bytes Byte length to copy
+ */
+void  ecmdDataBuffer::memCopyOutXstate(char * o_buf, int i_bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+#ifdef REMOVE_SIM
+  printf("ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
+#else
+
+  strncpy(o_buf, iv_DataStr, i_bytes);
+  o_buf[i_bytes] = '\0';
+
+#endif
+}
+
+
 //---------------------------------------------------------------------
 //  Private Member Function Specifications
 //---------------------------------------------------------------------
 #ifndef REMOVE_SIM
 void ecmdDataBuffer::fillDataStr(char fillChar) {
 
-  for (int i = 0; i < iv_NumBits; i++) iv_DataStr[i] = fillChar;
+  memset(iv_DataStr, fillChar, iv_NumBits);
   iv_DataStr[iv_NumBits] = '\0';  
   
 }
