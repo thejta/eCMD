@@ -553,7 +553,7 @@ private: //methods
   int registerErrorMsg (int i_errorCode, std::string i_message);
 
 
-#ifndef DISABLE_SIM
+#ifndef REMOVE_SIM
 private:
   char* iv_DataStr; /* binary or x data */
   int iv_isXstate;  /* flag to set if this is an x-state enabled data buffer */

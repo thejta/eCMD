@@ -405,11 +405,17 @@ int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   if (curArg != NULL) {
     ecmdUserArgs.cage = curArg;
   }
+  else {
+    ecmdUserArgs.cage = "";
+  }
 
   //node
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-n");
   if (curArg != NULL) {
     ecmdUserArgs.node = curArg;
+  }
+  else {
+    ecmdUserArgs.node = "";
   }
 
   //position
@@ -417,17 +423,26 @@ int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   if (curArg != NULL) {
     ecmdUserArgs.pos = curArg;
   }
+  else {
+    ecmdUserArgs.pos = "";
+  }
 
   //core
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-c");
   if (curArg != NULL) {
     ecmdUserArgs.core = curArg;
   }
+  else {
+    ecmdUserArgs.core = "";
+  }
 
   //thread
   curArg = dllParseOptionWithArgs(io_argc, io_argv, "-t");
   if (curArg != NULL) {
     ecmdUserArgs.thread = curArg;
+  }
+  else {
+    ecmdUserArgs.thread = "";
   }
 
   /* Call the dllSpecificFunction */
