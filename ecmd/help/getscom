@@ -1,43 +1,38 @@
 
-Syntax: getscom ChipSelect ScanCommAddr [-bits] [-s] [-b] [-v] 
-		[-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]] [-n#] [-p#] [-c#]
+Syntax: getscom ChipSelect ScanCommAddr [-bits] [-s] [-b] [-v] [-n#] [-p#] [-c#]
+                [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]]
 
 
-	Function:  	Gets Scan Communications registers.
+        Function:       Gets Scan Communications registers.
 
-	Parameters:
-	--------------------------------------------------------------------------------
-	ChipSelect	Chip to get scancom data from.
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to get scancom data from.
 
-	ScanCommAddr 	Address in hex.
+        ScanCommAddr    Address in hex.
 
-	-bits     [opt] Print binary with number line.
+        -bits     [opt] Print binary with number line.
 
-	-n#  [optional]	Number of scan com address to get for traces.
+        -b   [optional] Print binary, defaults to hex (for formatting).
 
-	-s   [optional]	Number or characters to print between each space for 
-			formatting (default is 8).
+        -exp [optional] Provide expected data.  Returns error if expected != actual.  No
+                        error/no data returned if expected == actual.
 
-	-b   [optional]	Print binary, defaults to hex (for formatting).
+        -mask     [opt] Scom data is AND'ed with the mask bits. Only for use with -exp.
 
-	-exp [optional]	Provide expected data.  Returns error if expected != actual.  No
-			error/no data returned if expected == actual.
+        -v   [optional] Print out Scan Comm bit meaning if available
 
-	-mask     [opt]	Scom data is AND'ed with the mask bits. Only for use with -exp.
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
 
-	-v   [optional]	Print out Scan Comm bit meaning if available
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
 
-	-n#  [optional]	Specify which node to act on (0 is default). Specify -nall
-			to act on all nodes.
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
+                        -call to act on all cores.
+        --------------------------------------------------------------------------------
 
-	-p#  [optional]	Specify which chip position to act on (0 is default). Specify -pall
-			to act on all chips.
-
-	-c#  [optional]	Specify which processor core to act on (0 is default). Specify
-			-call to act on all cores.
-	--------------------------------------------------------------------------------
-
-	Examples: 	> getscom pu 6 -p0,1 
+        Examples:       > getscom pu 6 -p0,1 
 			pu  1:0	00000000 00000000
 			pu  1:0	00000000 00000000
 			ecmd.exe getscom pu 6 -p0,1 
