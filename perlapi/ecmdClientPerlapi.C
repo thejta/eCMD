@@ -50,11 +50,11 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 }
 
 ecmdClientPerlapi::ecmdClientPerlapi () {
-
+  ecmdErrMsgBuff = NULL;
 }
 
 ecmdClientPerlapi::~ecmdClientPerlapi () {
-
+  if(ecmdErrMsgBuff) delete[] ecmdErrMsgBuff;
   this->cleanup();
 }
 
@@ -301,6 +301,7 @@ int ecmdClientPerlapi::getLatch (const char * i_target, const char* i_ringName, 
     return ECMD_DATA_UNDERFLOW;
   }
 
+/*  printf("getlatch entries = %d\n",latchEntries.size());*/
 
   for(curEntry = latchEntries.begin(), foundOne =0; curEntry != latchEntries.end(); curEntry++) {
 
@@ -342,6 +343,56 @@ int ecmdClientPerlapi::getLatch (const char * i_target, const char* i_ringName, 
 
   return rc;
 }
+
+int ecmdClientPerlapi::getLatchWidth (const char * i_target, const char* i_ringName, const char * i_latchName, int &o_width) {
+
+  int rc = 0;
+  int foundOne;
+  ecmdDataBuffer buffer;
+  ecmdChipTarget myTarget;
+
+  o_width =0;
+
+  rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+  std::list<ecmdLatchEntry> latchEntries;
+  std::list<ecmdLatchEntry>::iterator curEntry;
+
+  if (strlen(i_ringName) == 0) {
+    rc = ::getLatch(myTarget, NULL, i_latchName, latchEntries, ECMD_LATCHMODE_FULL);
+  }
+  else {
+    rc = ::getLatch(myTarget, i_ringName, i_latchName, latchEntries, ECMD_LATCHMODE_FULL);
+  }
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) return rc;
+
+/***
+  printf("latch entries = %d\n",latchEntries.size());
+  for(curEntry = latchEntries.begin(), foundOne =0; curEntry != latchEntries.end(); curEntry++) {
+    printf("name %s\n",curEntry->latchName.c_str());
+    printf("ringname %s\n",curEntry->ringName.c_str());
+    printf("start bit %d\n",curEntry->latchStartBit);
+    printf("end   bit %d\n",curEntry->latchEndBit);
+    printf("rc = %d\n",curEntry->rc);
+    printf("buffer %s\n",curEntry->buffer.genBinStr().c_str());
+  }
+***/
+
+  if(latchEntries.size() > 1) {
+    o_width =0;
+    return ECMD_DATA_OVERFLOW;
+  }
+
+  curEntry = latchEntries.begin();
+  o_width = curEntry->latchEndBit - curEntry->latchStartBit +1; 
+
+  return rc;
+}
+
+
 
 int ecmdClientPerlapi::putLatch (const char * i_target, const char* i_ringName, const char * i_latchName, const char * i_data, int i_startBit, int i_numBits, int &o_matchs) {
 
@@ -818,7 +869,15 @@ int ecmdClientPerlapi::simunsticktcfac(const char* i_tcfacname, int i_bitlength,
 
 char* ecmdClientPerlapi::ecmdGetErrorMsg(int i_errorCode){
 
-  return NULL;
+  std::string msg;
+  msg = ::ecmdGetErrorMsg(i_errorCode) + "\n";
+
+  /* we need to resize */
+  if(ecmdErrMsgBuff) delete[] ecmdErrMsgBuff;
+
+  ecmdErrMsgBuff = new char[msg.length()+1];
+  strcpy(ecmdErrMsgBuff,msg.c_str());
+  return ecmdErrMsgBuff;
 }
 
 void ecmdClientPerlapi::ecmdEnableSafeMode() {
