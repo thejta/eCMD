@@ -21,7 +21,7 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
   # These are the files that are auto-gened with makedll.pl
   AUTOGEN_SOURCE  := ${EXTENSION_NAME}ClientCapiFunc.C
 
-  INCLUDES     := ${INCLUDEX} ${EXTENSION_NAME}DllCapi.H
+  INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}DllCapi.H
 endif
 
 DEFINES      := 
