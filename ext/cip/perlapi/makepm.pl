@@ -104,7 +104,7 @@ print OUT "\n";
 
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
-    if (/^(uint32_t|std::string|void|bool|int)/) {
+    if (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 
 	next if (/$ignore_re/o);
 
@@ -151,7 +151,7 @@ while (<IN>) {
           print OUT "$type $namespace\::$funcname(@argnames) { \n";
           print OUT "  ::$funcname($argstring);\n";
           print OUT "}\n\n";
-        } elsif (($type eq "uint32_t") || ($type eq "int")) {
+        } elsif (($type eq "uint32_t") || ($type eq "uint64_t") || ($type eq "int")) {
           print OUT "$type $namespace\::$funcname(@argnames) { \n";
           print OUT "  $type rc = ::$funcname($argstring);\n";
           print OUT "  ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(rc);\n";
@@ -209,8 +209,8 @@ if (-e "$curdir/$ARGV[0]ClientPerlapi.i") {
       # Now Write it out
       print RENAMEOUT "%rename(operatorEqualTo)    operator==(const $codeName\::iterator& rhs) const;\n";
       print RENAMEOUT "%rename(operatorNotEqualTo) operator!=(const $codeName\::iterator& rhs) const;\n";
-      print RENAMEOUT "%rename(operatorIncrement)  operator++(const int);\n";
-      print RENAMEOUT "%rename(operatorDecrement)  operator--(const int);\n";
+      print RENAMEOUT "%rename(operatorIncrement)  operator++(int);\n";
+      print RENAMEOUT "%rename(operatorDecrement)  operator--(int);\n";
 
       # Move on to the header file
       print HEADEROUT "struct $swigName {\n";
@@ -219,8 +219,8 @@ if (-e "$curdir/$ARGV[0]ClientPerlapi.i") {
       print HEADEROUT "    void setValue($codeDataType in) { *iter = in; }\n";
       print HEADEROUT "    $codeName\::iterator getIter() { return iter; }\n";
       print HEADEROUT "    void setIter($codeName\::iterator in) { iter = in; }\n\n";
-      print HEADEROUT "    $codeName\::iterator operator++ (const int) { return iter++; }\n";
-      print HEADEROUT "    $codeName\::iterator operator-- (const int) { return iter--; }\n";
+      print HEADEROUT "    $codeName\::iterator operator++ (int) { return iter++; }\n";
+      print HEADEROUT "    $codeName\::iterator operator-- (int) { return iter--; }\n";
       print HEADEROUT "    int operator== (const $codeName\::iterator &rhs) const { return (iter == rhs); }\n";
       print HEADEROUT "    int operator!= (const $codeName\::iterator &rhs) const { return (iter != rhs); }\n\n";
       print HEADEROUT "  private:\n";
