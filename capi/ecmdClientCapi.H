@@ -734,13 +734,19 @@ uint32_t iSteps (ecmdDataBuffer & i_steps);
 /**
  @brief Query Information about a Processor Register (SPR/GPR/FPR)
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
- @param i_name Name of the Register to fetch data about
+ @param i_name Name of the Register to fetch data about (can be either a specific SPR or GPR/FPR)
  @param o_data Data retrieved about the register
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
 */
 uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_SPR Spr name is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -757,6 +763,7 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_SPR Spr name is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -781,6 +788,7 @@ uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPR Spr name is invalid
@@ -799,6 +807,7 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPR Spr name is invalid
@@ -819,6 +828,7 @@ uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
 
 /**
  @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_GPR Gpr number is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -835,6 +845,7 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
 
 /**
  @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_GPR Gpr number is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -855,6 +866,7 @@ uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 
 /**
  @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_GPR Gpr number is invalid
  @retval ECMD_SUCCESS if successful
@@ -873,6 +885,7 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
 
 /**
  @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_GPR Gpr number is invalid
  @retval ECMD_SUCCESS if successful
@@ -895,6 +908,7 @@ uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 
 /**
  @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INVALID_FPR Fpr number is invalid
@@ -911,6 +925,7 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
 
 /**
  @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_FPR Fpr number is invalid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -929,6 +944,7 @@ uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_FPR Fpr number is invalid
@@ -947,6 +963,7 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_FPR Fpr number is invalid
  @retval ECMD_SUCCESS if successful
@@ -1010,6 +1027,7 @@ uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVec
 
 /**
  @brief Reads System Mainstore through the processor chip 
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -1027,6 +1045,7 @@ uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_b
 
 /**
  @brief Writes System Mainstore through the processor chip
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -1076,6 +1095,7 @@ uint32_t putMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
 
 /**
  @brief Reads System Mainstore through the memory controller 
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -1094,6 +1114,7 @@ uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
 
 /**
  @brief Writes System Mainstore through the memory controller
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
