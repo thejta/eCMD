@@ -7,7 +7,7 @@ OS           := $(shell uname)
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H
 INT_INCLUDES := ecmdDllCapi.H 
-SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdDllCapiTest.C ecmdClientCapiFunc.C
+SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdClientCapiFunc.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
