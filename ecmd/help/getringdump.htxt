@@ -1,10 +1,15 @@
 
-Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] 
+Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-unsorted]
                                              [-k#] [-n#] [-s#] [-p#] [-c#] 
                                          
         ECMD:           Core Common Function
         
         Function:       Gets values for all latchs in the entire scan ring.
+
+                        NOTE: The entire ring entry from the scandef is read in and then
+                        sorted in alphabetical order.  Then all registers are pushed
+                        together and displayed in 0..n order.  To disable this use 
+                        -unsorted
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -15,6 +20,8 @@ Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...]
 
                         Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu
+
+	-unsorted [opt] Don't sort ring dump, display in scandef order
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
