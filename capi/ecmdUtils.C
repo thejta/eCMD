@@ -1414,7 +1414,11 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += " : variable name : ";
       printed += variableName[0];
       printed += " : ";
-      sprintf(tempIntStr,"d=%l 0x%.016X",dummy,dummy);
+      if(dummy ==0) {
+        sprintf(tempIntStr,"d=0 0x0");
+      } else {
+        sprintf(tempIntStr,"%#0.16lX",*dummy);
+      }
       printed += tempIntStr;
       printed += "\n";
       printed += frontFPPTxt;
