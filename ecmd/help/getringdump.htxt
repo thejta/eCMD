@@ -13,7 +13,7 @@ Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...]
         RingName        Specifies one or multiple chip rings to operate on.  For a list
                         of available rings, use the ecmdquery command.
 
-                        Ex:  ecmdquery rings smi
+                        Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
