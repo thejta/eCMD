@@ -504,7 +504,7 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
   return rc;
 }
 
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address) {
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, uint64_t address) {
   std::string printed;
   int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
@@ -941,11 +941,11 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, ...)
 
   look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
-  if(inOut == FUNCTIONIN) {
+  if(inOut == ECMD_FPP_FUNCTIONIN) {
     look4rc =0;
     printed = "\n";
     printed += "ECMD DEBUG (ecmdFPP) : *******  Tracing of Parameters from function call LEADING INTO function.  *******\n";
-  } else if (inOut == FUNCTIONOUT) {
+  } else if (inOut == ECMD_FPP_FUNCTIONOUT) {
     look4rc =1;
     printed += "\n";
     printed += "ECMD DEBUG (ecmdFPP) : *******  Tracing of Parameters from function call EXITING FROM function.   *******\n";

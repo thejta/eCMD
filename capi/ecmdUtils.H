@@ -86,9 +86,9 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
  @return String of formatted data
  @param i_data ecmdDataBuffer where data to format is stored
  @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
- @param address A base address value that can be used in formating certain data- i.e., data from memory
+ @param i_address A base address value that can be used in formating certain data- i.e., data from memory
  */
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address = 0);
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, uint64_t i_address = 0);
 
 /**
  @brief Print the bits header used in the output formats
