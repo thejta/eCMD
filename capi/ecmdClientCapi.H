@@ -308,7 +308,7 @@ int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & 
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
- 2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read

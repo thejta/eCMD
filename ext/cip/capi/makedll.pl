@@ -56,13 +56,13 @@ print OUT "int dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);\n\n";
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
 
-    if (/^(int|string|void)/) {
+    if (/^(int|std::string|void)/) {
 	
 	next if (/$ignore_re/o);
 
 	my $type_flag = $INT;
 	$type_flag = $VOID if (/^void/);
-	$type_flag = $STRING if (/^string/);
+	$type_flag = $STRING if (/^std::string/);
 
 	chomp; chop;  
 	my ($func, $args) = split /\(|\)/ , $_;
