@@ -484,6 +484,9 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
     ecmdOutputError( ("Did not recognize input format string " + localFormat + "\n").c_str() );
     rc = ECMD_INVALID_ARGS;
   }
+  if (rc == ECMD_DBUF_INVALID_DATA_FORMAT) {
+    ecmdOutputError(( "Input Data contained some invalid characters for format specified : '" + localFormat + "'!\n").c_str());
+  }
 
   return rc;
 }
