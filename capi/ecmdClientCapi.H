@@ -394,6 +394,7 @@ uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
@@ -412,6 +413,7 @@ uint32_t getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuff
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
  @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
  @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
