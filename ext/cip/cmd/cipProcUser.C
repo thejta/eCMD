@@ -91,11 +91,6 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
     steps = atoi(argv[1]);
   }
 
-  //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
-
 
 
   /* Run the all functions */
@@ -124,6 +119,13 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
     /* Loop through the steps so we step all procs in somewhat sync */
     for (int step = 0; step < steps; step ++) {
+
+      //Setup the target that will be used to query the system config 
+      target.chipType = ECMD_CHIPT_PROCESSOR;
+      target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+      target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+
+
       rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
       if (rc) return rc;
 
