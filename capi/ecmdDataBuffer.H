@@ -136,7 +136,9 @@ typedef enum {
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
-
+/**
+ @brief This is used to help low-level implementation of the ecmdDataBuffer, this CAN NOT be used by any eCMD client or data corruption will occur
+*/
 class ecmdDataBufferImplementationHelper {
 public:
   static uint32_t* getDataPtr( void* i_buffer );
@@ -553,6 +555,9 @@ public:
    * @post Data is copied from specified location in this DataBuffer to bufferOut
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+
+   * NOTE : The o_bufferOut buffer is resized to the extract length and any data in the buffer is lost
+
    */
   uint32_t  extract(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
   /**
@@ -986,6 +991,11 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+
+  //@}
+
+  /** @name Misc Functions */
+  //@{
 
   /**
    * @brief Write buffer out into a file in the format specified. 
