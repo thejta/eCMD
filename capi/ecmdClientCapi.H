@@ -242,7 +242,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
  @param o_data DataBuffer object that holds data read from ring
  @see putRing
 
- NOTE : This function is ring cache enabled
+ NOTE : This function forces a flush of the ring caches
 
 
 */
@@ -262,7 +262,7 @@ int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer 
  @param i_data DataBuffer object that holds data to write into ring
  @see getRing
 
- NOTE : This function is ring cache enabled
+ NOTE : This function forces a flush of the ring caches
 
 
 */

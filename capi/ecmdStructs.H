@@ -258,11 +258,11 @@ struct ecmdRingData {
  @brief Used for the ecmdQueryArray function to return array info
 */
 struct ecmdArrayData {
-  std::string arrayName;                ///< Names used to reference this ring
+  std::string arrayName;                ///< Names used to reference this array
   int         addressLength;            ///< Bit length of address
-  int         length;                   ///< Bit length of array
-  int         width;                    ///< Bit width of array
-  ecmdClockState_t       clockState;    ///< Required clock state to access this spy
+  int         length;                   ///< Length of array (number of entries)
+  int         width;                    ///< Bit width of array entry
+  ecmdClockState_t       clockState;    ///< Required clock state to access this array
 };
 
 /**
