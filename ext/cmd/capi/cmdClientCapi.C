@@ -25,6 +25,7 @@
 #include <string>
 #include <stdio.h>
 #include <dlfcn.h>
+#include <unistd.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
@@ -76,7 +77,7 @@ uint32_t cmdInitExtension() {
 
 uint32_t cmdRunCommand(std::string i_command) {
   int c_argc = 0;
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   char* c_argv[21];
   char* buffer = NULL;
@@ -137,6 +138,60 @@ uint32_t cmdRunCommand(std::string i_command) {
   return rc;
 }
 
+uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_output) {
+  uint32_t rc = ECMD_SUCCESS;
+  char  end = EOF;
+  FILE* tempfile;
+  char buf[1010];
+  int idx;
+  char mychar;
+
+  o_output = "";
+
+  int stdoutsave = dup(1);
+
+
+  /* Create a tmpfile to pipe stdout through */
+  tempfile = tmpfile();
+  int newstdout = fileno(tempfile);
+
+  /* Redirect stdout */
+  dup2(newstdout, 1);
+
+
+  /* Ok, we can call it now */
+  rc = cmdRunCommand(i_command);
+
+  /* Flush all data */
+  fflush(tempfile); 
+
+  /* reset stream position */
+  rewind(tempfile);
+
+  /* Let's pop 1000 chars at a time */
+  idx = 0;
+  while(end != (mychar = getc(tempfile))) {
+    buf[idx++] = mychar;
+    if (idx == 1000) {
+      buf[idx] = '\0';
+      o_output += buf;
+      idx = 0;
+    }
+  }
+  if (idx > 0) {
+    buf[idx] = '\0';
+    o_output += buf;
+  }    
+
+
+  /* Restore stdout */
+  dup2(stdoutsave, 1);
+
+  close(stdoutsave);
+  fclose(tempfile);
+
+  return rc;
+}
 
 // Change Log *********************************************************
 //                                                                      
