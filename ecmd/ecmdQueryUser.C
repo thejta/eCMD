@@ -252,7 +252,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::list<ecmdThreadData>::iterator ecmdCurThread;
 
     /* Do they want to run in easy parse mode ? */
-    int easyParse = ecmdParseOption (&argc, &argv, "-ep");
+    bool easyParse = ecmdParseOption (&argc, &argv, "-ep");
+    bool verbose = ecmdParseOption (&argc, &argv, "-v");
 
 
 
@@ -261,7 +262,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
 
-    char buf[100];
+    char buf[300];
     char buf2[10];
     std::string curchip, kbuf, nbuf, sbuf;
 
@@ -308,13 +309,29 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
               }
             } else {
               for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                if (!easyParse) {
-                  sprintf(buf2, " %d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId);
-                  strcat(buf, buf2);
+
+                if (ecmdCurCore->numProcThreads == 0) {
+                  /* For non-threaded chips */
+                  if (!easyParse) {
+                    sprintf(buf2, " %d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId);
+                    strcat(buf, buf2);
+                  } else {
+                    sprintf(buf,"%s\t -p%0.2d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId);
+                    printed = sbuf + buf;
+                    ecmdOutput(printed.c_str());
+                  }
                 } else {
-                  sprintf(buf,"%s\t -p%0.2d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId);
-                  printed = sbuf + buf;
-                  ecmdOutput(printed.c_str());
+                  for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                    if (!easyParse) {
+                      sprintf(buf2, " %d:%d:%d,",ecmdCurChip->pos,ecmdCurCore->coreId,ecmdCurThread->threadId);
+                      strcat(buf, buf2);
+                    } else {
+                      sprintf(buf,"%s\t -p%0.2d -c%d -t%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurCore->coreId, ecmdCurThread->threadId);
+                      printed = sbuf + buf;
+                      ecmdOutput(printed.c_str());
+                    }
+
+                  } /* curCoreIter */
                 }
 
               } /* curCoreIter */
