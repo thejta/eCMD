@@ -1332,9 +1332,6 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
       rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEFHASH, spyHashFilePath);
       if (!rc) {
         hashFile.open(spyHashFilePath.c_str(),
-#if defined (i386)
-                      std::ios::nocreate |
-#endif
                       std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
 
         /* If we have a hash file, look for it in there */

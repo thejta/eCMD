@@ -297,7 +297,7 @@ uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const cha
   return rc;
 }
 
-uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
+uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
@@ -313,6 +313,43 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   std::string allFlag = "all";
   std::string patterns = ",.";
+
+  /* Let's setup for the Variable depth, walk up until we find something specified */
+  if ((i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD) || (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL)) {
+    /* If they specified -all, we do the lowest depth, like normal */
+    if (!ecmdUserArgs.allTargetSpecified) {
+      if ((i_target.threadState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.thread == "")) {
+        i_target.threadState = ECMD_TARGET_QUERY_IGNORE;
+
+        if ((i_target.coreState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.core == "")) {
+          i_target.coreState = ECMD_TARGET_QUERY_IGNORE;
+
+          if ((i_target.posState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.pos == "")) {
+            i_target.posState = ECMD_TARGET_QUERY_IGNORE;
+
+            if ((i_target.slotState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.slot == "")) {
+              i_target.slotState = ECMD_TARGET_QUERY_IGNORE;
+
+              if ((i_target.nodeState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.node == "")) {
+                i_target.nodeState = ECMD_TARGET_QUERY_IGNORE;
+
+                if ((i_target.cageState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.cage == "")) {
+                  i_target.cageState = ECMD_TARGET_QUERY_IGNORE;
+
+
+                } /* cage */
+              } /* node */
+            } /* slot */
+          } /* pos */
+        } /* core */
+      } /* thread */
+    }
+    /* Go back to a standard loop now that states are set */
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD)
+      i_looptype = ECMD_SELECTED_TARGETS_LOOP;
+    else
+      i_looptype = ECMD_SELECTED_TARGETS_LOOP_DEFALL;
+  }
 
   //update target with useful info in the ecmdUserArgs struct
   //cage
@@ -341,13 +378,18 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         return ECMD_INVALID_ARGS;
       }
       i_target.cage = atoi(ecmdUserArgs.cage.c_str());
-    }
-    else {
+      cageType = SINGLE;
+      i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
+    } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+      /* Default to all */
+      i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+      cageType = ALL;
+    } else {
       i_target.cage = 0x0;
+      cageType = SINGLE;
+      i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
 
-    cageType = SINGLE;
-    i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
 
   //node
@@ -372,13 +414,19 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           return ECMD_INVALID_ARGS;
         }
         i_target.node = atoi(ecmdUserArgs.node.c_str());
+        nodeType = SINGLE;
+        i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+        nodeType = ALL;
       }
       else {
         i_target.node = 0x0;
+        nodeType = SINGLE;
+        i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
       }
 
-      nodeType = SINGLE;
-      i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
   }
 
@@ -404,13 +452,19 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           return ECMD_INVALID_ARGS;
         }
         i_target.slot = atoi(ecmdUserArgs.slot.c_str());
+        slotType = SINGLE;
+        i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
+      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+        slotType = ALL;
       }
       else {
         i_target.slot = 0x0;
+        slotType = SINGLE;
+        i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
       }
 
-      slotType = SINGLE;
-      i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
   }
 
@@ -437,13 +491,19 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           return ECMD_INVALID_ARGS;
         }
         i_target.pos = atoi(ecmdUserArgs.pos.c_str());
+        posType = SINGLE;
+        i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+        posType = ALL;
       }
       else {
         i_target.pos = 0x0;
+        posType = SINGLE;
+        i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
       }
 
-      posType = SINGLE;
-      i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
   }
 
@@ -469,13 +529,19 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           return ECMD_INVALID_ARGS;
         }
         i_target.core = atoi(ecmdUserArgs.core.c_str());
+        coreType = SINGLE;
+        i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+        coreType = ALL;
       }
       else {
         i_target.core = 0x0;
+        coreType = SINGLE;
+        i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
       }
 
-      coreType = SINGLE;
-      i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
   }
 
@@ -501,13 +567,19 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           return ECMD_INVALID_ARGS;
         }
         i_target.thread = atoi(ecmdUserArgs.thread.c_str());
+        threadType = SINGLE;
+        i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+        threadType = ALL;
       }
       else {
         i_target.thread = 0x0;
+        threadType = SINGLE;
+        i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
       }
 
-      threadType = SINGLE;
-      i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
     }
   }
 

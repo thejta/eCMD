@@ -31,7 +31,7 @@ uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
 uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ); 
 
-uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData); 
+uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype ); 
 
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName ); 
 
