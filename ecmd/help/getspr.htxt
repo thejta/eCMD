@@ -34,4 +34,4 @@ Syntax: getspr <SprName> [<SprName> ...] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > getspr pu nia -p0,1 
+        Examples:       > getspr pu nia msr -p0,1 
