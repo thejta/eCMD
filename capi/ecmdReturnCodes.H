@@ -61,7 +61,8 @@
 #define ECMD_CLOCKS_ALREADY_OFF                 0x1041 ///< A stopclocks was requested when clocks are already off
 #define ECMD_CLOCKS_ALREADY_ON                  0x1042 ///< A startclocks was requested when clocks are already on
 #define ECMD_UNABLE_TO_OPEN_SCANDEF             0x1043 ///< eCMD was unable to open the scandef
-#define ECMD_INVALID_LATCHNAME                  0x1044 ///< eCMD was unable to find the specified latch in the scandef 
+#define ECMD_INVALID_LATCHNAME                  0x1044 ///< eCMD was unable to find the specified latch in the scandef
+#define ECMD_POLLING_FAILURE                    0x1045 ///< eCMD failed waiting for a poll to match expected value
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                0x1900  ///< Command interpreter didn't understand command
