@@ -1873,10 +1873,16 @@ uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char*
 std::string ecmdGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode = true);
 
 /**
- @brief Register an Error Message that has occured
+ @brief Register an error message that has occured
 
 */
 uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message);
+
+/**
+ @brief Flush all registered messages, they are no long retrievable
+
+*/
+void ecmdFlushRegisteredErrorMsgs();
 
 //@}
 

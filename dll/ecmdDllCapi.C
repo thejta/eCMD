@@ -343,6 +343,11 @@ uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const cha
   return rc;
 }
 
+void dllFlushRegisteredErrorMsgs() {
+  ecmdErrorList.clear();
+}
+
+
 uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
   uint32_t rc = ECMD_SUCCESS;
 

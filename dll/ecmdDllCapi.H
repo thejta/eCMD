@@ -221,6 +221,8 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode );
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
 
+void dllFlushRegisteredErrorMsgs(); 
+
 void dllOutputError(const char* i_message); 
 
 void dllOutputWarning(const char* i_message); 
