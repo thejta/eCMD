@@ -3,6 +3,7 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
+#include <ecmdUtils.H>
 
 
 int main (int argc, char *argv[])
@@ -95,7 +96,42 @@ int main (int argc, char *argv[])
 
 
 
-  /* Unload the eCMD Dll, this should always be the last thing you do */
+  // -------------- 
+  // Config Looping 
+  // -------------- 
+  // I want to loop on all the pu chips that the user selected with -p# -n#
+  // Looping on selected positions only works when ecmdCommandArgs has been previously called 
+
+  // Setup the target we will use 
+  target.chipType = "pu";
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  // For the function we are doing we know that we don't care about threads 
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  bool validPosFound = false;
+  // Initialize the config looper, tell it to loop on targets selected by the user -p# -c# 
+  // To loop on all targets in the system, not just those selected change this to : ECMD_ALL_TARGETS_LOOP 
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  if (rc) return rc;
+
+  // This loop will continue as long as valid targets are found 
+  //  each time returning with the target variable filled it 
+  while ( ecmdConfigLooperNext(target) ) {
+
+    // We will dump all the idregs 
+    rc = getRing(target, "idreg", data);
+    printf("pu: %d  0x%.08X\n", target.pos, data.getWord(0));
+
+    // Signify that we looped at least once 
+    validPosFound = true;
+  }
+  if (!validPosFound) {
+    // We never went into the while loop this means the positions the user selected where not in the system 
+    printf("**** ERROR : Position selected was not valid\n");
+  }
+
+  // Unload the eCMD Dll, this should always be the last thing you do 
   ecmdUnloadDll();
 
   return rc;
