@@ -60,6 +60,15 @@ uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+/**
+ * @brief Used for storing error messages internally to dll
+ */
+struct ecmdError {
+  int errorCode;        ///< Numeric error code- see ecmdReturnCodes.H
+  std::string whom;     ///< Function that registered error
+  std::string message;  ///< Message about the error
+};
+
 std::list<ecmdError> ecmdErrorList;
 
 struct ecmdUserInfo {

@@ -39,6 +39,10 @@
 
 #define ECMD_CAPI_VERSION ".1"          ///< eCMD API Version
 
+
+
+
+
 /**
  @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
 */
@@ -61,14 +65,27 @@ typedef enum {
 } ecmdDllProduct_t;
 
 /**
+ @brief This is used by ecmdQueryDllInfo to return what environment the dll is designed to run in (i.e Simulation vs Hardware)
+*/
+typedef enum {
+  ECMD_DLL_ENV_HW,              ///< Hardware Environment
+  ECMD_DLL_ENV_SIM              ///< Simulation Environment
+} ecmdDllEnv_t;
+
+/**
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
 
 struct ecmdDllInfo {
   ecmdDllType_t         dllType;        ///< Dll instance type running
   ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
   std::string           dllBuildDate;   ///< Date the Dll was built
 };
+
+
+
+
 
 /**
  @brief Used by ecmdChipTarget to describe the value in the state fields
@@ -103,7 +120,6 @@ typedef enum {
 */
 struct ecmdChipTarget {
 
-
   uint32_t    cage;             ///< cage that contains node with chip
   uint32_t    node;             ///< node that contains chip
   std::string chipType;         ///< name of chip to access , either actual or common name
@@ -118,6 +134,9 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t coreState;            ///< core field state
   ecmdChipTargetState_t threadState;          ///< thread field state
 };
+
+
+
 
 
 
@@ -186,6 +205,27 @@ struct ecmdCageData {
 
 
 /**
+ @brief Used by the ecmdQueryConfig function to return data
+*/
+struct ecmdQueryData {
+  ecmdQueryDetail_t       detailLevel;  ///< (Detail: Low) This is set to the detail level of the data contained within
+  std::list<ecmdCageData> cageData;     ///< (Detail: Low) List of all cages in the system - in nummerical order by cageId
+};
+
+
+
+
+/**
+ @brief Used by Ring/Array/Spy Query functions to return a required clock state
+*/
+typedef enum {
+  ECMD_CLOCKSTATE_UNKNOWN,              ///< Unable to determine a required clock state
+  ECMD_CLOCKSTATE_ON,                   ///< Chip clocks must be on to access
+  ECMD_CLOCKSTATE_OFF,                  ///< Chip clocks must be off to access
+  ECMD_CLOCKSTATE_NA                    ///< Chip clocks can be in any state to access
+} ecmdClockState_t;
+
+/**
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
@@ -195,15 +235,19 @@ struct ecmdRingData {
   bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
   bool     supportsBroadsideLoad;       ///< This ring supports broadside load in simulation
   bool     isCheckable;                 ///< This ring can be run through the check_rings command
+  ecmdClockState_t       clockState;    ///< Required clock state to access this ring
 };
+
+
 
 /**
  @brief Used for the ecmdQueryArray function to return array info
 */
 struct ecmdArrayData {
-  std::string arrayName; ///< Names used to reference this ring
-  int length;            ///< length of array
-  int width;             ///< width of array
+  std::string arrayName;                ///< Names used to reference this ring
+  int         length;                   ///< length of array
+  int         width;                    ///< width of array
+  ecmdClockState_t       clockState;    ///< Required clock state to access this spy
 };
 
 
@@ -214,27 +258,21 @@ typedef enum {
   ECMD_SPYTYPE_ALIAS,   ///< Spy is an alias
   ECMD_SPYTYPE_IDIAL,   ///< Spy is an iDial
   ECMD_SPYTYPE_EDIAL,   ///< Spy is an eDial
-  ECMD_SPYTYPE_ECC      ///< Spy is an eccdef - do we need this ?
+  ECMD_SPYTYPE_ECCGROUP ///< Spy is an eccGrouping
 } ecmdSpyType_t;
 
 /**
  @brief Used for the ecmdQuerySpy function to return spy info
 */
 struct ecmdSpyData {
-  std::string spyName;                  ///< Names used to reference this spy
-  int bitLength;                        ///< length of spy
+  std::string   spyName;                ///< Names used to reference this spy
+  int           bitLength;              ///< length of spy
   ecmdSpyType_t spyType;                ///< Type of spy
+  bool          isEccChecked;           ///< This spy affects some ECC groupings
+  ecmdClockState_t       clockState;    ///< Required clock state to access this spy
   
-  std::list<std::string> enums;       ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
-};
-
-/**
- * @brief Used for storing error messages internally to dll
- */
-struct ecmdError {
-  int errorCode;        ///< Numeric error code- see ecmdReturnCodes.H
-  std::string whom;     ///< Function that registered error
-  std::string message;  ///< Message about the error
+  std::list<std::string> enums;         ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
+  std::list<std::string> eccGroups;     ///< Possible ecc groups names affected by this Spy
 };
 
 
