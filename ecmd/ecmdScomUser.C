@@ -61,27 +61,33 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 
   bool expectFlag = false;
   bool maskFlag = false;
+  char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
+  char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
+  ecmdDataBuffer expected;                      ///< Buffer to store expected data
+  ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
+  std::string outputformat = "x";               ///< Output Format to display
+  std::string inputformat = "x";                ///< Input format of data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   //expect and mask flags check
-  if (ecmdParseOption(&argc, &argv, "-exp")) {
+  if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
 
-    if (ecmdParseOption(&argc, &argv, "-mask")) {
+    if ((maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
       maskFlag = true;
     }
   }
 
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "xw";
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
   }
-  else {
-    format = formatPtr;
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
 
   /************************************************************************/
@@ -118,27 +124,24 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 
   //container to store data
   ecmdDataBuffer buffer(3);  //the 3 is just a placeholder
-  ecmdDataBuffer * expected = NULL;  //don't want to allocate this unless I have to
-  ecmdDataBuffer * mask = NULL;  //ditto as for expected
 
   if (expectFlag) {
-    int argLength = argc - 2;  //account for chip and address args
+
+    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
+    if (rc) {
+      ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
+      return rc;
+    }
 
     if (maskFlag) {
-      argLength /= 2;
-      mask = new ecmdDataBuffer(argLength);
+      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
+      if (rc) {
+        ecmdOutputError("getscom - Problems occurred parsing mask data, must be an invalid format\n");
+        return rc;
+      }
+
     }
 
-    expected = new ecmdDataBuffer(argLength);
-
-    for (int i = 0; i < argLength; i++) {
-
-      expected->insertFromHexLeft(argv[i+2], i * 32, 32);
-
-      if (maskFlag)
-        mask->insertFromHexLeft(argv[i+2+argLength], i * 32, 32);
- 
-    }
 
   }
   else if (argc > 2) {
@@ -178,15 +181,15 @@ int ecmdGetScomUser(int argc, char* argv[]) {
     if (expectFlag) {
 
       if (maskFlag) {
-        buffer.setAnd(*mask, 0, buffer.getBitLength());
+        buffer.setAnd(mask, 0, buffer.getBitLength());
       }
 
-      if (!ecmdCheckExpected(buffer, *expected)) {
+      if (!ecmdCheckExpected(buffer, expected)) {
 
         //@ make this stuff sprintf'd
         char outstr[50];
         printed = ecmdWriteTarget(target);
-        sprintf(outstr, "\nData miscompare occured at address: %.8X\n", address);
+        sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
         printed += outstr;
 
 
@@ -198,10 +201,10 @@ int ecmdGetScomUser(int argc, char* argv[]) {
           printed += "            : ";
         }
 
-        printed += ecmdWriteDataFormatted(buffer, format);
+        printed += ecmdWriteDataFormatted(buffer, outputformat);
 
         printed += "getscom - Expected          : ";
-        printed += ecmdWriteDataFormatted(*expected, format);
+        printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
       }
 
@@ -209,23 +212,13 @@ int ecmdGetScomUser(int argc, char* argv[]) {
     else {
 
       printed = ecmdWriteTarget(target);
-      printed += ecmdWriteDataFormatted(buffer, format);
+      printed += ecmdWriteDataFormatted(buffer, outputformat);
       ecmdOutput( printed.c_str() );
 
     }
 
   }
 
-  if (expectFlag && expected != NULL) {
-    delete expected;
-    expected = NULL;
-
-    if (maskFlag && mask != NULL) {
-      delete mask;
-      mask = NULL;
-    }
-
-  }
 
   if (!validPosFound) {
     //this is an error common across all UI functions
@@ -239,16 +232,30 @@ int ecmdGetScomUser(int argc, char* argv[]) {
 int ecmdPutScomUser(int argc, char* argv[]) {
 
   int rc = ECMD_SUCCESS;
-  bool andFlag = false;
-  bool orFlag = false;
+  std::string inputformat = "x";                ///< Default input format
+  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdChipTarget target;                        ///< Chip target being operated on
+  uint32_t address;                             ///< Scom address
+  ecmdDataBuffer buffer;                        ///< Container to store write data
+  bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
+  std::string printed;                          ///< String for printed data
+  int startbit = -1;                            ///< Startbit to insert data
+  int numbits = 0;                              ///< Number of bits to insert data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
-  if (ecmdParseOption(&argc, &argv, "-and"))
-    andFlag = true;
-  else if (ecmdParseOption(&argc, &argv, "-or"))
-    orFlag = true;
+  char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args,                                           */
@@ -268,47 +275,59 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
+  address = ecmdGenB32FromHexRight(&address, argv[1]);
   if (address == 0xFFFFFFFF) {
     ecmdOutputError("putscom - Address argument was not a string of hex characters.\n");
     ecmdOutputError("putscom - Type 'putscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  // container for data to write
-  ecmdDataBuffer buffer(argc-2);
+  /* Did they specify a start/numbits */
+  if (argc > 3) {
+    if (argc != 5) {
+      ecmdOutputError("putscom - Too many arguments specified; you probably added an unsupported option.\n");
+      ecmdOutputError("putscom - Type 'putscom -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
 
-  //parse data to write
-  for (int i = 0; i < argc-2; i++) {
-    buffer.insertFromHexRight(argv[i+2], 32, i*32);
-  }
+    startbit = atoi(argv[2]);
+    numbits = atoi(argv[3]);
 
-  ecmdDataBuffer * fetchBuffer = NULL;  //only allocate if I have to
-  if (andFlag || orFlag) {
-    fetchBuffer = new ecmdDataBuffer(argc-2);
+    rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numbits);
+    if (rc) {
+      ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+    
+    
+  } else {  
+
+    rc = ecmdReadDataFormatted(buffer, argv[2], inputformat);
+    if (rc) {
+      ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
   }
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  bool validPosFound = false;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  std::string printed;
 
   while (ecmdConfigLooperNext(target, looperdata)) {
 
-    if (andFlag || orFlag) {
+    /* Do we need to perform a read/modify/write op ? */
+    if ((dataModifier != "insert") || (startbit != -1)) {
 
-      rc = getScom(target, address, *fetchBuffer);
+
+      rc = getScom(target, address, fetchBuffer);
 
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
@@ -324,16 +343,10 @@ int ecmdPutScomUser(int argc, char* argv[]) {
         validPosFound = true;     
       }
 
-      int minLength = (buffer.getBitLength() < fetchBuffer->getBitLength()) ? buffer.getBitLength() : fetchBuffer->getBitLength();
+      rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == -1 ? 0 : startbit), dataModifier);
+      if (rc) return rc;
 
-      if (andFlag) {
-        fetchBuffer->setAnd(buffer, 0, minLength);
-      }
-      else if (orFlag) {
-        fetchBuffer->setOr(buffer, 0, minLength);
-      }
-
-      rc = putScom(target, address, *fetchBuffer);
+      rc = putScom(target, address, fetchBuffer);
       if (rc) {
         printed = "putscom - Error occured performing putscom on ";
         printed += ecmdWriteTarget(target);
@@ -364,10 +377,6 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   
   }
 
-  if (andFlag || orFlag) {
-    delete fetchBuffer;
-    fetchBuffer = NULL;
-  }
 
   if (!validPosFound) {
     ecmdOutputError("putscom - Unable to find a valid chip to execute command on\n");

@@ -121,6 +121,25 @@ int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
         
 }
 
+int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier) {
+  int rc = ECMD_SUCCESS;
+
+
+  if (i_modifier == "insert") {
+    io_data.insert(i_newData, i_startbit, i_newData.getBitLength());
+  } else if (i_modifier == "and") {
+    io_data.setAnd(i_newData, i_startbit, i_newData.getBitLength());
+  } else if (i_modifier == "or") {
+    io_data.setOr(i_newData, i_startbit, i_newData.getBitLength());
+  } else {
+    ecmdOutputError(("putscom - Invalid Data Modifier specified with -b arg : "+i_modifier).c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+
+  return rc;
+}
+
 int ecmdPrintHelp(const char* i_command) {
 
   int rc = ECMD_SUCCESS;

@@ -752,6 +752,16 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   bool xstateFlag = false;
   char* expectDataPtr = NULL;
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string outputformat = "b";       ///< Output Format to display
+  std::string inputformat = "b";        ///< Input format of data
+  ecmdChipTarget target;                ///< Current target operating on
+  std::string ringName;                 ///< Ring to fetch
+  uint32_t startBit;                    ///< Start bit to fetch
+  uint32_t numBits;                     ///< Number of bits to fetch
+  ecmdDataBuffer ringBuffer;            ///< Buffer for entire ring
+  ecmdDataBuffer buffer;                ///< Buffer for portion user requested
+  ecmdDataBuffer expected;              ///< Buffer to store expected data
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -766,13 +776,13 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   }
 
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "b";
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
   }
-  else {
-    format = formatPtr;
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
   
   /************************************************************************/
@@ -793,16 +803,14 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  ecmdChipTarget target;
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  std::string ringName = argv[1];
+  ringName = argv[1];
 
-  uint32_t startBit = atoi(argv[2]);
-  uint32_t numBits;
+  startBit = atoi(argv[2]);
 
   if (!strcmp(argv[3], "end")) {
     numBits = 0xFFFFFFFF;
@@ -811,14 +819,13 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
     numBits = atoi(argv[3]);
   }
 
-  //container to store data
-  ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer buffer; 
-  ecmdDataBuffer expected;
 
   if (expectFlag) {
-    expected.setBitLength(strlen(expectDataPtr) * 4);
-    expected.insertFromHexLeft(expectDataPtr);
+    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
+    if (rc) {
+      ecmdOutputError("getbits - Problems occurred parsing expected data, must be an invalid format\n");
+      return rc;
+    }
   }
   else if (argc > 4) {
     ecmdOutputError("getbits - Too many arguments specified; you probably added an option that wasn't recognized.\n");
@@ -830,7 +837,6 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  bool validPosFound = false;
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   char outstr[30];
@@ -862,11 +868,11 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
         //@ make this stuff sprintf'd
         printed =  "Actual            : ";
-        printed += ecmdWriteDataFormatted(buffer, format);
+        printed += ecmdWriteDataFormatted(buffer, outputformat);
         ecmdOutputError( printed.c_str() );
 
         printed = "Expected          : ";
-        printed += ecmdWriteDataFormatted(expected, format);
+        printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
         return ECMD_EXPECT_FAILURE;
       }
@@ -876,7 +882,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(target) + "  " + ringName;
       sprintf(outstr, "(%d:%d)", startBit, startBit + numBits - 1);
       printed += outstr;
-      std::string dataStr = ecmdWriteDataFormatted(buffer, format);
+      std::string dataStr = ecmdWriteDataFormatted(buffer, outputformat);
       if (dataStr[0] != '\n') {
         printed += "\n";
       }

@@ -128,7 +128,7 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
 
     /* Set the length  */
     address.setBitLength(arrayData.addressLength);
-    rc = address.insertFromHexRight(argv[2], arrayData.addressLength);
+    rc = address.insertFromHexRight(argv[2], 0, arrayData.addressLength);
     if (rc) return rc;
 
 
@@ -239,6 +239,7 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdArrayData arrayData;      ///< Query data about array
 
   /* get format flag, if it's there */
   std::string format;
@@ -275,10 +276,6 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
 
   arrayName = argv[1];
 
-  address.setBitLength(strlen(argv[2]) * 4);
-  rc = address.insertFromHexRight(argv[2]);
-  if (rc) return rc;
-
   rc = ecmdReadDataFormatted(buffer, argv[3], format);
   if (rc) {
     ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
@@ -290,6 +287,22 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+
+    /* We need to find out info about this array */
+    rc = ecmdQueryArray(target, arrayData , arrayName.c_str());
+    if (rc) {
+      printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+
+    /* Set the length  */
+    address.setBitLength(arrayData.addressLength);
+    rc = address.insertFromHexRight(argv[2], 0, arrayData.addressLength);
+    if (rc) return rc;
+
 
     rc = putArray(target, arrayName.c_str(), address, buffer);
 

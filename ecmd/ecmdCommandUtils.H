@@ -57,6 +57,17 @@ int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
  */
 int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
 
+/**
+ @brief Applies the buffer i_newData to the io_data buffer based upon the specified i_modifier for length of i_newData
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ @param io_data Data buffer to modify
+ @param i_newData Data to insert into io_data based on modifier
+ @param i_startbit Startbit of io_data to begin modification
+ @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
+*/
+int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier);
+
 
 /**
  @brief Write help text file for command
