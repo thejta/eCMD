@@ -131,7 +131,7 @@ uint32_t ecmdDisplayDllInfo();
  @param inOut Tell Parm Printer if we are going into or out of the function
  @param fprototypeStr function prototype
  */
-void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, ...);
+void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
 #endif
 
 
