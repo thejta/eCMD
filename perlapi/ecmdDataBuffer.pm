@@ -37,6 +37,7 @@ use strict;
 ################################################
 my $iv_DataStr = "";
 
+
 sub new {
 	my $self = \$iv_DataStr;
 	bless $self;
@@ -154,7 +155,8 @@ sub setBitLength() {
 =cut
 
 sub setBit() {
-	my ($i_bit,$len) = @_[1],@_[2];
+	my ($i_bit) = @_[1];
+	my ($len)   = @_[2];
 	if (($i_bit        >= getBitLength()) || 
 	    ($i_bit + $len >= getBitLength())   ) {
 		printf("**** ERROR : ecmdDataBuffer::setBit: bit %d >= NumBits (%d)\n", $i_bit, getBitLength());
@@ -931,7 +933,98 @@ sub evenParity() {
 sub genHexLeftStr() {
 #  std::string genHexLeftStr(int i_start, int i_bitlen);
 #  std::string genHexLeftStr();
+	my ($i_start)   = @_[1];
+	my ($i_bitlen)  = @_[2];
+	my ($len)       = 0;
+	my ($hexStr)    = "0x";
+	my ($remainder) = 0;
+	my ($nibbles)   = 0;
+	my ($looper)    = 0;
+	my ($thisNible) = 0;
+	my ($hexCnt)    = 0;
 
+	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
+		      "1000","1001","1010","1011","1100","1101","1110","1111");
+	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+
+
+	$len = length($iv_DataStr);
+	if(($i_start + $i_bitlen) > $len) {
+	    printf( "**** ERROR : ecmdDataBuffer::genHexLeftStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+	}
+	
+	if (hasXstate($i_start, $i_bitlen)) {
+		printf("**** ERROR : ecmdDataBuffer::genHexLeftStr: Cannot extract when non-binary (X-State) character present\n");
+		return "-1";
+	}
+
+	$remainder = $i_bitlen %4;
+	$nibbles   = ($i_bitlen-$remainder) /4;
+
+	for($looper=0; $looper < $nibbles; $looper++) {
+		$thisNible = substr($iv_DataStr,$i_start + $looper*4,4);
+		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+			if( $thisNible eq $theBin[$hexCnt]) {
+				$hexStr = $hexStr . $theHex[$hexCnt];
+			}
+		}
+	}
+	#hex string should now have all of the nibbles, we just need the remaining bits 
+	#easy and cheesey way is to do a big if+else method.
+	if($remainder == 1) {
+		#looper is alread at the next nibble count.
+		$thisNible = substr($iv_DataStr,$i_start + $looper*4,1);
+		if($thisNible eq "0") {
+			$hexStr = $hexStr . "0";
+		} elsif ($thisNible eq "1") {
+			$hexStr = $hexStr . "8";
+		} else {
+			printf("**** ERROR : ecmdDataBuffer::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
+			return -1;
+		}
+	} elsif ($remainder == 2) {
+		#looper is alread at the next nibble count.
+		$thisNible = substr($iv_DataStr,$i_start + $looper*4,2);
+		if($thisNible eq "00") {
+			$hexStr = $hexStr . "0";
+		} elsif ($thisNible eq "01") {
+			$hexStr = $hexStr . "4";
+		} elsif ($thisNible eq "10") {
+			$hexStr = $hexStr . "8";
+		} elsif ($thisNible eq "11") {
+			$hexStr = $hexStr . "C";
+		} else {
+			printf("**** ERROR : ecmdDataBuffer::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
+			return -1;
+		}
+	} elsif ($remainder ==3) {
+		#looper is alread at the next nibble count.
+		$thisNible = substr($iv_DataStr,$i_start + $looper*4,3);
+		if($thisNible eq "000") {
+			$hexStr = $hexStr . "0";
+		} elsif ($thisNible eq "001") {
+			$hexStr = $hexStr . "2";
+		} elsif ($thisNible eq "010") {
+			$hexStr = $hexStr . "4";
+		} elsif ($thisNible eq "011") {
+			$hexStr = $hexStr . "6";
+		} elsif ($thisNible eq "100") {
+			$hexStr = $hexStr . "8";
+		} elsif ($thisNible eq "101") {
+			$hexStr = $hexStr . "A";
+		} elsif ($thisNible eq "110") {
+			$hexStr = $hexStr . "C";
+		} elsif ($thisNible eq "111") {
+			$hexStr = $hexStr . "E";
+		} else {
+			printf("**** ERROR : ecmdDataBuffer::genHexLeftStr: Data is non binary data at offset %d\n", $looper*4);
+			return -1;
+		}
+	} else {
+	#must be 0 so do nothing extra.
+	}
+
+	return $hexStr;
 }
 
 
@@ -948,6 +1041,102 @@ sub genHexLeftStr() {
 sub genHexRightStr() {
 #  std::string genHexRightStr(int i_start, int i_bitlen); 
 #  std::string genHexRightStr(); 
+	my ($i_start)   = @_[1];
+	my ($i_bitlen)  = @_[2];
+	my ($len)       = 0;
+	my ($hexStr)    = "";
+	my ($remainder) = 0;
+	my ($nibbles)   = 0;
+	my ($looper)    = 0;
+	my ($thisNible) = 0;
+	my ($hexCnt)    = 0;
+
+	my (@theBin) = ("0000","0001","0010","0011","0100","0101","0110","0111",
+		      "1000","1001","1010","1011","1100","1101","1110","1111");
+	my (@theHex) = ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+
+
+	$len = length($iv_DataStr);
+	if(($i_start + $i_bitlen) > $len) {
+	    printf( "**** ERROR : ecmdDataBuffer::genHexrightStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+	}
+	
+	if (hasXstate($i_start, $i_bitlen)) {
+		printf("**** ERROR : ecmdDataBuffer::genHexRightStr: Cannot extract when non-binary (X-State) character present\n");
+		return "-1";
+	}
+
+	$remainder = $i_bitlen %4;
+	$nibbles   = ($i_bitlen-$remainder) /4;
+
+#	for($looper=0; $looper < $nibbles; $looper++) {
+	while ($nibbles) {
+		$thisNible = substr($iv_DataStr,$i_start + $nibbles*4 + $remainder -4,4);
+		for($hexCnt=0; $hexCnt <16; $hexCnt++) {
+			if( $thisNible eq $theBin[$hexCnt]) {
+				$hexStr = $theHex[$hexCnt] . $hexStr;
+			}
+		}
+		$nibbles--;
+	}
+	#hex string should now have all of the nibbles, we just need the remaining bits 
+	#easy and cheesey way is to do a big if+else method.
+	if($remainder == 1) {
+		#looper is alread at the next nibble count.
+		$thisNible = substr($iv_DataStr,$i_start,1);
+		if($thisNible eq "0") {
+			$hexStr = "0" . $hexStr;
+		} elsif ($thisNible eq "1") {
+			$hexStr = "1" . $hexStr;
+		} else {
+			printf("**** ERROR : ecmdDataBuffer::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
+			return -1;
+		}
+	} elsif ($remainder == 2) {
+		#looper is alread at the next nibble count.
+		$thisNible = substr($iv_DataStr,$i_start,2);
+		if($thisNible eq "00") {
+			$hexStr =  "0" . $hexStr;
+		} elsif ($thisNible eq "01") {
+			$hexStr =  "1" . $hexStr;
+		} elsif ($thisNible eq "10") {
+			$hexStr =  "2" . $hexStr;
+		} elsif ($thisNible eq "11") {
+			$hexStr =  "3" . $hexStr;
+		} else {
+			printf("**** ERROR : ecmdDataBuffer::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
+			return -1;
+		}
+	} elsif ($remainder ==3) {
+		#looper is alread at the next nibble count.
+		$thisNible = substr($iv_DataStr,$i_start,3);
+		if($thisNible eq "000") {
+			$hexStr =  "0" . $hexStr;
+		} elsif ($thisNible eq "001") {
+			$hexStr =  "1" . $hexStr;
+		} elsif ($thisNible eq "010") {
+			$hexStr =  "2" . $hexStr;
+		} elsif ($thisNible eq "011") {
+			$hexStr =  "3" . $hexStr;
+		} elsif ($thisNible eq "100") {
+			$hexStr =  "4" . $hexStr;
+		} elsif ($thisNible eq "101") {
+			$hexStr =  "5" . $hexStr;
+		} elsif ($thisNible eq "110") {
+			$hexStr =  "6" . $hexStr;
+		} elsif ($thisNible eq "111") {
+			$hexStr =  "7" . $hexStr;
+		} else {
+			printf("**** ERROR : ecmdDataBuffer::genHexRightStr: Data is non binary data near offset %d\n", $i_start);
+			return -1;
+		}
+	} else {
+	#must be 0 so do nothing extra.
+	}
+
+	$hexStr = "0x" . $hexStr;
+	return $hexStr;
+
 }
 
 
@@ -964,6 +1153,30 @@ sub genHexRightStr() {
 sub genBinStr() {
 #  std::string genBinStr(int i_start, int i_bitlen); 
 #  std::string genBinStr(); 
+	my ($i_start)  = @_[1];
+	my ($i_bitlen) = @_[2];
+	my ($len)      = 0;
+
+	if (hasXstate($i_start, $i_bitlen)) {
+		printf("**** WARNING : ecmdDataBuffer::genBinStr: Cannot extract when non-binary (X-State) character present\n");
+	}
+
+	if($i_bitlen) {
+#we have a start & bitlen so do the calculation.
+		my $ext;
+		$len = length($iv_DataStr);
+		if(($i_start + $i_bitlen) > $len) {
+			printf( "**** ERROR : ecmdDataBuffer::genBinStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+		}
+		else {
+			$ext = substr($iv_DataStr,$i_start,$i_bitlen);
+		}
+		return $ext;
+	} 
+	else {
+#we don't have any parameters, so return the whole string.
+		return $iv_DataStr;
+	}
 }
 
 
@@ -980,6 +1193,26 @@ sub genBinStr() {
 sub genXstateStr() {
 #  std::string genXstateStr(int i_start, int i_bitlen);
 #  std::string genXstateStr();
+	my ($i_start)  = @_[1];
+	my ($i_bitlen) = @_[2];
+	my ($len)      = 0;
+
+	if($i_bitlen) {
+#we have a start & bitlen so do the calculation.
+		my $ext;
+		$len = length($iv_DataStr);
+		if(($i_start + $i_bitlen) > $len) {
+			printf( "**** ERROR : ecmdDataBuffer::genXstateStr: start + len %d > NumBits (%d)\n", $i_start + $i_bitlen, $len);
+		}
+		else {
+			$ext = substr($iv_DataStr,$i_start,$i_bitlen);
+		}
+		return $ext;
+	} 
+	else {
+#we don't have any parameters, so return the whole string.
+		return $iv_DataStr;
+	}
 }
 
 
@@ -1050,6 +1283,42 @@ sub insertFromBin () {
 sub hasXstate() {
 #  int   hasXstate(int i_start, int i_length); /* check subset */
 #  int   hasXstate(); 
+
+	my ($i_start)  = @_[0];
+	my ($i_length) = @_[1];
+	my ($len)    =0;
+	my ($looper) =0;
+	my ($val) =0;
+	my $rc =0;
+
+	$len = length($iv_DataStr);
+
+	if($i_length) {
+# we have both parameters
+		if($len < ($i_start + $i_length)) {
+			printf( "**** ERROR : ecmdDataBuffer::hasXstate: start + len %d > NumBits (%d)\n", $i_start + $i_length, $len);
+		} else {
+			for($looper=0; $looper < $i_length; $looper++) {
+				$val = substr($iv_DataStr,$looper,1);
+				if( !($val eq "0") && !($val eq "1") ) {
+					$rc = 1;
+					return $rc;
+				}
+			}
+			return 0;
+		}
+	} 
+	else {
+#no parameters so check the whole thing.
+		for($looper=0;$looper < $len; $looper++) {
+			$val = substr($iv_DataStr,$looper,1);
+			if( !($val eq "0") && !($val eq "1") ) {
+				$rc = 1;
+				return $rc;
+			}
+		}
+		return 0;
+	}
 }
 
 
