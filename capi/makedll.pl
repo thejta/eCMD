@@ -70,7 +70,7 @@ if ($ARGV[0] eq "ecmd") {
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
 
-    if (/^(uint32_t|std::string|void|bool|int)/) {
+    if (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 	
 
 	next if (/$ignore_re/o);
