@@ -6,6 +6,24 @@
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+# Ok, find our CTE path if they don't already have one
+ifeq ($(strip $(CTEPATH)),)
+  CTEPATH      := "UNKNOWN CTE CELL"
+  ifeq (${SITE},rchland.ibm.com)
+    CTEPATH    := /afs/rchland.ibm.com/rel/common/cte
+  endif
+  ifeq (${SITE},awd.austin.ibm.com)
+    CTEPATH    := /afs/awd.austin.ibm.com/projects/cte
+  endif
+  ifeq (${SITE},apd.pok.ibm.com)
+    CTEPATH    := /afs/apd.pok.ibm.com/func/vlsi/cte
+  endif
+  ifeq (${SITE},vlsilab.boeblingen.ibm.com)
+    CTEPATH    := /afs/vlsilab.boeblingen.ibm.com/proj/cte
+  endif
+endif
+
+
 VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
@@ -26,8 +44,8 @@ ifeq (${OS},Linux)
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/linux/perl/lib/5.6.1/i386-linux/CORE
-  SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/linux/swig/lib/swig_lib/perl5 -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/
+  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/linux/swig/bin/swig
+  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/linux/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/linux/swig/lib/swig_lib/perl5 -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib/swig_lib/
   GPATH   := ${SUBDIR}
 endif
 
@@ -47,8 +65,8 @@ ifeq (${OS},AIX)
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE
-  SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/perl5 -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/
+  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/aix/swig/bin/swig
+  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib/swig_lib/perl5 -I${CTEPATH}/tools/ecmd/utils/swig/aix/swig/lib/swig_lib/
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 
