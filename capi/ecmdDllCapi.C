@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------
 #define ecmdDllCapi_C
 #include <stdio.h>
+#include <map>
 
 #include "ecmdDllCapi.H"
 
@@ -86,7 +87,7 @@ std::string dllGetErrorMsg(int i_errorCode) {
   return ret;
 }
 
-int dllRegisterErrorMsg(int i_errorCode, const i_char* whom, const char* i_message) {
+int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message) {
   int rc = ECMD_SUCCESS;
 
   return rc;

@@ -447,6 +447,42 @@ public:
   std::string genBinStr();
   //@}
 
+  /** @name String to Data conversion functions*/
+  //@{
+
+  /**
+   * @brief Convert data from a hex left-aligned string and insert it into this data buffer
+   * @retval 0 on success- non-zero on failure
+   * @param i_hexChars Hex Left-aligned string of data to insert 
+   * @param start Starting position in data buffer to insert to, 0 by default
+   * @param length Length of data to insert, defaults to length of i_hexChars
+
+   */
+  int insertFromHexLeft (const char * i_hexChars, int start = 0, int length = 0);
+
+  /**
+   * @brief Convert data from a hex right-aligned string and insert it into this data buffer
+   * @retval 0 on success- non-zero on failure
+   * @param i_hexChars Hex Right-aligned string of data to insert 
+   * @param start Starting position in data buffer to insert to, 0 by default
+   * @param length Length of data to insert, defaults to length of i_hexChars
+
+   */
+  int insertFromHexRight (const char * i_hexChars, int start = 0, int length = 0);
+
+  /**
+   * @brief Convert data from a hex left-aligned string and insert it into this data buffer
+   * @retval 0 on success- non-zero on failure
+   * @param i_binChars String of 0's and 1's to insert 
+   * @param start Starting position in data buffer to insert to, 0 by default
+   * @param length Length of data to insert, defaults to length of i_binChar
+
+   */
+  int insertFromBin (const char * i_binChars, int start = 0, int length = 0);
+
+  //@}
+
+
   /** @name Simulation Buffer Functions */
   //@{
   /**

@@ -877,6 +877,125 @@ std::string ecmdDataBuffer::genHexRightStr() { return this->genHexRightStr(0, iv
 std::string ecmdDataBuffer::genBinStr() { return this->genBinStr(0, iv_NumBits); }
 
 
+int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int length) {
+  int rc = ECMD_SUCCESS;
+  int i;
+
+  int strLen = strlen(i_hexChars);
+
+  if (length == 0) {
+
+    if (strLen > 0) {
+      length = strLen * 4;
+    }
+    else {
+      //error out
+      return ECMD_DBUF_INVALID_ARGS;
+    }
+
+  }
+
+  int wordLength = (strLen - 1)/32 + 1;
+
+  uint32_t * number_ptr = new uint32_t[wordLength];
+  for (i = 0; i < wordLength; i++) {
+    number_ptr[i] = 0x0;
+  }
+
+  uint32_t tmpb32 = 0x0;
+  char * nextOne = new char[2];
+  nextOne[1] = '\0';
+  for (i = 0; i < strLen; i++) {
+    nextOne[0] = i_hexChars[i];
+    tmpb32 = strtoul(&nextOne[0], NULL, 16);
+    number_ptr[i>>3] |= tmpb32 << (28 - (i << 2));
+  }
+
+  this->insert(number_ptr, start, length);
+
+  delete[] nextOne;
+  delete[] number_ptr;
+
+  return rc;
+}
+
+int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int length) {
+  int rc = ECMD_SUCCESS;
+  int i;
+
+  int strLen = strlen(i_hexChars);
+
+  //if the string isn't aligned along word boundaries, we
+  //move it over
+  if (strLen % 8) {
+    start += 4*(8 - (strLen % 8));
+  }
+
+  if (length == 0) {
+
+    if (strLen > 0) {
+      length = strLen * 4;
+    }
+    else {
+      //error out
+      return ECMD_DBUF_INVALID_ARGS;
+    }
+
+  }
+
+  int wordLength = (strLen - 1)/32 + 1;
+
+  uint32_t * number_ptr = new uint32_t[wordLength];
+  for (i = 0; i < wordLength; i++) {
+    number_ptr[i] = 0x0;
+  }
+
+  uint32_t tmpb32 = 0x0;
+  char * nextOne = new char[2];
+  nextOne[1] = '\0';
+  for (i = 0; i < strLen; i++) {
+    nextOne[0] = i_hexChars[i];
+    tmpb32 = strtoul(&nextOne[0], NULL, 16);
+    number_ptr[i>>3] |= tmpb32 << (28 - (i << 2));
+  }
+
+  this->insert(number_ptr, start, length);
+
+  delete[] nextOne;
+  delete[] number_ptr;
+
+  return rc;
+}
+
+int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start, int length) {
+  int rc = ECMD_SUCCESS;
+
+  int strLen = strlen(i_binChars);
+
+  if (length == 0) {
+
+    if (strLen > 0) {
+      length = strLen;
+    }
+    else {
+      //error out
+      return ECMD_DBUF_INVALID_ARGS;
+    }
+
+  }
+
+  for (int i = 0; i < strLen; i++) {
+    if (i_binChars[i] == '0') {
+      this->clearBit(start+i);
+    }
+    else {
+      this->setBit(start+i);
+    }
+  }
+
+  return rc;
+}
+
 void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 
   newCopy.setWordLength(iv_NumWords);

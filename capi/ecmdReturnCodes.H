@@ -43,7 +43,7 @@
 #define ECMD_DBUF_BUFFER_OVERFLOW       0x2010 ///< Attempt to read/write data beyond the length of the DataBuffer
 #define ECMD_DBUF_XSTATE_ERROR          0x2020 ///< An 'X' character occured where it was not expected
 #define ECMD_DBUF_UNDEFINED_FUNCTION    0x2030 ///< Function not included in this version of DataBuffer
-
+#define ECMD_DBUF_INVALID_ARGS          0x2040 ///< Args provided to dataBuffer were invalid
 
 #endif /* ecmdReturnCodes_h */
 
