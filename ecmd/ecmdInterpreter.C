@@ -106,9 +106,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "getarray")) {
           rc = ecmdGetArrayUser(argc - 1, argv + 1);
-        }
-        else if (!strcmp(argv[0], "getbits")) {
+        } else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getfpr")) {
+          rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_FPR);
+        } else if (!strcmp(argv[0], "getgpr")) {
+          rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_GPR);
         } else if (!strcmp(argv[0], "getlatch")) {
           rc = ecmdGetLatchUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getmemdma")) {
@@ -144,6 +147,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutArrayUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putbits")) {
           rc = ecmdPutBitsUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putfpr")) {
+          rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_FPR);
+        } else if (!strcmp(argv[0], "putgpr")) {
+          rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_GPR);
         } else if (!strcmp(argv[0], "pollscom")) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putlatch")) {
