@@ -77,7 +77,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
     ecmdOutputError("ecmdCheckExpected - Not enough expect data provided\n");
     return 0;
   } else if ((i_data.getBitLength()-1)/4 < (i_expected.getBitLength()-1)/4) {
-    ecmdOutputError("ecmdCheckExpected - More expect data provided then data that was retrieved\n");
+    ecmdOutputError("ecmdCheckExpected - More expect data provided than data that was retrieved\n");
     return 0;
 
     /* Now we are going to check to see if expect bits we specified in any odd nibble bits */
