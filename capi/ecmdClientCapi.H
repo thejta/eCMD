@@ -174,7 +174,9 @@ int ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData
  @param i_target Struct that contains chip and cage/node/position/core/thread information
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
  @param o_fileLocation Return string with full path and filename to location 
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
+ @retval ECMD_SUCCESS if successful read
+ @retval ECMD_UNKNOWN_FILE if unable to find requested file
+ @retval nonzero if unsuccessful
 */
 int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string o_fileLocation);
 

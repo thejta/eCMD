@@ -34,10 +34,11 @@
 #define ECMD_DLL_UNINITIALIZED          0x1004 ///< A function was called before ecmdLoadDll was called
 #define ECMD_DLL_INVALID                0x1005 ///< If we are unable to lookup a function in the Dll
 #define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
-#define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
+#define ECMD_TARGET_NOT_CONFIGURED      0x1011 ///< Chip target provided was not configured in the system
+#define ECMD_FUNCTION_NOT_SUPPORTED     0x1012 ///< Returned if a specific Dll instance doesn't support the function you called
+#define ECMD_UNKNOWN_FILE               0x1013 ///< ecmdQueryFileLocation was unable to find the file you requested
 #define ECMD_INVALID_ARGS               0x1020 ///< Not enough arguments provided to the function
 #define ECMD_INVALID_SPY_ENUM		0x1021 ///< getSpyEnum or putSpyEnum used an invalid enum
-#define ECMD_FUNCTION_NOT_SUPPORTED     0x1012 ///< Returned if a specific Dll instance doesn't support the function you called
 
 /* dataBuffer specific return codes */
 #define ECMD_DBUF_SUCCESS               0x0    ///< DataBuffer returned successfully
