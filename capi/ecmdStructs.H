@@ -36,6 +36,27 @@
 
 #define ECMD_CAPI_VERSION ".1"          ///< eCMD API Version
 
+/**
+ @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
+*/
+
+typedef enum {
+  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
+  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
+  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
+  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
+  ECMD_DLL_ZSERIES              ///< Running against Z Series HOM
+
+} ecmdDllType_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
+*/
+
+struct ecmdDllInfo {
+  ecmdDllType_t         dllType;        ///< Dll instance type running
+  std::string           dllFile;        ///< Full path/filename to the dll that was loaded
+};
 
 /**
  @brief Used by ecmdChipTarget to describe the value in the state fields
@@ -106,13 +127,13 @@ struct ecmdCoreData {
  @brief Used for the ecmdQueryConfig function to return chip data
 */
 struct ecmdChipData {
-  std::string   chipType;                       ///< name of chip
-  uint32_t pos;                                 ///< Position of this entry
-  uint8_t  numProcCores;                        ///< Number of cores this entry supports - only valid for Processor compute cores
-  uint32_t chipEc;                              ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
-  ecmdChipInterfaceType_t interfaceType;        ///< Interface Macro used by the chip
-  uint32_t chipFlags;                           ///< Various additional info about the chip - bitmask of defines
-  std::vector<ecmdCoreData> coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+  std::string                   chipType;           ///< name of chip
+  uint32_t                      pos;                ///< Position of this entry
+  uint8_t                       numProcCores;       ///< Number of cores this entry supports - only valid for Processor compute cores
+  uint32_t                      chipEc;             ///< EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
+  ecmdChipInterfaceType_t       interfaceType;      ///< Interface Macro used by the chip
+  uint32_t                      chipFlags;          ///< Various additional info about the chip - bitmask of defines
+  std::vector<ecmdCoreData>     coreData;           ///< Vector of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
 };
 
 /**

@@ -83,6 +83,20 @@ int ecmdCommandArgs(int i_argc, char* i_argv[]);
 
 /** @name Query Functions */
 //@{
+
+/**
+ @brief Query information about the Dll that is loaded
+ @param o_dllInfo Return data with data from the current dll loaded
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ This interface allows you to query what particular instance of the DLL is loaded (i.e Cronus/IP/Z),
+  along with additional information.
+*/
+
+int ecmdQueryDllInfo(ecmdDllInfo o_dllInfo);
+
+
 /**
  @brief Query configuration information from the DLL
  @param i_target Struct that contains partial information to limit query results
