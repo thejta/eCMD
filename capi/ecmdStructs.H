@@ -387,14 +387,15 @@ typedef enum {
  @brief Used internally by ecmdConfigLooper to store looping state information
 */
 struct ecmdLooperData {
-  ecmdQueryData ecmdSystemConfigData;                   ///< Config data queried from the system
+  ecmdQueryData    ecmdSystemConfigData;                ///< Config data queried from the system
   std::list<ecmdCageData>::iterator ecmdCurCage;        ///< Pointer to current Cage
   std::list<ecmdNodeData>::iterator ecmdCurNode;        ///< Pointer to current Node
   std::list<ecmdSlotData>::iterator ecmdCurSlot;        ///< Pointer to current Slot
   std::list<ecmdChipData>::iterator ecmdCurChip;        ///< Pointer to current Chip
   std::list<ecmdCoreData>::iterator ecmdCurCore;        ///< Pointer to current Core
   std::list<ecmdThreadData>::iterator ecmdCurThread;    ///< Pointer to current Thread
-  bool ecmdLooperInitFlag;                              ///< Is fresh ?
+  ecmdChipTarget prevTarget;                            ///< Pointer to previous target
+  bool             ecmdLooperInitFlag;                  ///< Is fresh ?
 };
 
 
