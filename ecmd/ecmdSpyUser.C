@@ -230,15 +230,15 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
-      if (spyData.eccGroups.empty()) {
+      if (spyData.epCheckers.empty()) {
         ecmdOutputError("getspy - Got back the Spy Failed ECC return code, but no epcheckers specified\n");
       }
       /* Must have entries - setup variables and iterators, start looping */
       ecmdDataBuffer inLatches, outLatches, errorMask;
-      std::list<std::string>::iterator epcheckersIter = spyData.eccGroups.begin();
+      std::list<std::string>::iterator epcheckersIter = spyData.epCheckers.begin();
       ecmdOutput("===== The following epcheckers mismatched for this spy =====\n");
-      while (epcheckersIter != spyData.eccGroups.end()) {
-        rc = getSpyEccGrouping(target, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
+      while (epcheckersIter != spyData.epCheckers.end()) {
+        rc = getSpyEpCheckers(target, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
         if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK) return rc;
         printed = *epcheckersIter + "\n";
         ecmdOutput(printed.c_str());
