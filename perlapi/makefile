@@ -60,7 +60,7 @@ MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiF
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux)
-  SUBDIR    := linux/
+  SUBDIR    := obj_linux/
   CC        := g++
   TARGET    := ecmd
   LD        := ${CC}
@@ -77,7 +77,7 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR    := aix/
+  SUBDIR    := obj_aix/
 # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
   CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
   ifeq (${SITE},apd.pok.ibm.com)
@@ -113,9 +113,9 @@ VPATH     := ${VPATH}:${SUBDIR}
 all: dir ${TARGET}.so ${TARGET}.pm 
 	@touch t.o tecmd.so tecmd.pm t_wrap.c
 	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
-	@echo "Exporting eCMD PerlApi to export/ ..."
-	@cp ${SUBDIR}${TARGET}.so export/
-	@cp ${SUBDIR}${TARGET}.pm export/
+	@echo "Exporting eCMD PerlApi to ${OS}/ ..."
+	@cp ${SUBDIR}${TARGET}.so ${OS}/
+	@cp ${SUBDIR}${TARGET}.pm ${OS}/
 ifeq (${OS},AIX)
 	@slibclean
 endif
@@ -130,9 +130,7 @@ clean:
 
 dir:
 	@mkdir -p ${SUBDIR}
-	@mkdir -p .export-$(shell sys | tr 'A-Z' 'a-z')
-	@rm -rf export
-	@ln -s  ".export-@sys" export
+	@mkdir -p ${OS}
 
 
 # *****************************************************************************

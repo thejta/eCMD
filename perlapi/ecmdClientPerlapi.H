@@ -163,6 +163,12 @@ namespace ECMDPERLAPI {
  @section perlv Perl Version
  eCMD Scripts need Perl version 5.8.1 which is installed as part of the CTE package on all supported sites.  All scripts using the perl module should start with the following: 
 
+In an IP Series LAB environment
+<pre>
+TBD ...
+</pre>
+<br>
+In a CTE only environment
  <pre>
  #!/bin/ksh 
  #! -*- perl -*-
@@ -171,9 +177,9 @@ namespace ECMDPERLAPI {
  if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
  export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
  export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
- export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/`ecmdVersion`/perlapi;
+ export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/`ecmdVersion`/perlapi/`uname`/;
 
- exec $CTEPATH/tools/perl/5.8.1/bin/perl -x -S $0 ${1+"$@"}
+ exec $CTEPERLBIN -x -S $0 ${1+"$@"}
  '
  if 0;
 
