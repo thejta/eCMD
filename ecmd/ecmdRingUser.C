@@ -32,6 +32,8 @@
 #include <time.h>
 #include <fstream>
 #include <vector>
+#include <algorithm>
+
 #undef ecmdRingUser_C
 //----------------------------------------------------------------------
 //  User Types
@@ -330,6 +332,25 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+#if 0
+  ecmdDataBuffer * expected = NULL;  //don't want to allocate this unless I have to
+
+  if (expectFlag) {
+    int argLength = argc - 4;  //account for chip, ringname, startbit, and numbits args args
+    expected = new ecmdDataBuffer(argLength);
+
+    for (int i = 0; i < argLength; i++) {
+      expected->insertFromHexLeft(argv[i+4], i * 32, 32);
+    }
+
+  }
+  else if (argc > 4) {
+    ecmdOutputError("getbits - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("getbits - Type 'getbits -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+#endif
+
   if (argc < 3) {  //chip + address
     ecmdOutputError("getlatch - Too few arguments specified; you need at least a chip, ring, and latch name.\n");
     ecmdOutputError("getlatch - Type 'getlatch -h' for usage.");
@@ -345,10 +366,19 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
   std::string ringName = argv[1];
   std::string latchName = argv[2];
+  /* Transform to upper case for case-insensitive comparisons */
+  transform(latchName.begin(), latchName.end(), latchName.begin(), toupper);
 
   uint32_t startBit = 0x0, numBits = 0x0FFFFFFF;
 
   if (argc > 3) {
+
+    /* We don't allow start and numbits with the -nocompress */
+    if (noCompressFlag) {
+      ecmdOutputError("getlatch - Using startbit and numbits is not allowed in combination with the -nocompressflag");
+      return ECMD_INVALID_ARGS;
+    }
+
     startBit = atoi(argv[3]);
     if (!strcmp(argv[4], "end")) {
       numBits = 0x0FFFFFFF;
@@ -360,8 +390,8 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
 
   ecmdDataBuffer ringBuffer;
-  ecmdDataBuffer buffer(10000);
-  ecmdDataBuffer buffertemp(10000);
+  ecmdDataBuffer buffer(100 /* words */);         // Space for extracted latch data
+  ecmdDataBuffer buffertemp(100 /* words */);     // Temp space for extraced latch data
 
   bool validPosFound = false;
   rc = ecmdConfigLooperInit(target);
@@ -404,6 +434,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
       }
     }
 
+
     /* We don't have it already, let's go looking */
     if (!foundit) {
       std::ifstream ins(scandefFile.c_str());
@@ -440,6 +471,9 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
           }
           else if (!exactFlag && (curLine.find(latchName) != std::string::npos)) {
 
+            /* Transform to upper case */
+            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+
             ecmdParseTokens(curLine, curArgs);
             curLatch.length = atoi(curArgs[0].c_str());
             curLatch.ringOffset = atoi(curArgs[1].c_str());
@@ -447,6 +481,8 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
           }
           else if (exactFlag) {
 
+            /* Transform to upper case */
+            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
             ecmdParseTokens(curLine, curArgs);
 
             if (latchName == curArgs[3]) {
@@ -501,28 +537,6 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
 
       curEntry.scandefname = scandefFile;
       curEntry.entry.sort();
-
-#if 0
-      /* This check needs to be done better to compensate for compressed latchs that may be missing bits as well */
-      if ((startBit != 0 || numBits != 0x0FFFFFFF) && !compressFlag) {
-        //confirm that we only fetched ONE latch name if they aren't compressing and using a start/numbitsy
-        curLatchInfo = latchInfo.begin();
-        while (curLatchInfo != latchInfo.end()) {
-
-          curLatch = (*curLatchInfo);
-          curLatchInfo++;
-          if (curLatchInfo == latchInfo.end()) break;
-
-          if (curLatch != (*curLatchInfo)) {
-            std::string printed = "getlatch - Multiple latch names found cannot specify start/num bits without -compress flag : ";
-            printed += curLatch.latchName + " and ";
-            printed += (*curLatchInfo).latchName + "\n";
-            ecmdOutputError( printed.c_str() );
-            return ECMD_INVALID_ARGS;
-          }
-        }
-      }
-#endif
 
       /* Let's push this entry onto the stack */
       latchBuffer.push_back(curEntry);
