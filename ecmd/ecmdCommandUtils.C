@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------
 #define ecmdCommandUtils_C
 #include <list>
+#include <fstream>
 #include <inttypes.h>
 #include <string.h>
 #include <string>
@@ -559,6 +560,38 @@ int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
   return 1;
         
 }
+
+int ecmdPrintHelp(const char* i_command) {
+
+  int rc = ECMD_SUCCESS;
+  std::string file;
+  ecmdChipTarget target;
+  std::ifstream ins;
+  std::string curLine;
+
+  /* Get the path to the help text files */
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_HELPTEXT, file);
+  if (rc) return rc;
+
+  file += i_command; file += ".htxt";
+
+  /* Let's go open this guy */
+  ins.open(file.c_str());
+  if (ins.fail()) {
+    ecmdOutputError(("Error occured opening help text file: " + file).c_str());
+    return ECMD_INVALID_ARGS;  //change this
+  }
+
+  while (getline(ins, curLine)) {
+    ecmdOutput(curLine.c_str());
+  }
+  ins.close();
+
+  return rc;
+
+}
+  
+
 
 // Change Log *********************************************************
 //                                                                      

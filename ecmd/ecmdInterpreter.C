@@ -26,8 +26,10 @@
 #include <inttypes.h>
 
 #include <ecmdClientCapi.H>
-#include "ecmdInterpreter.H"
-#include "ecmdIntReturnCodes.H"
+#include <ecmdInterpreter.H>
+#include <ecmdIntReturnCodes.H>
+#include <ecmdCommandUtils.H>
+#include <ecmdUtils.H>
 
 #undef ecmdInterpreter_C
 //----------------------------------------------------------------------
@@ -60,6 +62,12 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
   int rc = ECMD_SUCCESS;
 
   if (argc >= 1) {
+
+    /* Let's handle the '-h' arg right here */
+    if (ecmdParseOption(&argc, &argv, "-h")) {
+      ecmdPrintHelp(argv[0]);
+      return rc;
+    }
 
     switch (argv[0][0]) {
 
