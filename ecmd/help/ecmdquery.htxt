@@ -16,6 +16,13 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         formats
                             - Display help text for all available input/output formats
         
+                        chips [-ep]
+                            - Display all the chips in the system
+                            - Use '-ep' to display in an easier to parse format
+
+                        chipinfo ChipSelect [-k#] [-n#] [-s#] [-p#]
+                            - Display info about a particular chip (ex. EC level)
+
                         version
                             - Display version info about the eCMD Instance you are running
 
