@@ -1006,7 +1006,7 @@ public:
   
   /**
    * @brief This function will take the passed in buffer, delete any current data it holds, and point its data var to that which is owned by the one being called with.  It will not have iv_UserOwned flag set, so it should not delete the buffer it points to, nor resize it, but it can alter the data.  The use of this function is for caching data for reads.
-   * @param i_sharingBuffer, input buffer
+   * @param i_sharingBuffer input buffer
    * @retval ECMD_DBUF_SUCCESS on success
    */   
   uint32_t shareBuffer(ecmdDataBuffer* i_sharingBuffer);
