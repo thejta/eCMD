@@ -81,14 +81,15 @@
 #define ECMD_DATA_BOUNDS_OVERFLOW               (ECMD_ERR_ECMD | 0x1903)  ///< The user specified to get/put data that was larger then ECMD_MAX_DATA_BITS
 
 /* dataBuffer specific return codes */
-#define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
-#define ECMD_DBUF_INIT_FAIL                     (ECMD_ERR_ECMD | 0x2000) ///< Initialization of the DataBuffer failed
-#define ECMD_DBUF_BUFFER_OVERFLOW               (ECMD_ERR_ECMD | 0x2010) ///< Attempt to read/write data beyond the length of the DataBuffer
-#define ECMD_DBUF_XSTATE_ERROR                  (ECMD_ERR_ECMD | 0x2020) ///< An 'X' character occured where it was not expected
-#define ECMD_DBUF_UNDEFINED_FUNCTION            (ECMD_ERR_ECMD | 0x2030) ///< Function not included in this version of DataBuffer
-#define ECMD_DBUF_INVALID_ARGS                  (ECMD_ERR_ECMD | 0x2040) ///< Args provided to dataBuffer were invalid
-#define ECMD_DBUF_INVALID_DATA_FORMAT           (ECMD_ERR_ECMD | 0x2041) ///< String data didn't match expected input format
-
+#ifndef ECMD_DBUF_SUCCESS
+ #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
+ #define ECMD_DBUF_INIT_FAIL                     (ECMD_ERR_ECMD | 0x2000) ///< Initialization of the DataBuffer failed
+ #define ECMD_DBUF_BUFFER_OVERFLOW               (ECMD_ERR_ECMD | 0x2010) ///< Attempt to read/write data beyond the length of the DataBuffer
+ #define ECMD_DBUF_XSTATE_ERROR                  (ECMD_ERR_ECMD | 0x2020) ///< An 'X' character occured where it was not expected
+ #define ECMD_DBUF_UNDEFINED_FUNCTION            (ECMD_ERR_ECMD | 0x2030) ///< Function not included in this version of DataBuffer
+ #define ECMD_DBUF_INVALID_ARGS                  (ECMD_ERR_ECMD | 0x2040) ///< Args provided to dataBuffer were invalid
+ #define ECMD_DBUF_INVALID_DATA_FORMAT           (ECMD_ERR_ECMD | 0x2041) ///< String data didn't match expected input format
+#endif
 
 
 #endif /* ecmdReturnCodes_h */

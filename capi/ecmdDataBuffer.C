@@ -26,7 +26,6 @@
 #include <netinet/in.h> /* for htonl */
 
 #include <ecmdDataBuffer.H>
-#include <ecmdReturnCodes.H>
 
 //----------------------------------------------------------------------
 //  Constants
@@ -1391,7 +1390,7 @@ std::string ecmdDataBuffer::genAsciiStr() const { return this->genAsciiStr(0, iv
 std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
 
 uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t start, uint32_t length) {
-  int rc = ECMD_SUCCESS;
+  int rc = ECMD_DBUF_SUCCESS;
   int i;
 
   int bitlength = length == 0 ? strlen(i_hexChars) * 4 : length;
@@ -1432,7 +1431,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t st
 }
 
 uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t start, uint32_t expectedLength) {
-  int rc = ECMD_SUCCESS;
+  int rc = ECMD_DBUF_SUCCESS;
   ecmdDataBuffer insertBuffer;
   int bitlength = expectedLength == 0 ? strlen(i_hexChars) * 4 : expectedLength;
 
@@ -1474,7 +1473,7 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t s
 }
 
 uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t start) {
-  int rc = ECMD_SUCCESS;
+  int rc = ECMD_DBUF_SUCCESS;
 
   int strLen = strlen(i_binChars);
 

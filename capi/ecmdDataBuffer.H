@@ -38,6 +38,17 @@
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
+/* Define these if for some reason we are building without ecmdReturnCodes.H */
+#ifndef ECMD_DBUF_SUCCESS
+ /* dataBuffer specific return codes */
+ #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
+ #define ECMD_DBUF_INIT_FAIL                     (0x01000000 | 0x2000) ///< Initialization of the DataBuffer failed
+ #define ECMD_DBUF_BUFFER_OVERFLOW               (0x01000000 | 0x2010) ///< Attempt to read/write data beyond the length of the DataBuffer
+ #define ECMD_DBUF_XSTATE_ERROR                  (0x01000000 | 0x2020) ///< An 'X' character occured where it was not expected
+ #define ECMD_DBUF_UNDEFINED_FUNCTION            (0x01000000 | 0x2030) ///< Function not included in this version of DataBuffer
+ #define ECMD_DBUF_INVALID_ARGS                  (0x01000000 | 0x2040) ///< Args provided to dataBuffer were invalid
+ #define ECMD_DBUF_INVALID_DATA_FORMAT           (0x01000000 | 0x2041) ///< String data didn't match expected input format
+#endif
 
 //--------------------------------------------------------------------
 // Macros
