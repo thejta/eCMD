@@ -16,7 +16,7 @@ my $STRING = 2;
 my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs);
 my $ignore_re = join '|', @ignores;
 
-my @dont_flush_sdcache = qw( Query Cache Output Error Spy Ring );
+my @dont_flush_sdcache = qw( Query Cache Output Error Spy );
 my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
  
 my $printout;
