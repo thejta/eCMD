@@ -229,16 +229,35 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
-    }
-    else if (rc) {
+    } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
+      if (spyData.eccGroups.empty()) {
+        ecmdOutputError("getspy - Got back the Spy Failed ECC return code, but no epcheckers specified\n");
+      }
+      /* Must have entries - setup variables and iterators, start looping */
+      ecmdDataBuffer inLatches, outLatches, errorMask;
+      std::list<std::string>::iterator epcheckersIter = spyData.eccGroups.begin();
+      ecmdOutput("===== The following epcheckers mismatched for this spy =====\n");
+      while (epcheckersIter != spyData.eccGroups.end()) {
+        rc = getSpyEccGrouping(target, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
+        if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK) return rc;
+        printed = *epcheckersIter + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "   In Latches: 0x" + inLatches.genHexLeftStr() + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "  Out Latches: 0x" + outLatches.genHexLeftStr() + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "   Error Mask: 0x" + errorMask.genHexLeftStr() + "\n";
+        ecmdOutput(printed.c_str());
+        epcheckersIter++;
+      }
+      ecmdOutput("============================================================\n");
+    } else if (rc) {
         printed = "getspy - Error occured performing getspy on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
-    else {
-      validPosFound = true;     
-    }
+    validPosFound = true;     
 
     printed = ecmdWriteTarget(target) + " " + spyName;
 
