@@ -78,66 +78,74 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   const char* dlError;
   uint32_t rc = ECMD_SUCCESS;
 
+#ifndef ECMD_STATIC_FUNCTIONS
+  /* Only do this if it hasn't been done already */
+  if (dlHandle != NULL) {
+    return ECMD_SUCCESS;
+  }
+#endif
+
 #ifndef ECMD_STRIP_DEBUG
-  char* tmpptr = getenv("ECMD_DEBUG");
-  if (tmpptr != NULL)
-    ecmdClientDebug = atoi(tmpptr);
-  else
-    ecmdClientDebug = 0;
+    char* tmpptr = getenv("ECMD_DEBUG");
+    if (tmpptr != NULL)
+      ecmdClientDebug = atoi(tmpptr);
+    else
+      ecmdClientDebug = 0;
 #endif
 
 #ifndef ECMD_STATIC_FUNCTIONS
 #ifdef _AIX
-  /* clean up the machine from previous tests */
-  system("slibclean");
+    /* clean up the machine from previous tests */
+    system("slibclean");
 #endif
 
-  /* --------------------- */
-  /* load DLL              */
-  /* --------------------- */
-  if (i_dllName.size() == 0) {
-    /* Let's try to get it from the env var */
-    char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
-    if (tempptr != NULL) {
-      i_dllName = tempptr;
-    } else {
-      fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
-      return ECMD_INVALID_DLL_FILENAME;
+    /* --------------------- */
+    /* load DLL              */
+    /* --------------------- */
+    if (i_dllName.size() == 0) {
+      /* Let's try to get it from the env var */
+      char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
+      if (tempptr != NULL) {
+        i_dllName = tempptr;
+      } else {
+        fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
+        return ECMD_INVALID_DLL_FILENAME;
+      }
     }
-  }
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug > 1) 
-    printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
+    if (ecmdClientDebug > 1) 
+      printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
 #endif
 
-  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
-  if (!dlHandle) {
-    if ((dlError = dlerror()) != NULL) {
-      printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
-      return ECMD_DLL_LOAD_FAILURE;
-    }
+    dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
+    if (!dlHandle) {
+      if ((dlError = dlerror()) != NULL) {
+        printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
+        return ECMD_DLL_LOAD_FAILURE;
+      }
 #ifndef ECMD_STRIP_DEBUG
-  } else if (ecmdClientDebug > 1) {
-    printf("loadDll: load successful\n");
+    } else if (ecmdClientDebug > 1) {
+      printf("loadDll: load successful\n");
 #endif
-  }
+    }
 
-  /* Now we need to call loadDll on the dll itself so it can initialize */
+    /* Now we need to call loadDll on the dll itself so it can initialize */
 
-  uint32_t (*Function)(const char *,uint32_t) = 
+    uint32_t (*Function)(const char *,uint32_t) = 
       (uint32_t(*)(const char *,uint32_t))(void*)dlsym(dlHandle, "dllLoadDll");
-  if (!Function) {
-    fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
-    rc = ECMD_DLL_LOAD_FAILURE;
-  } else {
-    rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
-  }
+    if (!Function) {
+      fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
+      rc = ECMD_DLL_LOAD_FAILURE;
+    } else {
+      rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
+    }
 
 #else
-  rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
+    rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
 
 #endif /* ECMD_STATIC_FUNCTIONS */
+
 
   return rc;
 }
@@ -192,7 +200,8 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 #else
 
   if (dlHandle == NULL) {
-     return ECMD_DLL_UNINITIALIZED;
+    fprintf(stderr,"ecmdCommandArgs: eCMD Function called before DLL has been loaded\n");
+    exit(ECMD_DLL_INVALID);
   }
 
   /* call DLL common command args */
@@ -370,7 +379,8 @@ uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData,
 #else
 
   if (dlHandle == NULL) {
-     return ECMD_DLL_UNINITIALIZED;
+    fprintf(stderr,"ecmdQueryConfig: eCMD Function called before DLL has been loaded\n");
+    exit(ECMD_DLL_INVALID);
   }
 
   if (DllFnTable[ECMD_QUERYCONFIG] == NULL) {
@@ -456,7 +466,8 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
 #else
 
   if (dlHandle == NULL) {
-     return ECMD_DLL_UNINITIALIZED;
+    fprintf(stderr,"ecmdQuerySelected: eCMD Function called before DLL has been loaded\n");
+    exit(ECMD_DLL_INVALID);
   }
 
   if (DllFnTable[ECMD_QUERYSELECTED] == NULL) {
@@ -597,7 +608,8 @@ void ecmdEnableRingCache() {
 #else
 
   if (dlHandle == NULL) {
-     return;
+    fprintf(stderr,"ecmdEnableRingCache: eCMD Function called before DLL has been loaded\n");
+    exit(ECMD_DLL_INVALID);
   }
 
   if (DllFnTable[ECMD_ENABLERINGCACHE] == NULL) {
@@ -643,7 +655,8 @@ uint32_t ecmdDisableRingCache() {
 #else
 
   if (dlHandle == NULL) {
-     return ECMD_DLL_UNINITIALIZED;
+    fprintf(stderr,"ecmdDisableRingCache: eCMD Function called before DLL has been loaded\n");
+    exit(ECMD_DLL_INVALID);
   }
 
   if (DllFnTable[ECMD_DISABLERINGCACHE] == NULL) {

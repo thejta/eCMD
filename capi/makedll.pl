@@ -20,7 +20,7 @@ my $ignore_re = join '|', @ignores;
 my @no_gen = qw( ecmdQueryConfig ecmdQuerySelected ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
-my @dont_flush_sdcache = qw( Query Cache Output Error Spy );
+my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode ecmdQueryTraceMode );
 my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
  
 my $printout;
@@ -176,16 +176,8 @@ while (<IN>) {
 	
 	
 	$printout .= "  if (dlHandle == NULL) {\n";
-	if ($type_flag == $STRING) {
-	    $printout .= "     return \"ECMD_DLL_UNINITIALIZED\";\n";
-	}
-	elsif ($type_flag == $INT) {
-	    $printout .= "     return ECMD_DLL_UNINITIALIZED;\n";
-	}
-	else { #type is VOID
-	    $printout .= "     return;\n";
-	}
-
+        $printout .= "    fprintf(stderr,\"$funcname: eCMD Function called before DLL has been loaded\\n\");\n";
+        $printout .= "    exit(ECMD_DLL_INVALID);\n";
 	$printout .= "  }\n\n";
 
 	$printout .= "  if (DllFnTable[$enumname] == NULL) {\n";
