@@ -493,13 +493,48 @@ int ecmdClientPerlapi::sendCmd(const char* i_target, int i_instruction, int i_mo
 
 
 int ecmdClientPerlapi::getCfamRegister (const char* i_target, int i_address, char** o_data){
+  ecmdChipTarget myTarget;
 
-  return 0;
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::getCfamRegister(myTarget, i_address, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
+  return rc;
+
 }
 
 int ecmdClientPerlapi::putCfamRegister (const char* i_target, int i_address, const char* i_data){
+  ecmdChipTarget myTarget;
 
-  return 0;
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putCfamRegister(myTarget, i_address, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
+  return rc;
+
 }
 
 
@@ -938,63 +973,325 @@ int ecmdClientPerlapi::iStepsByNameRange(const char* i_stepNameBegin, const char
 }
 
 int ecmdClientPerlapi::getSpr (const char* i_target, const char * i_sprName, char** o_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::getSpr(myTarget, i_sprName, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
   return rc;
+
 }
 
 int ecmdClientPerlapi::putSpr (const char* i_target, const char * i_sprName, const char* i_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putSpr(myTarget, i_sprName, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
+
 }
 
 int ecmdClientPerlapi::getGpr (const char* i_target, int  i_gprNum, char** o_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::getGpr(myTarget, i_gprNum, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
   return rc;
 }
 
 int ecmdClientPerlapi::putGpr (const char* i_target, int  i_gprNum, const char* i_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putGpr(myTarget, i_gprNum, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int ecmdClientPerlapi::getFpr (const char* i_target, int  i_fprNum, char** o_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::getFpr(myTarget, i_fprNum, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
   return rc;
+
 }
 
 int ecmdClientPerlapi::putFpr (const char* i_target, int  i_fprNum, const char* i_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+
+  rc = ::putFpr(myTarget, i_fprNum, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
+
 }
 
 int ecmdClientPerlapi::getMemProc (const char* i_target, const char* i_address, int i_bytes, char** o_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+
+  
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  
+  uint64_t address;
+  rc = sscanf(i_address, "%llx", &address);
+  if (rc != 1) {
+    rc = ECMD_INVALID_ARGS;
+    ecmdPerlInterfaceErrorCheck(rc);
+    *o_data = NULL;
+    return rc;
+  }
+  
+  rc = ::getMemProc(myTarget, address, i_bytes, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
   return rc;
+  
 }
 
 
 int ecmdClientPerlapi::putMemProc (const char* i_target, const char* i_address, int i_bytes, const char* i_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+  
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+  
+  uint64_t address;
+  rc = sscanf(i_address, "%llx", &address);
+  if (rc != 1) {
+    rc = ECMD_INVALID_ARGS;
+    ecmdPerlInterfaceErrorCheck(rc);
+    return rc;
+  }
+  
+  
+  rc = ::putMemProc(myTarget, address, i_bytes, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int ecmdClientPerlapi::getMemDma (const char* i_target, const char*  i_address, int i_bytes, char** o_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  
+  uint64_t address;
+  rc = sscanf(i_address, "%llx", &address);
+  if (rc != 1) {
+    rc = ECMD_INVALID_ARGS;
+    ecmdPerlInterfaceErrorCheck(rc);
+    *o_data = NULL;
+    return rc;
+  }
+  
+  rc = ::getMemDma(myTarget, address, i_bytes, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
   return rc;
 }
 
 int ecmdClientPerlapi::putMemDma (const char* i_target, const char* i_address, int i_bytes, const char* i_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+  
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+  
+  uint64_t address;
+  rc = sscanf(i_address, "%llx", &address);
+  if (rc != 1) {
+    rc = ECMD_INVALID_ARGS;
+    ecmdPerlInterfaceErrorCheck(rc);
+    return rc;
+  }
+  
+  
+  rc = ::putMemDma(myTarget, address, i_bytes, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
 int ecmdClientPerlapi::getMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, char** o_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  
+  uint64_t address;
+  rc = sscanf(i_address, "%llx", &address);
+  if (rc != 1) {
+    rc = ECMD_INVALID_ARGS;
+    ecmdPerlInterfaceErrorCheck(rc);
+    *o_data = NULL;
+    return rc;
+  }
+  
+  rc = ::getMemMemCtrl(myTarget, address, i_bytes, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
   return rc;
 }
 
 int ecmdClientPerlapi::putMemMemCtrl (const char* i_target, const char* i_address, int i_bytes, const char* i_data) {
-  int rc = ECMD_FUNCTION_NOT_SUPPORTED;
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  if (rc) return rc;
+
+  ecmdDataBuffer buffer;
+  
+  buffer.setBitLength(strlen(i_data));
+  rc = buffer.insertFromBin(i_data);
+  
+  uint64_t address;
+  rc = sscanf(i_address, "%llx", &address);
+  if (rc != 1) {
+    rc = ECMD_INVALID_ARGS;
+    ecmdPerlInterfaceErrorCheck(rc);
+    return rc;
+  }
+  
+  
+  rc = ::putMemMemCtrl(myTarget, address, i_bytes, buffer);
+
+  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
