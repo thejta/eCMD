@@ -125,6 +125,13 @@ int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData,
   int rc = ECMD_SUCCESS;
 
 
+  if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
+    char buf[200];
+    sprintf(buf,"ecmdApplyDataModifier - startbit + numbits (%d) > data length (%d), buffer overflow!\n",i_startbit + i_newData.getBitLength(), io_data.getBitLength());
+    ecmdOutputError(buf);
+    return ECMD_INVALID_ARGS;
+  }
+
   if (i_modifier == "insert") {
     io_data.insert(i_newData, i_startbit, i_newData.getBitLength());
   } else if (i_modifier == "and") {
@@ -132,7 +139,7 @@ int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData,
   } else if (i_modifier == "or") {
     io_data.setOr(i_newData, i_startbit, i_newData.getBitLength());
   } else {
-    ecmdOutputError(("putscom - Invalid Data Modifier specified with -b arg : "+i_modifier).c_str());
+    ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier).c_str());
     return ECMD_INVALID_ARGS;
   }
 
