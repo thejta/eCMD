@@ -14,6 +14,8 @@
 %apply unsigned int { uint32_t }
 %apply unsigned char { uint8_t }
 %apply unsigned int &REFERENCE { uint32_t & };
+%apply std::string &REFERENCE { std::string & };
+%apply std::string *REFERENCE { std::string * };
 /*********** End Applies ***********/
 
 /*********** Start Insert Code ***********/

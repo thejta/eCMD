@@ -38,7 +38,7 @@
   }
 }
 
-%typemap(in) std::string *(std::string temp), std::string & (std::string temp) {
+%typemap(in) std::string *REFERENCE(std::string temp), std::string &REFERENCE(std::string temp) {
   STRLEN len;
   const char *ptr = SvPV($input, len);
   if (!ptr) {
@@ -51,20 +51,28 @@
 
 %typemap(out) std::string {
   if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
-  char *data = const_cast<char*>($1.data());
-  sv_setpvn($result = sv_newmortal(), data, $1.size());
+  sv_setpvn($result = sv_newmortal(), $1.data(), $1.size());
   ++argvi;
 }
 
-%typemap(out) std::string & {
+%typemap(out) std::string *OUTPUT, std::string &OUTPUT {
   if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
-  char *data = const_cast<char*>($1->data());
-  sv_setpvn($result = sv_newmortal(), data, $1->size());
+  sv_setpvn($result = sv_newmortal(), $1->data(), $1->size());
   ++argvi;
 }
 
-%typemap(throws) std::string & {
-  SWIG_croak($1.c_str());
+%typemap(argout) std::string {
+  if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
+  sv_setpvn($arg, $1.data(), $1.size());
+}
+
+%typemap(argout) std::string *REFERENCE, std::string &REFERENCE {
+  if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
+  sv_setpvn($arg, $1->data(), $1->size());
+}
+
+%typemap(throws) std::string *, std::string & {
+  SWIG_croak($1->c_str());
 }
 
 %typemap(throws) std::string {
