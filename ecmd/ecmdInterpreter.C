@@ -102,7 +102,10 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'g':
 
-        if (!strcmp(argv[0], "getbits")) {
+        if (!strcmp(argv[0], "getarray")) {
+          rc = ecmdGetArrayUser(argc - 1, argv + 1);
+        }
+        else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getlatch")) {
           rc = ecmdGetLatchUser(argc - 1, argv + 1);
@@ -127,7 +130,9 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'p':
 
-        if (!strcmp(argv[0], "putbits")) {
+        if (!strcmp(argv[0], "putarray")) {
+          rc = ecmdPutArrayUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putbits")) {
           rc = ecmdPutBitsUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "pollscom")) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
