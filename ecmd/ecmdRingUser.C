@@ -283,6 +283,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchEntry> latchdata;           ///< Data returned from getLatch
   char temp[100];                               ///< Temp string buffer
   ecmdDataBuffer buffer;                        ///< Buffer for extracted data
+  std::string ringName;                         ///< Ring name to fetch
+  std::string latchName;                        ///< Latch name to fetch
 
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
@@ -317,15 +319,9 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     /* Grab the data for the expect */
     rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
     if (rc) {
-      ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
+      ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
       return rc;
     }
-  }
-
-  if (argc < 3) {  //chip + ring + latch
-    ecmdOutputError("getlatch - Too few arguments specified; you need at least a chip, ring, and latch name.\n");
-    ecmdOutputError("getlatch - Type 'getlatch -h' for usage.");
-    return ECMD_INVALID_ARGS;
   }
 
   //Setup the target that will be used to query the system config 
@@ -334,51 +330,96 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  std::string ringName = argv[1];
-  std::string latchName = argv[2];
-
   uint32_t startBit = 0x0FFFFFFF, curStartBit, numBits = 0x0FFFFFFF, curNumBits;
 
-  if (argc > 3) {
+  /* Ok, now for the rest of the args, this is getting messy */
+  if ((argc == 2) || (argc == 4)) {
+    /* This is the case where the user didn't specify a ringname */
 
-    if (!ecmdIsAllDecimal(argv[3])) {
-      ecmdOutputError("getlatch - Non-decimal numbers detected in startbit field\n");
-      return ECMD_INVALID_ARGS;
-    }
-    startBit = atoi(argv[3]);
-    if (!strcmp(argv[4], "end")) {
-      numBits = 0x0FFFFFFF;
-    }
-    else {
-      if (!ecmdIsAllDecimal(argv[4])) {
-        ecmdOutputError("getlatch - Non-decimal numbers detected in numbits field\n");
+   latchName = argv[1];
+
+   /* The user specified start/numbits */
+   if (argc == 4) {
+
+     if (!ecmdIsAllDecimal(argv[2])) {
+       ecmdOutputError("getlatch - Non-decimal numbers detected in startbit field\n");
+       return ECMD_INVALID_ARGS;
+     }
+     startBit = atoi(argv[2]);
+     if (!strcmp(argv[3], "end")) {
+       numBits = 0x0FFFFFFF;
+     }
+     else {
+       if (!ecmdIsAllDecimal(argv[3])) {
+         ecmdOutputError("getlatch - Non-decimal numbers detected in numbits field\n");
+         return ECMD_INVALID_ARGS;
+       }
+       numBits = atoi(argv[3]);
+     }
+
+     /* Bounds check */
+     if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+       char errbuf[100];
+       sprintf(errbuf,"getlatch - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+       ecmdOutputError(errbuf);
+       return ECMD_DATA_BOUNDS_OVERFLOW;
+     }
+   }
+
+  } else if ((argc == 3) || (argc == 5)) {
+
+    ringName = argv[1];
+    latchName = argv[2];
+
+
+    /* The user specified start/numbits */
+    if (argc == 5) {
+
+      if (!ecmdIsAllDecimal(argv[3])) {
+        ecmdOutputError("getlatch - Non-decimal numbers detected in startbit field\n");
         return ECMD_INVALID_ARGS;
       }
-      numBits = atoi(argv[4]);
+      startBit = atoi(argv[3]);
+      if (!strcmp(argv[4], "end")) {
+        numBits = 0x0FFFFFFF;
+      }
+      else {
+        if (!ecmdIsAllDecimal(argv[4])) {
+          ecmdOutputError("getlatch - Non-decimal numbers detected in numbits field\n");
+          return ECMD_INVALID_ARGS;
+        }
+        numBits = atoi(argv[4]);
+      }
+
+      /* Bounds check */
+      if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
+        char errbuf[100];
+        sprintf(errbuf,"getlatch - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+        ecmdOutputError(errbuf);
+        return ECMD_DATA_BOUNDS_OVERFLOW;
+      }
     }
 
-    /* Bounds check */
-    if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
-      char errbuf[100];
-      sprintf(errbuf,"getlatch - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
-      ecmdOutputError(errbuf);
-      return ECMD_DATA_BOUNDS_OVERFLOW;
-    }
-
+  } else {
+    ecmdOutputError("getlatch - Unknown arguments passed.\n");
+    ecmdOutputError("getlatch - Type 'getlatch -h' for usage.");
+    return ECMD_INVALID_ARGS;
   }
+
 
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  /* Enable ring caching */
-  ecmdEnableRingCache();
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
 
     /* Let's go grab our data */
-    rc = getLatch(target, ringName.c_str(), latchName.c_str(), latchdata, latchMode);
+    if (ringName.length() != 0) 
+      rc = getLatch(target, ringName.c_str(), latchName.c_str(), latchdata, latchMode);
+    else
+      rc = getLatch(target, NULL, latchName.c_str(), latchdata, latchMode);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc == ECMD_INVALID_LATCHNAME) {
@@ -424,7 +465,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
       /* Does the user want too much data? */
       if ((curStartBit + curNumBits - 1) > latchit->latchEndBit)
-        curNumBits = latchit->latchEndBit - curStartBit;
+        curNumBits = latchit->latchEndBit - curStartBit + 1;
 
       /* was the startbit before this latch ? */
       if (curStartBit < latchit->latchStartBit) {
@@ -471,7 +512,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       }
       else {
 
-        sprintf(temp,"%s(%d:%d) ", latchit->latchName.c_str(), curStartBit, curStartBit+curNumBits-1);
+        if (curNumBits == 1)
+          sprintf(temp,"%s(%d) ", latchit->latchName.c_str(), curStartBit);
+        else
+          sprintf(temp,"%s(%d:%d) ", latchit->latchName.c_str(), curStartBit, curStartBit+curNumBits-1);
         printed = temp;
         printed += ecmdWriteDataFormatted(buffer, curOutputFormat);
         ecmdOutput( printed.c_str() );

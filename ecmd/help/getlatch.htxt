@@ -1,5 +1,5 @@
 
-Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] 
+Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact] 
                               [-exp <value>] [-o<format>] 
                               [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -22,8 +22,9 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
         --------------------------------------------------------------------------------
         ChipSelect      Chip to get data from.  
         
-        RingName        Specifies chip ring to operate on.  For a list of available
+        RingName  [opt] Specifies chip ring to operate on.  For a list of available
                         rings, use the ecmdquery command.
+                        NOTE : If not specified all rings in scandef are searched
 
                         Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu
