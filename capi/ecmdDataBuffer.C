@@ -2098,9 +2098,10 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
       }
       else {
       //Hdr
-	ops.fill('0'); ops.width(8); ops << hex << uppercase << numBits;
-	ops.fill('0'); ops.width(8); ops << hex << uppercase  << format;
-	ops.fill('0'); ops.width(8); ops << hex << uppercase  << tmphdrfield;
+	char tmpstr[8];
+	sprintf(tmpstr,"%0.8X",numBits); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%0.8X",format); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%0.8X",tmphdrfield); ops.write(tmpstr,8);
 	ops << "\n";
       }
       ops << asciidatastr.c_str();
@@ -2117,9 +2118,10 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, int format) {
      }
      if (szcount == 0) {
         //Hdr
-        ops.fill('0'); ops.width(8); ops << hex << uppercase << numBits;
-        ops.fill('0'); ops.width(8); ops << hex << uppercase << format;
-        ops.fill('0'); ops.width(8); ops << hex << uppercase << tmphdrfield;
+        char tmpstr[8];
+        sprintf(tmpstr,"%0.8X",numBits); ops.write(tmpstr,8);
+        sprintf(tmpstr,"%0.8X",format); ops.write(tmpstr,8);
+	sprintf(tmpstr,"%0.8X",tmphdrfield); ops.write(tmpstr,8);
 	ops << "\n";
      }
      ops << xstatestr.c_str();
