@@ -77,13 +77,13 @@ int dllUnloadDll() {
 }
 
 
-string ecmdGetErrorMsg(int errorCode) {
+string dllGetErrorMsg(int errorCode) {
   string ret = "UNKNOWN";
 
   return ret;
 }
 
-int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
+int dllRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
   int rc = ECMD_SUCCESS;
 
   return rc;
