@@ -35,6 +35,7 @@ ifeq (${OS},AIX)
   LD      := ${CC}
   LDFLAGS := 
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
+  CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}
