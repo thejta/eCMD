@@ -354,7 +354,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
   } else if (!strcmp(argv[0],"chipinfo")) {
     if (argc < 2) {
-      ecmdOutputError("ecmdquery - Too few arguments specified for rings; you need at least a query rings <chipname>.\n");
+      ecmdOutputError("ecmdquery - Too few arguments specified for chipinfo; you need at least a query chipinfo <chipname>.\n");
       ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
