@@ -358,7 +358,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                dataEndBit += bitsToFetch;
 	
 	       if (bustype == ECMD_CHIPFLAG_FSI) {
-   	     	 ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch);
+   	     	 rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
    	     	 /* Extract bits if ordered from:to (0:10) */
    	     	 if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
    	     	   curLatchBit = curLatchInfo->latchEndBit + 1;
@@ -369,7 +369,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
    	     	 }
    	       } else {
    	       //JTAG 
-   	     	 ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch);
+   	     	 rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch); if (rc) return rc;
    	     	 /* Extract bits if ordered from:to (0:10) */
    	     	 if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
    	     	   buffertemp.reverse();
@@ -385,7 +385,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 	         else {
 	          buffer.shiftRightAndResize(bitsToFetch);
 	          buffer.shiftLeft(bitsToFetch);
-   	     	  buffer.insert(buffertemp, curBufferBit, bitsToFetch); 
+   	     	  rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch);  if (rc) return rc;
              	 }
 	     	 curBufferBit += bitsToFetch;
 	         if(curLatchInfo == --curEntry.end()) {
