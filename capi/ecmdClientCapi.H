@@ -2209,11 +2209,11 @@ testclient_linux.o: testclient.c ${ECMD_RELEASE}/capi/ecmdClientCapi.H ${ECMD_RE
 
 
 <pre>
-&#35;include <list>
-&#35;include <string>
+&#35include <list>
+&#35include <string>
 
-&#35;include <ecmdClientCapi.H>
-&#35;include <ecmdDataBuffer.H>
+&#35include <ecmdClientCapi.H>
+&#35include <ecmdDataBuffer.H>
 
 
 int main (int argc, char *argv[])
