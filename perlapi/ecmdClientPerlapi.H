@@ -28,6 +28,34 @@
 #include <string>
 #include <ecmdStructs.H>
 
+/**
+ * @file ecmdClientPerlapi.H
+ * @brief eCMD Perl API
+
+ * Usage : 
+ *   @filestat = stat("/usr/include/linux/zorro.h");
+ *   if (@filestat[1] eq "") {
+ *     require ecmd_aix_perl;
+ *   } else {
+ *     require ecmd_x86_perl;
+ *   }    
+ *   my $ep = new ecmdClientPerlapi();
+
+
+*/
+
+/**
+ * @brief eCMD Perl API
+
+ * Usage : 
+ *   @filestat = stat("/usr/include/linux/zorro.h");
+ *   if (@filestat[1] eq "") {
+ *     require ecmd_aix_perl;
+ *   } else {
+ *     require ecmd_x86_perl;
+ *   }    
+ *   my $ep = new ecmdClientPerlapi();
+*/
 
 
 extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
@@ -718,8 +746,6 @@ class ecmdClientPerlapi
   private:
     int setupTarget(const char * i_targetStr, ecmdChipTarget & o_target);
 
-    std::string myFormat;
-    std::string dataStr;
 
 };
 
@@ -862,6 +888,9 @@ Most functions take a const char* i_target argument which is where you specify t
  '
  if 0;
 
+ # Grab the additional eCMD Modules;
+ require ecmdDataBuffer;
+ require ChipTarget;
 
  my $filestat = stat("/usr/include/linux/zorro.h");
  if ($filestat eq "") {
@@ -891,7 +920,7 @@ Most functions take a const char* i_target argument which is where you specify t
  # put/getscom
  if (0) {
     print "---- starting putscom -----";
-    $data->setWord(0, 0xabefeef);
+    $data->setWord(0, 0xabebfeef);
     $rc = $ep->putScom($$target, "800000", $$data);
 
     print "---- starting getscom -----";
