@@ -31,8 +31,9 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <string>
+#include <inttypes.h>
 
-#include <ecmdClientCapi.H>
+#include <ecmdReturnCodes.H>
 
 //----------------------------------------------------------------------
 //  User Types
