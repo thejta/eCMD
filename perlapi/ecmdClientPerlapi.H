@@ -44,6 +44,8 @@
 
 */
 
+extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
+
 /**
  * @brief eCMD Perl API
 
@@ -56,9 +58,6 @@
  *   }    
  *   my $ep = new ecmdClientPerlapi();
 */
-
-
-extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
 
 class ecmdClientPerlapi
 {
