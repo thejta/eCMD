@@ -143,56 +143,13 @@ int   ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
 
 void  ecmdDataBuffer::setWordLength(int newNumWords) {
 
-  uint32_t randNum = 0x12345678;
-
-  iv_NumWords = newNumWords;
-  iv_NumBits = iv_NumWords * 32;  /* that's as accurate as we can get */
-
-  if (iv_Capacity < newNumWords) {  /* we need to resize iv_Data member */
-
-    if (iv_RealData != NULL)
-      delete[] iv_RealData;
-
-    iv_Capacity = newNumWords;
-
-    iv_RealData = new uint32_t[iv_Capacity + 10]; 
-    iv_Data = iv_RealData + 4;
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-
-#ifndef REMOVE_SIM
-    if (iv_DataStr != NULL)
-      delete[] iv_DataStr;
-
-    iv_DataStr = new char[iv_NumBits + 42];
-    this->fillDataStr('0'); /* init to 0 */
-#endif
-
-    /* Ok, now setup the header, and tail */
-    iv_RealData[0] = DATABUFFER_HEADER;
-    iv_RealData[1] = iv_NumWords;
-    iv_RealData[3] = randNum;
-    iv_RealData[iv_NumWords + 4] = randNum;
-
-  } else if (iv_NumWords != 0) { /* no need to resize */
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-
-#ifndef REMOVE_SIM
-    this->fillDataStr('0'); /* init to 0 */
-#endif
-
-    /* Ok, now setup the header, and tail */
-    iv_RealData[0] = DATABUFFER_HEADER;
-    iv_RealData[1] = iv_NumWords;
-    iv_RealData[3] = randNum;
-    iv_RealData[iv_NumWords + 4] = randNum;
-  }
-
+  setBitLength(newNumWords * 32);
 
 }  
 
 void  ecmdDataBuffer::setBitLength(int newNumBits) {
 
-  int newNumWords = (newNumBits - 1) / 32 + 1;
+  int newNumWords = newNumBits % 32 ? newNumBits / 32 + 1 : newNumBits / 32;
   uint32_t randNum = 0x12345678;
 
   iv_NumWords = newNumWords;
@@ -215,11 +172,6 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
     this->fillDataStr('0'); /* init to 0 */
 #endif
 
-    /* Ok, now setup the header, and tail */
-    iv_RealData[0] = DATABUFFER_HEADER;
-    iv_RealData[1] = iv_NumWords;
-    iv_RealData[3] = randNum;
-    iv_RealData[iv_NumWords + 4] = randNum;
 
   } else if (iv_NumBits != 0) { /* no need to resize */
 
@@ -229,13 +181,13 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
     this->fillDataStr('0'); /* init to 0 */
 #endif
 
-    /* Ok, now setup the header, and tail */
-    iv_RealData[0] = DATABUFFER_HEADER;
-    iv_RealData[1] = iv_NumWords;
-    iv_RealData[3] = randNum;
-    iv_RealData[iv_NumWords + 4] = randNum;
   }
 
+  /* Ok, now setup the header, and tail */
+  iv_RealData[0] = DATABUFFER_HEADER;
+  iv_RealData[1] = iv_NumWords;
+  iv_RealData[3] = randNum;
+  iv_RealData[iv_NumWords + 4] = randNum;
 
 
 }  
