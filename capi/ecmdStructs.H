@@ -40,7 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "2.3"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "3.0"          ///< eCMD API Version
 
 
 /**
@@ -80,6 +80,7 @@ typedef enum {
 struct ecmdDllInfo {
   ecmdDllType_t         dllType;        ///< Dll instance type running
   ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllProductType; ///< Dll product type currently configured
   ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
   std::string           dllBuildDate;   ///< Date the Dll was built
   std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
