@@ -108,7 +108,7 @@ int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char
 
 
 
-
+/* paul was here */
 
 
 int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
@@ -118,11 +118,15 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
     return ECMD_INVALID_ARGS;
   }
 
+  char *my_i_targetStr = new char[sizeof strlen(i_targetStr)+1];
   int rc = ECMD_SUCCESS, i = 0;
   char * curArg;
   int longestArg = 0;
 
-  if (curArg = strtok(i_targetStr, " ")) {
+  strcpy(my_i_targetStr,i_targetStr);
+
+
+  if (curArg = strtok(my_i_targetStr, " ")) {
     longestArg = strlen(curArg);
     o_target.chipType = curArg;
     o_target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
@@ -140,7 +144,7 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
     args[i] = new char[longestArg+1];
   }
 
-  if (curArg = strtok(i_targetStr, " ")) {
+  if (curArg = strtok(my_i_targetStr, " ")) {
 
     i = 0;
     while (curArg = strtok(NULL, " ")) {
@@ -149,13 +153,17 @@ int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o
     }
 
   }
+  delete my_i_targetStr;
+
+  ecmdLooperData looperdata;
 
   ecmdCommandArgs(&numArgs, &args);
-  rc = ecmdConfigLooperInit(o_target);
+/*  rc = ecmdConfigLooperInit(o_target);*/
+  rc = ecmdConfigLooperInit(o_target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
 
-  ecmdConfigLooperNext(o_target);
+  ecmdConfigLooperNext(o_target, looperdata);
 
   if (args != NULL) {
     delete[] args;
