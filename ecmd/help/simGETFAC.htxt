@@ -1,5 +1,5 @@
 
-Syntax: simGETFACS <facname> <length> [<row> <offset>] [-o<format>]
+Syntax: simGETFAC <facname> <length> [<row> <offset>] [-o<format>]
         
         ECMD:           Core Common Function
 
@@ -19,4 +19,4 @@ Syntax: simGETFACS <facname> <length> [<row> <offset>] [-o<format>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simGETFACS TITAN.TCKFREQ 4
+        Example:        simGETFAC TITAN.TCKFREQ 4

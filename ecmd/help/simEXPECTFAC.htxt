@@ -1,13 +1,13 @@
 
-Syntax: simEXPECTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
+Syntax: simEXPECTFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
         
         ECMD:           Core Common Function
 
-        Function:       Perform expect on simulation facility using a symbol
+        Function:       Perform expect on simulation facility using name
 
         Parameters:
         --------------------------------------------------------------------------------
-        symbol          Must be a facility symbol
+        facname         Must be a facility name
 
         data            Data for expect on facility
 
@@ -21,4 +21,4 @@ Syntax: simEXPECTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simEXPECTFAC 100 C 4
+        Example:        simEXPECTFAC TITAN.TCKFREQ C 4

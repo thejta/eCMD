@@ -1,5 +1,5 @@
 
-Syntax: simSTKFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
+Syntax: simSTKFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
         
         ECMD:           Core Common Function
 
@@ -21,4 +21,4 @@ Syntax: simSTKFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simSTKFACS TITAN.TCKFREQ C 4
+        Example:        simSTKFAC TITAN.TCKFREQ C 4

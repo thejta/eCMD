@@ -1,5 +1,5 @@
 
-Syntax: simPUTFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
+Syntax: simPUTFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
         
         ECMD:           Core Common Function
 
@@ -21,4 +21,4 @@ Syntax: simPUTFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simPUTFACS TITAN.TCKFREQ C 4
+        Example:        simPUTFAC TITAN.TCKFREQ C 4
