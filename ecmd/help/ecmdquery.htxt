@@ -16,6 +16,8 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         formats
                             - Display help text for all available input/output formats
         
+                        version
+                            - Display version info about the eCMD Instance you are running
 
         --------------------------------------------------------------------------------
 
