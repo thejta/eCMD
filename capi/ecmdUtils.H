@@ -55,8 +55,6 @@
  2)  Allows (C-based) perl interpreter to access these functions
 
 */
-extern "C" {
-
 /** @name Gen Functions */
 //@{
 /**
@@ -160,7 +158,5 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
  */
 std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address = 0);
 
-
-} /* Extern C */
 
 #endif
