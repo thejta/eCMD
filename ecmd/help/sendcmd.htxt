@@ -1,13 +1,13 @@
 
-Syntax: sendcmd ChipSelect ScanInstrCode ScanInstrMod [-v] [-k#] [-n#] [-p#]
+Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-p#]
         
         ECMD:           Core Common Function
 
+        Function:       Send a JTAG Instruction to the chip
+
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to send ScanInstrCode to. Possibe chip names:              
-                        pu, pulsar, cerberusio, scimitar, speedwagon, radar, bcalp,
-                        midway, python, mack, etc.
+        ChipSelect      Chip to send ScanInstrCode to. 
 
         ScanInstrCode   Scan instruction code to be sent (in hex).
 

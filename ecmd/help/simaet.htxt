@@ -1,0 +1,19 @@
+
+Syntax: simaet on | off | flush
+        
+        ECMD:           Core Common Function
+
+        Function:       Start/Stop Simulation AET logging
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        on              Enable AET
+
+        off             Disable AET
+
+        flush           Flush AET to disk
+
+        --------------------------------------------------------------------------------
+
+        Example:        simaet on
+                        simaet off

@@ -1,5 +1,5 @@
 
-Syntax: pollscom ChipSelect ScanCommAddr [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]] 
+Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <Bits0-31> <Bits32-63> <Bits64-96> [-mask <Bits0-31> <Bits32-63> <Bits64-96>]] 
                                 [-limit #[s|c]] [-interval #[s|c]] [-verbose] [-k#] [-n#] [-p#] [-c#]
 
         ECMD:           Core Common Function

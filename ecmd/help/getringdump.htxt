@@ -1,5 +1,5 @@
 
-Syntax: getringdump ChipSelect RingName1 [RingName2 ...] [-k#] [-n#] [-p#] [-c#] 
+Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-k#] [-n#] [-p#] [-c#] 
                                          
         ECMD:           Core Common Function
         

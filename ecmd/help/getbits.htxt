@@ -1,5 +1,5 @@
 
-Syntax: getbits ChipSelect RingName StartPos NumBits  [-exp data] [-k#] [-n#] [-p#] [-c#]
+Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>] [-k#] [-n#] [-p#] [-c#]
                         [-o<format>]
 
         ECMD:           Core Common Function

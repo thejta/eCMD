@@ -1,0 +1,22 @@
+
+Syntax: simGETFACS <facname> <length> [<row> <offset>] [-o<format>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Read a Simulation Facility using a facility name
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        length          Bit length of symbol to read
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+        -o<format>[opt] Specifies the format type of the output: default 'xr'
+
+        --------------------------------------------------------------------------------
+
+        Example:        simGETFACS TITAN.TCKFREQ 4

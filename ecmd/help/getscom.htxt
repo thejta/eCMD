@@ -1,6 +1,6 @@
 
-Syntax: getscom ChipSelect ScanCommAddr [-v] [-k#] [-n#] [-p#] [-c#] [-o<format>]
-                [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]]
+Syntax: getscom <ChipSelect> <ScanCommAddr> [-v] [-k#] [-n#] [-p#] [-c#] [-o<format>]
+                [-exp <Bits0-31> <Bits32-63> <Bits64-96> [-mask <Bits0-31> <Bits32-63> <Bits64-96>]]
 
         ECMD:           Core Common Function
 

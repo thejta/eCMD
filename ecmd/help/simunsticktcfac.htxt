@@ -1,0 +1,22 @@
+
+Syntax: simunsticktcfac <facname> <data> [<row> <# of rows>] -i<format>
+        
+        ECMD:           Core Common Function
+
+        Function:       Unstick a TCFAC Facility
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        data            Data to write with unstick
+
+        row  [optional] Facility row
+ 
+        # of rows [opt] Number of rows to unstick
+
+        -i<format>[opt] Specifies the format type of the input data: default 'xr'
+
+        --------------------------------------------------------------------------------
+
+        Example:        simunsticktcfac TITAN.TCKFREQ F

@@ -1,0 +1,14 @@
+
+Syntax: simecho <message>
+        
+        ECMD:           Core Common Function
+
+        Function:       Echo a string to stdout as well as sim logs
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        message         String to echo to sim
+
+        --------------------------------------------------------------------------------
+
+        Example:        simecho "Hello"

@@ -1,0 +1,20 @@
+
+Syntax: simexpecttcfac <facname> <data> [<row>] -i<format>
+        
+        ECMD:           Core Common Function
+
+        Function:       Perform expect on a TCFAC Facility
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        data            Data for expect
+
+        row  [optional] Facility row
+ 
+        -i<format>[opt] Specifies the format type of the input data: default 'xr'
+
+        --------------------------------------------------------------------------------
+
+        Example:        simexpecttcfac TITAN.TCKFREQ F

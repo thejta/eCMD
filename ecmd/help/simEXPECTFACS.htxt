@@ -1,0 +1,24 @@
+
+Syntax: simEXPECTFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Perform expect on simulation facility using name
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        data            Data for expect on facility
+
+        length          Bit length of data
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+        -i<format>[opt] Specifies the format type of input data. default: "xr"
+
+        --------------------------------------------------------------------------------
+
+        Example:        simEXPECTFACS TITAN.TCKFREQ C 4

@@ -1,0 +1,20 @@
+
+Syntax: simUNSTICK <symbol> <length> [<row> <offset>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Unstick a Simulation Facility using a symbol
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        symbol          Must be a facility symbol number - hex right aligned
+
+        length          Bit length of symbol
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+        --------------------------------------------------------------------------------
+
+        Example:        simUNSTICK 100 4

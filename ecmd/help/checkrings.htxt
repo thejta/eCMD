@@ -1,5 +1,5 @@
 
-Syntax: checkrings ChipSelect RingSelect [-k#] [-n#] [-p#] [-c#]
+Syntax: checkrings <ChipSelect> <RingSelect> [-k#] [-n#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 

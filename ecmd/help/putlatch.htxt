@@ -1,5 +1,5 @@
 
-Syntax: putlatch ChipSelect RingName LatchName [Start Numbits] Data 
+Syntax: putlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] <Data>
                                                [-i<format>] [-k#] [-n#] [-p#] [-c#]
 
         ECMD:           Core Common Function

@@ -1,0 +1,24 @@
+
+Syntax: simEXPECTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Perform expect on simulation facility using a symbol
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        symbol          Must be a facility symbol
+
+        data            Data for expect on facility
+
+        length          Bit length of data
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+        -i<format>[opt] Specifies the format type of input data. default: "xr"
+
+        --------------------------------------------------------------------------------
+
+        Example:        simEXPECTFAC 100 C 4

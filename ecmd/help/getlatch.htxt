@@ -1,5 +1,5 @@
 
-Sytnax: getlatch ChipSelect RingName LatchName [Start Numbits] [-exact] [-compress] [-exp value]
+Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] [-compress] [-exp <value>]
                                                [-o<format>] [-k#] [-n#] [-p#] [-c#]
 
         ECMD:           Core Common Function

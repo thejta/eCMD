@@ -1,0 +1,22 @@
+
+Syntax: simstktcfac <facname> <data> [<row> <# of rows>] -i<format>
+        
+        ECMD:           Core Common Function
+
+        Function:       Stick a TCFAC Facility
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        data            Data to stick
+
+        row  [optional] Facility row
+ 
+        # of rows [opt] Number of rows to stick
+
+        -i<format>[opt] Specifies the format type of the input data: default 'xr'
+
+        --------------------------------------------------------------------------------
+
+        Example:        simstktcfac TITAN.TCKFREQ F

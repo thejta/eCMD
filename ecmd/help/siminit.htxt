@@ -1,0 +1,15 @@
+
+Syntax: siminit [<checkpoint>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Initialize the simulation
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        checkpoint[opt] Name of checkpoint to load
+
+        --------------------------------------------------------------------------------
+
+        Example:        siminit
+                        siminit boot

@@ -1,5 +1,5 @@
 
-Syntax: ecmdquery Mode [Mode Options]
+Syntax: ecmdquery <Mode> [Mode Options]
 
         ECMD:           Core Common Function
 

@@ -1,0 +1,14 @@
+
+Syntax: simsymbol <facname>
+        
+        ECMD:           Core Common Function
+
+        Function:       Look up the symbol id of a facility
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Facility name to look up symbol
+
+        --------------------------------------------------------------------------------
+
+        Example:        simsymbol TITAN.TCKFREQ

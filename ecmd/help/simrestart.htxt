@@ -1,0 +1,14 @@
+
+Syntax: simrestart <checkpoint name>
+        
+        ECMD:           Core Common Function
+
+        Function:       Load a checkpoint from the specified file
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        checkpointname  name to load checkpoint from
+
+        --------------------------------------------------------------------------------
+
+        Example:        simrestart boot

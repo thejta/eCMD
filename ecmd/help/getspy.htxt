@@ -1,6 +1,6 @@
 
-Syntax: getspy ChipSelect SpyName [Start Numbits] [-exp value] 
-                                    [-o<format>] [-v type] [-k#] [-n#] [-p#] [-c#]
+Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>] 
+                                    [-o<format>] [-k#] [-n#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
 

@@ -1,0 +1,14 @@
+
+Syntax: simcheckpoint <checkpoint name>
+        
+        ECMD:           Core Common Function
+
+        Function:       Store a checkpoint to the specified file
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        checkpointname  name to store checkpoint under
+
+        --------------------------------------------------------------------------------
+
+        Example:        simcheckpoint boot

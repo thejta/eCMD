@@ -1,0 +1,14 @@
+
+Syntax: simSUBCMD <command>
+        
+        ECMD:           Core Common Function
+
+        Function:       Run an rtx SUBCMD
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        command         rtx command to run
+
+        --------------------------------------------------------------------------------
+
+        Example:        simSUBCMD run left

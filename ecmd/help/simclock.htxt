@@ -1,0 +1,14 @@
+
+Syntax: simclock <cycles>
+        
+        ECMD:           Core Common Function
+
+        Function:       Clock the simulator
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        cycles          Number of cycles to clock the simulator
+
+        --------------------------------------------------------------------------------
+
+        Example:        simclock 1000

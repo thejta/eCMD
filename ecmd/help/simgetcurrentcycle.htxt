@@ -1,0 +1,13 @@
+
+Syntax: simgetcurrentcycle
+        
+        ECMD:           Core Common Function
+
+        Function:       Retrieve the current cycle count
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        --------------------------------------------------------------------------------
+
+        Example:        simgetcurrentcycle
