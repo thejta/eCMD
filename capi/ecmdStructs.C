@@ -2055,18 +2055,10 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 	    }
 
 	    // Copy non-list data.
-	    // spyName  - first copy in str Length
-	    tmpData32 = htonl((uint32_t)(spyName.size()));
-	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-	    l_ptr += sizeof(spyType);
-	    i_len -= sizeof(spyType);
-
-	    if (spyName.size() != 0)  // if there is a spyName, copy it in
-	    {
-		memcpy(l_ptr, spyName.c_str(), spyName.size() + 1);
-		l_ptr += spyName.size() + 1;
-		i_len -= spyName.size() + 1;
-	    }
+	    // spyName  
+	    memcpy(l_ptr, spyName.c_str(), spyName.size() + 1);
+	    l_ptr += spyName.size() + 1;
+	    i_len -= spyName.size() + 1;
 
 	    // bitLength
 	    tmpData32 = htonl((uint32_t)bitLength);
@@ -2188,19 +2180,11 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         do {    // Single entry ->
 
 	    // Unflatten non-list data.
-	    // spyName - get spyName Size first
-	    memcpy(&l_spyName_size, l_ptr, sizeof(l_spyName_size));
-	    l_spyName_size = ntohl(l_spyName_size);
-	    l_ptr += sizeof(l_spyName_size);
-	    l_left -= sizeof(l_spyName_size);
-		
-	    // if there is a l_spyName_size != 0, then set spyName
-	    if (l_spyName_size != 0)
-	    {
-		spyName = (const char *) l_ptr;
-		l_ptr += l_spyName_size + 1;
-		l_left -= l_spyName_size + 1;
-	    }
+	    // spyName
+	    std::string l_spyName = (const char *) l_ptr;
+	    spyName = (const char *) l_ptr;
+	    l_ptr += l_spyName.size() + 1;
+	    l_left -= l_spyName.size() + 1;
 
 	    // bitLength
 	    memcpy(&bitLength, l_ptr, sizeof(bitLength));
@@ -2271,7 +2255,7 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_left -= (strlen((char *)l_ptr) +1);
 	    }
 
-	    if (l_left <= 0)
+	    if (l_left < 0)
 	    {	
 		// Generate an error for buffer overflow conditions.
 		ETRAC3("Buffer overflow occured in "
@@ -2283,7 +2267,7 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		rc = ECMD_DATA_OVERFLOW;
 		break;
 	    }
-	    if (l_left >= 0)
+	    if (l_left > 0)
 	    {	
 		// Generate an error for buffer underflow conditions.
 		ETRAC3("Buffer underflow occured in "
