@@ -72,16 +72,34 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   uint32_t* add_buffer;         ///< Buffer to do temp work with the address for incrementing
   ecmdArrayData arrayData;      ///< Query data about array
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string outputformat = "x";  ///< Output Format to display
+  std::string inputformat = "x";   ///< Input format of data
+  bool expectFlag = false;
+  bool maskFlag = false;
+  char* expectPtr = NULL;          ///< Pointer to expected data in arg list
+  char* maskPtr = NULL;            ///< Pointer to mask data in arg list
+  ecmdDataBuffer expected;         ///< Buffer to store expected data
+  ecmdDataBuffer mask;             ///< Buffer for mask of expected data
+  
+  //expect and mask flags check
+  if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
+    expectFlag = true;
 
+    if ((maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
+      maskFlag = true;
+    }
+  }
+  
   /* get format flag, if it's there */
-  std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr == NULL) {
-    format = "x";
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
   }
-  else {
-    format = formatPtr;
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
+
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -108,11 +126,31 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
   arrayName = argv[1];
 
-  /* Did the specify more then one entry ? */
-  if (argc > 3) {
-    numEntries = atoi(argv[3]);
-  }
+  
 
+  if (expectFlag) {
+
+    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
+    if (rc) {
+      ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
+      return rc;
+    }
+
+    if (maskFlag) {
+      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
+      if (rc) {
+        ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
+        return rc;
+      }
+
+    }
+
+
+  }
+  /* Did the specify more then one entry ? */
+  if( argc > 3 ) {
+    numEntries = atoi(argv[3]);
+  } 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -211,16 +249,55 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     }
 
     for (std::list<ecmdArrayEntry>::iterator entit = entries.begin(); entit != entries.end(); entit ++) {
-      if (!printedHeader) {
-        printed = ecmdWriteTarget(target) + " " + arrayName + "\n" + entit->address.genHexRightStr() + "\t";
-        printedHeader = true;
-      } else {
-        printed = entit->address.genHexRightStr() + "\t";
+      if (expectFlag) {
+
+       if (maskFlag) {
+         entit->buffer.setAnd(mask, 0, entit->buffer.getBitLength());
+       }
+
+       if (!ecmdCheckExpected(entit->buffer, expected)) {
+
+         //@ make this stuff sprintf'd
+         
+	 if (!printedHeader) {
+           printed = ecmdWriteTarget(target) + " " + arrayName + "\n";
+           printedHeader = true;
+         } 
+       
+         printed = "\ngetarray - Data miscompare occured at address: " + entit->address.genHexRightStr() + "\n";
+         ecmdOutputError( printed.c_str() );
+
+
+         printed = "getarray - Actual";
+         if (maskFlag) {
+           printed += " (with mask): ";
+         }
+         else {
+           printed += " 	   : ";
+         }
+
+         printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
+         ecmdOutputError( printed.c_str() );
+
+         printed = "getscom - Expected  	: ";
+         printed += ecmdWriteDataFormatted(expected, outputformat);
+         ecmdOutputError( printed.c_str() );
+       }
+
       }
+      else {
+ 
+       if (!printedHeader) {
+         printed = ecmdWriteTarget(target) + " " + arrayName + "\n" + entit->address.genHexRightStr() + "\t";
+         printedHeader = true;
+       } else {
+         printed = entit->address.genHexRightStr() + "\t";
+       }
 
-      printed += ecmdWriteDataFormatted(entit->buffer, format);
+       printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
 
-      ecmdOutput( printed.c_str() );
+       ecmdOutput( printed.c_str() );
+      }
     }
 
     /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
