@@ -106,6 +106,8 @@ char **p_xargv;
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 
+uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
+
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 
@@ -755,17 +757,12 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
 uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
   uint32_t rc = 0;
 
-  std::list<ecmdLatchBufferEntry>::iterator bufferit;
   ecmdLatchBufferEntry curEntry;
   std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
-  std::string scandefFile;                      ///< Full path to scandef file
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
   ecmdDataBuffer buffer(100 /* words */);       ///< Space for extracted latch data
   ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
-  std::string latchName = i_latchName;          ///< Store our latchname in a stl string
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
-  bool foundit;                                 ///< Did I find the latch info that I have already looked up
-  bool newFileFormat = false;                   ///< This is set if we find the new Eclipz scandef format 
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
 
@@ -774,211 +771,11 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
     dllEnableRingCache();
   }
 
-
-  /* Transform to upper case for case-insensitive comparisons */
-  transform(latchName.begin(), latchName.end(), latchName.begin(), toupper);
+  rc = dllReadScandef(target, i_ringName, i_latchName, i_mode, curEntry);
+  if (rc) return rc;
 
   /* Single exit point */
   while (1) {
-
-
-    /* find scandef file */
-    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
-    if (rc) {
-#ifndef ECMD_STRIP_DEBUG
-      if (ecmdGlobal_DllDebug) 
-        dllOutputError(("dllGetLatch - Error occured locating scandef file: " + scandefFile + "\n").c_str());
-#endif
-      break;
-    }
-
-    /* Let's see if we have already looked up this info */
-    foundit = false;
-    for (bufferit = latchBuffer.begin(); bufferit != latchBuffer.end(); bufferit ++) {
-      if (bufferit->scandefName == scandefFile && bufferit->latchName == latchName) {
-        /* If the user passed NULL we have to search entire scandef */
-        if (i_ringName == NULL) {
-          if (bufferit->ringName.length() == 0) {
-            curEntry = (*bufferit);
-            foundit = true;
-            break;
-          }
-        } else {
-          if (bufferit->ringName == i_ringName) {
-            curEntry = (*bufferit);
-            foundit = true;
-            break;
-          }
-        }
-      }
-    } /* End for search loop */
-
-
-    /* We don't have it already, let's go looking */
-    if (!foundit) {
-      std::ifstream ins(scandefFile.c_str());
-      if (ins.fail()) {
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdGlobal_DllDebug) 
-          dllOutputError(("dllGetLatch - Error occured opening scandef file: " + scandefFile + "\n").c_str());
-#endif
-        rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
-        break;
-      }
-
-      //let's go hunting in the scandef for this register (pattern)
-      ecmdLatchInfo curLatch;
-
-      std::string curLine;
-      std::vector<std::string> curArgs(4);
-
-      std::string ringPrefix = "ring=";
-      std::string ringArg;
-      if (i_ringName != NULL)
-        ringArg = ringPrefix + i_ringName;
-      std::string temp;
-
-      bool done = false;
-      bool foundRing = false;
-      int  leftParen;
-      int  colon;
-
-      while (getline(ins, curLine) && !done) {
-
-        if (foundRing) {
-
-          /* We hit the end of this ring defition with the old syntax */
-          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
-            if (i_ringName != NULL) {
-              done = true; break;
-            } else {
-              int offset = curLine.find(ringPrefix) + ringPrefix.length();
-              curRing = curLine.substr(offset, std::string::npos);
-              /* Strip the tail off the line */
-              curRing.erase(curRing.find_first_of(" \t"));
-              continue;
-            }
-            /* we hit the end of this ring definition with the new syntax */
-          } else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
-            done = true; break;
-          }
-          else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
-            //do nothing
-            continue;
-          }
-          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
-            // do nothing
-            continue;
-          }
-          else if (!(i_mode == ECMD_LATCHMODE_FULL) && (curLine.find(latchName) != std::string::npos)) {
-
-            /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
-
-            ecmdParseTokens(curLine, " \t\n", curArgs);
-            curLatch.length = atoi(curArgs[0].c_str());
-            curLatch.ringOffset = atoi(curArgs[1].c_str());
-            curLatch.latchName = curArgs[3];
-          }
-          else if (i_mode == ECMD_LATCHMODE_FULL) {
-
-            /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
-            ecmdParseTokens(curLine, " \t\n", curArgs);
-
-            if (latchName == curArgs[3]) {
-              curLatch.length = atoi(curArgs[0].c_str());
-              curLatch.ringOffset = atoi(curArgs[1].c_str());
-              curLatch.latchName = curArgs[3];
-            } else
-              continue;
-
-          } else {
-            /* Not one we want */
-            continue;
-          }
-
-          /* Let's parse out the start/end bit if they exist */
-          leftParen = curLatch.latchName.find('(');
-          if (leftParen == std::string::npos) {
-            /* This latch doesn't have any parens */
-            curLatch.latchStartBit = curLatch.latchEndBit = 0;
-          } else {
-            temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
-            curLatch.latchStartBit = atoi(temp.c_str());
-
-            /* Is this a multibit or single bit */
-            if ((colon = temp.find(':')) != std::string::npos) {
-              curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
-            } else {
-              curLatch.latchEndBit = curLatch.latchStartBit;
-            }
-          }
-          curLatch.ringName = curRing;
-          curEntry.entry.push_back(curLatch);
-
-        }
-          /* The user specified a ring for use to look in */
-        else if ((i_ringName != NULL) &&
-                 (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
-                 ((curLine[0] == 'N') && (curLine.find(i_ringName) != std::string::npos)))) {
-          foundRing = true;
-          if (curLine.substr(0,4) == "Name") {
-            newFileFormat = true;
-          }
-          curRing = i_ringName;
-
-          /* The user didn't specify a ring for us, we will search them all */
-        } else if ((i_ringName == NULL) &&
-                   ((curLine[0] == '*') && (curLine.find(ringPrefix) != std::string::npos))) {
-          int offset = curLine.find(ringPrefix) + ringPrefix.length();
-          curRing = curLine.substr(offset, std::string::npos);
-          /* Strip the tail off the line */
-          curRing.erase(curRing.find_first_of(" \t"));
-          foundRing = true;
-        } else if ((i_ringName == NULL) &&
-                   ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
-          curRing = curLine.substr(5, std::string::npos);
-          /* Strip the tail off the line */
-          curRing.erase(curRing.find_first_of(" \t"));
-          foundRing = true;
-        }                    
-      }
-
-      ins.close();
-
-      if (!foundRing) {
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdGlobal_DllDebug) {
-          std::string tmp = i_ringName;
-          dllOutputError(("dllGetLatch - Could not find ring name " + tmp + "\n").c_str());
-        }
-#endif
-        rc = ECMD_INVALID_RING;
-        break;
-      }
-
-      if (curEntry.entry.empty()) {
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdGlobal_DllDebug) 
-          dllOutputError(("dllGetLatch - no registers found that matched " + latchName + "\n").c_str());
-#endif
-        rc = ECMD_INVALID_LATCHNAME;
-        break;
-      }
-
-      curEntry.scandefName = scandefFile;
-      if (i_ringName != NULL)
-        curEntry.ringName = i_ringName;
-      else
-        curEntry.ringName = "";
-      curEntry.latchName = latchName;
-      curEntry.entry.sort();
-
-      /* Let's push this entry onto the stack */
-      latchBuffer.push_back(curEntry);
-    
-    }
 
     uint32_t bitsToFetch = 0x0FFFFFFF;  // Grab all bits
     int curLatchBit = -1;               // This is the actual latch bit we are looking for next
@@ -1114,10 +911,360 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
 uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode) {
 
   uint32_t rc = 0;
+  ecmdLatchBufferEntry curEntry;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
+  ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
+  std::string curRing;                  ///< Current ring being operated on
+  std::string curLatchName;             ///< Current latch name being operated on
+
+//  if (!dllIsRingCacheEnabled()) {
+//    enabledCache = true;
+//    dllEnableRingCache();
+//  }
+
+  rc = dllReadScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+  if (rc) return rc;
+
+  /* single exit point */
+  while (1) {
+
+
+
+    uint32_t bitsToInsert = i_data.getBitLength();
+    int curLatchBit = -1;               // This is the actual latch bit we are looking for next
+    int curStartBit = 0;         // This is the offset into the current entry to start extraction
+    int curBitsToInsert = bitsToInsert;      // This is the total number of bits left to Insert
+
+    for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+        if (curRing.length() > 0) {
+          rc = dllPutRing(i_target, curRing.c_str(), ringBuffer);
+          if (rc) {
+#ifndef ECMD_STRIP_DEBUG
+            if (ecmdGlobal_DllDebug) 
+              dllOutputError("dllPutLatch - Problems writing ring into chip\n");
+#endif
+            break;
+          }
+        }
+          
+        rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer);
+        if (rc) {
+#ifndef ECMD_STRIP_DEBUG
+          if (ecmdGlobal_DllDebug) 
+            dllOutputError("dllPutLatch - Problems reading ring from chip\n");
+#endif
+          break;
+        }
+        curRing = curLatchInfo->ringName;
+      }
+
+      if ((curLatchBit == -1) || (curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('(')))) {
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('));
+        /* Make a copy of insert data so we don't lose it */
+        bufferCopy = i_data;
+      }
+
+      /* Check if the bits are ordered from:to (0:10) or just (1) */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStartBit <= curLatchInfo->latchEndBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+          /* Check if the bits are ordered to:from (10:0) */
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStartBit <= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchStartBit))) {
+
+        bitsToInsert = ((curLatchInfo->length - curStartBit) < curBitsToInsert) ? curLatchInfo->length - curStartBit : curBitsToInsert;
+
+
+        /* Extract bits if ordered from:to (0:10) */
+        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+
+          ringBuffer.insert(bufferCopy, curLatchInfo->ringOffset + curStartBit, bitsToInsert);
+          /* Get rid of the data we just inserted, to line up the next piece */
+          bufferCopy.shiftLeft(bitsToInsert);
+
+          curLatchBit = curLatchInfo->latchEndBit + 1;
+        } else {
+          /* Extract if bits are ordered to:from (10:0) or just (1) */
+          for (int bit = 0; bit < bitsToInsert; bit ++) {
+            if (bufferCopy.isBitSet(bit)) 
+              ringBuffer.setBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
+            else
+              ringBuffer.clearBit(curLatchInfo->ringOffset + (curLatchInfo->length - 1) - curStartBit - bit);
+          }
+          /* Get rid of the data we just inserted, to line up the next piece */
+          bufferCopy.shiftLeft(bitsToInsert);
+
+          curLatchBit = curLatchInfo->latchStartBit + 1;
+
+        }
+
+        curStartBit = 0;
+        curBitsToInsert -= bitsToInsert;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+        curStartBit -= curLatchInfo->length;
+      }
+
+    }
+
+    if (curRing.length() > 0) {
+      rc = dllPutRing(i_target, curRing.c_str(), ringBuffer);
+      if (rc) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) 
+          dllOutputError("dllPutLatch - Problems writing ring into chip\n");
+#endif
+        break;
+      }
+    }
+
+    /* exit single point */
+    break;
+
+  }
+
+//  if (enabledCache) {
+//    /* Write all the data to the chip */
+//    rc = dllFlushRingCache(); if (rc) return rc;
+//    rc = dllDisableRingCache();
+//  }
 
   return rc;
 }
 
+/**
+ @brief Parse the scandef for the latchname provided and load into latchBuffer for later retrieval
+ @param target Chip target to operate on
+ @param i_ringName Optional ring name, ignored if == NULL
+ @param i_latchName latch name to search for in scandef
+ @param i_mode Mode to search with, full or partial name matchs
+ @param o_latchdata Return latch data read from scandef
+*/
+uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::list<ecmdLatchBufferEntry>::iterator bufferit;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::string scandefFile;                      ///< Full path to scandef file
+  bool foundit;                                 ///< Did I find the latch info that I have already looked up
+  bool newFileFormat = false;                   ///< This is set if we find the new Eclipz scandef format 
+  std::string latchName = i_latchName;          ///< Store our latchname in a stl string
+  std::string curRing;                          ///< Current ring being read in
+
+  /* Transform to upper case for case-insensitive comparisons */
+  transform(latchName.begin(), latchName.end(), latchName.begin(), toupper);
+
+  /* single exit point */
+  while (1) {
+    /* Let's see if we have already looked up this info */
+    foundit = false;
+    for (bufferit = latchBuffer.begin(); bufferit != latchBuffer.end(); bufferit ++) {
+      /* Does the scandeffile and the current latch match to what we have stored ? */
+      if (bufferit->scandefName == scandefFile && bufferit->latchName == latchName) {
+        /* If the user passed NULL we have to search entire scandef */
+        if (i_ringName == NULL) {
+          if (bufferit->ringName.length() == 0) {
+            o_latchdata = (*bufferit);
+            foundit = true;
+            break;
+          }
+        } else {
+          if (bufferit->ringName == i_ringName) {
+            o_latchdata = (*bufferit);
+            foundit = true;
+            break;
+          }
+        }
+      }
+    } /* End for search loop */
+
+    /* We're done, get out of here */
+    if (foundit) return rc;
+
+
+    /* We don't have it already, let's go looking */
+    if (!foundit) {
+
+      /* find scandef file */
+      rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+      if (rc) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) 
+          dllOutputError(("putlatch - Error occured locating scandef file: " + scandefFile + "\n").c_str());
+#endif
+        return rc;
+      }
+
+      std::ifstream ins(scandefFile.c_str());
+      if (ins.fail()) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) 
+          dllOutputError(("dllGetLatch - Error occured opening scandef file: " + scandefFile + "\n").c_str());
+#endif
+        rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
+        break;
+      }
+
+      //let's go hunting in the scandef for this register (pattern)
+      ecmdLatchInfo curLatch;
+
+      std::string curLine;
+      std::vector<std::string> curArgs(4);
+
+      std::string ringPrefix = "ring=";
+      std::string ringArg;
+      if (i_ringName != NULL)
+        ringArg = ringPrefix + i_ringName;
+      std::string temp;
+
+      bool done = false;
+      bool foundRing = false;
+      int  leftParen;
+      int  colon;
+
+      while (getline(ins, curLine) && !done) {
+
+        if (foundRing) {
+
+          /* We hit the end of this ring defition with the old syntax */
+          if (!newFileFormat && curLine[0] == '*' && curLine.find(ringPrefix) != std::string::npos) {
+            if (i_ringName != NULL) {
+              done = true; break;
+            } else {
+              int offset = curLine.find(ringPrefix) + ringPrefix.length();
+              curRing = curLine.substr(offset, std::string::npos);
+              /* Strip the tail off the line */
+              curRing.erase(curRing.find_first_of(" \t"));
+              continue;
+            }
+            /* we hit the end of this ring definition with the new syntax */
+          } else if (newFileFormat && curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
+            done = true; break;
+          }
+          else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+            //do nothing
+            continue;
+          }
+          else if (newFileFormat && (curLine[0] != ' ') && (curLine[0] != '\t')) {
+            // do nothing
+            continue;
+          }
+          else if (!(i_mode == ECMD_LATCHMODE_FULL) && (curLine.find(latchName) != std::string::npos)) {
+
+            /* Transform to upper case */
+            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+
+            ecmdParseTokens(curLine, " \t\n", curArgs);
+            curLatch.length = atoi(curArgs[0].c_str());
+            curLatch.ringOffset = atoi(curArgs[1].c_str());
+            curLatch.latchName = curArgs[3];
+          }
+          else if (i_mode == ECMD_LATCHMODE_FULL) {
+
+            /* Transform to upper case */
+            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+            ecmdParseTokens(curLine, " \t\n", curArgs);
+
+            if (latchName == curArgs[3].substr(0,curArgs[3].find_first_of("("))) {
+              curLatch.length = atoi(curArgs[0].c_str());
+              curLatch.ringOffset = atoi(curArgs[1].c_str());
+              curLatch.latchName = curArgs[3];
+            } else
+              continue;
+
+          } else {
+            /* Not one we want */
+            continue;
+          }
+
+          /* Let's parse out the start/end bit if they exist */
+          leftParen = curLatch.latchName.find('(');
+          if (leftParen == std::string::npos) {
+            /* This latch doesn't have any parens */
+            curLatch.latchStartBit = curLatch.latchEndBit = 0;
+          } else {
+            temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
+            curLatch.latchStartBit = atoi(temp.c_str());
+
+            /* Is this a multibit or single bit */
+            if ((colon = temp.find(':')) != std::string::npos) {
+              curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
+            } else {
+              curLatch.latchEndBit = curLatch.latchStartBit;
+            }
+          }
+          curLatch.ringName = curRing;
+          o_latchdata.entry.push_back(curLatch);
+
+        }
+        /* The user specified a ring for use to look in */
+        else if ((i_ringName != NULL) &&
+                 (((curLine[0] == '*') && (curLine.find(ringArg) != std::string::npos)) ||
+                  ((curLine[0] == 'N') && (curLine.find(i_ringName) != std::string::npos)))) {
+          foundRing = true;
+          if (curLine.substr(0,4) == "Name") {
+            newFileFormat = true;
+          }
+          curRing = i_ringName;
+
+          /* The user didn't specify a ring for us, we will search them all */
+        } else if ((i_ringName == NULL) &&
+                   ((curLine[0] == '*') && (curLine.find(ringPrefix) != std::string::npos))) {
+          int offset = curLine.find(ringPrefix) + ringPrefix.length();
+          curRing = curLine.substr(offset, std::string::npos);
+          /* Strip the tail off the line */
+          curRing.erase(curRing.find_first_of(" \t"));
+          foundRing = true;
+        } else if ((i_ringName == NULL) &&
+                   ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
+          curRing = curLine.substr(5, std::string::npos);
+          /* Strip the tail off the line */
+          curRing.erase(curRing.find_first_of(" \t"));
+          foundRing = true;
+        }                    
+      }
+
+      ins.close();
+
+      if (!foundRing) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) {
+          std::string tmp = i_ringName;
+          dllOutputError(("dllGetLatch - Could not find ring name " + tmp + "\n").c_str());
+        }
+#endif
+        rc = ECMD_INVALID_RING;
+        break;
+      }
+
+      if (o_latchdata.entry.empty()) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdGlobal_DllDebug) 
+          dllOutputError(("dllGetLatch - no registers found that matched " + latchName + "\n").c_str());
+#endif
+        rc = ECMD_INVALID_LATCHNAME;
+        break;
+      }
+
+      o_latchdata.scandefName = scandefFile;
+      if (i_ringName != NULL)
+        o_latchdata.ringName = i_ringName;
+      else
+        o_latchdata.ringName = "";
+      o_latchdata.latchName = latchName;
+      o_latchdata.entry.sort();
+
+      /* Let's push this entry onto the stack */
+      latchBuffer.push_back(o_latchdata);
+
+    } /* end !foundit */
+  } /* end single exit point */
+
+  return rc;
+}
 
 uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1) {
 
