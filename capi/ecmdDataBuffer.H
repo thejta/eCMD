@@ -81,21 +81,33 @@ class ecmdDataBuffer {
       */
      int   getBitLength() const;
      /**
-      * @brief Reinitialize the Buffer to specified length
-      * @param newnumwords Length of new buffer in words
-      * @post Buffer is reinitialized
-      *
-      * NOTE : All data stored in buffer will be lost
+      * @brief Return the actual capacity of the internal buffer
+      * @retval Actual capacity of internal buffer
       */
-     void  setWordLength(int newnumwords);   
+     int   getCapacity() const;
      /**
       * @brief Reinitialize the Buffer to specified length
-      * @param newnumbits Length of new buffer in bits
+      * @param newNumWords Length of new buffer in words
       * @post Buffer is reinitialized
       *
       * NOTE : All data stored in buffer will be lost
       */
-     void  setBitLength(int newnumbits);
+     void  setWordLength(int newNumWords);   
+     /**
+      * @brief Reinitialize the Buffer to specified length
+      * @param newNumBits Length of new buffer in bits
+      * @post Buffer is reinitialized
+      *
+      * NOTE : All data stored in buffer will be lost
+      */
+     void  setBitLength(int newNumBits);
+     /**
+      * @brief Reinitialize the internal buffer to specified length
+      * @param newNumWords length of internal data buffer in words
+      * @post Internal buffer is reinitialzied
+      */
+     void setCapacity (int newNumWords);
+
      //@}
 
 
@@ -113,12 +125,16 @@ class ecmdDataBuffer {
       * @param len Number of consecutive bits from start bit to turn on
       */
      void  setBit(int bit, int len);
+
+#ifdef ECMD_SIM
      /**
       * @brief Turn on a bit in buffer
       * @param bitoffset bit in buffer to turn on
       * @param datastr Character value to set bit - can be "0", "1", "X"
       */
      void  setBit(int bitoffset, const char* datastr); // data can be 0,1,'x','X' 
+#endif
+
      /**
       * @brief Set a word of data in buffer
       * @param wordoffset Offset of word to set
@@ -431,6 +447,7 @@ class ecmdDataBuffer {
      const char* genBinStr();
      //@}
 
+#ifdef ECMD_SIM
      /** @name Simulation Buffer Functions */
      //@{
      /**
@@ -447,21 +464,27 @@ class ecmdDataBuffer {
      int   isXstate(int start, int length); /* check subset */
 
      //@}
-
+#endif
 
    private:  //data
+     int iv_Capacity;
      int iv_NumWords;
      int iv_NumBits;
      uint32_t * iv_Data;
      uint32_t * iv_RealData;
      char* iv_DataOutStr; /* buffer for gethexlstr functions */
-     char* iv_DataStr; /* binary or x data */
 
 
    private: //methods
-     void fillDataStr(char fillChar);
      ecmdDataBuffer(const ecmdDataBuffer &other);
-     
+
+#ifdef ECMD_SIM
+   private:
+     char* iv_DataStr; /* binary or x data */
+
+   private:
+     void fillDataStr(char fillChar);
+#endif
 
 
 };
