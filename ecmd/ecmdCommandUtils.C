@@ -69,6 +69,25 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
   uint32_t numBits = i_data.getBitLength();
   uint32_t numToFetch = numBits < maxBits ? numBits : maxBits;
   uint32_t curData, curExpected;
+printf("DB : %d Db : %d\n", i_data.getByteLength(), i_data.getBitLength());
+printf("EB : %d Eb : %d\n", i_expected.getByteLength(), i_expected.getBitLength());
+printf("D : %d E : %d\n", (i_data.getBitLength()-1)/4 , (i_expected.getBitLength()-1)/4);
+  /* We are going to make sure they didn't expect more data then we had */
+  /* We are going to allow for odd bits in a nibble if the user provided data in hex */
+  /* We will just check below that all the extra data was zero's */
+  if ((i_data.getBitLength()-1)/4 > (i_expected.getBitLength()-1)/4) {
+    ecmdOutputError("ecmdCheckExpected - Not enough expect data provided\n");
+    return 0;
+  } else if ((i_data.getBitLength()-1)/4 < (i_expected.getBitLength()-1)/4) {
+    ecmdOutputError("ecmdCheckExpected - More expect data provided then data that was retrieved\n");
+    return 0;
+
+    /* Now we are going to check to see if expect bits we specified in any odd nibble bits */
+  } else if ((i_data.getBitLength() < i_expected.getBitLength()) &&
+             (!i_expected.isBitClear(i_data.getBitLength(), i_expected.getBitLength() - i_data.getBitLength()))) {
+    ecmdOutputError("ecmdCheckExpected - More non-zero expect data provided in odd bits of a nibble then data retrieved\n");
+    return 0;
+  }
 
   while (numToFetch > 0) {
 
@@ -92,6 +111,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
     numToFetch = (numBits < maxBits) ? numBits : maxBits;
     wordCounter++;
   }
+
 
   return 1;
         
