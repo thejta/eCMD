@@ -32,12 +32,10 @@ Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exa
         LatchName       Desired latch to find in the ring. (case insensitive)
 
         Start     [opt] Starting bit position within the latch. Specify with Numbits.
-                        NOTE : Not allowed when using -nocompress
 
         Numbits   [opt] Number of bits to get. Specify along with Start. If out of range,
                         and -exact not selected, prints a warning message instead of the
-                        data. If -exact is selected, immediately return an error.
-                        NOTE : Not allowed when using -nocompress
+                        data. If -exact is selected, immediately returns an error.
 
         -exact    [opt] No pattern matching. Instead, search for exact latch name.
 
