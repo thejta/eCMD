@@ -1512,7 +1512,7 @@ void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to
 
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
 {
-#ifdef (i386)
+#if defined (i386)
   char *tmp = (char *) dest, *s = (char *) src;
   int remainder = 0, whole_num = 0;
 
