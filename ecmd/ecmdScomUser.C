@@ -89,10 +89,11 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string printed;                          ///< Output data
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
 #ifndef FIPSODE
-  sedcScomdefEntry scomEntry;                   ///< Returns a class containing the scomdef entry read from the file
+  sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
+  unsigned int runtimeFlags=0;                    ///< Directives on how to parse
 #endif
   std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
-  unsigned int runtimeFlags=0;                    ///< Directives on how to parse
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
