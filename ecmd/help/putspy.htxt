@@ -23,7 +23,7 @@ Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>
         Data            Data to put into spy, either raw data or enum name.
         
         -i<format>[opt] Specifies the format type of the input data (default: hex-left)
-                        Only valid with non-enumerated spy's
+                        For enums use -ienum
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
@@ -41,3 +41,5 @@ Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>
 
         Examples:       putalias pu MYALIAS -ixr feedbeeffeeedbeef
                         putalias pu EVERYOTHER 16 4 -ib 1010
+                        putalias pu MYEDIAL ENUMVALUE
+

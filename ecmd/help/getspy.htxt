@@ -5,6 +5,8 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
         ECMD:           Core Common Function
 
         Function:       Display specified spy, works for edials, idials and aliases.
+                        If a spy ecc error is detected all the ecc groupings will be
+                        displayed along with a mask showing which bits are in error.
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -19,12 +21,12 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
                         Only valid with non-enumerated spy's
         
         -exp [optional] Provides an expected value as the last argument. Returns error only
-                        if miscompare. Expected value string is read as hex or bin depending 
+                        if miscompare. Expected value string is read depending 
                         on format flag.
 
         -o<format>[opt] Specifies the format type of both the output and 
                         the expect-value. (default: hex-left)
-                        Only valid with non-enumerated spy's
+                        For enums use -oenum
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
