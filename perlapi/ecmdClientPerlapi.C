@@ -85,8 +85,6 @@ int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_da
 /* char * ecmdClientPerlapi::getScom (const char * i_target, int i_address) { */
   ecmdChipTarget myTarget;
   std::string dataStr;
-  std::string myFormat;
-
 
   int rc = setupTarget(i_target, myTarget);
   ecmdPerlInterfaceErrorCheck(rc);
@@ -103,9 +101,8 @@ int ecmdClientPerlapi::getScom (const char* i_target, int i_address, char** o_da
     return rc;
   }
 
-  myFormat = "b";
 
-  dataStr = ecmdWriteDataFormatted(buffer, myFormat);
+  dataStr = buffer.genBinStr();
 
   char* tmp;
   tmp = new char[dataStr.length()+1];
