@@ -221,6 +221,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       ecmdOutput( printed.c_str() );
     }
 
+    /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
+    entries.clear();
+
   }
 
   if (!validPosFound) {
