@@ -183,11 +183,12 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
   uint32_t symbol = 0x0;
   ecmdGenB32FromHexRight(&symbol, argv[0]);
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -237,11 +238,12 @@ int ecmdSimEXPECTFACSUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -291,11 +293,12 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0;
   if (argc > 3) {
@@ -606,11 +609,12 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
   uint32_t symbol = 0x0;
   ecmdGenB32FromHexRight(&symbol, argv[0]);
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -660,11 +664,12 @@ int ecmdSimPUTFACSUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -715,11 +720,12 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -769,11 +775,11 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
-  if (rc) return rc;
-
   uint32_t bitLength = atoi(argv[2]);
+
+  ecmdDataBuffer buffer(3);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
+  if (rc) return rc;
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
@@ -843,11 +849,11 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
   uint32_t symbol = 0x0;
   ecmdGenB32FromHexRight(&symbol, argv[0]);
 
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
-  if (rc) return rc;
-
   uint32_t bitLength = atoi(argv[2]);
+
+  ecmdDataBuffer buffer(3);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
+  if (rc) return rc;
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -897,11 +903,12 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
+  uint32_t bitLength = atoi(argv[2]);
+
   ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
   if (rc) return rc;
 
-  uint32_t bitLength = atoi(argv[2]);
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -951,11 +958,11 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
-  if (rc) return rc;
-
   uint32_t bitLength = atoi(argv[2]);
+
+  ecmdDataBuffer buffer(3);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
+  if (rc) return rc;
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
@@ -1022,6 +1029,30 @@ int ecmdSimsymbolUser(int argc, char * argv[]) {
 
 }
 
+int ecmdSimTckIntervalUser(int argc, char * argv[]) {
+
+  int rc = ECMD_SUCCESS;
+  int cycles ;
+
+  if (argc < 1) {
+    ecmdOutputError("simtckinterval - At least one argument (a cycle count) is required for simtckinterval.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if (argc > 1) {
+    ecmdOutputError("simtckinterval - Too many arguments to simtckinterval, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  cycles = atoi(argv[0]);
+
+  rc = simtckinterval(cycles);
+
+  return rc;
+
+}
+
+
+
 int ecmdSimUNSTICKUser(int argc, char * argv[]) {
 
   int rc = ECMD_SUCCESS;
@@ -1044,8 +1075,8 @@ int ecmdSimUNSTICKUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  if (argc < 3) {
-    ecmdOutputError("simUNSTICK - Too few arguments to simUNSTICK, you need at least a symbol , data, and a length.\n");
+  if (argc < 2) {
+    ecmdOutputError("simUNSTICK - Too few arguments to simUNSTICK, you need at least a symbol and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1095,8 +1126,8 @@ int ecmdSimUNSTICKSUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  if (argc < 3) {
-    ecmdOutputError("simUNSTICKS - Too few arguments to simUNSTICKS, you need at least a symbol , data, and a length.\n");
+  if (argc < 2) {
+    ecmdOutputError("simUNSTICKS - Too few arguments to simUNSTICKS, you need at least a symbol and a length.\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -1152,11 +1183,11 @@ int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
   char * facname = argv[0];
 
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format);
-  if (rc) return rc;
-
   uint32_t bitLength = atoi(argv[2]);
+
+  ecmdDataBuffer buffer(3);
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
+  if (rc) return rc;
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
