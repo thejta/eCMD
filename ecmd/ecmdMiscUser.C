@@ -757,7 +757,7 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
   if (rc) return rc;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
