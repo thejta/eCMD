@@ -31,6 +31,7 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
+#include <ecmdIntReturnCodes.H>
 
 #undef ecmdMain_C
 
@@ -38,17 +39,30 @@ int main (int argc, char *argv[])
 {
   int rc = 0;
 
+#ifdef _AIX
+  rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_aix.so");
+#else
   rc = ecmdLoadDll("../dllStub/export/ecmdDllStub_x86.so");
+#endif
   if (!rc) {
 
     /* We now want to call the command interpreter to handle what the user provided us */
     rc = ecmdCommandInterpreter(argc - 1, argv + 1);
 
 
+    if (rc == ECMD_INT_UNKNOWN_COMMAND) {
+      char buf[100];
+      sprintf(buf,"**** ERROR (eCMD::main) : Unknown Command specified\n");
+      ecmdOutputError(buf);
+    }
+
+
   }
 
 
   ecmdUnloadDll();
+
+  exit(rc);
 
 }
 
