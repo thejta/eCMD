@@ -1,6 +1,12 @@
 #!/usr/bin/perl
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
 
+
+#constants
+my $INT = 0;
+my $VOID = 1;
+my $STRING = 2;
+
 #functions to ignore in parsing ecmdClientCapi.H
 my @ignores = qw( ecmdLoadDll ecmdUnloadDll);
 my $ignore_re = join '|', @ignores;
@@ -32,8 +38,12 @@ print OUT "int dllUnloadDll ();\n\n";
 while (<IN>) {
 
     if (/^(int|string|void)/) {
-
+	
 	next if (/$ignore_re/);
+
+	my $type_flag = $INT;
+	$type_flag = $VOID if (/^void/);
+	$type_flag = $STRING if (/^string/);
 
 	chomp; chop;  
 	my ($func, $args) = split /\(|\)/ , $_;
@@ -51,10 +61,11 @@ while (<IN>) {
         $" = ",";
         $printout .= "$type $funcname(@argnames) {\n\n";
 
-	$printout .= "  $type rc;\n\n";
+	
+	$printout .= "  $type rc;\n\n" unless ($type_flag == $VOID);
 	$printout .= "#ifdef ECMD_STATIC_FUNCTIONS\n\n";
 
-	$printout .= "  rc = ";
+	$printout .= "  rc = " unless ($type_flag == $VOID);
 
         my $enumname;
 
@@ -85,9 +96,16 @@ while (<IN>) {
 	    my @argsplit = split /\s+/, $curarg;
 
 	    my @typeargs = @argsplit[0..$#argsplit-1];
-	    $typestring .= "@typeargs" . ", ";
+	    $tmptypestring = "@typeargs";
 
-	    $argstring .= $argsplit[-1] . ", ";
+	    my $tmparg = $argsplit[-1];
+	    if ($tmparg =~ /\[\]$/) {
+		chop $tmparg; chop $tmparg;
+		$tmptypestring .= "[]";
+	    }
+
+	    $typestring .= $tmptypestring . ", ";
+	    $argstring .= $tmparg . ", ";
 	}
 
 	chop ($typestring, $argstring);
@@ -97,9 +115,17 @@ while (<IN>) {
 	    
 	$printout .= "#else\n\n";
 
-	$printout .= "  if (dlHandle == NULL) {\n";
-	$printout .= "     return ECMD_DLL_UNINITIALIZED;\n";
-        $printout .= "  }\n\n";
+	unless ($type_flag == $VOID) {
+	    $printout .= "  if (dlHandle == NULL) {\n";
+	    if ($type_flag == $STRING) {
+		$printout .= "     return \"\";\n";
+	    }
+	    else {
+		$printout .= "     return ECMD_DLL_UNINITIALIZED;\n";
+	    }
+	    $printout .= "  }\n\n";
+	}
+
 	$printout .= "  if (DllFnTable[$enumname] == NULL) {\n";
 	$printout .= "     DllFnTable[$enumname] = (void*)dlsym(dlHandle, \"$funcname\");\n";
 	$printout .= "  }\n\n";
@@ -107,11 +133,12 @@ while (<IN>) {
 	$printout .= "  $type (*Function)($typestring) = \n";
 	$printout .= "      ($type(*)($typestring))DllFnTable[$enumname];\n\n";
 
-	$printout .= "  rc = (*Function)($argstring);\n\n";
+	$printout .= "  rc = " unless ($type_flag == $VOID);
+	$printout .= "   (*Function)($argstring);\n\n" ;
 	
 	$printout .= "#endif\n\n";
 
-	$printout .= "  return rc;\n\n";
+	$printout .= "  return rc;\n\n" unless ($type_flag == $VOID);
 
 	$printout .= "}\n\n";
 
