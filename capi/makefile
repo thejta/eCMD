@@ -5,7 +5,7 @@
 
 OS           := $(shell uname)
 
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H
 INT_INCLUDES := ecmdDllCapi.H
 SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdClientCapiFunc.C ecmdUtils.C
 DEFINES      := 
