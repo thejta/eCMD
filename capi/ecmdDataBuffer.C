@@ -834,7 +834,7 @@ void  ecmdDataBuffer::insertFromRight(uint32_t * i_datain, int i_start, int i_le
     
     uint32_t mask = 0x80000000 >> offset;
     for (int i = 0; i < i_len; i++) {
-      if (i_datain[i+offset/32] & mask) {
+      if (i_datain[(i+offset)/32] & mask) {
         this->setBit(i_start+i);
       }
       else { 
