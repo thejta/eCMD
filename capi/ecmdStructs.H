@@ -34,14 +34,26 @@
 //
 // End Change Log *****************************************************
 
+/**
+ @brief Commentary?
 
+*/
 typedef struct {
-  char * chipType;
-  uint64_t cage;
-  uint64_t node;
-  uint64_t pos;
-  uint64_t core;
-  uint64_t thread;
+
+  char * chipType;  // name of chip to access
+
+  uint32_t cage;  // cage that contains node with chip
+  uint32_t node;  // node that contains chip
+  uint32_t pos;   // position of chip within node
+  uint32_t core;  // which core on chip to access, if chip is multi-core
+  uint32_t thread; // which thread on chip to access, if chip is multi-threaded
+
+  uint8_t cageValid;  // flag to indicate whether selected cage is configured in the system
+  uint8_t nodeValid;  // flag to indicate whether selected node is configured in the system
+  uint8_t posValid;   // flag to indicate whether selected position is configured in the system
+  uint8_t coreValid;  // flag to indicate whether the selected core is configured on the selected chip in the system
+  uint8_t threadValid; // flag to indicate whether the selected thread is active on the selected chip in the system
+
 } ecmdChipTarget_t;
 
 
