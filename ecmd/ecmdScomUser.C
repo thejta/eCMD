@@ -76,6 +76,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   bool expectFlag = false;
   bool maskFlag = false;
   bool verboseFlag = false;
+  bool verboseBitsSetFlag = false;              ///< Print Bit description only if bit/s are set
+  bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
   char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
   char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
   ecmdDataBuffer expected;                      ///< Buffer to store expected data
@@ -108,6 +110,12 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   if (ecmdParseOption(&argc, &argv, "-v")) {
     verboseFlag = true;
+  }
+  if (ecmdParseOption(&argc, &argv, "-vs0")) {
+    verboseBitsClearFlag = true;
+  }
+  if (ecmdParseOption(&argc, &argv, "-vs1")) {
+    verboseBitsSetFlag = true;
   }
   
   /* get format flag, if it's there */
@@ -246,7 +254,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       ecmdOutput( printed.c_str() );
       
       #ifndef FIPSODE
-      if (verboseFlag && !expectFlag) {
+      if ((verboseFlag || verboseBitsSetFlag || verboseBitsClearFlag) && !expectFlag) {
         
 	rc = ecmdQueryFileLocation(target, ECMD_FILE_SCOMDATA, scomdefFileStr);
         if (rc) {
@@ -285,50 +293,54 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 	  ecmdOutput(bitDesc);
     	}
 	ecmdOutput("\n");
+	//Print Bits description
 	for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
-	  if(definIt->rhsNum == -1) {
-    	    sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
-    	  }
-    	  else {
-    	    sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
-    	  }
-	  sprintf(bitDesc, "%-10s : ",bitDesc);
-	  ecmdOutput(bitDesc);
-	  
-	  if (definIt->length <= 8) {
-	    std::string binstr = buffer.genBinStr(definIt->lhsNum, definIt->length);
-	    sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
-	  }
-	  else {
-	    std::string hexLeftStr = buffer.genHexLeftStr(definIt->lhsNum, definIt->length);
-	    sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
-	  }
-	  ecmdOutput(bitDesc);
-	  std::string bitDescStr;
-    	  for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
-	    sprintf(bitDesc, "%32s ", " ");
-	    //Would print the entires string no matter how long it is
-	    //bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
-	    //ecmdOutput(bitDescStr.c_str());
+	  if ((buffer.getNumBitsSet(definIt->lhsNum, definIt->length) && verboseBitsSetFlag) ||
+	  ((!buffer.getNumBitsSet(definIt->lhsNum, definIt->length)) && verboseBitsClearFlag) || (verboseFlag)) {
 	    
-	    std::string tmpstr;
-	    uint32_t curptr =0, len, maxdesclen=80;
-	    while (curptr < (*bitDetIt).length()) {
-	      if (((*bitDetIt).length() - curptr) < maxdesclen) {
-	       len = (*bitDetIt).length() - curptr;
-	      }
-	      else {
-	       len = maxdesclen;
-	      }
-	      tmpstr = (*bitDetIt).substr(curptr,len);
-	      bitDescStr = (std::string)bitDesc + tmpstr + "\n";
-	      ecmdOutput(bitDescStr.c_str());
-	      curptr += len;
+	    if(definIt->rhsNum == -1) {
+    	      sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
+    	    }
+    	    else {
+    	      sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
+    	    }
+	    sprintf(bitDesc, "%-10s : ",bitDesc);
+	    ecmdOutput(bitDesc);
+	
+	    if (definIt->length <= 8) {
+	      std::string binstr = buffer.genBinStr(definIt->lhsNum, definIt->length);
+	      sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
 	    }
-    	    
-    	  }
-    	  
-    	}
+	    else {
+	      std::string hexLeftStr = buffer.genHexLeftStr(definIt->lhsNum, definIt->length);
+	      sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
+	    }
+	    ecmdOutput(bitDesc);
+	    std::string bitDescStr;
+    	    for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
+	      sprintf(bitDesc, "%32s ", " ");
+	      //Would print the entires string no matter how long it is
+	      //bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
+	      //ecmdOutput(bitDescStr.c_str());
+	
+	      std::string tmpstr;
+	      uint32_t curptr =0, len, maxdesclen=80;
+	      while (curptr < (*bitDetIt).length()) {
+	    	if (((*bitDetIt).length() - curptr) < maxdesclen) {
+	    	 len = (*bitDetIt).length() - curptr;
+	    	}
+	    	else {
+	    	 len = maxdesclen;
+	    	}
+	    	tmpstr = (*bitDetIt).substr(curptr,len);
+	    	bitDescStr = (std::string)bitDesc + tmpstr + "\n";
+	    	ecmdOutput(bitDescStr.c_str());
+	    	curptr += len;
+	      }
+ 
+    	    }//end for
+    	  }//end if 
+    	}// end for
       }
       #endif
     }
