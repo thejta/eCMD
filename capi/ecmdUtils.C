@@ -1226,9 +1226,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
     }
   }  
 
-
-  ecmdParseTokens(tokens[1].c_str(), ",", parmTokens); /* this tokenizes the meat and potatoes */
-
+  if(tokens.size() >1) {
+    ecmdParseTokens(tokens[1].c_str(), ",", parmTokens); /* this tokenizes the meat and potatoes */
+  }
 /* example: */
 /* parmTokens[0] = "enum efppInOut"       */
 /* parmTokens[1] = " char *fprototypeStr" */
@@ -1291,7 +1291,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       /* we are on the last parameter we need to say the parm is a return code. */
 
       strcpy(variableType,fReturnType[0].c_str());
-      variableName[0] = "RETURN CODE";
+      variableName.clear();
+      variableName.push_back("RETURN CODE");
       
     } else {
 
