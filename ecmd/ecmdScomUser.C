@@ -286,7 +286,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
 
   //parse data to write
   for (int i = 0; i < argc-2; i++) {
-    buffer.insertFromHexRight(argv[i+2], 32, i*32, 32);
+    buffer.insertFromHexRight(argv[i+2], 32, i*32);
   }
 
   ecmdDataBuffer * fetchBuffer = NULL;  //only allocate if I have to
