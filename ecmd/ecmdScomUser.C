@@ -312,7 +312,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 	    //ecmdOutput(bitDescStr.c_str());
 	    
 	    std::string tmpstr;
-	    int curptr =0, len, maxdesclen=80;
+	    uint32_t curptr =0, len, maxdesclen=80;
 	    while (curptr < (*bitDetIt).length()) {
 	      if (((*bitDetIt).length() - curptr) < maxdesclen) {
 	       len = (*bitDetIt).length() - curptr;
