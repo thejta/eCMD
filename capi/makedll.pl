@@ -163,7 +163,7 @@ while (<IN>) {
 			my @pp_argsplit = split /\s+/, $curarg;
 
 			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
-			$tmptypestring = "\@typeargs";
+			$tmptypestring = "@typeargs";
 
 			my $tmparg = $pp_argsplit[-1];
 			if ($tmparg =~ /\[\]$/) {
@@ -221,7 +221,7 @@ while (<IN>) {
 	    my @argsplit = split /\s+/, $curarg;
 
 	    my @typeargs = @argsplit[0..$#argsplit-1];
-	    $tmptypestring = "\@typeargs";
+	    $tmptypestring = "@typeargs";
 
 	    my $tmparg = $argsplit[-1];
 	    if ($tmparg =~ /\[\]$/) {
@@ -300,7 +300,7 @@ while (<IN>) {
 			my @pp_argsplit = split /\s+/, $curarg;
 
 			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
-			$tmptypestring = "\@typeargs";
+			$tmptypestring = "@typeargs";
 
 			my $tmparg = $pp_argsplit[-1];
 			if ($tmparg =~ /\[\]$/) {
