@@ -52,6 +52,7 @@ int dllInitDll() {
 }
 
 int dllFreeDll() {
+  printf("Stub dll has been freed\n");
   return ECMD_SUCCESS;
 }
 
