@@ -129,11 +129,22 @@ typedef enum {
 //  User Types
 //----------------------------------------------------------------------
 
+class ecmdDataBufferImplementationHelper {
+public:
+  static uint32_t* getDataPtr( void* i_buffer );
+  static void applyRawBufferToXstate( void* i_buffer );
+
+};
+  
+
+
 /**
  @brief Provides a means to handle data from the eCMD C API
 */
 
 class ecmdDataBuffer {
+
+  friend class ecmdDataBufferImplementationHelper;
 
 public:
 
@@ -961,6 +972,11 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+
+  //@}
+
+  /** @name File IO functions */
+  //@{
 
   /**
    * @brief Write buffer out into a file in the format specified. 

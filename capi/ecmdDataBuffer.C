@@ -2313,3 +2313,19 @@ void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
 #endif
 
 }
+
+
+uint32_t* ecmdDataBufferImplementationHelper::getDataPtr( void* i_buffer ) {
+  if (i_buffer == NULL) return NULL;
+  ecmdDataBuffer* buff = (ecmdDataBuffer*)i_buffer;
+  return buff->iv_Data;
+};
+
+void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer ) {
+  if (i_buffer == NULL) return;
+#ifndef REMOVE_SIM
+  ecmdDataBuffer* buff = (ecmdDataBuffer*)i_buffer;
+  strcpy(buff->iv_DataStr,buff->genBinStr().c_str());
+#endif
+  return;
+}
