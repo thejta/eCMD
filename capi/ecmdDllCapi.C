@@ -200,7 +200,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = ALL;
   }
-  else if (ecmdUserArgs.cage.find(patterns) < ecmdUserArgs.cage.length()) {
+  else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = MULTI;
   }
@@ -222,7 +222,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
     nodeType = ALL;
   }
-  else if (ecmdUserArgs.node.find(patterns) < ecmdUserArgs.node.length()) {
+  else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
     i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
     nodeType = MULTI;
   }
@@ -244,7 +244,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     posType = ALL;
     i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
   }
-  else if (ecmdUserArgs.pos.find(patterns) < ecmdUserArgs.pos.length()) {
+  else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
     posType = MULTI;
     i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
   }
@@ -266,7 +266,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
     coreType = ALL;
   }
-  else if (ecmdUserArgs.core.find(patterns) < ecmdUserArgs.core.length()) {
+  else if (ecmdUserArgs.core.find_first_of(patterns) < ecmdUserArgs.core.length()) {
     i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
     coreType = MULTI;
   }
@@ -288,7 +288,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
     i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
     threadType = ALL;
   }
-  else if (ecmdUserArgs.thread.find(patterns) < ecmdUserArgs.thread.length()) {
+  else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
     i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
     threadType = MULTI;    
   }
@@ -317,8 +317,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
     if (cageType == MULTI) {
       if (dllRemoveCurrentElement((*curCage).cageId, ecmdUserArgs.cage)) {
-        o_queryData.erase(curCage);
-        curCage++; 
+        curCage = o_queryData.erase(curCage);
         continue;
       }
     }
@@ -329,8 +328,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
       if (nodeType == MULTI) {
         if (dllRemoveCurrentElement((*curNode).nodeId, ecmdUserArgs.node)) {
-            (*curCage).nodeData.erase(curNode);
-            curNode++;
+            curNode = (*curCage).nodeData.erase(curNode);
             continue;
         }
       }
@@ -341,8 +339,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
         if (posType == MULTI) {
           if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
-            (*curNode).chipData.erase(curChip);
-            curChip++;
+            curChip = (*curNode).chipData.erase(curChip);
             continue;
           }
         }
@@ -353,8 +350,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
           if (coreType == MULTI) {
             if (dllRemoveCurrentElement((*curCore).coreId, ecmdUserArgs.core)) {
-              (*curChip).coreData.erase(curCore);
-              curCore++;
+              curCore = (*curChip).coreData.erase(curCore);
               continue;
             }
           }
@@ -365,7 +361,8 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
             if (threadType == MULTI) {
               if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
-                (*curCore).threadData.erase(curThread);
+                curThread = (*curCore).threadData.erase(curThread);
+                continue;
               }
             }
 
@@ -492,6 +489,9 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
   while (curOffset < userArgs.length()) {
 
     nextOffset = userArgs.find(',',curOffset);
+    if (nextOffset == std::string::npos) {
+      nextOffset = userArgs.length();
+    }
 
     curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
 
