@@ -22,7 +22,6 @@ ifeq ($(strip $(CTEPATH)),)
     CTEPATH    := /afs/vlsilab.boeblingen.ibm.com/proj/cte
   endif
 endif
-CTEPATH := /afs/watson/projects/vlsi/cte/
 
 VPATH        := ../capi/export:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
