@@ -77,6 +77,7 @@
 #define ECMD_SCANDEFHASH_MULT_RINGS             (ECMD_ERR_ECMD | 0x1050) ///< Multiple ring keys matching the same latchname found
 #define ECMD_UNABLE_TO_OPEN_SCOMDEF             (ECMD_ERR_ECMD | 0x1051) ///< eCMD was unable to open scomdef file
 #define ECMD_SCOMADDRESS_NOT_FOUND              (ECMD_ERR_ECMD | 0x1052) ///< Scom Address not found in the ScomDef file
+#define ECMD_INVALID_ENTRY_REQUESTED            (ECMD_ERR_ECMD | 0x1053) ///< An invalid entry was requested
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command
