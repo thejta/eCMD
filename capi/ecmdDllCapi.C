@@ -77,8 +77,8 @@ int dllUnloadDll() {
 }
 
 
-string dllGetErrorMsg(int errorCode) {
-  string ret = "UNKNOWN";
+std::string dllGetErrorMsg(int errorCode) {
+  std::string ret = "UNKNOWN";
 
   return ret;
 }
