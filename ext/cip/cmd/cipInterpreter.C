@@ -88,6 +88,18 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
         break;
+	/************************/
+        /* The B's              */
+        /************************/
+      case 'b':
+
+        if (!strcmp(argv[0], "cipbreakpoint")) {
+          rc = cipBreakpointUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
       default:
         /* We don't understand this function, let's let the caller know */
         rc = ECMD_INT_UNKNOWN_COMMAND;

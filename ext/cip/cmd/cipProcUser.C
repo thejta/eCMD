@@ -180,6 +180,96 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   return rc;
 }
 
+uint32_t cipBreakpointUser(int argc, char* argv[]){
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  ecmdLooperData looperdata;    ///< Store internal Looper data
+  ecmdBreakpointType_t type;  	///< Type of breakpoint to use 
+  uint64_t address;		///< 64 bits address of breakpoint
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 3) {
+    ecmdOutputError("cipbreakpoint - Too few arguments specified; you need at least set|clear, type and address.\n");
+    ecmdOutputError("cipbreakpoint - Type 'cipbreakpoint -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  // Find out the type of break point
+  if (!strcasecmp(argv[1], "IABR")) {
+    type = ECMD_BREAKPOINT_IABR;
+  } else if (!strcasecmp(argv[1], "DABR")) {
+    type = ECMD_BREAKPOINT_DABR;
+  } else if (!strcasecmp(argv[1], "CIABR")) {
+    type = ECMD_BREAKPOINT_CIABR;
+  } else {
+     ecmdOutputError("cipbreakpoint - Invalid breakpoint type, must be IABR | DABR | CIABR \n");
+     return ECMD_INVALID_ARGS;
+  }
+
+  address = strtoull(argv[2], NULL, 16);
+  
+  //Setup the target that will be used to query the system config 
+  target.chipType = "pu";
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+  
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+        
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+
+    if (!strcasecmp(argv[0],"set")) {
+      rc = cipSetBreakpoint(target, address, type);
+    } else if (!strcasecmp(argv[0], "clear")) {
+      rc = cipClearBreakpoint(target,address, type );
+    } else {
+       printed = "cipbreakpoint - Invalid argument '";
+       printed += (std::string)argv[0];
+       printed += "' must be set|clear \n";
+      ecmdOutputError(printed.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "cipbreakpoint - Error occured performing breakpoint function on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;	
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("cipbreakpoint - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  return rc;
+}
 
 // Change Log *********************************************************
 //                                                                      
