@@ -393,7 +393,7 @@ struct ecmdSpyData {
   ecmdClockState_t       clockState;    ///< Required clock state to access this spy
   
   std::list<std::string> enums;         ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
-  std::list<std::string> eccGroups;     ///< Possible ecc groups names affected by this Spy
+  std::list<std::string> epCheckers;     ///< Possible epChecker names affected by this Spy
 };
 
 
