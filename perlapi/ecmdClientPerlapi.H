@@ -110,7 +110,7 @@ class ecmdClientPerlapi
      NOTE : This function does not affect ring caching
      */
 
-    int ecmdCommandArgs(char** i_argv[]); 
+    int ecmdCommandArgs(char* i_argv[]); 
 
   //@}
 

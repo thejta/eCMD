@@ -434,27 +434,20 @@ void ecmdClientPerlapi::add2(char **retval) {
 
 
 
-int ecmdClientPerlapi::ecmdCommandArgs(char** i_argv[]){
+int ecmdClientPerlapi::ecmdCommandArgs(char* i_argv[]){
 
   int rc =0;
+  int looper =0;
 
-  printf("int ecmdClientPerlapi::ecmdCommandArgs\n");
-/*  printf("i_argv:...%s...\n",i_argv);*/
+  while(i_argv[looper] != NULL) looper++;
 
-
-/*  rc = ::ecmdCommandArgs(int * i_argc, char** i_argv[]);  */
+  rc = ::ecmdCommandArgs(&looper, &i_argv);
 
   ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
-/***
-int ecmdClientPerlapi::ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
-  return 0;
-}
-
-***/
 int ecmdClientPerlapi::sendCmd(const char* i_target, int i_instruction, int i_modifier, char** o_status) {
 
   return 0;
