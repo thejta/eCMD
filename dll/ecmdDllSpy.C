@@ -37,10 +37,10 @@
 #include <ecmdDllCapi.H>
 
 /* Grab the includes for the engineering data compiler */
-#include <sedcDataContainer.H>
-#include <sedcStructs.H>
+#include <sedcSpyContainer.H>
 #include <sedcDefines.H>
 #include <sedcSpyParser.H>
+#include <sedcCommonParser.H>
 
 #undef ecmdClientSpy_C
 //----------------------------------------------------------------------
@@ -72,16 +72,16 @@ struct dllSpyData {
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 /* Lookup Spy info from a spydef file */
-uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy);
+uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy);
 /* Search the spy file for our spy */
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
 int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name);
 uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data);
-uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContainer &spy);
+uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask);
 uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC);
 uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data);
-uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContainer &spy);
+uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 
 //----------------------------------------------------------------------
@@ -99,8 +99,8 @@ uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 */
 uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName) {
   uint32_t rc = ECMD_SUCCESS;
-  sedcDataContainer mySpy;
-  std::list<sedcSpyEnum>::iterator enumit;
+  sedcSpyContainer mySpy;
+  std::list<sedcAEIEnum>::iterator enumit;
   char outstr[200];
 
   /* Retrieve my spy either from the DB or the spydef file */
@@ -117,7 +117,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
   }
 
   /* Special case thing here.. */
-  if (mySpy.type == DC_SYNONYM) {
+  if (mySpy.type == SC_SYNONYM) {
     /* We have a synonym we need to look up the spy behind it */
     sedcSynonymEntry syn = mySpy.getSynonymEntry();
 
@@ -139,8 +139,8 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
   o_queryData.bitLength = 0;
   o_queryData.isEccChecked = false;
   o_queryData.isEnumerated = false;
-  if (mySpy.type == DC_SPY) {
-    sedcSpyEntry spyent = mySpy.getSpyEntry();
+  if (mySpy.type == SC_AEI) {
+    sedcAEIEntry spyent = mySpy.getAEIEntry();
     o_queryData.bitLength = spyent.length;
     if (spyent.states & SPY_ALIAS)
       o_queryData.spyType = ECMD_SPYTYPE_ALIAS;
@@ -164,12 +164,12 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
 
     /* Let's walk through the enums */
     o_queryData.enums.clear();
-    for (enumit = spyent.spyEnums.begin(); enumit != spyent.spyEnums.end(); enumit ++) {
+    for (enumit = spyent.aeiEnums.begin(); enumit != spyent.aeiEnums.end(); enumit ++) {
       o_queryData.enums.push_back(enumit->enumName);
     }
 
     /* The eccGroups */
-    o_queryData.epCheckers = spyent.spyEpcheckers;
+    o_queryData.epCheckers = spyent.aeiEpcheckers;
 
   } else {
     dllOutputError("dllQuerySpy - Unknown spy type returned\n");
@@ -222,7 +222,7 @@ uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std:
 uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data){
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
-  sedcDataContainer mySpy;
+  sedcSpyContainer mySpy;
   char outstr[200];
 
 
@@ -242,7 +242,7 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
     sprintf(outstr,"dllGetSpy - Read of spy '%s' from file failed!\n", i_spyName);
     dllOutputError(outstr);
     return ECMD_UNKNOWN_FILE;
-  } else if (mySpy.type != DC_SPY) {
+  } else if (mySpy.type != SC_AEI) {
     dllOutputError("dllGetSpy - A non alias, idial or edial was passed in!\n");
     return ECMD_INVALID_SPY;
   }
@@ -253,13 +253,13 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 
   /* Handle ECC here */
   if (!rc) {
-    sedcSpyEntry myAIE = mySpy.getSpyEntry();
-    if (!myAIE.spyEpcheckers.empty()) {
+    sedcAEIEntry myAIE = mySpy.getAEIEntry();
+    if (!myAIE.aeiEpcheckers.empty()) {
       std::list<std::string>::iterator eccIter;
       ecmdDataBuffer inData, outData, errorMask; // Not used on the cronus interface, just place holders
-      eccIter = myAIE.spyEpcheckers.begin();
+      eccIter = myAIE.aeiEpcheckers.begin();
       uint32_t totalrc = 0;
-      while (eccIter != myAIE.spyEpcheckers.end()) {
+      while (eccIter != myAIE.aeiEpcheckers.end()) {
         rc = dllGetSpyEcc(i_target, *eccIter, inData, outData, errorMask);
         if (rc) {
           totalrc = rc;
@@ -282,11 +282,11 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   return rc;
 }
 
-uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContainer &spy) {
+uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
   uint32_t rc = ECMD_SUCCESS;
 
-  std::list<sedcSpyLine>::iterator lineit;
-  std::list<sedcSpyEnum>::iterator enumit;
+  std::list<sedcLatchLine>::iterator lineit;
+  std::list<sedcAEIEnum>::iterator enumit;
   ecmdDataBuffer scan;
   ecmdDataBuffer enumextract;
   uint32_t addr;
@@ -307,10 +307,10 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
   uint32_t curstate = SPY_CLOCK_IND;       ///< Current state of what we will accept, we will start by allowing clock independent (or spy's without clock dependence) to run
 
 
-  sedcDataContainer mySpy = spy;
+  sedcSpyContainer mySpy = spy;
 
   /* We got here, we had better be an alias/idial or edial */
-  if (mySpy.type != DC_SPY) {
+  if (mySpy.type != SC_AEI) {
     sprintf(outstr,"dllGetSpy - Spy '%s' is not of type alias, idial or edial\n", spy.name.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
@@ -337,7 +337,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
 
 
   /* Now let's go grab our data */
-  sedcSpyEntry spyent = mySpy.getSpyEntry();
+  sedcAEIEntry spyent = mySpy.getAEIEntry();
 
 
   /* Do some error checking with what we have */
@@ -366,7 +366,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
 
 
   /* Ok, here goes the meat */
-  for (lineit = spyent.spyLines.begin(); lineit != spyent.spyLines.end(); lineit ++) {
+  for (lineit = spyent.aeiLines.begin(); lineit != spyent.aeiLines.end(); lineit ++) {
 
     /*---------------------*/
     /* MAIN SPY SECTION    */
@@ -634,7 +634,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
     foundit = 0;
     wordlen = extractbuffer->getWordLength();
     /* We are doing an enumerated fetch here, lets see what we can find */
-    for (enumit = spyent.spyEnums.begin(); enumit != spyent.spyEnums.end(); enumit ++) {
+    for (enumit = spyent.aeiEnums.begin(); enumit != spyent.aeiEnums.end(); enumit ++) {
       mask = 0xFFFFFFFF;
       for (int idx = 0; idx < wordlen; idx ++) {
 
@@ -677,7 +677,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
 uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask) {
   uint32_t rc = ECMD_SUCCESS;
 
-  sedcDataContainer myDC;
+  sedcSpyContainer myDC;
   dllSpyData data;
   char outstr[200];
 
@@ -691,19 +691,19 @@ uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmd
     sprintf(outstr,"dllGetSpyEcc - Read of spy '%s' from file failed!\n", epcheckerName.c_str());
     dllOutputError(outstr);
     return ECMD_UNKNOWN_FILE;
-  } else if (myDC.type != DC_EPLATCHES) {
+  } else if (myDC.type != SC_EPLATCHES) {
     dllOutputError("dllGetSpyEcc - A type other than eplatches was found on the lookup!\n");
     return ECMD_INVALID_SPY;
   }
 
   /* We'll read out the in{} and out{} latches via getspy */
-  sedcDataContainer tempDC;
-  tempDC.type = DC_SPY; // We need to set this to fake out the DA code
+  sedcSpyContainer tempDC;
+  tempDC.type = SC_AEI; // We need to set this to fake out the DA code
   sedcEplatchesEntry tempECC;
   ecmdDataBuffer goodECC;
   // in{} latches
   tempECC = myDC.getEplatchesEntry();
-  tempDC.setSpyEntry(tempECC.inSpy); 
+  tempDC.setAEIEntry(tempECC.inSpy); 
   data.dataType = SPYDATA_DATA;
   data.int_data = &inLatches;
   rc = dllGetSpy(i_target, data, tempDC);
@@ -711,7 +711,7 @@ uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmd
 
   // out{} latches
   tempECC = myDC.getEplatchesEntry();
-  tempDC.setSpyEntry(tempECC.outSpy);
+  tempDC.setAEIEntry(tempECC.outSpy);
   data.int_data = &outLatches;
   rc = dllGetSpy(i_target, data, tempDC);
   if (rc) return rc;
@@ -737,7 +737,7 @@ uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmd
 uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC) {
   uint32_t rc = ECMD_SUCCESS;
 
-  sedcDataContainer myDC;
+  sedcSpyContainer myDC;
   sedcEccfuncEntry eccfuncEntry;
   std::list<sedcEccfuncLine>::iterator eccfuncIter;
   char outstr[200];
@@ -759,7 +759,7 @@ uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDa
       sprintf(outstr,"dllGenSpyEcc - Read of spy '%s' from file failed!\n", eccfuncName.c_str());
     dllOutputError(outstr);
       return ECMD_UNKNOWN_FILE;
-    } else if (myDC.type != DC_ECCFUNC) {
+    } else if (myDC.type != SC_ECCFUNC) {
       dllOutputError("dllGenSpyEcc - A type other than eccfunc was found on the lookup!\n");
       return ECMD_INVALID_SPY;
     }
@@ -843,7 +843,7 @@ uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const
 uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data){
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
-  sedcDataContainer mySpy;
+  sedcSpyContainer mySpy;
   char outstr[200];
 
   if (!dllIsRingCacheEnabled()) {
@@ -862,7 +862,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
     sprintf(outstr,"dllPutSpy - Read of spy '%s' from file failed!\n", i_spyName);
     dllOutputError(outstr);
     return ECMD_UNKNOWN_FILE;
-  } else if (mySpy.type != DC_SPY) {
+  } else if (mySpy.type != SC_AEI) {
     dllOutputError("dllPutSpy - A non alias, idial or edial was passed in!\n");
     return ECMD_INVALID_SPY;
   }
@@ -873,12 +873,12 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 
   /* Handle ECC here */
   if (!rc) {
-    sedcSpyEntry myAIE = mySpy.getSpyEntry();
-    if (!myAIE.spyEpcheckers.empty()) {
+    sedcAEIEntry myAIE = mySpy.getAEIEntry();
+    if (!myAIE.aeiEpcheckers.empty()) {
       std::list<std::string>::iterator eccIter;
-      eccIter = myAIE.spyEpcheckers.begin();
+      eccIter = myAIE.aeiEpcheckers.begin();
       uint32_t totalrc = 0;
-      while (eccIter != myAIE.spyEpcheckers.end()) {
+      while (eccIter != myAIE.aeiEpcheckers.end()) {
         rc = dllPutSpyEcc(i_target, *eccIter);
         if (rc) return rc;
         eccIter++;
@@ -898,19 +898,19 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 
 }
 
-uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContainer &spy) {
+uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
   uint32_t rc = ECMD_SUCCESS;
 
 
-  std::list<sedcSpyLine>::iterator lineit;
-  std::list<sedcSpyEnum>::iterator enumit;
+  std::list<sedcLatchLine>::iterator lineit;
+  std::list<sedcAEIEnum>::iterator enumit;
   ecmdDataBuffer scan;
   ecmdDataBuffer enuminsert;
   ecmdDataBuffer* insertbuffer = NULL;
   ecmdDataBuffer tmpbuffer;
   int num;
   int curaliasbit = 0;
-  sedcDataContainer mySpy = spy;
+  sedcSpyContainer mySpy = spy;
   uint32_t curstate = SPY_CLOCK_IND;       ///< Current state of what we will accept, we will start by allowing clock independent (or spy's without clock dependence) to run
   char outstr[200];
   ecmdChipData chipData;                ///< Chip data to find out bus info
@@ -920,7 +920,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
 
 
   /* We got here, we had better be an alias/idial or edial */
-  if (mySpy.type != DC_SPY) {
+  if (mySpy.type != SC_AEI) {
     sprintf(outstr,"dllPutSpy - Spy '%s' is not of type alias, idial or edial\n", mySpy.name.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
@@ -948,7 +948,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
 
 
   /* Now let's go grab our data */
-  sedcSpyEntry spyent = mySpy.getSpyEntry();
+  sedcAEIEntry spyent = mySpy.getAEIEntry();
 
 
   /* Do some error checking with what we have */
@@ -986,7 +986,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
     transform(enumName.begin(), enumName.end(), enumName.begin(), (int(*)(int)) toupper);
 
     int wordlen = enuminsert.getWordLength();
-    for (enumit = spyent.spyEnums.begin(); enumit != spyent.spyEnums.end(); enumit ++) {
+    for (enumit = spyent.aeiEnums.begin(); enumit != spyent.aeiEnums.end(); enumit ++) {
       if (enumit->enumName == enumName) {
         /* Here it is */
         foundit = 1;
@@ -1008,7 +1008,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
     
 
   /* Ok, here goes the meat */
-  for (lineit = spyent.spyLines.begin(); lineit != spyent.spyLines.end(); lineit ++) {
+  for (lineit = spyent.aeiLines.begin(); lineit != spyent.aeiLines.end(); lineit ++) {
 
 
     /*---------------------*/
@@ -1232,7 +1232,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
 
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
   uint32_t rc = ECMD_SUCCESS;
-  sedcDataContainer myDC;
+  sedcSpyContainer myDC;
   dllSpyData data;
   char outstr[200];
 
@@ -1246,19 +1246,19 @@ uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
     sprintf(outstr,"dllPutSpyEcc - Read of spy '%s' from file failed!\n", epcheckerName.c_str());
         dllOutputError(outstr);
     return ECMD_UNKNOWN_FILE;
-  } else if (myDC.type != DC_EPLATCHES) {
+  } else if (myDC.type != SC_EPLATCHES) {
     dllOutputError("dllPutSpyEcc - A type other than eplatches was found on the lookup!\n");
     return ECMD_INVALID_SPY;
   }
 
   /* We'll read out the in{} and out{} latches via getspy */
-  sedcDataContainer tempDC;
-  tempDC.type = DC_SPY; // We need to set this to fake out the DA code
+  sedcSpyContainer tempDC;
+  tempDC.type = SC_AEI; // We need to set this to fake out the DA code
   sedcEplatchesEntry tempECC;
   ecmdDataBuffer goodECC, inLatches;
   // in{} latches
   tempECC = myDC.getEplatchesEntry();
-  tempDC.setSpyEntry(tempECC.inSpy); 
+  tempDC.setAEIEntry(tempECC.inSpy); 
 
   data.dataType = SPYDATA_DATA;
   data.int_data = &inLatches;
@@ -1271,7 +1271,7 @@ uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
 
   /* Now write out the goodECC to the out{} */
   tempECC = myDC.getEplatchesEntry();
-  tempDC.setSpyEntry(tempECC.outSpy);
+  tempDC.setAEIEntry(tempECC.outSpy);
   data.dataType = SPYDATA_DATA;
   data.int_data = &goodECC;
   rc = dllPutSpy(i_target, data, tempDC);
@@ -1282,7 +1282,7 @@ uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
 }
 
 
-uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy) {
+uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy) {
 
   uint32_t rc = 0;
 
@@ -1290,7 +1290,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
   std::string spyFilePath;
   std::string spyHashFilePath;
   uint32_t key;
-  std::list<sedcDataContainer>::iterator searchSpy;
+  std::list<sedcSpyContainer>::iterator searchSpy;
   std::string spy_name;
   int foundSpy = 0;
   returnSpy.valid = 0;
@@ -1356,7 +1356,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
 
       /* Now that we have our position in the file, call the parser and read it in */
       std::vector<std::string> errMsgs; /* This should be empty all the time */
-      returnSpy = sedcParser(spyFile, errMsgs, buildflags);
+      returnSpy = sedcSpyParser(spyFile, errMsgs, 0, buildflags);
       if (!errMsgs.empty()) {
         sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",spy_name.c_str());
         dllOutputError(outstr);
@@ -1369,11 +1369,11 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
 //    }
 
     /* If we found a synonym, go back and look up what it is suppose to point to */
-    if (returnSpy.type == DC_SYNONYM) {
+    if (returnSpy.type == SC_SYNONYM) {
       sedcSynonymEntry syn = returnSpy.getSynonymEntry();
       returnSpy.name = syn.realName;  /* Change the name to point to real name so when we do the look up, we find the spy/ecclatch/etc.. */
     }
-  } while (returnSpy.type == DC_SYNONYM);
+  } while (returnSpy.type == SC_SYNONYM);
 
   return 0;
 }
