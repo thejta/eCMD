@@ -6,7 +6,7 @@ Syntax: startclocks [<ChipSelect>] [<ClockDomain>] [-force] [-k#] [-n#] [-s#] [-
         Function:       Start clocks on a particular domain or the entire system
 
                         NOTE : This command typically does not start clocks in a way
-                        that the chip will be function to run instructions.  To do
+                        that the chip will be functional to run instructions.  To do
                         that use the isteps command to initialize the system.
 
         Parameters:
