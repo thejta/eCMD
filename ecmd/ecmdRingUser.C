@@ -55,15 +55,22 @@ struct ecmdLatchData {
   uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name) 
 };
 
-/** @brief Used to buffer scandef data to avoid searching for each chip ec */
-struct ecmdLatchesBuffer {
-  std::list<ecmdLatchData> entry;       ///< Data from Scandef
-  std::string scandefName;              ///< Name of scandef where data was retrieved
-  std::string ringName;                 ///< Ring name used to search for this data (empty string if == NULL)
-};
 
 
-uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, ecmdLatchesBuffer & o_latchdata);
+
+
+//----------------------------------------------------------------------
+//  Constants
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//  Macros
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//  Internal Function Prototypes
+//----------------------------------------------------------------------
+uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchData > & o_latchdata);
 void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format);
 
 /** @brief Used to sort latch entries from the scandef */
@@ -106,21 +113,7 @@ bool operator!= (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
   return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
 }
 
-/* @brief Used by getringdump to buffer scandef entries in memory to improve performance */
-std::list<ecmdLatchesBuffer> latchBuffer;
 
-
-//----------------------------------------------------------------------
-//  Constants
-//----------------------------------------------------------------------
-
-//----------------------------------------------------------------------
-//  Macros
-//----------------------------------------------------------------------
-
-//----------------------------------------------------------------------
-//  Internal Function Prototypes
-//----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -134,24 +127,21 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  std::string ringName;                 ///< Ring name being worked on
-  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
-  ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
-  ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
   ecmdChipTarget target;                ///< Current target being operated on
   bool validPosFound = false;           ///< Did the looper find something ?
   std::string format = "default";       ///< Output format
-  std::ifstream ins;                    ///< File stream
   ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                     ///< Stores if the chip was JTAG or FSI attached 
   bool unsort=false;			///< Sort the latchnames before printing them out
+  
+  unsort = ecmdParseOption(&argc, &argv, "-unsorted");
+  
   
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
     format = formatPtr;
   }
 
-  unsort = ecmdParseOption(&argc, &argv, "-unsorted");
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -180,11 +170,12 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  std::string printed;
-  char outstr[500];
-
+  
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-
+    
+    
+    std::string printed;
+  
     /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
     rc = ecmdGetChipData(target, chipData);
     if (rc) {
@@ -211,21 +202,14 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       
     for (int i = 1; i < argc; i++) {
 
+      char outstr[1000];
+      ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
+      ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
+      ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
+  
+  
+  
       std::string ringName = argv[i];
-  
-  
-      std::string scandefFile;
-      rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
-      if (rc) {
-        scandefFile = "getringdump - Error occurred locating scandef file in dir: " + scandefFile + "\n";
-        ecmdOutputError(scandefFile.c_str());
-        return rc;
-      }
-      printf("Scandef in getringdump: %s\n", scandefFile.c_str());
-      
-      if (!unsort) {
-      printf("Sort\n");
-      }
       
       rc = getRing(target, ringName.c_str(), ringBuffer);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -242,7 +226,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         validPosFound = true;     
       }
       
-      ecmdLatchesBuffer curEntry;
+      std::list< ecmdLatchData > curEntry;
       std::list< ecmdLatchData >::iterator curLatchInfo;    ///< Iterator for walking through latches
   
       
@@ -251,8 +235,6 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       if (rc) return rc;
 
 
-
-      
       //print ring header stuff
       printed = ecmdWriteTarget(target);
       printed += "\n*************************************************\n* ECMD Dump scan ring contents, ";
@@ -277,16 +259,11 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       int dataStartBit = -1;              // Actual start bit of buffered register
       int dataEndBit = -1;                // Actual end bit of buffered register
       std::string latchname = "";
-      char temp[100];
-	         
-      if (!unsort) {
-         printf("scandef: %s\n", scandefFile.c_str());
-         curEntry.entry.sort();
-      }
-      for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
-
+               
+      if(unsort) {
+	for (curLatchInfo = curEntry.begin(); curLatchInfo != curEntry.end(); curLatchInfo++) {
           if(ringName == curLatchInfo->ringName) {
-           if(unsort) {
+      
              printed = curLatchInfo->latchName;
              numBits = curLatchInfo->length;
              if (bustype == ECMD_CHIPFLAG_FSI) {
@@ -316,9 +293,18 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
             
              ecmdOutput(printed.c_str());
 	    
-           }
-	   else {
+           }/* End If ringname match */ 
 	   
+	}/* End for-latches-loop */
+	
+      }//end case unsort
+      else {
+        //Sort the entries
+        curEntry.sort();
+	
+	for (curLatchInfo = curEntry.begin(); curLatchInfo != curEntry.end(); curLatchInfo++) {
+          if(ringName == curLatchInfo->ringName) {
+         
 	     if (((dataStartBit != -1) && (curLatchBit != curLatchInfo->latchStartBit) && (curLatchBit != curLatchInfo->latchEndBit)) ||
                ((latchname == "") || (latchname.substr(0, latchname.rfind('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
               /* I have some good data here */
@@ -391,26 +377,24 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
    	     	  buffer.insert(buffertemp, curBufferBit, bitsToFetch); 
              	 }
 	     	 curBufferBit += bitsToFetch;
-	         if(curLatchInfo == --curEntry.entry.end()) {
+	         if(curLatchInfo == --curEntry.end()) {
 	            printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format);
 	         }
-	     }
-	
-	    }
-            
-          }
-          else {
-	  printf("Continuing to next\n");
-           continue;
-          }
+	     } else {
+               /* Nothing was there that we needed, let's try the next entry */
+               curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
 
-        }
-        curEntry.entry.clear();
-
-       }
-
-      }
-
+             }
+	     
+	    }/* End If ringname match */ 
+	    
+	  }/* End for-latches-loop */
+	  
+	}/* Case-Sort */
+          
+       }/* End Args Loop */
+       
+      } /* End ChipLooper */
 
 
   if (!validPosFound) {
@@ -1604,13 +1588,9 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
  @param i_ringName Ringname for which the latches need to be looked up
  @param o_latchdata Return latches data read from scandef
 */
-uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, ecmdLatchesBuffer & o_latchdata) {
+uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchData > & o_latchdata) {
   uint32_t rc = ECMD_SUCCESS;
-  std::list<ecmdLatchesBuffer>::iterator bufferit;
-  std::list< ecmdLatchData >::iterator curLatchInfo;    ///< Iterator for walking through latches
   std::string scandefFile;                      ///< Full path to scandef file
-  bool foundit;                                 ///< Did I find the latch info that I have already looked up
-  std::string curRing;                          ///< Current ring being read in
   std::string i_ring;                           ///< Ring that caller specified
   std::string printed;
   
@@ -1626,18 +1606,11 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   }
   
 
-      printf("SCANDEF: %s \n", scandefFile.c_str());
-      printed = ecmdWriteTarget(target);
-      printed += "\n";
-      ecmdOutput( printed.c_str() );
+      
       
       
       /* find scandef file */
       rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
-printf("SCANDEF: %s ringname : %s\n", scandefFile.c_str(), i_ringName);
-printf("ringBufferlen: %d\n",ringBuffer.getBitLength());
-     
-//scandefFile="/afs/awd/projects/eclipz/p6sys/verif/pdd1/yp00/release/y200_p610_43l26/model/l4_system.l4_system__l4_system_fullcfg.scandef.broad.new";
       if (rc) {
         printed = "readScandefFile - Error occured locating scandef file: " + scandefFile + "\n";
         ecmdOutputError(printed.c_str());
@@ -1648,29 +1621,30 @@ printf("ringBufferlen: %d\n",ringBuffer.getBitLength());
       if (ins.fail()) {
         rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
         printed = "readScandefFile - Error occured opening scandef file: " + scandefFile + "\n";
-        ecmdOutputError(printed.c_str());
-        //break;
+        ecmdOutputError(printed.c_str());        //break;
 	return rc;
       }
 
-      //let's go hunting in the scandef for latches for this ring
-      ecmdLatchData curLatch;
-
+      
       std::string curLine;
-      std::vector<std::string> curArgs(4);
+      
 
-      std::string temp;
-
+      
       bool done = false;
       bool foundRing = false;
       int  leftParen;
       int  colon;
-      std::vector<std::string> splitArgs;
-      char outstr[500];
-
-
+      
 
       while (getline(ins, curLine) && !done) {
+  
+        //let's go hunting in the scandef for latches for this ring
+        ecmdLatchData curLatch;
+
+        std::vector<std::string> splitArgs;
+        char outstr[1000];
+	std::vector<std::string> curArgs(4);
+	std::string temp;
 
         if (foundRing) {
 
@@ -1727,8 +1701,9 @@ printf("ringBufferlen: %d\n",ringBuffer.getBitLength());
               curLatch.latchEndBit = curLatch.latchStartBit;
             }
           }
-          curLatch.ringName = curRing;
-          o_latchdata.entry.push_back(curLatch);
+          curLatch.ringName = i_ring;
+	  o_latchdata.push_back(curLatch);
+	  
 
         }
         /* The user specified a ring for us to look in */
@@ -1736,10 +1711,9 @@ printf("ringBufferlen: %d\n",ringBuffer.getBitLength());
                   ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
-          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int))tolower);
           if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
             foundRing = true;
-            curRing = i_ring;
           }
 
           
@@ -1747,39 +1721,24 @@ printf("ringBufferlen: %d\n",ringBuffer.getBitLength());
       }
 
       ins.close();
-
+      
       if (!foundRing) {
-        std::string tmp = i_ringName;
         rc = ECMD_INVALID_RING;
-        printed = "readScandefFile - Could not find ring name " + tmp + "\n";
+        printed = "readScandefFile - Could not find ring name " + i_ring + "\n";
         ecmdOutputError(printed.c_str());
 	return rc;
-        //break;
       }
 
-      if (o_latchdata.entry.empty()) {
+      if (o_latchdata.empty()) {
         rc = ECMD_SCANDEF_LOOKUP_FAILURE;
-	printed = "readScandefFile - Unable to find ring '" + (std::string)i_ringName + "'\n";
+	printed = "readScandefFile - Unable to find ring '" + i_ring + "'\n";
         ecmdOutputError(printed.c_str());
 	printed = "readScandefFile - Scandef Used : " + scandefFile + "\n";
         ecmdOutputError(printed.c_str());
 	return rc;
-	//break;
       }
 
-      o_latchdata.scandefName = scandefFile;
-      if (i_ringName != NULL)
-        o_latchdata.ringName = i_ringName;
-      else
-        o_latchdata.ringName = "";
 
-
-
-      /* Let's push this entry onto the stack */
-      //latchBuffer.push_back(o_latchdata);
-
-    //} 
-    /* end !foundit */
 
   return rc;
 }
