@@ -57,6 +57,8 @@ int ecmdCommandInterpreter(int argc, char* argv[]);
 
 int ecmdCheckRingsUser(int argc, char* argv[]);
 
+int ecmdGetArrayUser(int argc, char* argv[]);
+
 int ecmdGetScomUser(int argc, char* argv[]);
 
 int ecmdGetBitsUser(int argc, char* argv[]);
@@ -66,6 +68,8 @@ int ecmdGetLatchUser(int argc, char* argv[]);
 int ecmdGetRingDumpUser(int argc, char* argv[]);
 
 int ecmdGetSpyUser(int argc, char* argv[]);
+
+int ecmdPutArrayUser(int argc, char* argv[]);
 
 int ecmdPutBitsUser(int argc, char* argv[]);
 
