@@ -379,7 +379,7 @@ uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
  @param o_data DataBuffer object that holds data read from address
  @see putScom
 
-
+ NOTE : For processor cores, only "core0 only" addresses are supported, other core addresses cause a failure
 */
 uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
@@ -397,6 +397,7 @@ uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  @param i_data DataBuffer object that holds data to write into address
  @see getScom
 
+ NOTE : For processor cores, only "core0 only" addresses are supported, other core addresses cause a failure
 
 */
 uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
@@ -443,6 +444,7 @@ uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_NON_FSI_CHIP Targetted chip is not attached via FSI
  @param i_target Struct that contains chip and cage/node/slot/position information 
  @param i_address CFAM address to read from
  @param o_data DataBuffer object that holds data read from address
@@ -458,6 +460,7 @@ uint32_t getCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
+ @retval ECMD_NON_FSI_CHIP Targetted chip is not attached via FSI
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position information 
  @param i_address CFAM address to write to
@@ -1649,7 +1652,13 @@ bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
 */
 uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
 
-
+/**
+ @brief Make a system call on the targetted Service Processor or Service Element
+ @param i_target SP to run command on
+ @param i_command Command line call to make
+ @param o_stdout Standard out captured by running command
+*/
+uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
 
 //@}
 
