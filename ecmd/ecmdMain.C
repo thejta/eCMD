@@ -73,7 +73,7 @@ int main (int argc, char *argv[])
       ecmdOutputError(buf);
     } else if (rc) {
       std::string parse = ecmdGetErrorMsg(rc);
-      sprintf(buf,"ecmd - '%s' returned with error code %d (%s)\n", argv[1], rc, parse.c_str());
+      sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
       ecmdOutputError(buf);
     }
   }
