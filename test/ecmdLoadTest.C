@@ -12,6 +12,7 @@ int main (int argc, char *argv[])
   ecmdDataBuffer data;          /* A buffer to store our data */
   int rc = 0;
   ecmdChipTarget target;        /* This is the chip target to operate on */
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
 
   /* Load and initialize the eCMD Dll */
@@ -112,12 +113,12 @@ int main (int argc, char *argv[])
   bool validPosFound = false;
   // Initialize the config looper, tell it to loop on targets selected by the user -p# -c# 
   // To loop on all targets in the system, not just those selected change this to : ECMD_ALL_TARGETS_LOOP 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   // This loop will continue as long as valid targets are found 
   //  each time returning with the target variable filled it 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     // We will dump all the idregs 
     rc = getRing(target, "idreg", data);
