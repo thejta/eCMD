@@ -89,17 +89,13 @@ int dllSimecho(const char* i_message);
 
 int dllSimexit(); 
 
-int dllSimEXPECTFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & i_expect, int i_row , int i_offset ); 
-
-int dllSimEXPECTFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row , int i_offset ); 
+int dllSimEXPECTFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row , int i_offset ); 
 
 int dllSimexpecttcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_expect, int i_row ); 
 
 int dllSimgetcurrentcycle(int & o_cyclecount); 
 
-int dllSimGETFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & o_data, int i_row , int i_offset ); 
-
-int dllSimGETFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row , int i_offset ); 
+int dllSimGETFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row , int i_offset ); 
 
 int dllSimGETFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & o_data, int i_row , int i_offset ); 
 
@@ -107,9 +103,7 @@ int dllSimgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, int i_row ,
 
 int dllSiminit(const char* i_checkpoint); 
 
-int dllSimPUTFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
-
-int dllSimPUTFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
+int dllSimPUTFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
 
 int dllSimPUTFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
 
@@ -117,21 +111,15 @@ int dllSimputtcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_
 
 int dllSimrestart(const char* i_checkpoint); 
 
-int dllSimSTKFAC(unsigned int i_symbol, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
-
-int dllSimSTKFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
+int dllSimSTKFAC(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_offset ); 
 
 int dllSimstktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_numrows ); 
 
 int dllSimSUBCMD(const char* i_command); 
 
-int dllSimsymbol(const char* i_facname, unsigned int & o_symbol); 
-
 int dllSimtckinterval(int i_tckinterval); 
 
-int dllSimUNSTICK(unsigned int i_symbol, int i_bitlength, int i_row , int i_offset ); 
-
-int dllSimUNSTICKS(const char* i_facname, int i_bitlength, int i_row , int i_offset ); 
+int dllSimUNSTICK(const char* i_facname, int i_bitlength, int i_row , int i_offset ); 
 
 int dllSimunsticktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row , int i_numrows ); 
 
