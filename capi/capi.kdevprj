@@ -1,0 +1,47 @@
+[Config for BinMakefileAm]
+bin_program=capi
+cxxflags=-O0 -g3 -Wall
+ldflags=\s
+
+[General]
+author=Christopher Engel,894574
+configure_args=
+email=cjengel@us.ibm.com
+kdevprj_version=1.3
+make_options=-j1
+makefiles=Makefile.am,capi/Makefile.am,capi/docs/Makefile.am,capi/docs/en/Makefile.am
+project_name=Capi
+project_type=normal_empty
+sub_dir=capi/
+version=0.1
+version_control=CVS
+
+[LFV Groups]
+Headers=*.h,*.hh,*.hxx,*.hpp,*.H
+Others=*
+Sources=*.cpp,*.c,*.cc,*.C,*.cxx,*.ec,*.ecpp,*.lxx,*.l++,*.ll,*.l
+User Interface=*.kdevdlg,*.ui,*.rc,*.dlg
+groups=Headers,Sources,User Interface,Others
+
+[Makefile.am]
+files=capi.kdevprj
+sub_dirs=capi
+type=normal
+
+[capi.kdevprj]
+dist=true
+install=false
+install_location=
+type=DATA
+
+[capi/Makefile.am]
+sub_dirs=
+type=prog_main
+
+[capi/docs/Makefile.am]
+sub_dirs=
+type=normal
+
+[capi/docs/en/Makefile.am]
+sub_dirs=
+type=normal
