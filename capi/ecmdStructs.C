@@ -82,7 +82,7 @@ bool operator< (const ecmdChipData& lhs, const ecmdChipData& rhs) {
 
     if (lhs.chipType < rhs.chipType)
       return 1;
-    else if (lhs.pos < rhs.pos)
+    else if ((lhs.chipType == rhs.chipType) && (lhs.pos < rhs.pos))
       return 1;
         
     return 0;
