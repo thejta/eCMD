@@ -13,7 +13,7 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured);
 my $ignore_re = join '|', @ignores;
 
 my @dont_flush_sdcache = qw( Query Cache Output Error Spy );

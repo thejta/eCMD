@@ -82,7 +82,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
-  if (format == "e") {
+  if (format == "enum") {
     enumFlag = true;
   }
 
@@ -261,7 +261,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
-  if (format == "e") {
+  if (format == "enum") {
     enumFlag = true;
   }
 

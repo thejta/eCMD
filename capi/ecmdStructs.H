@@ -123,6 +123,7 @@ struct ecmdChipTarget {
 
   uint32_t    cage;             ///< cage that contains node with chip
   uint32_t    node;             ///< node that contains chip
+  uint32_t    slot;             ///< Card Slot/Fru to target
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   uint8_t     core;             ///< which core on chip to access, if chip is multi-core
@@ -130,6 +131,7 @@ struct ecmdChipTarget {
 
   ecmdChipTargetState_t cageState;            ///< cage field state
   ecmdChipTargetState_t nodeState;            ///< node field state
+  ecmdChipTargetState_t slotState;            ///< slot field state
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t coreState;            ///< core field state
@@ -190,11 +192,19 @@ struct ecmdChipData {
 };
 
 /**
+ @brief Used for the ecmdQueryConfig function to return slot data
+*/
+struct ecmdSlotData {
+  uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
+  std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in numerical order per chip by pos
+};
+
+/**
  @brief Used for the ecmdQueryConfig function to return node data
 */
 struct ecmdNodeData {
   uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
-  std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this node - in numerical order per chip by pos
+  std::list<ecmdSlotData> slotData;     ///< (Detail: Low) List of all slots requested in this node - in numerical order by slotId
 };
 
 /**

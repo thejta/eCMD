@@ -43,6 +43,7 @@
 static ecmdQueryData ecmdSystemConfigData;
 static std::list<ecmdCageData>::iterator ecmdCurCage;
 static std::list<ecmdNodeData>::iterator ecmdCurNode;
+static std::list<ecmdSlotData>::iterator ecmdCurSlot;
 static std::list<ecmdChipData>::iterator ecmdCurChip;
 static std::list<ecmdCoreData>::iterator ecmdCurCore;
 static std::list<ecmdThreadData>::iterator ecmdCurThread;
@@ -258,6 +259,10 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
     queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
   }
 
+  if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED) {
+    queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
+  }
+
   if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED) {
     queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
   }
@@ -285,11 +290,12 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
 
 int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
-  uint8_t CAGE = 0;
-  uint8_t NODE = 1;
-  uint8_t CHIP = 2;
-  uint8_t CORE = 3;
-  uint8_t THREAD = 4;
+  const uint8_t CAGE = 0;
+  const uint8_t NODE = 1;
+  const uint8_t SLOT = 2;
+  const uint8_t CHIP = 3;
+  const uint8_t CORE = 4;
+  const uint8_t THREAD = 5;
 
   uint8_t level = CAGE;
   uint8_t valid = 1;
@@ -319,9 +325,27 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   if (level == NODE && (io_target.node != (*ecmdCurNode).nodeId || ecmdLooperInitFlag)) {
 
     io_target.node = (*ecmdCurNode).nodeId;
-    ecmdCurChip = (*ecmdCurNode).chipData.begin();
+    ecmdCurSlot = (*ecmdCurNode).slotData.begin();
   
-    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurNode).chipData.end()) {
+    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurSlot == (*ecmdCurNode).slotData.end()) {
+      valid = 0;
+      io_target.slot = 0;
+    }
+    else {
+      level = SLOT;
+    }
+
+  }
+  else if (valid) {
+    level = SLOT;
+  }
+
+  if (level == SLOT && (io_target.slot != (*ecmdCurSlot).slotId || ecmdLooperInitFlag)) {
+
+    io_target.slot = (*ecmdCurSlot).slotId;
+    ecmdCurChip = (*ecmdCurSlot).chipData.begin();
+  
+    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurSlot).chipData.end()) {
       valid = 0;
       io_target.chipType = "";
       io_target.pos = 0;
@@ -334,6 +358,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   else if (valid) {
     level = CHIP;
   }
+
 
   if (level == CHIP && (io_target.chipType != (*ecmdCurChip).chipType || io_target.pos != (*ecmdCurChip).pos || ecmdLooperInitFlag)) {
 
@@ -381,31 +406,37 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
   switch (level) {
 
-    case 4:  //thread
+    case THREAD:  //thread
       ecmdCurThread++;
       if (ecmdCurThread != (*ecmdCurCore).threadData.end()) {
         break;
       }
 
-    case 3:  //core
+    case CORE:  //core
       ecmdCurCore++;
       if (ecmdCurCore != (*ecmdCurChip).coreData.end()) {
         break;
       }
 
-    case 2:  //chip
+    case CHIP:  //chip
       ecmdCurChip++;
-      if (ecmdCurChip != (*ecmdCurNode).chipData.end()) {
+      if (ecmdCurChip != (*ecmdCurSlot).chipData.end()) {
         break;
       }
 
-    case 1:  //node
+    case SLOT:  //slot
+      ecmdCurSlot++;
+      if (ecmdCurSlot != (*ecmdCurNode).slotData.end()) {
+        break;
+      }
+
+    case NODE:  //node
       ecmdCurNode++;
       if (ecmdCurNode != (*ecmdCurCage).nodeData.end()) {
         break;
       }
 
-    case 0:  //cage
+    case CAGE:  //cage
       ecmdCurCage++;
       break;
 

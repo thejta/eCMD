@@ -150,7 +150,7 @@ int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData);
 /**
  @brief Query Ring information from the DLL
  @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
- @param o_queryData Return vector from query
+ @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
  @retval ECMD_INVALID_RING if i_ringName is not valid for target
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -163,7 +163,7 @@ int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryDa
 /**
  @brief Query Array information from the DLL
  @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
- @param o_queryData Return vector from query
+ @param o_queryData Return data from query
  @param i_arrayName array to access data for
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
@@ -171,7 +171,7 @@ int ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryDa
  @retval nonzero on failure
  NOTE : This function does not affect ring caching
 */
-int ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName);
+int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName);
 
 /**
  @brief Query Spy information from the DLL
@@ -198,6 +198,17 @@ int ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData
 */
 int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
 
+
+/**
+ @brief Query if a particular target is configured in the system
+ @param i_target Target to query in system configuration
+ @param i_queryData If specified this data will be used, otherwise a call to ecmdQueryConfig will be made
+ @retval true if Target is configured in system
+ @retval false if Target is not configured in system
+ NOTE : This function calls ecmdQueryConfig and searchs for the specified target
+ NOTE : The target State fields must be filled in as either VALID or UNUSED
+*/
+bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
 //@}
 
 

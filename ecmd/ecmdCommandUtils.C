@@ -65,7 +65,7 @@ int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
 
   ecmdChipTarget tmp = i_target;
   ecmdQueryData needlesslySlow;
-  tmp.cageState = tmp.nodeState = tmp.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
   if (rc) return rc;
 
@@ -73,9 +73,11 @@ int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   if (needlesslySlow.cageData.front().cageId != i_target.cage) return ECMD_INVALID_ARGS;
   if (needlesslySlow.cageData.front().nodeData.empty()) return ECMD_INVALID_ARGS;
   if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) return ECMD_INVALID_ARGS;
-  if (needlesslySlow.cageData.front().nodeData.front().chipData.empty()) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.empty()) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().slotId != i_target.slot) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_INVALID_ARGS;
 
-  o_data = needlesslySlow.cageData.front().nodeData.front().chipData.front();
+  o_data = needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.front();
   if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
     return ECMD_INVALID_ARGS;
   }
@@ -100,38 +102,48 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
     sprintf(util, ":n%d", i_target.node);
     printed += util;
 
-    if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
-
-      if (i_target.pos < 10) {
-        sprintf(util, ":p0%d", i_target.pos);
-      }
-      else {
-        sprintf(util, ":p%d", i_target.pos);
-      }
+    if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
+      sprintf(util, ":s%d", i_target.slot);
       printed += util;
 
-      if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
-        sprintf(util, ":c%d", i_target.core);
-        printed += util;
 
-        if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
-          sprintf(util, ":t%d", i_target.thread);
-          printed += util;
+      if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
+
+        if (i_target.pos < 10) {
+          sprintf(util, ":p0%d", i_target.pos);
         }
         else {
-          printed += "   ";  //adjust spacing
+          sprintf(util, ":p%d", i_target.pos);
+        }
+        printed += util;
+
+        if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
+          sprintf(util, ":c%d", i_target.core);
+          printed += util;
+          
+          if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+            sprintf(util, ":t%d", i_target.thread);
+            printed += util;
+          }
+          else {
+            printed += "   ";  //adjust spacing
+          }
+
+        } //core
+        else {
+          printed += "      ";  //adjust spacing
         }
 
-      } //core
+      } //pos
       else {
-        printed += "      ";  //adjust spacing
+        printed += "          ";  //adjust spacing
       }
 
-    } //pos
+    } //slot
     else {
-      printed += "          ";  //adjust spacing
+      printed += "             ";  //adjust spacing
     }
-    
+
   } //node
 
   //set a space between the target info and the data

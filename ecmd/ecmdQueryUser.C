@@ -90,6 +90,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
 
     //get chip name
     ecmdChipTarget target;
+    ecmdChipData chipdata;
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
     target.coreState = ECMD_TARGET_FIELD_UNUSED;
@@ -120,7 +121,17 @@ int ecmdQueryUser(int argc, char* argv[]) {
         validPosFound = true;     
       }
 
-      printed = "\nAvailable rings for "; printed += ecmdWriteTarget(target); printed += " ec "; printed += "xxxx"; printed += ":\n"; ecmdOutput(printed.c_str());
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc) {
+        printed = "Unable to lookup ec information for chip ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+        
+      printed = "\nAvailable rings for "; printed += ecmdWriteTarget(target); printed += " ec "; printed += chipdata.chipEc; printed += ":\n"; ecmdOutput(printed.c_str());
       printed = "Ring Names                           Address    Length   Mask Chkable BroadSide ClockState\n"; ecmdOutput(printed.c_str());
       printed = "-----------------------------------  --------   ------   ---- ------- --------- ----------\n"; ecmdOutput(printed.c_str());
 

@@ -75,6 +75,7 @@ struct ecmdUserInfo {
 
   std::string cage;
   std::string node;
+  std::string slot;
   std::string pos;
   std::string core;
   std::string thread;
@@ -199,6 +200,7 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
 
   uint8_t cageType;
   uint8_t nodeType;
+  uint8_t slotType;
   uint8_t posType;
   uint8_t coreType;
   uint8_t threadType;
@@ -249,6 +251,28 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
 
     nodeType = SINGLE;
     i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  }
+
+  //slot
+  if (ecmdUserArgs.slot == allFlag) {
+    i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+    slotType = ALL;
+  }
+  else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
+    i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+    slotType = MULTI;
+  }
+  else {
+
+    if (ecmdUserArgs.slot.length() != 0) {
+      i_target.slot = atoi(ecmdUserArgs.slot.c_str());
+    }
+    else {
+      i_target.slot = 0x0;
+    }
+
+    slotType = SINGLE;
+    i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
   }
 
   //position
@@ -345,53 +369,67 @@ int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
         }
       }
 
-      std::list<ecmdChipData>::iterator curChip = (*curNode).chipData.begin();
+      std::list<ecmdSlotData>::iterator curSlot = (*curNode).slotData.begin();
 
-      while (curChip != (*curNode).chipData.end()) {
+      while (curSlot != (*curNode).slotData.end()) {
 
-        if (posType == MULTI) {
-          if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
-            curChip = (*curNode).chipData.erase(curChip);
+        if (slotType == MULTI) {
+          if (dllRemoveCurrentElement((*curSlot).slotId, ecmdUserArgs.slot)) {
+            curSlot = (*curNode).slotData.erase(curSlot);
             continue;
           }
         }
 
-        std::list<ecmdCoreData>::iterator curCore = (*curChip).coreData.begin();
+        std::list<ecmdChipData>::iterator curChip = (*curNode).chipData.begin();
 
-        while (curCore != (*curChip).coreData.end()) {
+        while (curChip != (*curNode).chipData.end()) {
 
-          if (coreType == MULTI) {
-            if (dllRemoveCurrentElement((*curCore).coreId, ecmdUserArgs.core)) {
-              curCore = (*curChip).coreData.erase(curCore);
+          if (posType == MULTI) {
+            if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
+              curChip = (*curNode).chipData.erase(curChip);
               continue;
             }
           }
 
-          std::list<ecmdThreadData>::iterator curThread = (*curCore).threadData.begin();
+          std::list<ecmdCoreData>::iterator curCore = (*curChip).coreData.begin();
 
-          while (curThread != (*curCore).threadData.end()) {
+          while (curCore != (*curChip).coreData.end()) {
 
-            if (threadType == MULTI) {
-              if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
-                curThread = (*curCore).threadData.erase(curThread);
+            if (coreType == MULTI) {
+              if (dllRemoveCurrentElement((*curCore).coreId, ecmdUserArgs.core)) {
+                curCore = (*curChip).coreData.erase(curCore);
                 continue;
               }
             }
 
-            curThread++;
-          }
+            std::list<ecmdThreadData>::iterator curThread = (*curCore).threadData.begin();
 
-          curCore++;
-        }
+            while (curThread != (*curCore).threadData.end()) {
 
-        curChip++; 
-      }
+              if (threadType == MULTI) {
+                if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
+                  curThread = (*curCore).threadData.erase(curThread);
+                  continue;
+                }
+              }
+
+              curThread++;
+            }  /* while curThread */
+
+            curCore++;
+          }  /* while curCore */
+
+          curChip++; 
+        }  /* while curChip */
+
+        curSlot++;
+      }  /* while curSlot */
 
       curNode++;
-    }
+    }  /* while curNode */
 
     curCage++; 
-  }
+  }  /* while curCage */
 
   return rc;
 
@@ -419,6 +457,15 @@ int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
   else {
     ecmdUserArgs.node = "";
+  }
+
+  //slot
+  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-s");
+  if (curArg != NULL) {
+    ecmdUserArgs.slot = curArg;
+  }
+  else {
+    ecmdUserArgs.slot = "";
   }
 
   //position

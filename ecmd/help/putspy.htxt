@@ -44,5 +44,5 @@ Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>
 
         Examples:       putalias pu MYALIAS -ixr feedbeeffeeedbeef
                         putalias pu EVERYOTHER 16 4 -ib 1010
-                        putalias pu MYEDIAL ENUMVALUE
+                        putalias pu MYEDIAL ENUMVALUE -ienum
 
