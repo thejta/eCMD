@@ -1169,4 +1169,53 @@ uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
 }
 
+uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipTarget target;                /// Current target being operated on
+  std::string  hierarchy;		/// Return the model hierarchy for this target
+  ecmdLooperData looperdata;            /// Store internal Looper data
+  std::string printed;
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 1) {
+    ecmdOutputError("simgethierarchy - Too few arguments specified; you need at least a chip name.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if (argc > 1) {
+    ecmdOutputError("simgethierarchy - Too many arguments to simgethierarchy, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  //Setup the target  
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+    rc = simGetHierarchy(target,  hierarchy);
+    if (rc) return rc;
+    printed = "Model hierarchy for target ";
+    printed += ecmdWriteTarget(target);
+    printed += "is :\n" + hierarchy + "\n";
+    ecmdOutput(printed.c_str());
+  }
+  
+  return rc;
+}
+
 #endif
