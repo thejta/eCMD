@@ -33,7 +33,7 @@ ifeq (${OS},AIX)
   CC := xlC -+
   LD := makeC++SharedLib
   TARGET = ecmdDllStub_aix.so
-  LDFLAGS := ${LDFLAGS} -e ecmdDllStub.export -p 0
+  LDFLAGS := ${LDFLAGS} -e ecmdDllStub_aix.export -p 0
   CFLAGS  := ${CFLAGS} -qstaticinline
 endif
 
@@ -48,6 +48,9 @@ all: dir ${TARGET}
 	@mv *.o *.so  ${SUBDIR}
 	@echo "Exporting eCMD Dll Stub to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
+ifeq (${OS},AIX)
+	@cp ecmdDllStub_aix.export export/
+endif
 
 clean:
 	rm -rf ${SUBDIR}
