@@ -8,6 +8,13 @@ package ChipTarget;
 
  Usage : require ChipTarget;
 
+
+*/
+
+/**
+ * @brief Perl Class to hold eCMD Targetting information
+ * 
+ * Usage : require ChipTarget;
 */
 =cut
 
