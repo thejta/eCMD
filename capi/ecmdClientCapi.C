@@ -31,7 +31,9 @@
 #include <ecmdClientCapi.H>
 #include <ecmdDllCapi.H>
 #include <ecmdUtils.H>
-#include <ecmdClientEnums.H>
+#ifndef ECMD_STATIC_FUNCTIONS
+# include <ecmdClientEnums.H>
+#endif
 
 //----------------------------------------------------------------------
 //  User Types

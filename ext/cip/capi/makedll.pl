@@ -371,7 +371,9 @@ if ($ARGV[0] ne "ecmd") {
   print OUT "#include <ecmdClientCapi.H>\n";
 }
 print OUT "#include <$ARGV[0]ClientCapi.H>\n";
+print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
 print OUT "#include <$ARGV[0]ClientEnums.H>\n\n\n";
+print OUT "#endif\n\n";
 
 print OUT "#include <ecmdUtils.H>\n\n";
 
