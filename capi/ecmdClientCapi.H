@@ -1590,6 +1590,15 @@ uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o
 */
 uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
 
+/**
+ @brief Run a command on another Fusion module
+ @param i_fusionObject Name of Fusion module to run against
+ @param i_command Command to run
+ @retval Results of command
+
+ NOTE - The fusion module has to provide the appropriate api for this call to be functional
+*/
+std::string ecmdCallFusionCommand(const char* i_fusionObject, const char* i_command);
 
 #endif /* ifndef REMOVE_SIM */
 //@}
