@@ -1,6 +1,6 @@
 // Copyright ***********************************************************
 //                                                                      
-// File ecmdDaSimUser.C                                  
+// File ecmdSimUser.C                                  
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
@@ -22,14 +22,16 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdDaSimUser_C
+#define ecmdSimUser_C
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
-#include <stdlib.h>
-#undef ecmdDaSimUser_C
+#undef ecmdSimUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------

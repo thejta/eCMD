@@ -32,6 +32,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#include <ecmdUtils.H>
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
 //----------------------------------------------------------------------
