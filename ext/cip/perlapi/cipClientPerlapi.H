@@ -30,7 +30,9 @@
  2)  Allows (C-based) perl interpreter to access these functions
 
 */
+#ifndef DOCUMENTATION
 namespace CIPPERLAPI {
+#endif
 
     /** @name Load/Unload Functions */
     //@{
@@ -46,7 +48,14 @@ namespace CIPPERLAPI {
     int cipInitExtension();
 
     //@}
-}
+
+
+
+
+
+#ifndef DOCUMENTATION
+}       // End namespace
+#endif
 
 #endif /* cipClientCapi_h */
 

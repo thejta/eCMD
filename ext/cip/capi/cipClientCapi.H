@@ -28,7 +28,9 @@
  2)  Allows (C-based) perl interpreter to access these functions
 
 */
+#ifndef DOCUMENTATION
 extern "C" {
+#endif
 
 #ifndef PERLAPI
 /** @name Load/Unload Functions */
@@ -337,7 +339,9 @@ uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
 //@}
 /* End Memory Functions */
 
+#ifndef DOCUMENTATION
 } /* end extern "c" */
+#endif
 
 #endif /* cipClientCapi_h */
 
