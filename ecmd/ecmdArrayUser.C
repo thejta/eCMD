@@ -189,7 +189,10 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
 
   ecmdDataBuffer buffer(3);
   rc = ecmdReadDataFormatted(buffer, argv[3], format);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   bool validPosFound = false;

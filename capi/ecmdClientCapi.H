@@ -176,7 +176,7 @@ int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const
 /**
  @brief Query Spy information from the DLL
  @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
- @param o_queryData Return vector from query
+ @param o_queryData Return data from query
  @param i_spyName Spy to access data for
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -184,7 +184,7 @@ int ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const
  @retval nonzero on failure
  NOTE : This function does not affect ring caching
 */
-int ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName);
+int ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName);
 
 /**
  @brief Query the location of a specific file type for the selected target
@@ -1106,7 +1106,8 @@ int main (int argc, char *argv[])
   // I want to loop on all the pu chips that the user selected with -p# -n#
   // Looping on selected positions only works when ecmdCommandArgs has been previously called 
 
-  // Setup the target we will use 
+  // Setup the target we will use
+  // We want to loop on all 'pu' chips so set that, everything else is wildcard
   target.chipType = "pu";
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;

@@ -549,7 +549,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     int dataEndBit = -1;                // Actual end bit of buffered register
     std::string latchname = "";
 
-    for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
+    for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
 
       if (noCompressFlag) {
         bitsToFetch = ((*curLatchInfo).length < curBitsToFetch) ? (*curLatchInfo).length : curBitsToFetch;
@@ -920,7 +920,10 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer; 
 
   rc = ecmdReadDataFormatted(buffer, argv[3], format);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("putbits - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   
   /************************************************************************/
@@ -999,11 +1002,6 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  if (argc < 4) {  //chip + address
-    ecmdOutputError("putlatch - Too few arguments specified; you need at least a chip, ring, latch name, and data.\n");
-    ecmdOutputError("putlatch - Type 'putlatch -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
 
   //Setup the target that will be used to query the system config 
   ecmdChipTarget target;
@@ -1019,15 +1017,35 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
 
   //data is always the last arg
   rc = ecmdReadDataFormatted(buffer, argv[argc-1], format);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("putlatch - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   int startBit = 0, numBits = -1;
 
+
   if (argc > 4) {
+    if (argc < 6) {
+      ecmdOutputError("putlatch - Too few arguments specified; you need at least a chip, ring, latch name, startbit, endbit, and data.\n");
+      ecmdOutputError("putlatch - Type 'putlatch -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    } else if (argc > 6) {
+      ecmdOutputError("putlatch - Too many arguments specified; you probably added an unsupported option.\n");
+      ecmdOutputError("putlatch - Type 'putlatch -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
     startBit = atoi(argv[3]);
     numBits = atoi(argv[4]);
   }
   else {
+    if (argc < 4) {
+      ecmdOutputError("putlatch - Too few arguments specified; you need at least a chip, ring, latch name, and data.\n");
+      ecmdOutputError("putlatch - Type 'putlatch -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
     numBits = buffer.getBitLength();
   }
 
@@ -1470,7 +1488,10 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
 
   ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[2], format);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("putpattern - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   ecmdDataBuffer ringBuffer;
   std::string printed;

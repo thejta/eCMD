@@ -186,9 +186,14 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  ecmdDataBuffer buffer;
+  ecmdDataBuffer expected;
+
+  rc = ecmdReadDataFormatted(expected, argv[1], format, bitLength);
+  if (rc) {
+    ecmdOutputError("simEXPECTFAC - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   uint32_t row = 0, offset = 0;
@@ -204,7 +209,19 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simEXPECTFAC(symbol, bitLength, buffer, row, offset);
+  /* Ok, let's call GETFAC and do the comparison */
+  rc = simGETFAC(symbol, bitLength, buffer, row, offset);
+
+  if (!ecmdCheckExpected ( buffer, expected)) {
+    char buf[200];
+    std::string printed;
+    ecmdOutputError("simEXPECTFAC - Expect failure\n");
+    printed = "simEXPECTFAC - Actual   : " + ecmdWriteDataFormatted(buffer, format); 
+    ecmdOutputError(printed.c_str());
+    printed = "simEXPECTFAC - Expected : " + ecmdWriteDataFormatted(expected, format); 
+    ecmdOutputError(printed.c_str());
+    return ECMD_EXPECT_FAILURE;
+  }
 
   return rc;
 
@@ -241,9 +258,13 @@ int ecmdSimEXPECTFACSUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  ecmdDataBuffer buffer;
+  ecmdDataBuffer expected;
+  rc = ecmdReadDataFormatted(expected, argv[1], format, bitLength);
+  if (rc) {
+    ecmdOutputError("simEXPECTFACS - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   uint32_t row = 0, offset = 0;
@@ -259,7 +280,19 @@ int ecmdSimEXPECTFACSUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simEXPECTFACS(facname, bitLength, buffer, row, offset);
+  /* Ok, let's call GETFAC and do the comparison */
+  rc = simGETFACS(facname, bitLength, buffer, row, offset);
+
+  if (!ecmdCheckExpected ( buffer, expected)) {
+    char buf[200];
+    std::string printed;
+    ecmdOutputError("simEXPECTFACS - Expect failure\n");
+    printed = "simEXPECTFACS - Actual   : " + ecmdWriteDataFormatted(buffer, format); 
+    ecmdOutputError(printed.c_str());
+    printed = "simEXPECTFACS - Expected : " + ecmdWriteDataFormatted(expected, format); 
+    ecmdOutputError(printed.c_str());
+    return ECMD_EXPECT_FAILURE;
+  }
 
   return rc;
 
@@ -279,6 +312,11 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
+  /* They want a subset of bits, not the entire thing */
+  bool useSubset = false;
+  if (ecmdParseOption(&argc, &argv, "-subset"))
+    useSubset = true;
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -287,31 +325,64 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  if (argc < 3) {
-    ecmdOutputError("simexpecttcfac - Too few arguments to simexpecttcfac, you need at least a symbol , data, and a length.\n");
+  if (argc < 2) {
+    ecmdOutputError("simexpecttcfac - Too few arguments to simexpecttcfac, you need at least a symbol and data.\n");
     return ECMD_INVALID_ARGS;
   }
 
   char * facname = argv[0];
 
-  uint32_t bitLength = atoi(argv[2]);
-
-  ecmdDataBuffer buffer(3);
-  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  uint32_t row = 0, startBit = 0, bitLength = 0;
 
 
-  uint32_t row = 0;
-  if (argc > 3) {
-    row = atoi(argv[3]);
+  ecmdDataBuffer buffer;
+  ecmdDataBuffer expected;
+  rc = ecmdReadDataFormatted(expected, argv[1], format, bitLength);
+  if (rc) {
+    ecmdOutputError("simexpecttcfac - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
   }
 
-  if (argc > 4) {
-    ecmdOutputError("simexpecttcfac - Too many arguments to simexpecttcfac, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
+  if (!useSubset) {
+    if (argc > 2) {
+      row = atoi(argv[2]);
+    }
+
+    if (argc > 3) {
+      ecmdOutputError("simexpecttcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+  } else {
+    if (argc < 4) {
+      ecmdOutputError("simexpecttcfac - Too few arguments to simgettcfac, you need to specify startbits and numbits with -subset.\n");
+      return ECMD_INVALID_ARGS;
+    }
+    startBit = atoi(argv[2]);
+    bitLength = atoi(argv[3]);
+
+    if (argc > 4) {
+      ecmdOutputError("simexpecttcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+      return ECMD_INVALID_ARGS;
+    }
   }
 
-  rc = simexpecttcfac(facname, bitLength, buffer, row);
+
+
+  /* Ok, let's call gettcfac and do the comparison */
+  rc = simgettcfac(facname, buffer, row, startBit, bitLength);
+
+  if (!ecmdCheckExpected ( buffer, expected)) {
+    char buf[200];
+    std::string printed;
+    ecmdOutputError("simexpecttcfac - Expect failure\n");
+    printed = "simexpecttcfac - Actual   : " + ecmdWriteDataFormatted(buffer, format); 
+    ecmdOutputError(printed.c_str());
+    printed = "simexpecttcfac - Expected : " + ecmdWriteDataFormatted(expected, format); 
+    ecmdOutputError(printed.c_str());
+    return ECMD_EXPECT_FAILURE;
+  }
+
 
   return rc;
 
@@ -363,7 +434,7 @@ int ecmdSimGETFACUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
 
   rc = simGETFAC(symbol, bitLength, buffer, row, offset);
 
@@ -417,7 +488,7 @@ int ecmdSimGETFACSUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
 
   rc = simGETFACS(facname, bitLength, buffer, row, offset);
 
@@ -471,7 +542,7 @@ int ecmdSimGETFACXUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
 
   rc = simGETFACX(facname, bitLength, buffer, row, offset);
 
@@ -496,6 +567,11 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
+  /* They want a subset of bits, not the entire thing */
+  bool useSubset = false;
+  if (ecmdParseOption(&argc, &argv, "-subset"))
+    useSubset = true;
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -513,22 +589,32 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
 
   uint32_t row = 0, startBit = 0, bitLength = 0;
 
-  if (argc > 1) {
-    row = atoi(argv[1]);
-  }
-  if (argc > 2) {
-    startBit = atoi(argv[2]);
-  }
-  if (argc > 3) {
-    bitLength = atoi(argv[3]);
+  if (!useSubset) {
+    if (argc > 1) {
+      row = atoi(argv[1]);
+    }
+
+    if (argc > 2) {
+      ecmdOutputError("simgettcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+  } else {
+    if (argc < 3) {
+      ecmdOutputError("simgettcfac - Too few arguments to simgettcfac, you need to specify startbits and numbits with -subset.\n");
+      return ECMD_INVALID_ARGS;
+    }
+    startBit = atoi(argv[1]);
+    bitLength = atoi(argv[2]);
+
+    if (argc > 3) {
+      ecmdOutputError("simgettcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
+      return ECMD_INVALID_ARGS;
+    }
   }
 
-  if (argc > 4) {
-    ecmdOutputError("simgettcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
-  }
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
 
   rc = simgettcfac(facname, buffer, row, startBit, bitLength);
 
@@ -612,9 +698,12 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simPUTFAC - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   uint32_t row = 0, offset = 0;
@@ -667,9 +756,12 @@ int ecmdSimPUTFACSUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simPUTFACS - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   uint32_t row = 0, offset = 0;
@@ -723,9 +815,12 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simPUTFACX - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   uint32_t row = 0, offset = 0;
@@ -778,9 +873,12 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simputtcfac - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
@@ -852,9 +950,12 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simSTKFAC - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   uint32_t row = 0, offset = 0;
   if (argc > 3) {
@@ -906,9 +1007,12 @@ int ecmdSimSTKFACSUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simSTKFACS - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
 
   uint32_t row = 0, offset = 0;
@@ -961,9 +1065,12 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simstktcfac - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {
@@ -1190,9 +1297,12 @@ int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
   uint32_t bitLength = atoi(argv[2]);
 
-  ecmdDataBuffer buffer(3);
+  ecmdDataBuffer buffer;
   rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) return rc;
+  if (rc) {
+    ecmdOutputError("simunsticktcfac - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
 
   uint32_t row = 0, numRows = 0;
   if (argc > 3) {

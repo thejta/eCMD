@@ -47,7 +47,7 @@ static std::list<ecmdSlotData>::iterator ecmdCurSlot;
 static std::list<ecmdChipData>::iterator ecmdCurChip;
 static std::list<ecmdCoreData>::iterator ecmdCurCore;
 static std::list<ecmdThreadData>::iterator ecmdCurThread;
-static uint8_t ecmdLooperInitFlag;
+static uint8_t ecmdLooperInitFlag = 0;
 
 typedef enum {
   ECMD_FORMAT_NONE,
@@ -289,6 +289,37 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_loo
     queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
   }
 
+  /* Initialize defaults into the incoming target */
+  if (io_target.cageState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.cage = 0;
+  }
+
+  if (io_target.nodeState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.node = 0;
+  }
+
+  if (io_target.slotState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.slot = 0;
+  }
+
+  if (io_target.chipTypeState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.chipType = "na";
+  }
+
+  if (io_target.posState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.pos = 0;
+  }
+
+  if (io_target.coreState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.core = 0;
+  }
+
+  if (io_target.threadState == ECMD_TARGET_QUERY_WILDCARD) {
+    io_target.thread = 0;
+  }
+
+
+
   if (i_looptype == ECMD_SELECTED_TARGETS_LOOP) 
     rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
   else
@@ -329,7 +360,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     return 0;
   }
 
-  if (io_target.cage != (*ecmdCurCage).cageId || ecmdLooperInitFlag) {
+  if (ecmdLooperInitFlag || io_target.cage != (*ecmdCurCage).cageId) {
 
     io_target.cage = (*ecmdCurCage).cageId;
     ecmdCurNode = (*ecmdCurCage).nodeData.begin();

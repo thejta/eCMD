@@ -153,6 +153,10 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   std::string printed;
   std::string enumValue;
 
+  /* We are going to enable ring caching to speed up performance */
+  ecmdEnableRingCache();
+
+
   while ( ecmdConfigLooperNext(target) ) {
 
     if (enumFlag) {
@@ -178,7 +182,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
     printed = ecmdWriteTarget(target) + " " + spyName;
 
     if (enumFlag) {
-      printed += " " + enumValue + "\n";
+      printed += "\n" + enumValue + "\n";
       ecmdOutput( printed.c_str() );
     }
     else {
@@ -192,7 +196,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       }
 
       buffer->setBitLength(bitsToFetch);
-      spyBuffer->insert(*buffer, startBit, bitsToFetch);
+      buffer->insert(*spyBuffer, startBit, bitsToFetch);
 
       if (!expectFlag) {
 
@@ -222,6 +226,16 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
       }
 
     }
+
+    /* Flush out the cache we don't need to keep entries from the previous chips */
+    rc = ecmdFlushRingCache();
+    if (rc) {
+      printed = "getspy - Error occured flushing cache on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+      
 
   }
 
@@ -313,7 +327,10 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
     buffer = new ecmdDataBuffer;
     spyBuffer = new ecmdDataBuffer;
     rc = ecmdReadDataFormatted(*buffer, spyData.c_str() , format);
-    if (rc) return rc;
+    if (rc) {
+      ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
 
     if (argc > 3) {
       startBit = atoi(argv[2]);
@@ -339,6 +356,9 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   std::string printed;
+
+  /* We are going to enable ring caching to speed up performance */
+  ecmdEnableRingCache();
 
   while ( ecmdConfigLooperNext(target) ) {
 
@@ -387,6 +407,15 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
         return rc;
       }
 
+    }
+
+    /* Flush out the cache to actually write the data to the chips */
+    rc = ecmdFlushRingCache();
+    if (rc) {
+      printed = "putspy - Error occured flushing cache on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
     }
 
   }

@@ -919,17 +919,28 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   }
 
   uint32_t tmpb32 = 0x0;
-  char * nextOne = new char[2];
+  char nextOne[2];
   nextOne[1] = '\0';
+#if 0
   for (i = 0; i < strLen; i++) {
     nextOne[0] = i_hexChars[i];
     tmpb32 = strtoul(&nextOne[0], NULL, 16);
     number_ptr[i>>3] |= tmpb32 << (28 - (i << 2));
+  }<
+#endif
+
+  for (i = 0; i < (int) strlen(i_hexChars); i++) {
+    if ((i & 0xFFF8) == i)
+      number_ptr[i>>3] = 0x0;
+    nextOne[0] = i_hexChars[i];
+    tmpb32 = strtoul(nextOne, NULL, 16);
+    number_ptr[i>>3] |= (tmpb32 << (28 - (4 * (i & 0x07))));
   }
+
+
 
   this->insert(number_ptr, start, length);
 
-  delete[] nextOne;
   delete[] number_ptr;
 
   return rc;
@@ -967,17 +978,16 @@ int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int expectedLen
   }
 
   uint32_t tmpb32 = 0x0;
-  char * nextOne = new char[2];
+  char nextOne[2];
   nextOne[1] = '\0';
   for (i = 0; i < strLen; i++) {
     nextOne[0] = i_hexChars[i];
     tmpb32 = strtoul(&nextOne[0], NULL, 16);
-    number_ptr[i>>3] |= tmpb32 << (28 - (i << 2));
+    number_ptr[i>>3] |= tmpb32 << (28 - (4 * (i & 0x7)));
   }
 
   this->insert(number_ptr, start, length);
 
-  delete[] nextOne;
   delete[] number_ptr;
 
   return rc;
@@ -992,8 +1002,10 @@ int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
     if (i_binChars[i] == '0') {
       this->clearBit(start+i);
     }
-    else {
+    else if (i_binChars[i] == '1') {
       this->setBit(start+i);
+    } else {
+      return ECMD_DBUF_INVALID_ARGS;
     }
   }
 
