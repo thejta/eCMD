@@ -546,7 +546,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
   if (shiftNum >= iv_NumBits) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
     this->fillDataStr('0'); /* init to 0 */
-    iv_NumBits = ivNumWords = 0;
+    iv_NumBits = iv_NumWords = 0;
     return;
   }
 
@@ -1054,6 +1054,23 @@ void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 #endif
 
 }
+
+/* Copy Constructor */
+int ecmdDataBuffer::operator=(ecmdDataBuffer & i_master) {
+
+  setBitLength(i_master.iv_NumBits);
+  // iv_Data
+  for (int i = 0; i < i_master.iv_NumWords; i++) {
+    iv_Data[i] = i_master.iv_Data[i];
+  }
+  // char
+
+#ifndef REMOVE_SIM
+  strncpy(iv_DataStr, i_master.iv_DataStr, i_master.iv_NumBits);
+#endif
+  return 0;
+}
+
 
 void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   setBitLength(bytes * 8);

@@ -482,7 +482,7 @@ int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
  NOTE : This function forces a flush of the ring caches
 
 */
-int getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> io_entries);
+int getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
 
 
 /**
@@ -523,7 +523,7 @@ int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffe
  NOTE : i_entries should be pre-loaded with address and data
 
 */
-int putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> i_entries);
+int putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 
 //@}
 

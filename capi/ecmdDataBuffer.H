@@ -354,7 +354,13 @@ public:
    * @param o_copyBuffer DataBuffer to copy data into
    * @post copyBuffer is an exact duplicate of this DataBuffer
    */
-  void  copy(ecmdDataBuffer & o_copyBuffer); // Copies data into other
+  void  copy(ecmdDataBuffer & o_copyBuffer); 
+
+  /**
+   * @brief Copy Constructor
+   * @param i_master DataBuffer to copy from
+   */
+  int operator=(ecmdDataBuffer & i_master);
 
   /* These are only to be used to apply a buffer to the entire ecmdDataBuffer, not just sections */
   /**
@@ -544,8 +550,6 @@ private:  //data
 
 private: //methods
   ecmdDataBuffer(const ecmdDataBuffer &other);
-
-  int operator=(ecmdDataBuffer &me);
 
   /**
    @brief Register an Error Message that has occured

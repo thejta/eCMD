@@ -19,7 +19,7 @@ ifeq (${OS},Linux)
   SUBDIR   := linux/
   CC := g++
   TARGET = ecmdClientCapi_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-20
+  CFLAGS := ${CFLAGS} -ftemplate-depth-25
 endif
 
 # *****************************************************************************
