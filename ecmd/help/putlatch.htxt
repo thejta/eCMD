@@ -45,4 +45,4 @@ Syntax: putlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] <Data>
  
         --------------------------------------------------------------------------------
         
-        Example:        putreg pu cp_fpu GCP.PFPU.FP_UNIT0.FPA_LATCH -ix feed
+        Example:        putlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FPA_LATCH -ix feed

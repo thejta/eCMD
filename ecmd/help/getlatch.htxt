@@ -58,5 +58,5 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
 
         --------------------------------------------------------------------------------
 
-        Examples:       getreg pu cp_abist LATCH0
-                        getreg pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -ox -exact -compress -expect feed
+        Examples:       getlatch pu cp_abist LATCH0
+                        getlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FP_REG -ox -exact -compress -expect feed
