@@ -95,7 +95,7 @@ int ecmdLoadDll(std::string dllName) {
   }
 
   printf("loadDll: loading %s ...\n", dllName.c_str()); 
-  dlHandle = dlopen(dllName.c_str(), RTLD_NOW);
+  dlHandle = dlopen(dllName.c_str(), RTLD_LAZY);
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
       printf("ERROR: loadDll: Problems loading '%s' : %s\n", dllName.c_str(), dlError);
@@ -134,28 +134,29 @@ int ecmdUnloadDll() {
 
 #else
 
-  /* call DLL unload */
-  int (*Function)() =
-    (int(*)())(void*)dlsym(dlHandle, "dllUnloadDll");
-  if (!Function) {
-    fprintf(stderr,"ecmdUnloadDll: Unable to find UnloadDll function, must be an invalid DLL\n");
-    rc = ECMD_DLL_UNLOAD_FAILURE;
-    return rc;
-  }
-  rc = (*Function)();
-  
+  if (dlHandle) {
+    /* call DLL unload */
+    int (*Function)() =
+      (int(*)())(void*)dlsym(dlHandle, "dllUnloadDll");
+    if (!Function) {
+      fprintf(stderr,"ecmdUnloadDll: Unable to find UnloadDll function, must be an invalid DLL\n");
+      rc = ECMD_DLL_UNLOAD_FAILURE;
+      return rc;
+    }
+    rc = (*Function)();
 
-  /* release DLL */
-  const char* dlError;
 
-  c_rc = dlclose(dlHandle);
-  if (c_rc) {
-    if ((dlError = dlerror()) != NULL) {
-      fprintf(stderr,"ERROR: ecmdUnloadDll: %s\n", dlError);
-      return ECMD_DLL_UNLOAD_FAILURE;
+    /* release DLL */
+    const char* dlError;
+
+    c_rc = dlclose(dlHandle);
+    if (c_rc) {
+      if ((dlError = dlerror()) != NULL) {
+        fprintf(stderr,"ERROR: ecmdUnloadDll: %s\n", dlError);
+        return ECMD_DLL_UNLOAD_FAILURE;
+      }
     }
   }
-
   dlHandle = NULL;
 #endif
 
