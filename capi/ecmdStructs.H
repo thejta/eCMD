@@ -434,4 +434,6 @@ bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs);
 /** @brief Returns the version of the shared lib so it can be compared with the other versions */
 std::string ecmdGetSharedLibVersion();
 
+//@}
+
 #endif
