@@ -123,6 +123,11 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     std::string unitid = io_target.chipType.substr(1);
     io_state.unitIdTargets.clear();
     rc = ecmdUnitIdStringToTarget(unitid, io_state.unitIdTargets);
+    if (rc == ECMD_INVALID_ARGS)
+      ecmdOutputError("ecmdConfigLooperInit - Invalid Unitid specified\n");
+    else if (rc == ECMD_FUNCTION_NOT_SUPPORTED)
+      ecmdOutputError("ecmdConfigLooperInit - Current plugin doesn't support Unitid's\n");
+
     if (rc) return rc;
     io_state.ecmdUseUnitid = true;
     io_state.ecmdLooperInitFlag = true;
@@ -145,6 +150,8 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     /* Standard physical targets */
   } else {
 
+
+    io_state.ecmdUseUnitid = false;
     queryTarget = io_target;
 
 
