@@ -60,6 +60,12 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+
+  /* Let's make sure it is ours */
+  if (strncmp(argv[0],"cip",3)) {
+    return ECMD_INT_UNKNOWN_COMMAND;
+  }
+
   if (argc >= 1) {
 
     /* Let's handle the '-h' arg right here */
