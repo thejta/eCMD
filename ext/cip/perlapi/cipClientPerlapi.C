@@ -30,6 +30,8 @@
 
 //extern int myErrorCode = ECMD_SUCCESS;
 //extern int safeMode = 1;
+int setupTarget(const char * i_targetStr, ecmdChipTarget & o_target);
+int ecmdPerlInterfaceErrorCheck (int errorCode);
 
 cipClientPerlapi::cipClientPerlapi () {
 }
@@ -39,9 +41,64 @@ cipClientPerlapi::~cipClientPerlapi () {
 
 
 int cipClientPerlapi::cipInitExtension() {
-printf("I'm here\n");
-int rc = ::cipInitExtension();
-printf("RC : %d\n",rc);
-printf("RC3 : %d\n",rc);
+  return ::cipInitExtension();
+}
+
+
+int cipClientPerlapi::cipStartInstructions (const char* i_target) {
+  int rc = 0;
   return rc;
 }
+
+
+int cipClientPerlapi::cipStartAllInstructions (){
+  int rc = 0;
+  return rc;
+}
+
+int cipClientPerlapi::cipStopInstructions (const char* i_target){
+  int rc = 0;
+  return rc;
+}
+
+int cipClientPerlapi::cipStopAllInstructions (){
+  int rc = 0;
+  return rc;
+}
+
+int cipClientPerlapi::cipStepInstructions (const char* i_target, int i_steps){
+  int rc = 0;
+  return rc;
+}
+
+int cipClientPerlapi::cipGetVr (const char* i_target, int i_vrNum, char** o_data) {
+  ecmdChipTarget myTarget;
+
+  int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    *o_data = NULL;
+    return rc;
+  }
+
+  ecmdDataBuffer buffer;
+  rc = ::cipGetVr(myTarget, i_vrNum, buffer);
+  ecmdPerlInterfaceErrorCheck(rc);
+  if (rc) {
+    o_data = NULL;
+    return rc;
+  }
+
+  char* tmp;
+  tmp = new char[buffer.getBitLength()+1];
+  strcpy(tmp,buffer.genBinStr().c_str());
+  *o_data = tmp;
+
+  return rc;
+}
+
+int cipClientPerlapi::cipPutVr (const char* i_target, int i_vrNum, const char* i_data){
+  int rc = 0;
+  return rc;
+}
+
