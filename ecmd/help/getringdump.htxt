@@ -33,7 +33,7 @@ Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...]
 
         --------------------------------------------------------------------------------
 
-        Notes:          Output is binary for latches <= 8 bits in length and hex for > 8.
+        Notes:          Output is binary for latches <= 8 bits in length and xl for > 8.
 
         Examples:       getringdump memctrl int 
                         getringdump pu gps_fuse
