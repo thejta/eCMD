@@ -1,32 +1,32 @@
 
 Syntax: getbits ChipSelect RingName StartPos NumBits  [-exp data] [-k#] [-n#] [-p#] [-c#]
-			[-f<format>]
+                        [-f<format>]
 
 
-	Function:	Long scans bits out of a chip's selected ring. (non-destructive)
+        Function:       Long scans bits out of a chip's selected ring. (non-destructive)
 
-	Parameters:
-	--------------------------------------------------------------------------------
-	ChipSelect	Specifies the chip to operate on.  
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Specifies the chip to operate on.  
 
-	RingName	Specifies chip ring to operate on.  For a list of available
-			rings, use the ecmdquery command.
+        RingName        Specifies chip ring to operate on.  For a list of available
+                        rings, use the ecmdquery command.
 
-			Ex:  ecmdquery rings smi
-			     ecmdquery rings pu
-			
+                        Ex:  ecmdquery rings smi
+                             ecmdquery rings pu
+                        
         StartPos        Specifies starting bit position in Decimal.
 
-        NumBits		Specifies number of bits to get from starting position in Decimal.
+        NumBits         Specifies number of bits to get from starting position in Decimal.
 
-        -exp [optional]	Provide expected data.  Returns error if expected != actual.  No
+        -exp [optional] Provide expected data.  Returns error if expected != actual.  No
                         error/no data returned if expected == actual. 
 
         -f<format>[opt] Specifies the format type of both the output and 
-			the expect-value: default ???
-	
+                        the expect-value: default ???
+        
         -X   [optional] For simulation use only.  Must be used to display any Xstates data
-			in ring.
+                        in ring.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
@@ -40,7 +40,7 @@ Syntax: getbits ChipSelect RingName StartPos NumBits  [-exp data] [-k#] [-n#] [-
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
  
-	--------------------------------------------------------------------------------
+        --------------------------------------------------------------------------------
 
-	Examples: 	getbits spinnaker stat 0 15 
-			getbits spinnaker cp_fxu 0 32 -x -exp feedbeef
+        Examples:       getbits spinnaker stat 0 15 
+                        getbits spinnaker cp_fxu 0 32 -x -exp feedbeef

@@ -1,40 +1,40 @@
 Syntax: putbits ChipSelect RingName StartPos Data [-x] [-X] [-k#] [-n#] [-p#] [-c#]
 
-	Function:  	Put bits to the specified chip ring.
+        Function:       Put bits to the specified chip ring.
 
-	Paramaters:
-	--------------------------------------------------------------------------------
-	ChipSelect	Specifies the chip to operate on. 
+        Paramaters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Specifies the chip to operate on. 
 
-	RingName	Specifies chip ring to operate on.  For a list of available
-			rings, use the ecmdquery command.
+        RingName        Specifies chip ring to operate on.  For a list of available
+                        rings, use the ecmdquery command.
 
-			Ex:  ecmdquery rings memctrl
-			     ecmdquery rings pu
+                        Ex:  ecmdquery rings memctrl
+                             ecmdquery rings pu
 
-	StartPos	Specifies starting bit position in Decimal.
+        StartPos        Specifies starting bit position in Decimal.
 
-	Data		Bits to insert into chip ring.  Default is binary.
+        Data            Bits to insert into chip ring.  Default is binary.
 
-	-x   [optional] Specifies the input data is in hex left format 
-			
-	-X   [optional] For simulation use only.  Input data is in a binary form with
-			characters specified where correct.
-			Ex:  001X001, 0X10011X
+        -x   [optional] Specifies the input data is in hex left format 
+                        
+        -X   [optional] For simulation use only.  Input data is in a binary form with
+                        characters specified where correct.
+                        Ex:  001X001, 0X10011X
 
-	-k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-			to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
 
-	-n#  [optional] Specify which node to act on (0 is default). Specify -nall
-			to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
 
-	-p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-			to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
 
-	-c#  [optional] Specify which processor core to act on (0 is default). Specify
-			-call to act on all cores.
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
+                        -call to act on all cores.
 
-	--------------------------------------------------------------------------------
+        --------------------------------------------------------------------------------
 
-	Example: 	putbits pu int 567 ABAB -x -p0,1 -c1
-			putbits pu int 23 011X001X -p0
+        Example:        putbits pu int 567 ABAB -x -p0,1 -c1
+                        putbits pu int 23 011X001X -p0

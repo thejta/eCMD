@@ -1,56 +1,56 @@
 
 Syntax: pollscom ChipSelect ScanCommAddr [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]] 
-				[-limit #[s|c]] [-interval #[s|c]] [-verbose] [-k#] [-n#] [-p#] [-c#]
+                                [-limit #[s|c]] [-interval #[s|c]] [-verbose] [-k#] [-n#] [-p#] [-c#]
 
-	Function:  	Repeatedly gets Scan Communications registers until expected data
-			matches actual data or until polling limit is reached.
+        Function:       Repeatedly gets Scan Communications registers until expected data
+                        matches actual data or until polling limit is reached.
 
-	Parameters:
-	--------------------------------------------------------------------------------
-	ChipSelect	Chip to get scancom data from.  
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to get scancom data from.  
 
-	ScanCommAddr 	Address in hex.
+        ScanCommAddr    Address in hex.
 
-	-exp	  [opt]	Provide expected data.  Returns error if expected != actual.  No
-			error/no data returned if expected == actual.
+        -exp      [opt] Provide expected data.  Returns error if expected != actual.  No
+                        error/no data returned if expected == actual.
 
-	-mask     [opt]	Scom data is AND'ed with the mask bits before checking against
-			expected value.
+        -mask     [opt] Scom data is AND'ed with the mask bits before checking against
+                        expected value.
 
-	-limit #  [opt]	Max polling number in iterations, seconds, or cycles. To specify
-			in seconds, append an 's' to #.  To specify number of cycles for 
-			simulation, append a 'c' to #.	If limit is not specified, 
-			defaults to 1000 iterations.  If limit = 0, polls indefinitely.
-			If limit = 0 and -interval is not specified, the interval defaults
-			to 5 seconds.
+        -limit #  [opt] Max polling number in iterations, seconds, or cycles. To specify
+                        in seconds, append an 's' to #.  To specify number of cycles for 
+                        simulation, append a 'c' to #.  If limit is not specified, 
+                        defaults to 1000 iterations.  If limit = 0, polls indefinitely.
+                        If limit = 0 and -interval is not specified, the interval defaults
+                        to 5 seconds.
 
-	-interval # [opt] Time between getscoms. To specify in seconds, append an 's' 
-			to #.  To specify number of cycles for simulation, append a 
-			'c' to # (number of cycles must be > 1000).  If -limit is not 
-			specified with -interval, the limit defaults to ~240 seconds
-			or 1 million cycles, depending on how -interval is specified.
-			If neither -limit or -interval are specified, limit defaults to
-			60 seconds and interval defaults to 5 seconds.
-	
-	-verbose  [opt]	Prints warning message after each getscom if actual != expected.
+        -interval # [opt] Time between getscoms. To specify in seconds, append an 's' 
+                        to #.  To specify number of cycles for simulation, append a 
+                        'c' to # (number of cycles must be > 1000).  If -limit is not 
+                        specified with -interval, the limit defaults to ~240 seconds
+                        or 1 million cycles, depending on how -interval is specified.
+                        If neither -limit or -interval are specified, limit defaults to
+                        60 seconds and interval defaults to 5 seconds.
+        
+        -verbose  [opt] Prints warning message after each getscom if actual != expected.
 
-	-k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-			to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
 
-	-n#  [optional] Specify which node to act on (0 is default). Specify -nall
-			to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
 
-	-p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-			to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
 
-	-c#  [optional] Specify which processor core to act on (0 is default). Specify
-			-call to act on all cores.
-	--------------------------------------------------------------------------------
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
+                        -call to act on all cores.
+        --------------------------------------------------------------------------------
 
-	Note:		If used, -interval and -limit must come after -exp.
+        Note:           If used, -interval and -limit must come after -exp.
 
-	Examples: 	pollscom spinnaker 800009 -exp feed0000 00000001 0 -limit 30s -interval 10s -verbose -p1
-			pollscom spinnaker 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0 -limit 10
-			pollscom outrigger 400020 -limit 100000c -interval 5000c
+        Examples:       pollscom spinnaker 800009 -exp feed0000 00000001 0 -limit 30s -interval 10s -verbose -p1
+                        pollscom spinnaker 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0 -limit 10
+                        pollscom outrigger 400020 -limit 100000c -interval 5000c
 
-			
+                        

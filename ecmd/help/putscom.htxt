@@ -1,41 +1,41 @@
 
 Syntax: putscom ChipSelect ScanCommAddr Bits0-31 Bits32-63 Bits64-96 [-and | -or] [-k#] [-n#] [-p#] [-c#]
 
-	
-	Function: 	Write the specified data to the specified chip using scancom.
+        
+        Function:       Write the specified data to the specified chip using scancom.
 
-	Parameters:
-	--------------------------------------------------------------------------------
-	ChipSelect	Chip to put scancom data to.
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to put scancom data to.
 
-	ScanCommAddr 	Address in right aligned hex.
+        ScanCommAddr    Address in right aligned hex.
 
-	Bits0-31	Data consists of 8 hex numbers, right aligned.
+        Bits0-31        Data consists of 8 hex numbers, right aligned.
 
-	Bits32-63	Data consists of 8 hex numbers, right aligned.
+        Bits32-63       Data consists of 8 hex numbers, right aligned.
 
-	Bits64-96	Data consists of 8 hex numbers, right aligned.
+        Bits64-96       Data consists of 8 hex numbers, right aligned.
 
-	-and [optional]	Input data will be AND'ed with current scom data.
+        -and [optional] Input data will be AND'ed with current scom data.
 
-	-or  [optional] Input data will be OR'ed with current scom data.
+        -or  [optional] Input data will be OR'ed with current scom data.
 
-	-k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-			to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
 
-	-n#  [optional] Specify which node to act on (0 is default). Specify -nall
-			to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
 
-	-p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-			to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
+                        to act on all chips.
 
-	-c#  [optional] Specify which processor core to act on (0 is default). Specify
-			-call to act on all cores.
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
+                        -call to act on all cores.
 
-	--------------------------------------------------------------------------------
+        --------------------------------------------------------------------------------
 
-	Notes:		Leading zeros are not necessary.
+        Notes:          Leading zeros are not necessary.
 
-	Examples:  	> putscom pu 600000 deadbeef 80000000 0 -p0,1 -c1
-			> putscom memctrl 2010 00800 488 0
-			> putscom l3 40320 00008000 0 0 -or -p12
+        Examples:       > putscom pu 600000 deadbeef 80000000 0 -p0,1 -c1
+                        > putscom memctrl 2010 00800 488 0
+                        > putscom l3 40320 00008000 0 0 -or -p12
