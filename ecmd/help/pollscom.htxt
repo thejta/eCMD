@@ -2,6 +2,8 @@
 Syntax: pollscom ChipSelect ScanCommAddr [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]] 
                                 [-limit #[s|c]] [-interval #[s|c]] [-verbose] [-k#] [-n#] [-p#] [-c#]
 
+        ECMD:           Core Common Function
+
         Function:       Repeatedly gets Scan Communications registers until expected data
                         matches actual data or until polling limit is reached.
 

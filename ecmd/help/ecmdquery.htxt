@@ -1,28 +1,17 @@
 
-Syntax: checkrings ChipSelect RingSelect [-p#] [-c#]
+Syntax: ecmdquery Mode [Mode Options]
 
-Supported Products:  All
+        ECMD:           Core Common Function
 
-        Clocks must be OFF.
-
-        Function:       checks for stuck bits and verifies scanring length
+        Function:       Query information from eCMD
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.
+        Mode            Query type to perform
 
-        RingSelect      Specifies chip ring to operate on.  Use "all" for all rings.
-                        For a list of available rings, use the query command.
+        Mode Values     rings ChipSelect [-k#] [-n#] [-p#]
+                            - Display all rings available for chip
 
-                        Ex:  query rings outrigger
-                             query rings pu                     
-
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
-
-        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
-                        -call to act on all cores.
         --------------------------------------------------------------------------------
 
-        Example:        checkrings pu all -p0,1 -c0
-                        checkrings sunfish int -pall
+        Example:        ecmdquery rings pu -p0,1

@@ -1,7 +1,8 @@
 
 Syntax: putscom ChipSelect ScanCommAddr Bits0-31 Bits32-63 Bits64-96 [-and | -or] [-k#] [-n#] [-p#] [-c#]
 
-        
+        ECMD:           Core Common Function
+
         Function:       Write the specified data to the specified chip using scancom.
 
         Parameters:

@@ -1,11 +1,10 @@
 
-Syntax: checkrings ChipSelect RingSelect [-p#] [-c#]
+Syntax: checkrings ChipSelect RingSelect [-k#] [-n#] [-p#] [-c#]
 
-Supported Products:  All
+        ECMD:           Core Common Function
 
-        Clocks must be OFF.
-
-        Function:       checks for stuck bits and verifies scanring length
+        Function:       checks for stuck bits and verifies scanring length by scanning
+                        ones and zeros to scan chain
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -14,15 +13,21 @@ Supported Products:  All
         RingSelect      Specifies chip ring to operate on.  Use "all" for all rings.
                         For a list of available rings, use the query command.
 
-                        Ex:  query rings outrigger
-                             query rings pu                     
+                        Ex:  ecmdquery rings memctrl
+                             ecmdquery rings pu                     
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
 
-        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
         --------------------------------------------------------------------------------
 
         Example:        checkrings pu all -p0,1 -c0
-                        checkrings sunfish int -pall
+                        checkrings memctrl int -pall

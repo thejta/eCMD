@@ -1,37 +1,36 @@
 
-Syntax: putpattern ChipSelect RingType Data [-X] [-p#] [-c#]
+Syntax: putpattern ChipSelect RingType Data [-i<format>] [-k#] [-n#] [-p#] [-c#]
 
-Supported Products:  All
-
-        Clocks must be OFF.
+        ECMD:           Core Common Function
 
         Function:       Puts a repeated pattern to the entire specified chip ring.
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  Possibe chip names: 
-                        pu,pulsar,cerberusio,scimitar, speedwagon, radar, bcalp, midway,
-                        python, mack, etc.
+        ChipSelect      Specifies the chip to operate on.  
 
-        RingType        Specifies chip ring to operate on.  For a list of available
-                        rings, use the query command.
+        RingName        Specifies chip ring to operate on.  For a list of available
+                        rings, use the ecmdquery command.
 
-                        Ex:  query rings outrigger
-                             query rings pu
+                        Ex:  ecmdquery rings memctrl
+                             ecmdquery rings pu
                         
-        Data            32bit pattern to write.  Must be hex and right-justified.
+        Data            32bit pattern to write.  (default: hex-right)
         
-        -X   [optional] Used in simulation only.  Used to indicate when a pattern 
-                        containing Xstates will be written in.  Pattern can be any length
-                        and will be copied for the entire ring.
+        -i<format>[opt] Specifies the format type of input data
 
-                        Ex:   XXXX or X1010X11
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
 
-        -c#  [optional] Specify which Spinnaker core to act on (0 is default). Specify
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
+
         --------------------------------------------------------------------------------
 
         Example:        putpattern pu int FEEDBEEF -p0,1

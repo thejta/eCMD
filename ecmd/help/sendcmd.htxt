@@ -1,6 +1,7 @@
-Syntax: sendcmd ChipSelect ScanInstrCode ScanInstrMod [-s] [-v] [-p#] 
+
+Syntax: sendcmd ChipSelect ScanInstrCode ScanInstrMod [-v] [-k#] [-n#] [-p#]
         
-Supported Products:  All
+        ECMD:           Core Common Function
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -10,18 +11,24 @@ Supported Products:  All
 
         ScanInstrCode   Scan instruction code to be sent (in hex).
 
-        ScanInstrMod    Scan instruction modifier (for ACCESS).
+        ScanInstrMod    Scan instruction modifier (for ACCESS/CFAM).
 
-        -s   [optional] Print out the instruction status for scan chain.
-
-        -v   [optional] Verbose mode.  When used with -s, parses the instruction
+        -v   [optional] Verbose mode.  Displays the instruction
                         status in an easy-to-read format.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
-        --------------------------------------------------------------------------------
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+      --------------------------------------------------------------------------------
 
         Notes:          Leading zeros ARE NECESSARY if the command is not a full
                         16 bits (e.g. ACCESS)
+                        Only valid with JTAG attached chips
 
-        Example:        sendcmd spinnaker 12 C00008 -s -p0,1
+        Example:        sendcmd pu 12 C00008 -p0,1

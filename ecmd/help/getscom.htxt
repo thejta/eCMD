@@ -1,7 +1,8 @@
 
-Syntax: getscom ChipSelect ScanCommAddr [-v] [-k#] [-n#] [-p#] [-c#] [-f<format>]
+Syntax: getscom ChipSelect ScanCommAddr [-v] [-k#] [-n#] [-p#] [-c#] [-o<format>]
                 [-exp Bits0-31 Bits32-63 Bits64-96 [-mask Bits0-31 Bits32-63 Bits64-96]]
 
+        ECMD:           Core Common Function
 
         Function:       Gets Scan Communications registers.
 
@@ -16,7 +17,7 @@ Syntax: getscom ChipSelect ScanCommAddr [-v] [-k#] [-n#] [-p#] [-c#] [-f<format>
 
         -mask     [opt] Scom data is AND'ed with the mask bits. Only for use with -exp.
 
-        -f<format>[opt] Output Format : default xw - See doc for details
+        -o<format>[opt] Output Format : default xw - See doc for details
 
         -v   [optional] Print out Scan Comm bit meaning if available
 
@@ -31,7 +32,8 @@ Syntax: getscom ChipSelect ScanCommAddr [-v] [-k#] [-n#] [-p#] [-c#] [-f<format>
 
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
+
         --------------------------------------------------------------------------------
 
         Examples:       > getscom pu 6 -p0,1 
-                        > getscom spinnaker 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0
+                        > getscom memctrl 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0

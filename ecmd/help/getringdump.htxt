@@ -1,6 +1,7 @@
 
 Syntax: getringdump ChipSelect RingName1 [RingName2 ...] [-k#] [-n#] [-p#] [-c#] 
                                          
+        ECMD:           Core Common Function
         
         Function:       Gets values for all latchs in the entire scan ring.
 
@@ -8,8 +9,8 @@ Syntax: getringdump ChipSelect RingName1 [RingName2 ...] [-k#] [-n#] [-p#] [-c#]
         --------------------------------------------------------------------------------
         ChipSelect      Chip to get data from.  
 
-        RingName        Specifies one or multiple chip rings to operate on.  For a list of available
-                        rings, use the ecmdquery command.
+        RingName        Specifies one or multiple chip rings to operate on.  For a list
+                        of available rings, use the ecmdquery command.
 
                         Ex:  ecmdquery rings smi
                              ecmdquery rings pu
@@ -20,16 +21,16 @@ Syntax: getringdump ChipSelect RingName1 [RingName2 ...] [-k#] [-n#] [-p#] [-c#]
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify -pall
-                        to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify
+                        -pall to act on all chips.
 
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
 
         --------------------------------------------------------------------------------
 
-        Notes:          Output is binary for latches <= 8 bits in length and hex for > 8 bits.
+        Notes:          Output is binary for latches <= 8 bits in length and hex for > 8.
 
-        Examples:       getring memctrl int 
-                        getring pu gps_fuse
-                        getring pu gps_fuse gps_abist cp_ras
+        Examples:       getringdump memctrl int 
+                        getringdump pu gps_fuse
+                        getringdump pu gps_fuse gps_abist cp_ras
