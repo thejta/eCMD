@@ -610,7 +610,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
   }
   else if (curState == ECMD_FORMAT_XR) {
     printed = i_data.genHexRightStr();
-    if (!perlMode) printed = "0x" + printed;
+    if (!perlMode) printed = "0xr" + printed;
   }
   else if (curState == ECMD_FORMAT_B) {
     printed = i_data.genBinStr();
@@ -633,6 +633,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
     if (numCols) {
 
       if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B) {
+        printed += "\n";
         printed += ecmdBitsHeader(4, blockSize, numCols, dataBitLength);
       } 
 
@@ -719,6 +720,9 @@ std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i
 
       lineCount++;
       blockCount++;
+
+      /* Let's see if we are done with data */
+      if (lineCount >= i_maxBitWidth) break;
     }
 
   }
