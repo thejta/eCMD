@@ -123,7 +123,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
-  match = sscanf(argv[0], "%Xl", &address);
+  match = sscanf(argv[0], "%llx", &address);
   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
@@ -236,7 +236,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
-  match = sscanf(argv[0], "%Xl", &address);
+  match = sscanf(argv[0], "%llx", &address);
   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
