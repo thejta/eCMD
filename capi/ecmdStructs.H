@@ -168,7 +168,8 @@ struct ecmdSpyData {
 typedef enum {
   ECMD_FILE_SCANDEF,    ///< Scandef file type
   ECMD_FILE_SPYDEF,     ///< Spy Definition file
-  ECMD_FILE_ARRAYDEF    ///< Array Definition file
+  ECMD_FILE_ARRAYDEF,   ///< Array Definition file
+  ECMD_FILE_HELPTEXT    ///< eCMD Help Text file
 } ecmdFileType_t;
 
 
