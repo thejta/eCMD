@@ -292,43 +292,6 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target) {
   rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
   if (rc) return rc;
 
-#ifndef ECMD_STRIP_DEBUG
-  /* Let's walk through the entire structure to see what the dll gave us back */
-  if (ecmdClientDebug > 5) {
-    char buf[100];
-    ecmdOutput("ECMD DEBUG (ecmdConfigLooperInit) : Query Selected Return Value\n");
-    for (ecmdCurCage = ecmdSystemConfigData.cageData.begin(); ecmdCurCage != ecmdSystemConfigData.cageData.end(); ecmdCurCage ++) {
-      sprintf(buf,"k%d\n",ecmdCurCage->cageId); ecmdOutput(buf);
-        for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
-          sprintf(buf,"  n%d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
-
-            for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
-              sprintf(buf,"    s%d\n",ecmdCurSlot->slotId); ecmdOutput(buf);
-
-                for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
-                  sprintf(buf,"      %s:p%d\n",ecmdCurChip->chipType.c_str(),ecmdCurChip->pos); ecmdOutput(buf);
-
-                    for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                      sprintf(buf,"        c%d\n",ecmdCurCore->coreId); ecmdOutput(buf);
-
-                        for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
-                          sprintf(buf,"          t%d\n",ecmdCurThread->threadId); ecmdOutput(buf);
-                        } /* curThreadIter */
-
-                    } /* curCoreIter */
-
-                } /* curChipIter */
-
-            } /* curSlotIter */
-
-        } /* curNodeIter */
-
-    } /* curCageIter */
-
-    ecmdOutput("ECMD DEBUG (ecmdConfigLooperInit) : END Query Selected Return Value\n");
-  }
-#endif
-
   ecmdCurCage = ecmdSystemConfigData.cageData.begin();
   ecmdLooperInitFlag = 1;
 

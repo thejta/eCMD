@@ -5,9 +5,9 @@
 
 OS           := $(shell uname)
 
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
 INT_INCLUDES := ecmdDllCapi.H
-SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdClientCapiFunc.C ecmdUtils.C
+SOURCE       := ecmdDataBuffer.C ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
@@ -83,7 +83,7 @@ ${TARGET}: ${SOURCE_OBJS}
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
-ecmdClientCapiFunc.C ecmdDllCapi.H: ecmdClientCapi.H makedll.pl 
+ecmdClientCapiFunc.C ecmdDllCapi.H ecmdClientEnums.H: ecmdClientCapi.H makedll.pl 
 	@echo "==== Auto Generate Client Functions"
 	@chmod 777 makedll.pl
 	./makedll.pl 

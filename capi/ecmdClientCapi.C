@@ -31,6 +31,7 @@
 #include <ecmdClientCapi.H>
 #include <ecmdDllCapi.H>
 #include <ecmdUtils.H>
+#include <ecmdClientEnums.H>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -55,6 +56,7 @@
 #ifndef ECMD_STATIC_FUNCTIONS
 /* These are from ecmdClientCapiFunc.C */
 extern void * dlHandle;
+extern void * DllFnTable[];
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
@@ -188,6 +190,10 @@ int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   rc = dllCommonCommandArgs(i_argc, i_argv);
 
 #else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
 
   /* call DLL common command args */
   int (*Function)(int*, char***) =
@@ -342,3 +348,180 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 
   return ret;
 }
+
+
+/* ------------------------------------------------------------------------------------ */
+/* Below are the functions that pass straigh through to the Dll                         */
+/* Some have been moved here from ecmdClientCapiFunc.C to add additional debug messages */
+/* ------------------------------------------------------------------------------------ */
+
+int ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+
+  int rc;
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdQueryConfig) : Entering\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+
+  rc = dllQueryConfig(i_target, o_queryData, i_detail);
+
+#else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
+  if (DllFnTable[ECMD_QUERYCONFIG] == NULL) {
+     DllFnTable[ECMD_QUERYCONFIG] = (void*)dlsym(dlHandle, "dllQueryConfig");
+     if (DllFnTable[ECMD_QUERYCONFIG] == NULL) {
+       return ECMD_DLL_INVALID;
+     }
+  }
+
+  int (*Function)(ecmdChipTarget &,  ecmdQueryData &,  ecmdQueryDetail_t) = 
+      (int(*)(ecmdChipTarget &,  ecmdQueryData &,  ecmdQueryDetail_t))DllFnTable[ECMD_QUERYCONFIG];
+
+  rc =    (*Function)(i_target, o_queryData, i_detail);
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  /* Let's walk through the entire structure to see what the dll gave us back */
+  if (ecmdClientDebug > 5) {
+    std::list<ecmdCageData>::iterator ecmdCurCage;
+    std::list<ecmdNodeData>::iterator ecmdCurNode;
+    std::list<ecmdSlotData>::iterator ecmdCurSlot;
+    std::list<ecmdChipData>::iterator ecmdCurChip;
+    std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdThreadData>::iterator ecmdCurThread;
+    char buf[100];
+    ecmdOutput("ECMD DEBUG (ecmdQueryConfig) : Query Config Return Value\n");
+    for (ecmdCurCage = o_queryData.cageData.begin(); ecmdCurCage != o_queryData.cageData.end(); ecmdCurCage ++) {
+      sprintf(buf,"k%d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+        for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+          sprintf(buf,"  n%d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+
+            for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+              sprintf(buf,"    s%d\n",ecmdCurSlot->slotId); ecmdOutput(buf);
+
+                for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+                  sprintf(buf,"      %s:p%d\n",ecmdCurChip->chipType.c_str(),ecmdCurChip->pos); ecmdOutput(buf);
+
+                    for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                      sprintf(buf,"        c%d\n",ecmdCurCore->coreId); ecmdOutput(buf);
+
+                        for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                          sprintf(buf,"          t%d\n",ecmdCurThread->threadId); ecmdOutput(buf);
+                        } /* curThreadIter */
+
+                    } /* curCoreIter */
+
+                } /* curChipIter */
+
+            } /* curSlotIter */
+
+        } /* curNodeIter */
+
+    } /* curCageIter */
+
+    ecmdOutput("ECMD DEBUG (ecmdQueryConfig) : END Query Config Return Value\n");
+  }
+
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdQueryConfig) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+  return rc;
+
+}
+
+int ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData) {
+
+  int rc;
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdQuerySelected) : Entering\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+
+  rc = dllQuerySelected(io_target, o_queryData);
+
+#else
+
+  if (dlHandle == NULL) {
+     return ECMD_DLL_UNINITIALIZED;
+  }
+
+  if (DllFnTable[ECMD_QUERYSELECTED] == NULL) {
+     DllFnTable[ECMD_QUERYSELECTED] = (void*)dlsym(dlHandle, "dllQuerySelected");
+     if (DllFnTable[ECMD_QUERYSELECTED] == NULL) {
+       return ECMD_DLL_INVALID;
+     }
+  }
+
+  int (*Function)(ecmdChipTarget &,  ecmdQueryData &) = 
+      (int(*)(ecmdChipTarget &,  ecmdQueryData &))DllFnTable[ECMD_QUERYSELECTED];
+
+  rc =    (*Function)(io_target, o_queryData);
+
+#endif
+
+
+#ifndef ECMD_STRIP_DEBUG
+  /* Let's walk through the entire structure to see what the dll gave us back */
+  if (ecmdClientDebug > 5) {
+    std::list<ecmdCageData>::iterator ecmdCurCage;
+    std::list<ecmdNodeData>::iterator ecmdCurNode;
+    std::list<ecmdSlotData>::iterator ecmdCurSlot;
+    std::list<ecmdChipData>::iterator ecmdCurChip;
+    std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdThreadData>::iterator ecmdCurThread;
+    char buf[100];
+    ecmdOutput("ECMD DEBUG (ecmdQuerySelected) : Query Selected Return Value\n");
+    for (ecmdCurCage = o_queryData.cageData.begin(); ecmdCurCage != o_queryData.cageData.end(); ecmdCurCage ++) {
+      sprintf(buf,"k%d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+        for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+          sprintf(buf,"  n%d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+
+            for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+              sprintf(buf,"    s%d\n",ecmdCurSlot->slotId); ecmdOutput(buf);
+
+                for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+                  sprintf(buf,"      %s:p%d\n",ecmdCurChip->chipType.c_str(),ecmdCurChip->pos); ecmdOutput(buf);
+
+                    for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                      sprintf(buf,"        c%d\n",ecmdCurCore->coreId); ecmdOutput(buf);
+
+                        for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                          sprintf(buf,"          t%d\n",ecmdCurThread->threadId); ecmdOutput(buf);
+                        } /* curThreadIter */
+
+                    } /* curCoreIter */
+
+                } /* curChipIter */
+
+            } /* curSlotIter */
+
+        } /* curNodeIter */
+
+    } /* curCageIter */
+
+    ecmdOutput("ECMD DEBUG (ecmdQuerySelected) : END Query Selected Return Value\n");
+  }
+
+  if (ecmdClientDebug > 1) {
+    std::string printed = "ECMD DEBUG (ecmdQuerySelected) : Exiting\n"; ecmdOutput(printed.c_str());
+  }
+#endif
+
+  return rc;
+
+}
+

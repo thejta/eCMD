@@ -819,7 +819,7 @@ int simsymbol(const char* i_facname, unsigned int & o_symbol);
  * @retval ECMD_SUCCESS if successful
  * @retval nonzero on failure
 */
-int simtckinterval(int i_cycles);
+int simtckinterval(int i_tckinterval);
 
 
 
@@ -994,11 +994,11 @@ testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/e
 
 
 <pre>
-#include <list>
-#include <string>
+&#35include <list>
+&#35include <string>
 
-#include <ecmdClientCapi.H>
-#include <ecmdDataBuffer.H>
+&#35include <ecmdClientCapi.H>
+&#35include <ecmdDataBuffer.H>
 
 
 int main (int argc, char *argv[])
@@ -1028,6 +1028,9 @@ int main (int argc, char *argv[])
   target.cage = target.node = target.slot = 0;
   target.chipType = "pu";
   target.pos = target.core = 0;
+  // We have to tell the Dll what type of target we are querying
+  // We are not dealing with cores here so let the Dll know we want to know everything above that
+  target.coreState = ECMD_TARGET_FIELD_UNUSED
 
   // Is this target configured ? 
   if (ecmdQueryTargetConfigured(target)) {
