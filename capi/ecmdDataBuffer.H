@@ -105,7 +105,7 @@ public:
    * @param i_newNumWords Length of new buffer in words
    * @post Buffer is reinitialized
    *
-   * NOTE : All data stored in buffer will be lost
+   * CAUTION : All data stored in buffer will be lost
    */
   void  setWordLength(int i_newNumWords);   
   /**
@@ -113,7 +113,7 @@ public:
    * @param i_newNumBits Length of new buffer in bits
    * @post Buffer is reinitialized
    *
-   * NOTE : All data stored in buffer will be lost
+   * CAUTION : All data stored in buffer will be lost
    */
   void  setBitLength(int i_newNumBits);
   /**
@@ -121,7 +121,7 @@ public:
    * @param i_newNumWords length of internal data buffer in words
    * @post Internal buffer is reinitialzied
    *
-   * NOTE : All data stored in buffer will be lost
+   * CAUTION : All data stored in buffer will be lost
    */
   void setCapacity (int i_newNumWords);
 
@@ -228,14 +228,30 @@ public:
    * @brief Shift data to right
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to right by specified number of bits - data is shifted off the end
+   * @post Buffer size is unchanged
    */
   void  shiftRight(int i_shiftnum);
   /**
    * @brief Shift data to left
    * @param i_shiftnum Number of bits to shift
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
+   * @post Buffer size is unchanged
    */
   void  shiftLeft(int i_shiftnum);
+  /**
+   * @brief Shift data to right - resizing buffer
+   * @param i_shiftnum Number of bits to shift
+   * @post Bits in buffer are shifted to right by specified number of bits
+   * @post Buffer size is resized to accomodate shift
+   */
+  void  shiftRightAndResize(int i_shiftnum);
+  /**
+   * @brief Shift data to left - resizing buffer
+   * @param i_shiftnum Number of bits to shift
+   * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
+   * @post Buffer size is resized to accomodate shift
+   */
+  void  shiftLeftAndResize(int i_shiftnum);
   /**
    * @brief Rotate data to right
    * @param i_rotatenum Number of bits to rotate
@@ -476,21 +492,23 @@ public:
 
   /**
    * @brief Convert data from a hex left-aligned string and insert it into this data buffer
-   * @retval 0 on success- non-zero on failure
    * @param i_hexChars Hex Left-aligned string of data to insert 
    * @param i_start Starting position in data buffer to insert to, 0 by default
    * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
-
+   * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
    */
   int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
 
   /**
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer
-   * @retval 0 on success- non-zero on failure
    * @param i_hexChars Hex Right-aligned string of data to insert
    * @param i_expectedLength The expected length of the string data, zeros are padded or data dropped from the left if necessary
    * @param i_start Starting position in data buffer to insert to, 0 by default
-
+   * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
    */
   int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
 
@@ -499,6 +517,9 @@ public:
    * @retval 0 on success- non-zero on failure
    * @param i_binChars String of 0's and 1's to insert 
    * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-binary chars detected in i_binChars
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
 
    */
   int insertFromBin (const char * i_binChars, int i_start = 0);
