@@ -828,7 +828,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
         printed += ecmdBitsHeader(4, blockSize, numCols, dataBitLength);
       } 
 
-      printed += "\n00: ";
+      printed += "\n000: ";
     }
 
     for (int i = 0; i < numBlocks; i++) {
@@ -849,12 +849,8 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       colCount++;
       if (numCols && colCount == numCols && (i != numBlocks-1) ) {
         curCol += numCols;
-        if (curCol < 10) {
-          sprintf(outstr, "\n0%d: ", curCol);
-        }
-        else {
-          sprintf(outstr, "\n%d: ", curCol % 100);
-        }
+
+        sprintf(outstr, "\n%3.3d: ", curCol);
 
         printed += outstr;
         colCount = 0;
