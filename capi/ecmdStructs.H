@@ -40,7 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "3.2"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "3.3d"          ///< eCMD API Version
 
 
 /**
@@ -164,7 +164,7 @@ struct ecmdChipTarget {
 */
 typedef enum {
   ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Access Macro
-  ECMD_INTERFACE_CFAM,                  ///< CommonFirmwareAccessMacro - Fsi interface
+  ECMD_INTERFACE_CFAM,                  ///< CommonFirmwareAccessMacro 
   ECMD_INTERFACE_UNKNOWN                ///< Unknown Interface
 } ecmdChipInterfaceType_t;
 
