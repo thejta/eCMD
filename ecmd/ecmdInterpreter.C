@@ -119,7 +119,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
     /* Let's handle the '-h' arg right here */
     if (ecmdParseOption(&argc, &argv, "-h")) {
-      ecmdPrintHelp(argv[0]);
+      if (argc == 0)
+        ecmdPrintHelp("ecmd");
+      else
+        ecmdPrintHelp(argv[0]);
       return rc;
     }
 
