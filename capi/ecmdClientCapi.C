@@ -366,15 +366,40 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
 
   uint32_t rc;
+  ecmdChipTarget queryTarget = i_target;
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug > 1) {
     std::string printed = "ECMD DEBUG (ecmdQueryConfig) : Entering\n"; ecmdOutput(printed.c_str());
   }
 #endif
 
+  /* We need to do some state translation here */
+  if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED) queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.cageState == ECMD_TARGET_FIELD_VALID) queryTarget.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED) queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.nodeState == ECMD_TARGET_FIELD_VALID) queryTarget.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED) queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.slotState == ECMD_TARGET_FIELD_VALID) queryTarget.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED) queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_VALID) queryTarget.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED) queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.posState == ECMD_TARGET_FIELD_VALID) queryTarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED) queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.coreState == ECMD_TARGET_FIELD_VALID) queryTarget.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+  if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED) queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
+  else if (queryTarget.threadState == ECMD_TARGET_FIELD_VALID) queryTarget.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+
 #ifdef ECMD_STATIC_FUNCTIONS
 
-  rc = dllQueryConfig(i_target, o_queryData, i_detail);
+  rc = dllQueryConfig(queryTarget, o_queryData, i_detail);
 
 #else
 
