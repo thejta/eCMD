@@ -392,11 +392,12 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     while (getline(ins, curLine) && !done) {
 
       if (found) {
-        if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
-          //nada
-        }
-        else if (curLine.find(ringPrefix) != std::string::npos) {
+
+        if (curLine.find(ringPrefix) != std::string::npos) {
           done = true;
+        }
+        else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+          //nada
         }
         else if (!exactFlag && (curLine.find(latchName) != std::string::npos)) {
 
