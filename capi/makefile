@@ -30,12 +30,16 @@ ifeq (${OS},AIX)
   TARGET = ecmdClientCapi_aix.a
 endif
 
+VPATH := ${SUBDIR}
 
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET}
+	@touch t.o t.a
+	@mv *.o *.a ${SUBDIR}
+	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a
 	@echo "Exporting eCMD Client Api to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 	@cp ${INCLUDES} export/
@@ -43,7 +47,7 @@ all: dir ${TARGET}
 clean:
 	rm -rf ${SUBDIR}
 	rm ecmdClientCapiFunc.C
-	rm ecmdDllCapi.C
+	rm ecmdDllCapi.H
 
 dir:
 	@mkdir -p ${SUBDIR}
@@ -63,14 +67,14 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o ${SUBDIR}$@ $(DEFINES)
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS}
-	ar r ${SUBDIR}$@ $(addprefix ${SUBDIR}, $^)
+	ar r $@ $^
 
 
 
