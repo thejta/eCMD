@@ -1175,7 +1175,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
   std::string i_ring;                           ///< Ring that caller specified
 
   /* Transform to upper case for case-insensitive comparisons */
-  transform(latchName.begin(), latchName.end(), latchName.begin(), toupper);
+  transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
 
   if (i_ringName != NULL) {
     i_ring = i_ringName;
@@ -1259,7 +1259,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
           else if (!(i_mode == ECMD_LATCHMODE_FULL) && (curLine.find(latchName) != std::string::npos)) {
 
             /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+            transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 
             ecmdParseTokens(curLine, " \t\n", curArgs);
             curLatch.length = atoi(curArgs[0].c_str());
@@ -1270,7 +1270,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
           else if (i_mode == ECMD_LATCHMODE_FULL) {
 
             /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), toupper);
+            transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
             ecmdParseTokens(curLine, " \t\n", curArgs);
 
             if (latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
