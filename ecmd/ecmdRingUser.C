@@ -1190,7 +1190,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
   
   std::string printed;
-  char outstr[200];
+  char outstr[300];
   uint32_t pattern0 = 0xAAAA0000;
   uint32_t pattern1 = 0x5555FFFF;
   uint32_t pattern = 0x0;
@@ -1284,23 +1284,20 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         }
         else {
           /* Walk the ring looking for errors */
-          for (int bit = 32; bit < ringBuffer.getBitLength(); bit ++ ) {
+          /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
+          for (int bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
             if (i % 2) {
               if (ringBuffer.isBitSet(bit)) {
-                printed += "checkrings - Non-one bits found in 1's ring test at bit " + bit;
-                printed += " for ring " + ringName;
-                printed += "\n";
-                ecmdOutputWarning( printed.c_str() );
-                printed = "checkrings - Error occured performing checkring on " + ecmdWriteTarget(target) + "\n";
+                sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
+                ecmdOutputWarning( outstr );
+                printed = "checkrings - Error occured performing a checkring on " + ecmdWriteTarget(target) + "\n";
                 ecmdOutputWarning( printed.c_str() );
               }
             } else {
               if (ringBuffer.isBitClear(bit)) {
-                printed += "checkrings - Non-zero bits found in 0's ring test at bit " + bit;
-                printed += " for ring " + ringName;
-                printed += "\n";
-                ecmdOutputWarning( printed.c_str() );
-                printed = "checkrings - Error occured performing checkring on " + ecmdWriteTarget(target) + "\n";
+                sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
+                ecmdOutputWarning( outstr);
+                printed = "checkrings - Error occured performing a checkring on " + ecmdWriteTarget(target) + "\n";
                 ecmdOutputWarning( printed.c_str() );
               }
             }
