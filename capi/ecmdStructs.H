@@ -327,6 +327,18 @@ struct ecmdIndexEntry {
   uint32_t       rc;                    ///< Error code in retrieving this entry
 }; 
 
+/**
+ @brief Used by getlatch function to return data
+*/
+struct ecmdLatchEntry {
+  std::string    latchName;             ///< Latch name of entry
+  std::string    ringName;              ///< Ring that latch came from
+  ecmdDataBuffer buffer;                ///< Latch data
+  int            latchStartBit;         ///< Start bit of data inside latch
+  int            latchEndBit;           ///< End bit of data inside latch
+  uint32_t       rc;                    ///< Error code in retrieving this entry
+};
+
 
 /**
  @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
