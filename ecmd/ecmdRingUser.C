@@ -152,7 +152,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   std::string printed;
@@ -389,7 +389,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffertemp(100 /* words */);     // Temp space for extraced latch data
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   std::string printed;
@@ -797,7 +797,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
   char outstr[30];
   std::string printed;
@@ -928,7 +928,7 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   std::string printed;
@@ -1035,7 +1035,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer bufferCopy;
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   std::string printed;
@@ -1295,7 +1295,7 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 
   bool validPosFound = false;
   bool printedTarget;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   std::list<ecmdRingData> queryRingData;
@@ -1476,7 +1476,7 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   std::string printed;
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target)) {

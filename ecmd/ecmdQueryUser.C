@@ -105,7 +105,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target);
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
     if (rc) return rc;
 
     char buf[200];

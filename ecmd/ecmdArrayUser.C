@@ -101,7 +101,7 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
   buffer.flushTo0();
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
   std::string printed;
 
@@ -193,7 +193,7 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
 
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
   std::string printed;
 

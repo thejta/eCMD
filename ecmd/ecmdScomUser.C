@@ -152,7 +152,7 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
 
   std::string printed;
@@ -298,7 +298,7 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
   std::string printed;
 
@@ -516,7 +516,7 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
   if (rc) return rc;
   std::string printed;
 
