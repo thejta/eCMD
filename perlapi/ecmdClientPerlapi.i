@@ -126,7 +126,8 @@
 
 %exception {
 	$function
-	if (ecmdPerlInterfaceErrorCheck(-1)) {
+	if ((ecmdPerlInterfaceErrorCheck(-1)) &&
+	   (ecmdQuerySafeMode() == 1)) {
 		croak("ecmdClientPerlapi.i::Error occured in eCMD Perl module - execution halted\n");
 	}
 }

@@ -45,6 +45,7 @@
 */
 
 extern "C" int ecmdPerlInterfaceErrorCheck (int ec);
+extern "C" int ecmdQuerySafeMode();
 
 /**
  * @brief eCMD Perl API
@@ -559,7 +560,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simEXPECTFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row = 0, int i_offset = 0);
+    int simEXPECTFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row, int i_offset);
 
     /**
      @brief Perform expect on TCFAC facility
@@ -571,7 +572,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simexpecttcfac(const char* i_tcfacname, int i_bitlength, const char* i_expect, int i_row = 0);
+    int simexpecttcfac(const char* i_tcfacname, int i_bitlength, const char* i_expect, int i_row);
 
 
     /**
@@ -646,7 +647,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simPOLLFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row = 0, int i_offset = 0, int i_maxcycles = 1, int i_pollinterval = 1);
+    int simPOLLFAC(const char* i_facname, int i_bitlength, const char* i_expect, int i_row, int i_offset, int i_maxcycles, int i_pollinterval);
 
     /**
      @brief Poll a TCFAC facility waiting for expected value
@@ -662,7 +663,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simpolltcfac(const char* i_tcfacname, const char* i_expect, int i_row = 0, int i_startbit = 0, int i_bitlength = 0, int i_maxcycles = 1, int i_pollinterval = 1);
+    int simpolltcfac(const char* i_tcfacname, const char* i_expect, int i_row, int i_startbit, int i_bitlength, int i_maxcycles, int i_pollinterval);
 
 
     /**
@@ -689,7 +690,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simPUTFACX(const char* i_facname, int i_bitlength, const char* i_data, int i_row = 0, int i_offset = 0);
+    int simPUTFACX(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset);
 
     /**
      @brief Write a TCFAC facility
@@ -702,7 +703,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simputtcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row = 0, int i_numrows = 0);
+    int simputtcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows);
 
     /**
      @brief Load a checkpoint into model
@@ -724,7 +725,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simSTKFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row = 0, int i_offset = 0);
+    int simSTKFAC(const char* i_facname, int i_bitlength, const char* i_data, int i_row, int i_offset);
 
     /**
      @brief Stick a TCFAC facility
@@ -737,7 +738,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simstktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row = 0, int i_numrows = 0);
+    int simstktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows);
 
     /**
      @brief Run RTX SUBCMD
@@ -770,7 +771,7 @@ class ecmdClientPerlapi
      @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
      @retval nonzero on failure
      */
-    int simUNSTICK(const char* i_facname, int i_bitlength, int i_row = 0, int i_offset = 0);
+    int simUNSTICK(const char* i_facname, int i_bitlength, int i_row, int i_offset);
 
     /**
      @brief Unstick a TCFAC facility
@@ -783,7 +784,7 @@ class ecmdClientPerlapi
      @retval ECMD_SUCCESS if successful
      @retval nonzero on failure
      */
-    int simunsticktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row = 0, int i_numrows = 0); 
+    int simunsticktcfac(const char* i_tcfacname, int i_bitlength, const char* i_data, int i_row, int i_numrows); 
 
     //@}
     /* End Simulation Functions */
@@ -798,6 +799,19 @@ class ecmdClientPerlapi
 
      */
     char* ecmdGetErrorMsg(int i_errorCode);
+
+    /**
+     @brief Set Error Handling mode.  Croak in perl on an internal error.
+
+     */
+    void ecmdEnableSafeMode();
+
+    /**
+     @brief Set Error Handling mode.  Do not Croak in perl on an internal error.
+
+     */
+    void ecmdDisableSafeMode();
+
 
 
     //@}

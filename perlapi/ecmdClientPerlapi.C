@@ -28,6 +28,7 @@
 
 
 static int myErrorCode = ECMD_SUCCESS;
+static int safeMode = 1;
 
 int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
@@ -839,6 +840,19 @@ char* ecmdClientPerlapi::ecmdGetErrorMsg(int i_errorCode){
 
   return NULL;
 }
+
+void ecmdClientPerlapi::ecmdEnableSafeMode() {
+  safeMode = 1;
+}
+
+void ecmdClientPerlapi::ecmdDisableSafeMode() {
+  safeMode = 0;
+}
+
+int ecmdQuerySafeMode() {
+  return (int) safeMode;
+}
+
 
 void ecmdClientPerlapi::ecmdOutputError(const char* i_message){
   ::ecmdOutputError(i_message);
