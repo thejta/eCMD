@@ -150,17 +150,14 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		tmpTarget.core	  = core;
 		tmpTarget.thread	= thread;
 		tmpTarget.unitId	= htonl(unitId);
-		(uint32_t)tmpTarget.cageState     = htonl((uint32_t)cageState);
-		(uint32_t)tmpTarget.nodeState     = htonl((uint32_t)nodeState);
-		(uint32_t)tmpTarget.slotState     = htonl((uint32_t)slotState);
-		(uint32_t)tmpTarget.chipTypeState = 
-						htonl((uint32_t)chipTypeState);
-		(uint32_t)tmpTarget.posState      = htonl((uint32_t)posState);
-		(uint32_t)tmpTarget.coreState     = htonl((uint32_t)coreState);
-		(uint32_t)tmpTarget.threadState   = 
-						htonl((uint32_t)threadState);
-		(uint32_t)tmpTarget.unitIdState   = 
-						htonl((uint32_t)unitIdState);
+		tmpTarget.cageState     = (ecmdChipTargetState_t) htonl((uint32_t)cageState);
+		tmpTarget.nodeState     = (ecmdChipTargetState_t) htonl((uint32_t)nodeState);
+		tmpTarget.slotState     = (ecmdChipTargetState_t) htonl((uint32_t)slotState);
+		tmpTarget.chipTypeState = (ecmdChipTargetState_t) htonl((uint32_t)chipTypeState);
+		tmpTarget.posState      = (ecmdChipTargetState_t) htonl((uint32_t)posState);
+		tmpTarget.coreState     = (ecmdChipTargetState_t) htonl((uint32_t)coreState);
+		tmpTarget.threadState   = (ecmdChipTargetState_t) htonl((uint32_t)threadState);
+		tmpTarget.unitIdState   = (ecmdChipTargetState_t) htonl((uint32_t)unitIdState);
 		tmpTarget.chipType	= chipType;
 
 		// Now copy everything to the output buffer.
