@@ -1202,7 +1202,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
 bool isTargetStringValid(std::string str) {
 
   bool ret = true;
-  for (int x = 0; x < str.length(); x ++) {
+  for (uint32_t x = 0; x < str.length(); x ++) {
     if (isdigit(str[x])) {
     } else if (str[x] == ',') {
     } else if (str[x] == '.' && str[x+1] == '.') {
@@ -1219,9 +1219,9 @@ bool isTargetStringValid(std::string str) {
 void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
   
   std::string curSubstr;
-  int curOffset = 0;
-  int nextOffset = 0;
-  int tmpOffset = 0;
+  uint32_t curOffset = 0;
+  uint32_t nextOffset = 0;
+  uint32_t tmpOffset = 0;
 
   while (curOffset < userArgs.length()) {
 

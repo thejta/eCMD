@@ -92,8 +92,8 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
       }
 
       uint32_t curOffset = 0;
-      int nextOffset = 0;
-      int tmpOffset = 0;
+      uint32_t nextOffset = 0;
+      uint32_t tmpOffset = 0;
 
       while (curOffset < userArgs.length()) {
 
