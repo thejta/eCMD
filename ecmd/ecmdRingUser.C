@@ -215,7 +215,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       char outstr[1000];
       ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
       ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
-      ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
+      ecmdDataBuffer buffertemp(500 /* bits */);   ///< Temp space for extracted latch data
   
   
   
