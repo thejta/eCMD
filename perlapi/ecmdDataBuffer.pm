@@ -588,6 +588,350 @@ sub invert() {
 
 
 
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Apply an inversion mask to data inside buffer
+   * @param i_invMask Buffer that stores inversion mask
+   * @param i_invByteLen Buffer length provided in bytes
+   */
+=cut
+sub applyInversionMask() {
+#void applyInversionMask(uint32_t * i_invMask, int i_invByteLen);
+
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Insert part of another DataBuffer into this one
+   * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
+   * @param i_start Start bit to insert to
+   * @param i_len Length of bits to insert
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   */
+=cut
+sub insert() {
+#  void  insert(ecmdDataBuffer & i_bufferIn, int i_start, int i_len);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Copy data from this DataBuffer into another
+   * @param o_bufferOut DataBuffer to copy into - data is placed left aligned
+   * @param i_start Start bit of data in this DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to bufferOut
+   */
+=cut
+sub extract() {
+#  void  extract(ecmdDataBuffer & o_bufferOut, int i_start, int i_len);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /* these functions OR the datain into the DataBuffer buffer */
+  /**
+   * @brief OR data into DataBuffer
+   * @param i_bufferIn DataBuffer to OR data from - data is taken left aligned
+   * @param i_startbit Start bit to OR to
+   * @param i_len Length of bits to OR
+   * @post Data is ORed from i_bufferIn to this DataBuffer in specified location
+   */
+=cut
+sub setOr() {
+#  void setOr(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief OR data into DataBuffer
+   * @param i_bufferIn DataBuffer to OR data from - data is taken left aligned
+   * @post Entire data is ORed from bufferIn to this DataBuffer
+   */
+=cut
+sub merge() {
+#  void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
+}
+
+
+#######################################################################################
+=for functionBrief
+  /* these functions AND the datain into the DataBuffer buffer */
+  /**
+   * @brief AND data into DataBuffer
+   * @param i_bufferIn Bitvector to AND data from - data is taken left aligned
+   * @param i_startbit Start bit to AND to
+   * @param i_len Length of bits to AND
+   * @post Data is ANDed from bufferIn to this DataBuffer in specified location
+   */
+=cut
+sub setAnd() {
+#  void setAnd(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+}
+
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Copy entire contents of this ecmdDataBuffer into o_copyBuffer 
+   * @param o_copyBuffer DataBuffer to copy data into
+   * @post copyBuffer is an exact duplicate of this DataBuffer
+   */
+=cut
+sub copy() {
+#  void  copy(ecmdDataBuffer & o_copyBuffer); 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /* These are only to be used to apply a buffer to the entire ecmdDataBuffer, not just sections */
+  /**
+   * @brief Copy buffer into this ecmdDataBuffer
+   * @param i_buf Buffer to copy from
+   * @param i_bytes Byte length to copy
+   * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
+   */
+=cut
+sub memCopyIn() {
+#  void  memCopyIn(uint32_t * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Copy DataBuffer into supplied uint32_t buffer
+   * @param o_buf Buffer to copy into - must be pre-allocated
+   * @param i_bytes Byte length to copy
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
+   */
+=cut
+sub memCopyOut() {
+#  void  memCopyOut(uint32_t * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Generate odd parity over a range of bits and insert into DataBuffer
+   * @param i_start Start bit of range
+   * @param i_stop Stop bit of range
+   * @param i_insertpos Bit position to insert parity
+   * @retval 0 on success - nonzero on failure
+   */
+=cut
+sub oddParity() { 
+#  int  oddParity(int i_start, int i_stop, int i_insertpos); 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Generate even parity over a range of bits and insert into DataBuffer
+   * @param i_start Start bit of range
+   * @param i_stop Stop bit of range
+   * @param i_insertpos Bit position to insert parity
+   * @retval 0 on success - nonzero on failure
+   */
+=cut
+sub evenParity() {
+#  int  oddParity(int i_start, int i_stop, int i_insertpos); 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Return Data as a hex left aligned char string
+   * @param i_start Start bit of data to convert
+   * @param i_bitlen Number of consecutive bits to convert
+   * @retval String containing requested data
+   */
+=cut
+sub genHexLeftStr() {
+#  std::string genHexLeftStr(int i_start, int i_bitlen);
+#  std::string genHexLeftStr();
+
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Return Data as a hex right aligned char string
+   * @param i_start Start bit of data to convert
+   * @param i_bitlen Number of consecutive bits to convert
+   * @retval String containing requested data
+   */
+=cut
+sub genHexRightStr() {
+#  std::string genHexRightStr(int i_start, int i_bitlen); 
+#  std::string genHexRightStr(); 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Return Data as a binary char string
+   * @param i_start Start bit of data to convert
+   * @param i_bitlen Number of consecutive bits to convert
+   * @retval String containing requested data
+   */
+=cut
+sub genBinStr() {
+#  std::string genBinStr(int i_start, int i_bitlen); 
+#  std::string genBinStr(); 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Retrieve a section of the Xstate Data
+   * @param i_start Start bit of data to retrieve
+   * @param i_bitlen Number of consecutive bits to retrieve
+   * @retval String containing requested data
+   */
+=cut
+sub genXstateStr() {
+#  std::string genXstateStr(int i_start, int i_bitlen);
+#  std::string genXstateStr();
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Convert data from a hex left-aligned string and insert it into this data buffer
+   * @param i_hexChars Hex Left-aligned string of data to insert 
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
+   * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
+   */
+=cut
+sub insertFromHexLeft() {
+#  int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Convert data from a hex right-aligned string and insert it into this data buffer
+   * @param i_hexChars Hex Right-aligned string of data to insert
+   * @param i_expectedLength The expected length of the string data, zeros are padded or data dropped from the left if necessary
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
+   */
+=cut
+sub insertFromHexRight() {
+#  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Convert data from a binary string and insert it into this data buffer
+   * @retval 0 on success- non-zero on failure
+   * @param i_binChars String of 0's and 1's to insert 
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-binary chars detected in i_binChars
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
+   */
+=cut
+sub insertFromBin () {
+#  int insertFromBin (const char * i_binChars, int i_start = 0);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Check section of buffer for any X-state values
+   * @param i_start Start bit to test
+   * @param i_length Number of consecutive bits to test
+   * @retval 1 if xstate found 0 if none
+   */
+=cut
+sub hasXstate() {
+#  int   hasXstate(int i_start, int i_length); /* check subset */
+#  int   hasXstate(); 
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Retrieve an Xstate value from the buffer
+   * @param i_bit Bit to retrieve
+
+   * NOTE - To retrieve multiple bits use genXstateStr
+   */
+=cut
+sub getXstate() {
+#  char  getXstate(int i_bit);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Set an Xstate value in the buffer
+   * @param i_bit Bit to set
+   * @param i_value Xstate value to set
+   */
+=cut
+sub setXstate() {
+#  void setXstate(int i_bit, char i_value);
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
+   * @param i_buf Buffer to copy from
+   * @param i_bytes Byte length to copy (char length)
+   * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
+   */
+=cut
+sub memCopyInXstate() {
+#  void  memCopyInXstate(char * i_buf, int i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+}
+
+
+#######################################################################################
+=for functionBrief
+  /**
+   * @brief Copy DataBuffer into supplied char buffer from Xstate data
+   * @param o_buf Buffer to copy into - must be pre-allocated
+   * @param i_bytes Byte length to copy (char length)
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
+   */
+=cut
+sub memCopyOutXstate() {
+#  void  memCopyOutXstate(char * o_buf, int i_bytes); /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+}
+
+
 
 sub getstr {
 	return $iv_DataStr;
