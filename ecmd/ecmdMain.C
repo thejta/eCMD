@@ -43,7 +43,7 @@ int main (int argc, char *argv[])
   if (!rc) {
 
     /* We now want to call the command interpreter to handle what the user provided us */
-    rc = ecmdCommandInterpreter(argc, argv);
+    rc = ecmdCommandInterpreter(argc - 1, argv + 1);
 
 
   }
