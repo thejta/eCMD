@@ -76,18 +76,6 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 
     switch (argv[0][3]) {
 
-        /************************/
-        /* The I's              */
-        /************************/
-      case 'i':
-
-        if (!strcmp(argv[0], "cipinstruct")) {
-          rc = cipInstructUser(argc - 1, argv + 1);
-        } else {
-          /* We don't understand this function, let's let the caller know */
-          rc = ECMD_INT_UNKNOWN_COMMAND;
-        }
-        break;
 	/************************/
         /* The B's              */
         /************************/
@@ -100,6 +88,9 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
         break;
+
+
+
         /************************/
         /* The G's              */
         /************************/
@@ -112,6 +103,24 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
         break;
+
+
+
+        /************************/
+        /* The I's              */
+        /************************/
+      case 'i':
+
+        if (!strcmp(argv[0], "cipinstruct")) {
+          rc = cipInstructUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+
+
 	/************************/
         /* The P's              */
         /************************/
@@ -124,6 +133,9 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
         break;
+
+
+
       default:
         /* We don't understand this function, let's let the caller know */
         rc = ECMD_INT_UNKNOWN_COMMAND;

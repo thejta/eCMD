@@ -92,7 +92,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = "pu";
+  target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
 
@@ -223,7 +223,7 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   address = strtoull(argv[2], NULL, 16);
   
   //Setup the target that will be used to query the system config 
-  target.chipType = "pu";
+  target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
   
