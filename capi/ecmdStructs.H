@@ -147,7 +147,16 @@ struct ecmdChipTarget {
 
 
 
-
+/**
+ Predefined common chip names for ecmdChipData.chipCommonType
+*/
+#define ECMD_CHIPT_PROCESSOR    "pu"
+#define ECMD_CHIPT_MEM_BUF      "memb"
+#define ECMD_CHIPT_MEM_CNTRL    "memc"
+#define ECMD_CHIPT_MEM_L2CACHE  "l2cache"
+#define ECMD_CHIPT_MEM_L3CACHE  "l3cache"
+#define ECMD_CHIPT_IOBDG        "iobdg"
+#define ECMD_CHIPT_IOHUB        "iohub"
 
 /**
  @brief Used in ecmdChipData to describe the interface macro used by the chip
@@ -405,7 +414,9 @@ typedef enum {
   ECMD_FILE_SPYDEF,     ///< Spy Definition file
   ECMD_FILE_ARRAYDEF,   ///< Array Definition file
   ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file - target field of ecmdQueryFileLocation is not used for this and just a path is returned
-  ECMD_FILE_SCOMDATA    ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
+  ECMD_FILE_SCOMDATA,   ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
+  ECMD_FILE_SPYHASH,    ///< Hash file for spy definition
+  ECMD_FILE_SCANDEFHASH ///< Hash file for the scandef
 } ecmdFileType_t; 
 
 
