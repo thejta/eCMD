@@ -146,6 +146,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
       ecmdOutput( printed.c_str() );
     }
+    ecmdOutput("\n");
 
   }
 
@@ -280,7 +281,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     if (rc) return rc;
 
 
-    rc = putSpr(target, sprName.c_str(), buffer);
+    rc = putSpr(target, sprName.c_str(), sprBuffer);
 
     if (rc) {
         printed = "putspr - Error occured performing putspr on ";
@@ -415,6 +416,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       ecmdOutput( printed.c_str() );
     }
 
+    ecmdOutput("\n")
   }
 
   if (!validPosFound) {
@@ -566,9 +568,9 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
 
     if (daType == ECMD_GPR)
-      rc = putGpr(target, entry, buffer);
+      rc = putGpr(target, entry, sprBuffer);
     else
-      rc = putFpr(target, entry, buffer);
+      rc = putFpr(target, entry, sprBuffer);
 
     if (rc) {
       printed = function + " - Error occured performing putspr on ";
