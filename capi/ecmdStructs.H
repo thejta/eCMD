@@ -32,7 +32,11 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
+#define ECMD_CAPI_VERSION ".1"
+
 #define ECMD_MAX_CHIP_TYPE_LENGTH 15  ///< @see ecmdChipTarget
+
+
 
 // Change Log *********************************************************
 //                                                                      
