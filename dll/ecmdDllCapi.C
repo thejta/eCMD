@@ -42,6 +42,12 @@
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
+#ifdef ENABLE_MPATROL
+#ifdef _AIX
+/* This is to fix a missing symbol problem when compiling on aix with mpatrol */
+char **p_xargv;
+#endif
+#endif
 
 //----------------------------------------------------------------------
 //  Macros
@@ -199,7 +205,7 @@ std::string dllGetErrorMsg(uint32_t i_errorCode) {
   char* tempstr = NULL;
   unsigned int comprc;
 
-  ifstream ins(filePath.c_str());
+  std::ifstream ins(filePath.c_str());
 
   if (ins.fail()) {
     ret = "ERROR OPENING DECODE FILE";
