@@ -146,6 +146,72 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
         break;
 
 
+      case 's':
+#ifndef REMOVE_SIM
+        if (!strcmp(argv[0], "simaet")) {
+          rc = ecmdSimaetUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simcheckpoint")) {
+          rc = ecmdSimcheckpointUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simclock")) {
+          rc = ecmdSimclockUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simecho")) {
+          rc = ecmdSimechoUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simexit")) {
+          rc = ecmdSimexitUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simEXPECTFAC")) {
+          rc = ecmdSimEXPECTFACUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simEXPECTFACS")) {
+          rc = ecmdSimEXPECTFACSUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simexpecttcfac")) {
+          rc = ecmdSimexpecttcfacUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simGETFAC")) {
+          rc = ecmdSimGETFACUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simGETFACS")) {
+          rc = ecmdSimGETFACSUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simGETFACX")) {
+          rc = ecmdSimGETFACXUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simgettcfac")) {
+          rc = ecmdSimgettcfacUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simgetcurrentcycle")) {
+          rc = ecmdSimgetcurrentcycleUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "siminit")) {
+          rc = ecmdSiminitUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simPUTFAC")) {
+          rc = ecmdSimPUTFACUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simPUTFACS")) {
+          rc = ecmdSimPUTFACSUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simPUTFACX")) {
+          rc = ecmdSimPUTFACXUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simputtcfac")) {
+          rc = ecmdSimputtcfacUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simrestart")) {
+          rc = ecmdSimrestartUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simSTKFAC")) {
+          rc = ecmdSimSTKFACUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simSTKFACS")) {
+          rc = ecmdSimSTKFACSUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simstktcfac")) {
+          rc = ecmdSimstktcfacUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simSUBCMD")) {
+          rc = ecmdSimSUBCMDUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simsymbol")) {
+          rc = ecmdSimsymbolUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simUNSTICK")) {
+          rc = ecmdSimUNSTICKUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simUNSTICKS")) {
+          rc = ecmdSimUNSTICKSUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simunsticktcfac")) {
+          rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
+        }
+        else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+#else
+        /* We don't understand this function, let's let the caller know */
+        rc = ECMD_INT_UNKNOWN_COMMAND;
+#endif
+        break;
         /************************/
         /* The Unknown          */
         /************************/
