@@ -35,6 +35,13 @@
 #define DATABUFFER_HEADER 0xBEEFBEEF
 #endif
 
+#ifdef ENABLE_MPATROL
+#ifdef _AIX
+/* This is to fix a missing symbol problem when compiling on aix with mpatrol */
+char **p_xargv;
+#endif
+#endif
+
 //----------------------------------------------------------------------
 //  Forward declarations
 //----------------------------------------------------------------------
@@ -167,7 +174,7 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
 
-  } else { /* no need to resize */
+  } else if (iv_NumWords != 0) { /* no need to resize */
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
 #ifndef REMOVE_SIM
@@ -215,7 +222,7 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
 
-  } else { /* no need to resize */
+  } else if (iv_NumBits != 0) { /* no need to resize */
 
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
@@ -1235,29 +1242,32 @@ int ecmdDataBuffer::insertFromBin (const char * i_binChars, int start) {
 void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 
   newCopy.setBitLength(iv_NumBits);
-  // iv_Data
-  memcpy(newCopy.iv_Data, iv_Data, iv_NumWords * 4);
 
-  // char
+  if (iv_NumBits != 0) {
+    // iv_Data
+    memcpy(newCopy.iv_Data, iv_Data, iv_NumWords * 4);
 
 #ifndef REMOVE_SIM
-  strncpy(newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
+    // char
+    strncpy(newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
 #endif
+  }
 
 }
 
 /* Copy Constructor */
-int ecmdDataBuffer::operator=(ecmdDataBuffer & i_master) {
-
+ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
   setBitLength(i_master.iv_NumBits);
-  // iv_Data
-  memcpy(iv_Data, i_master.iv_Data, iv_NumWords * 4);
-  // char
 
+  if (iv_NumBits != 0) {
+    // iv_Data
+    memcpy(iv_Data, i_master.iv_Data, iv_NumWords * 4);
 #ifndef REMOVE_SIM
-  strncpy(iv_DataStr, i_master.iv_DataStr, i_master.iv_NumBits);
+    // char
+    strncpy(iv_DataStr, i_master.iv_DataStr, i_master.iv_NumBits);
 #endif
-  return 0;
+  }
+  return *this;
 }
 
 

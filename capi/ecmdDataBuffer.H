@@ -436,7 +436,7 @@ public:
    * @brief Copy Constructor
    * @param i_master DataBuffer to copy from
    */
-  int operator=(ecmdDataBuffer & i_master);
+  ecmdDataBuffer& operator=(const ecmdDataBuffer & i_master);
 
   /* These are only to be used to apply a buffer to the entire ecmdDataBuffer, not just sections */
   /**
