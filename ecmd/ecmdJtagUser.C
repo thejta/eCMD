@@ -182,19 +182,13 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
       printed += "\t\t " + statusBuffer.genHexRightStr(5, 1) + " CRC Miscompare on previous data scan-in" + "\n";
       printed += "\t\t " + statusBuffer.genHexRightStr(6, 1) + " Invalid Instruction" + "\n";
       printed += "\t\t " + statusBuffer.genHexRightStr(7, 1) + " PGOOD Indicator(set to '1' by flush, set to '0' by first JTAG instruction)" + "\n";
-      char jtagInstrCnt[9];
-      sprintf(jtagInstrCnt,"%X", strtoul((statusBuffer.genHexLeftStr(8, 4)).c_str(), NULL, 16));
-      printed += "\t\t " + (std::string)jtagInstrCnt + " JTAG Instruction count(Incremented following Shift-IR) Bits(8:11). (Hex Left)" + "\n";
+      printed += "\t\t " + statusBuffer.genHexRightStr(8, 4) + " JTAG Instruction count(Incremented following Shift-IR) Bits(8:11). (Hex Left)" + "\n";
  
       printed += "\t\t " + statusBuffer.genHexRightStr(12, 1) + " Data scan occured after the last instruction" + "\n";
-      char resvd[9];
-      sprintf(resvd,"%X", strtoul((statusBuffer.genHexLeftStr(13, 3)).c_str(), NULL, 16));
-      printed += "\t\t " + (std::string)resvd + " Reserved Bits(13:15). (Hex Left)" + "\n";
- 
-      char clockstr[14];
-      sprintf(clockstr,"%04X", strtoul((statusBuffer.genHexLeftStr(16, 14)).c_str(), NULL, 16));
-      printed += "\t      " + (std::string)clockstr + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
- 
+      printed += "\t\t " + statusBuffer.genHexRightStr(13, 3) + " Reserved Bits(13:15). (Hex Left)" + "\n";
+
+      printed += "\t      " + statusBuffer.genHexRightStr(16,14) + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
+  
       printed += "\t\t " + statusBuffer.genHexRightStr(30, 1) + " IEEE defined 0"  + "\n";
       printed += "\t\t " + statusBuffer.genHexRightStr(31, 1) + " IEEE defined 1"  + "\n";
       ecmdOutput(printed.c_str());

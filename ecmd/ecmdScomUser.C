@@ -815,7 +815,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
   
   while (getline(scomdefFile, curLine) && !done) {
     //Remove leading whitespace
-    int curStart = curLine.find_first_not_of(" \t", 0);
+    uint32_t curStart = curLine.find_first_not_of(" \t", 0);
     if (curStart != std::string::npos) {
       curLine = curLine.substr(curStart,curLine.length());
     }
