@@ -422,7 +422,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdChipTarget target;                        ///< Target we are operating on
   std::string printed;
   std::list<ecmdLatchEntry> latchdata;           ///< Data returned from getLatch
-  char temp[100];                               ///< Temp string buffer
+  char temp[300];                               ///< Temp string buffer
   ecmdDataBuffer buffer;                        ///< Buffer for extracted data
   std::string ringName;                         ///< Ring name to fetch
   std::string latchName;                        ///< Latch name to fetch
