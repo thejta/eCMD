@@ -66,11 +66,6 @@ int dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer &
 int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
-int dllRingRead (ecmdChipTarget & target, const char * ringName, const char * fileName) { return ECMD_SUCCESS; }
-
-int dllRingWrite (ecmdChipTarget & target, const char * ringName, const char * fileName) { return ECMD_SUCCESS; }
-
-
 int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 int dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
@@ -115,3 +110,16 @@ void dllOutputWarning(const char* message) {
 void dllOutput(const char* message) {
   printf(message);
 }
+
+void dllEnableRingCache() { return ; }
+
+int dllDisableRingCache() { return ECMD_SUCCESS; }
+
+int dllFlushRingCache() { return ECMD_SUCCESS; }
+
+int dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
+
+int dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
+
+
+
