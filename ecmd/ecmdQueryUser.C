@@ -137,10 +137,11 @@ int ecmdQueryUser(int argc, char* argv[]) {
 
       for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
 
-
+        printed = "";
         /* The Ring Names */
         for (strit = ringit->ringNames.begin(); strit != ringit->ringNames.end(); strit ++) {
-          printed = (*strit) + ",";
+          if (strit != ringit->ringNames.begin()) printed += ", ";
+          printed += (*strit);
         }
         for (int i = printed.length(); i <= 36; i++) { 
           printed += " ";
