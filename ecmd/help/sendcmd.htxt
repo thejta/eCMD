@@ -31,8 +31,6 @@ Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s
 
       --------------------------------------------------------------------------------
 
-        Notes:          Leading zeros ARE NECESSARY if the command is not a full
-                        16 bits (e.g. ACCESS)
-                        Only valid with JTAG attached chips
+        Notes:          Only valid with JTAG attached chips
 
         Example:        sendcmd pu 12 C00008 -p0,1
