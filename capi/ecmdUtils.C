@@ -595,8 +595,11 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
      uint32_t decdata = decToUInt32(i_dataStr);
      bitlength = 32;
      if (i_expectedLength != 0) bitlength = i_expectedLength;
-     o_data.setBitLength(bitlength);
+     /* Put it in the whole word and then shift, as decimal data is assumed to be right aligned */
+     o_data.setBitLength(32);
      rc = o_data.setWord(0, decdata);
+     if (bitlength != 32)
+       o_data.shiftLeftAndResize(32 - bitlength);
     }
   }   
   else {
