@@ -176,29 +176,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  #ifndef FIPSODE
-  if (verboseFlag && !expectFlag) {
-    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCOMDATA, scomdefFileStr);
-    if (rc) {
-      printed = "getScom - Error occured locating scomdef file: " + scomdefFileStr + "\n";
-      ecmdOutputError(printed.c_str());
-      return rc;
-    }
-      
-    std::ifstream scomdefFile(scomdefFileStr.c_str());
-    if(scomdefFile.fail()) {
-      rc = ECMD_UNABLE_TO_OPEN_SCOMDEF; 
-      printed = "readScomdefFile - Error occured opening scomdef file: " + scomdefFileStr + "\n";
-      ecmdOutputError(printed.c_str());	     
-      return rc;
-    }
-    rc = readScomDefFile(address, scomdefFile);
-    if (rc) return rc;
-    
-    scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
-    
-  }
-  #endif
+  
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
@@ -264,7 +242,28 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       
       #ifndef FIPSODE
       if (verboseFlag && !expectFlag) {
+        
+	rc = ecmdQueryFileLocation(target, ECMD_FILE_SCOMDATA, scomdefFileStr);
+        if (rc) {
+          printed = "getScom - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+          ecmdOutputWarning(printed.c_str());
+          continue;
+        }
       
+        std::ifstream scomdefFile(scomdefFileStr.c_str());
+        if(scomdefFile.fail()) {
+          printed = "readScomdefFile - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+          ecmdOutputWarning(printed.c_str());	     
+          continue;
+        }
+        rc = readScomDefFile(address, scomdefFile);
+        if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+	  ecmdOutput("Skipping -v parsing\n");
+	  continue;
+        }
+        scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
+    
+	
     	std::list< std::string >::iterator descIt;
     	std::list<sedcScomdefDefLine>::iterator definIt;
 	std::list< std::string >::iterator bitDetIt;
@@ -826,7 +825,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
     scomdefFile.seekg(beginPtr-beginLen-1);
   }
   else {
-    ecmdOutputError("Unable to find Scom Address in the Scomdef file\n");
+    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
     rc = ECMD_SCOMADDRESS_NOT_FOUND;
   }
   return rc;
