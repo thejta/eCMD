@@ -1,6 +1,6 @@
 
 Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>] 
-                        [-k#] [-n#] [-s#] [-p#] [-c#] [-o<format>]
+                        [-k#] [-n#] [-s#] [-p#] [-c#] [-o<format>] [-i<format>] 
 
         ECMD:           Core Common Function
 
@@ -25,8 +25,9 @@ Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>]
                         error/no data returned if expected == actual.  
                         <data> is left aligned hex
 
-        -o<format>[opt] Specifies the format type of both the output and 
-                        the expect-value: default 'b'
+        -o<format>[opt] Specifies the format type of the output: default 'b'
+
+        -i<format>[opt] Specifies the format type of expect data
         
         -X   [optional] For simulation use only.  Must be used to display any Xstates
                         data in ring.

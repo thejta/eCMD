@@ -1,5 +1,5 @@
 
-Syntax: putscom <ChipSelect> <ScanCommAddr> <Bits0-31> <Bits32-63> <Bits64-96> [-and | -or] 
+Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>] 
                              [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -12,15 +12,17 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> <Bits0-31> <Bits32-63> <Bits64-96> [
 
         ScanCommAddr    Address in right aligned hex.
 
-        Bits0-31        Data consists of 8 hex numbers, right aligned.
+        Start     [opt] Starting bit position within the scom.  Specify with numbits.
 
-        Bits32-63       Data consists of 8 hex numbers, right aligned.
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits
+                        are not specified, start = 0 and numbits is calculated from
+                        length of data string, rest of Scom register is padded with zeros..
 
-        Bits64-96       Data consists of 8 hex numbers, right aligned.
+	Data	        Data to insert into Scom Register. Default is Hex-Left.
 
-        -and [optional] Input data will be AND'ed with current scom data.
+        -i<format>[opt] Specifies the format type of input data
 
-        -or  [optional] Input data will be OR'ed with current scom data.
+        -b<mod>[opt]    Bit modifier to apply to current scom data.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
@@ -39,8 +41,6 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> <Bits0-31> <Bits32-63> <Bits64-96> [
 
         --------------------------------------------------------------------------------
 
-        Notes:          Leading zeros are not necessary.
-
-        Examples:       > putscom pu 600000 deadbeef 80000000 0 -p0,1 -c1
-                        > putscom memctrl 2010 00800 488 0
-                        > putscom l3 40320 00008000 0 0 -or -p12
+        Examples:       > putscom pu 600000 deadbeef80000000  -p0,1 -c1
+                        > putscom memctrl 2010 001001010110 -ib 
+                        > putscom l3 40320 0000800000 -bor -p12

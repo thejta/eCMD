@@ -9,7 +9,7 @@ Syntax: simPUTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
         --------------------------------------------------------------------------------
         symbol          Must be a facility symbol
 
-        data            Data to write to facility
+        data            Data to write to facility : Default "xr"
 
         length          Bit length of symbol to read
 
@@ -17,7 +17,7 @@ Syntax: simPUTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
  
         offset    [opt] Facility offset
 
-        -i<format>[opt] Specifies the format type of input data. default: "xr"
+        -i<format>[opt] Specifies the format type of input data.
 
         --------------------------------------------------------------------------------
 
