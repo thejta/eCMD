@@ -40,7 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "2.1d"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "2.1"          ///< eCMD API Version
 
 
 /**
@@ -322,7 +322,7 @@ struct ecmdArrayEntry {
 /**
  @brief Used by get/putspy function to create the return data from a group
 */
-struct ecmdGroupData {
+struct ecmdSpyGroupData {
   ecmdDataBuffer extractBuffer;         ///< The data read from the ring buffer
   ecmdDataBuffer deadbitsMask;          ///< A mask of the bits that were deadbits in that buffer
 };
