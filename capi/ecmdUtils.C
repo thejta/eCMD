@@ -150,12 +150,11 @@ int ecmdParseOption (int *argc, char **argv[], const char *option) {
     if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) {
       (*argv)[counter]=NULL;
       foundit = 1;
-      counter = *argc;
+      break;
     }
   }
 
   ecmdRemoveNullPointers(argc, argv);
-
   return foundit;
 }
 

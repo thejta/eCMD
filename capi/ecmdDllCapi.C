@@ -187,7 +187,7 @@ int dllRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_messa
   return rc;
 }
 
-int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_queryData) {
+int dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData) {
   int rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
@@ -320,13 +320,13 @@ int dllQuerySelected(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_quer
 
 
   /* now I need to go in and clean out any excess stuff */
-  std::list<ecmdCageData>::iterator curCage = o_queryData.begin();
+  std::list<ecmdCageData>::iterator curCage = o_queryData.cageData.begin();
 
-  while (curCage != o_queryData.end()) {
+  while (curCage != o_queryData.cageData.end()) {
 
     if (cageType == MULTI) {
       if (dllRemoveCurrentElement((*curCage).cageId, ecmdUserArgs.cage)) {
-        curCage = o_queryData.erase(curCage);
+        curCage = o_queryData.cageData.erase(curCage);
         continue;
       }
     }
