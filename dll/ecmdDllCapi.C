@@ -33,6 +33,7 @@
 
 #include <ecmdDllCapi.H>
 #include <ecmdStructs.H>
+#include <ecmdSharedUtils.H>
 
 #undef ecmdDllCapi_C
 //----------------------------------------------------------------------
@@ -56,10 +57,7 @@ char **p_xargv;
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
-void dllRemoveNullPointers (int * io_argc, char ** io_argv[]);
 
-char * dllParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
-bool dllParseOption (int *argc, char **argv[], const char *option);
 
 uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 
@@ -553,12 +551,12 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   char * curArg;
 
   ecmdUserArgs.allTargetSpecified = false;
-  if (dllParseOption(io_argc, io_argv, "-all"))
+  if (ecmdParseOption(io_argc, io_argv, "-all"))
     ecmdUserArgs.allTargetSpecified = true;
     
 
   //cage - the "-k" was Larry's idea, I just liked it - jtw
-  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-k");
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -k# at the same time\n");
     return ECMD_INVALID_ARGS;
@@ -570,7 +568,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
 
   //node
-  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-n");
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-n");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -n# at the same time\n");
     return ECMD_INVALID_ARGS;
@@ -582,7 +580,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
 
   //slot
-  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-s");
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-s");
     if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -s# at the same time\n");
     return ECMD_INVALID_ARGS;
@@ -594,7 +592,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
 
   //position
-  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-p");
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-p");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -p# at the same time\n");
     return ECMD_INVALID_ARGS;
@@ -606,7 +604,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
 
   //core
-  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-c");
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-c");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -c# at the same time\n");
     return ECMD_INVALID_ARGS;
@@ -618,7 +616,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
 
   //thread
-  curArg = dllParseOptionWithArgs(io_argc, io_argv, "-t");
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-t");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -t# at the same time\n");
     return ECMD_INVALID_ARGS;
@@ -630,9 +628,28 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   }
 
   /* Grab the quiet mode flag */
-  if (dllParseOption(io_argc, io_argv, "-quiet"))
+  if (ecmdParseOption(io_argc, io_argv, "-quiet"))
     ecmdGlobal_quiet = 1;
 
+
+  //-trace
+  if ((curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace="))) {
+    /* Grab all the tokens */
+    std::vector<std::string> tokens;
+    std::vector<std::string>::iterator tokit;
+
+    ecmdParseTokens(curArg," \t\n,", tokens);
+    for (tokit = tokens.begin(); tokit != tokens.end(); tokit ++) {
+      if (!strcmp(tokit->c_str(), "scan")) {
+        dllSetTraceMode(ECMD_TRACE_SCAN,true);
+      } else if (!strcmp(tokit->c_str(), "prcd")) {
+        dllSetTraceMode(ECMD_TRACE_PROCEDURE,true);
+      } else {
+        dllOutputWarning("dllCommonCommandArgs - Unknown Trace type detected '" + *tokit + "' : Ignoring\n");
+      }
+
+    }
+  }
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
@@ -640,76 +657,6 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   return rc;
 }
 
-
-
-void dllRemoveNullPointers (int *argc, char **argv[]) {
-  int counter=0;
-  int counter2=0;
-
-  for (counter=0;counter<(*argc+1);counter++) {
-    for (counter2=counter;counter2<*argc;counter2++) {
-      if ((*argv)[counter]==NULL) {
-        (*argv)[counter]=(*argv)[counter2];
-        (*argv)[counter2]=NULL;
-      }
-    }
-  }
-
-  for (counter=0;counter<(*argc);counter++) {
-    if ((*argv)[counter]==NULL) {
-      *argc=counter;
-      return;
-    }
-  }
-}
-
-char * dllParseOptionWithArgs(int *argc, char **argv[], const char *option) {
-  int counter = 0;
-  int foundit = 0;
-  char *returnValue=NULL;
-
-  for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) { 
-
-      if (strlen((*argv)[counter])>strlen(option)) {
-        returnValue = &((*argv)[counter][strlen(option)]);
-        (*argv)[counter]=NULL;
-      } else {
-        if ((counter+1)<*argc) {
-          returnValue = (*argv)[counter+1];
-          (*argv)[counter]=NULL;
-          (*argv)[counter+1]=NULL;
-        } else {
-          returnValue = NULL;
-        }
-      }
-      /* We found it , let's stop looping , we don't want to pull other args out if they are here, this fixes BZ#6 */
-      break;
-    }
-  }
-
-  dllRemoveNullPointers(argc, argv);
-
-  return returnValue;
-}
-
-
-
-bool dllParseOption (int *argc, char **argv[], const char *option) {
-  int counter = 0;
-  bool foundit = false;
-
-  for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strcmp((*argv)[counter],option)==0)) {
-      (*argv)[counter]=NULL;
-      foundit = true;
-      break;
-    }
-  }
-
-  dllRemoveNullPointers(argc, argv);
-  return foundit;
-}
 
 uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
   uint8_t remove = 1;
