@@ -479,7 +479,7 @@ public:
    * @retval 0 on success- non-zero on failure
    * @param i_hexChars Hex Left-aligned string of data to insert 
    * @param i_start Starting position in data buffer to insert to, 0 by default
-   * @param i_length Length of data to insert, defaults to length of i_hexChars
+   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
 
    */
   int insertFromHexLeft (const char * i_hexChars, int i_start = 0, int i_length = 0);
@@ -488,12 +488,11 @@ public:
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer
    * @retval 0 on success- non-zero on failure
    * @param i_hexChars Hex Right-aligned string of data to insert
-   * @param i_expectedLength The expected length of the string data, zeros are padded to the left if necessary to fit the length
+   * @param i_expectedLength The expected length of the string data, zeros are padded or data dropped from the left if necessary
    * @param i_start Starting position in data buffer to insert to, 0 by default
-   * @param i_length Length of data to insert, defaults to length of i_hexChars
 
    */
-  int insertFromHexRight (const char * i_hexChars, int i_expectedLength = 0, int i_start = 0, int i_length = 0);
+  int insertFromHexRight (const char * i_hexChars, int i_start = 0, int i_expectedLength = 0);
 
   /**
    * @brief Convert data from a binary string and insert it into this data buffer

@@ -908,21 +908,14 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   int rc = ECMD_SUCCESS;
   int i;
 
-  int strLen = strlen(i_hexChars);
+  int bitlength = length == 0 ? strlen(i_hexChars) * 4 : length;
 
-  if (length == 0) {
-
-    if (strLen > 0) {
-      length = strLen * 4;
-    }
-    else {
-      //error out
-      return ECMD_DBUF_INVALID_ARGS;
-    }
-
+  if (bitlength == 0) {
+    /* They don't want anything inserted */
+    return rc;
   }
 
-  int wordLength = (strLen - 1)/8 + 1;
+  int wordLength = (bitlength % 32) ? bitlength / 32 + 1 : bitlength / 32;
 
   uint32_t * number_ptr = new uint32_t[wordLength];
   for (i = 0; i < wordLength; i++) {
@@ -932,13 +925,6 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   uint32_t tmpb32 = 0x0;
   char nextOne[2];
   nextOne[1] = '\0';
-#if 0
-  for (i = 0; i < strLen; i++) {
-    nextOne[0] = i_hexChars[i];
-    tmpb32 = strtoul(&nextOne[0], NULL, 16);
-    number_ptr[i>>3] |= tmpb32 << (28 - (i << 2));
-  }<
-#endif
 
   for (i = 0; i < (int) strlen(i_hexChars); i++) {
     if ((i & 0xFFF8) == i)
@@ -949,57 +935,38 @@ int ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, int start, int l
   }
 
 
-
-  this->insert(number_ptr, start, length);
+  this->insert(number_ptr, start, bitlength);
 
   delete[] number_ptr;
 
   return rc;
 }
 
-int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int expectedLength, int start, int length) {
+int ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, int start, int expectedLength) {
   int rc = ECMD_SUCCESS;
   int i;
+  ecmdDataBuffer insertBuffer;
+  int bitlength = expectedLength == 0 ? strlen(i_hexChars) * 4 : expectedLength;
 
-  int strLen = strlen(i_hexChars);
-
-  //if the string isn't aligned along word/byte boundaries, we
-  //move it over
-  if (expectedLength > 0) {
-    start += expectedLength - strLen*4;
+  if (bitlength == 0) {
+    /* They don't want anything inserted */
+    return rc;
   }
 
-  if (length == 0) {
+  int nibbles = bitlength % 4 ? bitlength / 4 + 1 : bitlength / 4;
 
-    if (strLen > 0) {
-      length = strLen * 4;
-    }
-    else {
-      //error out
-      return ECMD_DBUF_INVALID_ARGS;
-    }
+  /* First we will insert it as if it is left aligned , then we will just shift it over */
+  /* We need to round up to the next nibble boundary */
+  insertBuffer.setBitLength(nibbles * 4);
+  insertBuffer.insertFromHexLeft(i_hexChars, 0, nibbles * 4);
 
-  }
+  /* Now we have left aligned data, we just shift to right the odd bits of the nibble to align to the right */
+  if (bitlength % 4)
+    insertBuffer.shiftLeft(bitlength % 4);
+  
+  /* Now we have our data insert into ourselves */
 
-  int wordLength = (strLen - 1)/8 + 1;
-
-  uint32_t * number_ptr = new uint32_t[wordLength];
-  for (i = 0; i < wordLength; i++) {
-    number_ptr[i] = 0x0;
-  }
-
-  uint32_t tmpb32 = 0x0;
-  char nextOne[2];
-  nextOne[1] = '\0';
-  for (i = 0; i < strLen; i++) {
-    nextOne[0] = i_hexChars[i];
-    tmpb32 = strtoul(&nextOne[0], NULL, 16);
-    number_ptr[i>>3] |= tmpb32 << (28 - (4 * (i & 0x7)));
-  }
-
-  this->insert(number_ptr, start, length);
-
-  delete[] number_ptr;
+  this->insert(insertBuffer, start, bitlength);
 
   return rc;
 }
