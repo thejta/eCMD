@@ -59,9 +59,13 @@ int ecmdGetScomUser(int argc, char* argv[]);
 
 int ecmdGetBitsUser(int argc, char* argv[]);
 
+int ecmdGetLatchUser(int argc, char* argv[]);
+
 int ecmdGetRingDumpUser(int argc, char* argv[]);
 
 int ecmdPutBitsUser(int argc, char* argv[]);
+
+int ecmdPutLatchUser(int argc, char* argv[]);
 
 int ecmdPutScomUser(int argc, char* argv[]);
 

@@ -29,12 +29,52 @@
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
 #include <stdio.h>
+#include <time.h>
 #include <fstream>
 #include <vector>
 #undef ecmdRingUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
+struct ecmdLatchInfo {
+  std::string latchName;
+  uint32_t ringOffset;
+  uint32_t length;
+};
+
+bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
+
+  int lhsLeftParen = lhs.latchName.find('(');
+  int rhsLeftParen = rhs.latchName.find('(');
+
+  if (lhsLeftParen == std::string::npos || rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
+    return lhs.latchName < rhs.latchName;
+  }
+
+  std::string lhsSub = lhs.latchName.substr(0, lhsLeftParen);
+  std::string rhsSub = rhs.latchName.substr(0, rhsLeftParen);
+
+  if (lhsSub != rhsSub) {
+    return lhs.latchName < rhs.latchName;
+  }
+
+  int lhsVal = atoi(lhs.latchName.substr(lhsLeftParen+1, lhs.latchName.length()-lhsLeftParen-1).c_str());
+  int rhsVal = atoi(rhs.latchName.substr(rhsLeftParen+1, rhs.latchName.length()-rhsLeftParen-1).c_str());
+
+  return lhsVal < rhsVal;
+}
+
+bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
+
+  int lhsLeftParen = lhs.latchName.find('(');
+  int rhsLeftParen = rhs.latchName.find('(');
+
+  if (lhsLeftParen != rhsLeftParen) {
+    return 1;
+  }
+
+  return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
+}
 
 //----------------------------------------------------------------------
 //  Constants
@@ -58,10 +98,15 @@
 
 int ecmdGetRingDumpUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
+  time_t curTime = time(NULL);
 
-  char * format = ecmdParseOptionWithArgs(&argc, &argv, "-f");
-  if (format == NULL) {
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr == NULL) {
     format = "default";
+  }
+  else {
+    format = formatPtr;
   }
 
   /************************************************************************/
@@ -79,25 +124,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
 
-  char * ringName;
-
-  /* find scandef file */
-  std::string scandefDir;
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefDir);
-  if (rc) {
-    scandefDir = "Error occured locating scandef file in dir: " + scandefDir;
-    ecmdOutputError(scandefDir.c_str());
-    return rc;
-  }
-
-  std::string scandefFile = scandefDir + "/test.scandef";
- 
-  std::ifstream ins(scandefFile.c_str());
-  if (ins.fail()) {
-    scandefFile = "Error occured opening scandef file: " + scandefFile;
-    ecmdOutputError(scandefFile.c_str());
-    return ECMD_INVALID_ARGS;  //change this
-  }
+  std::string ringName;
 
   ecmdDataBuffer ringBuffer(3);
   ecmdDataBuffer buffer(3);
@@ -112,14 +139,34 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 
   std::string printed;
   std::string curLine;
+  std::string ringPrefix = "ring=";
+  std::ifstream ins;
+  char outstr[30];
 
   while ( ecmdConfigLooperNext(target) ) {
 
     for (int i = 1; i < argc; i++) {
 
-      ringName = argv[i];
+      std::string ringName = argv[i];
+      std::string ringArg = ringPrefix + ringName;
 
-      rc = getRing(target, ringName, ringBuffer);
+      /* find scandef file */
+      std::string scandefFile;
+      rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+      if (rc) {
+        scandefFile = "Error occured locating scandef file in dir: " + scandefFile;
+        ecmdOutputError(scandefFile.c_str());
+        return rc;
+      }
+ 
+      ins.open(scandefFile.c_str());
+      if (ins.fail()) {
+        scandefFile = "Error occured opening scandef file: " + scandefFile;
+        ecmdOutputError(scandefFile.c_str());
+        return ECMD_INVALID_ARGS;  //change this
+      }
+
+      rc = getRing(target, ringName.c_str(), ringBuffer);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
       }
@@ -134,6 +181,21 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
         validPosFound = true;     
       }
 
+      //print ring header stuff
+      printed = ecmdWriteTarget(target);
+      printed += "\n*************************************************\n* ECMD Dump scan ring contents, ";
+      printed += ctime(&curTime);
+      sprintf(outstr, "* Position %d:%d, ", target.pos, target.core);
+      printed += outstr;
+      printed += target.chipType + " " + ringName + " Ring\n";
+      ecmdChipData chipData;
+      rc = ecmdGetChipData(target, chipData);
+      sprintf(outstr, "* Chip EC %d\n", chipData.chipEc);
+      printed += outstr;
+      sprintf(outstr, "* Ring length: %d bits\n", ringBuffer.getBitLength());
+      printed += outstr;
+      ecmdOutput(printed.c_str());
+
       bool found = false;
       bool done = false;
       std::vector<std::string> splitArgs;
@@ -143,7 +205,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         if (found) {
 
-          if (curLine[0] == '*' && curLine[2] == 'r' && curLine[6] == '=') {
+          if (curLine.find(ringPrefix) != std::string::npos) {
             done = true;
           }
           else if (curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
@@ -158,7 +220,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
             numBits = atoi(splitArgs[0].c_str());
             startBit = atoi(splitArgs[1].c_str());
 
-            if (!strcmp(format, "default")) {
+            if (format == "default") {
 
               if (numBits <= 8) {
                 printed += " 0b" + ringBuffer.genBinStr(startBit, numBits);
@@ -180,7 +242,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
           }
 
         }
-        else if (curLine.find(ringName) != std::string::npos) {
+        else if (curLine.find(ringArg) != std::string::npos) {
           found = true;
         }
 
@@ -190,9 +252,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
         //panic
       }
 
-      //reset the scandef file
-      ins.seekg(0);
-
+      ins.close();
     }
 
   }
@@ -200,8 +260,211 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdGetRegisterUser(int argc, char * argv[]) {
+
+int ecmdGetLatchUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
+
+  bool expectFlag = false;
+  bool nopFlag = false;
+
+  if (ecmdParseOption(&argc, &argv, "-exp")) {
+    expectFlag = true;
+  }
+
+  if (ecmdParseOption(&argc, &argv, "-nop")) {
+    nopFlag = true;
+  }
+
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr == NULL) {
+    format = "b";
+  }
+  else {
+    format = formatPtr;
+  }
+  
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 3) {  //chip + address
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, and latch name.\nType 'getlatch -h' for usage.");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //get chip name
+  ecmdChipTarget target;
+  target.chipType = argv[0];
+
+  std::string ringName = argv[1];
+  std::string latchName = argv[2];
+
+  uint32_t startBit = 0x0, numBits = 0xFFFFFFFF;
+
+  if (argc > 3) {
+    startBit = atoi(argv[3]);
+    if (!strcmp(argv[4], "end")) {
+      numBits = 0xFFFFFFFF;
+    }
+    else {
+      numBits = atoi(argv[4]);
+    }
+  }
+
+
+  ecmdDataBuffer ringBuffer(3);
+  ecmdDataBuffer buffer(3);
+
+  bool validPosFound = false;
+  rc = ecmdConfigLooperInit(target);
+  if (rc) return rc;
+
+  std::string printed;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;
+
+  while ( ecmdConfigLooperNext(target) ) {
+
+    rc = getRing(target, ringName.c_str(), ringBuffer);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "Error occured performing getring on ";
+      printed += ecmdWriteTarget(target);
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    /* find scandef file */
+    std::string scandefFile;
+    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+    if (rc) {
+      ecmdOutputError(("Error occured locating scandef file: " + scandefFile).c_str());
+      return rc;
+    }
+
+    std::ifstream ins(scandefFile.c_str());
+    if (ins.fail()) {
+      ecmdOutputError(("Error occured opening scandef file: " + scandefFile).c_str());
+      return ECMD_INVALID_ARGS;  //change this
+    }
+
+    //let's go hunting in the scandef for this register (pattern)
+    std::list< ecmdLatchInfo > latchInfo;
+    ecmdLatchInfo curLatch;
+    
+    std::string curLine;
+    std::vector<std::string> curArgs(4);
+
+    std::string ringPrefix = "ring=";
+    std::string ringArg = ringPrefix + ringName;
+
+    bool done = false;
+    bool found = false;
+
+    while (getline(ins, curLine) && !done) {
+
+      if (found) {
+        if (curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+          //nada
+        }
+        else if (curLine.find(ringPrefix) != std::string::npos) {
+          done = true;
+        }
+        else if (!nopFlag && (curLine.find(latchName) != std::string::npos)) {
+
+          ecmdParseTokens(curLine, curArgs);
+          curLatch.length = atoi(curArgs[0].c_str());
+          curLatch.ringOffset = atoi(curArgs[1].c_str());
+          curLatch.latchName = curArgs[3];
+          latchInfo.push_back(curLatch);
+        }
+        else if (nopFlag) {
+
+          ecmdParseTokens(curLine, curArgs);
+
+          if (latchName == curArgs[3]) {
+            curLatch.length = atoi(curArgs[0].c_str());
+            curLatch.ringOffset = atoi(curArgs[1].c_str());
+            curLatch.latchName = curArgs[3];
+            latchInfo.push_back(curLatch);
+          }
+
+        }
+
+      }
+      else {
+        if (curLine.find(ringArg) != std::string::npos) {
+          found = true;
+        }
+      }
+
+    }
+
+    ins.close();
+
+    if (!found) {
+      ecmdOutputError(("Could not find ring name " + ringName).c_str());
+      return ECMD_INVALID_ARGS;
+    }
+
+    if (latchInfo.empty()) {
+      ecmdOutputError(("No registers found that matched " + latchName).c_str());
+      return ECMD_INVALID_ARGS;
+    }
+
+    latchInfo.sort();
+
+    if (startBit != 0 || numBits != 0xFFFFFFFF) {
+      //confirm that we only fetched ONE latch name
+      curLatchInfo = latchInfo.begin();
+      while (curLatchInfo != latchInfo.end()) {
+
+        curLatch = (*curLatchInfo);
+        curLatchInfo++;
+        if (curLatchInfo == latchInfo.end()) break;
+
+        if (curLatch != (*curLatchInfo)) {
+          std::string printed = "Multiple latch names found: ";
+          printed += curLatch.latchName + " and ";
+          printed += (*curLatchInfo).latchName;
+          ecmdOutputError( printed.c_str() );
+          return ECMD_INVALID_ARGS;
+        }
+      }
+    }
+
+    printed = ecmdWriteTarget(target) + "\n";
+    uint32_t bitsToFetch = numBits;
+    uint32_t bitsFetched = 0;
+
+    for (curLatchInfo = latchInfo.begin(); numBits > 0 && curLatchInfo != latchInfo.end(); curLatchInfo++) {
+
+      bitsToFetch = ((*curLatchInfo).length < numBits) ? (*curLatchInfo).length : numBits;
+      ringBuffer.extract(buffer, (*curLatchInfo).ringOffset, bitsToFetch);
+
+      printed += (*curLatchInfo).latchName + " " + ecmdWriteDataFormatted(buffer, format);
+      numBits -= bitsToFetch;
+      bitsFetched += bitsToFetch;
+  
+    }
+    
+    ecmdOutput( printed.c_str() );
+
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
 
   return rc;
 }
@@ -210,7 +473,6 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
-  bool rawFlag = false;
   bool xstateFlag = false;
 
   /************************************************************************/
@@ -221,18 +483,18 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
     expectFlag = true;
   }
 
-  if (ecmdParseOption(&argc, &argv, "-r")) {
-    rawFlag = true;
-  }
-
   if (ecmdParseOption(&argc, &argv, "-X")) {
     xstateFlag = true;
   }
 
   /* get format flag, if it's there */
-  char * format = ecmdParseOptionWithArgs(&argc, &argv, "-f");
-  if (format == NULL) {
-    format = "x";
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr == NULL) {
+    format = "b";
+  }
+  else {
+    format = formatPtr;
   }
   
   /************************************************************************/
@@ -246,12 +508,8 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 4 && !rawFlag) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and numbits.\nType 'getbits -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  else if (argc < 2 && rawFlag) {
-    ecmdOutputError("Too few arguments specified; you need at least a chip and a ring name.\nType 'getbits -h' for usage.\n");
+  if (argc < 4) {  //chip + address
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and numbits.\nType 'getbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -259,12 +517,15 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   ecmdChipTarget target;
   target.chipType = argv[0];
 
-  char * ringName = argv[1];
+  std::string ringName = argv[1];
 
-  int startBit, numBits;
+  uint32_t startBit = atoi(argv[2]);
+  uint32_t numBits;
 
-  if (!rawFlag) {
-    startBit = atoi(argv[2]);
+  if (!strcmp(argv[3], "end")) {
+    numBits = 0xFFFFFFFF;
+  }
+  else {
     numBits = atoi(argv[3]);
   }
 
@@ -283,7 +544,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
   }
   else if (argc > 4) {
-    ecmdOutputError("Too many arguments specified; you probably added an option that wasn't recognized.\nType 'getbits -h' for usage.\n");
+    ecmdOutputError("Too many arguments specified; you probably added an option that wasn't recognized.\nType 'getbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -294,19 +555,18 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   bool validPosFound = false;
   rc = ecmdConfigLooperInit(target);
   if (rc) return rc;
-
+  char outstr[30];
   std::string printed;
 
   while ( ecmdConfigLooperNext(target) ) {
 
-    rc = getRing(target, ringName, ringBuffer);
+    rc = getRing(target, ringName.c_str(), ringBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "Error occured performing getring on ";
         printed += ecmdWriteTarget(target);
-        printed += "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -314,14 +574,10 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-    if (!rawFlag) {
-      buffer.setBitLength(numBits);
-      ringBuffer.extract(buffer, startBit, numBits);
-    }
-    else {
-      buffer.setBitLength(ringBuffer.getBitLength());
-      ringBuffer.extract(buffer, 0, ringBuffer.getBitLength());
-    }
+
+    numBits = (ringBuffer.getBitLength() - startBit < numBits) ? ringBuffer.getBitLength() - startBit : numBits;
+    buffer.setBitLength(numBits);
+    ringBuffer.extract(buffer, startBit, numBits);
 
     if (expectFlag) {
 
@@ -338,8 +594,14 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
 
     }
     else {
-      printed = ecmdWriteTarget(target);
-      printed += ecmdWriteDataFormatted(buffer, format);
+      printed = ecmdWriteTarget(target) + "  " + ringName;
+      sprintf(outstr, "(%d:%d)", startBit, startBit + numBits - 1);
+      printed += outstr;
+      std::string dataStr = ecmdWriteDataFormatted(buffer, format);
+      if (dataStr[0] != '\n') {
+        printed += "\n";
+      }
+      printed += dataStr;
       ecmdOutput( printed.c_str() );
     }
 
@@ -362,7 +624,6 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool xstateFlag = false;
-  bool hexFlag = false;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -372,8 +633,13 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
     xstateFlag = true;
   }
 
-  if (ecmdParseOption(&argc, &argv, "-x")) {
-    hexFlag = true;
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr == NULL) {
+    format = "b";
+  }
+  else {
+    format = formatPtr;
   }
 
   /************************************************************************/
@@ -388,11 +654,11 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 4) {  //chip + address
-    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and data block.\nType 'putbits -h' for usage.\n");
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, startbit, and data block.\nType 'putbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 4) {
-    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'putbits -h' for usage.\n");
+    ecmdOutputError("Too many arguments specified; you probably added an unsupported option.\nType 'putbits -h' for usage.");
     return ECMD_INVALID_ARGS;
   }
 
@@ -401,19 +667,16 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   target.chipType = argv[0];
 
   //get ring name and starting position
-  char * ringName = argv[1];
+  std::string ringName = argv[1];
   int startBit = atoi(argv[2]);
   
   //container to store data
   ecmdDataBuffer ringBuffer(3);
   ecmdDataBuffer buffer(3);  //the 3 is just a placeholder
 
-  if (hexFlag) {
-    buffer.insertFromHexLeft(argv[3]);
-  }
-  else {
-    buffer.insertFromBin(argv[3]);
-  }
+  rc = ecmdReadDataFormatted(buffer, argv[3], format);
+  if (rc) return rc;
+
   
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -427,14 +690,13 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
 
   while ( ecmdConfigLooperNext(target) ) {
 
-    rc = getRing(target, ringName, ringBuffer);
+    rc = getRing(target, ringName.c_str(), ringBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "Error occured performing getring on ";
         printed += ecmdWriteTarget(target);
-        printed += "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -442,13 +704,17 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
+    if (startBit + buffer.getBitLength() > ringBuffer.getBitLength()) {
+      ecmdOutputError("startbit + numbits > ring length, buffer overflow");
+      return ECMD_INVALID_ARGS;
+    }
+
     ringBuffer.insert(buffer, startBit, buffer.getBitLength());
 
-    rc = putRing(target, ringName, ringBuffer);
+    rc = putRing(target, ringName.c_str(), ringBuffer);
     if (rc) {
         printed = "Error occured performing putring on ";
         printed += ecmdWriteTarget(target);
-        printed += "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -463,8 +729,188 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdPutRegisterUser(int argc, char * argv[]) {
+int ecmdPutLatchUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
+
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr == NULL) {
+    format = "b";
+  }
+  else {
+    format = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 4) {  //chip + address
+    ecmdOutputError("Too few arguments specified; you need at least a chip, ring, latch name, and data.\nType 'putlatch -h' for usage.");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //get chip name
+  ecmdChipTarget target;
+  target.chipType = argv[0];
+
+  std::string ringName = argv[1];
+  std::string latchName = argv[2];
+
+  ecmdDataBuffer buffer(3);
+
+  //data is always the last arg
+  rc = ecmdReadDataFormatted(buffer, argv[argc-1], format);
+  if (rc) return rc;
+
+  int startBit = 0, numBits = -1;
+
+  if (argc > 4) {
+    startBit = atoi(argv[3]);
+    numBits = atoi(argv[4]);
+  }
+  else {
+    numBits = buffer.getBitLength();
+  }
+
+  ecmdDataBuffer ringBuffer(3);
+  ecmdDataBuffer bufferCopy(3);
+
+  bool validPosFound = false;
+  rc = ecmdConfigLooperInit(target);
+  if (rc) return rc;
+
+  std::string printed;
+  std::list< ecmdLatchInfo >::iterator curLatchInfo;
+
+  while ( ecmdConfigLooperNext(target) ) {
+
+    rc = getRing(target, ringName.c_str(), ringBuffer);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "Error occured performing getring on ";
+      printed += ecmdWriteTarget(target);
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    /* find scandef file */
+    std::string scandefFile;
+    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+    if (rc) {
+      ecmdOutputError(("Error occured locating scandef file: " + scandefFile).c_str());
+      return rc;
+    }
+
+    std::ifstream ins(scandefFile.c_str());
+    if (ins.fail()) {
+      ecmdOutputError(("Error occured opening scandef file: " + scandefFile).c_str());
+      return ECMD_INVALID_ARGS;  //change this
+    }
+
+    //let's go hunting in the scandef for this register (pattern)
+    std::list< ecmdLatchInfo > latchInfo;
+    ecmdLatchInfo curLatch;
+    ecmdLatchInfo tmpLatch;
+
+    std::string curLine;
+    std::vector<std::string> curArgs(4);
+
+    std::string ringPrefix = "ring=";
+    std::string ringArg = ringPrefix + ringName;
+
+    bool done = false;
+    bool found = false;
+
+    while (getline(ins, curLine) && !done) {
+
+      if (found) {
+        if (curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+          //nada
+        }
+        else if (curLine.find(ringPrefix) != std::string::npos) {
+          done = true;
+        }
+        else if (curLine.find(latchName) != std::string::npos) {
+
+          ecmdParseTokens(curLine, curArgs);
+          curLatch.length = atoi(curArgs[0].c_str());
+          curLatch.ringOffset = atoi(curArgs[1].c_str());
+          curLatch.latchName = curArgs[3];
+          latchInfo.push_back(curLatch);
+        }
+      }
+      else {
+        if (curLine.find(ringArg) != std::string::npos) {
+          found = true;
+        }
+      }
+
+    }
+
+    ins.close();
+
+    if (!found) {
+      ecmdOutputError(("Could not find ring name " + ringName).c_str());
+      return ECMD_INVALID_ARGS;
+    }
+
+    if (latchInfo.empty()) {
+      ecmdOutputError(("No registers found that matched " + latchName).c_str());
+      return ECMD_INVALID_ARGS;
+    }
+
+    latchInfo.sort();
+
+    //confirm that we only fetched ONE latch name
+    curLatchInfo = latchInfo.begin();
+    while (curLatchInfo != latchInfo.end()) {
+
+      curLatch = (*curLatchInfo);
+      curLatchInfo++;
+      if (curLatchInfo == latchInfo.end()) break;
+
+      if (curLatch != (*curLatchInfo)) {
+        std::string printed = "Multiple latch names found: ";
+        printed += curLatch.latchName + " and ";
+        printed += (*curLatchInfo).latchName;
+        ecmdOutputError( printed.c_str() );
+        return ECMD_INVALID_ARGS;
+      }
+    }
+
+
+    bufferCopy.copy(buffer);
+   
+    for (curLatchInfo = latchInfo.begin(); bufferCopy.getBitLength() > 0 && curLatchInfo != latchInfo.end(); curLatchInfo++) {
+
+      ringBuffer.insert(bufferCopy, (*curLatchInfo).ringOffset, (*curLatchInfo).length);
+      bufferCopy.shiftLeft((*curLatchInfo).length);
+    }
+
+    rc = putRing(target, ringName.c_str(), ringBuffer);
+    if (rc) {
+        printed = "Error occured performing putring on ";
+        printed += ecmdWriteTarget(target);
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
 
   return rc;
 }

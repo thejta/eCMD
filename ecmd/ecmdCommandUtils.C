@@ -154,7 +154,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
     io_target.node = (*ecmdCurNode).nodeId;
     ecmdCurChip = (*ecmdCurNode).chipData.begin();
-
+  
     if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurNode).chipData.end()) {
       valid = 0;
     }
@@ -251,6 +251,26 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
 }
 
+int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
+  int rc = ECMD_SUCCESS;
+
+  ecmdQueryData needlesslySlow;
+  rc = ecmdQueryConfig(i_target, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
+
+  if (needlesslySlow.cageData.front().cageId != i_target.cage) {
+    return ECMD_INVALID_ARGS;
+  }
+  else if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) {
+    return ECMD_INVALID_ARGS;
+  }
+
+  o_data = needlesslySlow.cageData.front().nodeData.front().chipData.front();
+  if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
+    return ECMD_INVALID_ARGS;
+  }
+    
+  return rc;
+}
 
 std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
 
@@ -310,9 +330,29 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
 
 }
 
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_format, int address) {
+int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string & i_format) {
+  int rc = ECMD_SUCCESS;
+
+  if (i_format == "x" || i_format == "xl") {
+    rc = o_data.insertFromHexLeft(i_dataStr);
+  }
+  else if (i_format == "xr") {
+    rc = o_data.insertFromHexRight(i_dataStr);
+  }     
+  else if (i_format == "b") {
+    rc = o_data.insertFromBin(i_dataStr);
+  }
+  else {
+    ecmdOutputError( ("Did not recognize input format string " + i_format).c_str() );
+    rc = ECMD_INVALID_ARGS;
+  }
+
+  return rc;
+}
+
+std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_format, int address) {
   std::string printed;
-  int formTagLen = strlen(i_format);
+  int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
   int numCols = 0;
   bool good = true;
@@ -384,6 +424,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_form
     }
     else if (isdigit(i_format[i])) {
       numCols = atoi(&i_format[i]);
+      break;
     }
     else {
       good = false;
@@ -404,17 +445,18 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, const char * i_form
     printed = "Unrecognized format string: ";
     printed += i_format;
     ecmdOutputError(printed.c_str());
+    printed = "";
     return printed;
   }
 
   if (curState == ECMD_FORMAT_X) {
-    printed = i_data.genHexLeftStr();
+    printed = "0x" + i_data.genHexLeftStr();
   }
   else if (curState == ECMD_FORMAT_XR) {
-    printed = i_data.genHexRightStr();
+    printed = "0x" + i_data.genHexRightStr();
   }
   else if (curState == ECMD_FORMAT_B) {
-    printed = i_data.genBinStr();
+    printed = "0b" + i_data.genBinStr();
   }
   else if (curState == ECMD_FORMAT_BX) {
     //do something

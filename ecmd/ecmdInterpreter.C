@@ -70,7 +70,9 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "getring")) {
+        } else if (!strcmp(argv[0], "getlatch")) {
+          rc = ecmdGetLatchUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getringdump")) {
           rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
@@ -93,6 +95,8 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutBitsUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "pollscom")) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putlatch")) {
+          rc = ecmdPutLatchUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putscom")) {
           rc = ecmdPutScomUser(argc - 1, argv + 1);
         } else {
