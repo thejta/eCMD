@@ -30,7 +30,7 @@ extern "C" {
 //@{
 /**
  @brief Load the eCMD DLL
- @param dllName Specify the full path and name of the dll to load, 
+ @param i_dllName Specify the full path and name of the dll to load, 
  @retval ECMD_SUCCESS if successful load
  @retval ECMD_INVALID_DLL_VERSION if Dll version loaded doesn't match client version
  @retval ECMD_INVALID_DLL_FILENAME if dllName and ECMD_DLL_FILE are not specified
@@ -43,7 +43,7 @@ extern "C" {
        - Name limit of 255 characters.
        - Errors in loading are printed to STDERR.
 */
-int ecmdLoadDll(std::string dllName);
+int ecmdLoadDll(std::string i_dllName);
 
 /**
  @brief Unload the eCMD DLL
@@ -61,8 +61,8 @@ int ecmdUnloadDll();
  @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param argc Passed from Command line Arguments
- @param argv Passed from Command line Arguments
+ @param i_argc Passed from Command line Arguments
+ @param i_argv Passed from Command line Arguments
  @pre loadDll must have been called
  @post Global options (ex. -debug, -p#, -c#) will be removed from arg list
  @see loadDll
@@ -72,7 +72,7 @@ int ecmdUnloadDll();
  - Position flags can be queried later with functions like ?????
 */
 
-int ecmdCommandArgs(int argc, char* argv[]); 
+int ecmdCommandArgs(int i_argc, char* i_argv[]); 
 
 //@}
 
@@ -85,8 +85,8 @@ int ecmdCommandArgs(int argc, char* argv[]);
 //@{
 /**
  @brief Query configuration information from the DLL
- @param target Struct that contains partial information to limit query results
- @param queryData Return vector from query - in numerical order by cageId
+ @param i_target Struct that contains partial information to limit query results
+ @param o_queryData Return vector from query - in numerical order by cageId
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
@@ -107,12 +107,12 @@ int ecmdCommandArgs(int argc, char* argv[]);
    cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid><p>
 */
    
-int ecmdQueryConfig(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData);
+int ecmdQueryConfig(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
- @param target Struct that contains partial information to limit query results - chipType is unused
- @param queryData Return vector from query - in numerical order by cageId
+ @param i_target Struct that contains partial information to limit query results - chipType is unused
+ @param o_queryData Return vector from query - in numerical order by cageId
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
@@ -121,56 +121,46 @@ int ecmdQueryConfig(ecmdChipTarget & target, std::vector<ecmdCageData> & queryDa
 
  Use of this function is the same as ecmdQueryConfig except chipType is not used
 */
-int ecmdQuerySelected(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData);
+int ecmdQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData);
 
 /**
  @brief Query Ring information from the DLL
- @param target Struct that contains chip and cage/node/position/core/thread information of chip to use
- @param queryData Return vector from query
- @param ringName if != NULL used to refine query to a single ring
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param o_queryData Return vector from query
+ @param i_ringName if != NULL used to refine query to a single ring
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQueryRing(ecmdChipTarget & target, std::vector<ecmdRingData> & queryData, const char * ringName = NULL);
+int ecmdQueryRing(ecmdChipTarget & i_target, std::vector<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
 
 /**
  @brief Query Array information from the DLL
- @param target Struct that contains chip and cage/node/position/core/thread information of chip to use
- @param queryData Return vector from query
- @param arrayName array to access data for
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param o_queryData Return vector from query
+ @param i_arrayName array to access data for
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQueryArray(ecmdChipTarget & target, std::vector<ecmdArrayData> & queryData, const char * arrayName);
+int ecmdQueryArray(ecmdChipTarget & i_target, std::vector<ecmdArrayData> & o_queryData, const char * i_arrayName);
 
 /**
  @brief Query Spy information from the DLL
- @param target Struct that contains chip and cage/node/position/core/thread information of chip to use
- @param queryData Return vector from query
- @param spyName Spy to access data for
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of chip to use
+ @param o_queryData Return vector from query
+ @param i_spyName Spy to access data for
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-int ecmdQuerySpy(ecmdChipTarget & target, std::vector<ecmdSpyData> & queryData, const char * spyName);
+int ecmdQuerySpy(ecmdChipTarget & i_target, std::vector<ecmdSpyData> & o_queryData, const char * i_spyName);
 
 /**
  @brief Query the location of a specific file type for the selected target
- @param target Struct that contains chip and cage/node/position/core/thread information
- @param fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param fileLocation Return string with full path and filename to location 
+ @param i_target Struct that contains chip and cage/node/position/core/thread information
+ @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
+ @param o_fileLocation Return string with full path and filename to location 
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
 */
-int ecmdQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string fileLocation);
-
-
-/**
- @brief Query wether the target specified was selected by the user with -n#, -p#, -c#, -t#
- @param target Struct that contains the cage/node/position/core/thread information (chipType not used)
- @retval FALSE if target not selected
- @retval TRUE if target selected
-  - The Valid bits of the target are used to refine the query @see ecmdQueryConfig
-*/
-uint8_t ecmdQueryTargetSelected(ecmdChipTarget & target);
+int ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string o_fileLocation);
 
 //@}
 
@@ -183,26 +173,26 @@ uint8_t ecmdQueryTargetSelected(ecmdChipTarget & target);
 /**
  @brief Scans the selected number of bits from the selected position in the selected ring into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of ring to read
- @param ringName Name of ring to read from
- @param data DataBuffer object that holds data read from ring
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to read
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
  @see putRing
 
 
 */
-int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data); 
+int getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of ring to write
- @param ringName Name of ring to write to
- @param data DataBuffer object that holds data to write into ring
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of ring to write
+ @param i_ringName Name of ring to write to
+ @param i_data DataBuffer object that holds data to write into ring
  @see getRing
 
 
 */
-int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data); 
+int putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
 
 //@}
@@ -216,24 +206,24 @@ int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & da
 /**
  @brief Scoms bits from the selected address into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of scom address to read
- @param address Scom address to read from
- @param data DataBuffer object that holds data read from address
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to read
+ @param i_address Scom address to read from
+ @param o_data DataBuffer object that holds data read from address
  @see putScom
 
 */
-int getScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
+int getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of scom address to write
- @param address Scom address to write to
- @param data DataBuffer object that holds data to write into address
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of scom address to write
+ @param i_address Scom address to write to
+ @param i_data DataBuffer object that holds data to write into address
  @see getScom
 
 */
-int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
+int putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
 //@}
 
@@ -248,42 +238,42 @@ int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
 /**
  @brief Scans the selected number of bits from the selected position in the selected spy into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of spy to read
- @param spyName Name of spy to read from
- @param data DataBuffer object that holds data read from spy
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param i_spyName Name of spy to read from
+ @param o_data DataBuffer object that holds data read from spy
 
 */
-int getSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
+int getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
 
 /**
  @brief Scans the selected number of bits from the selected position in the selected spy into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of spy to read
- @param spyName Name of spy to read from
- @param enumValue Enum value read from the spy
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to read
+ @param i_spyName Name of spy to read from
+ @param o_enumValue Enum value read from the spy
 
 */
-int getSpyEnum (ecmdChipTarget & target, const char * spyName, std::string enumValue);
+int getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string o_enumValue);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected spy
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of spy to write
- @param spyName Name of spy to write to
- @param data DataBuffer object that holds data to write into spy
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
+ @param i_spyName Name of spy to write to
+ @param i_data DataBuffer object that holds data to write into spy
 
 */
-int putSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data);
+int putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected spy
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of spy to write
- @param spyName Name of spy to write to
- @param enumValue String enum value to load into the spy
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of spy to write
+ @param i_spyName Name of spy to write to
+ @param i_enumValue String enum value to load into the spy
 
 */
-int putSpyEnum (ecmdChipTarget & target, const char * spyName, const std::string enumValue);
+int putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
 
 //@}
 
@@ -297,26 +287,26 @@ int putSpyEnum (ecmdChipTarget & target, const char * spyName, const std::string
 /**
  @brief Reads bits from the selected array into the data buffer
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of array to read
- @param arrayName Name of array to read from
- @param data DataBuffer object that holds data read from address
- @param address Array Address to read from - how long is this ??????
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of array to read
+ @param i_arrayName Name of array to read from
+ @param o_data DataBuffer object that holds data read from address
+ @param i_address Array Address to read from - length of DataBuffer should be set to length of valid address data
  @see putArray
 
 */
-int getArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data);
+int getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Writes bits from the data buffer into the selected array
  @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of array to write
- @param arrayName Name of array to write to
- @param data DataBuffer object that holds data to write into array
- @param address Array Address to write to - how long is this ??????
+ @param i_target Struct that contains chip and cage/node/position/core/thread information of array to write
+ @param i_arrayName Name of array to write to
+ @param i_data DataBuffer object that holds data to write into array
+ @param i_address Array Address to write to - length of DataBuffer should be set to length of valid address data
  @see getArray
 
 */
-int putArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data);
+int putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
 
 //@}
 
@@ -359,15 +349,15 @@ int iplSys ();
 
 /**
  @brief Retrieve additional error information for errorcode
- @param errorCode Error code to lookup up message for
+ @param i_errorCode Error code to lookup up message for
  @retval point to NULL terminated string containing error data, NULL if error occurs
 */
-std::string ecmdGetErrorMsg(int errorCode);
+std::string ecmdGetErrorMsg(int i_errorCode);
 
 /**
  @brief Register an Error Message that has occured
 */
-int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message);
+int ecmdRegisterErrorMsg(int i_errorCode, const char* i_whom, const char* i_message);
 
 //@}
 
@@ -381,19 +371,19 @@ int ecmdRegisterErrorMsg(int errorCode, const char* whom, const char* message);
  @brief Output a message related to an error
  @param message String to output
 */
-void ecmdOutputError(const char* message);
+void ecmdOutputError(const char* i_message);
 
 /**
  @brief Output a message related to an warning
  @param message String to output
 */
-void ecmdOutputWarning(const char* message);
+void ecmdOutputWarning(const char* i_message);
 
 /**
  @brief Output a message to the screen or logs
  @param message String to output
 */
-void ecmdOutput(const char* message);
+void ecmdOutput(const char* i_message);
 
 //@}
 

@@ -34,13 +34,14 @@
 #define ECMD_FAILURE                    0x1010 ///< General Failure occurred in eCMD
 #define ECMD_POS_NOT_CONFIGURED         0x1011 ///< Chip target provided was not configured in the system
 #define ECMD_INVALID_ARGS               0x1020 ///< Not enough arguments provided to the function
+#define ECMD_INVALID_SPY_ENUM		0x1021 ///< getSpyEnum or putSpyEnum used an invalid enum
 
 /* dataBuffer specific return codes */
-#define DBUF_SUCCESS                    0x0    ///< DataBuffer returned successfully
-#define DBUF_INIT_FAIL                  0x1000 ///< Initialization of the DataBuffer failed
-#define DBUF_BUFFER_OVERFLOW            0x1010 ///< Attempt to read/write data beyond the length of the DataBuffer
-#define DBUF_XSTATE_ERROR               0x1020 ///< An 'X' character occured where it was not expected
-#define DBUF_UNDEFINED_FUNCTION         0x1030 ///< Function not included in this version of DataBuffer
+#define ECMD_DBUF_SUCCESS               0x0    ///< DataBuffer returned successfully
+#define ECMD_DBUF_INIT_FAIL             0x2000 ///< Initialization of the DataBuffer failed
+#define ECMD_DBUF_BUFFER_OVERFLOW       0x2010 ///< Attempt to read/write data beyond the length of the DataBuffer
+#define ECMD_DBUF_XSTATE_ERROR          0x2020 ///< An 'X' character occured where it was not expected
+#define ECMD_DBUF_UNDEFINED_FUNCTION    0x2030 ///< Function not included in this version of DataBuffer
 
 
 #endif /* ecmdReturnCodes_h */

@@ -37,7 +37,7 @@ print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 print OUT "extern \"C\" {\n\n";
 
 print OUT "/* Dll Common load function - verifies version */\n";
-print OUT "int dllLoadDll (const char * version);\n";
+print OUT "int dllLoadDll (const char * i_version);\n";
 print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/\n";
 print OUT "int dllInitDll ();\n\n";
 print OUT "/* Dll Common unload function */\n";
@@ -45,9 +45,9 @@ print OUT "int dllUnloadDll ();\n";
 print OUT "/* Dll Specific unload function - deallocates variables/object models*/\n";
 print OUT "int dllFreeDll();\n\n";
 print OUT "/* Dll Common Command Line Args Function*/\n";
-print OUT "int dllCommonCommandArgs(int*  argc, char** argv[]);\n";
+print OUT "int dllCommonCommandArgs(int*  io_argc, char** io_argv[]);\n";
 print OUT "/* Dll Specific Command Line Args Function*/\n";
-print OUT "int dllSpecificCommandArgs(int*  argc, char** argv[]);\n\n";
+print OUT "int dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);\n\n";
 
 
 #parse file spec'd by $ARGV[0]

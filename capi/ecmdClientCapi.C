@@ -68,7 +68,7 @@ extern void * dlHandle;
 
 
 
-int ecmdLoadDll(std::string dllName) {
+int ecmdLoadDll(std::string i_dllName) {
 
 
   const char* dlError;
@@ -83,22 +83,22 @@ int ecmdLoadDll(std::string dllName) {
   /* --------------------- */
   /* load DLL              */
   /* --------------------- */
-  if (dllName.size() == 0) {
+  if (i_dllName.size() == 0) {
     /* Let's try to get it from the env var */
     char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
     if (tempptr != NULL) {
-      dllName = tempptr;
+      i_dllName = tempptr;
     } else {
       fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
       return ECMD_INVALID_DLL_FILENAME;
     }
   }
 
-  printf("loadDll: loading %s ...\n", dllName.c_str()); 
-  dlHandle = dlopen(dllName.c_str(), RTLD_LAZY);
+  printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
+  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
-      printf("ERROR: loadDll: Problems loading '%s' : %s\n", dllName.c_str(), dlError);
+      printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
       return ECMD_DLL_LOAD_FAILURE;
     }
   } else {
@@ -163,12 +163,12 @@ int ecmdUnloadDll() {
   return rc;
 }
 
-int ecmdCommandArgs(int* argc, char** argv[]) {
+int ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
   int rc = ECMD_SUCCESS;
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllCommonCommandArgs(argc, argv);
+  rc = dllCommonCommandArgs(i_argc, i_argv);
 
 #else
 
@@ -180,7 +180,7 @@ int ecmdCommandArgs(int* argc, char** argv[]) {
     rc = ECMD_DLL_INVALID;
     return rc;
   }
-  rc = (*Function)(argc, argv);
+  rc = (*Function)(i_argc, i_argv);
   
 #endif
 

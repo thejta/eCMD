@@ -29,8 +29,8 @@
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
-#ifndef SCANDATA_HEADER
-#define SCANDATA_HEADER 0xBEEFBEEF
+#ifndef DATABUFFER_HEADER
+#define DATABUFFER_HEADER 0xBEEFBEEF
 #endif
 
 //----------------------------------------------------------------------
@@ -50,13 +50,13 @@ void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count);
 //  Constructors
 //---------------------------------------------------------------------
 ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
-: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_DataOutStr(NULL), iv_ErrorCode(0), iv_ErrorMsg(NULL)
+: iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_ErrorCode(0)
 {
    registerErrorMsg(DBUF_INIT_FAIL,"ERROR: ecmdDataBuffer::ecmdDataBuffer: Default constructor used for ecmdDataBuffer creation!");
 }
 
 ecmdDataBuffer::ecmdDataBuffer(int numBits)
-: iv_NumWords(1), iv_NumBits(numBits), iv_Data(NULL), iv_DataOutStr(NULL), iv_ErrorCode(0), iv_ErrorMsg(NULL)
+: iv_NumWords(1), iv_NumBits(numBits), iv_Data(NULL), iv_ErrorCode(0)
 {
 
   uint32_t randNum = 0x12345678;
@@ -73,7 +73,7 @@ ecmdDataBuffer::ecmdDataBuffer(int numBits)
 #endif
 
   /* Ok, now setup the header, and tail */
-  iv_RealData[0] = SCANDATA_HEADER;
+  iv_RealData[0] = DATABUFFER_HEADER;
   iv_RealData[1] = iv_NumWords;
   iv_RealData[3] = randNum;
   iv_RealData[iv_NumWords + 4] = randNum;
@@ -101,14 +101,26 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other) {
 ecmdDataBuffer::~ecmdDataBuffer()
 {
 
-  delete[] iv_RealData;
-  iv_RealData = NULL;
-  if (iv_DataOutStr != NULL) delete[] iv_DataOutStr;
-  iv_DataOutStr = NULL;
+  if ((iv_RealData != NULL)) {
+    /* Let's check our header,tail info */
+    if ((iv_RealData[0] != DATABUFFER_HEADER) || (iv_RealData[1] != iv_NumWords) || (iv_RealData[3] != iv_RealData[iv_NumWords + 4])) {
+      /* Ok, something is wrong here */
+      printf("iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X\n",iv_RealData[0],iv_RealData[1],iv_NumWords);
+      printf("iv_RealData[3]: %X, iv_RealData[iv_NumWords + 4]: %X\n",iv_RealData[3],iv_RealData[iv_NumWords + 4]);
+      printf("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/TAIL\n");
+      exit(1);
+    }
+
+    delete[] iv_RealData;
+    iv_RealData = NULL;
+
+  }
 
 #ifndef REMOVE_SIM_BUFFERS
-  delete[] iv_DataStr;
-  iv_DataStr = NULL;
+  if (iv_DataStr != NULL) {
+    delete[] iv_DataStr;
+    iv_DataStr = NULL;
+  }
 #endif
 
 }
@@ -133,7 +145,7 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
     /* Ok, now setup the header, and tail */
-    iv_RealData[0] = SCANDATA_HEADER;
+    iv_RealData[0] = DATABUFFER_HEADER;
     iv_RealData[1] = iv_NumWords;
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
@@ -143,7 +155,7 @@ void  ecmdDataBuffer::setWordLength(int newNumWords) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
     /* Ok, now setup the header, and tail */
-    iv_RealData[0] = SCANDATA_HEADER;
+    iv_RealData[0] = DATABUFFER_HEADER;
     iv_RealData[1] = iv_NumWords;
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
@@ -174,7 +186,7 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
     /* Ok, now setup the header, and tail */
-    iv_RealData[0] = SCANDATA_HEADER;
+    iv_RealData[0] = DATABUFFER_HEADER;
     iv_RealData[1] = iv_NumWords;
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
@@ -186,7 +198,7 @@ void  ecmdDataBuffer::setBitLength(int newNumBits) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
     /* Ok, now setup the header, and tail */
-    iv_RealData[0] = SCANDATA_HEADER;
+    iv_RealData[0] = DATABUFFER_HEADER;
     iv_RealData[1] = iv_NumWords;
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
@@ -218,7 +230,7 @@ void ecmdDataBuffer::setCapacity (int newCapacity) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
     /* Ok, now setup the header, and tail */
-    iv_RealData[0] = SCANDATA_HEADER;
+    iv_RealData[0] = DATABUFFER_HEADER;
     iv_RealData[1] = iv_NumWords;
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
@@ -775,21 +787,12 @@ uint32_t ecmdDataBuffer::getWord(int wordOffset) {
   return this->iv_Data[wordOffset];
 }
 
-const char* ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
+std::string ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
 
   int tempNumWords = (bitLen - 1)/32 + 1;
   int lastnibble = (bitLen - 1)/4 + 1;
-  char* cPtr = iv_DataOutStr;
-
-  /* resize iv_DataOutStr if necessary */
-  if (iv_DataOutStr == NULL) {
-    iv_DataOutStr = new char[tempNumWords*8+1];
-    cPtr = iv_DataOutStr;
-  } else if (strlen(iv_DataOutStr) < tempNumWords*8) {
-    delete[] iv_DataOutStr;
-    iv_DataOutStr = new char[tempNumWords*8+1];
-    cPtr = iv_DataOutStr;
-  }
+  std::string ret;
+  char* cPtr = ret.str();
 
   /* extract iv_Data */
   uint32_t* tempData = new uint32_t[tempNumWords];
@@ -805,7 +808,7 @@ const char* ecmdDataBuffer::genHexLeftStr(int start, int bitLen) {
   return iv_DataOutStr;
 }
 
-const char* ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
+std::string ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
 
   int tempNumWords = (bitLen - 1)/32 + 1;
   int lastNibble = (bitLen - 1)/4 + 1;
@@ -832,7 +835,7 @@ const char* ecmdDataBuffer::genHexRightStr(int start, int bitLen) {
   return iv_DataOutStr;
 }
 
-const char* ecmdDataBuffer::genBinStr(int start, int bitLen) {
+std::string ecmdDataBuffer::genBinStr(int start, int bitLen) {
 
   /* resize iv_DataOutStr if necessary */
   if (iv_DataOutStr == NULL) {
@@ -851,9 +854,9 @@ const char* ecmdDataBuffer::genBinStr(int start, int bitLen) {
   return iv_DataOutStr;    
 }
 
-const char* ecmdDataBuffer::genHexLeftStr() { return this->genHexLeftStr(0, iv_NumBits); }
-const char* ecmdDataBuffer::genHexRightStr() { return this->genHexRightStr(0, iv_NumBits); }
-const char* ecmdDataBuffer::genBinStr() { return this->genBinStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genHexLeftStr() { return this->genHexLeftStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genHexRightStr() { return this->genHexRightStr(0, iv_NumBits); }
+std::string ecmdDataBuffer::genBinStr() { return this->genBinStr(0, iv_NumBits); }
 
 
 void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
@@ -905,11 +908,11 @@ int   ecmdDataBuffer::isXstate(int start, int length) {
 #endif
 }
 
-char * ecmdDataBuffer::getErrorMsg (int errorCode) {
+const std::string ecmdDataBuffer::getErrorMsg (int errorCode) {
   return iv_ErrorMsg;
 }
 
-int ecmdDataBuffer::registerErrorMsg (int errorCode, char * message) {
+int ecmdDataBuffer::registerErrorMsg (int errorCode, std::string message) {
   iv_ErrorCode = errorCode;
   iv_ErrorMsg = message;
   return 0;

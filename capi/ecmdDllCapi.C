@@ -52,12 +52,12 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int dllLoadDll (const char* clientVersion) {
+int dllLoadDll (const char* i_clientVersion) {
 
   /* First off let's check our version */
-  if (strcmp(clientVersion,ECMD_CAPI_VERSION)) {
+  if (strcmp(i_clientVersion,ECMD_CAPI_VERSION)) {
     fprintf(stderr,"**** FATAL : eCMD DLL and your client are not compatible\n");
-    fprintf(stderr,"**** FATAL : Client Version : %s   : DLL Version : %s\n",clientVersion, ECMD_CAPI_VERSION);
+    fprintf(stderr,"**** FATAL : Client Version : %s   : DLL Version : %s\n",i_clientVersion, ECMD_CAPI_VERSION);
 /*
     if (version < DLL_VERSION)
       fprintf(stderr,"**** FATAL : You must rebuild your client to continue\n");
@@ -80,31 +80,31 @@ int dllUnloadDll() {
 }
 
 
-std::string dllGetErrorMsg(int errorCode) {
+std::string dllGetErrorMsg(int i_errorCode) {
   std::string ret = "UNKNOWN";
 
   return ret;
 }
 
-int dllRegisterErrorMsg(int errorCode, const char* whom, const char* message) {
+int dllRegisterErrorMsg(int i_errorCode, const i_char* whom, const char* i_message) {
   int rc = ECMD_SUCCESS;
 
   return rc;
 }
 
-int dllQuerySelected(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData) {
+int dllQuerySelected(ecmdChipTarget & i_target, std::vector<ecmdCageData> & o_queryData) {
   int rc = ECMD_SUCCESS;
 
   return rc;
 }
 
-int dllCommonCommandArgs(int*  argc, char** argv[]) {
+int dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   int rc = ECMD_SUCCESS;
 
   /* We need to pull out the targeting options here */
 
   /* Call the dllSpecificFunction */
-  rc = dllSpecificCommandArgs(argc,argv);
+  rc = dllSpecificCommandArgs(io_argc,io_argv);
 
   return rc;
 }
