@@ -659,10 +659,11 @@ int simPUTFACX(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, 
  * @param i_data Value to write
  * @param i_row Optional: Array Facility row
  * @param i_numrows Optional: Number of rows to write
+ * @param i_bitlength Bit length to write to facility
  * @retval ECMD_SUCCESS if successful
  * @retval nonzero on failure
 */
-int simputtcfac(const char* i_tcfacname, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+int simputtcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
 
 /**
  * @brief Load a checkpoint into model
@@ -702,10 +703,11 @@ int simSTKFACS(const char* i_facname, int i_bitlength, ecmdDataBuffer & i_data, 
  * @param i_data Value to stick
  * @param i_row Optional: Array Facility row
  * @param i_numrows Optional: Number of rows to stick
+ * @param i_bitlength Bit length to write to facility
  * @retval ECMD_SUCCESS if successful
  * @retval nonzero on failure
 */
-int simstktcfac(const char* i_tcfacname, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+int simstktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
 
 /**
  * @brief Run RTX SUBCMD
@@ -755,7 +757,7 @@ int simUNSTICKS(const char* i_facname, int i_bitlength, int i_row = 0, int i_off
  * @retval ECMD_SUCCESS if successful
  * @retval nonzero on failure
 */
-int simunsticktcfac(const char* i_tcfacname, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
+int simunsticktcfac(const char* i_tcfacname, int i_bitlength, ecmdDataBuffer & i_data, int i_row = 0, int i_numrows = 0);
 
 #endif /* ifndef REMOVE_SIM */
 //@}

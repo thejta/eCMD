@@ -192,6 +192,14 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
       printed += target.chipType + " " + ringName + " Ring\n";
       ecmdChipData chipData;
       rc = ecmdGetChipData(target, chipData);
+      if (rc) {
+        printed = "Error occured retrieving chip data on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+
       sprintf(outstr, "* Chip EC %d\n", chipData.chipEc);
       printed += outstr;
       sprintf(outstr, "* Ring length: %d bits\n", ringBuffer.getBitLength());
@@ -210,7 +218,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
           if (curLine.find(ringPrefix) != std::string::npos) {
             done = true;
           }
-          else if (curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+          else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
             //do nothing
           }
           else {
@@ -272,14 +280,14 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
-  bool nopFlag = false;
+  bool exactFlag = false;
 
   if (ecmdParseOption(&argc, &argv, "-exp")) {
     expectFlag = true;
   }
 
-  if (ecmdParseOption(&argc, &argv, "-nop")) {
-    nopFlag = true;
+  if (ecmdParseOption(&argc, &argv, "-exact")) {
+    exactFlag = true;
   }
 
   /* get format flag, if it's there */
@@ -382,13 +390,13 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
     while (getline(ins, curLine) && !done) {
 
       if (found) {
-        if (curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+        if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
           //nada
         }
         else if (curLine.find(ringPrefix) != std::string::npos) {
           done = true;
         }
-        else if (!nopFlag && (curLine.find(latchName) != std::string::npos)) {
+        else if (!exactFlag && (curLine.find(latchName) != std::string::npos)) {
 
           ecmdParseTokens(curLine, curArgs);
           curLatch.length = atoi(curArgs[0].c_str());
@@ -396,7 +404,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
           curLatch.latchName = curArgs[3];
           latchInfo.push_back(curLatch);
         }
-        else if (nopFlag) {
+        else if (exactFlag) {
 
           ecmdParseTokens(curLine, curArgs);
 
@@ -849,7 +857,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
     while (getline(ins, curLine) && !done) {
 
       if (found) {
-        if (curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+        if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
           //nada
         }
         else if (curLine.find(ringPrefix) != std::string::npos) {

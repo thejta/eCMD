@@ -639,8 +639,8 @@ void  ecmdDataBuffer::insert(uint32_t dataIn, int start, int len) {
 }
 
 void ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, int start, int len) {
-  this->extract(bufferOut.iv_Data, start, len);
   bufferOut.setBitLength(len);
+  this->extract(bufferOut.iv_Data, start, len);
 }
 
 void ecmdDataBuffer::extract(uint32_t *dataOut, int start, int len) {

@@ -140,6 +140,7 @@ std::string dllGetErrorMsg(int i_errorCode) {
   char name[200];
   int found = 0;
   char* tempstr = NULL;
+  unsigned int comprc;
 
   ifstream ins(filePath.c_str());
 
@@ -158,8 +159,9 @@ std::string dllGetErrorMsg(int i_errorCode) {
       tempstr = strtok(NULL," \t");
       if (tempstr == NULL) continue;
       strcpy(num,tempstr);
-      if (atol(num) == rc) {
-        ret += name;
+      sscanf(num,"%x",&comprc);
+      if (comprc == i_errorCode) {
+        ret = name;
         found = 1;
         break;
       }
@@ -169,7 +171,7 @@ std::string dllGetErrorMsg(int i_errorCode) {
   ins.close();
 
   if (!found) {
-    ret += "UNDEFINED";
+    ret = "UNDEFINED";
   }
 
   return ret;

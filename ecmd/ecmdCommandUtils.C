@@ -180,6 +180,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || ecmdCurCore == (*ecmdCurChip).coreData.end()) {
       valid = 0;
       io_target.core = 0;
+      io_target.thread = 0;
     }
     else {
       level = CORE;
@@ -260,15 +261,17 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   int rc = ECMD_SUCCESS;
 
+  ecmdChipTarget tmp = i_target;
   ecmdQueryData needlesslySlow;
-  rc = ecmdQueryConfig(i_target, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
+  tmp.cageState = tmp.nodeState = tmp.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
+  if (rc) return rc;
 
-  if (needlesslySlow.cageData.front().cageId != i_target.cage) {
-    return ECMD_INVALID_ARGS;
-  }
-  else if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) {
-    return ECMD_INVALID_ARGS;
-  }
+  if (needlesslySlow.cageData.empty()) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().cageId != i_target.cage) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().nodeData.empty()) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) return ECMD_INVALID_ARGS;
+  if (needlesslySlow.cageData.front().nodeData.front().chipData.empty()) return ECMD_INVALID_ARGS;
 
   o_data = needlesslySlow.cageData.front().nodeData.front().chipData.front();
   if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
