@@ -920,8 +920,8 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
   ecmdLatchBufferEntry curEntry;
   std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(100 /* words */);       ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(100 /* words */);   ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(200 /* words */);       ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(200 /* words */);   ///< Temp space for extracted latch data
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
