@@ -25,6 +25,9 @@
 #define ecmdDllCapi_C
 #include <stdio.h>
 #include <list>
+#include <fstream>
+#include <string.h>
+#include <stdlib.h>
 
 #include "ecmdDllCapi.H"
 
@@ -83,14 +86,61 @@ int dllUnloadDll() {
 
 
 std::string dllGetErrorMsg(int i_errorCode) {
-  std::string ret = "UNKNOWN";
+  std::string ret;
   list<ecmdError>::iterator cur;
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
-      ret = (*cur).whom + ": " + (*cur).message;
+      ret = (*cur).whom + ": " + (*cur).message + " ";
       break;
     }
+  }
+
+  ecmdChipTarget dummy;
+  std::string filePath;
+  int rc = ecmdQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
+
+  if (rc) {
+    ret = "ERROR FINDING DECODE FILE";
+    return ret;
+  }
+
+  /* jtw 10/6/03 - code below largely copied from cronusrc.c */
+  char str[800];
+  char num[30];
+  char name[200];
+  int found = 0;
+  char* tempstr = NULL;
+
+  ifstream ins(filePath.c_str());
+
+  if (ins.fail()) {
+    ret = "ERROR OPENING DECODE FILE";
+    return ret;
+  }
+
+  while (!ins.eof()) { /*  && (strlen(str) != 0) */
+    ins.getline(str,799,'\n');
+    if (!strncmp(str,"#define",7)) {
+      strtok(str," \t");        /* get rid of the #define */
+      tempstr = strtok(NULL," \t");
+      if (tempstr == NULL) continue;
+      strcpy(name,tempstr);
+      tempstr = strtok(NULL," \t");
+      if (tempstr == NULL) continue;
+      strcpy(num,tempstr);
+      if (atol(num) == rc) {
+        ret += name;
+        found = 1;
+        break;
+      }
+    }
+  }
+
+  ins.close();
+
+  if (!found) {
+    ret += "UNDEFINED";
   }
 
   return ret;
