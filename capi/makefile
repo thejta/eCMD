@@ -54,7 +54,7 @@ all: dir ${TARGET} ${SLIB}
 	@cp ${SUBDIR}${TARGET} export/
 	@cp ${SUBDIR}${SLIB} export/
 	@cp ${INCLUDES} export/
-	@cp ecmdDllCapi.H ../dll/
+	-@cp ecmdDllCapi.H ../dll/
 
 clean:
 	rm -rf ${SUBDIR} export/
