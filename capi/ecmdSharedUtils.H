@@ -39,9 +39,10 @@
 //--------------------------------------------------------------------
 #include <string>
 #include <vector>
-#include <ecmdDataBuffer.H>
 // AK: added for hash routine  10/07/2004
 #include <inttypes.h>
+
+#include <ecmdDataBuffer.H>
 
 //--------------------------------------------------------------------
 //  Forward References
@@ -92,25 +93,26 @@ std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
 //@}
 
 /**
- * Converts strings to unsigned int values. The input format is
- * 0xABCDEF.
- * @param str String in hexadecimal notation
+ * @brief Converts strings to unsigned int values. The input format is 0xABCDEF.
+ * @param i_str String in hexadecimal notation
  * @date Tue Sep 21 13:22:33 2004
+ * @retval uint32_t value of converted input string
  */
-extern "C" uint32_t ecmdHexToUInt32(const char* str);
+extern "C" uint32_t ecmdHexToUInt32(const char* i_str);
 
 /**
- * Calculates a 32bit hash value for a given string.
+ * @brief Calculates a 32bit hash value for a given string.
  *
  * LICENSE:
  * By Bob Jenkins, 1996.  bob_jenkins@burtleburtle.net.  You may use this
  * code any way you wish, private, educational, or commercial.  It's free.
  * See http://burtleburtle.net/bob/hash/doobs.html
  *
- * @param k String.
- * @param c Start value for hash.
+ * @param i_str String to convert to hash
+ * @param i_c Start value for hash.
+ * @retval Hash value
  */
-extern "C" uint32_t ecmdHashString32(const char *k, uint32_t c);
+extern "C" uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 
 
 #endif /* ecmdSharedUtils_h */
