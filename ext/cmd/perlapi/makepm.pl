@@ -7,7 +7,7 @@ use strict;
 my $curdir = ".";
 
 #functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
-my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode );
+my @ignores = qw( initDll cleanup ecmdConfigLooperNext InitExtension ecmdCommandArgs ecmdEnablePerlSafeMode ecmdDisablePerlSafeMode hellWorld ecmdPerlInterfaceErrorCheck ecmdQuerySafeMode );
 my $ignore_re = join '|', @ignores;
 
 my $printout;
@@ -85,18 +85,19 @@ while (<IN>) {
 	chop ($typestring, $argstring);
 
 
+        my $namespace = uc($ARGV[0]) . "PERLAPI";
         if ($type eq "void") {
-          print OUT "$type $ARGV[0]ClientPerlapi::$funcname(@argnames) { \n";
+          print OUT "$type $namespace\::$funcname(@argnames) { \n";
           print OUT "  ::$funcname($argstring);\n";
           print OUT "}\n\n";
         } elsif (($type eq "uint32_t") || ($type eq "int")) {
-          print OUT "$type $ARGV[0]ClientPerlapi::$funcname(@argnames) { \n";
+          print OUT "$type $namespace\::$funcname(@argnames) { \n";
           print OUT "  $type rc = ::$funcname($argstring);\n";
-          print OUT "  ecmdPerlInterfaceErrorCheck(rc);\n";
+          print OUT "  ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(rc);\n";
           print OUT "  return rc;\n";
           print OUT "}\n\n";
         } else {
-          print OUT "$type $ARGV[0]ClientPerlapi::$funcname(@argnames) { \n";
+          print OUT "$type $namespace\::$funcname(@argnames) { \n";
           print OUT "  return ::$funcname($argstring);\n";
           print OUT "}\n\n";
         }
@@ -189,7 +190,7 @@ if (-e "$curdir/$ARGV[0]ClientPerlapi.i") {
       print PERLOUT "  return \$self->operatorIncrement(1);\n";
       print PERLOUT "};\n\n";
       print PERLOUT "sub operatorDecrement {\n";
-      print PERLOUT "  my (\$self) = \@_;";
+      print PERLOUT "  my (\$self) = \@_;\n";
       print PERLOUT "  return \$self->operatorDecrement(1);\n";
       print PERLOUT "};\n\n";
     }

@@ -224,6 +224,8 @@ namespace std {
         bool empty() const;
         void clear();
         void push_back(const T& x);
+        std::vector<T>::iterator begin();
+        std::vector<T>::iterator end();
         %extend {
             T pop_back() {
                 if (self->size() == 0)
@@ -394,6 +396,8 @@ namespace std {
         bool empty() const;
         void clear();
         void push_back(T x);
+        std::vector<T>::iterator begin();
+        std::vector<T>::iterator end();
         %extend {
             T pop_back() {
                 if (self->size() == 0)

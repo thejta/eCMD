@@ -30,11 +30,14 @@
 #include <ecmdClientPerlapi.H>
 #include <ecmdSharedUtils.H>
 
+void TEST::hellWorld() { printf("Hello World!\n\n"); }
+
+
 
 static int myErrorCode = ECMD_SUCCESS;
 static bool safeMode = true;
 
-int ecmdPerlInterfaceErrorCheck (int errorCode) {
+int ECMDPERLAPI::ecmdPerlInterfaceErrorCheck (int errorCode) {
 
   if (errorCode == -1) {
     errorCode = myErrorCode;
@@ -52,28 +55,22 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
   return ECMD_SUCCESS;
 }
-bool ecmdQuerySafeMode() {
+
+bool ECMDPERLAPI::ecmdQuerySafeMode() {
   return safeMode;
 }
 
-void ecmdClientPerlapi::ecmdDisablePerlSafeMode() { safeMode = false; }
+void ECMDPERLAPI::ecmdDisablePerlSafeMode() { safeMode = false; }
 
-void ecmdClientPerlapi::ecmdEnablePerlSafeMode() { safeMode = true; }
+void ECMDPERLAPI::ecmdEnablePerlSafeMode() { safeMode = true; }
 
 
-ecmdClientPerlapi::ecmdClientPerlapi () {
-}
-
-ecmdClientPerlapi::~ecmdClientPerlapi () {
-  this->cleanup();
-}
-
-void ecmdClientPerlapi::cleanup()  {
+void ECMDPERLAPI::cleanup()  {
   ecmdUnloadDll();
 }
 
 
-int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_clientVersion) {
+int ECMDPERLAPI::initDll (const char * i_dllName, const char * i_clientVersion) {
 
   int rc = ECMD_SUCCESS;
   std::string dllName = "";
@@ -103,7 +100,7 @@ int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_clientVer
 
 }
 
-int ecmdClientPerlapi::ecmdCommandArgs(char** i_argv){
+int ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
 
   int rc =0;
   int looper =0;
@@ -119,7 +116,7 @@ int ecmdClientPerlapi::ecmdCommandArgs(char** i_argv){
 
 
 /* This is hand created because we can't croak on a non-zero return code as it is used to control looping */
-uint32_t ecmdClientPerlapi::ecmdConfigLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) { 
+uint32_t ECMDPERLAPI::ecmdConfigLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) { 
   return ::ecmdConfigLooperNext(io_target, io_state);
 }
 

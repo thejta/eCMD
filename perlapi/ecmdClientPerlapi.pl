@@ -1,9 +1,13 @@
-# ---------- OPERATOR OVERLOADS -------------
+# ---------------------------------------------------------------
+# This file gets included into the ecmd.pm when swig generates it
+# Include any extra perl functionality here
+# ---------------------------------------------------------------
 
+# This adds the code to enable the ecmdDataBuffer operators
 package ecmd::ecmdDataBuffer;
 
 use overload
-  fallback => 1, # This says I won't be defining all operators and to use the default for the rest
+  fallback => 1, # Use the default operators for the ones not defined here
   '==' => \&operatorEqualTo,
   '!=' => \&operatorNotEqualTo,
    '&' => \&operatorAnd,

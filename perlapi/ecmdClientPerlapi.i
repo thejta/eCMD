@@ -27,6 +27,7 @@
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
   #include "cipClientPerlapi.H"
 #endif
+
 %}
 /*********** End Insert Code ***********/
 
@@ -77,8 +78,8 @@
 
 %exception {
 	$function
-	if ((ecmdPerlInterfaceErrorCheck(-1)) &&
-	   (ecmdQuerySafeMode() == 1)) {
+          if ((ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(-1)) &&
+	   (ECMDPERLAPI::ecmdQuerySafeMode() == 1)) {
 		croak("ecmdClientPerlapi.i::Error occured in eCMD Perl module - execution halted\n");
 	}
 }
