@@ -1179,7 +1179,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 
   if (i_ringName != NULL) {
     i_ring = i_ringName;
-    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), tolower);
+    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), (int(*)(int)) tolower);
   }
 
   /* single exit point */
@@ -1314,7 +1314,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
                   ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
-          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
           if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
             foundRing = true;
             curRing = i_ring;
@@ -1329,7 +1329,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
             break;
           }
-          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
           /* Get just the ringname */
           curRing = curArgs[1];
           foundRing = true;

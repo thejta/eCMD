@@ -1616,7 +1616,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   
   if (i_ringName != NULL) {
     i_ring = i_ringName;
-    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), tolower);
+    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), (int(*)(int)) tolower);
   }
   else {
      rc = ECMD_INVALID_RING;
@@ -1736,7 +1736,7 @@ printf("ringBufferlen: %d\n",ringBuffer.getBitLength());
                   ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
-          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
           if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
             foundRing = true;
             curRing = i_ring;

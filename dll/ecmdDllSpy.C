@@ -982,7 +982,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContaine
     std::string enumName = data.enum_data;
 
     /* Transform to upper case for case-insensitive comparisons */
-    transform(enumName.begin(), enumName.end(), enumName.begin(), toupper);
+    transform(enumName.begin(), enumName.end(), enumName.begin(), (int(*)(int)) toupper);
 
     int wordlen = enuminsert.getWordLength();
     for (enumit = spyent.spyEnums.begin(); enumit != spyent.spyEnums.end(); enumit ++) {
@@ -1298,7 +1298,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
 
   /* Convert to a STL string */
   spy_name = name;
-  transform(spy_name.begin(), spy_name.end(), spy_name.begin(), toupper);
+  transform(spy_name.begin(), spy_name.end(), spy_name.begin(), (int(*)(int)) toupper);
 
   /* Look in the DB to see if we've read this in already */
   returnSpy.name = spy_name;
@@ -1449,7 +1449,7 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
       if (strPos != NOT_FOUND) {
         tmp = tmp.erase(strPos, tmp.length());
 
-        transform(tmp.begin(), tmp.end(), tmp.begin(), toupper);
+        transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) toupper);
 
         if (tmp == spy_name)
           found = 1;      /* found it! */
@@ -1491,7 +1491,7 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
       /* Strip the end off */
       tmp = tmp.erase(tmp.find_first_of(WHITESPACE,0), tmp.length());
 
-      transform(tmp.begin(), tmp.end(), tmp.begin(), toupper);
+      transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) toupper);
 
       if (tmp == spy_name) {
         /* We found it */
