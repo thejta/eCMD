@@ -65,6 +65,8 @@ uint32_t dllGetSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::s
 
 uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask); 
 
+uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char* i_spyName, std::list < ecmdDataBuffer > & o_groups); 
+
 uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
 
 uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 

@@ -19,7 +19,7 @@
 //
 // End Module Description **********************************************
 
-/* This source only gets included for ecmdDll's that don't want to implement spy handling */
+/* This source only gets included for ecmdDll's that don't want to implement spy handling of their own */
 #ifdef USE_ECMD_COMMON_SPY
 
 //----------------------------------------------------------------------
@@ -39,11 +39,25 @@
 #include <sedcStructs.H>
 #include <sedcDefines.H>
 #include <sedcParser.H>
+#include <sedcUtils.H>
 
 #undef ecmdClientSpy_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
+typedef enum {
+  SPYDATA_ENUM,
+  SPYDATA_DATA,
+  SPYDATA_GROUPS
+} dllSpyDataType_t;
+
+/* @brief Used by the getspy/putspy to hold different data types */
+struct dllSpyData {
+  dllSpyDataType_t              dataType;       ///< Field below to use
+  std::string                   enum_data;      ///< Enum data
+  ecmdDataBuffer*               int_data;       ///< Integer data
+  std::list< ecmdDataBuffer> *  group_data;     ///< Group Data
+};
 
 //----------------------------------------------------------------------
 //  Constants
@@ -60,10 +74,16 @@
 uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy);
 /* Search the spy file for our spy */
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
+int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name);
+uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data);
+uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContainer &spy);
+
 
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+/* Defined in ecmdDllCapi.C */
+uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -128,9 +148,13 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
     }
 
     /* Does it have ECC ? */
-    if (spyent.states & SPY_ECC) {
+    if (spyent.states & SPY_EPCHECKERS) {
       o_queryData.isEccChecked = true;
     }
+
+    /* Let's walk through the enums */
+    if (spyent.states & SPY_ENUM)
+      o_queryData.isEnumerated = true;
 
     /* Let's walk through the enums */
     o_queryData.enums.clear();
@@ -139,7 +163,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
     }
 
     /* The eccGroups */
-    o_queryData.eccGroups.clear();
+    o_queryData.epCheckers = spyent.spyEpcheckers;
 
   } else {
     dllOutputError("dllQuerySpy - Unknown spy type returned\n");
@@ -155,6 +179,13 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
 uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data){
   uint32_t rc = ECMD_SUCCESS;
 
+  dllSpyData fdata;
+  fdata.dataType = SPYDATA_DATA;
+  fdata.int_data = &o_data;
+
+  rc = dllGetSpy(i_target,i_spyName,fdata);
+
+
   return rc;
 }
 
@@ -163,6 +194,441 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
 */
 uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue){
   uint32_t rc = ECMD_SUCCESS;
+  dllSpyData fdata;
+  fdata.dataType = SPYDATA_ENUM;
+
+  rc = dllGetSpy(i_target,i_spyName,fdata);
+
+  return rc;
+}
+
+uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data){
+  uint32_t rc = ECMD_SUCCESS;
+  bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
+  sedcDataContainer mySpy;
+  char outstr[200];
+
+
+  if (!dllIsRingCacheEnabled()) {
+    enabledCache = true;
+    dllEnableRingCache();
+  }
+
+
+  /* Retrieve my spy either from the DB or the spydef file */
+  rc = dllGetSpyInfo(i_target, i_spyName, mySpy);
+  if (rc) {
+    sprintf(outstr,"dllGetSpy - Problems reading spy '%s' from file!\n", i_spyName);
+    dllOutputError(outstr);
+    return rc;
+  } else if (!mySpy.valid) {
+    sprintf(outstr,"dllGetSpy - Read of spy '%s' from file failed!\n", i_spyName);
+    dllOutputError(outstr);
+    return ECMD_UNKNOWN_FILE;
+  } else if (mySpy.type != DC_SPY) {
+    dllOutputError("dllGetSpy - A non alias, idial or edial was passed in!\n");
+    return ECMD_INVALID_SPY;
+  }
+
+
+  rc = dllGetSpy(i_target, data, mySpy);
+
+
+  /* Handle ECC here */
+  if (!rc) {
+    sedcSpyEntry myAIE = mySpy.getSpyEntry();
+    if (!myAIE.spyEpcheckers.empty()) {
+      dllOutputError("dllGetSpy - ECC not currently supported\n");
+    }
+  }
+
+  if (enabledCache) {
+    rc = dllDisableRingCache();
+  }
+
+  return rc;
+}
+
+uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcDataContainer &spy) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  std::list<sedcSpyLine>::iterator lineit;
+  std::list<sedcSpyEnum>::iterator enumit;
+  ecmdDataBuffer scan;
+  ecmdDataBuffer enumextract;
+  uint32_t addr;
+  ecmdDataBuffer* extractbuffer;
+  ecmdDataBuffer tmpbuffer;
+  ecmdDataBuffer deadbitsMask;
+  char outstr[200];
+  ecmdChipData chipData;                ///< Chip data to find out bus info
+  uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+
+  ecmdGroupData groupTemp;
+  std::list<ecmdGroupData> groups;             ///< List to store all groups so that they can be compared in the end
+  std::list<ecmdGroupData>::iterator groupit;   ///< Iterator for group list
+
+  int num;
+  int curaliasbit = 0;
+
+  uint32_t curstate = SPY_CLOCK_IND;       ///< Current state of what we will accept, we will start by allowing clock independent (or spy's without clock dependence) to run
+
+
+  sedcDataContainer mySpy = spy;
+
+  /* We got here, we had better be an alias/idial or edial */
+  if (mySpy.type != DC_SPY) {
+    sprintf(outstr,"dllGetSpy - Spy '%s' is not of type alias, idial or edial\n", spy.name.c_str());
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  }
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetChipData(i_target, chipData);
+  if (rc) {
+    sprintf(outstr,"Problems retrieving chip information on target\n");
+    dllRegisterErrorMsg(rc, "dllGetSpy", outstr );
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if (!(chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK)) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetSpy", "eCMD plugin did not implement ecmdChipData.chipFlags unable to determine if FSI or JTAG attached chip\n");
+    return ECMD_DLL_INVALID;
+  } else if (((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_JTAG) &&
+             ((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_FSI) ) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetSpy", "eCMD plugin returned an invalid bustype in ecmdChipData.chipFlags\n");
+    return ECMD_DLL_INVALID;
+  }
+  /* Store our type */
+  bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
+
+
+  /* Now let's go grab our data */
+  sedcSpyEntry spyent = mySpy.getSpyEntry();
+
+
+  /* Do some error checking with what we have */
+  if (data.dataType == SPYDATA_DATA) {
+    /* We need to size our buffer here */
+    data.int_data->setBitLength(spyent.length);
+    extractbuffer = data.int_data;
+  } else if (data.dataType == SPYDATA_ENUM) {
+
+    if (!spyent.states & SPY_ENUM) {
+      sprintf(outstr,"dllGetSpy - Tried to fetch an enum on a non-enumerated alias or idial for : %s\n",spy.name.c_str());
+      dllOutputError(outstr);
+      return ECMD_SPY_NOT_ENUMERATED;
+    }
+    /* This is an enum dial or enumerated alias, we are going to extract to a side buffer */
+    enumextract.setBitLength(spyent.length);
+    extractbuffer = &enumextract;
+  } else if (data.dataType == SPYDATA_GROUPS) {
+    /* We are just grabbing groups from here, but we need to create a buffer for it to work */
+    enumextract.setBitLength(spyent.length);
+    extractbuffer = &enumextract;
+  }
+
+  deadbitsMask.setBitLength(spyent.length);
+
+
+
+  /* Ok, here goes the meat */
+  for (lineit = spyent.spyLines.begin(); lineit != spyent.spyLines.end(); lineit ++) {
+
+    /*---------------------*/
+    /* MAIN SPY SECTION    */
+    /*---------------------*/
+
+    if ((lineit->state  & ~(SPY_SECTION_START | SPY_MAJOR_TYPES)) == 0) {
+      /* this is the start of the spy , woohoo */
+      /* Oh and we have nothing to do for it */
+
+    } else if ((lineit->state  & ~(SPY_SECTION_END | SPY_MAJOR_TYPES)) == 0) {
+      /* Do Nothing */
+
+
+
+    /*---------------------*/
+    /* RING     SECTION    */
+    /*---------------------*/
+    } else if (lineit->state == (SPY_SECTION_START | SPY_RING)) {
+      /* This is a new ring */
+      /* Check to see if we are in the right state */
+      if (curstate & SPY_CLOCK_ANY) {
+        rc = dllGetRing( i_target, lineit->latchName.c_str(), scan);
+        if (rc) return rc;
+      }
+
+    } else if (lineit->state == (SPY_SECTION_END | SPY_RING)) {
+      /* Do Nothing */
+
+
+
+    /*---------------------*/
+    /* SCOM     SECTION    */
+    /*---------------------*/
+    } else if (lineit->state == (SPY_SECTION_START | SPY_SCOM)) {
+      /* This is a new scom */
+      /* Check to see if we are in the right state */
+      if (curstate & SPY_CLOCK_ANY) {
+        num = sscanf(lineit->latchName.c_str(), "%x",&addr);
+        if (num != 1) {
+          sprintf(outstr, "dllGetSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), spy.name.c_str());
+          dllOutputError(outstr);
+          return ECMD_INVALID_SPY;
+        }
+        rc = dllGetScom(i_target, addr, scan);
+        if (rc) return rc;
+      }
+
+    } else if (lineit->state == (SPY_SECTION_END | SPY_SCOM)) {
+      /* Do nothing */
+
+
+    /*---------------------*/
+    /* GROUP    SECTION    */
+    /*---------------------*/
+    } else if (lineit->state == (SPY_SECTION_START | SPY_GROUP_BITS)) {
+      /* This is a new group */
+      /* Reset out bit pointer */
+      curaliasbit = 0;
+      deadbitsMask.flushTo0();
+
+
+    } else if (lineit->state == (SPY_SECTION_END | SPY_GROUP_BITS)) {
+      /* We want to push the current buffer */
+      groupTemp.extractBuffer = *extractbuffer;
+      groupTemp.deadbitsMask = deadbitsMask;
+      groups.push_back(groupTemp);
+
+
+    /*---------------------*/
+    /* CLOCK ON SECTION    */
+    /*---------------------*/
+    } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_ON)) {
+      /* We hit a clock on section - we need to figure out if the chip clocks are on */
+#if 0
+      if (isClockDomainOn(CLOCK_DOMAIN_ALL, pos) && !(global_debug & mask[1]) && !(global_debug & mask[3])) {
+        curstate &= ~(SPY_CLOCK_ANY);
+        curstate |= SPY_CLOCK_ON;
+      } else 
+        curstate &= ~(SPY_CLOCK_ANY);
+#endif
+      dllOutputError("dllGetSpy - clock dependent spies not currently supported\n");
+      return ECMD_FAILURE;
+    } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_ON)) {
+      /* We are done with the clock dep section, lets set our state back to independent */
+      curstate &= ~(SPY_CLOCK_ANY);
+      curstate |= SPY_CLOCK_IND;
+
+
+    /*---------------------*/
+    /* CLOCK OFF SECTION   */
+    /*---------------------*/
+    } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_OFF)) {
+      /* We hit a clock on section - we need to figure out if the chip clocks are on */
+#if 0
+      if (!isClockDomainOn(CLOCK_DOMAIN_ALL, pos)) {
+        curstate &= ~(SPY_CLOCK_ANY);
+        curstate |= SPY_CLOCK_OFF;
+      } else 
+        curstate &= ~(SPY_CLOCK_ANY);
+#endif
+      dllOutputError("dllGetSpy - clock dependent spies not currently supported\n");
+      return ECMD_FAILURE;
+
+    } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_OFF)) {
+      /* We are done with the clock dep section, lets set our state back to independent */
+      curstate &= ~(SPY_CLOCK_ANY);
+      curstate |= SPY_CLOCK_IND;
+
+
+    /*---------------------*/
+    /* ENUM     SECTION    */
+    /*---------------------*/
+    } else if (lineit->state & SPY_ENUM) {
+      /* We don't care about the enum lines */
+
+    /*---------------------*/
+    /* ECC     SECTION     */
+    /*---------------------*/
+    } else if (lineit->state & SPY_EPCHECKERS) {
+      /* We don't care about the ecc lines */
+
+    /*---------------------*/
+    /* DATA     SECTION    */
+    /*---------------------*/
+      
+    } else if (lineit->length == -1) {
+      /* We shouldn't get here, the only thing left should be actual latchs */
+      dllOutputError("dllGetSpy - Problems reading spy info found invalid data\n");
+      return ECMD_FAILURE;
+
+      /* If cur_state says we are in a section then we want to go do something */
+    } else if (curstate & SPY_CLOCK_ANY) {
+      /* This had better be valid latches so let's go extract */
+
+      /* Handle deadbits by just clearing them */
+      if (lineit->state & SPY_DEADBITS) {
+        extractbuffer->clearBit(curaliasbit, lineit->length);
+        if (lineit->state & SPY_GROUP_BITS)  // Needed for data compares later
+          deadbitsMask.setBit(curaliasbit, lineit->length);
+        curaliasbit += lineit->length;
+
+      /* Inverted bits */
+      } else if (lineit->state & SPY_INVERT) {
+
+        if (lineit->length == 1) {
+          if (bustype == ECMD_CHIPFLAG_FSI) {
+            if (scan.isBitSet(lineit->offsetFSI))
+              extractbuffer->clearBit(curaliasbit++);
+            else
+              extractbuffer->setBit(curaliasbit++);
+          } else { //JTAG
+            if (scan.isBitSet(lineit->offsetJTAG))
+              extractbuffer->clearBit(curaliasbit++);
+            else
+              extractbuffer->setBit(curaliasbit++);
+          }
+        } else {
+          /* We need to grab more data */
+          if (bustype == ECMD_CHIPFLAG_FSI)
+            scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+          else { // JTAG
+            scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length), lineit->length);
+            tmpbuffer.reverse();
+          }
+          tmpbuffer.invert();   /* Invert bits */
+          extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+          curaliasbit += lineit->length;
+        }
+
+        /* Standard latch bits */
+      } else {
+        if (lineit->length == 1) {
+          if (bustype == ECMD_CHIPFLAG_FSI) {
+            if (scan.isBitSet(lineit->offsetFSI))
+              extractbuffer->setBit(curaliasbit++);
+            else
+              extractbuffer->clearBit(curaliasbit++);
+          } else { //JTAG
+            if (scan.isBitSet(lineit->offsetJTAG))
+              extractbuffer->setBit(curaliasbit++);
+            else
+              extractbuffer->clearBit(curaliasbit++);
+          }
+        } else {
+          /* We need to grab more data */
+          if (bustype == ECMD_CHIPFLAG_FSI)
+            scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+          else { // JTAG
+            scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length), lineit->length);
+            tmpbuffer.reverse();
+          }
+          extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+          curaliasbit += lineit->length;
+        }
+      }
+
+    }
+  }     /* End of spy data loop */
+
+
+  int foundit = 0;
+  int wordlen = extractbuffer->getWordLength();
+  uint32_t mask;
+  int valid = 1;
+
+  /*--------------------------------*/
+  /* GROUP VERIFICATION  SECTION    */
+  /*--------------------------------*/
+  /* If the user want's the groups we won't do any verification */
+  if (data.dataType != SPYDATA_GROUPS) {
+    /* Now that we are done we should have a list of groups we need to walk through them all and make sure they all match */
+    ecmdDataBuffer cumlExtract;    ///< Cumulative copy of the extractbuffer
+    ecmdDataBuffer cumlDead;       ///< Cumulative copy of the deadbits
+    ecmdDataBuffer tempDead;      ///< Stores a temporary build of the deadbits mask
+    int groupCount = 0;           ///< Keep track of which group entry this is
+    for (groupit = groups.begin(); groupit != groups.end(); groupit ++) {
+      groupCount++;
+      if (groupit == groups.begin()) {
+        cumlExtract = groupit->extractBuffer;
+        cumlDead = groupit->deadbitsMask;
+        tempDead.setBitLength(groupit->deadbitsMask.getBitLength());
+      } else {
+
+        /* Merge the newest deadbitsmask with the cumulative one, then invert */
+        tempDead = cumlDead;
+        tempDead.merge(groupit->deadbitsMask);
+        tempDead.invert();
+
+        /* Now compare the two extracts.  If they match, woohoo! */
+        if ((groupit->extractBuffer & tempDead) == (cumlExtract & tempDead)) {
+          cumlExtract = cumlExtract | groupit->extractBuffer;
+          cumlDead = cumlDead & groupit->deadbitsMask;
+        } else {  /* We found a mismatch in group bits */
+          ecmdDataBuffer failData;
+          /* Get some data to print to the user */
+          failData = (groupit->extractBuffer & tempDead);
+          tempDead = (cumlExtract & tempDead);
+          failData.setXor(tempDead, 0, tempDead.getBitLength());
+          sprintf(outstr,"dllGetSpy - Group mismatch occurred on entry %d when reading spy '%s'\n", groupCount, spy.name.c_str());
+          dllOutputError(outstr);
+          /* Lets log some extended data that the user will get in certain types of fails */
+          sprintf(outstr,"\tCuml. Data: 0x%s\n\tFail Group: 0x%s\n\tFail Mask:  0x%s\n",cumlExtract.genHexLeftStr().c_str(),groupit->extractBuffer.genHexLeftStr().c_str(),tempDead.genHexLeftStr().c_str());
+          dllRegisterErrorMsg(ECMD_SPY_GROUP_MISMATCH, "dllGetSpy", outstr);
+          rc = ECMD_SPY_GROUP_MISMATCH;
+          return rc;
+        }
+      }
+    }
+    /* If we the groups aren't empty, and we made it this far, then assign the cumlExtract to the extractbuffer */
+    if (!groups.empty()) {
+      *extractbuffer = cumlExtract;
+    }
+  }
+
+  /* We had an enumerated spy, we need to lookup the enum to return, not the data */
+  if (data.dataType == SPYDATA_ENUM) {
+    foundit = 0;
+    wordlen = extractbuffer->getWordLength();
+    /* We are doing an enumerated fetch here, lets see what we can find */
+    for (enumit = spyent.spyEnums.begin(); enumit != spyent.spyEnums.end(); enumit ++) {
+      mask = 0xFFFFFFFF;
+      for (int idx = 0; idx < wordlen; idx ++) {
+
+        if (idx == wordlen - 1) {
+          /* This is the last word we need to shift appropriately to compare only good data */
+          mask <<= 32 - (extractbuffer->getBitLength() % 32);
+          if ((enumit->enumValue[idx] & mask) == (extractbuffer->getWord(idx) & mask)) {
+            /* This is it, woohooo */
+            foundit = 1;
+            data.enum_data = enumit->enumName;
+            break;
+          } else {
+            /* Not it */
+            break;
+          }
+        } else {
+          if (enumit->enumValue[idx] != extractbuffer->getWord(idx))
+            /* This isn't it */
+            break;
+        }
+      }
+      if (foundit) break;
+
+    }
+    if (!foundit) {
+      /* We didn't find an enum that matched , this is bad */
+      sprintf(outstr,"dllGetSpy - Didn't find a matching enum on read of : %s\n",spy.name.c_str());
+      dllOutputError(outstr);
+      return ECMD_INVALID_SPY_ENUM;
+    }
+    
+
+  } else if (data.dataType == SPYDATA_GROUPS) {
+//    *(data.group_data) = groups;
+  }
 
   return rc;
 }
@@ -171,7 +637,7 @@ uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::
 /**
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEccGrouping
 */
-uint32_t dllGetSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask){
+uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask){
   uint32_t rc = ECMD_SUCCESS;
 
   return rc;
@@ -202,8 +668,12 @@ uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const
 uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataContainer& returnSpy) {
 
   uint32_t rc = 0;
-  std::ifstream spyFile;
+
+  std::ifstream spyFile, hashFile;
   std::string spyFilePath;
+  std::string spyHashFilePath;
+  uint32_t key;
+  std::list<sedcDataContainer>::iterator searchSpy;
   std::string spy_name;
   int foundSpy = 0;
   returnSpy.valid = 0;
@@ -211,40 +681,173 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcDataCont
   char outstr[200];
 
   /* Convert to a STL string */
-  spy_name.insert(0, name);
+  spy_name = name;
   transform(spy_name.begin(), spy_name.end(), spy_name.begin(), tolower);
 
+  /* Look in the DB to see if we've read this in already */
+  returnSpy.name = spy_name;
 
-  /* Now look for it in the hash file */
-  rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
+  do {
+//    searchSpy = find(spies.begin(), spies.end(), returnSpy);
 
-  spyFile.open(spyFilePath.c_str());
-  if (spyFile.fail()) {
-    sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePath.c_str());
-    dllOutputError(outstr);
-    returnSpy.valid = 0; return ECMD_INVALID_SPY;
-  }
+//    if (searchSpy != spies.end()) { /* Found! */
 
-  foundSpy = dllLocateSpy(spyFile, spy_name);
+//      returnSpy = (*searchSpy);
 
-  /* If we made it here, we got nothing.. */
-  if (!foundSpy) {
-    sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", spy_name.c_str());
-    dllOutputError(outstr);
-    returnSpy.valid = 0; return ECMD_INVALID_SPY;
-  }
+//    } else { /* Not Found */
 
-  /* Now that we have our position in the file, call the parser and read it in */
-  std::vector<std::string> errMsgs; /* This should be empty all the time */
-  returnSpy = sedcParser(spyFile, errMsgs, buildflags);
-  if (!errMsgs.empty()) {
-    dllOutputError("dllGetSpyInfo - I have no clue why I'm here.. errMsgs should ALWAYS be clear!\n");
-    returnSpy.valid = 0; return ECMD_INVALID_SPY;
-  }
-  spyFile.close();
+      /* Let's get the path to the spydef */
+      rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
+
+      spyFile.open(spyFilePath.c_str());
+      if (spyFile.fail()) {
+        sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePath.c_str());
+        dllOutputError(outstr);
+        returnSpy.valid = 0;
+        return ECMD_INVALID_SPY;
+      }
+
+      /* ----------------------------------------------------------------- */
+      /*  Try to find the spy position from the hash file                */
+      /* ----------------------------------------------------------------- */
+      key = sedcGenFCS32(spy_name.c_str(), spy_name.length());
+
+      rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYHASH, spyHashFilePath);
+      if (!rc) {
+        hashFile.open(spyHashFilePath.c_str(),
+#if defined (i386)
+                      std::ios::nocreate |
+#endif
+                      std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
+
+        /* If we have a hash file, look for it in there */
+        if (!hashFile.fail()) {
+          foundSpy = dllLocateSpyHash(spyFile, hashFile, key, spy_name);
+        }
+        hashFile.close();
+      }
+
+      /* Couldn't find it in the hash file, try a straigh linear search */
+      if (!foundSpy) {
+        foundSpy = dllLocateSpy(spyFile, spy_name);
+      }
+
+      /* If we made it here, we got nothing.. */
+      if (!foundSpy) {
+        sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", spy_name.c_str());
+        dllOutputError(outstr);
+        returnSpy.valid = 0;
+        return ECMD_INVALID_SPY;
+      }
+
+      /* Now that we have our position in the file, call the parser and read it in */
+      std::vector<std::string> errMsgs; /* This should be empty all the time */
+      returnSpy = sedcParser(spyFile, errMsgs, buildflags);
+      if (!errMsgs.empty()) {
+        sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",spy_name.c_str());
+        dllOutputError(outstr);
+        returnSpy.valid = 0;
+        return ECMD_INVALID_SPY;
+      }
+      /* Everything looks good, let's get out of here */
+//      spies.push_front(returnSpy);
+      spyFile.close();
+//    }
+
+    /* If we found a synonym, go back and look up what it is suppose to point to */
+    if (returnSpy.type == DC_SYNONYM) {
+      sedcSynonymEntry syn = returnSpy.getSynonymEntry();
+      returnSpy.name = syn.realName;  /* Change the name to point to real name so when we do the look up, we find the spy/ecclatch/etc.. */
+    }
+  } while (returnSpy.type == DC_SYNONYM);
+
   return 0;
 }
 
+int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name) {
+
+  int found = 0;
+  sedcSpyHashEntry curhash;
+  int entrysize = sizeof(struct sedcSpyHashEntry); /* We need this to be able to traverse the binary hash file */
+  long filepos;
+  std::string line;
+  int numentries;
+  int linePos;
+
+  /* first get the size of the hash file */
+  filepos = hashFile.tellg();                   /* get end of file position     */
+  hashFile.seekg(0, std::ios::beg);			/* go back to beginning of file */
+  numentries = filepos / entrysize;
+
+  if (filepos < entrysize) { return 0; }  /* we got problems */
+
+  /* Binary Search For It */
+  int low = 0;
+  int high = numentries - 1;
+  int cur;
+
+  while (low < high) {
+
+    cur = (high + low) / 2;
+
+    hashFile.seekg(cur * entrysize);         /* position into file */ 
+    hashFile.read((char*)&(curhash.key), 4); /* read 4-byte key */
+#if defined (i386)
+    /* We need to byte swap this guy */
+    curhash.key = sedcGenByteSwap32(curhash.key);
+#endif
+
+    if (key > curhash.key)
+      low = cur + 1;
+    else   /* key < hash || key == hash */
+      high = cur;
+  }
+
+  cur = low;
+  hashFile.seekg(cur * entrysize);         /* position into file */
+
+  do {  /* at least once */
+
+    hashFile.read((char*)&(curhash.key), sizeof(curhash.key));
+#if defined (i386)
+    /* We need to byte swap this guy */
+    curhash.key = sedcGenByteSwap32(curhash.key);
+#endif
+    if (key != curhash.key) return 0;      /* we should have been at the right spot */
+    hashFile.read((char*)&(curhash.filepos), sizeof(curhash.filepos));
+#if defined (i386)
+    /* We need to byte swap this guy */
+    curhash.filepos = sedcGenByteSwap32(curhash.filepos);
+#endif
+
+    spyFile.seekg(curhash.filepos);              /* go to that spot in the spy file */
+    getline(spyFile,line,'\n');                 /* read the spy and then clean off the extras*/
+
+    /* We found something here let's see if it the spy we want */
+    /* Strip the front off */
+    int strPos = line.find_first_not_of(WHITESPACE,line.find_first_of(WHITESPACE,0));
+    if (strPos != NOT_FOUND) {
+      std::string tmp = line.substr(strPos,line.length());
+      /* Strip the end off */
+      strPos = tmp.find_first_of(WHITESPACE,0);
+      if (strPos != NOT_FOUND) {
+        tmp = tmp.erase(strPos, tmp.length());
+
+        transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+
+        if (tmp == spy_name)
+          found = 1;      /* found it! */
+      }
+    }
+  } while (!found);
+
+  if (found) {
+    /* Now rewind the file to beginning of the spy so the parser will be able to read it properly */
+    spyFile.seekg(curhash.filepos);
+  }
+
+  return found;
+}
 
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
 
@@ -260,16 +863,17 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
   getline(spyFile,line,'\n');
   while (!spyFile.eof() && !found) {
 
-    if (((line[0] == 'a') && (line.substr(0,5) == "alias")) ||
-        ((line[0] == 'i') && (line.substr(0,5) == "idial")) ||
-        ((line[0] == 'e') && (line.substr(0,5) == "edial")) ||
-        ((line[0] == 's') && (line.substr(0,7) == "synonym")) ) {
+    if ((line.length() > 4) &&
+        (((line[0] == 'a') && (line.substr(0,5) == "alias")) ||
+         ((line[0] == 'i') && (line.substr(0,5) == "idial")) ||
+         ((line[0] == 'e') && ((line.substr(0,5) == "edial") || (line.substr(0,7) == "eccfunc") || (line.substr(0,9) == "eplatches"))) ||
+         ((line[0] == 's') && (line.substr(0,7) == "synonym"))) ) {
 
-      /* We found something here let's see if it the alias we want */
+      /* We found something here let's see if it the spy we want */
       /* Strip the front off */
-      std::string tmp = line.substr(line.find_first_not_of(" \t", line.find_first_of(" \t",0)), line.length());
+      std::string tmp = line.substr(line.find_first_not_of(WHITESPACE, line.find_first_of(WHITESPACE,0)), line.length());
       /* Strip the end off */
-      tmp = tmp.erase(tmp.find_first_of(" \t",0), tmp.length());
+      tmp = tmp.erase(tmp.find_first_of(WHITESPACE,0), tmp.length());
 
       transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
 
@@ -286,7 +890,6 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
     filepos = spyFile.tellg();                   /* get end of file position     */
     getline(spyFile,line,'\n');
   }
-
   return found;
 }
 
