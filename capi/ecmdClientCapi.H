@@ -1026,7 +1026,7 @@ uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVec
 //@{
 
 /**
- @brief Reads System Mainstore through the processor chip 
+ @brief Reads System Mainstore through the processor chip using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -1044,7 +1044,7 @@ uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_b
 
 
 /**
- @brief Writes System Mainstore through the processor chip
+ @brief Writes System Mainstore through the processor chip using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -1061,7 +1061,7 @@ uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_b
 uint32_t putMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
 /**
- @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable)
+ @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
@@ -1078,7 +1078,7 @@ uint32_t getMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
 
 
 /**
- @brief Writes System Mainstore through the PSI or DMA interface (whichever is avialable)
+ @brief Writes System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -1094,7 +1094,7 @@ uint32_t getMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
 uint32_t putMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
 /**
- @brief Reads System Mainstore through the memory controller 
+ @brief Reads System Mainstore through the memory controller using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -1113,7 +1113,7 @@ uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
 
 
 /**
- @brief Writes System Mainstore through the memory controller
+ @brief Writes System Mainstore through the memory controller using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
