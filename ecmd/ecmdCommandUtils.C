@@ -370,6 +370,208 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands) {
   return o_commands.size();
 }
 
+uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecmdChipTarget &target, uint8_t &targetFieldType, std::string
+&targetFieldList) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  uint8_t ONE = 0;
+  uint8_t MANY = 1;
+  
+  std::string printed;           ///< Print Buffer
+  std::string patterns = ".,"; 
+
+  char *targetPtr;
+  bool isCage = false;
+  bool isNode = false;
+  bool isSlot = false;
+  bool isPos = false;
+  bool isCore = false;
+  char arg[5];
+  
+  if (strcmp(targetField, "cage")==0) {
+    isCage = true;
+    strcpy(arg, "-k");
+  }
+  else if (strcmp(targetField, "node")==0) {
+    isNode = true;
+    strcpy(arg, "-n");
+  }
+  else if (strcmp(targetField, "slot")==0) {
+    isSlot = true;
+    strcpy(arg, "-s");
+  }
+  else if (strcmp(targetField, "pos")==0) {
+    isPos = true;
+    strcpy(arg, "-p");
+  }
+  else if (strcmp(targetField, "core")==0) {
+    isCore = true;
+    strcpy(arg, "-c");
+  }
+  
+  targetPtr = ecmdParseOptionWithArgs(argc, argv, arg);
+  
+  
+  if(targetPtr != NULL) {
+   targetFieldList = targetPtr;
+   if(targetFieldList == "all") {
+     printed = "'all' for targets not supported.\n";
+     ecmdOutputError( printed.c_str() );
+     return ECMD_INVALID_ARGS;
+   }
+   else if (targetFieldList.find_first_of(patterns) < targetFieldList.length()) {
+     if (!isTargetStringValid(targetFieldList)) {
+       printed = (std::string)arg + " argument contained invalid characters\n";
+       ecmdOutputError(printed.c_str());
+       return ECMD_INVALID_ARGS;
+     }
+     targetFieldType = MANY;
+   }
+   else {
+     if (targetFieldList.length() != 0) {
+       if (!isTargetStringValid(targetFieldList)) {
+         printed = (std::string)arg + " argument contained invalid characters\n";
+   	 ecmdOutputError(printed.c_str());
+   	 return ECMD_INVALID_ARGS;
+       }
+       if(isCage) {
+         target.cage = atoi(targetFieldList.c_str());
+       }
+       else if(isNode) {
+         target.node = atoi(targetFieldList.c_str());
+       }
+       else if(isSlot) {
+         target.slot = atoi(targetFieldList.c_str());
+       }
+       else if(isPos) {
+         target.pos = atoi(targetFieldList.c_str());
+       }
+       else if(isCore) {
+         target.core = atoi(targetFieldList.c_str());
+       }
+     }
+     else {
+       if(isCage) {
+         target.cage = 0x0;
+       }
+       else if(isNode) {
+         target.node = 0x0;
+       }
+       else if(isSlot) {
+         target.slot = 0x0;
+       }
+       else if(isPos) {
+         target.pos = 0x0;
+       }
+       else if(isCore) {
+         target.core = 0x0;
+       }
+     }
+     targetFieldType = ONE;
+   }
+   if(isCage) {
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+   }
+   else if(isNode) {
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+    target.nodeState = ECMD_TARGET_FIELD_VALID;
+   } 
+   else if(isSlot) {
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+    target.nodeState = ECMD_TARGET_FIELD_VALID;
+    target.slotState = ECMD_TARGET_FIELD_VALID;
+   }
+   else if(isPos) {
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+    target.nodeState = ECMD_TARGET_FIELD_VALID;
+    target.slotState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_VALID;
+   }
+   else if(isCore) {
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+    target.nodeState = ECMD_TARGET_FIELD_VALID;
+    target.slotState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_VALID;
+    target.coreState = ECMD_TARGET_FIELD_VALID;
+   }    
+  }
+  else {
+    if(isCage) {
+     target.cage = 0x0;
+    }
+    else if(isNode) {
+     target.node = 0x0;
+    }
+    else if(isSlot) {
+     target.slot = 0x0;
+    }
+    else if(isPos) {
+     target.pos = 0x0;
+    }
+    else if(isCore) {
+     target.core = 0x0;
+    }
+    targetFieldType = ONE;
+  }
+  return rc;
+}
+
+/* Returns true if all chars of str are decimal numbers */
+bool isTargetStringValid(std::string str) {
+
+  bool ret = true;
+  for (uint32_t x = 0; x < str.length(); x ++) {
+    if (isdigit(str[x])) {
+    } else if (str[x] == ',') {
+    } else if (str[x] == '.' && str[x+1] == '.') {
+      x++;
+    } else {
+      ret = false;
+      break;
+    }
+  }
+
+  return ret;
+}
+
+void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
+  
+  std::string curSubstr;
+  uint32_t curOffset = 0;
+  uint32_t nextOffset = 0;
+  uint32_t tmpOffset = 0;
+
+  while (curOffset < userArgs.length()) {
+
+    nextOffset = userArgs.find(',',curOffset);
+    if (nextOffset == std::string::npos) {
+      nextOffset = userArgs.length();
+    }
+
+    curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
+
+    if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
+
+      int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
+      int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
+      
+      int curPos = lowerBound;
+      while (lowerBound <= curPos && curPos <= upperBound) {
+        targetList.push_back(curPos);
+	curPos++;
+      }
+    }
+    else {
+
+      int curValidPos = atoi(curSubstr.c_str());
+      targetList.push_back(curValidPos);
+    }
+
+    curOffset = nextOffset+1;
+
+  }
+
+}
 
 // Change Log *********************************************************
 //                                                                      

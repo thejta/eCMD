@@ -68,10 +68,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
+  if(strcmp(argv[0], "configd")) {
+   rc = ecmdCommandArgs(&argc, &argv);
+   if (rc) return rc;
+  }
   if (argc == 0) {
     ecmdOutputError("ecmdquery - Too few arguments specified; you need at least a query mode.\n");
     ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
@@ -211,31 +211,186 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
   } else if (!strcmp(argv[0],"configd")) {
 
+    
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    
+    uint8_t ONE = 0;
+    uint8_t MANY = 1;
+
+    std::string cage;	
+    std::string node;	
+    std::string slot;	
+    std::string pos;	
+    std::string core;	
+    
+    uint8_t cageType;
+    uint8_t nodeType;
+    uint8_t slotType;
+    uint8_t posType;
+    uint8_t coreType;
+  
+    bool targetNotFound = false;
+  
+    std::list<uint32_t> 	     cageList;
+    std::list<uint32_t>::iterator    cageListIter;
+    std::list<uint32_t> 	     nodeList;
+    std::list<uint32_t>::iterator    nodeListIter;
+    std::list<uint32_t> 	     slotList;
+    std::list<uint32_t>::iterator    slotListIter;
+    std::list<uint32_t> 	     posList;
+    std::list<uint32_t>::iterator    posListIter;
+    std::list<uint32_t> 	     coreList;
+    std::list<uint32_t>::iterator    coreListIter;
+  
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    
+    if(ecmdParseOption(&argc, &argv, "-all")) {
+       printed = "ecmdquery - 'all' option for targets not supported for configd option.\n";
+       ecmdOutputError( printed.c_str() );
+       return ECMD_INVALID_ARGS;
+    }
+
+
+    //Set all the states Unused to begin with. Then set them to valid based on the args
+    target.cageState	 = ECMD_TARGET_FIELD_UNUSED;
+    target.nodeState	 = ECMD_TARGET_FIELD_UNUSED;
+    target.slotState	 = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState	 = ECMD_TARGET_FIELD_UNUSED;
+    target.coreState	 = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState   = ECMD_TARGET_FIELD_UNUSED;
+  
+    rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "pos", target, posType, pos);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "core", target, coreType, core);
+    if(rc) return rc;
+    
+    //Thread
+    char *targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-t");
+    if(targetPtr != NULL) {
+      ecmdOutputError("ecmdquery - Thread (-t#) argument not supported\n");
+      return ECMD_INVALID_ARGS;
+    }
+    
+    //Chiptype
     if (argc < 2) {
       ecmdOutputError("ecmdquery - Too few arguments specified for configd; you need at least a query configd <chipname>.\n");
       ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
+    else {
+     target.chipType = argv[1];
+     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+     target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_VALID;
+    }
+    
+    //Go through each of the targets and check if they are configured  
+    if (cageType == ONE) {
+      cageList.push_back(target.cage);
+    }
+    else if (cageType == MANY) {
+      getTargetList(cage, cageList);
+    }
+    if (cageList.empty()) {
+      ecmdOutputError("ecmdquery - no cage input found.\n");
+      return ECMD_INVALID_CONFIG;
+    }
+    /* STart walking the cages */
+    for (cageListIter = cageList.begin(); cageListIter != cageList.end(); cageListIter++) {
+       target.cage = *cageListIter;
+ 
+     nodeList.clear();
 
-    //Setup the target that will be used to query the system config 
-    ecmdChipTarget target;
-    target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-    if (ecmdQueryTargetConfigured(target)) {
-      printed = "ecmdquery - Target ";
-      printed += ecmdWriteTarget(target);
-      printed += " is configured!\n";
-      ecmdOutput(printed.c_str());
-    } else {
-      printed = "ecmdquery - Target ";
-      printed += ecmdWriteTarget(target);
-      printed += " is not configured!\n";
-      ecmdOutputError(printed.c_str());
+     if (nodeType == ONE) {
+       nodeList.push_back(target.node);
+     }
+     else if (nodeType == MANY) {
+       getTargetList(node, nodeList);
+     }
+	
+     for (nodeListIter = nodeList.begin(); nodeListIter != nodeList.end(); nodeListIter ++) {
+     	target.node = *nodeListIter;
+       
+     	slotList.clear();
+     	
+     	if (slotType == ONE) {
+     	   slotList.push_back(target.slot);
+     	}
+     	else if (slotType == MANY) {
+     	   getTargetList(slot, slotList);
+     	}
+
+	 /* Walk the slots */
+        for (slotListIter = slotList.begin(); slotListIter != slotList.end(); slotListIter ++) {
+          target.slot = *slotListIter;
+	  
+	 /* Walk the slots */
+         if (target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
+           
+	  posList.clear();
+          //ChipType has been previously set
+	  if (posType == ONE) {
+           posList.push_back(target.pos);
+          }
+          else if (posType == MANY) {
+           getTargetList(pos, posList);
+          }
+
+	  /* Now start walking chip pos's */
+	  for (posListIter = posList.begin(); posListIter != posList.end(); posListIter ++) {
+	    target.pos = *posListIter;
+	   
+	    coreList.clear();
+
+	    if (coreType == ONE) {
+              coreList.push_back(target.core);
+            }
+            else if (coreType == MANY) {
+              getTargetList(core, coreList);
+            }
+	    
+	    /* Ok, walk the cores */
+            for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
+	      target.core = *coreListIter;
+
+	      if (ecmdQueryTargetConfigured(target)) {
+                 printed = "ecmdquery - Target ";
+                 printed += ecmdWriteTarget(target);
+                 printed += " is configured!\n";
+                 ecmdOutput(printed.c_str());
+	      }  else {
+                 printed = "ecmdquery - Target ";
+                 printed += ecmdWriteTarget(target);
+                 printed += " is not configured!\n";
+                 ecmdOutput(printed.c_str());
+                 targetNotFound = true;
+              }
+	
+	    }//Loop cores
+	       
+	  }//Loop pos 
+
+	 }// end if chiptype Used
+	 
+	}// Loop slots 
+	    
+      } //Loop nodes 
+      
+    }// Loop cages
+    if (targetNotFound) {
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
-
+  
     /* ---------- */
     /* chips      */
     /* ---------- */

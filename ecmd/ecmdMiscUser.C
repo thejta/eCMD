@@ -50,8 +50,7 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
-void getTargetList (std::string userArgs, std::list<uint32_t> &targetList);
-bool isTargetStringValid(std::string str);
+
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -679,7 +678,6 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
     /* Actually go fetch the data */
     rc =  makeSPSystemCall(target, command, standardop);
-
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
@@ -687,13 +685,11 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
       printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      
       if (standardop.length() != 0) {
        printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
        ecmdOutput( printed.c_str() );
        ecmdOutput( standardop.c_str() );
       }
-      
       return rc;
     }
     else {
@@ -801,8 +797,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
 
   ecmdChipTarget target;        ///< Current target
   std::string printed;           ///< Print Buffer
-  std::string patterns = ".,"; 
-
+  
   std::string cage;	
   std::string node;	
   std::string slot;	
@@ -832,8 +827,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
   /************************************************************************/
 
 
-  char *targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-all");
-  if(targetPtr != NULL) {
+  if(ecmdParseOption(&argc, &argv, "-all")) {
      printed = "reconfig - 'all' option for targets not supported in reconfig.\n";
      ecmdOutputError( printed.c_str() );
      return rc;
@@ -850,206 +844,22 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
   target.threadState   = ECMD_TARGET_FIELD_UNUSED;
   
   
-  
-  //Cage
-  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-k");
-  if(targetPtr != NULL) {
-   cage = targetPtr;
-   if(cage == "all") {
-     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
-     ecmdOutputError( printed.c_str() );
-     return rc;
-   }
-   else if (cage.find_first_of(patterns) < cage.length()) {
-     if (!isTargetStringValid(cage)) {
-       ecmdOutputError("reconfig - Cage (-k#) argument contained invalid characters\n");
-       return ECMD_INVALID_ARGS;
-     }
-     cageType = MANY;
-   }
-   else {
-     if (cage.length() != 0) {
-       if (!isTargetStringValid(cage)) {
-   	 ecmdOutputError("reconfig - Cage (-k#) argument contained invalid characters\n");
-   	 return ECMD_INVALID_ARGS;
-       }
-       target.cage = atoi(cage.c_str());
-     }
-     else {
-       target.cage = 0x0;
-     }
-     cageType = ONE;
-   }
-   target.cageState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
-    target.cage = 0x0;
-    cageType = ONE;
-  }
+  rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
+  if(rc) return rc;
+  rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
+  if(rc) return rc;
+  rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
+  if(rc) return rc;
+  rc = ecmdParseTargetFields(&argc, &argv, "pos", target, posType, pos);
+  if(rc) return rc;
+  rc = ecmdParseTargetFields(&argc, &argv, "core", target, coreType, core);
+  if(rc) return rc;
   
   
-  //Node
-  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-n");
-  if(targetPtr != NULL) {
-   node = targetPtr;
-   if(node == "all") {
-     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
-     ecmdOutputError( printed.c_str() );
-     return rc;
-   }
-   else if (node.find_first_of(patterns) < node.length()) {
-     if (!isTargetStringValid(node)) {
-       ecmdOutputError("reconfig - Node (-n#) argument contained invalid characters\n");
-       return ECMD_INVALID_ARGS;
-     }
-     nodeType = MANY;
-   }
-   else {
-     if (node.length() != 0) {
-       if (!isTargetStringValid(node)) {
-   	 ecmdOutputError("reconfig - Node (-n#) argument contained invalid characters\n");
-   	 return ECMD_INVALID_ARGS;
-       }
-       target.node = atoi(node.c_str());
-     }
-     else {
-       target.node = 0x0;
-     }
-     nodeType = ONE;
-   }
-   target.cageState = ECMD_TARGET_FIELD_VALID;
-   target.nodeState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
-    target.node = 0x0;
-    nodeType = ONE;
-  }
-  
-  
-  //Slot
-  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-s");
-  if(targetPtr != NULL) {
-   slot = targetPtr;
-   if(slot == "all") {
-     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
-     ecmdOutputError( printed.c_str() );
-     return rc;
-   }
-   else if (slot.find_first_of(patterns) < slot.length()) {
-     if (!isTargetStringValid(slot)) {
-       ecmdOutputError("reconfig - Slot (-s#) argument contained invalid characters\n");
-       return ECMD_INVALID_ARGS;
-     }
-     slotType = MANY;
-   }
-   else {
-     if (slot.length() != 0) {
-       if (!isTargetStringValid(slot)) {
-   	 ecmdOutputError("reconfig - Slot (-s#) argument contained invalid characters\n");
-   	 return ECMD_INVALID_ARGS;
-       }
-       target.slot = atoi(slot.c_str());
-     }
-     else {
-       target.slot = 0x0;
-     }
-     slotType = ONE;
-   }
-   target.cageState = ECMD_TARGET_FIELD_VALID;
-   target.nodeState = ECMD_TARGET_FIELD_VALID;
-   target.slotState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
-    target.slot = 0x0;
-    slotType = ONE;
-  }
-
-  
-  
-
-  //Position
-  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-p");
-  if(targetPtr != NULL) {
-   pos = targetPtr;
-   if(pos == "all") {
-     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
-     ecmdOutputError( printed.c_str() );
-     return rc;
-   }
-   else if (pos.find_first_of(patterns) < pos.length()) {
-     if (!isTargetStringValid(pos)) {
-       ecmdOutputError("reconfig - Pos (-p#) argument contained invalid characters\n");
-       return ECMD_INVALID_ARGS;
-     }
-     posType = MANY;
-   }
-   else {
-     if (pos.length() != 0) {
-       if (!isTargetStringValid(pos)) {
-   	 ecmdOutputError("reconfig - Pos (-p#) argument contained invalid characters\n");
-   	 return ECMD_INVALID_ARGS;
-       }
-       target.pos = atoi(pos.c_str());
-     }
-     else {
-       target.pos = 0x0;
-     }
-     posType = ONE;
-   }
-   target.cageState = ECMD_TARGET_FIELD_VALID;
-   target.nodeState = ECMD_TARGET_FIELD_VALID;
-   target.slotState = ECMD_TARGET_FIELD_VALID;
-   target.posState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
-    target.pos = 0x0;
-    posType = ONE;
-  }
-  
- 
-  //Core
-  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-c");
-  if(targetPtr != NULL) {
-   core = targetPtr;
-   if(core == "all") {
-     printed = "reconfig - 'all' for targets not supported in reconfig.\n";
-     ecmdOutputError( printed.c_str() );
-     return rc;
-   }
-   else if (core.find_first_of(patterns) < core.length()) {
-     if (!isTargetStringValid(core)) {
-       ecmdOutputError("reconfig - Core (-c#) argument contained invalid characters\n");
-       return ECMD_INVALID_ARGS;
-     }
-     coreType = MANY;
-   }
-   else {
-     if (core.length() != 0) {
-       if (!isTargetStringValid(core)) {
-   	 ecmdOutputError("reconfig - Core (-c#) argument contained invalid characters\n");
-   	 return ECMD_INVALID_ARGS;
-       }
-       target.core = atoi(core.c_str());
-     }
-     else {
-       target.core = 0x0;
-     }
-     coreType = ONE;
-   }
-   target.cageState = ECMD_TARGET_FIELD_VALID;
-   target.nodeState = ECMD_TARGET_FIELD_VALID;
-   target.slotState = ECMD_TARGET_FIELD_VALID;
-   target.posState = ECMD_TARGET_FIELD_VALID;
-   target.coreState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
-    target.core = 0x0;
-    coreType = ONE;
-  }
   
 
   //Thread
-  targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-t");
+  char *targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-t");
   if(targetPtr != NULL) {
     ecmdOutputError("reconfig - Thread (-t#) argument not supported\n");
     return ECMD_INVALID_ARGS;
@@ -1198,62 +1008,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
 }
 
 
-/* Returns true if all chars of str are decimal numbers */
-bool isTargetStringValid(std::string str) {
-
-  bool ret = true;
-  for (uint32_t x = 0; x < str.length(); x ++) {
-    if (isdigit(str[x])) {
-    } else if (str[x] == ',') {
-    } else if (str[x] == '.' && str[x+1] == '.') {
-      x++;
-    } else {
-      ret = false;
-      break;
-    }
-  }
-
-  return ret;
-}
-
-void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
-  
-  std::string curSubstr;
-  uint32_t curOffset = 0;
-  uint32_t nextOffset = 0;
-  uint32_t tmpOffset = 0;
-
-  while (curOffset < userArgs.length()) {
-
-    nextOffset = userArgs.find(',',curOffset);
-    if (nextOffset == std::string::npos) {
-      nextOffset = userArgs.length();
-    }
-
-    curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
-
-    if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
-
-      int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
-      int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
-      
-      int curPos = lowerBound;
-      while (lowerBound <= curPos && curPos <= upperBound) {
-        targetList.push_back(curPos);
-	curPos++;
-      }
-    }
-    else {
-
-      int curValidPos = atoi(curSubstr.c_str());
-      targetList.push_back(curValidPos);
-    }
-
-    curOffset = nextOffset+1;
-
-  }
-
-}
 
 // Change Log *********************************************************
 //                                                                      

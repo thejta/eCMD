@@ -139,6 +139,33 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode);
 */
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands);
 
+/**
+ @brief Parses the specific target field list specified by the user and updates the target States
+ @param io_argc Pointer to number of elements in io_argv array
+ @param io_argv Array of strings passed in from command line
+ @param i_targetField Specifies target field-cage,node,slot etc
+ @param io_target Target to be updated based on the user input
+ @param o_targetFieldType Specifies One versus Many. E.g. Whether one pos was specified or more than 1
+ @param o_targetFieldList Update this string with the list of targets specified
+ @retval ECMD_SUCCESS or ECMD_INVALID_ARGS
+*/
+uint32_t ecmdParseTargetFields(int *io_argc, char ** io_argv[], char *i_targetField, ecmdChipTarget &io_target, uint8_t
+&o_targetFieldType, std::string &o_targetFieldList);
+
+/**
+ @brief Checks if the string is a valid target
+ @param i_str String to be checked for decimal characters
+ @retval Returns true if all chars of str are decimal numbers
+*/
+bool isTargetStringValid(std::string i_str);
+
+/**
+ @brief Convert the target string into a uint32_t list
+ @param i_userArgs Input target String to be parsed
+ @param o_targetList Output list to be updated with the targets
+*/
+void getTargetList (std::string i_userArgs, std::list<uint32_t> &targetList);
+
 #endif /* ecmdCommandUtils_h */
 
 // Change Log *********************************************************
