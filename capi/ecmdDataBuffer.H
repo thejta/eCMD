@@ -406,6 +406,32 @@ public:
    */
   void merge(ecmdDataBuffer & i_bufferIn); // does a setor on the whole buffer
 
+  /* these functions XOR the datain into the DataBuffer buffer */
+  /**
+   * @brief XOR data into DataBuffer
+   * @param i_bufferIn DataBuffer to XOR data from - data is taken left aligned
+   * @param i_startbit Start bit to XOR to
+   * @param i_len Length of bits to XOR
+   * @post Data is XORed from i_bufferIn to this DataBuffer in specified location
+   */
+  void setXor(ecmdDataBuffer & i_bufferIn, int i_startbit, int i_len);
+  /**
+   * @brief XOR data into DataBuffer
+   * @param i_datain uint32_t buffer to XOR data from - data is taken left aligned
+   * @param i_startbit Start bit to XOR to
+   * @param i_len Length of bits to XOR
+   * @post Data is XORed from datain to this DataBuffer in specified location
+   */
+  void setXor(uint32_t * i_datain, int i_startbit, int i_len);
+  /**
+   * @brief XOR data into DataBuffer
+   * @param i_datain uint32_t to XOR data from - data is taken left aligned
+   * @param i_startbit Start bit to XOR to
+   * @param i_len Length of bits to XOR (must be <= 32)
+   * @post Data is XORed from datain to this DataBuffer in specified location
+   */
+  void setXor(uint32_t i_datain, int i_startbit, int i_len);
+
   /* these functions AND the datain into the DataBuffer buffer */
   /**
    * @brief AND data into DataBuffer
@@ -664,6 +690,16 @@ public:
    * @brief Overload the != operator
    */
   int operator != (const ecmdDataBuffer& other) const;    
+
+  /**
+   * @brief Overload the & operator
+   */
+  ecmdDataBuffer operator & (const ecmdDataBuffer& other) const;    
+
+  /**
+   * @brief Overload the | operator
+   */
+  ecmdDataBuffer operator | (const ecmdDataBuffer& other) const;    
 
   //@}
 

@@ -1,4 +1,3 @@
-
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdDataBuffer.C                                   
@@ -931,6 +930,30 @@ void ecmdDataBuffer::setOr(uint32_t dataIn, int startBit, int len) {
   this->setOr(&dataIn, startBit, len);
 }
 
+void ecmdDataBuffer::setXor(ecmdDataBuffer& bufferIn, int startBit, int len) {
+  this->setXor(bufferIn.iv_Data, startBit, len);
+}
+
+void ecmdDataBuffer::setXor(uint32_t * dataIn, int startBit, int len) {
+
+  if (startBit + len > iv_NumBits) {
+    printf("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)\n", startBit, len, iv_NumBits);
+  } else {
+    uint32_t mask = 0x80000000;
+    for (int i = 0; i < len; i++) {
+      this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ mask));
+      mask >>= 1;
+      if (mask == 0x00000000) {
+        mask = 0x80000000;
+      }
+    }
+  }  
+}
+
+void ecmdDataBuffer::setXor(uint32_t dataIn, int startBit, int len) {
+  this->setXor(&dataIn, startBit, len);
+}
+
 void ecmdDataBuffer::merge(ecmdDataBuffer& bufferIn) {
   if (iv_NumBits != bufferIn.iv_NumBits) {
     printf("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)\n", bufferIn.iv_NumBits, iv_NumBits);
@@ -1516,6 +1539,28 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
 
 int ecmdDataBuffer::operator != (const ecmdDataBuffer& other) const {
   return !(*this == other);
+}
+
+ecmdDataBuffer ecmdDataBuffer::operator & (const ecmdDataBuffer& other) const {
+
+  ecmdDataBuffer newItem = *this;
+
+  if (iv_NumBits != other.iv_NumBits) {
+    printf("**** ERROR : ecmdDataBuffer::operater &: NumBits in (%d) do not match NumBits (%d)\n", other.iv_NumBits, iv_NumBits);
+  } else {
+    newItem.setAnd(other.iv_Data, 0, iv_NumBits);
+  }
+
+  return newItem;
+}
+
+ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& other) const {
+
+  ecmdDataBuffer newItem = *this;
+
+  newItem.setOr(other.iv_Data, 0, iv_NumBits);
+
+  return newItem;
 }
 
 void ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to_extract, uint32_t *out_iv_Data_ptr)
