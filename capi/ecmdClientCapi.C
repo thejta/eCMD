@@ -78,21 +78,6 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   const char* dlError;
   uint32_t rc = ECMD_SUCCESS;
 
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &i_dllName);
-     args.push_back((void*) &rc);
-
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
-     }
-
-  }
-
-#endif
 
 
 #ifndef ECMD_STATIC_FUNCTIONS
@@ -109,6 +94,17 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
     else
       ecmdClientDebug = 0;
 #endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug >= 8) {
+     printf("ECMD DEBUG (ecmdFPP) : ENTER : uint32_t ecmdLoadDll(std::string i_dllName)\n");
+     if (ecmdClientDebug >= 9) {
+       printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : std::string \t varriable name : i_dllName = %s\n",i_dllName.c_str());
+       printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
+     }
+  }
+#endif
+
 
 #ifndef ECMD_STATIC_FUNCTIONS
 #ifdef _AIX
@@ -163,20 +159,20 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 #endif /* ECMD_STATIC_FUNCTIONS */
 
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &i_dllName);
-     args.push_back((void*) &rc);
-
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
-     }
+    printf("ECMD DEBUG (ecmdFPP) : EXIT  : uint32_t ecmdLoadDll(std::string i_dllName)\n");
+    if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+    }
+    if (ecmdClientDebug >= 9) {
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : std::string : varriable name : i_dllName = %s\n",i_dllName.c_str());
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+    }
+    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");
   }
 #endif
-
 
   return rc;
 }
@@ -186,16 +182,11 @@ uint32_t ecmdUnloadDll() {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t c_rc = ECMD_SUCCESS;
 
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &rc);
-
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdUnloadDll()",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdUnloadDll()",args);
-     }
+    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t uint32_t ecmdUnloadDll()\n");
+    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
   }
 #endif
 
@@ -233,14 +224,14 @@ uint32_t ecmdUnloadDll() {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &rc);
-
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdUnloadDll()",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdUnloadDll()",args);
-     }
+    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t uint32_t ecmdUnloadDll()\n");
+    if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+    }
+    if (ecmdClientDebug >= 9) {
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+    }
+    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");
   }
 #endif
 
@@ -251,20 +242,18 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &i_argc);
-     args.push_back((void*) &i_argv);
-     args.push_back((void*) &rc);
-
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTIN,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
-     }
+    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n");
+    if (ecmdClientDebug >= 9) {
+      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : int* : variable name : i_argc = %d\n",i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : ENTER : \t type : char** : variable name : i_argv = **not implemented yet**\n",i_argc);
+    }
+    printf("ECMD DEBUG (ecmdFPP) : ENTER : \t ***************************************\n");
   }
 #endif
+
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllCommonCommandArgs(i_argc, i_argv);
@@ -289,16 +278,16 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &i_argc);
-     args.push_back((void*) &i_argv);
-     args.push_back((void*) &rc);
-
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(ECMD_FPP_JUSTOUT,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
-     } else {
-        ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])",args);
-     }
+    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n");
+    if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+    }
+    if (ecmdClientDebug >= 9) {
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : int* : variable name : i_argc = %d\n",i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : char** : variable name : i_argv = **not implemented yet**\n",i_argc);
+      printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t type : RETURN CODE = d=%u 0x%.08X\n",rc,rc);
+    }
+    printf("ECMD DEBUG (ecmdFPP) : EXIT  : \t ***************************************\n");
   }
 #endif
 
