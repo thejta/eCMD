@@ -754,6 +754,7 @@ int simUNSTICKS(const char* i_facname, int i_bitlength, int i_row = 0, int i_off
  * @param i_data Value to unstick to 
  * @param i_row Optional: Array Facility row
  * @param i_numrows Optional: Number of rows to unstick
+ * @param i_bitlength Bit length to unstick to facility
  * @retval ECMD_SUCCESS if successful
  * @retval nonzero on failure
 */

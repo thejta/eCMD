@@ -152,7 +152,7 @@ int ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std:
 /**
  @brief Formats data from data buffer into a string according to format flag and returns the string
  @retval String of formatted data
- @param o_data ecmdDataBuffer where data to format is stored
+ @param i_data ecmdDataBuffer where data to format is stored
  @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
  @param address A base address value that can be used in formating certain data- i.e., data from memory
  */
