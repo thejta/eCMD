@@ -260,8 +260,19 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   if (io_state.ecmdUseUnitid) {
     /* We at the end ? */
     while (!done) {
-      if (io_state.curUnitIdTarget == io_state.unitIdTargets.end())
+      if (io_state.curUnitIdTarget == io_state.unitIdTargets.end()) {
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdClientDebug >= 8) {
+          std::vector< void * > args;
+          args.push_back((void*) &io_target);
+          args.push_back((void*) &io_state);
+          args.push_back((void*) &rc);
+
+          ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
+        }
+#endif
         return 0;
+      }
 
       io_target = *(io_state.curUnitIdTarget);
       io_state.curUnitIdTarget ++;
@@ -272,6 +283,8 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       }
     } /* while !done */
 
+
+    /* Not using unitid's use physical targets */
   } else {
     while (!done) {
       level = CAGE;
@@ -316,6 +329,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           continue;
         }
 
+        /* Data is valid, let's setup this part of the target */
         io_target.cage = (*io_state.ecmdCurCage).cageId;
         io_state.ecmdCurNode = (*io_state.ecmdCurCage).nodeData.begin();
         valid = 0;
@@ -355,6 +369,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           continue;
         }
 
+        /* Data is valid, let's setup this part of the target */
         io_target.node = (*io_state.ecmdCurNode).nodeId;
         io_state.ecmdCurSlot = (*io_state.ecmdCurNode).slotData.begin();
         valid = 0;
@@ -396,6 +411,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           continue;
         }
 
+        /* Data is valid, let's setup this part of the target */
         io_target.slot = (*io_state.ecmdCurSlot).slotId;
         io_state.ecmdCurChip = (*io_state.ecmdCurSlot).chipData.begin();
         valid = 0;
@@ -440,6 +456,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           continue;
         }
 
+        /* Data is valid, let's setup this part of the target */
         io_target.chipType = (*io_state.ecmdCurChip).chipType;
         io_target.pos = (*io_state.ecmdCurChip).pos;
         io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
@@ -481,6 +498,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           continue;
         }
 
+        /* Data is valid, let's setup this part of the target */
         io_target.core = (*io_state.ecmdCurCore).coreId;
         io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
         valid = 0;
@@ -504,6 +522,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* last Thread != current Thread */
       if (level == THREAD && (!valid || io_target.thread != (*io_state.ecmdCurThread).threadId)) {
 
+        /* Data is valid, let's setup this part of the target */
         io_target.thread = (*io_state.ecmdCurThread).threadId;
 
       }

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
-
+# $Header$
 
 my $curdir = ".";
 
@@ -17,8 +17,8 @@ my $ignore_re = join '|', @ignores;
 my @no_gen = qw( ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
-# These are functions that are ring cache enabled
-my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode Latch);
+# These are functions that are ring cache enabled or aren't affected at all by ring caches
+my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode Latch UnitId);
 my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
  
 my $printout;
