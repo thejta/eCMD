@@ -1,15 +1,15 @@
 
-Syntax: simPUTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
+Syntax: simPUTFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
         
         ECMD:           Core Common Function
 
-        Function:       Write a simulation facility using a symbol
+        Function:       Write a simulation facility using a name
 
         Parameters:
         --------------------------------------------------------------------------------
-        symbol          Must be a facility symbol
+        facname         Must be a facility name
 
-        data            Data to write to facility : Default "xr"
+        data            Data to write to facility
 
         length          Bit length of symbol to read
 
@@ -17,8 +17,8 @@ Syntax: simPUTFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
  
         offset    [opt] Facility offset
 
-        -i<format>[opt] Specifies the format type of input data.
+        -i<format>[opt] Specifies the format type of input data. default: "xr"
 
         --------------------------------------------------------------------------------
 
-        Example:        simPUTFAC 100 C 4
+        Example:        simPUTFACS TITAN.TCKFREQ C 4

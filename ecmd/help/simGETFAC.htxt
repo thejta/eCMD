@@ -1,13 +1,13 @@
 
-Syntax: simGETFAC <symbol> <length> [<row> <offset>] [-o<format>]
+Syntax: simGETFACS <facname> <length> [<row> <offset>] [-o<format>]
         
         ECMD:           Core Common Function
 
-        Function:       Read a Simulation Facility using a symbol
+        Function:       Read a Simulation Facility using a facility name
 
         Parameters:
         --------------------------------------------------------------------------------
-        symbol          Must be a facility symbol number - hex right aligned
+        facname         Must be a facility name
 
         length          Bit length of symbol to read
 
@@ -19,4 +19,4 @@ Syntax: simGETFAC <symbol> <length> [<row> <offset>] [-o<format>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simGETFAC 100 4
+        Example:        simGETFACS TITAN.TCKFREQ 4

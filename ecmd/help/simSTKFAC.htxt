@@ -1,13 +1,13 @@
 
-Syntax: simSTKFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
+Syntax: simSTKFACS <facname> <data> <length> [<row> <offset>] [-i<format>]
         
         ECMD:           Core Common Function
 
-        Function:       Stick a simulation facility using a symbol
+        Function:       Stick a simulation facility using name
 
         Parameters:
         --------------------------------------------------------------------------------
-        symbol          Must be a facility symbol
+        facname         Must be a facility name
 
         data            Data for operation
 
@@ -21,4 +21,4 @@ Syntax: simSTKFAC <symbol> <data> <length> [<row> <offset>] [-i<format>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simSTKFAC 100 C 4
+        Example:        simSTKFACS TITAN.TCKFREQ C 4
