@@ -12,10 +12,11 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        checkrings               putbits                  simexpecttcfac           
-                                 putcfam                  simgetcurrentcycle       
-        deconfig                 putfpr                   simgethierarchy          
-                                 putgpr                   simgettcfac              
+        checkrings               putarray                 simexit                  
+                                 putbits                  simexpecttcfac           
+        deconfig                 putcfam                  simgetcurrentcycle       
+                                 putfpr                   simgethierarchy          
+        ecmd                     putgpr                   simgettcfac              
         ecmdquery                putlatch                 siminit                  
                                  putmemdma                simputtcfac              
         format                   putmemmemctrl            simrestart               
@@ -41,15 +42,14 @@ Syntax: ecmd
         makespsystemcall         simcheckpoint            
                                  simclock                 
         pollscom                 simecho                  
-        putarray                 simexit                  
 
 
         Cronus/IP Extensions:
         --------------------------------------------------------------------------------
 
         cipbreakpoint            
-        cipgetvpr                
+        cipgetvr                 
         cipinstruct              
-        cipputvpr                
+        cipputvr                 
 
 
