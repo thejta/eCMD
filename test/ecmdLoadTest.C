@@ -12,7 +12,11 @@ int main (int argc, char *argv[])
 {
   ecmdDataBuffer vec(32);
 
+#ifdef _AIX
+  ecmdLoadDll("../dllStub/export/ecmdDllStub_aix.so");
+#else
   ecmdLoadDll("../dllStub/export/ecmdDllStub_x86.so");
+#endif
 
   ecmdUnloadDll();
 

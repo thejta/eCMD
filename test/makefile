@@ -5,7 +5,7 @@
 
 OS           := $(shell uname)
 
-VPATH        := ../capi/export ../dllStub ../capi
+VPATH        := ../capi/export:../dllStub:../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
 SOURCE       := ecmdLoadTest.C
@@ -33,6 +33,7 @@ ifeq (${OS},AIX)
   CC      := xlC -+
   TARGET  := ecmdClientTest_aix
   CFLAGS  := ${CFLAGS} -qstaticinline
+  LD      := ${CC}
 endif
 
 VPATH     := ${VPATH}:${SUBDIR}
@@ -42,8 +43,8 @@ VPATH     := ${VPATH}:${SUBDIR}
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} ${TARGET}_static
-	@touch t.o t_x86 t_aix t_ppc
-	@mv *.o *_x86 *_aix *_ppc  ${SUBDIR}
+	@touch t.o t_x86 t_aix t_ppc t_static
+	@mv *.o *_x86 *_aix *_ppc *_static ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET} export/
 	@cp ${SUBDIR}${TARGET}_static export/
@@ -83,7 +84,12 @@ $(STATIC_SOURCE_OBJS): %_static.o : %.C ${INCLUDES} ${INT_INCLUDES}
 ${TARGET}: ${SOURCE_OBJS}
 	@echo " "
 	@echo "Linking Dynamic version of test client ..."
+ifeq (${OS},Linux)
 	${LD} ${LDFLAGS} $^ ../capi/export/ecmdClientCapi_x86.a -o $@ 
+endif
+ifeq (${OS},AIX)
+	${LD} ${LDFLAGS} $^ ../capi/export/ecmdClientCapi_aix.a -o $@ 
+endif
 
 ${TARGET}_static: ${STATIC_SOURCE_OBJS}
 	@echo " "
