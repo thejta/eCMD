@@ -286,7 +286,10 @@ int ecmdClientPerlapi::getLatch (const char * i_target, const char* i_ringName, 
   std::list<ecmdLatchEntry> latchEntries;
   std::list<ecmdLatchEntry>::iterator curEntry;
 
-  rc = ::getLatch(myTarget, i_ringName, i_latchName, latchEntries, ECMD_LATCHMODE_FULL);
+  if (strlen(i_ringName) == 0)
+    rc = ::getLatch(myTarget, NULL, i_latchName, latchEntries, ECMD_LATCHMODE_FULL);
+  else
+    rc = ::getLatch(myTarget, i_ringName, i_latchName, latchEntries, ECMD_LATCHMODE_FULL);
 
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
@@ -353,7 +356,10 @@ int ecmdClientPerlapi::putLatch (const char * i_target, const char* i_ringName, 
   buffer.setBitLength(strlen(i_data));
   rc = buffer.insertFromBin(i_data);
 
-  rc = ::putLatch(myTarget, i_ringName, i_latchName, buffer, i_startBit, i_numBits, matchs, ECMD_LATCHMODE_FULL);
+  if (strlen(i_ringName) == 0)
+    rc = ::putLatch(myTarget, NULL, i_latchName, buffer, i_startBit, i_numBits, matchs, ECMD_LATCHMODE_FULL);
+  else
+    rc = ::putLatch(myTarget, i_ringName, i_latchName, buffer, i_startBit, i_numBits, matchs, ECMD_LATCHMODE_FULL);
 
   o_matchs = matchs; 
 
