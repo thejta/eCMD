@@ -252,9 +252,7 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 
 uint32_t dllUnloadDll() {
   uint32_t rc = 0;
-  
   rc = dllFreeDll();
-
   return rc;
 }
 
@@ -262,13 +260,15 @@ uint32_t dllUnloadDll() {
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::string ret;
   std::list<ecmdError>::iterator cur;
+  char tmp[200];
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
       ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
       ret += (*cur).message;
       if (i_parseReturnCode) {
-        ret += "RETURN CODE : " + dllParseReturnCode(i_errorCode) + "\n";
+        sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCode(i_errorCode).c_str());
+        ret += tmp;
       }
       ret += "==============================================================\n";
       break;
@@ -277,7 +277,8 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
 
   /* We want to parse the return code even if we didn't finded extended error info */
   if ((ret.length() == 0) && (i_parseReturnCode)) {
-    ret += "ecmdGetErrorMsg - RETURN CODE : " + dllParseReturnCode(i_errorCode) + "\n";
+    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_errorCode, dllParseReturnCode(i_errorCode).c_str());
+    ret = tmp;
   }
 
   return ret;
@@ -1625,7 +1626,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
                   ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
-          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
           if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
             foundRing = true;
             curRing = i_ring;
@@ -1640,7 +1641,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
             dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
             break;
           }
-          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), tolower);
+          transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
           /* Get just the ringname */
           curRing = curArgs[1];
           foundRing = true;
@@ -1784,7 +1785,7 @@ uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
 
   o_data = needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.front();
-  if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
+  if ((o_data.chipType != i_target.chipType && o_data.chipCommonType != i_target.chipType) || o_data.pos != i_target.pos) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
     
@@ -1848,9 +1849,9 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
           /* This came from this source, we will save that as we may use it later */
           source = tokens[1];
         }
-      } else if (i_returnCode & 0xFF000000 != ECMD_ERR_ECMD) {
+      } else if ((i_returnCode & 0xFF000000) != ECMD_ERR_ECMD) {
         /* We aren't going to find this return code in here since it didn't come from us */
-      } else if (tokens.size() == 4) {
+      } else if (tokens.size() >= 4) {
         /* This is a standard return code define */
         sscanf(tokens[3].c_str(),"0x%x",&comprc);
         if ((i_returnCode & 0x00FFFFFF) == comprc) {
