@@ -645,15 +645,18 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
       wordsDonePrev = wordsDone;
       sprintf(tempstr,"%0.16X: %0.8X %0.8X %0.8X %0.8X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
       printed += tempstr;
-      // ASCII
-      if (curState == ECMD_FORMAT_MEMA) {
-        sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, 128).c_str());
+      // Text printing additions
+      if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
+        // ASCII
+        if (curState == ECMD_FORMAT_MEMA) {
+          sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, 128).c_str());
+        }
+        // EBCDIC
+        if (curState == ECMD_FORMAT_MEME) {
+          sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
+        }
+        printed += tempstr;
       }
-      // EBCDIC
-      if (curState == ECMD_FORMAT_MEME) {
-        sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
-      }
-      printed += tempstr;
       printed += "\n";
       myAddr += 16;
       wordsDone += 4;
