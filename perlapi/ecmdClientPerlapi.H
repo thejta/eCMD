@@ -52,8 +52,6 @@ namespace ECMDPERLAPI {
    <pre>
    use ecmd;
 
-   my $ep;
-   $ep = new ecmd::ecmdClientPerlapi();
    </pre>
    */
 
@@ -68,8 +66,6 @@ namespace ECMDPERLAPI {
    @pre ecmdClientPerlapi constructor must have been called
 
    - initializes the eCMD Dll.
-   - Global options such as -p#, -c# will be parsed out.
-   - Position flags can be queried later with functions like wasposselected()
 
    VERSIONS :
    eCMD at times has to make changes to add/remove functionality and parameters to functions.  This could cause
@@ -80,16 +76,16 @@ namespace ECMDPERLAPI {
    do not affect your script.
 
    USAGE :
-   if ($ep->initDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }
+   if (ecmdInitDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }
 
    */
-  int initDll(const char * i_dllName, const char * i_clientVersion);
+  int ecmdInitDll(const char * i_dllName, const char * i_clientVersion);
 
 
   /**
    @brief Clean up the Perl Module - MUST BE CALLED JUST BEFORE SCRIPT EXIT
    */
-  void cleanup();
+  void ecmdCleanup();
 
   /**
    @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
@@ -106,7 +102,7 @@ namespace ECMDPERLAPI {
    NOTE : This function does not affect ring caching
 
    USAGE :
-   $ep->ecmdCommandArgs(\@ARGV);
+   ecmdCommandArgs(\@ARGV);
 
    */
 
@@ -157,8 +153,8 @@ namespace ECMDPERLAPI {
   NOTE : Some of this documentation may look like C/C++ files/headers but that is a side effect of the tool we are using to generated the PerlAPI and documentation.  Treat as Perl functions and especially look at any usage information associated with each function description
 
  <ul>
- <li>ecmdClientPerlapi</li>
- <li>ecmdDataBuffer</li>
+ <li>ecmdClientPerlapi.H</li>
+ <li>ecmdDataBuffer.H</li>
  <li>ecmdStructs.H</li>
  </ul>
 
@@ -166,7 +162,7 @@ namespace ECMDPERLAPI {
 
  CIP (Cronus/IP) Extension<br>
  <ul>
- <li> cipClientPerlapi </li>
+ <li> cipClientPerlapi.H </li>
  </ul>
 
 
@@ -193,17 +189,30 @@ namespace ECMDPERLAPI {
  use strict;
  use ecmd;
 
- my $ep;
- $ep = new ecmd::ecmdClientPerlapi();
- my $rc = 0;
 
- $| = 1;  # set autoflush
-
- if ($ep->initDll("", "ver1")) { die "Fatal errors initializing DLL"; }
+ # Initialize the Plugin - has to be first thing done
+ # Here we pass in that we know this script supports eCMD Releases 1.x if we know we support more we could pass like "ver1,ver2"
+ if (ecmdInitDll("", "ver1")) { die "Fatal errors initializing DLL"; }
 
 
  </pre>
 
+
+ <br>
+ <hr>
+ @section extinit Using eCMD Perl Extensions
+ If you need functionality from an eCMD Extension that provides the Perl Api, it is initialized like below.  This is a 'cip'
+extension example but all extensions work the same way just replace the prefix with the extension of choice.
+<br>
+<pre>
+
+ # Initialize the Plugin - has to be first thing done 
+ if (ecmdInitDll("", "ver1")) { die "Fatal errors initializing DLL"; }
+
+ # Now initialize the extension as well - notice I use the $cp variable that points to my extension
+ if (cipInitExtension("ver1")) { die "Fatal errors initializing CIP Extension"; }
+
+</pre>
 
  <br>
  <hr>
@@ -224,9 +233,6 @@ Here is an example usage of the ecmdDataBuffer:
 
   # Read data from the chip
   my $rc = 0;
-  # The \$$ tells perl that we are passing in the class object by reference such that data can be returned out
-  # The general rule is if the function is defined as char** in the Api documentation pass in your variable as &#92$$
-  # If the function is defined as const char* then pass it in as $$ as seen below.
   $rc = $ep->getRing($target, "idreg", $data);
 
   # What is in the first word
@@ -269,9 +275,8 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
  The following should be observed when using the Perl API.
 
  <ol>
- <li> The client should instantiate a new ecmdClientPerlapi object.</li>
- <li> The initDll() function should ALWAYS be the first function called.</li>
- <li> The cleanup() function should be called just before script exit</li>
+ <li> The ecmdInitDll() function should ALWAYS be the first function called.</li>
+ <li> The ecmdCleanup() function should be called just before script exit</li>
  <li> Perl should be picked up as shown in the example below to grab the eCMD supported version</li>
  </ol>
 
