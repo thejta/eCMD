@@ -21,9 +21,10 @@ ifeq (${OS},Linux)
   CC      := g++
   TARGET  := ecmd_x86
   LD      := ${CC}
-  LDFLAGS := -ldl
+  LDFLAGS := -ldl -L../capi/export -lecmd_x86
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30
+  GPATH   := ${SUBDIR}
 endif
 
 # *****************************************************************************
@@ -34,7 +35,7 @@ ifeq (${OS},AIX)
   CC      := xlC -+
   TARGET  := ecmd_aix
   LD      := ${CC}
-  LDFLAGS := -bloadmap:PARM -w
+  LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export -lecmd_aix
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
   CFLAGS  := ${CFLAGS}  # -qstaticinline
 endif
