@@ -1025,7 +1025,11 @@ void ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) {
 }
 
 void  ecmdDataBuffer::memCopyIn(uint32_t* buf, int bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  setBitLength(bytes * 4);
   ecmdBigEndianMemCopy(iv_Data, buf, bytes);
+#ifndef REMOVE_SIM
+  strcpy(iv_DataStr, getBinStr(0,bytes*4).c_str());
+#endif
 }
 void  ecmdDataBuffer::memCopyOut(uint32_t* buf, int bytes) { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   ecmdBigEndianMemCopy(buf, iv_Data, bytes);
@@ -1057,12 +1061,12 @@ int  ecmdDataBuffer::isXstate() {
 #endif
 }
 
-int   ecmdDataBuffer::hasXstate() {  /* check for only X's */
+int   ecmdDataBuffer::hasXstate() {  
 #ifdef REMOVE_SIM
   registerErrorMsg(ECMD_DBUF_UNDEFINED_FUNCTION, "ecmdDataBuffer: hasXstate: Not defined in this configuration");
   return 0;
 #else
-  return (strchr(iv_DataStr, 'x') || strchr(iv_DataStr, 'X'));
+  return (hasXstate(0,iv_NumBits));
 #endif
 }
 
