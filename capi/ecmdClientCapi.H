@@ -468,19 +468,16 @@ The ecmdDataBuffer maintains data both as unsigned integers and as a character s
 <br>
 <hr>
 @section makefile Makefile Example
-
 @subsection Aixmake Aix
-<ul>
 <pre>
 testclient: testclient.o ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_aix.a
-	xlC -+ -g testclient.o ecmdClientCapi_aix.a -bI:ecmdClientCapi.export -o testclient
+        xlC -+ -g testclient.o ecmdClientCapi_aix.a -bI:ecmdClientCapi.export -o testclient
 
 testclient.o: testclient.c ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_aix.a
 	xlC -+ -g -c testclient.c -o testclient.o
 </pre>
-</ul>
+
 @subsection Linuxmake Linux x86
-<ul>
 <pre>
 testclient.linux: testclient_linux.o ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_x86.a
 	g++ -g -ldl testclient_linux.o ecmdClientCapi_x86.a -o testclient.linux
@@ -488,9 +485,6 @@ testclient.linux: testclient_linux.o ecmdClientCapi.H ecmdDataBuffer.H ecmdRetur
 testclient_linux.o: testclient.c ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdClientCapi_x86.a
 	g++ -g -c -I./ testclient.c -o testclient_linux.o
 </pre>
-</ul>
-
-
 */
 
 // Change Log *********************************************************

@@ -51,6 +51,11 @@ int dllInitDll() {
   return ECMD_SUCCESS;
 }
 
+int dllCommandArgs(int argc, char* argv[]) {
+  return ECMD_SUCCESS;
+}
+
+
 int dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 int dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
@@ -93,3 +98,15 @@ int dllFlushSys () { return ECMD_SUCCESS; }
 
 int dllIplSys () { return ECMD_SUCCESS; }
 
+
+void dllOutputError(const char* message) {
+  printf("DLLSTUBERROR : %s\n",message);
+}
+
+void dllOutputWarning(const char* message) {
+  printf("DLLSTUBWARNING : %s\n",message);
+}
+
+void dllOutput(const char* message) {
+  printf(message);
+}
