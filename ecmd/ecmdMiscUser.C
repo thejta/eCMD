@@ -642,7 +642,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::string command;          ///< Print Buffer
-  std::string standardop;       ///< Standard out captured by running command
+  std::string standardop = "";       ///< Standard out captured by running command
   ecmdLooperData looperdata;    ///< Store internal Looper data
 
 
@@ -686,6 +686,11 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
       printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
+      if (standardop != "") {
+       printed = "Output from executing the command '" + command + "':\n";
+       ecmdOutput( printed.c_str() );
+       ecmdOutput( standardop.c_str() );
+      }
       return rc;
     }
     else {
