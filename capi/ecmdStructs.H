@@ -200,7 +200,7 @@ struct ecmdChipData {
 */
 struct ecmdSlotData {
   uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
-  std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in numerical order per chip by pos
+  std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in order by chipType and pos
 };
 
 /**
@@ -377,5 +377,36 @@ typedef enum {
  ECMD_TRACE_SCAN,               ///< Scan Trace
  ECMD_TRACE_PROCEDURE           ///< Procedure Trace
 } ecmdTraceType_t;
+
+
+
+
+
+/* @name Operators */
+//@{
+
+/** @brief Used to sort Cage entries in an ecmdCageData list. */
+bool operator< (const ecmdCageData& lhs, const ecmdCageData& rhs);
+
+/** @brief Used to sort Node entries in an ecmdNodeData list. */
+bool operator< (const ecmdNodeData& lhs, const ecmdNodeData& rhs);
+
+/** @brief Used to sort Slot entries in an ecmdSlotData list. */
+bool operator< (const ecmdSlotData& lhs, const ecmdSlotData& rhs);
+
+/** @brief Used to sort Chip entries (based on Pos) in an ecmdChipData list. */
+bool operator< (const ecmdChipData& lhs, const ecmdChipData& rhs);
+
+/** @brief Used to sort Core entries in an ecmdCoreData list. */
+bool operator< (const ecmdCoreData& lhs, const ecmdCoreData& rhs);
+
+/** @brief Used to sort Thread entries in an ecmdThreadData list. */
+bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs);
+
+
+
+//@}
+
+
 
 #endif
