@@ -170,8 +170,9 @@ uint32_t cipGetVpr (ecmdChipTarget & i_target, uint32_t i_vprNum, ecmdDataBuffer
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
 
 */
 uint32_t cipGetVprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
@@ -211,8 +212,7 @@ uint32_t cipPutVpr (ecmdChipTarget & i_target, uint32_t i_vprNum, ecmdDataBuffer
 
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  writing multiple entries.  The function will NOT continue through all subsequent entries.
 
 */
 uint32_t cipPutVprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);

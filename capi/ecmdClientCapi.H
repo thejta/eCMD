@@ -673,8 +673,9 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
 
 */
 uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
@@ -720,8 +721,7 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  NOTE : i_entries should be pre-loaded with address and data
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  writing multiple entries.  The function will NOT continue through all subsequent entries.
 
 */
 uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
@@ -900,8 +900,9 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
    - "ALLSHARED"   : To fetch all non-threaded SPR's for particular target
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
 
 */
 uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
@@ -941,8 +942,7 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  writing multiple entries.  The function will NOT continue through all subsequent entries.
 
 */
 uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries);
@@ -977,8 +977,9 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
 
 
 */
@@ -1020,8 +1021,7 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
 
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  writing multiple entries.  The function will NOT continue through all subsequent entries.
 
 
 */
@@ -1057,8 +1057,9 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
 
 */
 uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
@@ -1097,8 +1098,7 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  writing multiple entries.  The function will NOT continue through all subsequent entries.
 
 
 */
@@ -1131,8 +1131,9 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vecto
  @retval ECMD_SUCCESS if successful
 
  The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The function will still continue through all entries requested.
-  You must walk through the list returned to find out which entry caused the failure.
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
 
  - NOTE : to fetch all Trace Arrays available add only one entry to io_entries and set
     ecmdNameVectorEntry.name = "ALL"
