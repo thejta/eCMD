@@ -71,6 +71,12 @@ typedef enum {
 
 void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state);
 std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
+/**
+ @brief Print ecmdDataBuffer's for the EFPP
+ @param i_data Databuffer to print
+ @param i_tabStop Any additional spacing that should be done in display (ie "  \t")
+*/
+void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -1012,8 +1018,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
   int mysize;
   int look4rc,outputRC,dataLooper,remainder;
 
-//  char *tempStr;
-  char tempIntStr[180];
+  char tempIntStr[400];
 
   look4rc = outputRC = 0;
 /* validate the type of call we are doing, return if invalid */
@@ -1056,7 +1061,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 /* fReturnType.size() = 2                                      */
 
   if(look4rc) {
-    if((!strcasecmp(fReturnType[0].c_str(),"void")) && (look4rc)) {
+    if((!strcmp(fReturnType[0].c_str(),"void")) && (look4rc)) {
       /* it's a void return so don't do return code printing. */
       outputRC =0;
     } else {
@@ -1139,7 +1144,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
 /* at this point variableType is somehting like : "enum" or "char*" or "const char*" */
 /* variableName[0] is the variable name */
 
-/* we need to strcasecmp on variableType and then declare an object of that type. it will go away */
+/* we need to strcmp on variableType and then declare an object of that type. it will go away */
 /* when it falls out of scope */
 
     if((variableType         == NULL) ||
@@ -1154,22 +1159,22 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
     }
 
 
-    if(!strcasecmp(variableType,"char")) {
+    if(!strcmp(variableType,"char")) {
 /* char */
       char * dummy = (char *)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       sprintf(tempIntStr,"%c",dummy);
       printed += tempIntStr;
       printed += "\n";
       ecmdOutput(printed.c_str());
 
-    } else if((!strcasecmp(variableType,"const char *"))||
-              (!strcasecmp(variableType,"const char*"))   ){
+    } else if((!strcmp(variableType,"const char *"))||
+              (!strcmp(variableType,"const char*"))   ){
 /* const char * */
 
       char ** dummy = (char **)(args[looper]);
@@ -1177,7 +1182,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += "\n";
       ecmdOutput(printed.c_str());
       printed = "ECMD DEBUG (ecmdFPP) :\t \t value : ";
@@ -1187,59 +1192,79 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if((!strcasecmp(variableType,"std::string"))       ||
-              (!strcasecmp(variableType,"const std::string")) ||
-              (!strcasecmp(variableType,"std::string&"))      ||
-              (!strcasecmp(variableType,"std::string &"))       ){
+    } else if((!strcmp(variableType,"std::string"))       ||
+              (!strcmp(variableType,"const std::string")) ||
+              (!strcmp(variableType,"std::string&"))      ||
+              (!strcmp(variableType,"std::string &"))       ){
 /* std::string */
 
       std::string* dummy = (std::string*)(args[looper]);
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-//      printed += "strings not working yet";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       printed += dummy->c_str();
-//      printed += dummy->c_str();
       printed += "\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
-    } else if((!strcasecmp(variableType,"std::list<ecmdRingData> &"))   ||
-              (!strcasecmp(variableType,"std::list<ecmdArrayEntry> &")) ||
-              (!strcasecmp(variableType,"std::list<ecmdNameEntry> &"))  ||
-              (!strcasecmp(variableType,"std::list<ecmdIndexEntry> &"))  ||
-              (!strcasecmp(variableType,"std::list <ecmdNameVectorEntry> &"))  ||
-              (!strcasecmp(variableType,"std::list<ecmdLatchEntry> &"))   ){
+    } else if((!strcmp(variableType,"std::list<ecmdRingData> &"))   ||
+              (!strcmp(variableType,"std::list<ecmdArrayEntry> &")) ||
+              (!strcmp(variableType,"std::list<ecmdNameEntry> &"))  ||
+              (!strcmp(variableType,"std::list<ecmdIndexEntry> &"))  ||
+              (!strcmp(variableType,"std::list <ecmdNameVectorEntry> &"))   ){
 /* std::list<something> & */
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       printed += "placeholder for std::list dump\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if(!strcasecmp(variableType,"std::vector <ecmdDataBuffer> &")) {
+
+
+    } else if (!strcmp(variableType,"std::list<ecmdLatchEntry> &")) {
+      std::list<ecmdLatchEntry>* dummy = (std::list<ecmdLatchEntry>*)(args[looper]);
+
+      sprintf(tempIntStr, "ECMD DEBUG (ecmdFPP) :\t type : %s : variable name : %s\n",variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      dataLooper = 0;
+      for (std::list<ecmdLatchEntry>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
+        sprintf(tempIntStr,"ECMD DEBUG (ecmdFPP) :\t \t entry : %d\n",dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"ECMD DEBUG (ecmdFPP) :\t \t \t value : std::string    latchName  = %s\n",entit->latchName.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"ECMD DEBUG (ecmdFPP) :\t \t \t value : std::string    ringName   = %s\n",entit->ringName.c_str()); ecmdOutput(tempIntStr);
+        printEcmdDataBuffer("ecmdDataBuffer", "buffer", entit->buffer, "\t\t ");
+        sprintf(tempIntStr,"ECMD DEBUG (ecmdFPP) :\t \t \t value : int        latchStartBit  = %d\n",entit->latchStartBit); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"ECMD DEBUG (ecmdFPP) :\t \t \t value : int          latchEndBit  = %d\n",entit->latchEndBit); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"ECMD DEBUG (ecmdFPP) :\t \t \t value : uint32_t              rc  = %X\n",entit->rc); ecmdOutput(tempIntStr);
+      }
+
+      printed = "\n";
+      printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
+    } else if(!strcmp(variableType,"std::vector <ecmdDataBuffer> &")) {
 /* std::vector <ecmdDataBuffer> & */
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       printed += "placeholder for std::vector dump\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if(!strcasecmp(variableType,"uint32_t")) {
+    } else if(!strcmp(variableType,"uint32_t") ||
+              !strcmp(variableType,"uint32_t &") ||
+              !strcmp(variableType,"uint32_t&") ) {
 /* uint32_t */
 
       uint32_t* dummy = (uint32_t*)(args[looper]);
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " : ";
       if(dummy ==0) {
         sprintf(tempIntStr,"d=0 0x0");
@@ -1251,14 +1276,14 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if(!strcasecmp(variableType,"uint64_t")) {
+    } else if(!strcmp(variableType,"uint64_t")) {
 /* uint64_t */
       uint64_t* dummy = (uint64_t*)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " : ";
       sprintf(tempIntStr,"d=%l 0x%.016X",dummy,dummy);
       printed += tempIntStr;
@@ -1266,27 +1291,27 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if((!strcasecmp(variableType,"ecmdDllType_t"))           ||
-              (!strcasecmp(variableType,"ecmdDllProduct_t"))        ||
-              (!strcasecmp(variableType,"ecmdDllEnv_t"))            ||
-              (!strcasecmp(variableType,"ecmdChipTargetState_t"))   ||
-              (!strcasecmp(variableType,"ecmdChipInterfaceType_t")) ||
-              (!strcasecmp(variableType,"ecmdQueryDetail_t"))       ||
-              (!strcasecmp(variableType,"ecmdClockState_t"))        ||
-              (!strcasecmp(variableType,"ecmdSpyType_t"))           ||
-              (!strcasecmp(variableType,"ecmdFileType_t"))          ||
-              (!strcasecmp(variableType,"ecmdConfigLoopType_t"))    ||
-              (!strcasecmp(variableType,"ecmdGlobalVarType_t"))     ||
-              (!strcasecmp(variableType,"ecmdTraceType_t"))         ||
-              (!strcasecmp(variableType,"ecmdLatchMode_t"))         ||
-              (!strcasecmp(variableType,"efppInOut_t"))               ){
+    } else if((!strcmp(variableType,"ecmdDllType_t"))           ||
+              (!strcmp(variableType,"ecmdDllProduct_t"))        ||
+              (!strcmp(variableType,"ecmdDllEnv_t"))            ||
+              (!strcmp(variableType,"ecmdChipTargetState_t"))   ||
+              (!strcmp(variableType,"ecmdChipInterfaceType_t")) ||
+              (!strcmp(variableType,"ecmdQueryDetail_t"))       ||
+              (!strcmp(variableType,"ecmdClockState_t"))        ||
+              (!strcmp(variableType,"ecmdSpyType_t"))           ||
+              (!strcmp(variableType,"ecmdFileType_t"))          ||
+              (!strcmp(variableType,"ecmdConfigLoopType_t"))    ||
+              (!strcmp(variableType,"ecmdGlobalVarType_t"))     ||
+              (!strcmp(variableType,"ecmdTraceType_t"))         ||
+              (!strcmp(variableType,"ecmdLatchMode_t"))         ||
+              (!strcmp(variableType,"efppInOut_t"))               ){
 /* enums */
       int* dummy = (int*)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       sprintf(tempIntStr,"%u",*dummy);
       printed += tempIntStr;
@@ -1296,14 +1321,14 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       ecmdOutput(printed.c_str());
 
       
-    } else if(!strcasecmp(variableType,"int *")) {
+    } else if(!strcmp(variableType,"int *")) {
 /* int * */
       int *dummy = (int*)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       sprintf(tempIntStr,"%d",dummy);
       printed += tempIntStr;
@@ -1312,14 +1337,14 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if(!strcasecmp(variableType,"bool")) {
+    } else if(!strcmp(variableType,"bool")) {
 /* bool */
       bool* dummy = (bool*)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
 
       if(dummy) {
@@ -1333,14 +1358,14 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if(!strcasecmp(variableType,"char**")) {
+    } else if(!strcmp(variableType,"char**")) {
 /* char** */
       char** dummy = (char**)(args[looper]);
 
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += " = ";
       printed += *dummy;
       printed += "\n";
@@ -1348,37 +1373,36 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       ecmdOutput(printed.c_str());
 
 
-    } else if((!strcasecmp(variableType,"ecmdGroupData &"))  ||
-              (!strcasecmp(variableType,"ecmdArrayData &"))  ||
-              (!strcasecmp(variableType,"ecmdArrayEntry &"))  ||
-              (!strcasecmp(variableType,"ecmdNameEntry &"))  ||
-              (!strcasecmp(variableType,"ecmdIndexEntry &"))  ||
-              (!strcasecmp(variableType,"ecmdLatchEntry &"))  ||
-              (!strcasecmp(variableType,"ecmdSpyData &"))  ||
+    } else if((!strcmp(variableType,"ecmdGroupData &"))  ||
+              (!strcmp(variableType,"ecmdArrayData &"))  ||
+              (!strcmp(variableType,"ecmdArrayEntry &"))  ||
+              (!strcmp(variableType,"ecmdNameEntry &"))  ||
+              (!strcmp(variableType,"ecmdIndexEntry &"))  ||
+              (!strcmp(variableType,"ecmdSpyData &"))  ||
               
-              (!strcasecmp(variableType,"ecmdProcRegisterInfo &"))  ||
-              (!strcasecmp(variableType,"ecmdLooperData &"))  ||
-              (!strcasecmp(variableType,"ecmdThreadData &"))  ||
-              (!strcasecmp(variableType,"ecmdCoreData &"))  ||
-              (!strcasecmp(variableType,"ecmdSlotData &"))  ||
-              (!strcasecmp(variableType,"ecmdNodeData &"))  ||
-              (!strcasecmp(variableType,"ecmdCageData &"))  ||
-              (!strcasecmp(variableType,"ecmdRingData &"))  ||
-              (!strcasecmp(variableType,"ecmdCageData &"))
+              (!strcmp(variableType,"ecmdProcRegisterInfo &"))  ||
+              (!strcmp(variableType,"ecmdLooperData &"))  ||
+              (!strcmp(variableType,"ecmdThreadData &"))  ||
+              (!strcmp(variableType,"ecmdCoreData &"))  ||
+              (!strcmp(variableType,"ecmdSlotData &"))  ||
+              (!strcmp(variableType,"ecmdNodeData &"))  ||
+              (!strcmp(variableType,"ecmdCageData &"))  ||
+              (!strcmp(variableType,"ecmdRingData &"))  ||
+              (!strcmp(variableType,"ecmdCageData &"))
               ) {
 /* default structures not coded yet */
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += "\n";
       printed += "ECMD DEBUG (ecmdFPP) : \t \t value = ";
       printed += "placeholder for structure dump\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if((!strcasecmp(variableType,"ecmdQueryData &")) ||
-              (!strcasecmp(variableType,"ecmdQueryData&"))    ) {
+    } else if((!strcmp(variableType,"ecmdQueryData &")) ||
+              (!strcmp(variableType,"ecmdQueryData&"))    ) {
 
       ecmdQueryData* dummy = (ecmdQueryData*)(args[looper]);
 
@@ -1386,7 +1410,7 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += "\n";
       ecmdOutput(printed.c_str());
 
@@ -1432,8 +1456,8 @@ void ecmdFunctionParmPrinter(efppInOut_t inOut, const char * fprototypeStr, std:
       printed = "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if((!strcasecmp(variableType,"ecmdDataBuffer &")) ||
-              (!strcasecmp(variableType,"ecmdDataBuffer&"))    ) {
+    } else if((!strcmp(variableType,"ecmdDataBuffer &")) ||
+              (!strcmp(variableType,"ecmdDataBuffer&"))    ) {
 /***
 private:  //data
   int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords
@@ -1444,86 +1468,10 @@ private:  //data
 ***/
       ecmdDataBuffer* dummy = (ecmdDataBuffer*)(args[looper]);
 
+      printEcmdDataBuffer(variableType, variableName[0], *dummy, "");
 
-      printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
-      printed += variableType;
-      printed += " : variable name : ";
-      printed += variableName[0].c_str();
-      printed += "\n";
-      ecmdOutput(printed.c_str());
-
-      printed = "ECMD DEBUG (ecmdFPP) :\t \t value : int    iv_Capacity = ";
-      sprintf(tempIntStr,"%d",dummy->getCapacity());
-      printed += tempIntStr;
-      printed += "\n";
-      ecmdOutput(printed.c_str());
-
-      printed = "ECMD DEBUG (ecmdFPP) :\t \t value : int    iv_NumWords = ";
-      sprintf(tempIntStr,"%d",dummy->getWordLength());
-      printed += tempIntStr;
-      printed += "\n";
-      ecmdOutput(printed.c_str());
-
-      printed = "ECMD DEBUG (ecmdFPP) :\t \t value : int    iv_NumBits  = ";
-      sprintf(tempIntStr,"%d",dummy->getBitLength());
-      printed += tempIntStr;
-      printed += "\n";
-      ecmdOutput(printed.c_str());
-
-      if(dummy->getBitLength() == 0) {
-        printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t[] iv_Data =\n";
-        printed += "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
-        ecmdOutput(printed.c_str());
-        continue;
-      }
-
-      if(dummy->hasXstate()) {
-        if (ecmdClientDebug == 9) {
-          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : XSTATE iv_DataStr  = ";
-          printed += dummy->genXstateStr(0, 64 < dummy->getBitLength() ? 64 : dummy->getBitLength());
-          printed += "\n";
-          ecmdOutput(printed.c_str());
-        } else {
-          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : XSTATE iv_DataStr  = ";
-          printed += dummy->genXstateStr();
-          printed += "\n";
-          ecmdOutput(printed.c_str());
-        }
-      } else {
-        if (ecmdClientDebug == 9) {
-          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t[] iv_Data = ";
-          printed += dummy->genHexLeftStr(0, 64 < dummy->getBitLength() ? 64 : dummy->getBitLength());
-          printed += "\n";
-          ecmdOutput(printed.c_str());
-        } else {
-
-          char tbuf[10];
-          printed = "ECMD DEBUG (ecmdFPP) :\t \t value : uint32_t[] iv_Data = ";
-
-          if (dummy->getWordLength() > 4) {
-            printed += "\n"; ecmdOutput(printed.c_str());
-            printed = "ECMD DEBUG (ecmdFPP) :\t \t \t\t";
-          }
-
-          for (dataLooper = 0; dataLooper < dummy->getWordLength(); dataLooper ++) {
-            if (!(dataLooper % 4) && (dataLooper != 0)) {
-              printed += "\n";
-              ecmdOutput(printed.c_str());
-              printed = "ECMD DEBUG (ecmdFPP) :\t \t \t\t";
-            }
-            sprintf(tbuf,"%.08X ",dummy->getWord(dataLooper));
-            printed += tbuf;
-          }
-          printed += "\n";
-          ecmdOutput(printed.c_str());
-
-        }
-      }
-      printed = "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
-      ecmdOutput(printed.c_str());
-
-    } else if((!strcasecmp(variableType,"ecmdChipTarget &")) ||
-              (!strcasecmp(variableType,"ecmdChipTarget&"))    ) {
+    } else if((!strcmp(variableType,"ecmdChipTarget &")) ||
+              (!strcmp(variableType,"ecmdChipTarget&"))    ) {
 
       /***
        struct ecmdChipTarget {
@@ -1554,7 +1502,7 @@ private:  //data
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += "\n";
       ecmdOutput(printed.c_str());
 
@@ -1617,8 +1565,8 @@ private:  //data
       printed = "ECMD DEBUG (ecmdFPP) :\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
-    } else if((!strcasecmp(variableType,"ecmdDllInfo &")) ||
-              (!strcasecmp(variableType,"ecmdDllInfo&"))    ) {
+    } else if((!strcmp(variableType,"ecmdDllInfo &")) ||
+              (!strcmp(variableType,"ecmdDllInfo&"))    ) {
 
 /***
 struct ecmdDllInfo {
@@ -1637,7 +1585,7 @@ struct ecmdDllInfo {
       printed = "ECMD DEBUG (ecmdFPP) :\t type : ";
       printed += variableType;
       printed += " : variable name : ";
-      printed += variableName[0].c_str();
+      printed += variableName[0];
       printed += "\n";
       printed += "ECMD DEBUG (ecmdFPP) :\t \t value : ecmdDllType_t         dllType = ";
 
@@ -1713,7 +1661,7 @@ struct ecmdDllInfo {
 
 }
 
-std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state) {
+std::string printEcmdChipTargetState_t(ecmdChipTargetState_t i_state) {
 
 /***
 typedef enum {
@@ -1730,24 +1678,109 @@ typedef enum {
 } ecmdChipTargetState_t;
 ***/
 
-  if (state == ECMD_TARGET_UNKNOWN_STATE ) {
+  if (i_state == ECMD_TARGET_UNKNOWN_STATE ) {
     return "ECMD_TARGET_UNKNOWN_STATE\n";
-  } else if (state == ECMD_TARGET_FIELD_VALID ) {
+  } else if (i_state == ECMD_TARGET_FIELD_VALID ) {
     return "ECMD_TARGET_FIELD_VALID\n";
-  } else if (state == ECMD_TARGET_FIELD_UNUSED ) {
+  } else if (i_state == ECMD_TARGET_FIELD_UNUSED ) {
     return "ECMD_TARGET_FIELD_UNUSED\n";
-  } else if (state == ECMD_TARGET_QUERY_FIELD_VALID ) {
+  } else if (i_state == ECMD_TARGET_QUERY_FIELD_VALID ) {
     return "ECMD_TARGET_QUERY_FIELD_VALID\n";
-  } else if (state == ECMD_TARGET_QUERY_WILDCARD ) {
+  } else if (i_state == ECMD_TARGET_QUERY_WILDCARD ) {
     return "ECMD_TARGET_QUERY_WILDCARD\n";
-  } else if (state == ECMD_TARGET_QUERY_IGNORE ) {
+  } else if (i_state == ECMD_TARGET_QUERY_IGNORE ) {
     return "ECMD_TARGET_QUERY_IGNORE\n";
-  } else if (state == ECMD_TARGET_THREAD_ALIVE ) {
+  } else if (i_state == ECMD_TARGET_THREAD_ALIVE ) {
     return "ECMD_TARGET_THREAD_ALIVE\n";
   } else {
     return "ERROR INVALID TYPE\n";
   }
 
+}
+
+void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string tabStop) {
+  std::string printed;
+  char tempIntStr[180];
+  int dataLooper;
+
+  printed = "ECMD DEBUG (ecmdFPP) :\t "+tabStop+"type : ";
+  printed += variableType;
+  printed += " : variable name : ";
+  printed += variableName;
+  printed += "\n";
+  ecmdOutput(printed.c_str());
+
+  printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : int    iv_Capacity = ";
+  sprintf(tempIntStr,"%d",i_data.getCapacity());
+  printed += tempIntStr;
+  printed += "\n";
+  ecmdOutput(printed.c_str());
+
+  printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : int    iv_NumWords = ";
+  sprintf(tempIntStr,"%d",i_data.getWordLength());
+  printed += tempIntStr;
+  printed += "\n";
+  ecmdOutput(printed.c_str());
+
+  printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : int    iv_NumBits  = ";
+  sprintf(tempIntStr,"%d",i_data.getBitLength());
+  printed += tempIntStr;
+  printed += "\n";
+  ecmdOutput(printed.c_str());
+
+  if(i_data.getBitLength() == 0) {
+    printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : uint32_t[] iv_Data =\n";
+    printed += "ECMD DEBUG (ecmdFPP) :\t "+tabStop+"***************************************\n";
+    ecmdOutput(printed.c_str());
+    return;
+  }
+
+  if(i_data.hasXstate()) {
+    if (ecmdClientDebug == 9) {
+      printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : XSTATE iv_DataStr  = ";
+      printed += i_data.genXstateStr(0, 64 < i_data.getBitLength() ? 64 : i_data.getBitLength());
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+    } else {
+      printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : XSTATE iv_DataStr  = ";
+      printed += i_data.genXstateStr();
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+    }
+  } else {
+    if (ecmdClientDebug == 9) {
+      printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : uint32_t[] iv_Data = ";
+      printed += i_data.genHexLeftStr(0, 64 < i_data.getBitLength() ? 64 : i_data.getBitLength());
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+    } else {
+
+      char tbuf[10];
+      printed = "ECMD DEBUG (ecmdFPP) :\t \t "+tabStop+"value : uint32_t[] iv_Data = ";
+
+      if (i_data.getWordLength() > 4) {
+        printed += "\n"; ecmdOutput(printed.c_str());
+        printed = "ECMD DEBUG (ecmdFPP) :\t \t \t\t"+tabStop+"";
+      }
+
+      for (dataLooper = 0; dataLooper < i_data.getWordLength(); dataLooper ++) {
+        if (!(dataLooper % 4) && (dataLooper != 0)) {
+          printed += "\n";
+          ecmdOutput(printed.c_str());
+          printed = "ECMD DEBUG (ecmdFPP) :\t \t \t\t"+tabStop+"";
+        }
+        sprintf(tbuf,"%.08X ",i_data.getWord(dataLooper));
+        printed += tbuf;
+      }
+      printed += "\n";
+      ecmdOutput(printed.c_str());
+
+    }
+  }
+  printed = "ECMD DEBUG (ecmdFPP) :\t "+tabStop+"***************************************\n";
+  ecmdOutput(printed.c_str());
+
+  return ;
 }
 
 #endif /* strip_debug */
