@@ -1,34 +1,34 @@
 %module MODULE_NAME
 %include typemaps.i
-%include pointer.i
+%include cpointer.i
 
-%typemap(perl5,in) char ** o_data(char* cvalue) {
+%typemap(in) char ** o_data(char* cvalue) {
   SV* tempsv;
-  if (!SvROK($source)) {
+  if (!SvROK($input)) {
     croak("expected a reference\n");
   }
-  tempsv = SvRV($source);
+  tempsv = SvRV($input);
   if (!SvPOK(tempsv)) {
     croak("expected a string reference\n");
   }
   cvalue = SvPV(tempsv,PL_na);
-  $target = (char**)malloc(sizeof(char*));
+  $1 = (char**)malloc(sizeof(char*));
 
-  *$target = cvalue;
+  *$1 = cvalue;
 }
 
-%typemap(perl5,argout) char ** o_data  {
+%typemap(argout) char **  o_data {
   SV *tempsv;
-  if (*$source != NULL) {
+  if (*$1 != NULL) {
     tempsv = SvRV($arg);
-    sv_setpv(tempsv, *$source);
-    free(*$source);
+    sv_setpv(tempsv, *$1);
+    free(*$1);
   }
-  *$source = NULL;
-  free($source);
+  *$1 = NULL;
+  free($1);
 }
 
-%except(perl5) {
+%exception {
 	$function
 	if (ecmdPerlInterfaceErrorCheck(-1)) {
 		croak("Error occured in eCMD Perl module - execution halted\n");
