@@ -69,6 +69,7 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
   ecmdArrayEntry entry;         ///< Array entry to fetch
   uint32_t* add_buffer;         ///< Buffer to do temp work with the address for incrementing
   ecmdArrayData arrayData;      ///< Query data about array
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /* get format flag, if it's there */
   std::string format;
@@ -110,10 +111,10 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
     numEntries = atoi(argv[3]);
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayData , arrayName.c_str());
@@ -237,6 +238,7 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /* get format flag, if it's there */
   std::string format;
@@ -284,10 +286,10 @@ int ecmdPutArrayUser(int argc, char * argv[]) {
   }
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = putArray(target, arrayName.c_str(), address, buffer);
 

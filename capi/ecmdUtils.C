@@ -40,14 +40,6 @@
 //----------------------------------------------------------------------
 
 
-static ecmdQueryData ecmdSystemConfigData;
-static std::list<ecmdCageData>::iterator ecmdCurCage;
-static std::list<ecmdNodeData>::iterator ecmdCurNode;
-static std::list<ecmdSlotData>::iterator ecmdCurSlot;
-static std::list<ecmdChipData>::iterator ecmdCurChip;
-static std::list<ecmdCoreData>::iterator ecmdCurCore;
-static std::list<ecmdThreadData>::iterator ecmdCurThread;
-static uint8_t ecmdLooperInitFlag = 0;
 
 typedef enum {
   ECMD_FORMAT_NONE,
@@ -186,7 +178,7 @@ void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens) {
 }
 
 
-int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype) {
+int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state) {
 
   int rc = ECMD_SUCCESS;
 
@@ -258,13 +250,13 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_loo
 
 
   if (i_looptype == ECMD_SELECTED_TARGETS_LOOP) 
-    rc = ecmdQuerySelected(queryTarget, ecmdSystemConfigData);
+    rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData);
   else
-    rc = ecmdQueryConfig(queryTarget, ecmdSystemConfigData);
+    rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
   if (rc) return rc;
 
-  ecmdCurCage = ecmdSystemConfigData.cageData.begin();
-  ecmdLooperInitFlag = 1;
+  io_state.ecmdCurCage = io_state.ecmdSystemConfigData.cageData.begin();
+  io_state.ecmdLooperInitFlag = true;
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug > 1) {
@@ -275,7 +267,7 @@ int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_loo
   return rc;
 }
 
-int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
+int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) {
 
   const uint8_t CAGE = 0;
   const uint8_t NODE = 1;
@@ -293,17 +285,17 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   }
 #endif
 
-  if (ecmdCurCage == ecmdSystemConfigData.cageData.end()) {
+  if (io_state.ecmdCurCage == io_state.ecmdSystemConfigData.cageData.end()) {
     return 0;
   }
 
-  if (ecmdLooperInitFlag || io_target.cage != (*ecmdCurCage).cageId) {
+  if (io_state.ecmdLooperInitFlag || io_target.cage != (*io_state.ecmdCurCage).cageId) {
 
-    io_target.cage = (*ecmdCurCage).cageId;
-    ecmdCurNode = (*ecmdCurCage).nodeData.begin();
+    io_target.cage = (*io_state.ecmdCurCage).cageId;
+    io_state.ecmdCurNode = (*io_state.ecmdCurCage).nodeData.begin();
     valid = 0;
 
-    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurNode == (*ecmdCurCage).nodeData.end()) {
+    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end()) {
       io_target.node = 0;
     }
     else {
@@ -315,13 +307,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = NODE;
   }
 
-  if (level == NODE && (!valid || io_target.node != (*ecmdCurNode).nodeId)) {
+  if (level == NODE && (!valid || io_target.node != (*io_state.ecmdCurNode).nodeId)) {
 
-    io_target.node = (*ecmdCurNode).nodeId;
-    ecmdCurSlot = (*ecmdCurNode).slotData.begin();
+    io_target.node = (*io_state.ecmdCurNode).nodeId;
+    io_state.ecmdCurSlot = (*io_state.ecmdCurNode).slotData.begin();
     valid = 0;
   
-    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurSlot == (*ecmdCurNode).slotData.end()) {
+    if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end()) {
       io_target.slot = 0;
     }
     else {
@@ -333,13 +325,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = SLOT;
   }
 
-  if (level == SLOT && (!valid || io_target.slot != (*ecmdCurSlot).slotId)) {
+  if (level == SLOT && (!valid || io_target.slot != (*io_state.ecmdCurSlot).slotId)) {
 
-    io_target.slot = (*ecmdCurSlot).slotId;
-    ecmdCurChip = (*ecmdCurSlot).chipData.begin();
+    io_target.slot = (*io_state.ecmdCurSlot).slotId;
+    io_state.ecmdCurChip = (*io_state.ecmdCurSlot).chipData.begin();
     valid = 0;
   
-    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurSlot).chipData.end()) {
+    if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end()) {
       io_target.chipType = "";
       io_target.pos = 0;
     }
@@ -353,14 +345,14 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   }
 
 
-  if (level == CHIP && (!valid || io_target.chipType != (*ecmdCurChip).chipType || io_target.pos != (*ecmdCurChip).pos)) {
+  if (level == CHIP && (!valid || io_target.chipType != (*io_state.ecmdCurChip).chipType || io_target.pos != (*io_state.ecmdCurChip).pos)) {
 
-    io_target.chipType = (*ecmdCurChip).chipType;
-    io_target.pos = (*ecmdCurChip).pos;
-    ecmdCurCore = (*ecmdCurChip).coreData.begin();
+    io_target.chipType = (*io_state.ecmdCurChip).chipType;
+    io_target.pos = (*io_state.ecmdCurChip).pos;
+    io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
     valid = 0;
 
-    if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || ecmdCurCore == (*ecmdCurChip).coreData.end()) {
+    if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end()) {
       io_target.core = 0;
       io_target.thread = 0;
     }
@@ -373,13 +365,13 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = CORE;
   }
 
-  if (level == CORE && (!valid || io_target.core != (*ecmdCurCore).coreId)) {
+  if (level == CORE && (!valid || io_target.core != (*io_state.ecmdCurCore).coreId)) {
 
-    io_target.core = (*ecmdCurCore).coreId;
-    ecmdCurThread = (*ecmdCurCore).threadData.begin();
+    io_target.core = (*io_state.ecmdCurCore).coreId;
+    io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
     valid = 0;
 
-    if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || ecmdCurThread == (*ecmdCurCore).threadData.end()) {
+    if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end()) {
       io_target.thread = 0;
     }
     else {
@@ -391,9 +383,9 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
     level = THREAD;
   }
 
-  if (level == THREAD && (!valid || io_target.thread != (*ecmdCurThread).threadId)) {
+  if (level == THREAD && (!valid || io_target.thread != (*io_state.ecmdCurThread).threadId)) {
 
-    io_target.thread = (*ecmdCurThread).threadId;
+    io_target.thread = (*io_state.ecmdCurThread).threadId;
 
   }
 
@@ -407,37 +399,37 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   switch (level) {
 
     case THREAD:  //thread
-      ecmdCurThread++;
-      if (ecmdCurThread != (*ecmdCurCore).threadData.end()) {
+      io_state.ecmdCurThread++;
+      if (io_state.ecmdCurThread != (*io_state.ecmdCurCore).threadData.end()) {
         break;
       }
 
     case CORE:  //core
-      ecmdCurCore++;
-      if (ecmdCurCore != (*ecmdCurChip).coreData.end()) {
+      io_state.ecmdCurCore++;
+      if (io_state.ecmdCurCore != (*io_state.ecmdCurChip).coreData.end()) {
         break;
       }
 
     case CHIP:  //chip
-      ecmdCurChip++;
-      if (ecmdCurChip != (*ecmdCurSlot).chipData.end()) {
+      io_state.ecmdCurChip++;
+      if (io_state.ecmdCurChip != (*io_state.ecmdCurSlot).chipData.end()) {
         break;
       }
 
     case SLOT:  //slot
-      ecmdCurSlot++;
-      if (ecmdCurSlot != (*ecmdCurNode).slotData.end()) {
+      io_state.ecmdCurSlot++;
+      if (io_state.ecmdCurSlot != (*io_state.ecmdCurNode).slotData.end()) {
         break;
       }
 
     case NODE:  //node
-      ecmdCurNode++;
-      if (ecmdCurNode != (*ecmdCurCage).nodeData.end()) {
+      io_state.ecmdCurNode++;
+      if (io_state.ecmdCurNode != (*io_state.ecmdCurCage).nodeData.end()) {
         break;
       }
 
     case CAGE:  //cage
-      ecmdCurCage++;
+      io_state.ecmdCurCage++;
       break;
 
     default:
@@ -445,8 +437,8 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
       break;
   }
 
-  if (ecmdLooperInitFlag) {
-    ecmdLooperInitFlag = 0;
+  if (io_state.ecmdLooperInitFlag) {
+    io_state.ecmdLooperInitFlag = false;
   }
 
 #ifndef ECMD_STRIP_DEBUG

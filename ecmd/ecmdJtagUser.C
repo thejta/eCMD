@@ -60,6 +60,7 @@ int ecmdSendCmdUser(int argc, char * argv[]) {
 
   bool expectFlag = false;
   bool xstateFlag = false;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -119,12 +120,12 @@ int ecmdSendCmdUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   char outstr[30];
   std::string printed;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = sendCmd(target, instruction, modifier, statusBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {

@@ -113,6 +113,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
   bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -153,7 +154,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
@@ -162,7 +163,7 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
   std::ifstream ins;
   char outstr[30];
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     for (int i = 1; i < argc; i++) {
 
@@ -325,6 +326,7 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdLatchBufferEntry curEntry;
   char* expectDataPtr = NULL;
   bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -411,13 +413,13 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffertemp(100 /* words */);     // Temp space for extraced latch data
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
   std::list< ecmdLatchInfo >::iterator curLatchInfo;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getRing(target, ringName.c_str(), ringBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -749,6 +751,7 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   bool expectFlag = false;
   bool xstateFlag = false;
   char* expectDataPtr = NULL;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -828,12 +831,12 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   char outstr[30];
   std::string printed;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getRing(target, ringName.c_str(), ringBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -895,6 +898,7 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool xstateFlag = false;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -962,12 +966,12 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getRing(target, ringName.c_str(), ringBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -1016,6 +1020,7 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   ecmdLatchBufferEntry curEntry;
   bool newFileFormat = false;   /* This is set if we find the new Eclipz scandef format */
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /* get format flag, if it's there */
   std::string format;
@@ -1085,13 +1090,13 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer bufferCopy;
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
   std::list< ecmdLatchInfo >::iterator curLatchInfo;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getRing(target, ringName.c_str(), ringBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -1312,6 +1317,7 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool allRingsFlag = false;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1354,12 +1360,12 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 
   bool validPosFound = false;
   bool printedTarget;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::list<ecmdRingData> queryRingData;
 
-  while (ecmdConfigLooperNext(target)) {
+  while (ecmdConfigLooperNext(target, looperdata)) {
     printedTarget = false;
 
     if (allRingsFlag) {
@@ -1489,6 +1495,8 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   std::list<ecmdRingData> queryRingData;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -1538,10 +1546,10 @@ int ecmdPutPatternUser(int argc, char * argv[]) {
   std::string printed;
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target)) {
+  while (ecmdConfigLooperNext(target, looperdata)) {
 
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {

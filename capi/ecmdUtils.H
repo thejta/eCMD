@@ -91,18 +91,20 @@ void ecmdParseTokens (std::string & line, std::vector<std::string> & tokens);
  @brief Initializes data structures and code to loop over configured and selected elements of the system
  @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
  @param i_looptype Specify type of all, all chips in system or all chips selected by user
+ @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
  */
-int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype);
+int ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state);
 
 /**
  @brief Loops over configured and selected elements of the system, updating target to point to them
  @param io_target ecmdChipTarget that contains info about next target to process
+ @param io_state Used internally to keep track of state, must be passed from output of ecmdConfigLooperInit
  @retval 1 if io_target is valid, 0 if it is not
  @see ecmdConfigLooperInit
  */
-int ecmdConfigLooperNext (ecmdChipTarget & io_target);
+int ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
 
 
 /**

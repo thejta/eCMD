@@ -23,7 +23,7 @@ ifeq (${OS},Linux)
   LD      := ${CC}
   LDFLAGS := -ldl
   LINK_OBJS := ../capi/export/ecmdClientCapi_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-20
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30
 endif
 
 # *****************************************************************************

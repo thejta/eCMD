@@ -61,6 +61,7 @@
 int ecmdQueryUser(int argc, char* argv[]) {
   int rc = ECMD_SUCCESS;
   std::string printed;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
 
   /************************************************************************/
@@ -105,12 +106,12 @@ int ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
 
-    while ( ecmdConfigLooperNext(target) ) {
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
 
       rc = ecmdQueryRing(target, ringdata,argv[2]);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {

@@ -61,6 +61,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 
   bool expectFlag = false;
   bool enumFlag = false;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -148,7 +149,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
 
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   std::string printed;
   std::string enumValue;
@@ -157,7 +158,7 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   ecmdEnableRingCache();
 
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     if (enumFlag) {
       rc = getSpyEnum(target, spyName.c_str(), enumValue);
@@ -269,6 +270,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   int rc = ECMD_SUCCESS;
 
   bool enumFlag = false;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
 
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -352,7 +354,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
@@ -360,7 +362,7 @@ int ecmdPutSpyUser(int argc, char * argv[]) {
   /* We are going to enable ring caching to speed up performance */
   ecmdEnableRingCache();
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     if (enumFlag) {
       rc = putSpyEnum(target, spyName.c_str(), spyData);

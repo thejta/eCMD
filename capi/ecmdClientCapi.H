@@ -985,7 +985,7 @@ testclient.linux: testclient_linux.o dll/ecmdClientCapi_x86.a
 	g++ -g -ldl testclient_linux.o dll/ecmdClientCapi_x86.a -o testclient.linux
 
 testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/ecmdReturnCodes.H dll/ecmdStructs.H 
-	g++ -g -c -Idll/ testclient.c -o testclient_linux.o
+	g++ -g -c -Idll/  -ftemplate-depth-30 testclient.c -o testclient_linux.o
 </pre>
 
 
@@ -1115,14 +1115,15 @@ int main (int argc, char *argv[])
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   bool validPosFound = false;
+  ecmdLooperData looperdata;
   // Initialize the config looper, tell it to loop on targets selected by the user -p# -c# 
   // To loop on all targets in the system, not just those selected change this to : ECMD_ALL_TARGETS_LOOP 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   // This loop will continue as long as valid targets are found 
   //  each time returning with the target variable filled it 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     // We will dump all the idregs 
     rc = getRing(target, "idreg", data);

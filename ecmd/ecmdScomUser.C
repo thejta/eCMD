@@ -152,12 +152,13 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   std::string printed;
 
-  while ( ecmdConfigLooperNext(target) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     rc = getScom(target, address, buffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -298,11 +299,12 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   /************************************************************************/
 
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   std::string printed;
 
-  while (ecmdConfigLooperNext(target)) {
+  while (ecmdConfigLooperNext(target, looperdata)) {
 
     if (andFlag || orFlag) {
 
@@ -516,11 +518,12 @@ int ecmdPollScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
   bool validPosFound = false;
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP);
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   std::string printed;
 
-  while (ecmdConfigLooperNext(target)) {
+  while (ecmdConfigLooperNext(target, looperdata)) {
 
     bool done = false;
     timerStart = time(NULL);
