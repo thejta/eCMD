@@ -1116,45 +1116,48 @@ uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  if (argc < 3) {
-    ecmdOutputError("simunsticktcfac - Too few arguments to simunsticktcfac, you need at least a symbol , data, and a length.\n");
+
+  if (argc < 1) {
+    ecmdOutputError("simunsticktcfac - Too few arguments to simunsticktcfac, you need at least a symbol.\n");
     return ECMD_INVALID_ARGS;
   }
 
   char * facname = argv[0];
 
-  if (!ecmdIsAllDecimal(argv[2])) {
-    ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in bitLength field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  uint32_t bitLength = atoi(argv[2]);
-
-  ecmdDataBuffer buffer;
-  rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
-  if (rc) {
-    ecmdOutputError("simunsticktcfac - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
-  uint32_t row = 0, numRows = 0;
-  if (argc > 3) {
-    if (!ecmdIsAllDecimal(argv[3])) {
-      ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in row field\n");
+  if (argc > 1) {
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in bitLength field\n");
       return ECMD_INVALID_ARGS;
     }
-    row = atoi(argv[3]);
-  }
-  if (argc > 4) {
-    if (!ecmdIsAllDecimal(argv[4])) {
-      ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in numRows field\n");
+    uint32_t bitLength = atoi(argv[2]);
+
+    ecmdDataBuffer buffer;
+    rc = ecmdReadDataFormatted(buffer, argv[1], format, bitLength);
+    if (rc) {
+      ecmdOutputError("simunsticktcfac - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+
+    uint32_t row = 0, numRows = 0;
+    if (argc > 3) {
+      if (!ecmdIsAllDecimal(argv[3])) {
+        ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in row field\n");
+        return ECMD_INVALID_ARGS;
+      }
+      row = atoi(argv[3]);
+    }
+    if (argc > 4) {
+      if (!ecmdIsAllDecimal(argv[4])) {
+        ecmdOutputError("simunsticktcfac - Non-decimal numbers detected in numRows field\n");
+        return ECMD_INVALID_ARGS;
+      }
+      numRows = atoi(argv[4]);
+    }
+
+    if (argc > 5) {
+      ecmdOutputError("simunsticktcfac - Too many arguments to simunsticktcfac, you probably added a non-supported option.\n");
       return ECMD_INVALID_ARGS;
     }
-    numRows = atoi(argv[4]);
-  }
-
-  if (argc > 5) {
-    ecmdOutputError("simunsticktcfac - Too many arguments to simunsticktcfac, you probably added a non-supported option.\n");
-    return ECMD_INVALID_ARGS;
   }
 
   rc = simunsticktcfac(facname, bitLength, buffer, row, numRows);
