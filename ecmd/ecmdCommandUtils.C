@@ -140,6 +140,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
     if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurNode == (*ecmdCurCage).nodeData.end()) {
       valid = 0;
+      io_target.node = 0;
     }
     else {
       level = NODE;
@@ -157,6 +158,8 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
   
     if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || ecmdCurChip == (*ecmdCurNode).chipData.end()) {
       valid = 0;
+      io_target.chipType = "";
+      io_target.pos = 0;
     }
     else {
       level = CHIP;
@@ -175,6 +178,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
     if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || ecmdCurCore == (*ecmdCurChip).coreData.end()) {
       valid = 0;
+      io_target.core = 0;
     }
     else {
       level = CORE;
@@ -192,6 +196,7 @@ int ecmdConfigLooperNext (ecmdChipTarget & io_target) {
 
     if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || ecmdCurThread == (*ecmdCurCore).threadData.end()) {
       valid = 0;
+      io_target.thread = 0;
     }
     else {
       level = THREAD;
