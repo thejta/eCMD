@@ -87,64 +87,32 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   }
 #endif
 
-  if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
-  }
-
-  if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
-  }
-
-  if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
-  }
-
-  if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
-  }
-
-  if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
-  }
-
-  if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
-  }
-
-  if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
-    queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
-  }
+  /* Setup the Query target */
+  if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)   queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
 
   /* Initialize defaults into the incoming target */
-  if (io_target.cageState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.cage = 0;
-  }
+  if (io_target.cageState == ECMD_TARGET_QUERY_WILDCARD)     io_target.cage = 0;
+  if (io_target.nodeState == ECMD_TARGET_QUERY_WILDCARD)     io_target.node = 0;
+  if (io_target.slotState == ECMD_TARGET_QUERY_WILDCARD)     io_target.slot = 0;
+  if (io_target.chipTypeState == ECMD_TARGET_QUERY_WILDCARD) io_target.chipType = "na";
+  if (io_target.posState == ECMD_TARGET_QUERY_WILDCARD)      io_target.pos = 0;
+  if (io_target.coreState == ECMD_TARGET_QUERY_WILDCARD)     io_target.core = 0;
+  if (io_target.threadState == ECMD_TARGET_QUERY_WILDCARD)   io_target.thread = 0;
 
-  if (io_target.nodeState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.node = 0;
-  }
-
-  if (io_target.slotState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.slot = 0;
-  }
-
-  if (io_target.chipTypeState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.chipType = "na";
-  }
-
-  if (io_target.posState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.pos = 0;
-  }
-
-  if (io_target.coreState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.core = 0;
-  }
-
-  if (io_target.threadState == ECMD_TARGET_QUERY_WILDCARD) {
-    io_target.thread = 0;
-  }
-
-
+  /* Set all the states to valid, unless they are unused */
+  if (io_target.cageState != ECMD_TARGET_FIELD_UNUSED) io_target.cageState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.nodeState != ECMD_TARGET_FIELD_UNUSED) io_target.nodeState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.slotState != ECMD_TARGET_FIELD_UNUSED) io_target.slotState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) io_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.posState != ECMD_TARGET_FIELD_UNUSED) io_target.posState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.coreState != ECMD_TARGET_FIELD_UNUSED) io_target.coreState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED) io_target.threadState = ECMD_TARGET_FIELD_VALID;
 
   if (i_looptype == ECMD_SELECTED_TARGETS_LOOP) 
     rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData);
