@@ -17,26 +17,21 @@ CFLAGS       := -I. -I../capi/export -I../dll -g
 # Common stuff for all extension interpreters
 EXTENSIONS   := cip cro
 
-VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd:../ext/${ext}/capi/export)
+VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
 #These are needed to define a space char for substitutions later on
 empty :=
 space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
-SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.C)
 ifeq (${OS},Linux)
-  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_x86.a ${ext}CmdInterpreter_x86.a)
 endif
 ifeq (${OS},AIX)
-  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_aix.a)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_aix.a ${ext}CmdInterpreter_aix.a)
 endif
-CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/cmd)
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd/export)
 
-# The CIP Interpreter specific source
-SOURCE       := ${SOURCE} cipProcUser.C
-
-# The Cro Interpreter specific source
 
 
 # *****************************************************************************
@@ -109,11 +104,11 @@ endif
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}
+all: dir extensions ${TARGET}
 	@touch t.o t_x86 t_aix t_ppc
 	@mv *.o *_x86 *_aix *_ppc  ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
-	@cp ${SUBDIR}${TARGET} export/
+	@cp -p ${SUBDIR}${TARGET} export/
 
 clean:
 	rm -rf ${SUBDIR}
@@ -122,7 +117,19 @@ dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p export
 
-
+# Build the extensions
+extensions:
+	@echo " "
+	@echo "Building Main Client Api ..."
+	@cd ../capi;gmake
+	@echo " "
+	@echo "Building Extension Client Api's ..."
+	@cd ../ext/template/capi;$(foreach ext, ${EXTENSIONS}, cd ../../${ext}/capi;gmake; echo " ";)
+	@echo " "
+	@echo "Building Extension Command Interpreters ..."
+	@cd ../ext/template/cmd;$(foreach ext, ${EXTENSIONS}, cd ../../${ext}/cmd;gmake; echo " ";)
+	@echo " "
+	@echo "Building Main Command Interpreter ..."
 
 # *****************************************************************************
 # Object Build Targets
