@@ -686,20 +686,28 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
       printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      if (standardop != "") {
-       printed = "Output from executing the command '" + command + "':\n";
+      
+      if (standardop.length() != 0) {
+       printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
        ecmdOutput( printed.c_str() );
        ecmdOutput( standardop.c_str() );
       }
+      
       return rc;
     }
     else {
       validPosFound = true;
     }
-
-    printed = "Output from executing the command '" + command + "':\n";
+    //Print Output
+    printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
     ecmdOutput( printed.c_str() );
-    ecmdOutput( standardop.c_str() );
+    
+    if(standardop.length() != 0) {
+     ecmdOutput( standardop.c_str() );
+    }
+    else {
+     ecmdOutput( "No Output received from makeSPSystemCall\n");
+    }
   }
 
   if (!validPosFound) {
