@@ -69,7 +69,10 @@ int ecmdClientPerlapi::initDll (const char * i_dllName, const char * i_options) 
 
 }
 
-char * ecmdClientPerlapi::getScom (char * i_target, int i_address) {
+
+
+
+char * ecmdClientPerlapi::getScom (const char * i_target, int i_address) {
 
   int rc = setupTarget(i_target, myTarget);
   ecmdPerlInterfaceErrorCheck(rc);
@@ -80,11 +83,11 @@ char * ecmdClientPerlapi::getScom (char * i_target, int i_address) {
   ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return NULL;
 
-  std::string dataStr = ecmdWriteDataFormatted(buffer, myFormat);
+  dataStr = ecmdWriteDataFormatted(buffer, myFormat);
   return (char*)(dataStr.c_str());
 }
 
-int ecmdClientPerlapi::putScom (char * i_target, int i_address, char * i_data) {
+int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char * i_data) {
 
   int rc = setupTarget(i_target, myTarget);
   if (rc) return rc;
@@ -103,7 +106,12 @@ int ecmdClientPerlapi::putScom (char * i_target, int i_address, char * i_data) {
   return rc;
 }
 
-int ecmdClientPerlapi::setupTarget (char * i_targetStr, ecmdChipTarget & o_target) {
+
+
+
+
+
+int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
 
   if (i_targetStr == NULL) {
     ecmdPerlInterfaceErrorCheck(ECMD_INVALID_ARGS);

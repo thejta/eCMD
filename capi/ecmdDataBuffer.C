@@ -512,9 +512,7 @@ void   ecmdDataBuffer::shiftLeft(int shiftNum) {
 
   /* If we are going to shift off the end we can just clear everything out */
   if (shiftNum >= iv_NumBits) {
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-    this->fillDataStr('0'); /* init to 0 */
-    iv_NumBits = iv_NumWords = 0;
+    setBitLength(0);
     return;
   }
 
