@@ -17,4 +17,4 @@ Syntax: simUNSTICK <facname> <length> [<row> <offset>]
 
         --------------------------------------------------------------------------------
 
-        Example:        simUNSTICK 100 4
+        Example:        simUNSTICK TITAN.TCKFREQ 4
