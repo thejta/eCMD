@@ -63,7 +63,6 @@ int ecmdUnloadDll();
  @retval nonzero if unsuccessful
  @param argc Passed from Command line Arguments
  @param argv Passed from Command line Arguments
- @param target Target struct to be initialized by command line args
  @pre loadDll must have been called
  @post Global options (ex. -debug, -p#, -c#) will be removed from arg list
  @see loadDll
@@ -73,7 +72,7 @@ int ecmdUnloadDll();
  - Position flags can be queried later with functions like ?????
 */
 
-int ecmdCommandArgs(int argc, char* argv[], ecmdChipTarget & target); 
+int ecmdCommandArgs(int argc, char* argv[]); 
 
 //@}
 
@@ -104,9 +103,25 @@ int ecmdCommandArgs(int argc, char* argv[], ecmdChipTarget & target);
    cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = 'Nova', core = <nonvalid>, thread = <nonvalid>
  Ex: to query all the chips on cage 3, node 0:
    cage = 3, node = 0, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid>
+ Ex: to query all the chips in the entire system:
+   cage = <nonvalid>, node = <nonvalid>, pos = <nonvalid>, chipType = <nonvalid>, core = <nonvalid>, thread = <nonvalid>
 */
    
 int ecmdQueryConfig(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData);
+
+/**
+ @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
+ @param target Struct that contains partial information to limit query results - chipType is unused
+ @param queryData Return vector from query - in numerical order by cageId
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ This function acts just like ecmdQueryConfig except it operates on what targets were selected by the
+  user args -n#, -p#, -c#, -t#
+
+ Use of this function is the same as ecmdQueryConfig except chipType is not used
+*/
+int ecmdQuerySelected(ecmdChipTarget & target, std::vector<ecmdCageData> & queryData);
 
 /**
  @brief Query Ring information from the DLL
@@ -189,31 +204,6 @@ int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & da
 */
 int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data); 
 
-/**
- @brief Scans all of the bits from the selected ring on the target into the selected file
- @retval ECMD_SUCCESS if successful read, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of ring to read
- @param ringName Name of ring to read from
- @param fileName Name of file to write data to
- @see ringWrite
-
- - comment on file format, naming convention, should we give it a default file name?
-
-*/
-int ringRead (ecmdChipTarget & target, const char * ringName, const char * fileName);
-
-/**
- @brief Scans all of the bits from the given file into theselected ring on the target
- @retval ECMD_SUCCESS if successful write, nonzero if unsuccessful
- @param target Struct that contains chip and cage/node/position/core/thread information of ring to write
- @param ringName Name of ring to write to
- @param fileName Name of file to read data from
- @see ringRead
-
- - comment on file format, naming convention, should we give it a default file name?
-
-*/
-int ringWrite (ecmdChipTarget & target, const char * ringName, const char * fileName);
 
 //@}
 

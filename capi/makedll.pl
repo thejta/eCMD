@@ -13,7 +13,7 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs);
 my $ignore_re = join '|', @ignores;
 
 my $printout;
@@ -37,13 +37,17 @@ print OUT "#include <ecmdDataBuffer.H>\n\n\n";
 print OUT "extern \"C\" {\n\n";
 
 print OUT "/* Dll Common load function - verifies version */\n";
-print OUT "int dllLoadDll (const char * version);\n\n";
+print OUT "int dllLoadDll (const char * version);\n";
 print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/\n";
 print OUT "int dllInitDll ();\n\n";
 print OUT "/* Dll Common unload function */\n";
-print OUT "int dllUnloadDll ();\n\n";
+print OUT "int dllUnloadDll ();\n";
 print OUT "/* Dll Specific unload function - deallocates variables/object models*/\n";
 print OUT "int dllFreeDll();\n\n";
+print OUT "/* Dll Common Command Line Args Function*/\n";
+print OUT "int dllCommonCommandArgs(int*  argc, char** argv[]);\n";
+print OUT "/* Dll Specific Command Line Args Function*/\n";
+print OUT "int dllSpecificCommandArgs(int*  argc, char** argv[]);\n\n";
 
 
 #parse file spec'd by $ARGV[0]
@@ -174,6 +178,8 @@ print OUT "#include <ecmdDllCapi.H>\n\n\n";
 print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
 print OUT "\n#include <dlfcn.h>\n\n";
 
+
+push @enumtable, "ECMD_COMMANDARGS"; # This function is handled specially because it is renamed on the other side
 
 push @enumtable, "ECMD_NUMFUNCTIONS";
 $" = ",\n";
