@@ -1,3 +1,4 @@
+
 package ChipTarget;
 
 sub new 
@@ -17,28 +18,15 @@ sub new
 	return $self;
 }
 
-sub chip
-{
-	my $self = shift;
+=for comment
+  /** 	
+   * @brief Set the Cage
+   * @param i_cage New Cage Value
 
-	my @fields = split(/\s+/,$$self);
-
-	if ($fields[0] =~ /^-/) 
-	{
-		die "Invalid chip target: Cannot have non-chip arg as first position in string: $$self\n";
-	}
-	
-	if (@_) 
-	{
-		$$self =~ s/$fields[0]/$_[0]/;
-	}
-	else 
-	{
-		return $fields[0];
-	}
-
-}
-
+   * Usage : $target->cage(3);
+  */
+  void cage(int i_cage);
+=cut
 sub cage
 {
 	my $self = shift;
@@ -64,6 +52,15 @@ sub cage
 	}
 }
 
+=for comment
+  /** 	
+   * @brief Set the Node
+   * @param i_node New Node Value
+
+   * Usage : $target->node(2);
+  */
+  void node(int i_node);
+=cut
 sub node
 {
 	my $self = shift;
@@ -89,6 +86,15 @@ sub node
 	}
 }
 
+=for comment
+  /** 	
+   * @brief Set the Slot
+   * @param i_slot New Slot Value
+
+   * Usage : $target->slot(0);
+  */
+  void slot(int i_slot);
+=cut
 sub slot
 {
 	my $self = shift;
@@ -114,6 +120,47 @@ sub slot
 	}
 }
 
+
+=for comment
+  /** 	
+   * @brief Set the chip name
+   * @param i_chipname New Chipname
+
+   * Usage : $target->chip("pu");
+  */
+  void chip(const char* i_chipname);
+=cut
+sub chip
+{
+	my $self = shift;
+
+	my @fields = split(/\s+/,$$self);
+
+	if ($fields[0] =~ /^-/) 
+	{
+		die "Invalid chip target: Cannot have non-chip arg as first position in string: $$self\n";
+	}
+	
+	if (@_) 
+	{
+		$$self =~ s/$fields[0]/$_[0]/;
+	}
+	else 
+	{
+		return $fields[0];
+	}
+
+}
+
+=for comment
+  /** 	
+   * @brief Set the chip position
+   * @param i_pos New Chip Position
+
+   * Usage : $target->pos(1);
+  */
+  void pos(int i_pos);
+=cut
 sub pos
 {
 	my $self = shift;
@@ -139,6 +186,16 @@ sub pos
 	}
 }
 
+
+=for comment
+  /** 	
+   * @brief Set the chip core
+   * @param i_core New Core Value
+
+   * Usage : $target->core(1);
+  */
+  void core(int i_core);
+=cut
 sub core
 {
 	my $self = shift;
@@ -164,6 +221,16 @@ sub core
 	}
 }
 
+
+=for comment
+  /** 	
+   * @brief Set the chip thread
+   * @param i_thread New Thread Value
+
+   * Usage : $target->thread(0);
+  */
+  void thread(int i_thread);
+=cut
 sub thread
 {
 	my $self = shift;
@@ -190,3 +257,24 @@ sub thread
 }
 
 1;
+
+# Following is doxygen documentation
+=for comment
+
+/**
+ @file ChipTarget.H
+ @brief Perl Class to hold eCMD Targetting information
+*/
+
+/* We create a dummy class to fake out doxygen */
+
+	
+class ChipTarget {
+
+  public:
+
+INSERT_FUNCTIONS_HERE
+
+}
+=cut
+
