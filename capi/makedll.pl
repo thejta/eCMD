@@ -2,7 +2,7 @@
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
 
 #functions to ignore in parsing ecmdClientCapi.H
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll);
 my $ignore_re = join '|', @ignores;
 
 my $printout;
@@ -31,7 +31,7 @@ print OUT "int dllUnloadDll ();\n\n";
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
 
-    if (/^int/) {
+    if (/^(int|string|void)/) {
 
 	next if (/$ignore_re/);
 
