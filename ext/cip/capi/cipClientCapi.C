@@ -52,8 +52,8 @@
 extern void * dlHandle;
 /* These are from cipClientCapiFunc.C */
 extern void * cipDllFnTable[];
-extern bool cipInitialized;
 #endif
+extern bool cipInitialized;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
