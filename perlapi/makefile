@@ -54,12 +54,12 @@ endif
 ifeq (${OS},AIX)
   SUBDIR    := aix/
 # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
+  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
   ifeq (${SITE},apd.pok.ibm.com)
-    CC      := xlC
+    CC      := xlC_r
   endif
   ifeq (${SITE},awd.austin.ibm.com)
-    CC      := xlC
+    CC      := xlC_r
   endif
 # And the Shared Lib linker - same rules as above
   LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
@@ -94,7 +94,7 @@ all: dir ${TARGET}.so ${TARGET}.pm
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp ${SUBDIR}${TARGET}.so export/
 	@cp ${SUBDIR}${TARGET}.pm export/
-	@cp ChipTarget.pm export/
+	@cp ChipTarget.pm ecmdDataBuffer.pm export/
 ifeq (${OS},AIX)
 	@slibclean
 endif
