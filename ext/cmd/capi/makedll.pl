@@ -10,7 +10,7 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured ecmdDisplayDllInfo);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdQueryTargetConfigured ecmdDisplayDllInfo InitExtension);
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
@@ -21,6 +21,7 @@ my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdS
 my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
  
 my $printout;
+my $DllFnTable;
 my @enumtable;
 
 open IN, "${curdir}/$ARGV[0]ClientCapi.H" or die "Could not find $ARGV[0]ClientCapi.H: $!\n";
@@ -59,6 +60,9 @@ if ($ARGV[0] eq "ecmd") {
   print OUT "/* Dll Specific Command Line Args Function*/\n";
   print OUT "uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);\n\n";
 
+} else {
+  print OUT "/* Extension initialization function - verifies version */\n";
+  print OUT "uint32_t dll".ucfirst($ARGV[0])."InitExtension (const char * i_version);\n\n";
 }
 
 #parse file spec'd by $ARGV[0]
@@ -118,6 +122,19 @@ while (<IN>) {
 
 	
 	$printout .= "  $type rc;\n\n" unless ($type_flag == $VOID);
+
+	$printout .= "#ifndef ECMD_STATIC_FUNCTIONS\n\n";
+	$printout .= "  if (dlHandle == NULL) {\n";
+        $printout .= "    fprintf(stderr,\"$funcname: eCMD Function called before DLL has been loaded\\n\");\n";
+        $printout .= "    exit(ECMD_DLL_INVALID);\n";
+	$printout .= "  }\n\n";
+
+        $printout .= "  if (!".$ARGV[0]."Initialized) {\n";
+        $printout .= "    fprintf(stderr,\"$funcname: eCMD Extension not initialized before function called\\n\");\n";
+        $printout .= "    fprintf(stderr,\"$funcname: OR eCMD $ARGV[0] Extension not supported by plugin\\n\");\n";
+        $printout .= "    exit(ECMD_DLL_INVALID);\n";
+	$printout .= "  }\n\n";
+	$printout .= "#endif\n\n";
 
 
         #Put the debug stuff here
@@ -219,15 +236,18 @@ while (<IN>) {
 	$printout .= "#else\n\n";
 	
 	
-	$printout .= "  if (dlHandle == NULL) {\n";
-        $printout .= "    fprintf(stderr,\"$funcname: eCMD Function called before DLL has been loaded\\n\");\n";
-        $printout .= "    exit(ECMD_DLL_INVALID);\n";
-	$printout .= "  }\n\n";
 
-	$printout .= "  if (DllFnTable[$enumname] == NULL) {\n";
-	$printout .= "     DllFnTable[$enumname] = (void*)dlsym(dlHandle, \"$funcname\");\n";
 
-	$printout .= "     if (DllFnTable[$enumname] == NULL) {\n";
+        if ($ARGV[0] ne "ecmd") {
+          $DllFnTable = "$ARGV[0]DllFnTable";
+        } else {
+          $DllFnTable = "DllFnTable";
+        }
+
+	$printout .= "  if (".$DllFnTable."[$enumname] == NULL) {\n";
+	$printout .= "     ".$DllFnTable."[$enumname] = (void*)dlsym(dlHandle, \"$funcname\");\n";
+
+	$printout .= "     if (".$DllFnTable."[$enumname] == NULL) {\n";
 
         $printout .= "       fprintf(stderr,\"$funcname : Unable to find $funcname function, must be an invalid DLL - program aborting\\n\"); \n";
         $printout .= "       exit(ECMD_DLL_INVALID);\n";
@@ -237,7 +257,7 @@ while (<IN>) {
 	$printout .= "  }\n\n";
 
 	$printout .= "  $type (*Function)($typestring) = \n";
-	$printout .= "      ($type(*)($typestring))DllFnTable[$enumname];\n\n";
+	$printout .= "      ($type(*)($typestring))".$DllFnTable."[$enumname];\n\n";
 
 	$printout .= "  rc = " unless ($type_flag == $VOID);
 	$printout .= "   (*Function)($argstring);\n\n" ;
@@ -348,14 +368,23 @@ print OUT "#include <$ARGV[0]ClientEnums.H>\n\n\n";
 print OUT "#include <ecmdUtils.H>\n\n";
 
 print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
-print OUT "\n#include <dlfcn.h>\n\n";
+print OUT "\n #include <dlfcn.h>\n\n";
 
-print OUT "void * dlHandle = NULL;\n";
-print OUT "void * DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
+if ($ARGV[0] eq "ecmd") {
+  print OUT " void * dlHandle = NULL;\n";
+  print OUT " void * DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
+} else {
+  print OUT "/* This is from ecmdClientCapiFunc.C */\n";
+  print OUT " extern void * dlHandle;\n";
+  print OUT " void * $ARGV[0]DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
 
-print OUT "#else\n\n";
+  print OUT "/* Our initialization flag */\n";
+  print OUT " bool $ARGV[0]Initialized = false;\n";
+}       
 
-print OUT "#include <$ARGV[0]DllCapi.H>\n\n";
+print OUT "\n#else\n\n";
+
+print OUT " #include <$ARGV[0]DllCapi.H>\n\n";
 
 print OUT "#endif\n\n\n";
 
