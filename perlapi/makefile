@@ -45,7 +45,7 @@ ifeq (${OS},AIX)
   LD        := /afs/rch/rs_aix51/lpp/vacpp.6002/usr/vacpp/bin/makeC++SharedLib
   LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE/perl.exp
   LINK_OBJS := ../capi/export/ecmdClientCapi_aix.a
-  CFLAGS    := ${CFLAGS} -qstaticinline -+
+  CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   PERLINC   := -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/common/contrib/aix/perl/lib/5.6.1/aix/CORE
   SWIG      := /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/bin/swig
   SWIGFLAGS := ${SWIGFLAGS} -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/perl5 -I/afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/aix/swig/lib/swig_lib/
@@ -57,7 +57,7 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}.so
+all: dir ${TARGET}.so ${TARGET}.pm
 	@touch t.o t_x86 t_aix t_ppc
 	@mv *.o ${SUBDIR}
 	@mv *x86* *_aix* *_ppc*  ${SUBDIR}
@@ -65,6 +65,9 @@ all: dir ${TARGET}.so
 	@cp ${SUBDIR}${TARGET}.so export/
 	@cp ${SUBDIR}${TARGET}.pm export/
 	@cp ChipTarget.pm export/
+ifeq (${OS},AIX)
+	@slibclean
+endif
 
 clean:
 	rm -rf ${SUBDIR}
@@ -90,7 +93,7 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
-ecmdClientPerlapi_wrap${TARGET}.c: ecmdClientPerlapi.i
+${TARGET}.pm ecmdClientPerlapi_wrap${TARGET}.c: ecmdClientPerlapi.i
 	sed "s/MODULE_NAME/${TARGET}/g" ecmdClientPerlapi.i > ecmdClientPerlApi_new${TARGET}.i
 	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap${TARGET}.c ecmdClientPerlApi_new${TARGET}.i	
 

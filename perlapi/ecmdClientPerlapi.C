@@ -15,13 +15,15 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <string.h>
+#include <stdio.h>
+
 #include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdUtils.H>
-#include <string.h>
 #include <ecmdClientPerlapi.H>
-#include <stdio.h>
+#include <ecmdSharedUtils.H>
 
 
 static int myErrorCode = ECMD_SUCCESS;
@@ -29,12 +31,14 @@ static int myErrorCode = ECMD_SUCCESS;
 int ecmdPerlInterfaceErrorCheck (int errorCode) {
 
   if (errorCode == -1) {
+    errorCode = myErrorCode;
+    myErrorCode = ECMD_SUCCESS;
 
-    if (myErrorCode != ECMD_SUCCESS) {
-      ecmdOutputError( (ecmdGetErrorMsg(myErrorCode) + "\n").c_str());
+    if (errorCode != ECMD_SUCCESS) {
+      ::ecmdOutputError( (::ecmdGetErrorMsg(errorCode) + "\n").c_str());
     }
 
-    return myErrorCode;
+    return errorCode;
   }
   else if (errorCode != ECMD_SUCCESS) {
     myErrorCode = errorCode;
@@ -44,7 +48,7 @@ int ecmdPerlInterfaceErrorCheck (int errorCode) {
 }
 
 ecmdClientPerlapi::ecmdClientPerlapi () {
-
+  perlFormat = "b";
 
 }
 
@@ -55,7 +59,6 @@ ecmdClientPerlapi::~ecmdClientPerlapi () {
 
 void ecmdClientPerlapi::cleanup()  {
   ecmdUnloadDll();
-
 }
 
 
@@ -143,67 +146,21 @@ int ecmdClientPerlapi::putScom (const char * i_target, int i_address, const char
  
 int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, char **o_data) {
 
-  char* tmp;
-  std::string dataStr;
-  std::string::size_type dataStrLen;
-  std::string myFormat;
+  int rc = 0;
+  ecmdDataBuffer buffer;
   ecmdChipTarget myTarget;
 
-  myFormat = "b";
-
-  printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
-  if(o_data == NULL) {
-    printf("o_data is NULL\n");
-
-  }
-
-  printf("coming into c code o_data = %s.\n",*o_data);
-  printf("in the c code printing o_data = %08X\n",*o_data);
-
-  int rc = setupTarget(i_target, myTarget);
-
+  rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
-
-
-  int flushrc = ecmdFlushRingCache();
-  printf("just flushed\n");
-  if (flushrc) {
-   return flushrc;
-  }
-
-  ecmdDataBuffer buffer;
-  printf("made my buffer\n");
 
   rc = ::getRing(myTarget, i_ringName, buffer);
-  printf("out of getring\n");
   ecmdPerlInterfaceErrorCheck(rc);
-  printf("after errorCheck\n");
-
-  printf("This is buffer size is from 0 to 64 :%d\n", buffer.getBitLength()); 
- 
   if (rc) return rc;
 
-  printf("yo yo  \n");
+  *o_data = (char*)malloc(buffer.getBitLength()+1);
+  strcpy(*o_data,ecmdWriteDataFormatted(buffer, perlFormat).c_str());
 
-  dataStr = ecmdWriteDataFormatted(buffer, myFormat);
-  printf("after writeDataFormatted\n");
-  dataStrLen = dataStr.length();
-  printf("dataStr.length = %d\n",dataStrLen);
-  printf("dataStr = %s\n",dataStr.c_str());
-
-  tmp = new char[dataStrLen+1];
-  printf("after new command\n");
-  strcpy(tmp,dataStr.c_str());
-  printf("after strcpy command\n");
-  printf("in the c code printing o_data 08X = %08X\n",o_data);
-  o_data = &tmp; 
-
-  printf("in the c code printing tmp = %s\n",tmp);
-  printf("in the c code printing o_data = %s\n",*o_data);
-  printf("in the c code printing o_data 08X *o_data= %08X\n",*o_data);
-
-  printf("o_data %.08x : *o_data %.08X\n",o_data, *o_data);
-  printf("tmp %.08X : &tmp %.08X\n",tmp, &tmp);
   return rc;
 }
 
@@ -211,11 +168,10 @@ int ecmdClientPerlapi::getRing (const char * i_target, const char * i_ringName, 
 int ecmdClientPerlapi::putRing (const char * i_target, const char * i_ringName, const char * i_data) {
 
   ecmdChipTarget myTarget;
-  std::string dataStr;
-  std::string myFormat;
-  myFormat = "b";
+  std::string myFormat = "b";
 
   int rc = setupTarget(i_target, myTarget);
+  ecmdPerlInterfaceErrorCheck(rc);
   if (rc) return rc;
 
   ecmdDataBuffer buffer; 
@@ -255,62 +211,59 @@ void ecmdClientPerlapi::add2(char **retval) {
 
 int ecmdClientPerlapi::setupTarget (const char * i_targetStr, ecmdChipTarget & o_target) {
 
+  int rc = ECMD_SUCCESS;
+  std::string printed;
   if (i_targetStr == NULL) {
-    ecmdPerlInterfaceErrorCheck(ECMD_INVALID_ARGS);
+    ecmdOutputError("ecmdClientPerlapi::setupTarget - It appears the target string is null\n");
     return ECMD_INVALID_ARGS;
   }
+  std::vector<std::string> tokens;
 
-  char *my_i_targetStr = new char[sizeof strlen(i_targetStr)+1];
-  int rc = ECMD_SUCCESS, i = 0;
-  char * curArg;
-  int longestArg = 0;
+  ecmdParseTokens(i_targetStr, " ,.", tokens);
 
-  strcpy(my_i_targetStr,i_targetStr);
+  /* Set our initial states */
+  o_target.cage = o_target.node = o_target.slot = o_target.pos = o_target.core = o_target.thread = 0;
+  o_target.cageState = o_target.nodeState = o_target.slotState = o_target.posState = o_target.coreState = o_target.threadState = ECMD_TARGET_FIELD_VALID;
+  o_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
 
-
-  if (curArg = strtok(my_i_targetStr, " ")) {
-    longestArg = strlen(curArg);
-    o_target.chipType = curArg;
-    o_target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  }
-
-  int numArgs = 1;
-  char ** args;
-
-  while (curArg = strtok(NULL, " ")) {
-    numArgs++;
-  }
-
-  args = new char*[numArgs];
-  for (i = 0; i < numArgs; i++) {
-    args[i] = new char[longestArg+1];
-  }
-
-  if (curArg = strtok(my_i_targetStr, " ")) {
-
-    i = 0;
-    while (curArg = strtok(NULL, " ")) {
-      strcpy(args[i], curArg);
-      i++;
+  for (std::vector<std::string>::iterator tokit = tokens.begin(); tokit != tokens.end(); tokit ++) {
+    if ((*tokit)[0] == '-') {
+      switch((*tokit)[1]) {
+        case 'k': case 'K':
+          o_target.cage = atoi(tokit->substr(2,20).c_str());
+          break;
+        case 'n': case 'N':
+          o_target.node = atoi(tokit->substr(2,20).c_str());
+          break;
+        case 's': case 'S':
+          o_target.slot = atoi(tokit->substr(2,20).c_str());
+          break;
+        case 'p': case 'P':
+          o_target.pos = atoi(tokit->substr(2,20).c_str());
+          break;
+        case 'c': case 'C':
+          o_target.core = atoi(tokit->substr(2,20).c_str());
+          break;
+        case 't': case 'T':
+          o_target.thread = atoi(tokit->substr(2,20).c_str());
+          break;
+        default:
+          ecmdOutputError((((printed = "ecmdClientPerlapi::setupTarget - It appears the target string contained an invalid target parm : ") + i_targetStr) + "\n").c_str());
+          return ECMD_INVALID_ARGS;
+          
+      }
+    } else {
+      /* If the first char is a digit then they must have specified a p1..3 or p1,4 and we tokenized it above, this is not good */
+      if (isdigit((*tokit)[0])) {
+        ecmdOutputError((((printed = "ecmdClientPerlapi::setupTarget - It appears the target string contained a range or multiple positions : ") + i_targetStr) + "\n").c_str());
+        return ECMD_INVALID_ARGS;
+      } else if (o_target.chipTypeState == ECMD_TARGET_FIELD_VALID) {
+        ecmdOutputError((((printed = "ecmdClientPerlapi::setupTarget - It appears the target string contained multiple chip names : ") + i_targetStr) + "\n").c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+      o_target.chipType = *tokit;
     }
-
-  }
-  delete my_i_targetStr;
-
-  ecmdLooperData looperdata;
-
-/* have to figure out how to handle the argc for this.  pvl 11/17/04 */
-  ecmdCommandArgs(&args);
-/*  ecmdCommandArgs(&numArgs, &args);*/
-
-  rc = ecmdConfigLooperInit(o_target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  ecmdPerlInterfaceErrorCheck(rc);
-  if (rc) return rc;
-
-  ecmdConfigLooperNext(o_target, looperdata);
-
-  if (args != NULL) {
-    delete[] args;
   }
 
   return rc;
@@ -512,17 +465,17 @@ char* ecmdClientPerlapi::ecmdGetErrorMsg(int i_errorCode){
 }
 
 void ecmdClientPerlapi::ecmdOutputError(const char* i_message){
-
+  ::ecmdOutputError(i_message);
   return ;
 }
 
 void ecmdClientPerlapi::ecmdOutputWarning(const char* i_message){
-
+  ::ecmdOutputWarning(i_message);
   return ;
 }
 
 void ecmdClientPerlapi::ecmdOutput(const char* i_message){
-
+  ::ecmdOutput(i_message);
   return ;
 }
 

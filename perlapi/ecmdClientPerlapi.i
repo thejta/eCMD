@@ -19,9 +19,11 @@
 
 %typemap(perl5,argout) char ** o_data  {
   SV *tempsv;
-  tempsv = SvRV($arg);
-  sv_setpv(tempsv, *$source);
-  free(*$source);
+  if (*$source != NULL) {
+    tempsv = SvRV($arg);
+    sv_setpv(tempsv, *$source);
+    free(*$source);
+  }
   *$source = NULL;
   free($source);
 }
@@ -29,7 +31,7 @@
 %except(perl5) {
 	$function
 	if (ecmdPerlInterfaceErrorCheck(-1)) {
-		croak("Error occured in Perl module\n");
+		croak("Error occured in eCMD Perl module - execution halted\n");
 	}
 }
 
