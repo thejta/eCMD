@@ -1,6 +1,6 @@
 
 Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>] 
-                                  [-k#] [-n#] [-s#] [-p#] [-c#]
+                     [-exp <data> [-i<format>] [-mask <data>]] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -19,6 +19,15 @@ Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>]
 
         -o<format>[opt] Output Format : default 'xl'
                         Run 'ecmdquery formats' to view available formats
+
+        -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+        
+        -exp [optional] Provide expected data.  Returns error if expected != actual.  No
+                        error/no data returned if expected == actual.
+
+        -mask     [opt] Array data is AND'ed with the mask bits. Only for use with -exp.
+
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

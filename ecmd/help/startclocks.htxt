@@ -1,5 +1,5 @@
 
-Syntax: startclocks [<ChipSelect>] [<ClockDomain>] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: startclocks [<ChipSelect> [<ClockDomain>]] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -13,8 +13,9 @@ Syntax: startclocks [<ChipSelect>] [<ClockDomain>] [-force] [-k#] [-n#] [-s#] [-
         --------------------------------------------------------------------------------
         ChipSelect[opt] Chip name to start clocks on
 
-        ClockDomain[o]  Clock domain to start on target. Names are documented in the
-                        eCMD System specific document for your system type
+        ClockDomain[o]  Clock domain to start on target. Must specify ChipSelect.
+                        Names are documented in the eCMD System specific document 
+                        for your system type
 
         -force    [opt] Force clocks on regardless of current state
 
