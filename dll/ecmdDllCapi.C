@@ -1054,6 +1054,9 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
         curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.find('('));
         /* Make a copy of insert data so we don't lose it */
         bufferCopy = i_data;
+
+        /* We found something, bump the matchs */
+        o_matchs ++;
       }
 
       /* Check if the bits are ordered from:to (0:10) or just (1) */
@@ -1114,8 +1117,6 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
         curStartBit = 0;
         curBitsToInsert -= bitsToInsert;
-        /* We found something, bump the matchs */
-        o_matchs ++;
       } else {
         /* Nothing was there that we needed, let's try the next entry */
         curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
