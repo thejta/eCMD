@@ -7,7 +7,7 @@ OS           := $(shell uname)
 
 INCLUDES     := cipClientCapi.H cipStructs.H
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
-SOURCE       := cipClientCapiFunc.C
+SOURCE       := cipClientCapiFunc.C cipClientCapi.C
 DEFINES      := 
 CFLAGS       := -I. -I../../../capi/export -g
 

@@ -30,6 +30,22 @@
 */
 extern "C" {
 
+/** @name Load/Unload Functions */
+//@{
+
+/**
+ @brief Initialize eCMD CIP Extension DLL
+ @retval ECMD_SUCCESS if successful load
+ @retval ECMD_INVALID_DLL_VERSION if Dll version loaded doesn't match client version
+ @retval nonzero if unsuccessful
+ @post eCMD CIP Extension is initialized and version checked
+
+*/
+uint32_t cipInitExtension();
+
+
+//@}
+
 
 /** @name Processor Functions */
 //@{
@@ -48,6 +64,16 @@ extern "C" {
 uint32_t cipStartInstructions (ecmdChipTarget & i_target);
 
 /**
+ @brief Start Instructions on all configured processors
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+*/
+uint32_t cipStartAllInstructions ();
+
+/**
  @brief Stop Instructions
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -59,6 +85,16 @@ uint32_t cipStartInstructions (ecmdChipTarget & i_target);
 
 */
 uint32_t cipStopInstructions (ecmdChipTarget & i_target);
+
+/**
+ @brief Stop All Instructions
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+*/
+uint32_t cipStopAllInstructions ();
 
 /**
  @brief Step Instructions
@@ -75,7 +111,7 @@ uint32_t cipStopInstructions (ecmdChipTarget & i_target);
 uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
 
 /**
- @brief Set Breakpoint in Processor
+ @brief Set a hardware breakpoint in Processor using a real address
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param i_address Address to set breakpoint at
  @param i_type Type of breakpoint to set
@@ -90,7 +126,7 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
 uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
 
 /**
- @brief Clear Breakpoint from Processor
+ @brief Clear a hardware breakpoint from Processor using a real address
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
  @param i_address Address to clear breakpoint at
  @param i_type Type of breakpoint to set
