@@ -55,42 +55,6 @@
  2)  Allows (C-based) perl interpreter to access these functions
 
 */
-/** @name Gen Functions */
-//@{
-/**
- * @brief Default function for converting hex strings to unsigned int arrays
- * @retval First element of the parsed data, or 0xFFFFFFFF if error
- * @param o_numPtr The array that stores the data parsed from the input string
- * @param i_hexChars input string of hex data- alignment stuff handled by Left and Right functions
- * @param startPos
- * @see ecmdGenB32FromHexRight
- * @see ecmdGenB32FromHexLeft
- */
-uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos);
-
-/**
- * @brief Convert a string of left-aligned Hex chars into an unsigned int array
- * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
- * @param o_numPtr The array that stores the data parsed from the input string
- * @param i_hexChars A string of hex characters
- * @see ecmdGenB32FromHexRight
- * @see ecmdGenB32FromHex
- */
-uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
-
-/**
- * @brief Convert a string of right-aligned Hex chars into an unsigned int array
- * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
- * @param o_numPtr The array that stores the data parsed from the input string
- * @param i_hexChars A string of hex characters
- * @param i_expectBits The number of defined bits in the o_numPtr array returned
- * @see ecmdGenB32FromHex
- * @see ecmdGenB32FromHexLeft
- */
-uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int i_expectBits = 0);
-
-//@}
-
 
 /** @name Command Line Parsing Functions */
 //@{
