@@ -130,9 +130,9 @@ while (<IN>) {
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
-		    $printout .= "  if (ecmdClientDebug == 10) {\n";
+		    $printout .= "  if (ecmdClientDebug >= 9) {\n";
 
-		    $printout .= "    ecmdFunctionParmPrinter(FUNCTIONIN,\"$type $orgfuncname(@argnames)\"";
+		    $printout .= "//    ecmdFunctionParmPrinter(FUNCTIONIN,\"$type $orgfuncname(@argnames)\"";
 
 		    #
 		    my $pp_argstring;
@@ -253,9 +253,9 @@ while (<IN>) {
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		if($#argnames >=0) {
-		    $printout .= "  if (ecmdClientDebug == 10) {\n";
+		    $printout .= "  if (ecmdClientDebug >= 9) {\n";
 
-		    $printout .= "    ecmdFunctionParmPrinter(FUNCTIONOUT,\"$type $orgfuncname(@argnames)\"";
+		    $printout .= "//    ecmdFunctionParmPrinter(FUNCTIONOUT,\"$type $orgfuncname(@argnames)\"";
 		    #
 		    my $pp_argstring;
 		    my $pp_typestring;
@@ -345,7 +345,7 @@ if ($ARGV[0] ne "ecmd") {
 print OUT "#include <$ARGV[0]ClientCapi.H>\n";
 print OUT "#include <$ARGV[0]ClientEnums.H>\n\n\n";
 
-print OUT "#include <$ARGV[0]Utils.H>\n\n";
+print OUT "#include <ecmdUtils.H>\n\n";
 
 print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
 print OUT "\n#include <dlfcn.h>\n\n";
