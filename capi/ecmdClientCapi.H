@@ -12,6 +12,8 @@
 // Includes
 //--------------------------------------------------------------------
 #include <ecmdReturnCodes.H>
+#include <ecmdStructs.H>
+#include <ecmdDataBuffer.H>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -84,7 +86,7 @@ int ecmdInitDll(int argc, char* argv[]);
 
 
 */
-int getRing (ecmdChipTarget_t & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
+int getRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected ring
@@ -98,7 +100,7 @@ int getRing (ecmdChipTarget_t & target, const char * ringName, ecmdDataBuffer & 
 
 
 */
-int putRing (ecmdChipTarget_t & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
+int putRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data, int startPos, int numBits); 
 
 //@}
 
@@ -121,7 +123,7 @@ int putRing (ecmdChipTarget_t & target, const char * ringName, ecmdDataBuffer & 
  @see putScom
 
 */
-int getScom (ecmdChipTarget_t & target, uint32_t address, ecmdDataBuffer & data);
+int getScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
@@ -132,7 +134,7 @@ int getScom (ecmdChipTarget_t & target, uint32_t address, ecmdDataBuffer & data)
  @see getScom
 
 */
-int putScom (ecmdChipTarget_t & target, uint32_t address, ecmdDataBuffer & data);
+int putScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data);
 
 //@}
 
@@ -151,7 +153,7 @@ int putScom (ecmdChipTarget_t & target, uint32_t address, ecmdDataBuffer & data)
  @see putAlias
 
 */
-int getAlias (ecmdChipTarget_t & target, const char * aliasName, ecmdDataBuffer & data, int startPos, int numBits);
+int getAlias (ecmdChipTarget & target, const char * aliasName, ecmdDataBuffer & data, int startPos, int numBits);
 
 /**
  @brief Scans the selected number of bits from the data buffer into the selected position in the selected alias
@@ -165,7 +167,7 @@ int getAlias (ecmdChipTarget_t & target, const char * aliasName, ecmdDataBuffer 
 
 
 */
-int putAlias (ecmdChipTarget_t & target, const char * aliasName, ecmdDataBuffer & data, int startPos, int numBits);
+int putAlias (ecmdChipTarget & target, const char * aliasName, ecmdDataBuffer & data, int startPos, int numBits);
 
 //@}
 
@@ -181,7 +183,7 @@ int putAlias (ecmdChipTarget_t & target, const char * aliasName, ecmdDataBuffer 
  @see putArray
 
 */
-int getArray (ecmdChipTarget_t & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data);
+int getArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data);
 
 /**
  @brief Writes bits from the data buffer into the selected array
@@ -192,7 +194,7 @@ int getArray (ecmdChipTarget_t & target, const char * arrayName, uint32_t * addr
  @see getArray
 
 */
-int putArray (ecmdChipTarget_t & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data);
+int putArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data);
 
 //@}
 
@@ -229,12 +231,12 @@ int iplSys ();
  @brief Retrieve additional error information for errorcode
  @retval point to NULL terminated string containing error data, NULL if error occurs
 */
-const char* ecmdGetErrorMsg(int errorcode);
+const char* ecmdGetErrorMsg(int errorCode);
 
 /**
  @brief Register an Error Message that has occured
 */
-int ecmdRegisterErrorMsg(int errorcode, const char* message);
+int ecmdRegisterErrorMsg(int errorCode, const char* message);
 
 //@}
 

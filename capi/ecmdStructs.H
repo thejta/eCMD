@@ -43,7 +43,7 @@
  @brief Commentary?
 
 */
-typedef struct {
+struct ecmdChipTarget {
 
   char chipType[ECMD_MAX_CHIP_TYPE_LENGTH];  // name of chip to access
 
@@ -53,13 +53,13 @@ typedef struct {
   uint32_t core;  // which core on chip to access, if chip is multi-core
   uint32_t thread; // which thread on chip to access, if chip is multi-threaded
 
-  uint8_t cageValid;  // flag to indicate whether selected cage is configured in the system
-  uint8_t nodeValid;  // flag to indicate whether selected node is configured in the system
-  uint8_t posValid;   // flag to indicate whether selected position is configured in the system
-  uint8_t coreValid;  // flag to indicate whether the selected core is configured on the selected chip in the system
-  uint8_t threadValid; // flag to indicate whether the selected thread is active on the selected chip in the system
+  uint8_t cageInvalid;  // flag to indicate whether selected cage is configured in the system
+  uint8_t nodeInvalid;  // flag to indicate whether selected node is configured in the system
+  uint8_t posInvalid;   // flag to indicate whether selected position is configured in the system
+  uint8_t coreInvalid;  // flag to indicate whether the selected core is configured on the selected chip in the system
+  uint8_t threadInvalid; // flag to indicate whether the selected thread is active on the selected chip in the system
 
-} ecmdChipTarget_t;
+};
 
 
 #endif
