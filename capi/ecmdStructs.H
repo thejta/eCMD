@@ -43,9 +43,6 @@
 #define ECMD_CAPI_VERSION "1.2d"          ///< eCMD API Version
 
 
-
-
-
 /**
  @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
 */
@@ -299,6 +296,15 @@ struct ecmdArrayEntry {
   ecmdDataBuffer buffer;                ///< Array data from address
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
+
+/**
+ @brief Used by get/putspy function to create the return data from a group
+*/
+struct ecmdGroupData {
+  ecmdDataBuffer extractBuffer;         ///< The data read from the ring buffer
+  ecmdDataBuffer deadbitsMask;          ///< A mask of the bits that were deadbits in that buffer
+};
+
 
 /**
  @brief Used by get/putSprMultiple function to pass data
