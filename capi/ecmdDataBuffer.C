@@ -72,13 +72,13 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
   iv_DataStr = NULL;
 #endif
 
-  iv_UserOwned = true;
+//  iv_UserOwned = true;
 }
 
 ecmdDataBuffer::ecmdDataBuffer(uint32_t numBits)
 : iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
-  iv_UserOwned = true;
+//  iv_UserOwned = true;
 
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
@@ -95,7 +95,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
   iv_DataStr = NULL;
 #endif
 
-  iv_UserOwned = true;
+//  iv_UserOwned = true;
 
   if (other.iv_NumBits != 0) {
 
@@ -127,11 +127,11 @@ uint32_t ecmdDataBuffer::clear() {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+//  if(!iv_UserOwned)
+//  {
+//      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+//      return ECMD_DBUF_NOT_OWNER;
+//  }
 
   if ((iv_RealData != NULL)) {
     /* Let's check our header,tail info */
@@ -171,11 +171,11 @@ uint32_t  ecmdDataBuffer::setWordLength(uint32_t newNumWords) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+//  if(!iv_UserOwned)
+//  {
+//      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+//      return ECMD_DBUF_NOT_OWNER;
+//  }
 
   rc = setBitLength(newNumWords * 32);
 
@@ -187,11 +187,11 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+//  if(!iv_UserOwned)
+//  {
+//      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+//      return ECMD_DBUF_NOT_OWNER;
+//  }
 
   if (newNumBits == iv_NumBits)
     return rc;  /* nothing to do */
@@ -263,11 +263,11 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+//  if(!iv_UserOwned)
+//  {
+//      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+//      return ECMD_DBUF_NOT_OWNER;
+//  }
 
  /* only resize to make the capacity bigger */
   if (iv_Capacity < newCapacity) {
@@ -706,11 +706,11 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
 
   uint32_t i, prevlen;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+//  if(!iv_UserOwned)
+//  {
+//      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+//      return ECMD_DBUF_NOT_OWNER;
+//  }
 
   /* We need to verify we have room to do this shifting */
   /* Set our new length */
@@ -809,11 +809,11 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t shiftNum) {
   uint32_t prevCarry = 0x00000000;
   int i;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+//  if(!iv_UserOwned)
+//  {
+//      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+//      return ECMD_DBUF_NOT_OWNER;
+//  }
 
   /* If we are going to shift off the end we can just clear everything out */
   if (shiftNum >= iv_NumBits) {
@@ -2347,7 +2347,7 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
     i_sharingBuffer->iv_NumBits = iv_NumBits;
     i_sharingBuffer->iv_Data = iv_Data;
     i_sharingBuffer->iv_RealData = iv_RealData;
-    i_sharingBuffer->iv_UserOwned = false;
+//    i_sharingBuffer->iv_UserOwned = false;
  
     return(rc);
 }

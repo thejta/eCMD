@@ -1058,7 +1058,7 @@ protected:  //data
   uint32_t iv_NumBits;          ///< Specified buffer size in bits
   uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
   uint32_t * iv_RealData;       ///< Real buffer - with header and tail
-  bool	iv_UserOwned;		///< Whether or not this buffer owns the data
+//  bool	iv_UserOwned;		///< Whether or not this buffer owns the data
 
 protected: //methods
 
