@@ -46,6 +46,17 @@ sub new
 	return $self;
 }
 
+
+=for functionBrief
+  /**
+   * @brief Constructor
+   * @param i_target Target string as used on command line
+   
+   * Usage : $target = new ChipTarget("pu -p3 -c1");
+  */
+  ChipTarget(const char* i_target);
+=cut
+
 =for functionBrief
   /** 	
    * @brief Set the Cage
