@@ -37,6 +37,9 @@ print OUT "#include <string>\n";
 print OUT "#include <ecmdStructs.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdDataBuffer.H>\n\n\n";
+if ($ARGV[0] ne "ecmd") {
+  print OUT "#include <$ARGV[0]Structs.H>\n";
+}
 
 print OUT "extern \"C\" {\n\n";
 
