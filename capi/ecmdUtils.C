@@ -123,13 +123,13 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 #endif
 
   /* Setup the Query target */
-  if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
-  if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
-  if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
-  if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
-  if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)   queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
-  if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED)  queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
-  if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)    queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)         queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
+  if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)      queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
 
   /* Initialize defaults into the incoming target */
   if (io_target.cageState == ECMD_TARGET_QUERY_WILDCARD)     io_target.cage = 0;
@@ -141,18 +141,28 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   if (io_target.threadState == ECMD_TARGET_QUERY_WILDCARD)   io_target.thread = 0;
 
   /* Set all the states to valid, unless they are unused */
-  if (io_target.cageState != ECMD_TARGET_FIELD_UNUSED) io_target.cageState = ECMD_TARGET_FIELD_VALID;
-  if (io_target.nodeState != ECMD_TARGET_FIELD_UNUSED) io_target.nodeState = ECMD_TARGET_FIELD_VALID;
-  if (io_target.slotState != ECMD_TARGET_FIELD_UNUSED) io_target.slotState = ECMD_TARGET_FIELD_VALID;
-  if (io_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) io_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  if (io_target.posState != ECMD_TARGET_FIELD_UNUSED) io_target.posState = ECMD_TARGET_FIELD_VALID;
-  if (io_target.coreState != ECMD_TARGET_FIELD_UNUSED) io_target.coreState = ECMD_TARGET_FIELD_VALID;
-  if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED) io_target.threadState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.cageState != ECMD_TARGET_FIELD_UNUSED)          io_target.cageState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.nodeState != ECMD_TARGET_FIELD_UNUSED)          io_target.nodeState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.slotState != ECMD_TARGET_FIELD_UNUSED)          io_target.slotState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)      io_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.posState != ECMD_TARGET_FIELD_UNUSED)           io_target.posState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.coreState != ECMD_TARGET_FIELD_UNUSED)          io_target.coreState = ECMD_TARGET_FIELD_VALID;
+  if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED)        io_target.threadState = ECMD_TARGET_FIELD_VALID;
 
-  if (i_looptype == ECMD_SELECTED_TARGETS_LOOP) 
-    rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData);
-  else
+  if (i_looptype == ECMD_ALL_TARGETS_LOOP) 
     rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
+  else {
+    rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+
+    /* Selected queries can change our states, so let's update them */
+    if (queryTarget.cageState == ECMD_TARGET_QUERY_IGNORE)      io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+    if (queryTarget.nodeState == ECMD_TARGET_QUERY_IGNORE)      io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+    if (queryTarget.slotState == ECMD_TARGET_QUERY_IGNORE)      io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+    if (queryTarget.chipTypeState == ECMD_TARGET_QUERY_IGNORE)  io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if (queryTarget.posState == ECMD_TARGET_QUERY_IGNORE)       io_target.posState = ECMD_TARGET_FIELD_UNUSED;
+    if (queryTarget.coreState == ECMD_TARGET_QUERY_IGNORE)      io_target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    if (queryTarget.threadState == ECMD_TARGET_QUERY_IGNORE)    io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  }
   if (rc) return rc;
 
   io_state.ecmdCurCage = io_state.ecmdSystemConfigData.cageData.begin();
@@ -170,11 +180,6 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
      ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
    }
 
-/***
-  if (ecmdClientDebug > 1) {
-    std::string printed = "ECMD DEBUG (ecmdConfigLooperInit) : Exiting\n"; ecmdOutput(printed.c_str());
-  }
-***/
 #endif
 
   return rc;
@@ -825,7 +830,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string & i_for
 
       if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B || curState == ECMD_FORMAT_BXN || curState == ECMD_FORMAT_BXW) {
         printed += "\n";
-        printed += ecmdBitsHeader(4, blockSize, numCols, dataBitLength);
+        printed += ecmdBitsHeader(5, blockSize, numCols, dataBitLength);
       } 
 
       printed += "\n000: ";
