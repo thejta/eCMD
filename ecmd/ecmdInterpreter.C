@@ -61,31 +61,51 @@ int ecmdCommandInterpreter(int argc, char* argv[]) {
 
   if (argc >= 1) {
 
+    switch (argv[0][0]) {
 
-    /************************/
-    /* The G's              */
-    /************************/
-    if (argv[0][0] == 'g') {
+        /************************/
+        /* The G's              */
+        /************************/
+      case 'g':
 
-      if (!strcmp(argv[0], "getscom")) {
-        rc = ecmdGetScomUser(argc - 1, argv + 1);
-      }
+        if (!strcmp(argv[0], "getscom")) {
+          rc = ecmdGetScomUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
 
-
-
-    /************************/
-    /* The P's              */
-    /************************/
-    } else if (argv[0][0] == 'p') {
-
-      if (!strcmp(argv[0], "pollscom")) {
-        rc = ecmdPollScomUser(argc - 1, argv + 1);
-      } else if (!strcmp(argv[0], "putscom")) {
-        rc = ecmdPutScomUser(argc - 1, argv + 1);
-      }
+        }
+        break;
 
 
 
+
+        /************************/
+        /* The P's              */
+        /************************/
+      case 'p':
+
+        if (!strcmp(argv[0], "pollscom")) {
+          rc = ecmdPollScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putscom")) {
+          rc = ecmdPutScomUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+
+
+
+
+      default:
+        /* We don't understand this function, let's let the caller know */
+        rc = ECMD_INT_UNKNOWN_COMMAND;
+        break;
+    }
+
+        
     /************************/
     /* The Unknown          */
     /************************/
