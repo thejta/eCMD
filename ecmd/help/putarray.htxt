@@ -1,5 +1,5 @@
 
-Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>] [-b<modifier>]
+Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
                                  [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -17,8 +17,6 @@ Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>] 
         ArrayData       Data to write to array: default "x"
 
         -i<format>[opt] Specifies the format type of input data
-
-        -b<mod>[opt]    Bit modifier to apply to current scom data.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

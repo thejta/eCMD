@@ -1,5 +1,5 @@
 
-Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <Bits0-31> <Bits32-63> <Bits64-96> [-mask <Bits0-31> <Bits32-63> <Bits64-96>]] 
+Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<format>] [-i<format>]
                                 [-limit #[s|c]] [-interval #[s|c]] [-verbose] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -18,6 +18,10 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <Bits0-31> <Bits32-63> <Bits6
 
         -mask     [opt] Scom data is AND'ed with the mask bits before checking against
                         expected value.
+
+        -i<format>[opt] Specifies the format type of expect and mask data : default 'x'
+
+        -o<format>[opt] Specifies the format type of the output. : default: 'x'
 
         -limit #  [opt] Max polling number in iterations, seconds, or cycles. To specify
                         in seconds, append an 's' to #.  To specify number of cycles for 
@@ -52,10 +56,8 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <Bits0-31> <Bits32-63> <Bits6
                         -call to act on all cores.
         --------------------------------------------------------------------------------
 
-        Note:           If used, -interval and -limit must come after -exp.
-
-        Examples:       pollscom spinnaker 800009 -exp feed0000 00000001 0 -limit 30s -interval 10s -verbose -p1
-                        pollscom spinnaker 800009 -exp feed0000 00000001 0 -mask ffff0000 0000ffff 0 -limit 10
-                        pollscom outrigger 400020 -limit 100000c -interval 5000c
+        Examples:       pollscom pu 800009 -exp feed000000000001 -limit 30s -interval 10s -verbose -p1
+                        pollscom pu 800009 -exp feed000000000001 -mask ffff00000000ffff -limit 10
+                        pollscom memctrl 400020 -limit 100000c -interval 5000c
 
                         
