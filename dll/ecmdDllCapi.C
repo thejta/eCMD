@@ -142,11 +142,13 @@ std::string dllGetErrorMsg(int i_errorCode) {
   std::string filePath;
   int rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
 
-  filePath += "ecmdReturnCodes.H";
-  if (rc) {
+  if (rc || (filePath.length()==0)) {
     ret = "ERROR FINDING DECODE FILE";
     return ret;
   }
+
+  filePath += "ecmdReturnCodes.H";
+
 
   /* jtw 10/6/03 - code below largely copied from cronusrc.c */
   char str[800];
