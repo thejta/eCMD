@@ -31,6 +31,9 @@
 //--------------------------------------------------------------------
 #include <string>
 #include <inttypes.h>
+#ifdef ENABLE_MPATROL
+ #include <mpatrol.h>
+#endif
 
 //----------------------------------------------------------------------
 //  Constants
@@ -333,6 +336,8 @@ public:
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert
    * @post Data is copied from datain into this DataBuffer at specified location
+   *
+   * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
   void  insertFromRight(uint32_t * i_datain, int i_start, int i_len);
   /**
