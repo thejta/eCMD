@@ -954,7 +954,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
   return rc;
 }
 
-uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode) {
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode) {
 
   uint32_t rc = 0;
   ecmdLatchBufferEntry curEntry;
@@ -968,10 +968,23 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
   std::string printed;
 
+  o_matchs = 0;
+
 //  if (!dllIsRingCacheEnabled()) {
 //    enabledCache = true;
 //    dllEnableRingCache();
 //  }
+
+  /* Do we have the right amount of data ? */
+  if (i_data.getBitLength() > i_numBits) {
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is greater then numBits requested to write\n");
+    rc = ECMD_DATA_OVERFLOW
+    return rc;
+  } else if (i_data.getBitLength() < i_numBits) {
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is less then numBits requested to write\n");
+    rc = ECMD_DATA_UNDERFLOW
+    return rc;
+  }
 
   /* Let's find out if we are JTAG of FSI here */
   rc = dllGetChipData(i_target, chipData);
@@ -1003,7 +1016,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
     uint32_t bitsToInsert = i_data.getBitLength();
     int curLatchBit = -1;               // This is the actual latch bit we are looking for next
-    int curStartBit = 0;         // This is the offset into the current entry to start extraction
+    int curStartBit = i_startBit;         // This is the offset into the current entry to start extraction
     int curBitsToInsert = bitsToInsert;      // This is the total number of bits left to Insert
 
     for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
@@ -1091,6 +1104,8 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
         curStartBit = 0;
         curBitsToInsert -= bitsToInsert;
+        /* We found something, bump the matchs */
+        o_matchs ++;
       } else {
         /* Nothing was there that we needed, let's try the next entry */
         curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;

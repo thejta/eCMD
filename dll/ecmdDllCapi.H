@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 #include <ecmdStructs.H>
-#include <ecmdUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBuffer.H>
 
@@ -48,7 +47,7 @@ uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
 
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
 
-uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, ecmdLatchMode_t i_mode); 
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode); 
 
 uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
@@ -92,7 +91,13 @@ uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, b
 
 uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
 
-uint32_t dllISteps(ecmdDataBuffer & i_steps); 
+uint32_t dllIStepsByNumber(ecmdDataBuffer & i_steps); 
+
+uint32_t dllIStepsByName(std::string i_stepName); 
+
+uint32_t dllIStepsByNameMultiple(std::list< std::string > i_stepNames); 
+
+uint32_t dllIStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepNameEnd); 
 
 uint32_t dllQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data); 
 
@@ -181,6 +186,8 @@ uint32_t dllSimtckinterval(uint32_t i_tckinterval);
 uint32_t dllSimUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row , uint32_t i_offset ); 
 
 uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row , uint32_t i_numrows ); 
+
+uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
 
 std::string dllGetErrorMsg(uint32_t i_errorCode); 
 
