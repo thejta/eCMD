@@ -1524,25 +1524,23 @@ To compile client code to use the C++ API, the following header files are requir
 <li> ecmdStructs.H
 <li> ecmdReturnCodes.H
 <li> ecmdUtils.H
+<li> ecmdSharedUtils.H
 </ul>
 
 @section link Link objects
 To link the client code on AIX, the following is required:
 <ul>
 <li>ecmdClientCapi_aix.a
-<li>ecmdClientCapi.export
+<li>libecmd_aix.so
 <li>xlC v5.0
 </ul>
 To create Linux x86 binaries, the following is required:
 <ul>
 <li>ecmdClientCapi_x86.a
+<li>libecmd_x86.so
 <li>g++ ????
 </ul>
-To create Linux ppc binaries, the following is required:
-<ul>
-<li>ecmdClientCapi_ppc.a
-<li>g++ ????
-</ul>
+
 <hr>
 @section ext eCMD Extensions
 These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.
