@@ -47,12 +47,10 @@
 
 int dllInitDll() {
   /* This is where we would init any local variables to the dll */
-  printf("Stub dll has been initialized\n");
   return ECMD_SUCCESS;
 }
 
 int dllFreeDll() {
-  printf("Stub dll has been freed\n");
   return ECMD_SUCCESS;
 }
 
@@ -74,22 +72,18 @@ int dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data
 int dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
-int dllGetSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
-int dllGetSpyEnum(ecmdChipTarget & target, const char * spyName, std::string & enumValue){ return ECMD_SUCCESS; }
-
-int getSpyEccGrouping (ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_groupData, ecmdDataBuffer & o_eccData, ecmdDataBuffer & o_eccErrorMask) { return ECMD_SUCCESS; }
-
-int dllPutSpy (ecmdChipTarget & target, const char * spyName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
-int dllPutSpyEnum(ecmdChipTarget & target, const char * spyName, const std::string enumValue){ return ECMD_SUCCESS; } 
-
 int dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 int dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 int dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
+  char tmp[100];
   o_dllInfo.dllType = ECMD_DLL_STUB;
+  o_dllInfo.dllProduct = ECMD_DLL_PRODUCT_UNKNOWN;
+  o_dllInfo.dllEnv = ECMD_DLL_ENV_SIM;  
+  sprintf(tmp,"%s %s",__DATE__,__TIME__);
+  o_dllInfo.dllBuildDate = tmp;
+  o_dllInfo.dllCapiVersion = ECMD_CAPI_VERSION;
   return ECMD_SUCCESS;
 }
 
@@ -98,6 +92,7 @@ int dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryD
   ecmdCoreData coreData;
   ecmdChipData chipData;
   ecmdNodeData nodeData;
+  ecmdSlotData slotData;
   ecmdCageData cageData;
   ecmdThreadData threadData;
 
@@ -111,19 +106,23 @@ int dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryD
   chipData.coreData.push_front(coreData);
   chipData.chipType = "gr";
   chipData.pos = 0;
-  nodeData.chipData.push_front(chipData);
+  slotData.chipData.push_front(chipData);
 
   ecmdChipData cd2;
   cd2.coreData.clear();
   cd2.chipType = "gr";
   cd2.pos = 1;
-  nodeData.chipData.push_back(cd2);
+  slotData.chipData.push_back(cd2);
 
   cd2.pos = 2;
-  nodeData.chipData.push_back(cd2);
+  slotData.chipData.push_back(cd2);
 
   cd2.pos = 3;
-  nodeData.chipData.push_back(cd2);
+  slotData.chipData.push_back(cd2);
+
+  slotData.slotId = 0;
+
+  nodeData.slotData.push_front(slotData);
 
   nodeData.nodeId = 0;
 
@@ -138,11 +137,9 @@ int dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryD
 
 int dllQueryRing(ecmdChipTarget & target, std::list<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
 
-int dllQueryArray(ecmdChipTarget & target, std::list<ecmdArrayData> & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
+int dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
-int dllQuerySpy(ecmdChipTarget & target, std::list<ecmdSpyData> & queryData, const char * spyName){ return ECMD_SUCCESS; } 
-
-int dllQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string fileLocation){ return ECMD_SUCCESS; } 
+int dllQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string & fileLocation){ return ECMD_SUCCESS; } 
 
 
 int dllFlushSys () { return ECMD_SUCCESS; } 
