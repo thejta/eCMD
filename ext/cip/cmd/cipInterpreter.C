@@ -96,8 +96,8 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'g':
 
-        if (!strcmp(argv[0], "cipgetvpr")) {
-          rc = cipGetVprUser(argc - 1, argv + 1);
+        if (!strcmp(argv[0], "cipgetvr")) {
+          rc = cipGetVrUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -126,8 +126,8 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'p':
 
-        if (!strcmp(argv[0], "cipputvpr")) {
-          rc = cipPutVprUser(argc - 1, argv + 1);
+        if (!strcmp(argv[0], "cipputvr")) {
+          rc = cipPutVrUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

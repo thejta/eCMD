@@ -273,15 +273,15 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   return rc;
 }
 
-uint32_t cipGetVprUser(int argc, char * argv[]) {
+uint32_t cipGetVrUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  std::list<ecmdIndexEntry> entries;    ///< List of vpr's to fetch, to use getVprMultiple
-  std::list<ecmdIndexEntry> entries_copy;    ///< List of vpr's to fetch, to use getVprMultiple
-  ecmdIndexEntry  entry;         ///< Vpr entry to fetch
+  std::list<ecmdIndexEntry> entries;    ///< List of vr's to fetch, to use getVrMultiple
+  std::list<ecmdIndexEntry> entries_copy;    ///< List of vr's to fetch, to use getVrMultiple
+  ecmdIndexEntry  entry;         ///< Vr entry to fetch
   ecmdLooperData looperdata;            ///< Store internal Looper data
   int idx;
   int numEntries = 1;           ///< Number of consecutive entries to retrieve
@@ -309,9 +309,9 @@ uint32_t cipGetVprUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 1) {
-    printed = "cipgetvpr - Too few arguments specified; you need at least one vpr.\n";
+    printed = "cipgetvr - Too few arguments specified; you need at least one vr.\n";
     ecmdOutputError(printed.c_str());
-    printed = "cipgetvpr - Type 'cipgetvpr -h' for usage.\n";
+    printed = "cipgetvr - Type 'cipgetvr -h' for usage.\n";
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   }
@@ -322,7 +322,7 @@ uint32_t cipGetVprUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
 
 
-  /* Walk through the arguments and create our list of vprs */
+  /* Walk through the arguments and create our list of vrs */
   startEntry = atoi(argv[0]);
   if (argc > 1) {
     numEntries = atoi(argv[1]);
@@ -342,13 +342,13 @@ uint32_t cipGetVprUser(int argc, char * argv[]) {
 
 
     /* Actually go fetch the data */
-    rc = cipGetVprMultiple(target, entries_copy);
+    rc = cipGetVrMultiple(target, entries_copy);
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-      printed = "cipgetvpr - Error occured performing cipGetVprMultiple on ";
+      printed = "cipgetvr - Error occured performing cipGetVrMultiple on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
@@ -373,7 +373,7 @@ uint32_t cipGetVprUser(int argc, char * argv[]) {
   }
 
   if (!validPosFound) {
-    printed = "cipgetvpr - Unable to find a valid chip to execute command on\n";
+    printed = "cipgetvr - Unable to find a valid chip to execute command on\n";
     //this is an error common across all UI functions
     ecmdOutputError(printed.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
@@ -382,7 +382,7 @@ uint32_t cipGetVprUser(int argc, char * argv[]) {
   return rc;
 }
 
-uint32_t cipPutVprUser(int argc, char * argv[]) { 
+uint32_t cipPutVrUser(int argc, char * argv[]) { 
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
@@ -423,9 +423,9 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 2) {
-    printed = "cipputvpr - Too few arguments specified; you need at least one vpr  and some data.\n";
+    printed = "cipputvr - Too few arguments specified; you need at least one vr  and some data.\n";
     ecmdOutputError(printed.c_str());
-    printed = "cipputvpr - Type 'cipputvpr -h' for usage.\n";
+    printed = "r - Type 'cipputvr -h' for usage.\n";
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   }
@@ -439,14 +439,14 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
 
   if (argc == 4) {
     if (!ecmdIsAllDecimal(argv[1])) {
-      printed = "cipputvpr - Non-decimal numbers detected in startbit field\n";
+      printed = "cipputvr - Non-decimal numbers detected in startbit field\n";
     ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
     startBit = atoi(argv[1]);
 
     if (!ecmdIsAllDecimal(argv[2])) {
-      printed = "cipputvpr - Non-decimal numbers detected in numbits field\n";
+      printed = "cipputvr - Non-decimal numbers detected in numbits field\n";
     ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
@@ -460,9 +460,9 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
     dataPtr = argv[1];
 
   } else {
-    printed = "cipputvpr - Too many arguments specified; you probably added an option that wasn't recognized.\n";
+    printed = "cipputvr - Too many arguments specified; you probably added an option that wasn't recognized.\n";
     ecmdOutputError(printed.c_str());
-    printed = "cipputvpr - Type 'cipputvpr -h' for usage.\n";
+    printed = "cipputvr - Type 'cipputvr -h' for usage.\n";
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
     
@@ -475,13 +475,13 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
 
-    rc = cipGetVpr(target, entry, sprBuffer);
+    rc = cipGetVr(target, entry, sprBuffer);
     
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-        printed = "cipputvpr - Error occured performing getvpr on ";
+        printed = "cipputvr - Error occured performing getvr on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
@@ -501,7 +501,7 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
 
       rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
       if (rc) {
-        printed = "cipputvpr - Problems occurred parsing input data, must be an invalid format\n";
+        printed = "cipputvr - Problems occurred parsing input data, must be an invalid format\n";
         ecmdOutputError(printed.c_str());
         return rc;
       }
@@ -513,10 +513,10 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
     if (rc) return rc;
 
 
-    cipPutVpr(target, entry, sprBuffer);
+    cipPutVr(target, entry, sprBuffer);
 
     if (rc) {
-      printed = "cipputvpr - Error occured performing command on ";
+      printed = "cipputvr - Error occured performing command on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
@@ -531,7 +531,7 @@ uint32_t cipPutVprUser(int argc, char * argv[]) {
 
   if (!validPosFound) {
     //this is an error common across all UI functions
-    printed = "cipputvpr - Unable to find a valid chip to execute command on\n";
+    printed = "cipputvr - Unable to find a valid chip to execute command on\n";
     ecmdOutputError(printed.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }

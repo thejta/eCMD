@@ -53,8 +53,8 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]);
 /* cipProcUser.C */
 uint32_t cipInstructUser(int argc, char* argv[]);
 uint32_t cipBreakpointUser(int argc, char* argv[]);
-uint32_t cipGetVprUser(int argc, char * argv[]);
-uint32_t cipPutVprUser(int argc, char * argv[]);
+uint32_t cipGetVrUser(int argc, char * argv[]);
+uint32_t cipPutVrUser(int argc, char * argv[]);
 
 //@}
 
