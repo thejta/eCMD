@@ -58,9 +58,9 @@
 //---------------------------------------------------------------------
 
 
-int ecmdCommandInterpreter(int argc, char* argv[]) {
+uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc >= 1) {
 

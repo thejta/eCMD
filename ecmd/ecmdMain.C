@@ -41,7 +41,7 @@
 
 int main (int argc, char *argv[])
 {
-  int rc = 0;
+  uint32_t rc = 0;
 
   std::string cmdsave;
   char buf[200];

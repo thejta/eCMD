@@ -58,8 +58,8 @@
 //---------------------------------------------------------------------
 
 
-int ecmdQueryUser(int argc, char* argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdQueryUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
   std::string printed;
   ecmdLooperData looperdata;            ///< Store internal Looper data
 
@@ -380,6 +380,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
       sprintf(buf,  "Chip Position    : %d\n", chipdata.pos); ecmdOutput(buf);
       sprintf(buf,  "Num Proc Cores   : %d\n", chipdata.numProcCores); ecmdOutput(buf);
       sprintf(buf,  "Chip EC Level    : %d\n", chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,  "Chip Model EC    : %d\n", chipdata.simModelEc); ecmdOutput(buf);
       if (chipdata.interfaceType == ECMD_INTERFACE_ACCESS)
         sprintf(buf,"Chip Interface   : ACCESS\n");
       else if (chipdata.interfaceType == ECMD_INTERFACE_CFAM)
@@ -396,7 +397,7 @@ int ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
     /* formats    */
     /* ---------- */
-  } else if ("formats") {
+  } else if (!strcmp(argv[0],"formats")) {
     /* We will just print this from the format helpfile */
     return ecmdPrintHelp("format");
 

@@ -55,8 +55,8 @@
 //---------------------------------------------------------------------
 
 
-int ecmdSendCmdUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   bool xstateFlag = false;

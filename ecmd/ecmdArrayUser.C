@@ -54,8 +54,8 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int ecmdGetArrayUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   std::string arrayName;        ///< Name of array to access
@@ -232,8 +232,8 @@ int ecmdGetArrayUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdPutArrayUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   std::string arrayName;        ///< Name of array to access

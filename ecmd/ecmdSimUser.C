@@ -58,9 +58,9 @@
 //---------------------------------------------------------------------
 #ifndef REMOVE_SIM
 
-int ecmdSimaetUser(int argc, char * argv[]) {
+uint32_t ecmdSimaetUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc < 1) {
     ecmdOutputError("simaet - At least one argument ('on', 'off', or 'flush') is required for simaet.\n");
@@ -78,9 +78,9 @@ int ecmdSimaetUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimcheckpointUser(int argc, char * argv[]) {
+uint32_t ecmdSimcheckpointUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc < 1) {
     ecmdOutputError("simcheckpoint - At least one argument (a checkpoint filename) is required for simcheckpoint.\n");
@@ -98,9 +98,9 @@ int ecmdSimcheckpointUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimclockUser(int argc, char * argv[]) {
+uint32_t ecmdSimclockUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc < 1) {
     ecmdOutputError("simclock - At least one argument (a number of clock cycles) is required for simclock.\n");
@@ -115,7 +115,7 @@ int ecmdSimclockUser(int argc, char * argv[]) {
     ecmdOutputError("simclock - Non-decimal numbers detected in cycles field\n");
     return ECMD_INVALID_ARGS;
   }
-  int numcycles = atoi(argv[0]);
+  uint32_t numcycles = atoi(argv[0]);
   rc = simclock(numcycles);
 
   return rc;
@@ -123,9 +123,9 @@ int ecmdSimclockUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimechoUser(int argc, char * argv[]) {
+uint32_t ecmdSimechoUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc < 1) {
     ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
@@ -143,9 +143,9 @@ int ecmdSimechoUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimexitUser(int argc, char * argv[]) {
+uint32_t ecmdSimexitUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc > 0) {
     ecmdOutputError("simexit - Too many arguments to simexit, none are required.\n");
@@ -158,9 +158,9 @@ int ecmdSimexitUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
+uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -241,9 +241,9 @@ int ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
+uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -344,9 +344,9 @@ int ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimGETFACUser(int argc, char * argv[]) {
+uint32_t ecmdSimGETFACUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -410,9 +410,9 @@ int ecmdSimGETFACUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimGETFACXUser(int argc, char * argv[]) {
+uint32_t ecmdSimGETFACXUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -476,9 +476,9 @@ int ecmdSimGETFACXUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimgettcfacUser(int argc, char * argv[]) {
+uint32_t ecmdSimgettcfacUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -560,16 +560,16 @@ int ecmdSimgettcfacUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
+uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc > 0) {
     ecmdOutputError("simgetcurrentcycle - Too many arguments to simgetcurrentcycle, none are required.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  int cycle_count = 0x0;
+  uint32_t cycle_count = 0x0;
   rc = simgetcurrentcycle(cycle_count);
   if (rc) return rc;
 
@@ -582,9 +582,9 @@ int ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSiminitUser(int argc, char * argv[]) {
+uint32_t ecmdSiminitUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc < 1) {
     ecmdOutputError("siminit - At least one argument (a checkpoint filename or 'NONE') is required for siminit.\n");
@@ -601,9 +601,9 @@ int ecmdSiminitUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimPUTFACUser(int argc, char * argv[]) {
+uint32_t ecmdSimPUTFACUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -672,9 +672,9 @@ int ecmdSimPUTFACUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimPUTFACXUser(int argc, char * argv[]) {
+uint32_t ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -742,9 +742,9 @@ int ecmdSimPUTFACXUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimputtcfacUser(int argc, char * argv[]) {
+uint32_t ecmdSimputtcfacUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -811,9 +811,9 @@ int ecmdSimputtcfacUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimrestartUser(int argc, char * argv[]) {
+uint32_t ecmdSimrestartUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   if (argc < 1) {
     ecmdOutputError("simrestart - At least one argument (a checkpoint filename) is required for simrestart.\n");
@@ -830,9 +830,9 @@ int ecmdSimrestartUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimSTKFACUser(int argc, char * argv[]) {
+uint32_t ecmdSimSTKFACUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -900,9 +900,9 @@ int ecmdSimSTKFACUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimstktcfacUser(int argc, char * argv[]) {
+uint32_t ecmdSimstktcfacUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -969,9 +969,9 @@ int ecmdSimstktcfacUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimSUBCMDUser(int argc, char * argv[]) {
+uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   char buf[1000];
   buf[0] = '\0';
@@ -993,10 +993,10 @@ int ecmdSimSUBCMDUser(int argc, char * argv[]) {
 }
 
 
-int ecmdSimTckIntervalUser(int argc, char * argv[]) {
+uint32_t ecmdSimTckIntervalUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
-  int cycles ;
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t cycles ;
 
   if (argc < 1) {
     ecmdOutputError("simtckinterval - At least one argument (a cycle count) is required for simtckinterval.\n");
@@ -1021,9 +1021,9 @@ int ecmdSimTckIntervalUser(int argc, char * argv[]) {
 
 
 
-int ecmdSimUNSTICKUser(int argc, char * argv[]) {
+uint32_t ecmdSimUNSTICKUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;
@@ -1083,9 +1083,9 @@ int ecmdSimUNSTICKUser(int argc, char * argv[]) {
 
 }
 
-int ecmdSimunsticktcfacUser(int argc, char * argv[]) {
+uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
   /* get format flag, if it's there */
   std::string format;

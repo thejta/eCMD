@@ -61,33 +61,8 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
-  int rc = ECMD_SUCCESS;
 
-  ecmdChipTarget tmp = i_target;
-  ecmdQueryData needlesslySlow;
-  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-  tmp.coreState = tmp.threadState = ECMD_TARGET_QUERY_IGNORE;
-  rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
-  if (rc) return rc;
-
-  if (needlesslySlow.cageData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
-  if (needlesslySlow.cageData.front().cageId != i_target.cage) return ECMD_TARGET_NOT_CONFIGURED;
-  if (needlesslySlow.cageData.front().nodeData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
-  if (needlesslySlow.cageData.front().nodeData.front().nodeId != i_target.node) return ECMD_TARGET_NOT_CONFIGURED;
-  if (needlesslySlow.cageData.front().nodeData.front().slotData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
-  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().slotId != i_target.slot) return ECMD_TARGET_NOT_CONFIGURED;
-  if (needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.empty()) return ECMD_TARGET_NOT_CONFIGURED;
-
-  o_data = needlesslySlow.cageData.front().nodeData.front().slotData.front().chipData.front();
-  if (o_data.chipType != i_target.chipType || o_data.pos != i_target.pos) {
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-    
-  return rc;
-}
-
-int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
+uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
 
   int wordCounter = 0;
   uint32_t maxBits = 32;
@@ -122,8 +97,8 @@ int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
         
 }
 
-int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier) {
+  uint32_t rc = ECMD_SUCCESS;
 
 
   if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
@@ -148,9 +123,9 @@ int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData,
   return rc;
 }
 
-int ecmdPrintHelp(const char* i_command) {
+uint32_t ecmdPrintHelp(const char* i_command) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
   std::string file;
   ecmdChipTarget target;
   std::ifstream ins;

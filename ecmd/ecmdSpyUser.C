@@ -56,8 +56,8 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int ecmdGetSpyUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -307,8 +307,8 @@ int ecmdGetSpyUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdPutSpyUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "default";  ///< Input data format

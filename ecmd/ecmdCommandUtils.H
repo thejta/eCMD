@@ -41,13 +41,6 @@
 //  Forward References                                                
 //--------------------------------------------------------------------
 
-/**
- @brief Fetch the detailed chip data structure for the selected target
- @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
- @param i_target ecmdChipTarget that information is requested for
- @param o_data ecmdChipData struct that contains detailed info on chip ec level, etc.
- */
-int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
 /**
  @brief Compares the two data buffers to see if they contain the same data
@@ -55,7 +48,7 @@ int ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
  @param i_data The actual data fetched from the chip
  @param i_expected The user-supplied data to match the fetched data to
  */
-int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
+uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
 
 /**
  @brief Applies the buffer i_newData to the io_data buffer based upon the specified i_modifier for length of i_newData
@@ -66,7 +59,7 @@ int ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
  @param i_startbit Startbit of io_data to begin modification
  @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
 */
-int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier);
+uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier);
 
 
 /**
@@ -75,7 +68,7 @@ int ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData,
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
-int ecmdPrintHelp(const char* i_command);
+uint32_t ecmdPrintHelp(const char* i_command);
 
 /** @name Gen Functions */
 //@{

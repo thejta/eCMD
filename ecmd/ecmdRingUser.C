@@ -111,8 +111,8 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int ecmdGetRingDumpUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
   bool newFileFormat = false;           ///< This is set if we find the new Eclipz scandef format 
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -313,8 +313,8 @@ int ecmdGetRingDumpUser(int argc, char * argv[]) {
 }
 
 
-int ecmdGetLatchUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   bool exactFlag = false;
@@ -757,8 +757,8 @@ int ecmdGetLatchUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdGetBitsUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   char* expectDataPtr = NULL;
@@ -916,8 +916,8 @@ int ecmdGetBitsUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdPutBitsUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string format = "b";             ///< Input format
@@ -1041,8 +1041,8 @@ int ecmdPutBitsUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdPutLatchUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool foundit;
   std::list<ecmdLatchBufferEntry> latchBuffer;
@@ -1354,8 +1354,8 @@ int ecmdPutLatchUser(int argc, char * argv[]) {
   return rc;
 }
 
-int ecmdCheckRingsUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool allRingsFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -1532,8 +1532,8 @@ int ecmdCheckRingsUser(int argc, char * argv[]) {
 }
 
 
-int ecmdPutPatternUser(int argc, char * argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   std::list<ecmdRingData> queryRingData;///< Ring query data
   ecmdLooperData looperdata;            ///< Store internal Looper data

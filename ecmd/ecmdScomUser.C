@@ -56,8 +56,8 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
-int ecmdGetScomUser(int argc, char* argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdGetScomUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   bool maskFlag = false;
@@ -231,9 +231,9 @@ int ecmdGetScomUser(int argc, char* argv[]) {
   return rc;
 }
 
-int ecmdPutScomUser(int argc, char* argv[]) {
+uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
@@ -403,8 +403,8 @@ int ecmdPutScomUser(int argc, char* argv[]) {
   return rc;
 }
 
-int ecmdPollScomUser(int argc, char* argv[]) {
-  int rc = ECMD_SUCCESS;
+uint32_t ecmdPollScomUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   bool maskFlag = false;
