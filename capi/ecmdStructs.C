@@ -2229,7 +2229,6 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         uint32_t epCheckersListSize  = 0;
 	uint32_t loop = 0;
 	int l_left = (int) i_len;
-	uint32_t l_spyName_size = 0;
 
 
         do {    // Single entry ->

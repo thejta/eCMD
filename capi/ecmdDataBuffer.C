@@ -1735,7 +1735,7 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
 uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  int cbytes = bytes < getByteLength() ? bytes : getByteLength();
+  uint32_t cbytes = bytes < getByteLength() ? bytes : getByteLength();
   if (cbytes == 0) {
     ETRAC0("**** ERROR : ecmdDataBuffer: memCopyIn: Copy performed on buffer with length of 0");
     rc = ECMD_DBUF_BUFFER_OVERFLOW;
