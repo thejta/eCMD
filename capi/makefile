@@ -53,12 +53,17 @@ ifeq (${MPATROL},yes)
   ifeq (${OS},Linux)
     CFLAGS  := ${CFLAGS} -fcheck-memory-usage -I${MPATROL_HOME}include/
     LDFLAGS := ${LDFLAGS} -L${MPATROL_HOME}x86/ -lmpatrol -lbfd 
+    TARGET   := ecmdClientCapi_x86_mp.a
+    SLIB     := libecmd_x86_mp.so
   endif
 
   ifeq (${OS},AIX)
     CFLAGS  := ${CFLAGS} -I${MPATROL_HOME}include/
-    EXTRA_LIBS := ${EXTRA_LIBS} libmpatrol.a
-    LDFLAGS := ${LDFLAGS} -lld
+    LDFLAGS := ${LDFLAGS} -lld ${MPATROL_HOME}/aix/libmpatrol.a
+#    SLIBLDFLAGS := ${SLIBLDFLAGS} -lld -bI:/afs/rch/rel/common/bringup.tools/cronus/ecmd/mpatrol/aix/mpatrol.exp
+    SLIBLDFLAGS := ${SLIBLDFLAGS} -lld ${MPATROL_HOME}/aix/libmpatrol.a
+    TARGET  := ecmdClientCapi_aix_mp.a
+    SLIB    := libecmd_aix_mp.so
   endif
 
 

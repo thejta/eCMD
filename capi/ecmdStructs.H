@@ -172,6 +172,9 @@ typedef enum {
 
 /**
  @brief Used for the ecmdQueryConfig function to return thread data
+
+ Operators Supported : <
+
 */
 struct ecmdThreadData {
   uint8_t threadId;                             ///< (Detail: Low) Thread number of this entry
@@ -179,6 +182,9 @@ struct ecmdThreadData {
 
 /**
  @brief Used for the ecmdQueryConfig function to return core data
+
+ Operators Supported : <
+
 */
 struct ecmdCoreData {
   uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
@@ -188,6 +194,9 @@ struct ecmdCoreData {
 
 /**
  @brief Used for the ecmdQueryConfig function to return chip data
+
+ Operators Supported : <
+
 */
 struct ecmdChipData {
   std::string                   chipType;           ///< (Detail: Low)  actual name of chip , ie. gr, ent (should be 3chars or less)
@@ -203,6 +212,9 @@ struct ecmdChipData {
 
 /**
  @brief Used for the ecmdQueryConfig function to return slot data
+
+ Operators Supported : <
+
 */
 struct ecmdSlotData {
   uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
@@ -211,6 +223,9 @@ struct ecmdSlotData {
 
 /**
  @brief Used for the ecmdQueryConfig function to return node data
+
+ Operators Supported : <
+
 */
 struct ecmdNodeData {
   uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
@@ -219,6 +234,9 @@ struct ecmdNodeData {
 
 /**
  @brief Used for the ecmdQueryConfig function to return cage data
+
+ Operators Supported : <
+
 */
 struct ecmdCageData {
   uint32_t cageId;                      ///< (Detail: Low) Cage number of this entry
