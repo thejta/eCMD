@@ -1,5 +1,5 @@
 
-Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] [-compress] [-exp <value>]
+Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact] [-nocompress] [-exp <value>]
                                                [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -34,8 +34,7 @@ Sytnax: getlatch <ChipSelect> <RingName> <LatchName> [<Start> <Numbits>] [-exact
 
         -exact    [opt] No pattern matching. Instead, search for exact latch name.
 
-        -compress [opt] Displays as a single line any registers that are broken up 
-                        into multiple lines in the scandef file.
+        -nocompress[opt]Displays Latches as they are broken up in the scandef.
 
         -exp [optional] Provide an expected-value as the last argument. Returns error if
                         data miscompare, else nothing. Automatically turns on -nop. 
