@@ -1792,20 +1792,26 @@ These examples assume you linked to the required files in a subdir called dll.<p
 For Cronus these files can be found in your location at .../cronus/ecommon/dll<p>
 @subsection Aixmake Aix
 <pre>
-testclient: testclient.o dll/ecmdClientCapi_aix.a
-	xlC -+ -g -brtl -L../capi/export -lecmd_aix testclient.o dll/ecmdClientCapi_aix.a -o testclient
+# Choose the eCMD Release to build against
+ECMD_RELEASE := $CTEPATH/tools/ecmd/rel
 
-testclient.o: testclient.C dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/ecmdReturnCodes.H dll/ecmdStructs.H dll/ecmdUtils.H
-	xlC -+ -g -c -Idll/ testclient.C -o testclient.o
+testclient: testclient.o ${ECMD_RELEASE}/capi/ecmdClientCapi_aix.a
+	xlC -+ -g -brtl -L${ECMD_RELEASE}/lib -lecmd_aix testclient.o ${ECMD_RELEASE}/capi/ecmdClientCapi_aix.a -o testclient
+
+testclient.o: testclient.C ${ECMD_RELEASE}/capi/ecmdClientCapi.H ${ECMD_RELEASE}/capi/ecmdDataBuffer.H ${ECMD_RELEASE}/capi/ecmdReturnCodes.H ${ECMD_RELEASE}/capi/ecmdStructs.H ${ECMD_RELEASE}/capi/ecmdUtils.H
+	xlC -+ -g -c -I${ECMD_RELEASE}/capi/ testclient.C -o testclient.o
 </pre>
 
 @subsection Linuxmake Linux x86
 <pre>
-testclient.linux: testclient_linux.o dll/ecmdClientCapi_x86.a
-	g++ -g -ldl -L../capi/export -lecmd_x86 testclient_linux.o dll/ecmdClientCapi_x86.a -o testclient.linux
+# Choose the eCMD Release to build against
+ECMD_RELEASE := $CTEPATH/tools/ecmd/rel
 
-testclient_linux.o: testclient.c dll/ecmdClientCapi.H dll/ecmdDataBuffer.H dll/ecmdReturnCodes.H dll/ecmdStructs.H 
-	g++ -g -c -Idll/  -ftemplate-depth-30 testclient.c -o testclient_linux.o
+testclient.linux: testclient_linux.o dll/ecmdClientCapi_x86.a
+	g++ -g -ldl -L${ECMD_RELEASE}/lib -lecmd_x86 testclient_linux.o ${ECMD_RELEASE}/capi/ecmdClientCapi_x86.a -o testclient.linux
+
+testclient_linux.o: testclient.c ${ECMD_RELEASE}/capi/ecmdClientCapi.H ${ECMD_RELEASE}/capi/ecmdDataBuffer.H ${ECMD_RELEASE}/capi/ecmdReturnCodes.H ${ECMD_RELEASE}/capi/ecmdStructs.H ${ECMD_RELEASE}/capi/ecmdUtils.H
+	g++ -g -c -I${ECMD_RELEASE}/capi/  -ftemplate-depth-30 testclient.c -o testclient_linux.o
 </pre>
 
 
