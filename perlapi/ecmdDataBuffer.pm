@@ -1439,7 +1439,6 @@ sub hasXstate() {
     } else {
       for($looper=0; $looper < $i_length; $looper++) {
         $val = substr($$self,$looper+$i_start,1);
-        printf("test for val = %d\n",$val);
         if( !($val eq "0") && !($val eq "1") ) {
           $rc = 1;
           return $rc;
