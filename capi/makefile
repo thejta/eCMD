@@ -5,10 +5,10 @@
 
 OS           := $(shell uname)
 
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H
 INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
-SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C
+SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
