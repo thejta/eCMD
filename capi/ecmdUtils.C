@@ -106,7 +106,7 @@ int ecmdParseOption (int *argc, char **argv[], const char *option) {
   int foundit = 0;
 
   for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) {
+    if (((*argv)[counter] != NULL) && (strcmp((*argv)[counter],option)==0)) {
       (*argv)[counter]=NULL;
       foundit = 1;
       break;
