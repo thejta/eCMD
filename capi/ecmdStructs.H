@@ -291,6 +291,7 @@ struct ecmdSpyData {
   int           bitLength;              ///< length of spy
   ecmdSpyType_t spyType;                ///< Type of spy
   bool          isEccChecked;           ///< This spy affects some ECC groupings
+  bool          isEnumerated;           ///< This spy has enumerated values
   ecmdClockState_t       clockState;    ///< Required clock state to access this spy
   
   std::list<std::string> enums;         ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
