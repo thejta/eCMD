@@ -567,7 +567,8 @@ struct ecmdRingData {
 */
 struct ecmdArrayData {
   std::string arrayName;                ///< Names used to reference this array
-  int         addressLength;            ///< Bit length of address
+  int         readAddressLength;        ///< Bit length of read address
+  int         writeAddressLength;       ///< Bit length of write address
   int         length;                   ///< Length of array (number of entries)
   int         width;                    ///< Bit width of array entry
   std::string           clockDomain;    ///< Clock domain this array belongs to

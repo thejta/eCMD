@@ -212,11 +212,11 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   
   // Find out the type of break point
   if (!strcasecmp(argv[1], "IABR")) {
-    type = ECMD_BREAKPOINT_IABR;
+    type = CIP_BREAKPOINT_IABR;
   } else if (!strcasecmp(argv[1], "DABR")) {
-    type = ECMD_BREAKPOINT_DABR;
+    type = CIP_BREAKPOINT_DABR;
   } else if (!strcasecmp(argv[1], "CIABR")) {
-    type = ECMD_BREAKPOINT_CIABR;
+    type = CIP_BREAKPOINT_CIABR;
   } else {
      ecmdOutputError("cipbreakpoint - Invalid breakpoint type, must be IABR | DABR | CIABR \n");
      return ECMD_INVALID_ARGS;

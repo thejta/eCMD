@@ -833,7 +833,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
   }
   else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
     int myAddr = address;
-    int wordsDone = 0;
+    uint32_t wordsDone = 0;
     std::string lastBytes;
     char tempstr[400];
     uint32_t wordsDonePrev;

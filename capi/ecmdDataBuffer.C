@@ -182,17 +182,13 @@ uint32_t   ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
 
 uint32_t  ecmdDataBuffer::setWordLength(uint32_t newNumWords) {
 
-  uint32_t rc = ECMD_DBUF_SUCCESS;
+  return setBitLength(newNumWords * 32);;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      return ECMD_DBUF_NOT_OWNER;
-  }
+}  
 
-  rc = setBitLength(newNumWords * 32);
+uint32_t  ecmdDataBuffer::setByteLength(uint32_t newNumBytes) {
 
-  return rc;
+  return setBitLength(newNumBytes * 8);;
 
 }  
 
@@ -215,7 +211,7 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
     return rc;  /* nothing to do */
   }
 
-  uint32_t newNumWords = newNumBits % 32 ? newNumBits / 32 + 1 : newNumBits / 32;
+  uint32_t newNumWords = newNumBits % 32 ? (newNumBits / 32 + 1) : newNumBits / 32;
   uint32_t randNum = 0x12345678;
 
   iv_NumWords = newNumWords;
@@ -360,6 +356,58 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
 
   return rc;
 }
+
+uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t prevcap;
+
+  if(!iv_UserOwned)
+  {
+      ETRAC0("**** ERROR (ecmdDataBuffer::growBitLength) : Attempt to modify non user owned buffer size.");
+      return ECMD_DBUF_NOT_OWNER;
+  }
+
+  /* We need to verify we have room to do this shifting */
+  /* Set our new length */
+  iv_NumWords = i_newNumBits % 32 ? (i_newNumBits / 32) + 1 : i_newNumBits / 32;
+  if (iv_NumWords > iv_Capacity) {
+    /* UhOh we are out of room, have to resize */
+    prevcap = iv_Capacity;
+    uint32_t * tempBuf = new uint32_t[prevcap];
+    if (tempBuf == NULL) {
+      ETRAC0("**** ERROR : ecmdDataBuffer::growBitLength : Unable to allocate temp buffer");
+      return ECMD_DBUF_INIT_FAIL;
+    }
+    memcpy(tempBuf, iv_Data, prevcap * 4);
+
+#ifndef REMOVE_SIM
+    char* temp = new char[iv_NumBits+42];
+    if (temp == NULL) {
+      ETRAC0("**** ERROR : ecmdDataBuffer::growBitLength : Unable to allocate temp X-State buffer");
+      return ECMD_DBUF_INIT_FAIL;
+    }
+    strncpy(temp, iv_DataStr, iv_NumBits);
+#endif
+    /* Now resize with the new capacity */
+    rc = setCapacity(iv_NumWords);
+    if (rc) return rc;
+
+    /* Restore the data */
+    memcpy(iv_Data, tempBuf, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8);
+    delete[] tempBuf;
+
+#ifndef REMOVE_SIM
+    strncpy(iv_DataStr, temp, iv_NumBits); // copy back into iv_DataStr
+    delete[] temp;
+#endif
+  }
+
+  iv_RealData[1] = iv_NumWords;
+  iv_RealData[iv_NumWords + 4] = 0x12345678;
+  iv_NumBits = i_newNumBits;
+  return rc;
+}
+
 
 uint32_t  ecmdDataBuffer::setBit(uint32_t bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -1830,6 +1878,17 @@ uint32_t ecmdDataBuffer::flattenSize() const {
   return (iv_Capacity + 2) * 4;
 }
 
+uint32_t  ecmdDataBuffer::flushToX(char i_value) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  if (iv_NumWords > 0) {
+    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+#ifndef REMOVE_SIM
+    rc = this->fillDataStr(i_value);
+#endif
+  }
+  return rc;
+}
+
 bool ecmdDataBuffer::hasXstate() const {
 #ifdef REMOVE_SIM
   ETRAC0("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
@@ -1900,6 +1959,24 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value) {
       ETRAC1("**** ERROR : ecmdDataBuffer::setXstate: unrecognized Xstate character: %c", i_value);
       rc = ECMD_DBUF_XSTATE_ERROR;
     }
+  }
+#endif
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_length) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+#ifdef REMOVE_SIM
+  ETRAC0("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
+  rc = ECMD_DBUF_XSTATE_ERROR;
+
+#else
+  if (i_bit + i_length > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::setXstate: bit %d + len %d > NumBits (%d)", i_bit, i_length, iv_NumBits);
+    rc = ECMD_DBUF_BUFFER_OVERFLOW;
+  } else {
+    for (uint32_t idx = 0; idx < i_length; idx ++) rc |= this->setXstate(i_bit + idx, i_value);    
   }
 #endif
   return rc;

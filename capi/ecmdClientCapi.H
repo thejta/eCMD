@@ -1568,7 +1568,7 @@ uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataB
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval nonzero on failure
 */
-uint32_t simgetcurrentcycle(uint32_t & o_cyclecount);
+uint32_t simgetcurrentcycle(uint64_t & o_cyclecount);
 
 /**
  @brief Retrieve a Facility using a name

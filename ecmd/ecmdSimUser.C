@@ -626,12 +626,12 @@ uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  uint32_t cycle_count = 0x0;
+  uint64_t cycle_count = 0x0;
   rc = simgetcurrentcycle(cycle_count);
   if (rc) return rc;
 
   char outstr[40];
-  sprintf(outstr, "Current cycle count is %u\n", cycle_count);
+  sprintf(outstr, "Current cycle count is %llu\n", cycle_count);
   ecmdOutput(outstr);
 
   return rc;

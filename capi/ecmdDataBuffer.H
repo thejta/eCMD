@@ -220,6 +220,18 @@ public:
   uint32_t  setWordLength(uint32_t i_newNumWords);   
   /**
    * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumBytes Length of new buffer in bytes
+   * @post Buffer is reinitialized and zero'd out
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   * 
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   * CAUTION : All data stored in buffer will be lost
+   */
+  uint32_t  setByteLength(uint32_t i_newNumBytes);   
+  /**
+   * @brief Reinitialize the Buffer to specified length
    * @param i_newNumBits Length of new buffer in bits
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
@@ -245,11 +257,21 @@ public:
 
   /**
    * @brief Shrink buffer size to a new bit size
-   * @param i_newNumBits New bit length for buffer (must be <= current buffer length
+   * @param i_newNumBits New bit length for buffer (must be <= current buffer length)
    * @retval ECMD_DBUF_SUCCESS on success
    * @post Internal buffer size is reset but data inside new size is not lost
    */
   uint32_t shrinkBitLength(uint32_t i_newNumBits);
+
+  /**
+   * @brief Expand buffer size to a new bit size maintaining current data
+   * @param i_newNumBits New bit length for buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @post Internal buffer size is reset but data inside is not lost
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   */
+  uint32_t growBitLength(uint32_t i_newNumBits);
   //@}
 
 
@@ -982,17 +1004,23 @@ public:
   /** @name Simulation Buffer Functions */
   //@{
 
+  /**
+   * @brief Load entire buffer with an X-state value
+   * @param i_value Value to load into buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   */
+  uint32_t flushToX(char i_value);
  
   /**
    * @brief Check Entire buffer for any X-state values
-   * @retval 1 if xstate found 0 if none
+   * @retval true if xstate found false if none
    */
   bool   hasXstate() const; /* check the whole DataBuffer */
   /**
    * @brief Check section of buffer for any X-state values
    * @param i_start Start bit to test
    * @param i_length Number of consecutive bits to test
-   * @retval 1 if xstate found 0 if none
+   * @retval true if xstate found false if none
    */
   bool   hasXstate(uint32_t i_start, uint32_t i_length) const; /* check subset */
 
@@ -1012,6 +1040,16 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t setXstate(uint32_t i_bit, char i_value);
+
+  /**
+   * @brief Set an Xstate value in the buffer
+   * @param i_bit Bit to set
+   * @param i_value Xstate value to set
+   * @param i_length Number of consecutive bits to set to i_value
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setXstate(uint32_t i_bit, char i_value, uint32_t i_length);
 
   /**
    * @brief Set a range of Xstate values in buffer
