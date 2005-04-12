@@ -19,6 +19,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
+// Include the Swig Perl headers for Croak
+#include "EXTERN.h"    
+#include "perl.h"
+#include "XSUB.h"
+
 #include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
@@ -29,7 +34,21 @@
 #include <ecmdSharedUtils.H>
 
 
-int CIPPERLAPI::cipInitExtension() {
+int CIPPERLAPI::cipInitExtension(const char * i_clientVersion) {
+  /* Check our Perl Major Version */
+  char capiVersion[10];
+  strcpy(capiVersion,"ver");
+  strcat(capiVersion,ECMD_CIP_CAPI_VERSION);
+  int majorlength = (int)(strchr(capiVersion, '.') - capiVersion);
+  /* Strip off the minor version */
+  capiVersion[majorlength] = '\0';
+
+  if (!strstr(i_clientVersion,capiVersion)) {
+    fprintf(stderr,"**** FATAL : eCMD Perl Module and your client major version numbers don't match, they are not compatible\n");
+    fprintf(stderr,"**** FATAL : Client Version(s) : %s   : Perl Module Version : %s\n",i_clientVersion, ECMD_CIP_CAPI_VERSION);
+
+    croak("(cipInitExtension) :: Perl Module version mismatch - execution halted\n");
+  }
   return ::cipInitExtension();
 }
 
