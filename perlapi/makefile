@@ -8,7 +8,7 @@ SITE         := $(shell fs wscell | cut -d\' -f2)
 
 
 # List the extensions to include in the compile
-EXTENSIONS   := cip
+EXTENSIONS   := cip cmd
 
 # Ok, find our CTE path if they don't already have one
 ifeq ($(strip $(CTEPATH)),)
@@ -168,9 +168,9 @@ ${MAKEPM_OUT}: ${INCLUDES} makepm.pl
 	@chmod 777 makepm.pl
 ifeq (${SITE},awd.austin.ibm.com)
 	/afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ecmd
-	$(foreach ext, ${EXTENSIONS}, /afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ${ext})
+	$(foreach ext, ${EXTENSIONS}, ${shell /afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ${ext} })
 else
 	./makepm.pl ecmd
-	$(foreach ext, ${EXTENSIONS}, ./makepm.pl ${ext})
+	$(foreach ext, ${EXTENSIONS}, ${shell ./makepm.pl ${ext} })
 endif
 

@@ -34,6 +34,8 @@
   #include "cipClientPerlapi.H"
   #include "cipClientPerlapiFunc.H"
 #endif
+#include "cmdClientPerlapi.H"
+#include "cmdClientPerlapiFunc.H"
 
 %}
 /*********** End Insert Code ***********/
@@ -85,6 +87,8 @@
   %include cipClientPerlapi.H
   %include cipClientPerlapiFunc.H
 #endif
+%include "cmdClientPerlapi.H"
+%include "cmdClientPerlapiFunc.H"
 /*********** End Files to swigify ***********/
 
 %exception {
