@@ -2311,126 +2311,196 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
   return ECMD_DBUF_SUCCESS;
 }
 
-uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format) {
+uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t & o_dataNumber) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ofstream ops;
-  uint32_t tmphdrfield=0;
-  int szcount = 0;
-  std::string asciidatastr,xstatestr;
+  std::ifstream ins;
+  uint32_t totalFileSz, begOffset=0, tmphdrfield=0, szcount = 0, curDBOffset=0, tableSz=0;
   uint32_t numBytes = getByteLength();
   uint32_t numBits = getBitLength();
+  bool firstDBWrite = false;
+  char *offsetTableData;
+  ecmdFormatType_t existingFmt;
+  std::string asciidatastr,xstatestr;
   uint32_t *buffer;
   
+ //Check if format asked for is the same as what was used b4
   #ifndef REMOVE_SIM
-    if((hasXstate()) && (format != ECMD_SAVE_FORMAT_XSTATE)) {
+    if((hasXstate()) && (i_format != ECMD_SAVE_FORMAT_XSTATE)) {
       ETRAC0( "**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
       return(ECMD_DBUF_XSTATE_ERROR);
     }
   #endif
   
-  ops.open(filename);
+  
+ if ((i_format == ECMD_SAVE_FORMAT_BINARY_DATA) && (i_mode != ECMD_WRITE_MODE)) {
+   ETRAC0("**** ERROR : File Format ECMD_SAVE_FORMAT_BINARY_DATA only supported in ECMD_WRITE_MODE");
+   return ECMD_DBUF_INVALID_ARGS;
+ }
+
+  //Open file for Read if it exists
+  ins.open(i_filename);
+    
+  if ((!ins.fail()) && (i_mode != ECMD_WRITE_MODE) && (i_format != ECMD_SAVE_FORMAT_BINARY_DATA)) {
+    ins.seekg(0, ios::end);
+    totalFileSz = ins.tellg();
+    if (totalFileSz == 0) {
+      firstDBWrite = true;
+    }
+    else {
+      ins.seekg(totalFileSz-8);//goto the BEGIN of the offset table
+      ins.read((char *)&begOffset,4); begOffset = htonl(begOffset);
+      ins.read((char *)&existingFmt,4); existingFmt = (ecmdFormatType_t)htonl(existingFmt);
+      if (existingFmt != i_format) {
+        ETRAC0("**** ERROR : Format requested does not match up with the file Format.");
+	return ECMD_DBUF_INVALID_ARGS;
+      }
+      ins.seekg(begOffset);
+      offsetTableData = new char[totalFileSz-begOffset];
+      //Read the offset Table starting from BEGIN till before the END
+      ins.read(offsetTableData, totalFileSz-begOffset-12);//Take off the 4byte END,4 Byte Beg Offset, 4byte format
+      tableSz = totalFileSz-begOffset-12;
+    }
+    ins.close();
+  } else { firstDBWrite = true;}
+  
+  //Open file for read/write
+  if (i_mode == ECMD_APPEND_MODE) {
+   if (!firstDBWrite) {
+    ops.open(i_filename,  ios_base::in|ios_base::out );
+   }
+   else {
+    ops.open(i_filename,  ios_base::out );
+   }
+  } else if(i_mode == ECMD_WRITE_MODE) {
+    ops.open(i_filename, ofstream::out | ofstream::trunc);
+  }
   if (ops.fail()) {
-    ETRAC1("**** ERROR : Unable to open file : %s for write",filename);
+    ETRAC1("**** ERROR : Unable to open file : %s for write",i_filename);
     return ECMD_DBUF_FOPEN_FAIL;  
   }
-    
-  if (format == ECMD_SAVE_FORMAT_BINARY) {
-    ops.write("START",5);//Key
-    ops.seekp(3, ios::cur);
-    //Hdr
-    numBits = htonl(numBits);
-    ops.write((char *)&numBits,4);//Bit length field
-    format = (ecmdFormatType_t)htonl(format);
-    ops.write((char*)&format,4);//Format field
-    //Leave 1 words extra room here
-    tmphdrfield = htonl(tmphdrfield);
-    ops.write((char*)&tmphdrfield,4);
-    
+  
+  if (!firstDBWrite) {
+    ops.seekp(begOffset);//Write the New Buffer after the last buffer, over the current Offset Table 
+  }
+  
+  curDBOffset = ops.tellp(); curDBOffset = htonl(curDBOffset); //Get the pointer to the current data 
+  
+  //Write Header
+  if (i_format != ECMD_SAVE_FORMAT_BINARY_DATA) {
+    if (i_format == ECMD_SAVE_FORMAT_BINARY) {
+      //BIN Hdr
+      ops.write("START",8);
+      numBits	  = htonl(numBits);			 ops.write((char *)&numBits,4);//Bit length field
+      i_format    = (ecmdFormatType_t)htonl(i_format);   ops.write((char*)&i_format,4);//Format field
+      tmphdrfield = htonl(tmphdrfield); 		 ops.write((char*)&tmphdrfield,4);//Leave 1 words extra room here
+    }
+    else {
+      //ASCII or XSTATE Hdr
+      ops << "START";
+      char tmpstr[9]; //@01c Bumped to 9 to account for NULL terminator
+      sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
+      sprintf(tmpstr,"%08X",i_format); ops.write(tmpstr,8);
+      sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
+      ops << "\n";
+    }
+  }
+  //Write DataBuffer
+  if ( i_format == ECMD_SAVE_FORMAT_BINARY) {
     //Write Data
-    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    buffer = new uint32_t[getWordLength()];
     memCopyOut(buffer, numBytes);
     //Convert into Network Byte order-Big Endian before writing
     int len=0;
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
-     if (((i+1)*4) > numBytes) {
-      len = numBytes - (i*4);
-     } else {
-       len = 4;
+     len = 4;
+     if ( i == (getWordLength()-1)) {
+       len = numBytes - (i*4);
      }
      ops.write((char *)&buffer[i],len);
     }
     ops.write("END",3);//Key
-  } else if(format == ECMD_SAVE_FORMAT_BINARY_DATA) {
-    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
-    memCopyOut(buffer, numBytes);
-    int len=0;
-    //Convert into Network Byte order-Big Endian before writing
-    for(uint32_t i=0; i< getWordLength(); i++) {
-     buffer[i]=htonl(buffer[i]);
-     if (((i+1)*4) > numBytes) {
-      len = numBytes - (i*4);
+  }  
+  else if ( i_format == ECMD_SAVE_FORMAT_ASCII) {
+   while ((uint32_t)szcount < numBits) {
+     if((uint32_t)szcount+32 < numBits) {
+      asciidatastr = genHexLeftStr(szcount, 32);
      } else {
-       len = 4;
+      asciidatastr = genHexLeftStr(szcount, numBits-(szcount));
      }
-     ops.write((char *)&buffer[i],len);
-    }
-  } else if( format == ECMD_SAVE_FORMAT_ASCII) {
-    ops << "START";
-    while ((uint32_t)szcount < numBits) {
-      if((uint32_t)szcount+32 < numBits) {
-       asciidatastr = genHexLeftStr(szcount, 32);
-      } else {
-       asciidatastr = genHexLeftStr(szcount, numBits-(szcount));
+     if (szcount !=0 ) {
+      if((szcount%256) == 0) {
+  	ops << "\n"; 
       }
-      if (szcount !=0 ) {
-       if((szcount%256) == 0) {
-         ops << "\n"; 
-       }
-       else if((szcount%32) == 0) {
-         ops << " ";
-       }
+      else if((szcount%32) == 0) {
+  	ops << " ";
       }
-      else {
-      //Hdr
-	char tmpstr[9]; //@01c Bumped to 9 to account for NULL terminator
-	sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
-	sprintf(tmpstr,"%08X",format); ops.write(tmpstr,8);
-	sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
-	ops << "\n";
-      }
-      ops << asciidatastr.c_str();
-      szcount+= 32;
-    }
-    ops << "\nEND\n";
-  } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
-    ops << "START";
-    while ((uint32_t)szcount < numBits) {
+     }
+     ops << asciidatastr.c_str();
+     szcount+= 32;
+   }
+   ops << "\nEND\n";
+  } 
+  else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
+   while ((uint32_t)szcount < numBits) {
      if((uint32_t)szcount+64 < numBits) {
       xstatestr = genXstateStr(szcount, 64) ;
      } else {
       xstatestr = genXstateStr(szcount, numBits-(szcount)) ;
      }
-     if (szcount == 0) {
-        //Hdr
-        char tmpstr[9]; //@01c Bumped to 9 to account for NULL terminator
-        sprintf(tmpstr,"%08X",numBits); ops.write(tmpstr,8);
-        sprintf(tmpstr,"%08X",format); ops.write(tmpstr,8);
-        sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
-        ops << "\n";
-     }
      ops << xstatestr.c_str();
      if ((uint32_t)szcount+64<numBits)
       ops << "\n";
      szcount+= 64;
-    }
-    ops << "\nEND\n";
+   }
+   ops << "\nEND\n";
   }
-  ops.close();
+  else if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+    buffer = new uint32_t[getWordLength()];
+    memCopyOut(buffer, numBytes);
+    int len=0;
+    //Convert into Network Byte order-Big Endian before writing
+    for(uint32_t i=0; i< getWordLength(); i++) {
+     buffer[i]=htonl(buffer[i]);
+     if (((i+1)*4) > numBytes) {
+      len = numBytes - (i*4);
+     } else {
+       len = 4;
+     }
+     ops.write((char *)&buffer[i],len);
+    }
+  } 
+  
+  //Write the Offset Table Back with the new offset
+  if (i_format != ECMD_SAVE_FORMAT_BINARY_DATA) {
+     begOffset = ops.tellp();  begOffset = htonl(begOffset);
+     if (!firstDBWrite) {
+      ops.write(offsetTableData, tableSz);
+      //Get the size of Offset Table after subtracting 8Byte BEGIN
+      o_dataNumber = (tableSz - 8)/4; //Each Databuffer offset is a uint32_t (4 bytes)
+     }
+     else {
+      ops.write("BEGIN",8);
+      o_dataNumber = 0;
+     }
+     ops.write((char *)&curDBOffset, sizeof(curDBOffset));
+     ops.write("END",4);
+     ops.write((char *)&begOffset, sizeof(begOffset));
+     i_format = (ecmdFormatType_t)htonl(i_format);   ops.write((char*)&i_format,4);
+     ops.close();
+  }
+  
   return(rc);
 }
 
-uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t format) {
+uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format) {
+  ecmdWriteMode_t mode = ECMD_WRITE_MODE;
+  uint32_t dataNumber;
+  return this->writeFileMultiple(filename, format, mode, dataNumber) ;
+}
+
+uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
   uint32_t numBits=0,numBytes=0,NumDwords=0,hexbitlen=0, *buffer;
@@ -2442,7 +2512,35 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t forma
     ETRAC1("**** ERROR : Unable to open file : %s for reading",filename);
     return ECMD_DBUF_FOPEN_FAIL;  
   }
-    
+  //Read the DataBuffer offset table-Seek to the right DataBuffer Hdr
+  if (i_dataNumber != 0) {
+    ecmdFormatType_t existingFmt;
+    uint32_t begOffset=0, totalFileSz=0, dataOffset;
+    if (format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+      ETRAC0("**** ERROR : File Format ECMD_SAVE_FORMAT_BINARY_DATA not supported when file contains multiple DataBuffers.");
+      return ECMD_DBUF_INVALID_ARGS;
+    }
+    ins.seekg(0, ios::end);
+    totalFileSz = ins.tellg();
+    if (totalFileSz == 0) {
+      ETRAC1("**** ERROR : File : %s is empty",filename);
+      return ECMD_DBUF_INVALID_ARGS;
+    }
+    else {
+      ins.seekg(totalFileSz-8);//get the Begin offset of the offset table
+      ins.read((char *)&begOffset,4); begOffset = htonl(begOffset);
+      ins.read((char *)&existingFmt,4); existingFmt = (ecmdFormatType_t)htonl(existingFmt);
+      if (existingFmt != format) {
+    	ETRAC0("**** ERROR : Format requested does not match up with the file Format.");
+    	printf("Existfmt: %d req Format: %d\n",existingFmt, format);
+    	return ECMD_DBUF_INVALID_ARGS;
+      }
+      ins.seekg(begOffset+8+(4*i_dataNumber));//seek to the databuffer header
+      ins.read((char *)&dataOffset,4);  dataOffset = htonl(dataOffset);
+      ins.seekg(dataOffset);
+    }
+  }
+ 
   if ( format == ECMD_SAVE_FORMAT_BINARY) {
     // Read Hdr
     ins.read(key,5); key[5]='\0';
@@ -2461,7 +2559,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t forma
     this->setBitLength(numBits);
     numBytes=getByteLength();
     //Read Data
-    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
@@ -2473,7 +2571,7 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t forma
     numBits = numBytes * 8;
     this->setBitLength(numBits);
     ins.seekg(0, ios::beg);
-    buffer = (uint32_t *)malloc(getWordLength()*sizeof(uint32_t));
+    buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
@@ -2538,6 +2636,12 @@ uint32_t  ecmdDataBuffer::readFile(const char * filename, ecmdFormatType_t forma
   }
   ins.close();
   return(rc);
+}
+
+
+uint32_t  ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format) {
+  uint32_t dataNumber=0;
+  return this->readFileMultiple(i_filename, i_format, dataNumber);
 }
 
 uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)

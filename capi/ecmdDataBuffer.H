@@ -121,6 +121,15 @@ typedef enum {
   ECMD_SAVE_FORMAT_XSTATE,      ///< xstate text file with header having same info like binary hdr
 
 } ecmdFormatType_t;
+
+/**
+ @brief This is the different write modes for writing databuffer into a file
+*/
+
+typedef enum {
+  ECMD_WRITE_MODE,      ///< Overrwrite the data if the file already exists
+  ECMD_APPEND_MODE,     ///< Add databuffer to the end of the file
+} ecmdWriteMode_t;
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -1095,6 +1104,19 @@ public:
   uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
   
   /**
+   * @brief Writes/Appends buffer out into a file in the format specified
+   * @param i_filename file to write to
+   * @param i_format format to write in
+   * @param i_mode mode to open the file in 
+   * @param o_dataNumber the sequence number for this data, used by readFileMultiple to pick the right databuffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for write
+   * @retval ECMD_DBUF_XSTATE_ERROR If Xstate values are detected on non-Xstate format request
+   * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when ecmdWriteMode_t is ECMD_APPEND_MODE 
+   */
+  uint32_t  writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t &  o_dataNumber); /* Writes out the buffer (in the specified format) into the file */
+  
+  /**
    * @brief Read data from the file into the buffer  
    * @param i_filename to read from
    * @param i_format data format to expect in the file
@@ -1104,6 +1126,19 @@ public:
    * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
    */
   uint32_t  readFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
+  
+  /**
+   * @brief Read data from the file into the buffer  
+   * @param i_filename to read from
+   * @param i_format data format to expect in the file
+   * @param i_dataNumber data requested in case of multiple databuffers
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
+   * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
+   * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when i_dataNumber != 0
+   */
+  uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0); /* Reads out the buffer (in the  specified format) from the file */
   
   /**
    * @brief This function will take the passed in buffer, delete any current data it holds, and point its data var to that which is owned by the one being called with.  It will not have iv_UserOwned flag set, so it should not delete the buffer it points to, nor resize it, but it can alter the data.  The use of this function is for caching data for reads.
