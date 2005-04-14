@@ -37,4 +37,4 @@ Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > putarray pu xgpr0 deadbeef80000000 -p0,1 -c1
+        Examples:       > putarray pu xgpr 0 deadbeef80000000 -p0,1 -c1
