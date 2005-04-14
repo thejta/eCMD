@@ -167,8 +167,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
 
     /* Set the length  */
-    address.setBitLength(arrayData.addressLength);
-    rc = address.insertFromHexRight(argv[2], 0, arrayData.addressLength);
+    address.setBitLength(arrayData.readAddressLength);
+    rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
     if (rc) {
       ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
       return rc;
@@ -378,8 +378,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     }
 
     /* Set the length  */
-    address.setBitLength(arrayData.addressLength);
-    rc = address.insertFromHexRight(argv[2], 0, arrayData.addressLength);
+    address.setBitLength(arrayData.writeAddressLength);
+    rc = address.insertFromHexRight(argv[2], 0, arrayData.writeAddressLength);
     if (rc) {
       ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
       return rc;
