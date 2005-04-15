@@ -183,6 +183,7 @@ public:
   virtual ~ecmdDataBuffer();
   //@}
 
+  
 
   // Member Functions
   /** @name Buffer Size Functions */
@@ -1147,6 +1148,12 @@ public:
    */   
   uint32_t shareBuffer(ecmdDataBuffer* i_sharingBuffer);
 
+
+  /**
+   * @brief This function returns the stored error state that could have been caused by any number of previous operations on the buffer
+   * @retval Stored Error state
+   */
+  uint32_t queryErrorState();
   //@}
 
   /** @name Operator overloads */
