@@ -26,7 +26,6 @@
 #define ecmdDaScomUser_C
 #include <stdio.h>
 #include <time.h>
-#include <fstream>
 #include <unistd.h>
 
 #include <ecmdCommandUtils.H>
@@ -37,10 +36,7 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#ifndef FIPSODE
-# include <sedcScomdefParser.H>
-# include <sedcScomdefClasses.H>
-#endif
+
 
 
 #undef ecmdDaScomUser_C
@@ -59,7 +55,7 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
-uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
+
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -75,9 +71,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   bool expectFlag = false;
   bool maskFlag = false;
-  bool verboseFlag = false;
-  bool verboseBitsSetFlag = false;              ///< Print Bit description only if bit/s are set
-  bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
+  char* verbosePtr = NULL;
   char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
   char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
   ecmdDataBuffer expected;                      ///< Buffer to store expected data
@@ -89,13 +83,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string printed;                          ///< Output data
-  std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
-#ifndef FIPSODE
-  sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
-  unsigned int runtimeFlags=0;                    ///< Directives on how to parse
-#endif
-  std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
-
+  
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -109,13 +97,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   }
 
   if (ecmdParseOption(&argc, &argv, "-v")) {
-    verboseFlag = true;
+    verbosePtr = "-v";
   }
-  if (ecmdParseOption(&argc, &argv, "-vs0")) {
-    verboseBitsClearFlag = true;
+  else if (ecmdParseOption(&argc, &argv, "-vs0")) {
+    verbosePtr = "-vs0";
   }
-  if (ecmdParseOption(&argc, &argv, "-vs1")) {
-    verboseBitsSetFlag = true;
+  else if (ecmdParseOption(&argc, &argv, "-vs1")) {
+    verbosePtr = "-vs1";
   }
   
   /* get format flag, if it's there */
@@ -253,96 +241,10 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       printed += ecmdWriteDataFormatted(buffer, outputformat);
       ecmdOutput( printed.c_str() );
       
-      #ifndef FIPSODE
-      if ((verboseFlag || verboseBitsSetFlag || verboseBitsClearFlag) && !expectFlag) {
-        
-	rc = ecmdQueryFileLocation(target, ECMD_FILE_SCOMDATA, scomdefFileStr);
-        if (rc) {
-          printed = "getScom - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-          ecmdOutputWarning(printed.c_str());
-	  rc = 0;
-          continue;
-        }
-      
-        std::ifstream scomdefFile(scomdefFileStr.c_str());
-        if(scomdefFile.fail()) {
-          printed = "readScomdefFile - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-          ecmdOutputWarning(printed.c_str());
-	  rc = 0;	     
-          continue;
-        }
-        rc = readScomDefFile(address, scomdefFile);
-        if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-	  ecmdOutputWarning("Skipping -v parsing\n");
-	  rc = 0;
-	  continue;
-        }
-        scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
-    
-	
-    	std::list< std::string >::iterator descIt;
-    	std::list<sedcScomdefDefLine>::iterator definIt;
-	std::list< std::string >::iterator bitDetIt;
-	char bitDesc[1000];
-    	
-    	sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
-	ecmdOutput(bitDesc);
-	
-    	for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
-    	  sprintf(bitDesc,"%s", descIt->c_str());
-	  ecmdOutput(bitDesc);
-    	}
-	ecmdOutput("\n");
-	//Print Bits description
-	for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
-	  if ((buffer.getNumBitsSet(definIt->lhsNum, definIt->length) && verboseBitsSetFlag) ||
-	  ((!buffer.getNumBitsSet(definIt->lhsNum, definIt->length)) && verboseBitsClearFlag) || (verboseFlag)) {
-	    
-	    if(definIt->rhsNum == -1) {
-    	      sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
-    	    }
-    	    else {
-    	      sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
-    	    }
-	    sprintf(bitDesc, "%-10s : ",bitDesc);
-	    ecmdOutput(bitDesc);
-	
-	    if (definIt->length <= 8) {
-	      std::string binstr = buffer.genBinStr(definIt->lhsNum, definIt->length);
-	      sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
-	    }
-	    else {
-	      std::string hexLeftStr = buffer.genHexLeftStr(definIt->lhsNum, definIt->length);
-	      sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
-	    }
-	    ecmdOutput(bitDesc);
-	    std::string bitDescStr;
-    	    for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
-	      sprintf(bitDesc, "%32s ", " ");
-	      //Would print the entires string no matter how long it is
-	      //bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
-	      //ecmdOutput(bitDescStr.c_str());
-	
-	      std::string tmpstr;
-	      uint32_t curptr =0, len, maxdesclen=80;
-	      while (curptr < (*bitDetIt).length()) {
-	    	if (((*bitDetIt).length() - curptr) < maxdesclen) {
-	    	 len = (*bitDetIt).length() - curptr;
-	    	}
-	    	else {
-	    	 len = maxdesclen;
-	    	}
-	    	tmpstr = (*bitDetIt).substr(curptr,len);
-	    	bitDescStr = (std::string)bitDesc + tmpstr + "\n";
-	    	ecmdOutput(bitDescStr.c_str());
-	    	curptr += len;
-	      }
- 
-    	    }//end for
-    	  }//end if 
-    	}// end for
+      if ((verbosePtr != NULL) && !expectFlag) {
+        //even if rc returned is non-zero we want to continue to the next chip
+        ecmdDisplayScomData(target, address, buffer, verbosePtr);
       }
-      #endif
     }
   }
 
@@ -832,46 +734,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   return rc;
 }
 
-uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
-  uint32_t rc = ECMD_SUCCESS;
-  std::string scomdefFileStr;                      ///< Full path to scomdef file
-  std::string printed;
-  
-  
-  std::string curLine;
-  uint32_t beginPtr;
-  uint32_t beginLen;
-
-  bool done = false; 
-  std::vector<std::string> curArgs(4);
-  
-  while (getline(scomdefFile, curLine) && !done) {
-    //Remove leading whitespace
-    uint32_t curStart = curLine.find_first_not_of(" \t", 0);
-    if (curStart != std::string::npos) {
-      curLine = curLine.substr(curStart,curLine.length());
-    }
-    if((curLine[0] == 'B') && (curLine.find("BEGIN Scom") != std::string::npos)) {
-      beginPtr = scomdefFile.tellg();
-      beginLen = curLine.length();
-    }
-    if((curLine[0] == 'A') && (curLine.find("Address") != std::string::npos)) {
-      ecmdParseTokens(curLine, " \t\n={}", curArgs);
-      uint32_t addrFromFile = ecmdGenB32FromHexRight(&addrFromFile, curArgs[1].c_str());
-      if ((curArgs.size() >= 2) && addrFromFile == address) {
-        done = true;
-      }
-    }
-  }
-  if (done) {
-    scomdefFile.seekg(beginPtr-beginLen-1);
-  }
-  else {
-    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
-    rc = ECMD_SCOMADDRESS_NOT_FOUND;
-  }
-  return rc;
-}
 
 
 // Change Log *********************************************************
