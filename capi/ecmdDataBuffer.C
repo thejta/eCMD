@@ -211,6 +211,7 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
 #ifndef REMOVE_SIM
     this->fillDataStr('0'); /* init to 0 */
 #endif
+    iv_RealData[2] = 0; ///< Reset error code
     return rc;  /* nothing to do */
   }
 
@@ -271,7 +272,7 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
   /* Ok, now setup the header, and tail */
   iv_RealData[0] = DATABUFFER_HEADER;
   iv_RealData[1] = iv_NumWords;
-  iv_RealData[2] = 0;
+  iv_RealData[2] = 0; ///< Reset error code
   iv_RealData[3] = randNum;
   iv_RealData[iv_NumWords + 4] = randNum;
 
@@ -311,7 +312,7 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
     /* Ok, now setup the header, and tail */
     iv_RealData[0] = DATABUFFER_HEADER;
     iv_RealData[1] = iv_NumWords;
-    iv_RealData[2] = 0;
+    iv_RealData[2] = 0; ///< Reset error code
     iv_RealData[3] = randNum;
     iv_RealData[iv_NumWords + 4] = randNum;
 
