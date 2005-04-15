@@ -40,11 +40,19 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <fstream>
 
 #include <ecmdUtils.H>
 #include <ecmdSharedUtils.H>
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
+#include <ecmdCommandUtils.H>
+
+#ifndef FIPSODE
+# include <sedcScomdefParser.H>
+# include <sedcScomdefClasses.H>
+#endif
+
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
@@ -87,6 +95,7 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
 */
 void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
 
+uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -2058,6 +2067,152 @@ typedef enum {
     return "ERROR INVALID TYPE\n";
   }
 
+}
+uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
+  sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
+  unsigned int runtimeFlags=0;                    ///< Directives on how to parse
+  bool verboseFlag = false;
+  bool verboseBitsSetFlag = false;              ///< Print Bit description only if bit/s are set
+  bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
+  std::string printed;                          ///< Output data
+  std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
+
+  if ((std::string)i_format == "-v") {
+    verboseFlag = true;
+  }
+  if ((std::string)i_format == "-vs0") {
+    verboseBitsClearFlag = true;
+  }
+  if ((std::string)i_format == "-vs1") {
+    verboseBitsSetFlag = true;
+  }
+  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr);
+  if (rc) {
+    printed = "ecmdDisplayScomData - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+    ecmdOutputWarning(printed.c_str());
+    return rc;
+  }
+  
+  std::ifstream scomdefFile(scomdefFileStr.c_str());
+  if(scomdefFile.fail()) {
+    printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+    ecmdOutputWarning(printed.c_str());
+    rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
+    return rc;
+  }
+  rc = readScomDefFile(i_address, scomdefFile);
+  if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+    ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
+    return rc;
+  }
+  scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
+  
+
+  std::list< std::string >::iterator descIt;
+  std::list<sedcScomdefDefLine>::iterator definIt;
+  std::list< std::string >::iterator bitDetIt;
+  char bitDesc[1000];
+  
+  sprintf(bitDesc,"Name       : %20s%s\nDesc	   : %20s", " ",scomEntry.name.c_str()," ");  
+  ecmdOutput(bitDesc);
+
+  for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
+    sprintf(bitDesc,"%s", descIt->c_str());
+    ecmdOutput(bitDesc);
+  }
+  ecmdOutput("\n");
+  //Print Bits description
+  for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
+    if ((i_data.getNumBitsSet(definIt->lhsNum, definIt->length) && verboseBitsSetFlag) ||
+    ((!i_data.getNumBitsSet(definIt->lhsNum, definIt->length)) && verboseBitsClearFlag) || (verboseFlag)) {
+      
+      if(definIt->rhsNum == -1) {
+  	sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
+      }
+      else {
+  	sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
+      }
+      sprintf(bitDesc, "%-10s : ",bitDesc);
+      ecmdOutput(bitDesc);
+
+      if (definIt->length <= 8) {
+  	std::string binstr = i_data.genBinStr(definIt->lhsNum, definIt->length);
+  	sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
+      }
+      else {
+  	std::string hexLeftStr = i_data.genHexLeftStr(definIt->lhsNum, definIt->length);
+  	sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
+      }
+      ecmdOutput(bitDesc);
+      std::string bitDescStr;
+      for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
+  	sprintf(bitDesc, "%32s ", " ");
+  	//Would print the entires string no matter how long it is
+  	//bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
+  	//ecmdOutput(bitDescStr.c_str());
+
+  	std::string tmpstr;
+  	uint32_t curptr =0, len, maxdesclen=80;
+  	while (curptr < (*bitDetIt).length()) {
+  	  if (((*bitDetIt).length() - curptr) < maxdesclen) {
+  	   len = (*bitDetIt).length() - curptr;
+  	  }
+  	  else {
+  	   len = maxdesclen;
+  	  }
+  	  tmpstr = (*bitDetIt).substr(curptr,len);
+  	  bitDescStr = (std::string)bitDesc + tmpstr + "\n";
+  	  ecmdOutput(bitDescStr.c_str());
+  	  curptr += len;
+  	}
+ 
+      }//end for
+    }//end if 
+  }// end for
+  return rc;
+}
+
+uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::string scomdefFileStr;                      ///< Full path to scomdef file
+  std::string printed;
+  
+  
+  std::string curLine;
+  uint32_t beginPtr;
+  uint32_t beginLen;
+
+  bool done = false; 
+  std::vector<std::string> curArgs(4);
+  
+  while (getline(scomdefFile, curLine) && !done) {
+    //Remove leading whitespace
+    uint32_t curStart = curLine.find_first_not_of(" \t", 0);
+    if (curStart != std::string::npos) {
+      curLine = curLine.substr(curStart,curLine.length());
+    }
+    if((curLine[0] == 'B') && (curLine.find("BEGIN Scom") != std::string::npos)) {
+      beginPtr = scomdefFile.tellg();
+      beginLen = curLine.length();
+    }
+    if((curLine[0] == 'A') && (curLine.find("Address") != std::string::npos)) {
+      ecmdParseTokens(curLine, " \t\n={}", curArgs);
+      uint32_t addrFromFile = ecmdGenB32FromHexRight(&addrFromFile, curArgs[1].c_str());
+      if ((curArgs.size() >= 2) && addrFromFile == address) {
+        done = true;
+      }
+    }
+  }
+  if (done) {
+    scomdefFile.seekg(beginPtr-beginLen-1);
+  }
+  else {
+    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
+    rc = ECMD_SCOMADDRESS_NOT_FOUND;
+  }
+  return rc;
 }
 
 void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string tabStop) {

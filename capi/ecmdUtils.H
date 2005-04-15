@@ -235,6 +235,18 @@ uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 */
 uint32_t ecmdDisplayDllInfo();
 
+#ifndef FIPSODE      
+/**
+ @brief Display the Scom data with the bit descriptions.
+ @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
+ @param i_target target for which scom data needs to be displayed.
+ @param i_address Scom Address for which the details are required
+ @param i_data buffer that holds the scom data
+ @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
+ */
+uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format);
+#endif
+
 #if !defined(ECMD_STRIP_DEBUG) && !defined(ECMD_PERLAPI)
 /**
  @brief Print the parameters pass to a given function.
@@ -246,6 +258,8 @@ uint32_t ecmdDisplayDllInfo();
  */
 void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
 #endif
+
+
 
 //@}
 

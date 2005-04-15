@@ -13,6 +13,9 @@ SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
+#sedcscom stuff 
+VPATH        := ${VPATH}:../ecmd/sedcScomdef:../ecmd
+CFLAGS       := ${CFLAGS} -I../ecmd/sedcScomdef -I../ecmd
 
 # *****************************************************************************
 # The Linux Setup stuff
