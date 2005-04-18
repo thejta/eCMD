@@ -1421,7 +1421,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         else if ( i == 2 ) {
 	  // repeating pattern of 1001010s
 	  repPattern = "1001010";
-	  for (int y=0; y<ringBuffer.getBitLength(); ) {
+	  for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
            ringBuffer.setBit(y++);
            if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
            if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
@@ -1435,7 +1435,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 	else if ( i == 3 ) {
 	  // repeating pattern of 0110101s
 	  repPattern = "0110101";
-	  for (int y=0; y<ringBuffer.getBitLength(); ) {
+	  for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
            ringBuffer.clearBit(y++);
            if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
            if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
@@ -1534,7 +1534,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 	    printed = "Offset  Data\n";
             printed += "------------------------------------------------------------------------\n";
 	    ecmdOutput( printed.c_str() );
-	    for (int y=0; y < readRingBuffer.getBitLength();) {
+	    for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
 	      printf("%6d ", y);
 	      if ( (y+64) > readRingBuffer.getBitLength()) {
 	        printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";

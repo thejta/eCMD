@@ -71,6 +71,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   ecmdArrayEntry entry;         ///< Array entry to fetch
   uint32_t* add_buffer;         ///< Buffer to do temp work with the address for incrementing
   ecmdArrayData arrayData;      ///< Query data about array
+  std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string outputformat = "x";  ///< Output Format to display
   std::string inputformat = "x";   ///< Input format of data
@@ -157,13 +158,14 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     /* We need to find out info about this array */
-    rc = ecmdQueryArray(target, arrayData , arrayName.c_str());
-    if (rc) {
+    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str());
+    if (rc || arrayDataList.empty()) {
       printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
+    arrayData = *(arrayDataList.begin());
 
 
     /* Set the length  */
@@ -329,6 +331,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdArrayData arrayData;      ///< Query data about array
+  std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
 
   /* get format flag, if it's there */
   std::string format;
@@ -373,13 +376,14 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
 
     /* We need to find out info about this array */
-    rc = ecmdQueryArray(target, arrayData , arrayName.c_str());
-    if (rc) {
+    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str());
+    if (rc || arrayDataList.empty()) {
       printed = "putarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
+    arrayData = *(arrayDataList.begin());
 
     /* Set the length  */
     address.setBitLength(arrayData.writeAddressLength);
@@ -486,7 +490,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     printedHeader = false;
 
     /* Actually go fetch the data */
-    rc = getTraceArray(target, arrayName.c_str(), arrayData);
+    rc = getTraceArray(target, arrayName.c_str(), true /*stop/start array */, arrayData);
     
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;

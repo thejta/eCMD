@@ -84,6 +84,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::string printed;                  ///< Output string data
   std::string enumValue;                ///< The enum value returned
   ecmdChipTarget target;                ///< Current target being operated on
+  std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
   
@@ -150,15 +151,16 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
     if ((outputformat == "default") || (inputformat == "default")) {
-      rc = ecmdQuerySpy(target, spyData, spyName.c_str());
+      rc = ecmdQuerySpy(target, spyDataList, spyName.c_str());
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
-      } else if (rc) {
+      } else if (rc || spyDataList.empty()) {
         printed = "getspy - Error occured looking up data on spy " + spyName + " on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
       }
+      spyData = *(spyDataList.begin());
 
       if (spyData.isEnumerated) {
         if (outputformat == "default") outputformat = "enum";
@@ -422,6 +424,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   ecmdChipTarget target;                ///< Current target
   bool validPosFound = false;           ///< Did the looper find anything?
   std::string printed;                  ///< Output data
+  std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -469,16 +472,17 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
-    rc = ecmdQuerySpy(target, spyData, spyName.c_str());
+    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str());
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
-    } else if (rc) {
+    } else if (rc || spyDataList.empty()) {
       printed = "putspy - Error occured looking up data on spy " + spyName + " on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
 
+    spyData = *(spyDataList.begin());
     if (spyData.isEnumerated) {
       if (inputformat == "default") inputformat = "enum";
     } else {

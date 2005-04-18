@@ -7,15 +7,19 @@ OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H
+EXPORTS      := ${INCLUDES}
 INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
 DEFINES      := 
 CFLAGS       := -I. -g
 
-#sedcscom stuff 
-VPATH        := ${VPATH}:../ecmd/sedcScomdef:../ecmd
-CFLAGS       := ${CFLAGS} -I../ecmd/sedcScomdef -I../ecmd
+# Tell the SEDC code we import that we just want the scomdef parser
+INCLUDES     := ${INCLUDES} sedcScomdefParser.H sedcScomdefClasses.H sedcDefines.H sedcCommonParser.H sedcCommonClasses.H
+CAPI_SOURCE  := ${CAPI_SOURCE} sedcScomdefParser.C sedcScomdefClasses.C sedcCommonParser.C sedcCommonClasses.C
+VPATH        := ${VPATH}sedcScomdef
+CFLAGS       := ${CFLAGS} -IsedcScomdef
+
 
 # *****************************************************************************
 # The Linux Setup stuff
@@ -60,8 +64,7 @@ ifeq (${OS},AIX)
   SLIBLDFLAGS :=  -e libecmd_aix.export -p 0
 endif
 
-VPATH := ${SUBDIR}
-
+VPATH := ${VPATH}:${SUBDIR}
 
 # *****************************************************************************
 # The MPatrol Stuff
@@ -104,7 +107,7 @@ all: dir ${TARGET} ${SLIB}
 	@echo "Exporting eCMD Client Api/Shared Lib to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${SLIB} export/
-	@cp -p ${INCLUDES} export/
+	@cp -p ${EXPORTS} export/
 	-@cp -p ecmdDllCapi.H ../dll/
 
 clean:
