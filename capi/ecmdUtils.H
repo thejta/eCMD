@@ -207,17 +207,6 @@ std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols
 
 
 /**
- @brief Returns a formatted string containing the data in the given ecmdChipTarget
- @return String with formatted target data
- @param i_target ecmdChipTarget containing data to format into string
-
- TARGET DEPTH  : Thread
- TARGET STATES : Must be Initialized
- */
-std::string ecmdWriteTarget (ecmdChipTarget & i_target);
-
-
-/**
  @brief Fetch the detailed chip data structure for the selected target
  @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
  @param i_target ecmdChipTarget that information is requested for

@@ -550,14 +550,15 @@ typedef enum {
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
-  std::list<std::string> ringNames;     ///< Names used to reference this ring
-  uint32_t address;                     ///< Address modifier
-  int      bitLength;                   ///< length of ring
-  bool     hasInversionMask;            ///< Ring has an inversion mask applied before scanning
-  bool     supportsBroadsideLoad;       ///< This ring supports broadside load in simulation
-  bool     isCheckable;                 ///< This ring can be run through the check_rings command
-  std::string           clockDomain;    ///< Clock domain this ring belongs to
-  ecmdClockState_t      clockState;     ///< Required clock state to access this ring
+  std::list<std::string> ringNames;                     ///< Names used to reference this ring
+  uint32_t               address;                       ///< Address modifier
+  int                    bitLength;                     ///< length of ring
+  bool                   hasInversionMask;              ///< Ring has an inversion mask applied before scanning
+  bool                   supportsBroadsideLoad;         ///< This ring supports broadside load in simulation
+  bool                   isCheckable;                   ///< This ring can be run through the check_rings command
+  bool                   isCoreRelated;                 ///< This scom is related to the core level of a chip
+  std::string            clockDomain;                   ///< Clock domain this ring belongs to
+  ecmdClockState_t       clockState;                    ///< Required clock state to access this ring
 };
 
 
@@ -571,8 +572,31 @@ struct ecmdArrayData {
   int         writeAddressLength;       ///< Bit length of write address
   int         length;                   ///< Length of array (number of entries)
   int         width;                    ///< Bit width of array entry
+  bool             isCoreRelated;       ///< This scom is related to the core level of a chip
   std::string           clockDomain;    ///< Clock domain this array belongs to
   ecmdClockState_t       clockState;    ///< Required clock state to access this array
+};
+
+/**
+ @brief Used for the ecmdQueryTraceArray function to return trace array info
+*/
+struct ecmdTraceArrayData {
+  std::string      traceArrayName;      ///< Name of Trace array
+  int              length;              ///< Length of trace array (number of entries)
+  int              width;               ///< Bit width of trace array entry
+  bool             isCoreRelated;       ///< This scom is related to the core level of a chip
+  std::string      clockDomain;         ///< Clock domain this array belongs to
+  ecmdClockState_t clockState;          ///< Required clock state to access this array
+};
+
+/**
+ @brief Used for the ecmdQueryScom function to return scom info
+*/
+struct ecmdScomData {
+  uint32_t         address;             ///< Scom Address
+  bool             isCoreRelated;       ///< This scom is related to the core level of a chip
+  std::string      clockDomain;         ///< Clock domain this array belongs to
+  ecmdClockState_t clockState;          ///< Required clock state to access this scom
 };
 
 /**
@@ -641,6 +665,18 @@ struct ecmdProcRegisterInfo {
   int totalEntries;             ///< Total number of entries available
   bool threadReplicated;        ///< Register is replicated for each thread
 };
+
+/**
+ @brief Used by ecmdCacheFlush to specify which level of cache to flush
+*/
+typedef enum {
+  ECMD_CACHE_UNKNOWN = 0,       ///< Unknown Cache Type
+  ECMD_CACHE_LEVEL1D,           ///< L1 Data Cache 
+  ECMD_CACHE_LEVEL1I,           ///< L1 Instruction Cache 
+  ECMD_CACHE_LEVEL2,            ///< L2 Cache 
+  ECMD_CACHE_LEVEL3,            ///< L3 Cache 
+  ECMD_CACHE_LEVEL4,            ///< L4 Cache 
+} ecmdCacheType_t;
 
 
 /**
@@ -749,6 +785,13 @@ struct ecmdLooperData {
   std::list<ecmdChipTarget>::iterator curUnitIdTarget;  ///< Pointer to current unitid target
 };
 
+
+/**
+ @brief Used by ecmdWriteTarget to specify displayMode
+*/
+typedef enum {
+  ECMD_DISPLAY_TARGET_DEFAULT   ///< Default mode
+} ecmdTargetDisplayMode_t;
 
 /**
  @brief Used by ecmdGetGlobalVar to specify what variable you are looking for

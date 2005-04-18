@@ -155,6 +155,12 @@ namespace ECMDPERLAPI {
  <li> cipClientPerlapi.H </li>
  </ul>
 
+ CMD (Command Line) Extension<br>
+ <ul>
+ <li> cmdClientPerlapi.H </li>
+ </ul>
+
+
 
  <br><br>
 

@@ -182,8 +182,8 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
 /**
  @brief Query Array information from the DLL
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
- @param o_queryData Return data from query
- @param i_arrayName array to access data for
+ @param o_queryData Return list from query
+ @param i_arrayName if != NULL used to refine query to a single array
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_SUCCESS if successful
@@ -193,13 +193,13 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, const char * i_arrayName);
+uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL);
 
 /**
  @brief Query Spy information from the DLL
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return data from query
- @param i_spyName Spy to access data for
+ @param i_spyName if != NULL used to refine query to a single spy
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY if spy name is not valid for target
@@ -209,7 +209,37 @@ uint32_t ecmdQueryArray(ecmdChipTarget & i_target, ecmdArrayData & o_queryData, 
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName);
+uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL);
+
+/**
+ @brief Query Scom information from the DLL
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param o_queryData Return data from query
+ @param i_address if != 0xFFFFFFFF used to refine query to a single scom
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
+*/
+uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF);
+
+/**
+ @brief Query Trace Array information from the DLL
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param o_queryData Return data from query
+ @param i_traceArrayName if != NULL used to refine query to a single trace array
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
+*/
+uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL);
 
 /**
  @brief Query the location of a specific file type for the selected target
@@ -1322,6 +1352,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @brief Dump all entries of specified trace array
  @param i_target Target info to specify what to configure (target states must be set)
  @param i_name Name of trace array - names may vary for each product/chip
+ @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion, if false client is in control
  @param o_data Vector of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
@@ -1331,11 +1362,12 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused
 
 */
-uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> & o_data);
+uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
 
 /**
  @brief Dump all entries of specified trace array
  @param i_target Target info to specify what to configure (target states must be set)
+ @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion, if false client is in control
  @param o_data List of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
@@ -1353,7 +1385,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vecto
  TARGET STATES : Unused
 
 */
-uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, std::list <ecmdNameVectorEntry> & o_data);
+uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
 
 //@}
 
@@ -1479,6 +1511,15 @@ uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
 */
 uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
+/**
+ @brief Cache Flush
+ @param i_target ecmdChipTarget_t struct defines what chip(s) to flush
+ @param i_cacheType ecmdCacheType_t struct defines what type of cache gets flushed
+ @retval ECMD_TARGET_NOT_CONFIGURED  if target is not available in the system  
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+*/
+uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
 
 //@}
 /* End Memory Functions */

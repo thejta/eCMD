@@ -144,6 +144,19 @@ extern "C" uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
  */
 uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_depth);
 
+/**
+ @brief Returns a formatted string containing the data in the given ecmdChipTarget
+ @return String with formatted target data
+ @param i_target ecmdChipTarget containing data to format into string
+ @param i_displayMode Mode to format data
+
+ TARGET DEPTH  : Thread
+ TARGET STATES : Must be Initialized
+ */
+std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_DEFAULT);
+
+
+
 
 #endif /* ecmdSharedUtils_h */
 

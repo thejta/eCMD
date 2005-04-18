@@ -1090,74 +1090,6 @@ std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i
 }
 
 
-std::string ecmdWriteTarget (ecmdChipTarget & i_target) {
-
-  std::string printed;
-  char util[7];
-
-  if (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
-    printed = i_target.chipType + "\t";
-  }
-
-  //always do cage
-  sprintf(util, "k%d", i_target.cage);
-  printed += util;
-
-  if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
-    sprintf(util, ":n%d", i_target.node);
-    printed += util;
-
-    if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
-      sprintf(util, ":s%d", i_target.slot);
-      printed += util;
-
-
-      if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
-
-        if (i_target.pos < 10) {
-          sprintf(util, ":p0%d", i_target.pos);
-        }
-        else {
-          sprintf(util, ":p%d", i_target.pos);
-        }
-        printed += util;
-
-        if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
-          sprintf(util, ":c%d", i_target.core);
-          printed += util;
-          
-          if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
-            sprintf(util, ":t%d", i_target.thread);
-            printed += util;
-          }
-          else {
-            printed += "   ";  //adjust spacing
-          }
-
-        } //core
-        else {
-          printed += "      ";  //adjust spacing
-        }
-
-      } //pos
-      else {
-        printed += "          ";  //adjust spacing
-      }
-
-    } //slot
-    else {
-      printed += "             ";  //adjust spacing
-    }
-
-  } //node
-
-  //set a space between the target info and the data
-  printed += " "; 
-
-  return printed;
-
-}
-
 uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -1587,7 +1519,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += " : variable name : ";
       printed += variableName[0];
       printed += " : ";
-      if(dummy ==0) {
+      if(dummy == NULL) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
         sprintf(tempIntStr,"d=%u 0x%.08X",*dummy,*dummy);
@@ -1599,7 +1531,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       if((inOut == ECMD_FPP_FUNCTIONOUT) &&
          (ecmdClientDebug == 8)          &&
-         (*dummy == 0)                     ) {
+         ((dummy != NULL) && (*dummy == 0))                     ) {
         return;
       }
 
@@ -1615,7 +1547,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += " : variable name : ";
       printed += variableName[0];
       printed += " : ";
-      if(dummy ==0) {
+      if(dummy == NULL) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
         sprintf(tempIntStr,"0x%016lluX",(uint64_t)(*dummy));

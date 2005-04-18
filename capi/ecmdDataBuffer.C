@@ -2743,6 +2743,13 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
     return(rc);
 }
 
+void ecmdDataBuffer::queryErrorState( uint32_t & o_errorState) {
+  if (iv_RealData != NULL) {
+    o_errorState = iv_RealData[2];
+  } else {
+    o_errorState = 0;
+  }
+}
 
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
 {

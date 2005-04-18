@@ -80,6 +80,31 @@ uint32_t cipStartInstructions (ecmdChipTarget & i_target);
 uint32_t cipStartAllInstructions ();
 
 /**
+ @brief Start Instructions using an S-Reset
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+ TARGET DEPTH  : Thread
+ TARGET STATES : Unused
+
+*/
+uint32_t cipStartInstructionsSreset (ecmdChipTarget & i_target);
+
+/**
+ @brief Start Instructions on all configured processors using an S-Reset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+*/
+uint32_t cipStartAllInstructionsSreset ();
+
+/**
  @brief Stop Instructions
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
