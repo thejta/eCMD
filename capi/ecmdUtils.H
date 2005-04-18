@@ -139,6 +139,42 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
+/**
+ @brief Used internally by ecmdConfigLooper to store looping state information
+*/
+struct ecmdLooperData {
+  bool             ecmdLooperInitFlag;                  ///< Is fresh ?
+  bool             ecmdUseUnitid;                       ///< This looper is looping on unitid targets not config data
+
+  ecmdQueryData    ecmdSystemConfigData;                ///< Config data queried from the system
+  std::list<ecmdCageData>::iterator ecmdCurCage;        ///< Pointer to current Cage
+  std::list<ecmdNodeData>::iterator ecmdCurNode;        ///< Pointer to current Node
+  std::list<ecmdSlotData>::iterator ecmdCurSlot;        ///< Pointer to current Slot
+  std::list<ecmdChipData>::iterator ecmdCurChip;        ///< Pointer to current Chip
+  std::list<ecmdCoreData>::iterator ecmdCurCore;        ///< Pointer to current Core
+  std::list<ecmdThreadData>::iterator ecmdCurThread;    ///< Pointer to current Thread
+  ecmdChipTarget prevTarget;                            ///< Pointer to previous target
+
+
+  std::list<ecmdChipTarget>     unitIdTargets;          ///< List of targets if looping on a unitid
+  std::list<ecmdChipTarget>::iterator curUnitIdTarget;  ///< Pointer to current unitid target
+};
+
+
+/**
+ @brief Used by the eCMD Function parm trace printer
+*/
+
+typedef enum {
+  ECMD_FPP_RETOUT,                      ///< Designates the failing return code out of the api function
+  ECMD_FPP_FUNCTIONIN,                  ///< Designates the call in of the api function
+  ECMD_FPP_FUNCTIONOUT,                 ///< Designatest the call out of the api function
+  ECMD_FPP_JUSTIN,                      ///< Designatest the call in of the api function in debug 8 mode
+  ECMD_FPP_JUSTOUT                      ///< Designatest the call out of the api function in debug 8 mode and rc==0
+} efppInOut_t;
+
+
+
 
 /** @name eCMD Utility Functions */
 //@{
@@ -251,42 +287,5 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
 
 //@}
-
-/** @name Gen Functions */
-//@{
-/**
- * @brief Default function for converting hex strings to unsigned int arrays
- * @retval First element of the parsed data, or 0xFFFFFFFF if error
- * @param o_numPtr The array that stores the data parsed from the input string
- * @param i_hexChars input string of hex data- alignment stuff handled by Left and Right functions
- * @param startPos
- * @see ecmdGenB32FromHexRight
- * @see ecmdGenB32FromHexLeft
- */
-uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos);
-
-/**
- * @brief Convert a string of left-aligned Hex chars into a left-aligned unsigned int array
- * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
- * @param o_numPtr The array that stores the data parsed from the input string
- * @param i_hexChars A string of hex characters
- * @see ecmdGenB32FromHexRight
- * @see ecmdGenB32FromHex
- */
-uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
-
-/**
- * @brief Convert a string of right-aligned Hex chars into a left-aligned unsigned int array
- * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
- * @param o_numPtr The array that stores the data parsed from the input string
- * @param i_hexChars A string of hex characters
- * @param i_expectBits The number of defined bits in the o_numPtr array returned
- * @see ecmdGenB32FromHex
- * @see ecmdGenB32FromHexLeft
- */
-uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int i_expectBits = 0);
-
-//@}
-
 
 #endif

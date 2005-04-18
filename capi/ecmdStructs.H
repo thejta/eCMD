@@ -765,35 +765,6 @@ typedef enum {
 } ecmdConfigLoopType_t;
 
 /**
- @brief Used internally by ecmdConfigLooper to store looping state information
-*/
-struct ecmdLooperData {
-  bool             ecmdLooperInitFlag;                  ///< Is fresh ?
-  bool             ecmdUseUnitid;                       ///< This looper is looping on unitid targets not config data
-
-  ecmdQueryData    ecmdSystemConfigData;                ///< Config data queried from the system
-  std::list<ecmdCageData>::iterator ecmdCurCage;        ///< Pointer to current Cage
-  std::list<ecmdNodeData>::iterator ecmdCurNode;        ///< Pointer to current Node
-  std::list<ecmdSlotData>::iterator ecmdCurSlot;        ///< Pointer to current Slot
-  std::list<ecmdChipData>::iterator ecmdCurChip;        ///< Pointer to current Chip
-  std::list<ecmdCoreData>::iterator ecmdCurCore;        ///< Pointer to current Core
-  std::list<ecmdThreadData>::iterator ecmdCurThread;    ///< Pointer to current Thread
-  ecmdChipTarget prevTarget;                            ///< Pointer to previous target
-
-
-  std::list<ecmdChipTarget>     unitIdTargets;          ///< List of targets if looping on a unitid
-  std::list<ecmdChipTarget>::iterator curUnitIdTarget;  ///< Pointer to current unitid target
-};
-
-
-/**
- @brief Used by ecmdWriteTarget to specify displayMode
-*/
-typedef enum {
-  ECMD_DISPLAY_TARGET_DEFAULT   ///< Default mode
-} ecmdTargetDisplayMode_t;
-
-/**
  @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
 */
 typedef enum {
@@ -819,19 +790,6 @@ typedef enum {
   ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
   ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
 } ecmdLatchMode_t;
-
-
-/**
- @brief Used by the eCMD Function parm trace printer
-*/
-
-typedef enum {
-  ECMD_FPP_RETOUT,                      ///< Designates the failing return code out of the api function
-  ECMD_FPP_FUNCTIONIN,                  ///< Designates the call in of the api function
-  ECMD_FPP_FUNCTIONOUT,                 ///< Designatest the call out of the api function
-  ECMD_FPP_JUSTIN,                      ///< Designatest the call in of the api function in debug 8 mode
-  ECMD_FPP_JUSTOUT                      ///< Designatest the call out of the api function in debug 8 mode and rc==0
-} efppInOut_t;
 
 /**
  @brief Used by the get/set configuration functions to specify what data is good

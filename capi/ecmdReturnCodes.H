@@ -78,6 +78,8 @@
 #define ECMD_UNABLE_TO_OPEN_SCOMDEF             (ECMD_ERR_ECMD | 0x1051) ///< eCMD was unable to open scomdef file
 #define ECMD_SCOMADDRESS_NOT_FOUND              (ECMD_ERR_ECMD | 0x1052) ///< Scom Address not found in the ScomDef file
 #define ECMD_INVALID_ENTRY_REQUESTED            (ECMD_ERR_ECMD | 0x1053) ///< An invalid entry was requested
+#define ECMD_INSTRUCTIONS_IN_INVALID_STATE      (ECMD_ERR_ECMD | 0x1054) ///< Instructions were in an invalid state for operation
+
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command

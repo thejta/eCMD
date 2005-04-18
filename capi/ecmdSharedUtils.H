@@ -39,7 +39,6 @@
 //--------------------------------------------------------------------
 #include <string>
 #include <vector>
-// AK: added for hash routine  10/07/2004
 #include <inttypes.h>
 
 #include <ecmdDataBuffer.H>
@@ -48,6 +47,9 @@
 //--------------------------------------------------------------------
 // ENUM Definitions
 //--------------------------------------------------------------------
+/**
+ @brief Used by ecmdSetTargetDepth
+*/
 typedef enum {
   ECMD_DEPTH_CAGE = 0,
   ECMD_DEPTH_NODE,
@@ -56,6 +58,14 @@ typedef enum {
   ECMD_DEPTH_CORE,
   ECMD_DEPTH_THREAD
 } ecmdTargetDepth_t;
+
+/**
+ @brief Used by ecmdWriteTarget to specify displayMode
+*/
+typedef enum {
+  ECMD_DISPLAY_TARGET_DEFAULT   ///< Default mode
+} ecmdTargetDisplayMode_t;
+
 
 
 
@@ -99,6 +109,9 @@ char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_
 */
 void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens);
 
+/** @name Gen Functions */
+//@{
+
 /**
  * @brief Turns the data in the buffer into ebcdic text
  * @param i_data Data to convert
@@ -109,12 +122,47 @@ std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
 
 
 /**
+ * @brief Default function for converting hex strings to unsigned int arrays
+ * @retval First element of the parsed data, or 0xFFFFFFFF if error
+ * @param o_numPtr The array that stores the data parsed from the input string
+ * @param i_hexChars input string of hex data- alignment stuff handled by Left and Right functions
+ * @param startPos
+ * @see ecmdGenB32FromHexRight
+ * @see ecmdGenB32FromHexLeft
+ */
+uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos);
+
+/**
+ * @brief Convert a string of left-aligned Hex chars into a left-aligned unsigned int array
+ * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
+ * @param o_numPtr The array that stores the data parsed from the input string
+ * @param i_hexChars A string of hex characters
+ * @see ecmdGenB32FromHexRight
+ * @see ecmdGenB32FromHex
+ */
+uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
+
+/**
+ * @brief Convert a string of right-aligned Hex chars into a left-aligned unsigned int array
+ * @retval The first element of the parsed string data, or 0xFFFFFFFF if error
+ * @param o_numPtr The array that stores the data parsed from the input string
+ * @param i_hexChars A string of hex characters
+ * @param i_expectBits The number of defined bits in the o_numPtr array returned
+ * @see ecmdGenB32FromHex
+ * @see ecmdGenB32FromHexLeft
+ */
+uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int i_expectBits = 0);
+
+//@}
+
+
+/**
  * @brief Converts strings to unsigned int values. The input format is 0xABCDEF.
  * @param i_str String in hexadecimal notation
  * @date Tue Sep 21 13:22:33 2004
  * @retval uint32_t value of converted input string
  */
-extern "C" uint32_t ecmdHexToUInt32(const char* i_str);
+uint32_t ecmdHexToUInt32(const char* i_str);
 
 /**
  * @brief Calculates a 32bit hash value for a given string.
@@ -128,7 +176,7 @@ extern "C" uint32_t ecmdHexToUInt32(const char* i_str);
  * @param i_c Start value for hash.
  * @retval Hash value
  */
-extern "C" uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
+uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 
 /**
  *  @brief Sets State Fields of Chip Target based on depth

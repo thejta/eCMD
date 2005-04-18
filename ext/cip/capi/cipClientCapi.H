@@ -62,6 +62,7 @@ uint32_t cipInitExtension();
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
  TARGET DEPTH  : Thread
  TARGET STATES : Unused
@@ -75,6 +76,7 @@ uint32_t cipStartInstructions (ecmdChipTarget & i_target);
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
 */
 uint32_t cipStartAllInstructions ();
@@ -87,6 +89,7 @@ uint32_t cipStartAllInstructions ();
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
  TARGET DEPTH  : Thread
  TARGET STATES : Unused
@@ -100,6 +103,7 @@ uint32_t cipStartInstructionsSreset (ecmdChipTarget & i_target);
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
 */
 uint32_t cipStartAllInstructionsSreset ();
@@ -112,6 +116,7 @@ uint32_t cipStartAllInstructionsSreset ();
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
  TARGET DEPTH  : Thread
  TARGET STATES : Unused
@@ -125,6 +130,7 @@ uint32_t cipStopInstructions (ecmdChipTarget & i_target);
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
 */
 uint32_t cipStopAllInstructions ();
@@ -138,6 +144,7 @@ uint32_t cipStopAllInstructions ();
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
  TARGET DEPTH  : Thread
  TARGET STATES : Unused
