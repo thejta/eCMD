@@ -107,7 +107,12 @@ int main (int argc, char *argv[])
               bufflen = commlen + 19;
             }
 
-            strcpy(buffer, commit->c_str());
+            // Beam "error" of possible NULL 'buffer' value requires mutually
+            // exclusive conditions (need an argument present to enter 
+            // "commands" FOR loop but commit->length = 0 ie. no command).  So
+            // tell beam to ignore NULL pointer message for 'buffer' parm via
+            // comment on next line.
+            strcpy(buffer, commit->c_str()); /*passing null object*/
 
             /* Now start carving this thing up */
             bool lookingForStart = true; /* Are we looking for the start of a word ? */
@@ -220,5 +225,6 @@ int main (int argc, char *argv[])
 //  Flag Reason   Vers Date     Coder    Description                       
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              CENGEL   Initial Creation
+//  none STGC7449      04/18/05 prahl    Clean up Beam messages.
 //
 // End Change Log *****************************************************

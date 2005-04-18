@@ -196,7 +196,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       entries.push_back(entry);
 
       /* Increment for the next one */
-      if (add_buffer[address.getWordLength()-1] == add_mask) {
+      // Can't hit initialized error for add_buffer that Beam calls out.  So
+      // tell it to ignore that message with the comment on the following line.
+      if (add_buffer[address.getWordLength()-1] == add_mask) {/*uninitialized*/
         /* We are going to rollover */
         if (address.getWordLength() == 1) {
           printed = "getarray - Address overflow on " + arrayName + " ";
@@ -224,7 +226,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
                       
         }
       } else {
-        add_buffer[address.getWordLength()-1] += add_inc;
+        // Beam doesn't pick up add_inc initialization above.  So tell it to
+        // ignore uninitialized error message with comment in line below.
+        add_buffer[address.getWordLength()-1] += add_inc; /*uninitialized*/
       }
 
     }
@@ -522,3 +526,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   return rc;
 }
 
+
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder    Description                       
+//  ---- -------- ---- -------- -------- ------------------------------   
+//                              CENGEL   Initial Creation
+//  none STGC7449      04/18/05 prahl    Clean up Beam messages.
+//
+// End Change Log *****************************************************
