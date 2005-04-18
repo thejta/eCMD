@@ -31,6 +31,8 @@
 //--------------------------------------------------------------------
 #include <string>
 #include <inttypes.h>
+
+
 #ifdef ENABLE_MPATROL
  #include <mpatrol.h>
 #endif
@@ -1118,6 +1120,14 @@ public:
   uint32_t  writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t &  o_dataNumber); /* Writes out the buffer (in the specified format) into the file */
   
   /**
+   * @brief Write buffer out into the stream in ECMD_SAVE_FORMAT_BINARY_DATA format
+   * @param o_filestream output stream to write to
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval non-zero on failure
+   */
+  uint32_t  writeFileStream(std::ostream & o_filestream); /* Writes out the buffer (in ECMD_SAVE_FORMAT_BINARY_DATA format) into the file */
+  
+  /**
    * @brief Read data from the file into the buffer  
    * @param i_filename to read from
    * @param i_format data format to expect in the file
@@ -1140,6 +1150,15 @@ public:
    * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when i_dataNumber != 0
    */
   uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0); /* Reads out the buffer (in the  specified format) from the file */
+  
+  /**
+   * @brief Read data from the stream (in ECMD_SAVE_FORMAT_BINARY_DATA  format) into the buffer 
+   * @param i_filestream input stream to read from
+   * @param  i_bitlength used to est. the number of bytes to read from the stream
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval non-zero on failure
+   */
+  uint32_t  readFileStream(std::istream & i_filestream, uint32_t i_bitlength); /* Reads out the buffer (in ECMD_SAVE_FORMAT_BINARY_DATA format) from the file */
   
   /**
    * @brief This function will take the passed in buffer, delete any current data it holds, and point its data var to that which is owned by the one being called with.  It will not have iv_UserOwned flag set, so it should not delete the buffer it points to, nor resize it, but it can alter the data.  The use of this function is for caching data for reads.

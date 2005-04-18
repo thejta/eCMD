@@ -2568,6 +2568,29 @@ uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t form
   return this->writeFileMultiple(filename, format, mode, dataNumber) ;
 }
 
+uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t *buffer;
+  uint32_t numBytes = getByteLength();
+  
+  buffer = new uint32_t[getWordLength()];
+  rc = memCopyOut(buffer, numBytes);
+  if (rc) return rc;
+  
+  int len=0;
+  //Convert into Network Byte order-Big Endian before writing
+  for(uint32_t i=0; i < getWordLength(); i++) {
+   buffer[i] = htonl(buffer[i]);
+   if (((i+1)*4) > numBytes) {
+    len = numBytes - (i*4);
+   } else {
+     len = 4;
+   }
+   o_filestream.write((char *)&buffer[i],len);
+  }
+  return rc;
+}
+
 uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
@@ -2710,6 +2733,24 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
 uint32_t  ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format) {
   uint32_t dataNumber=0;
   return this->readFileMultiple(i_filename, i_format, dataNumber);
+}
+
+uint32_t  ecmdDataBuffer::readFileStream(std::istream & i_filestream, uint32_t i_bitlength) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t numBytes = i_bitlength % 8 ? (i_bitlength / 8) + 1 : i_bitlength / 8;
+  uint32_t *buffer;
+  
+  this->setBitLength(i_bitlength);
+  
+  buffer = new uint32_t[getWordLength()];
+  i_filestream.read((char *)buffer, numBytes);
+  
+  for (uint32_t i=0; i< getWordLength(); i++) {
+   buffer[i] = htonl(buffer[i]);
+  }
+  rc = memCopyIn(buffer, numBytes);
+  
+  return rc;
 }
 
 uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
