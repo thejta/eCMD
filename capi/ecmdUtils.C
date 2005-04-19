@@ -26,6 +26,7 @@
 //  Flag Reason   Vers Date     Coder     Description                       
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//  @02  STGC7449      04/18/05 prahl             "
 //   
 // End Change Log *****************************************************
 
@@ -584,6 +585,9 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
   const uint8_t CORE = 4;
   const uint8_t THREAD = 5;
 
+  // The following switch statement makes deliberate use of falling through from
+  // one case statement to the next.  So tell Beam to not flag those ass errors
+  // with the /*fall through*/ comments. @02a
   switch (level) {
 
     case THREAD:  //thread
@@ -592,35 +596,35 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
       if (io_state.ecmdCurThread != (*io_state.ecmdCurCore).threadData.end()) {
         break;
       }
-
+      /*fall through*/
     case CORE:  //core
       io_state.ecmdCurCore++;
       /* Did we find another core, if not we will try chip */
       if (io_state.ecmdCurCore != (*io_state.ecmdCurChip).coreData.end()) {
         break;
       }
-
+      /*fall through*/
     case CHIP:  //chip
       io_state.ecmdCurChip++;
       /* Did we find another chip, if not we will try slot */
       if (io_state.ecmdCurChip != (*io_state.ecmdCurSlot).chipData.end()) {
         break;
       }
-
+      /*fall through*/
     case SLOT:  //slot
       io_state.ecmdCurSlot++;
       /* Did we find another slot, if not we will try node */
       if (io_state.ecmdCurSlot != (*io_state.ecmdCurNode).slotData.end()) {
         break;
       }
-
+      /*fall through*/
     case NODE:  //node
       io_state.ecmdCurNode++;
       /* Did we find another node, if not we will try cage */
       if (io_state.ecmdCurNode != (*io_state.ecmdCurCage).nodeData.end()) {
         break;
       }
-
+      /*fall through*/
     case CAGE:  //cage
       io_state.ecmdCurCage++;
       break;
