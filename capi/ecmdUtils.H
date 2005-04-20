@@ -50,11 +50,6 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-//NOTE: to use PTRAC in a fips environment, any library which will call
-//PTRAC needs to use a workaround and explicitly include the .a which
-//contains this object... example: (ask Adam Loeffler if questions)
-//  libsomelib.so_OFILES = normalobject.o libecmdcapi.a
-//  libsomelib.ndso_SHLDFLAGS libsomelib.so_SHLDFLAGS += -Wl,--whole-archive -lecmdcapi -Wl,--no-whole-archive
 
 #ifndef ECMD_PERLAPI
 

@@ -100,7 +100,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
 //  Global Variables
 //----------------------------------------------------------------------
 #ifdef FIPSODE
-tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
+tracDesc_t g_ptrc=0; /** Procedure Trace Descriptor **/
 TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
 #endif
 
