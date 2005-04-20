@@ -77,6 +77,8 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
 /* Search the spy file for our spy */
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
 int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name);
+uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList);
+int dllGetSpyListHash(std::ifstream &hashFile, std::list<sedcHashEntry> &spyKeysList);
 uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data);
 uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask);
@@ -98,33 +100,29 @@ uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 /**
   This function specification is the same as defined in ecmdClientCapi.H as ecmdQuerySpy
 */
-uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const char * i_spyName) {
+uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryDataList, const char * i_spyName) {
   uint32_t rc = ECMD_SUCCESS;
   sedcSpyContainer mySpy;
+  std::list<sedcSpyContainer> mySpyList;
+  std::list<sedcSpyContainer>::iterator spyIt;
   std::list<sedcAEIEnum>::iterator enumit;
+  ecmdSpyData queryData;
   char outstr[200];
-
-  /* Retrieve my spy either from the DB or the spydef file */
-  rc = dllGetSpyInfo(i_target, i_spyName, mySpy);
-  if (rc) {
-    sprintf(outstr,"dllQuerySpy - Problems reading spy '%s' from file!\n", i_spyName);
-    dllOutputError(outstr);
-    dllOutputError(outstr);
-    return ECMD_INVALID_SPY;
-  } else if (!mySpy.valid) {
-    sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", i_spyName);
-    dllOutputError(outstr);
-    return ECMD_INVALID_SPY;
+  
+  if (i_spyName == NULL) {
+    rc = dllGetSpiesInfo(i_target, mySpyList);
+    if (rc) {
+      printf(outstr,"dllQuerySpy - Problems reading spies from spydef/hash file!\n");
+      dllOutputError(outstr);
+      return ECMD_INVALID_SPY;
+    }
   }
-
-  /* Special case thing here.. */
-  if (mySpy.type == SC_SYNONYM) {
-    /* We have a synonym we need to look up the spy behind it */
-    sedcSynonymEntry syn = mySpy.getSynonymEntry();
-
-    rc = dllGetSpyInfo(i_target, syn.realName.c_str(), mySpy);
+  else {
+    /* Retrieve my spy either from the DB or the spydef file */
+    rc = dllGetSpyInfo(i_target, i_spyName, mySpy);
     if (rc) {
       sprintf(outstr,"dllQuerySpy - Problems reading spy '%s' from file!\n", i_spyName);
+      dllOutputError(outstr);
       dllOutputError(outstr);
       return ECMD_INVALID_SPY;
     } else if (!mySpy.valid) {
@@ -132,52 +130,88 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, ecmdSpyData & o_queryData, const
       dllOutputError(outstr);
       return ECMD_INVALID_SPY;
     }
-
+    mySpyList.push_back(mySpy);
   }
-
-
-  o_queryData.spyName = mySpy.name;
-  o_queryData.bitLength = 0;
-  o_queryData.isEccChecked = false;
-  o_queryData.isEnumerated = false;
-  if (mySpy.type == SC_AEI) {
-    sedcAEIEntry spyent = mySpy.getAEIEntry();
-    o_queryData.bitLength = spyent.length;
-    if (spyent.states & SPY_ALIAS)
-      o_queryData.spyType = ECMD_SPYTYPE_ALIAS;
-    else if (spyent.states & SPY_IDIAL)
-      o_queryData.spyType = ECMD_SPYTYPE_IDIAL;
-    else if (spyent.states & SPY_EDIAL)
-      o_queryData.spyType = ECMD_SPYTYPE_EDIAL;
-    else {
-      dllOutputError("dllQuerySpy - Unknown spy type returned\n");
-      return ECMD_INVALID_SPY;
+  
+  for (spyIt = mySpyList.begin(); spyIt != mySpyList.end(); spyIt++) {
+    if (!spyIt->valid) {
+       if (i_spyName != NULL) {
+         sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", spyIt->name);
+         dllOutputError(outstr);
+         return ECMD_INVALID_SPY;
+       }
+       else {
+         continue;
+       }
     }
 
-    /* Does it have ECC ? */
-    if (spyent.states & SPY_EPCHECKERS) {
-      o_queryData.isEccChecked = true;
+    /* Special case thing here.. */
+    if (spyIt->type == SC_SYNONYM) {
+      /* We have a synonym we need to look up the spy behind it */
+      sedcSynonymEntry syn = spyIt->getSynonymEntry();
+
+      rc = dllGetSpyInfo(i_target, syn.realName.c_str(), mySpy);
+      if (rc) {
+    	sprintf(outstr,"dllQuerySpy - Problems reading spy '%s' from file!\n", spyIt->name);
+    	dllOutputError(outstr);
+    	return ECMD_INVALID_SPY;
+      } else if (!spyIt->valid) {
+    	sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", spyIt->name);
+    	dllOutputError(outstr);
+    	return ECMD_INVALID_SPY;
+      }
+
     }
 
-    /* Let's walk through the enums */
-    if (spyent.states & SPY_ENUM)
-      o_queryData.isEnumerated = true;
+    queryData.spyName = spyIt->name;
+    queryData.bitLength = 0;
+    queryData.isEccChecked = false;
+    queryData.isEnumerated = false;
+    if (spyIt->type == SC_AEI) {
+      sedcAEIEntry spyent = spyIt->getAEIEntry();
+      queryData.bitLength = spyent.length;
+      if (spyent.states & SPY_ALIAS)
+    	queryData.spyType = ECMD_SPYTYPE_ALIAS;
+      else if (spyent.states & SPY_IDIAL)
+    	queryData.spyType = ECMD_SPYTYPE_IDIAL;
+      else if (spyent.states & SPY_EDIAL)
+    	queryData.spyType = ECMD_SPYTYPE_EDIAL;
+      else {
+        if (i_spyName != NULL) {
+          dllOutputError("dllQuerySpy - Unknown spy type returned\n");
+	  return ECMD_INVALID_SPY;
+	}
+    	continue;
+      }
 
-    /* Let's walk through the enums */
-    o_queryData.enums.clear();
-    for (enumit = spyent.aeiEnums.begin(); enumit != spyent.aeiEnums.end(); enumit ++) {
-      o_queryData.enums.push_back(enumit->enumName);
+      /* Does it have ECC ? */
+      if (spyent.states & SPY_EPCHECKERS) {
+    	queryData.isEccChecked = true;
+      }
+
+      /* Let's walk through the enums */
+      if (spyent.states & SPY_ENUM)
+    	queryData.isEnumerated = true;
+
+      /* Let's walk through the enums */
+      queryData.enums.clear();
+      for (enumit = spyent.aeiEnums.begin(); enumit != spyent.aeiEnums.end(); enumit ++) {
+    	queryData.enums.push_back(enumit->enumName);
+      }
+
+      /* The eccGroups */
+      queryData.epCheckers = spyent.aeiEpcheckers;
+
+    } else {
+      if (i_spyName != NULL) {
+        dllOutputError("dllQuerySpy - Unknown spy type returned\n");
+        return ECMD_INVALID_SPY;
+      }
+      continue;
     }
-
-    /* The eccGroups */
-    o_queryData.epCheckers = spyent.aeiEpcheckers;
-
-  } else {
-    dllOutputError("dllQuerySpy - Unknown spy type returned\n");
-    return ECMD_INVALID_SPY;
+    queryData.clockState = ECMD_CLOCKSTATE_UNKNOWN;
+    o_queryDataList.push_back(queryData);
   }
-  o_queryData.clockState = ECMD_CLOCKSTATE_UNKNOWN;
-
   return rc;
 }
 /**
@@ -1285,6 +1319,93 @@ uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
   return rc;
 }
 
+uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList) {
+
+  uint32_t rc = 0;
+
+  std::ifstream spyFile, hashFile;
+  std::string spyFilePath;
+  std::string spyHashFilePath;
+  std::list<sedcHashEntry> spyKeysList;
+  std::list<sedcHashEntry>::iterator searchSpy;
+  uint32_t buildflags = 0;
+  char outstr[200];
+  sedcSpyContainer returnSpy;
+  
+  /* ----------------------------------------------------------------- */
+  /*  Try to find the spy position from the hash file		     */
+  /* ----------------------------------------------------------------- */
+  rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEFHASH, spyHashFilePath);
+  if (!rc) {
+    hashFile.open(spyHashFilePath.c_str(),
+  		  std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
+
+    /* If we have a hash file, look for it in there */
+    if (!hashFile.fail()) {
+      rc = dllGetSpyListHash(hashFile, spyKeysList);
+      if (rc) {
+       sprintf(outstr,"dllGetSpiesInfo - Problems in getting spylist from the spydefhash file!\n");
+       dllOutputError(outstr);
+       return rc;
+      }
+    } else {
+       sprintf(outstr,"dllGetSpiesInfo - Unable to open spydefhash file: %s!\n", spyHashFilePath.c_str());
+       dllOutputError(outstr);
+       return ECMD_INVALID_SPY;
+    }
+  }
+  else {
+    return ECMD_UNKNOWN_FILE;
+  }
+  if (spyKeysList.empty()) {
+     sprintf(outstr,"dllGetSpiesInfo - Unable to find any spies from the hashfile!\n");
+     dllOutputError(outstr);
+     return ECMD_INVALID_SPY;
+  }
+  //Not handling getting the list from the spydef file incase the hashfile method fails
+  /* Couldn't find it in the hash file, try a straigh linear search */
+  /*
+  if (!foundSpy) {
+    foundSpy = dllLocateSpy(spyFile, spy_name);
+  }
+
+  // If we made it here, we got nothing.. 
+  if (!foundSpy) {
+    sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", spy_name.c_str());
+    dllOutputError(outstr);
+    returnSpy.valid = 0;
+    return ECMD_INVALID_SPY;
+  }
+  */
+  
+  /* Let's get the path to the spydef */
+  rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
+
+  spyFile.open(spyFilePath.c_str());
+  if (spyFile.fail()) {
+    sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePath.c_str());
+    dllOutputError(outstr);
+    returnSpy.valid = 0;
+    return ECMD_INVALID_SPY;
+  }
+  for (searchSpy = spyKeysList.begin(); searchSpy != spyKeysList.end(); searchSpy++) {
+    spyFile.seekg(searchSpy->filepos);
+    
+    /* Now that we have our position in the file, call the parser and read it in */
+    std::vector<std::string> errMsgs; /* This should be empty all the time */
+    returnSpy = sedcSpyParser(spyFile, errMsgs, 0, buildflags);
+    if (!errMsgs.empty()) {
+      returnSpy.valid = 0;
+    }
+    else if (returnSpy.type != SC_SYNONYM){
+      returnSpyList.push_back(returnSpy);
+    }
+  }
+  spyFile.close();
+  hashFile.close();
+  return 0;
+}
+
 
 uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy) {
 
@@ -1331,7 +1452,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
       /* ----------------------------------------------------------------- */
       /*  Try to find the spy position from the hash file                */
       /* ----------------------------------------------------------------- */
-      key = ecmdHashString32(spy_name.c_str(),0);
+      key = ecmdHashString32(returnSpy.name.c_str(),0);
 
       rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEFHASH, spyHashFilePath);
       if (!rc) {
@@ -1340,19 +1461,19 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
 
         /* If we have a hash file, look for it in there */
         if (!hashFile.fail()) {
-          foundSpy = dllLocateSpyHash(spyFile, hashFile, key, spy_name);
+          foundSpy = dllLocateSpyHash(spyFile, hashFile, key, returnSpy.name);
         }
         hashFile.close();
       }
 
       /* Couldn't find it in the hash file, try a straigh linear search */
       if (!foundSpy) {
-        foundSpy = dllLocateSpy(spyFile, spy_name);
+        foundSpy = dllLocateSpy(spyFile, returnSpy.name);
       }
 
       /* If we made it here, we got nothing.. */
       if (!foundSpy) {
-        sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", spy_name.c_str());
+        sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", returnSpy.name.c_str());
         dllOutputError(outstr);
         returnSpy.valid = 0;
         return ECMD_INVALID_SPY;
@@ -1362,7 +1483,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
       std::vector<std::string> errMsgs; /* This should be empty all the time */
       returnSpy = sedcSpyParser(spyFile, errMsgs, 0, buildflags);
       if (!errMsgs.empty()) {
-        sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",spy_name.c_str());
+        sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",returnSpy.name.c_str());
         dllOutputError(outstr);
         returnSpy.valid = 0;
         return ECMD_INVALID_SPY;
@@ -1430,7 +1551,41 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
 
 }
 
+int dllGetSpyListHash(std::ifstream &hashFile, std::list<sedcHashEntry> &spyKeysList) {
+  
+  int entrysize = sizeof(struct sedcHashEntry); /* We need this to be able to traverse the binary hash file */
+  sedcHashEntry curhash;
+  long filepos;
+  int numentries;
+  int rc = ECMD_SUCCESS;
+  
+  /* first get the size of the hash file */
+  filepos = hashFile.tellg();			/* get end of file position	*/
+  hashFile.seekg(0, std::ios::beg);			/* go back to beginning of file */
+  numentries = filepos / entrysize;
+  
+  if (filepos < entrysize) { return ECMD_FAILURE; }  /* we got problems */
+ 
+  for (int i=0; i< numentries; i++) {
+ 
+    hashFile.seekg(i * entrysize);	     /* position into file */
+    hashFile.read((char*)&(curhash.key), 4); /* read 4-byte key */
+    /* We need to byte swap this guy */
+    curhash.key = htonl(curhash.key);
+    hashFile.read((char*)&(curhash.filepos), sizeof(curhash.filepos));
+    /* We need to byte swap this guy */
+    curhash.filepos = htonl(curhash.filepos);
+    spyKeysList.push_back(curhash);
+  }
 
+  if (spyKeysList.empty()) {
+    rc = ECMD_FAILURE;
+  }
+  else {
+    rc = ECMD_SUCCESS;
+  }
+  return rc;
+}
 
 int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name) {
 
