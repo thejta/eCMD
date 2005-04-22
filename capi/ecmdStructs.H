@@ -646,6 +646,23 @@ inline ecmdArrayData::~ecmdArrayData() { }
  @brief Used for the ecmdQueryTraceArray function to return trace array info
 */
 struct ecmdTraceArrayData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdTraceArrayData();
+
+  // Destructor
+  ~ecmdTraceArrayData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   std::string      traceArrayName;      ///< Name of Trace array
   int              length;              ///< Length of trace array (number of entries)
   int              width;               ///< Bit width of trace array entry
@@ -654,15 +671,59 @@ struct ecmdTraceArrayData {
   ecmdClockState_t clockState;          ///< Required clock state to access this array
 };
 
+#ifndef DOCUMENTATION
+// ecmdTraceArrayData Constructor
+inline ecmdTraceArrayData::ecmdTraceArrayData():
+length(0),
+width(0),
+isCoreRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdTraceArrayData Destructor
+inline ecmdTraceArrayData::~ecmdTraceArrayData() { }
+#endif
+
 /**
  @brief Used for the ecmdQueryScom function to return scom info
 */
 struct ecmdScomData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdScomData();
+
+  // Destructor
+  ~ecmdScomData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   uint32_t         address;             ///< Scom Address
   bool             isCoreRelated;       ///< This scom is related to the core level of a chip
   std::string      clockDomain;         ///< Clock domain this array belongs to
   ecmdClockState_t clockState;          ///< Required clock state to access this scom
 };
+
+#ifndef DOCUMENTATION
+// ecmdScomData Constructor
+inline ecmdScomData::ecmdScomData():
+address(0),
+isCoreRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdScomData Destructor
+inline ecmdScomData::~ecmdScomData() { }
+#endif
 
 /**
  @brief Used by the getArrayMultiple function to pass data
@@ -715,33 +776,135 @@ struct ecmdSpyGroupData {
  @brief Used by get/putSprMultiple function to pass data
 */
 struct ecmdNameEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdNameEntry();
+
+  // Destructor
+  ~ecmdNameEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   std::string    name;                  ///< Name of entry 
   ecmdDataBuffer buffer;                ///< Data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
+
+#ifndef DOCUMENTATION
+// ecmdNameEntry Constructor
+inline ecmdNameEntry::ecmdNameEntry():
+rc(0)
+{
+}
+
+// ecmdNameEntry Destructor
+inline ecmdNameEntry::~ecmdNameEntry() { }
+#endif
 
 /**
  @brief Used by getTraceArrayMultiple function to pass data
 */
 struct ecmdNameVectorEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdNameVectorEntry();
+
+  // Destructor
+  ~ecmdNameVectorEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   std::string    name;                  ///< Name of entry 
   std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
 
+#ifndef DOCUMENTATION
+// ecmdNameVectorEntry Constructor
+inline ecmdNameVectorEntry::ecmdNameVectorEntry():
+rc(0)
+{
+}
+
+// ecmdNameVectorEntry Destructor
+inline ecmdNameVectorEntry::~ecmdNameVectorEntry() { }
+#endif
+
 /**
  @brief Used by get/put Gpr/Fpr Multiple function to pass data
 */
 struct ecmdIndexEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdIndexEntry();
+
+  // Destructor
+  ~ecmdIndexEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   int            index;                 ///< Index of entry
   ecmdDataBuffer buffer;                ///< Data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 }; 
 
+#ifndef DOCUMENTATION
+// ecmdIndexEntry Constructor
+inline ecmdIndexEntry::ecmdIndexEntry():
+index(0),
+rc(0)
+{
+}
+
+// ecmdIndexEntry Destructor
+inline ecmdIndexEntry::~ecmdIndexEntry() { }
+#endif
+
 /**
  @brief Used by getlatch function to return data
 */
 struct ecmdLatchEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdLatchEntry();
+
+  // Destructor
+  ~ecmdLatchEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   std::string    latchName;             ///< Latch name of entry
   std::string    ringName;              ///< Ring that latch came from
   ecmdDataBuffer buffer;                ///< Latch data
@@ -750,15 +913,58 @@ struct ecmdLatchEntry {
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
 
+#ifndef DOCUMENTATION
+// ecmdLatchEntry Constructor
+inline ecmdLatchEntry::ecmdLatchEntry():
+latchStartBit(0),
+latchEndBit(0),
+rc(0)
+{
+}
+
+// ecmdLatchEntry Destructor
+inline ecmdLatchEntry::~ecmdLatchEntry() { }
+#endif
 
 /**
  @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
 */
 struct ecmdProcRegisterInfo {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdProcRegisterInfo();
+
+  // Destructor
+  ~ecmdProcRegisterInfo();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   int bitLength;                ///< Bit length of each entry
   int totalEntries;             ///< Total number of entries available
   bool threadReplicated;        ///< Register is replicated for each thread
 };
+
+#ifndef DOCUMENTATION
+// ecmdProcRegisterInfo Constructor
+inline ecmdProcRegisterInfo::ecmdProcRegisterInfo():
+bitLength(0),
+totalEntries(0),
+threadReplicated(false)
+{
+}
+
+// ecmdProcRegisterInfo Destructor
+inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
+#endif
+
 
 /**
  @brief Used by ecmdCacheFlush to specify which level of cache to flush

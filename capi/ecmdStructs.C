@@ -3119,6 +3119,194 @@ void  ecmdArrayData::printStruct() {
 #endif  // end of REMOVE_SIM
 
 
+/*
+ * The following methods for the ecmdTraceData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdTraceArrayData::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdTraceArrayData::printStruct() {
+
+        printf("\n\t--- Trace Array Data Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
+ * The following methods for the ecmdScomData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdScomData::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdScomData::printStruct() {
+
+        printf("\n\t--- Scom Data Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
+ * The following methods for the ecmdNameEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdNameEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdNameEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdNameEntry::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdNameEntry::printStruct() {
+
+        printf("\n\t--- Name Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
+ * The following methods for the ecmdNameVectorEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdNameVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdNameVectorEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdNameVectorEntry::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdNameVectorEntry::printStruct() {
+
+        printf("\n\t--- Name Vector Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
+ * The following methods for the ecmdIndexEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdIndexEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdIndexEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdIndexEntry::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdIndexEntry::printStruct() {
+
+        printf("\n\t--- Index Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
+ * The following methods for the ecmdLatchEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdLatchEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdLatchEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdLatchEntry::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdLatchEntry::printStruct() {
+
+        printf("\n\t--- Latch Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
+ * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdProcRegisterInfo::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdProcRegisterInfo::printStruct() {
+
+        printf("\n\t--- Proc Register Info Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
 
 
 // Change Log *********************************************************
