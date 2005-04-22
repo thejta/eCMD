@@ -62,8 +62,8 @@ char **p_xargv;
 #endif
 #endif
 
-#define RETURN_ERROR(i_rc) iv_RealData[2] = i_rc; return i_rc;
-#define SET_ERROR(i_rc) iv_RealData[2] = i_rc; 
+#define RETURN_ERROR(i_rc) if (iv_RealData != NULL) { iv_RealData[2] = i_rc; } return i_rc;
+#define SET_ERROR(i_rc) if (iv_RealData != NULL) { iv_RealData[2] = i_rc; }
 
 //----------------------------------------------------------------------
 //  Forward declarations
@@ -205,7 +205,7 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
       RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
-  if (newNumBits == iv_NumBits) {
+  if ((newNumBits == iv_NumBits) && newNumBits != 0) {
     /* Just clear the buffer */
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
