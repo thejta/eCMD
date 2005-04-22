@@ -350,6 +350,40 @@ public:
   uint8_t getByte(uint32_t i_byteoffset) const;
 
   /**
+   * @brief Set a halfword of data in buffer
+   * @param i_halfwordoffset Offset of halfword to set
+   * @param i_value 16 bits of data to put into halfword
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW i_halfwordoffset is not contained in the size of this buffer
+   */
+  uint32_t  setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value);
+
+  /**
+   * @brief Fetch a halfword from ecmdDataBuffer
+   * @param i_halfwordoffset Offset of halfword to fetch
+   * @retval Value of halfword requested
+   */
+  uint16_t getHalfWord(uint32_t i_halfwordoffset) const;
+
+  /**
+   * @brief Set a doubleword of data in buffer
+   * @param i_doublewordoffset Offset of doubleword to set
+   * @param i_value 64 bits of data to put into doubleword
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW i_doublewordoffset is not contained in the size of this buffer
+   */
+  uint32_t  setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value);
+
+  /**
+   * @brief Fetch a doubleword from ecmdDataBuffer
+   * @param i_doublewordoffset Offset of doubleword to fetch
+   * @retval Value of doubleword requested
+   */
+  uint64_t getDoubleWord(uint32_t i_doublewordoffset) const;
+
+
+
+  /**
    * @brief Clear a bit in buffer
    * @param i_bit Bit in buffer to turn off
    * @retval ECMD_DBUF_SUCCESS on success

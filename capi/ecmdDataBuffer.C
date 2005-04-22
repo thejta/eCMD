@@ -526,6 +526,95 @@ uint8_t ecmdDataBuffer::getByte(uint32_t byteOffset) const {
 }
 
 
+uint32_t  ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if (i_halfwordoffset >= (getWordLength()*2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setHalfWord: halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, (getWordLength()*2));
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  uint32_t value32 = (uint32_t)i_value;
+  if (i_halfwordoffset % 2) {
+    iv_Data[i_halfwordoffset/2] = (iv_Data[i_halfwordoffset/2] & 0x0000FFFF) | ((value32 << 16) & 0x0000FFFF);
+  } else {
+    iv_Data[i_halfwordoffset/2] = (iv_Data[i_halfwordoffset/2] & 0xFFFF0000) | (value32 & 0x0000FFFF);
+  }
+
+#ifndef REMOVE_SIM
+  int startBit = i_halfwordoffset * 16;
+  uint16_t mask = 0x8000;
+  for (int i = 0; i < 16; i++) {
+    if (i_value & mask) {
+      iv_DataStr[startBit+i] = '1';
+    }
+    else {
+      iv_DataStr[startBit+i] = '0';
+    }
+
+    mask >>= 1;
+  }
+#endif
+  return rc;
+}
+ 
+
+uint16_t ecmdDataBuffer::getHalfWord(uint32_t i_halfwordoffset) const {
+  if (i_halfwordoffset >= (getWordLength()*2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::getHalfWord: halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, (getWordLength()*2));
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return 0;
+  }
+  uint16_t ret;
+  if (i_halfwordoffset % 2) 
+    ret = (uint16_t)(iv_Data[i_halfwordoffset/2] >> 16);
+  else
+    ret = (uint16_t)(iv_Data[i_halfwordoffset/2] & 0x0000FFFF);
+  return ret;
+}
+
+uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if (i_doublewordoffset >= (getWordLength()/2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", i_doublewordoffset, (getWordLength()/2));
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  uint32_t hivalue = (uint32_t)((i_value & 0xFFFFFFFF00000000ull) >> 32);
+  uint32_t lovalue = (uint32_t)((i_value & 0x00000000FFFFFFFFull));
+
+  iv_Data[i_doublewordoffset*2] = hivalue;
+  iv_Data[(i_doublewordoffset*2)+1] = lovalue;
+
+  
+#ifndef REMOVE_SIM
+  int startBit = i_doublewordoffset * 64;
+  uint64_t mask = 0x8000000000000000ull;
+  for (int i = 0; i < 64; i++) {
+    if (i_value & mask) {
+      iv_DataStr[startBit+i] = '1';
+    }
+    else {
+      iv_DataStr[startBit+i] = '0';
+    }
+
+    mask >>= 1;
+  }
+#endif
+  return rc;
+}
+
+uint64_t ecmdDataBuffer::getDoubleWord(uint32_t i_doublewordoffset) const {
+  if (i_doublewordoffset >= (getWordLength()/2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::getDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", i_doublewordoffset, (getWordLength()/2));
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return 0;
+  }
+  uint64_t ret;
+  ret = ((uint64_t)(iv_Data[i_doublewordoffset/2])) << 32;
+  ret |= iv_Data[(i_doublewordoffset/2)+1];
+  return ret;
+}
+
 uint32_t  ecmdDataBuffer::clearBit(uint32_t bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (bit >= iv_NumBits) {
