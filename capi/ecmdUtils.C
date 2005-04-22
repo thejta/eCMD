@@ -2006,8 +2006,10 @@ typedef enum {
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
+#ifndef FIPSODE
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
+#endif
   bool verboseFlag = false;
   bool verboseBitsSetFlag = false;              ///< Print Bit description only if bit/s are set
   bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
@@ -2042,14 +2044,14 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
     ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
     return rc;
   }
+#ifndef FIPSODE
   scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
-  
 
   std::list< std::string >::iterator descIt;
   std::list<sedcScomdefDefLine>::iterator definIt;
   std::list< std::string >::iterator bitDetIt;
   char bitDesc[1000];
-  
+
   sprintf(bitDesc,"Name       : %20s%s\nDesc	   : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
 
@@ -2106,6 +2108,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
       }//end for
     }//end if 
   }// end for
+#endif
   return rc;
 }
 
