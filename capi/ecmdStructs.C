@@ -2449,6 +2449,677 @@ void  ecmdSpyData::printStruct() {
 }
 #endif
 
+// @02
+/*
+ * The following methods for the ecmdArrayEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdArrayEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
+
+    uint32_t tmpData32 = 0;
+    uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
+    uint32_t l_rc = ECMD_SUCCESS;
+
+    uint8_t * l_ptr = o_buf;
+
+    do {    // Single entry ->
+
+        // Check for buffer size mismatch (overflow or underflow)
+        if ( this->flattenSize() != i_len ) {
+	    ETRAC2("Buffer overflow occurred in ecmdArrayEntry::flatten() "
+                   "structure size = %d; input length = %d",
+                   this->flattenSize(), i_len );
+	    l_rc = ECMD_DATA_OVERFLOW;
+	    break;
+        }
+
+        // Write the size of "address", to check against when unflattening
+        dataBufSize = address.flattenSize();
+        tmpData32 = htonl( dataBufSize );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Write address into the output buffer
+        l_rc = address.flatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+           l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // Write the size of "buffer", to check against when unflattening
+        dataBufSize = buffer.flattenSize();
+        tmpData32 = htonl( dataBufSize );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Write contents of "buffer" into the output buffer
+        l_rc = buffer.flatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+           l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // Write "rc" into the output buffer
+        tmpData32 = htonl( rc );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( rc );
+        i_len -= sizeof( rc );
+
+        // If the length has not decremented to 0, something is wrong
+        if ( i_len != 0 ) {
+	    ETRAC1("Buffer overflow occurred in ecmdArrayEntry::flatten() "
+                   "leftover data bytes = %d", i_len );
+           l_rc = ECMD_DATA_OVERFLOW;
+           break;
+        }
+
+    } while (0);	// <- single exit.
+
+    return l_rc;
+}
+
+uint32_t ecmdArrayEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
+
+    uint32_t rcTemp = 0;
+    uint32_t dataBufSize = 0;
+    uint32_t l_rc = ECMD_SUCCESS;
+
+    uint8_t * l_ptr = (uint8_t *) i_buf;
+
+    do {	// Single entry ->
+
+        // Get the size of "address" to pass to unflatten()
+        memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
+        dataBufSize = ntohl( dataBufSize );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Unflatten "address" from the input buffer
+        l_rc = address.unflatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+            l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // Get the size of "buffer" to pass to unflatten()
+        memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
+        dataBufSize = ntohl( dataBufSize );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Unflatten "buffer" from the input buffer
+        l_rc = buffer.unflatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+            l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // Get "rc" from the input buffer
+        memcpy( &rcTemp, l_ptr, sizeof(rcTemp) );
+        rc = ntohl( rcTemp );
+        l_ptr += sizeof( rcTemp );
+        i_len -= sizeof( rcTemp );
+
+    } while (0);	// <- single exit.
+
+    return l_rc;
+}
+
+uint32_t ecmdArrayEntry::flattenSize() const {
+
+	uint32_t flatSize = 0;
+
+        uint32_t dataBufSize = 0;  // A size is stored for each ecmdDataBuf
+
+	flatSize += sizeof( dataBufSize );  // Size of member "address"
+        flatSize += address.flattenSize();  // Space for "address" flattened
+        
+        flatSize += sizeof( dataBufSize );  // Size of member "buffer"
+        flatSize += buffer.flattenSize();   // Space for "buffer" flattened
+
+        flatSize += sizeof( rc );           // Space for member "rc"
+
+	return flatSize;
+}  
+
+
+#ifndef REMOVE_SIM
+void ecmdArrayEntry::printStruct() const {
+
+    uint32_t tmpData = 0;
+    std::string tmpString;
+
+    printf("\n\t\teCMD Array Entry:\n");
+
+    tmpData = address.getBitLength();
+    tmpString = address.genHexLeftStr(0, tmpData);
+    printf("\t\t\taddress bitlength: %d\n", tmpData );
+    printf("\t\t\taddress wordlength: %d\n", address.getWordLength() );
+    printf("\t\t\taddress data: %s\n", tmpString.c_str() );
+
+    tmpData = buffer.getBitLength();
+    tmpString = buffer.genHexLeftStr(0, tmpData);
+    printf("\t\t\tbuffer bitlength: %d\n", tmpData );
+    printf("\t\t\tbuffer wordlength: %d\n", buffer.getWordLength() );
+    printf("\t\t\tbuffer data: %s\n", tmpString.c_str() );
+
+    printf("\t\t\treturn code (rc): 0x%x\n", rc );
+}
+#endif
+// @02 end
+
+
+/*
+ * The following methods for the ecmdRingData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        uint32_t tmpData32 = 0;
+        uint32_t ringNamesListSize  = 0;
+        uint32_t rc     = ECMD_SUCCESS;
+
+        uint8_t *l_ptr = o_buf;
+
+        std::list<std::string>:: iterator ringNamesIter;
+
+
+        do {    // Single entry ->
+
+	    if (this->flattenSize() > i_len) {
+		// Generate an error for buffer overflow conditions.
+		ETRAC2("Buffer overflow occured in "
+		       "ecmdRingData::flatten() "
+		       "structure size = %d; "
+		       "input length = %d",
+		       this->flattenSize(), i_len);
+		rc = ECMD_DATA_OVERFLOW;
+		break;
+	    }
+
+	    // Copy non-list data.
+	    // address
+	    tmpData32 = htonl(address);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(address);
+	    i_len -= sizeof(address);
+
+	    // bitLength
+	    tmpData32 = htonl((uint32_t)bitLength);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(bitLength);
+	    i_len -= sizeof(bitLength);
+
+	    // hasInversionMask
+	    memcpy(l_ptr, &hasInversionMask, sizeof(hasInversionMask)); 
+	    l_ptr += sizeof(hasInversionMask);
+	    i_len -= sizeof(hasInversionMask);
+
+	    // supportsBroadsideLoad
+	    memcpy(l_ptr, &supportsBroadsideLoad, sizeof(supportsBroadsideLoad));
+	    l_ptr += sizeof(supportsBroadsideLoad);
+	    i_len -= sizeof(supportsBroadsideLoad);
+
+	    // isCheckable
+	    memcpy(l_ptr, &isCheckable, sizeof(isCheckable)); 
+	    l_ptr += sizeof(isCheckable);
+	    i_len -= sizeof(isCheckable);
+
+	    // clockDomain
+	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
+	    l_ptr += clockDomain.size() + 1;
+	    i_len -= clockDomain.size() + 1;
+
+	    // clockState
+	    tmpData32 = htonl((uint32_t)clockState);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(clockState);
+	    i_len -= sizeof(clockState);
+
+
+	    /*
+	     * Figure out how many ringName strings are in the list for
+	     * future unflattening.
+	     */
+	    ringNamesListSize = ringNames.size();
+
+	    // add ringNamesListSize
+	    tmpData32 = htonl(ringNamesListSize);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(ringNamesListSize);
+	    i_len -= sizeof(ringNamesListSize);
+
+	    if (ringNamesListSize != 0)   // don't bother grabbing list of ringNames if there aren't any
+	    {
+		// Copy List of ringName strings
+		for (ringNamesIter = ringNames.begin(); ringNamesIter != ringNames.end(); ++ringNamesIter)
+		{
+		    memcpy(l_ptr, (*ringNamesIter).c_str(), (*ringNamesIter).size() + 1);
+		    l_ptr += (*ringNamesIter).size() + 1;
+		    i_len -= (*ringNamesIter).size() + 1;
+		}
+
+	    }
+
+	    // Do final check
+	    if (i_len != 0)
+	    {
+		ETRAC2("Buffer size mismacth occured in "
+		       "ecmdRingData::flatten() "
+		       "structure size = %d; "
+		       "leftover length = %d",
+		       this->flattenSize(), i_len);
+		rc = ECMD_DATA_OVERFLOW;
+		break;
+	    }
+
+        } while (0);    // <- single exit.
+
+        return rc;
+}
+
+
+
+uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+
+        uint8_t *l_ptr = (uint8_t *) i_buf;
+        uint32_t rc       = ECMD_SUCCESS;
+
+        uint32_t ringNamesListSize  = 0;
+	uint32_t loop = 0;
+	int l_left = (int) i_len;
+
+
+        do {    // Single entry ->
+
+	    // Unflatten non-list data.
+	    // address
+	    memcpy(&address, l_ptr, sizeof(address));
+	    address = ntohl(address);
+	    l_ptr += sizeof(address);
+	    l_left -= sizeof(address);
+
+	    // bitLength
+	    memcpy(&bitLength, l_ptr, sizeof(bitLength));
+	    bitLength = (int) ntohl(bitLength);
+	    l_ptr += sizeof(bitLength);
+	    l_left -= sizeof(bitLength);
+
+	    // hasInversionMask
+	    memcpy(&hasInversionMask, l_ptr, sizeof(hasInversionMask));
+	    l_ptr += sizeof(hasInversionMask);
+	    l_left -= sizeof(hasInversionMask);
+
+	    // supportsBroadsideLoad
+	    memcpy(&supportsBroadsideLoad, l_ptr, sizeof(supportsBroadsideLoad));
+	    l_ptr += sizeof(supportsBroadsideLoad);
+	    l_left -= sizeof(supportsBroadsideLoad);
+
+	    // isCheckable
+	    memcpy(&isCheckable, l_ptr, sizeof(isCheckable));
+	    l_ptr += sizeof(isCheckable);
+	    l_left -= sizeof(isCheckable);
+
+	    // clockDomain
+	    std::string l_clockDomain = (const char *) l_ptr;
+	    clockDomain = l_clockDomain;
+	    l_ptr += l_clockDomain.size() + 1;
+	    l_left -= l_clockDomain.size() + 1;
+
+	    // clockState
+	    memcpy(&clockState, l_ptr, sizeof(clockState));
+	    clockState = (ecmdClockState_t) ntohl((uint32_t)clockState);
+	    l_ptr += sizeof(clockState);
+	    l_left -= sizeof(clockState);
+
+	    // Figure out how many ringNames strings are in the list and then unflatten
+	    memcpy(&ringNamesListSize, l_ptr, sizeof(ringNamesListSize));
+	    ringNamesListSize = ntohl(ringNamesListSize);
+	    l_ptr += sizeof(ringNamesListSize);
+	    l_left -= sizeof(ringNamesListSize);
+
+	    // create list of string of ringNames (nothing happens if ringNamesListSize=0)
+	    for (loop = 0; loop < ringNamesListSize; loop++)
+	    {
+		std::string l_str_ringName = (char *)l_ptr; 
+		ringNames.push_back(l_str_ringName);
+		l_ptr += (strlen((char *)l_ptr) + 1);
+		l_left -= (strlen((char *)l_ptr) +1);
+	    }
+
+	    // Do Final Checks
+	    if (l_left < 0)
+	    {	
+		// Generate an error for buffer overflow conditions.
+		ETRAC3("Buffer overflow occured in "
+		       "ecmdRingData::unflatten() "
+		       "structure size = %d; "
+		       "input length = %x; "
+		       "remainder = %d\n",
+		       this->flattenSize(), i_len, l_left);
+		rc = ECMD_DATA_OVERFLOW;
+		break;
+	    }
+	    if (l_left > 0)
+	    {	
+		// Generate an error for buffer underflow conditions.
+		ETRAC3("Buffer underflow occured in "
+		       "ecmdRingData::unflatten() "
+		       "structure size = %d; "
+		       "input length = %x; "
+		       "remainder = %d\n",
+		       this->flattenSize(), i_len, l_left);
+		rc = ECMD_DATA_UNDERFLOW;
+		break;
+	    }
+
+        } while (0);    // <- single exit.
+
+        return rc;
+}
+
+
+uint32_t ecmdRingData::flattenSize() {
+
+        uint32_t flatSize = 0;
+        uint32_t ringNamesListSize  = 0;
+        std::list<std::string>:: iterator ringNamesIter;
+
+
+        do {    // Single entry ->
+
+
+                // Size of non-list member data.
+                flatSize += (sizeof(address)
+                             + sizeof(bitLength)
+                             + sizeof(hasInversionMask)
+                             + sizeof(supportsBroadsideLoad)
+			     + sizeof(isCheckable)
+                             + clockDomain.size() + 1
+                             + sizeof(clockState));
+
+                /*
+                 * Figure out how many enum strings are in the list for
+                 * future unflattening.
+                 */
+                ringNamesListSize = ringNames.size();
+
+                // add ringNamesListSize
+                flatSize += sizeof(ringNamesListSize);
+
+                if (0 != ringNamesListSize) {  // don't bother grabbing list of ringNamess if there aren't any
+                    // add length of each string
+                    for (ringNamesIter = ringNames.begin(); ringNamesIter != ringNames.end(); ++ringNamesIter)
+                    {
+                        flatSize += (*ringNamesIter).size() + 1;
+                    }
+
+                }
+
+        } while (0);    // <- single exit.
+
+        return flatSize;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdRingData::printStruct() {
+
+        uint32_t ringNamesListSize  = ringNames.size(); ;
+
+        std::list<std::string>:: iterator ringNamesIter;
+
+
+        printf("\n\t--- Ring Data Structure ---\n");
+
+        // Print non-list data.
+        printf("\tAddress:  0x%08x\n", address);
+        printf("\tBit Length: 0x%08x\n", (uint32_t) bitLength);
+        printf("\thasInversionMask: 0x%08x\n", (uint32_t) hasInversionMask);
+        printf("\tsupportsBroadsideLoad: 0x%08x\n", (uint32_t) supportsBroadsideLoad);
+        printf("\tisCheckable: 0x%08x\n", (uint32_t) isCheckable);
+        printf("\tClock Domain:  %s\n", clockDomain.c_str());
+        printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
+
+        // print ringNames List Data
+        if (ringNamesListSize == 0) {
+            printf("\tNo entries in ringNames list\n");
+        }
+        else {
+            // display each ringName string
+            printf("\tList of ringName Strings: \n");
+            for (ringNamesIter = ringNames.begin(); ringNamesIter != ringNames.end(); ++ringNamesIter)
+            {
+                printf("\t\t%s\n", (*ringNamesIter).c_str());
+            }
+        }
+}
+#endif  // end of REMOVE_SIM
+
+
+/*
+ * The following methods for the ecmdArrayData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        uint32_t tmpData32 = 0;
+        uint32_t rc     = ECMD_SUCCESS;
+        uint8_t *l_ptr = o_buf;
+
+
+        do {    // Single entry ->
+
+	    if (this->flattenSize() > i_len) {
+		// Generate an error for buffer overflow conditions.
+		ETRAC2("Buffer overflow occured in "
+		       "ecmdArrayData::flatten() "
+		       "structure size = %d; "
+		       "input length = %d",
+		       this->flattenSize(), i_len);
+		rc = ECMD_DATA_OVERFLOW;
+		break;
+	    }
+
+	    // Copy non-list data.
+	    // arrayName  
+	    memcpy(l_ptr, arrayName.c_str(), arrayName.size() + 1);
+	    l_ptr += arrayName.size() + 1;
+	    i_len -= arrayName.size() + 1;
+
+	    // readAddressLength
+	    tmpData32 = htonl((uint32_t)readAddressLength);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(readAddressLength);
+	    i_len -= sizeof(readAddressLength);
+
+	    // writeAddressLength
+	    tmpData32 = htonl((uint32_t)writeAddressLength);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(writeAddressLength);
+	    i_len -= sizeof(writeAddressLength);
+
+	    // length
+	    tmpData32 = htonl((uint32_t)length);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(length);
+	    i_len -= sizeof(length);
+
+	    // width
+	    tmpData32 = htonl((uint32_t)width);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(width);
+	    i_len -= sizeof(width);
+
+	    // clockDomain
+	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
+	    l_ptr += clockDomain.size() + 1;
+	    i_len -= clockDomain.size() + 1;
+
+	    // clockState
+	    tmpData32 = htonl((uint32_t)clockState);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(clockState);
+	    i_len -= sizeof(clockState);
+
+
+	    // Do final check
+	    if (i_len != 0)
+	    {
+		ETRAC2("Buffer size mismacth occured in "
+		       "ecmdArrayData::flatten() "
+		       "structure size = %d; "
+		       "leftover length = %d",
+		       this->flattenSize(), i_len);
+		rc = ECMD_DATA_OVERFLOW;
+		break;
+	    }
+
+        } while (0);    // <- single exit.
+
+        return rc;
+}
+
+
+
+uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+
+        uint8_t *l_ptr = (uint8_t *) i_buf;
+        uint32_t rc       = ECMD_SUCCESS;
+	int l_left = (int) i_len;
+
+
+        do {    // Single entry ->
+
+	    // Unflatten non-list data.
+	    // arrayName
+	    std::string l_arrayName = (const char *) l_ptr;  //maybe this can be 1 line?
+	    arrayName = l_arrayName;
+	    l_ptr += l_arrayName.size() + 1;
+	    l_left -= l_arrayName.size() + 1;
+
+	    // readAddressLength
+	    memcpy(&readAddressLength, l_ptr, sizeof(readAddressLength));
+	    readAddressLength = (int) ntohl(readAddressLength);
+	    l_ptr += sizeof(readAddressLength);
+	    l_left -= sizeof(readAddressLength);
+
+	    // writeAddressLength
+	    memcpy(&writeAddressLength, l_ptr, sizeof(writeAddressLength));
+	    writeAddressLength = (int) ntohl(writeAddressLength);
+	    l_ptr += sizeof(writeAddressLength);
+	    l_left -= sizeof(writeAddressLength);
+
+	    // length
+	    memcpy(&length, l_ptr, sizeof(length));
+	    length = (int) ntohl(length);
+	    l_ptr += sizeof(length);
+	    l_left -= sizeof(length);
+
+	    // width
+	    memcpy(&width, l_ptr, sizeof(width));
+	    width = (int) ntohl(width);
+	    l_ptr += sizeof(width);
+	    l_left -= sizeof(width);
+
+	    // clockDomain
+	    std::string l_clockDomain = (const char *) l_ptr;
+	    clockDomain = l_clockDomain;
+	    l_ptr += l_clockDomain.size() + 1;
+	    l_left -= l_clockDomain.size() + 1;
+
+	    // clockState
+	    memcpy(&clockState, l_ptr, sizeof(clockState));
+	    clockState = (ecmdClockState_t) ntohl((uint32_t)clockState);
+	    l_ptr += sizeof(clockState);
+	    l_left -= sizeof(clockState);
+
+
+	    // Do Final Checks
+	    if (l_left < 0)
+	    {	
+		// Generate an error for buffer overflow conditions.
+		ETRAC3("Buffer overflow occured in "
+		       "ecmdArrayData::unflatten() "
+		       "structure size = %d; "
+		       "input length = %x; "
+		       "remainder = %d\n",
+		       this->flattenSize(), i_len, l_left);
+		rc = ECMD_DATA_OVERFLOW;
+		break;
+	    }
+	    if (l_left > 0)
+	    {	
+		// Generate an error for buffer underflow conditions.
+		ETRAC3("Buffer underflow occured in "
+		       "ecmdArrayData::unflatten() "
+		       "structure size = %d; "
+		       "input length = %x; "
+		       "remainder = %d\n",
+		       this->flattenSize(), i_len, l_left);
+		rc = ECMD_DATA_UNDERFLOW;
+		break;
+	    }
+
+        } while (0);    // <- single exit.
+
+        return rc;
+}
+
+
+uint32_t ecmdArrayData::flattenSize() {
+
+        uint32_t flatSize = 0;
+
+
+        do {    // Single entry ->
+
+                // Size of non-list member data.
+                flatSize += (arrayName.size() + 1
+			     + sizeof(readAddressLength)
+			     + sizeof(writeAddressLength)
+                             + sizeof(length)
+                             + sizeof(width)
+                             + clockDomain.size() + 1
+                             + sizeof(clockState));
+
+        } while (0);    // <- single exit.
+
+        return flatSize;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdArrayData::printStruct() {
+
+        printf("\n\t--- Array Data Structure ---\n");
+
+        // Print non-list data.
+        printf("\tArray Name:  %s\n", arrayName.c_str());
+        printf("\tRead Address Length:  0x%08x\n", (uint32_t) readAddressLength);
+        printf("\tWrite Address Length:  0x%08x\n", (uint32_t) writeAddressLength);
+        printf("\tLength: 0x%08x\n", (uint32_t) length);
+        printf("\tWidth: 0x%08x\n", (uint32_t) width);
+        printf("\tClock Domain:  %s\n", clockDomain.c_str());
+        printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
+
+}
+#endif  // end of REMOVE_SIM
+
+
+
 
 // Change Log *********************************************************
 //                                                                      
@@ -2458,6 +3129,11 @@ void  ecmdSpyData::printStruct() {
 //  @01x 492138        02/10/05 prahl    Fix ecmdThreadData::unflatten overflow
 //                                       check & Added underflow check 
 //                                       to ecmdQueryData::unflatten
+//  @02  494820        03/01/05 scottw   Add ecmdArrayEntry flatten, unflatten
+//                                        and flattensize
+//  none F494212       03/06/05 baiocchi Added flatten/unflatten/flattenSize/printStruct
+//                                        for ecmdRingData and ecmdArrayData
+//  none F497173       03/18/05 scottw   Added printStruct for ecmdArrayEntry
 //
 // End Change Log *****************************************************
 

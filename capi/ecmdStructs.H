@@ -550,6 +550,23 @@ typedef enum {
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdRingData();
+
+  // Destructor
+  ~ecmdRingData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   std::list<std::string> ringNames;                     ///< Names used to reference this ring
   uint32_t               address;                       ///< Address modifier
   int                    bitLength;                     ///< length of ring
@@ -561,12 +578,44 @@ struct ecmdRingData {
   ecmdClockState_t       clockState;                    ///< Required clock state to access this ring
 };
 
+#ifndef DOCUMENTATION
+// ecmdRingData Constructor
+inline ecmdRingData::ecmdRingData():
+address(0),
+bitLength(0),
+hasInversionMask(false),
+supportsBroadsideLoad(false),
+isCheckable(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdRingData Destructor
+inline ecmdRingData::~ecmdRingData() { }
+#endif
 
 
 /**
  @brief Used for the ecmdQueryArray function to return array info
 */
 struct ecmdArrayData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdArrayData();
+
+  // Destructor
+  ~ecmdArrayData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   std::string arrayName;                ///< Names used to reference this array
   int         readAddressLength;        ///< Bit length of read address
   int         writeAddressLength;       ///< Bit length of write address
@@ -576,6 +625,22 @@ struct ecmdArrayData {
   std::string           clockDomain;    ///< Clock domain this array belongs to
   ecmdClockState_t       clockState;    ///< Required clock state to access this array
 };
+
+#ifndef DOCUMENTATION
+// ecmdArrayData Constructor
+inline ecmdArrayData::ecmdArrayData():
+readAddressLength(0),
+writeAddressLength(0),
+length(0),
+width(0),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdArrayData Destructor
+inline ecmdArrayData::~ecmdArrayData() { }
+#endif
+
 
 /**
  @brief Used for the ecmdQueryTraceArray function to return trace array info
@@ -603,10 +668,39 @@ struct ecmdScomData {
  @brief Used by the getArrayMultiple function to pass data
 */
 struct ecmdArrayEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdArrayEntry();
+
+  // Destructor
+  ~ecmdArrayEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void) const;
+#ifndef REMOVE_SIM
+  void printStruct(void) const;
+#endif
+#endif
+
+  // Members
   ecmdDataBuffer address;               ///< Array address/element to access
   ecmdDataBuffer buffer;                ///< Array data from address
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
+
+#ifndef DOCUMENTATION
+// ecmdArrayEntry Constructor
+inline ecmdArrayEntry::ecmdArrayEntry():
+rc(0)
+{
+}
+
+// ecmdArrayEntry Destructor
+inline ecmdArrayEntry::~ecmdArrayEntry() { }
+#endif
+
 
 /**
  @brief Used by get/putspy function to create the return data from a group
