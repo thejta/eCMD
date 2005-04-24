@@ -1565,7 +1565,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
   std::list< ecmdLatchHashInfo >::iterator latchHashDetIter;  
   ecmdLatchHashInfo curLatchHashInfo;           ///< Current Latch Hash Key, Offset
   uint32_t latchKeyToLookFor;                   ///< Hash Key for i_latchName
-  uint32_t ringKey;                             ///< Hash Key for i_ringName
+  uint32_t ringKey=0;				///< Hash Key for i_ringName
   std::string scandefFile;                      ///< Full path to scandef file
   std::string scandefHashFile;                  ///< Full path to scandefhash file
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
