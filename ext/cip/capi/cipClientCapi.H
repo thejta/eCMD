@@ -285,15 +285,16 @@ uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position information
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_memoryData DataBuffer object that holds data read from memory
- @param o_memoryTags 1 bit of tag for every 64 bits of memory data
- @param o_memoryEcc ECC bits for every 64 bits of memory data
- @param o_memoryParity Parity bits for every 64 bits of memory data
+ @param o_memoryTags 1 Tag bit for every 64 bits of memory data
+ @param o_memoryEcc 8 ECC bits for every 64 bits of memory data
+ @param o_memoryParity 1 Parity bit for every 64 bits of memory data
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
@@ -307,17 +308,18 @@ uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @brief Writes System Mainstore through the processor chip using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position information 
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_memoryData DataBuffer object that holds data to write into memory
- @param i_memoryTags 1 bit of tag for every 64 bits of memory data
- @param i_memoryEcc ECC bits for every 64 bits of memory data
- @param i_memoryParity Parity bits for every 64 bits of memory data
+ @param i_memoryTags 1 Tag bit for every 64 bits of memory data
+ @param i_memoryEcc 8 ECC bits for every 64 bits of memory data
+ @param i_memoryParity 1 Parity bit for every 64 bits of memory data
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
@@ -334,15 +336,16 @@ uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position information
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_memoryData DataBuffer object that holds data read from memory
- @param o_memoryTags 1 bit of tag for every 64 bits of memory data
- @param o_memoryEcc ECC bits for every 64 bits of memory data
- @param o_memoryParity Parity bits for every 64 bits of memory data
+ @param o_memoryTags 1 Tag bit for every 64 bits of memory data
+ @param o_memoryEcc 8 ECC bits for every 64 bits of memory data
+ @param o_memoryParity 1 Parity bit for every 64 bits of memory data
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
@@ -356,17 +359,18 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
  @brief Writes System Mainstore through the memory controller using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a memory controller
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @param i_target Struct that contains chip and cage/node/slot/position information 
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_memoryData DataBuffer object that holds data to write into memory
- @param i_memoryTags 1 bit of tag for every 64 bits of memory data
- @param i_memoryEcc ECC bits for every 64 bits of memory data
- @param i_memoryParity Parity bits for every 64 bits of memory data
+ @param i_memoryTags 1 Tag bit for every 64 bits of memory data
+ @param i_memoryEcc 8 ECC bits for every 64 bits of memory data
+ @param i_memoryParity 1 Parity bit for every 64 bits of memory data
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
