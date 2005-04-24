@@ -77,13 +77,11 @@ bool ecmdRingCacheEnabled = false;
 
 uint32_t ecmdLoadDll(std::string i_dllName) {
 
-
-  const char* dlError;
   uint32_t rc = ECMD_SUCCESS;
 
 
-
 #ifndef ECMD_STATIC_FUNCTIONS
+  const char* dlError;
   /* Only do this if it hasn't been done already */
   if (dlHandle != NULL) {
     return ECMD_SUCCESS;
@@ -199,8 +197,9 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 uint32_t ecmdUnloadDll() {
 
   uint32_t rc = ECMD_SUCCESS;
+#ifndef ECMD_STATIC_FUNCTIONS
   uint32_t c_rc = ECMD_SUCCESS;
-
+#endif
 
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
