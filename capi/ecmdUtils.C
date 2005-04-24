@@ -119,7 +119,9 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipTarget queryTarget;
+#ifndef ECMD_STRIP_DEBUG
   int myTcount =0;
+#endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
@@ -246,7 +248,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   const uint8_t CORE = 4;
   const uint8_t THREAD = 5;
   bool done = false;
-  uint8_t level;
+  uint8_t level = 0;;
   uint32_t rc = 0;
   bool freshLoop = false;               ///< Have we moved forward to a new target at a hier level of hierarchy 
 

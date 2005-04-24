@@ -2187,9 +2187,12 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
 uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+#ifndef REMOVE_SIM
   /* cbytes is equal to the bit length of data */
   int cbytes = i_bytes < getBitLength() ? i_bytes : getBitLength();
   int index;
+#endif
+
 #ifdef REMOVE_SIM
   ETRAC0("**** ERROR : ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
@@ -2220,7 +2223,10 @@ uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bytes) 
  */
 uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
+#ifndef REMOVE_SIM
   int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+#endif
+
 #ifdef REMOVE_SIM
   ETRAC0("**** ERROR : ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
@@ -2476,7 +2482,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   uint32_t numBytes = getByteLength();
   uint32_t numBits = getBitLength();
   bool firstDBWrite = false;
-  char *offsetTableData;
+  char *offsetTableData=NULL;
   ecmdFormatType_t existingFmt;
   std::string asciidatastr,xstatestr;
   uint32_t *buffer;
