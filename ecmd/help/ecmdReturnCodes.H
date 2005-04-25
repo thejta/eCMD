@@ -79,8 +79,8 @@
 #define ECMD_SCOMADDRESS_NOT_FOUND              (ECMD_ERR_ECMD | 0x1052) ///< Scom Address not found in the ScomDef file
 #define ECMD_INVALID_ENTRY_REQUESTED            (ECMD_ERR_ECMD | 0x1053) ///< An invalid entry was requested
 #define ECMD_INSTRUCTIONS_IN_INVALID_STATE      (ECMD_ERR_ECMD | 0x1054) ///< Instructions were in an invalid state for operation
-#define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD / 0x1055) ///< Memory Address was not on a 8-byte boundary
-#define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_ECMD / 0x1056) ///< Requests that the user retries operation with returned Virtual Address
+#define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x1055) ///< Memory Address was not on a 8-byte boundary
+#define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_IP   | 0x1056) ///< Requests that the user retries operation with returned Virtual Address
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command
