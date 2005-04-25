@@ -2142,6 +2142,95 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
 
 //@}
 
+
+
+/** @name Module VPD Functions */
+//@{
+
+/**
+ @brief Read Module VPD Keyword Interface
+ @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_record_name Name of VPD Record for given keyword
+ @param i_keyword Name of VPD Keyword to Read
+ @param i_data_length Size of output buffer (o_data)
+ @param o_data Data buffer to copy data to
+ @param o_data_length Actual size of data copied into o_data
+ @param i_module_index (OPTIONAL - defaults to 0) Number of Module Index to Read
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
+ @retval ECMD_SUCCESS if successful
+ @reval non-zero if unsuccessful
+ @pre i_target must have an acceptable processor chipType
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_data_length, ecmdDataBuffer & o_data, uint32_t & o_data_length, uint32_t i_module_index = 0);
+
+/**
+ @brief Write Module VPD Keyword Interface
+ @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_record_name Name of VPD Record for given keyword
+ @param i_keyword Name of VPD Keyword to Write
+ @param i_data_length Size of input buffer (i_data)
+ @param i_data Data buffer of data to write
+ @param i_module_index (OPTIONAL - defaults to 0) Number of Module Index to Write
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_SUCCESS if successful
+ @reval non-zero if unsuccessful
+ @pre i_target must have an acceptable processor chipType
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_data_length, ecmdDataBuffer & i_data, uint32_t i_module_index = 0);
+
+/**
+ @brief Read Module VPD Image Interface
+ @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_data_length Size of input buffer (i_data)
+ @param o_data Data buffer of data read from module
+ @param o_data_length Actual length of data copied to o_data
+ @param i_module_index (OPTIONAL - defaults to 0) Number of Module Index to Read
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
+ @retval ECMD_SUCCESS if successful
+ @reval non-zero if unsuccessful
+ @pre i_target must have an acceptable processor chipType
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_data_length, ecmdDataBuffer & o_data, uint32_t & o_data_length, uint32_t i_module_index = 0);
+
+/**
+ @brief Write Module VPD Image Interface
+ @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_data_length Size of input buffer (i_data)
+ @param i_data Data buffer of data to write
+ @param i_module_index (OPTIONAL - defaults to 0) Number of Module Index to Write
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_SUCCESS if successful
+ @reval non-zero if unsuccessful
+ @pre i_target must have an acceptable processor chipType
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t putModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_data_length, ecmdDataBuffer & i_data, uint32_t i_module_index = 0);
+
+//@}
+
 #ifndef DOCUMENTATION
 /** @name BackDoor Target Arg functions */
 //@{
