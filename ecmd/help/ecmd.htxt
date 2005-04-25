@@ -12,16 +12,16 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        checkrings               putarray                 simexit                  
-                                 putbits                  simexpecttcfac           
-        deconfig                 putcfam                  simgetcurrentcycle       
-                                 putfpr                   simgethierarchy          
-        ecmd                     putgpr                   simgettcfac              
-        ecmdquery                putlatch                 siminit                  
-                                 putmemdma                simputtcfac              
-        format                   putmemmemctrl            simrestart               
-                                 putmemproc               simstktcfac              
-        getarray                 putpattern               simtckinterval           
+        checkrings               putarray                 siminit                  
+                                 putbits                  simPUTFAC                
+        deconfig                 putcfam                  simPUTFACX               
+                                 putfpr                   simputtcfac              
+        ecmd                     putgpr                   simrestart               
+        ecmdquery                putlatch                 simSTKFAC                
+                                 putmemdma                simstktcfac              
+        format                   putmemmemctrl            simSUBCMD                
+                                 putmemproc               simtckinterval           
+        getarray                 putpattern               simUNSTICK               
         getbits                  putscom                  simunsticktcfac          
         getcfam                  putspr                   startclocks              
         getconfig                putspy                   stopclocks               
@@ -30,18 +30,18 @@ Syntax: ecmd
         getlatch                                          
         getmemdma                sendcmd                  
         getmemmemctrl            setconfig                
-        getmemproc               simEXPECTFAC             
-        getringdump              simGETFAC                
-        getscom                  simGETFACX               
-        getspr                   simPUTFAC                
-        getspy                   simPUTFACX               
-        gettracearray            simSTKFAC                
-                                 simSUBCMD                
-        istep                    simUNSTICK               
-                                 simaet                   
-        makespsystemcall         simcheckpoint            
-                                 simclock                 
-        pollscom                 simecho                  
+        getmemproc               simaet                   
+        getringdump              simcheckpoint            
+        getscom                  simclock                 
+        getspr                   simecho                  
+        getspy                   simexit                  
+        gettracearray            simEXPECTFAC             
+                                 simexpecttcfac           
+        istep                    simgetcurrentcycle       
+                                 simGETFAC                
+        makespsystemcall         simGETFACX               
+                                 simgethierarchy          
+        pollscom                 simgettcfac              
 
 
         Cronus/IP Extensions:
