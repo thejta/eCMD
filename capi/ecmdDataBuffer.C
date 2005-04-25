@@ -376,7 +376,8 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
 
 uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  uint32_t prevcap;
+  uint32_t prevwordsize;
+  uint32_t prevbitsize;
 
   if(!iv_UserOwned)
   {
@@ -386,42 +387,62 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 
   /* We need to verify we have room to do this shifting */
   /* Set our new length */
+  prevwordsize = iv_NumWords;
+  prevbitsize = iv_NumBits;
   iv_NumWords = i_newNumBits % 32 ? (i_newNumBits / 32) + 1 : i_newNumBits / 32;
+  iv_NumBits = i_newNumBits;
   if (iv_NumWords > iv_Capacity) {
     /* UhOh we are out of room, have to resize */
-    prevcap = iv_Capacity;
-    uint32_t * tempBuf = new uint32_t[prevcap];
+    uint32_t * tempBuf = new uint32_t[prevwordsize];
     if (tempBuf == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::growBitLength : Unable to allocate temp buffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
     }
-    memcpy(tempBuf, iv_Data, prevcap * 4);
+    memcpy(tempBuf, iv_Data, prevwordsize * 4);
 
 #ifndef REMOVE_SIM
-    char* temp = new char[iv_NumBits+42];
+    char* temp = new char[prevbitsize+42];
     if (temp == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::growBitLength : Unable to allocate temp X-State buffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
     }
-    strncpy(temp, iv_DataStr, iv_NumBits);
+    strncpy(temp, iv_DataStr, prevbitsize);
 #endif
     /* Now resize with the new capacity */
     rc = setCapacity(iv_NumWords);
     if (rc) return rc;
 
     /* Restore the data */
-    memcpy(iv_Data, tempBuf, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8);
+    memcpy(iv_Data, tempBuf, prevbitsize % 8 ? (prevbitsize / 8) + 1 : prevbitsize / 8);
     delete[] tempBuf;
 
 #ifndef REMOVE_SIM
-    strncpy(iv_DataStr, temp, iv_NumBits); // copy back into iv_DataStr
+    strncpy(iv_DataStr, temp, prevbitsize); // copy back into iv_DataStr
     delete[] temp;
 #endif
-  }
+
+    /* Clear any odd bits in the byte */
+    for (uint32_t idx = prevbitsize; (idx < iv_NumBits) && (idx % 8); idx ++) {
+      clearBit(idx);
+    }
+
+  } else {
+    /* Didn't need to resize, but need to clear new space added */
+    /* Clear any odd bits in a byte */
+    uint32_t idx;
+    for (idx = prevbitsize; (idx < iv_NumBits) && (idx % 8); idx ++) {
+      clearBit(idx);
+    }
+    /* memset the rest */
+    memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8); /* init to 0 */
+#ifndef REMOVE_SIM
+    memset(&(iv_DataStr[idx]), '0', (iv_NumBits - idx) ); /* init to 0 */
+#endif
+  }    
 
   iv_RealData[1] = iv_NumWords;
+  iv_RealData[2] = 0;  // error state
   iv_RealData[iv_NumWords + 4] = 0x12345678;
-  iv_NumBits = i_newNumBits;
   return rc;
 }
 
@@ -546,9 +567,9 @@ uint32_t  ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_valu
   }
   uint32_t value32 = (uint32_t)i_value;
   if (i_halfwordoffset % 2) {
-    iv_Data[i_halfwordoffset/2] = (iv_Data[i_halfwordoffset/2] & 0x0000FFFF) | ((value32 << 16) & 0x0000FFFF);
-  } else {
     iv_Data[i_halfwordoffset/2] = (iv_Data[i_halfwordoffset/2] & 0xFFFF0000) | (value32 & 0x0000FFFF);
+  } else {
+    iv_Data[i_halfwordoffset/2] = (iv_Data[i_halfwordoffset/2] & 0x0000FFFF) | ((value32 << 16) & 0xFFFF0000);
   }
 
 #ifndef REMOVE_SIM
@@ -577,9 +598,9 @@ uint16_t ecmdDataBuffer::getHalfWord(uint32_t i_halfwordoffset) const {
   }
   uint16_t ret;
   if (i_halfwordoffset % 2) 
-    ret = (uint16_t)(iv_Data[i_halfwordoffset/2] >> 16);
-  else
     ret = (uint16_t)(iv_Data[i_halfwordoffset/2] & 0x0000FFFF);
+  else
+    ret = (uint16_t)(iv_Data[i_halfwordoffset/2] >> 16);
   return ret;
 }
 
@@ -621,8 +642,8 @@ uint64_t ecmdDataBuffer::getDoubleWord(uint32_t i_doublewordoffset) const {
     return 0;
   }
   uint64_t ret;
-  ret = ((uint64_t)(iv_Data[i_doublewordoffset/2])) << 32;
-  ret |= iv_Data[(i_doublewordoffset/2)+1];
+  ret = ((uint64_t)(iv_Data[i_doublewordoffset*2])) << 32;
+  ret |= iv_Data[(i_doublewordoffset*2)+1];
   return ret;
 }
 
