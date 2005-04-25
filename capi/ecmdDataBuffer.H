@@ -284,6 +284,12 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    */
   uint32_t growBitLength(uint32_t i_newNumBits);
+
+  /**
+   * @brief Returns value of iv_BufferOptimizable
+   */
+  virtual inline bool isBufferOptimizable(void) { return iv_BufferOptimizable; }
+
   //@}
 
 
@@ -1241,6 +1247,7 @@ protected:  //data
   uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
   uint32_t * iv_RealData;       ///< Real buffer - with header and tail
   bool     iv_UserOwned;        ///< Whether or not this buffer owns the data
+  bool     iv_BufferOptimizable;///< Whether or not this is an optimizable buffer
 
 protected: //methods
 
@@ -1251,6 +1258,30 @@ protected:
   uint32_t fillDataStr(char fillChar);
 #endif
 
+};
+
+  /** @name Derived OptimizableDataBuffer */
+  //@{
+  /********************************************************************************
+     Derived class ecmdOptimizableDataBuffer definitions
+  ********************************************************************************/
+class ecmdOptimizableDataBuffer : public ecmdDataBuffer {
+
+  public:
+     /**
+      * @brief Default constructor for ecmdOptimizableDataBuffer class
+      */
+     ecmdOptimizableDataBuffer();
+
+     /**
+      * @brief Constructor with bit length specified
+      */
+     ecmdOptimizableDataBuffer(uint32_t numBits);
+     
+     /**
+      * @brief Destructor for ecmdOptimizableDataBuffer class
+      */
+     ~ecmdOptimizableDataBuffer() {}
 };
 
 

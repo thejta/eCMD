@@ -89,12 +89,14 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 #endif
 
   iv_UserOwned = true;
+  iv_BufferOptimizable = false;
 }
 
 ecmdDataBuffer::ecmdDataBuffer(uint32_t numBits)
 : iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
   iv_UserOwned = true;
+  iv_BufferOptimizable = false;
 
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
@@ -112,6 +114,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 #endif
 
   iv_UserOwned = true;
+  iv_BufferOptimizable = false;
 
   if (other.iv_NumBits != 0) {
 
@@ -143,10 +146,15 @@ uint32_t ecmdDataBuffer::clear() {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
+  if(!iv_UserOwned)  // If this buffer is shared
   {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+      if (!isBufferOptimizable()) { // If the buffer is not optimizable, error
+        ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+        return ECMD_DBUF_NOT_OWNER;
+      }
+      else {  // It's a shared/optimizable buffer, don't flag error
+        return ECMD_DBUF_SUCCESS;
+      }
   }
 
   if ((iv_RealData != NULL)) {
@@ -2939,4 +2947,24 @@ void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer 
   strcpy(buff->iv_DataStr,buff->genBinStr().c_str());
 #endif
   return;
+}
+
+/********************************************************************************
+       These routines belong to derived class ecmdOptimizableDataBuffer
+ ********************************************************************************/
+
+/**
+ * @brief Default constructor for ecmdOptimizableDataBuffer class
+ */
+ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer()
+{
+   iv_BufferOptimizable = true;     
+}
+
+/**
+ * @brief Constructor with bit length specified
+ */
+ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer(uint32_t numBits)
+ : ecmdDataBuffer(numBits) {
+       iv_BufferOptimizable = true;     
 }
