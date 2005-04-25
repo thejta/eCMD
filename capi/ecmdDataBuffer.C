@@ -119,8 +119,10 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
   if (other.iv_NumBits != 0) {
 
     this->setBitLength(other.iv_NumBits);
-    for (uint32_t i = 0; i < iv_NumWords; i++) 
-      iv_Data[i] = other.iv_Data[i];
+    // iv_Data
+    memcpy(iv_Data, other.iv_Data, iv_NumWords * 4);
+    // Error state
+    iv_RealData[2] = other.iv_RealData[2];
 
 
 #ifndef REMOVE_SIM
@@ -1913,7 +1915,8 @@ uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) const {
   if (!rc && iv_NumBits != 0) {
     // iv_Data
     memcpy(newCopy.iv_Data, iv_Data, iv_NumWords * 4);
-
+    // Error state
+    newCopy.iv_RealData[2] = iv_RealData[2];
 #ifndef REMOVE_SIM
     // char
     strncpy(newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
@@ -1932,6 +1935,8 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
   if (!rc && iv_NumBits != 0) {
     // iv_Data
     memcpy(iv_Data, i_master.iv_Data, iv_NumWords * 4);
+    // Error state
+    iv_RealData[2] = i_master.iv_RealData[2];
 #ifndef REMOVE_SIM
     // char
     strncpy(iv_DataStr, i_master.iv_DataStr, i_master.iv_NumBits);
