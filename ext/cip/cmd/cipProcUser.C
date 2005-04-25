@@ -98,6 +98,9 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
     if (!strcasecmp(argv[0],"start")) {
       ecmdOutput("Starting instructions on all processors ...\n");
       rc = cipStartAllInstructions();
+    } else if (!strcasecmp(argv[0], "sreset")) {
+      ecmdOutput("Starting instructions on all processors via S-Reset ...\n");
+      rc = cipStartAllInstructionsSreset();
     } else if (!strcasecmp(argv[0], "stop")) {
       ecmdOutput("Stopping instructions on all processors ...\n");
       rc = cipStopAllInstructions();
@@ -131,6 +134,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
       if (!strcasecmp(argv[0],"start")) {
         ecmdOutput("Starting processor instructions ...\n");
+      } else if (!strcasecmp(argv[0], "sreset")) {
+        ecmdOutput("Starting processor instructions via S-Reset ...\n");
       } else if (!strcasecmp(argv[0], "stop")) {
         ecmdOutput("Stopping processor instructions ...\n");
       } else if (!strcasecmp(argv[0], "step")) {
@@ -146,6 +151,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
         if (!strcasecmp(argv[0],"start")) {
           rc = cipStartInstructions(target);
+        } else if (!strcasecmp(argv[0], "sreset")) {
+          rc = cipStartInstructionsSreset(target);
         } else if (!strcasecmp(argv[0], "stop")) {
           rc = cipStopInstructions(target);
         } else if (!strcasecmp(argv[0], "step")) {

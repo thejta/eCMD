@@ -1,5 +1,5 @@
 
-Syntax: cipinstruct start|stop|step [<steps>] [all] [-v] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+Syntax: cipinstruct start|sreset|stop|step [<steps>] [all] [-v] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           CIP (Cronus/IP) Extension
 
@@ -9,7 +9,7 @@ Syntax: cipinstruct start|stop|step [<steps>] [all] [-v] [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        start/stop/step Start, stop, or step the processors.  
+        start/stop/step/sreset Start, stop, or step the processors.  
 
         steps     [opt] Number of steps to execute
 
