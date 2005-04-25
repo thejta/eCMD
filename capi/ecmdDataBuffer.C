@@ -2875,15 +2875,9 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
     i_sharingBuffer->iv_Data = iv_Data;
     i_sharingBuffer->iv_RealData = iv_RealData;
     i_sharingBuffer->iv_UserOwned = false;
-
 #ifndef REMOVE_SIM
-    if (i_sharingBuffer->iv_DataStr == NULL)
-    {
-	i_sharingBuffer->iv_DataStr = new char[i_sharingBuffer->iv_NumBits + 42];
-	strncpy(i_sharingBuffer->iv_DataStr, iv_DataStr, iv_NumBits);
-    }
+    i_sharingBuffer->iv_DataStr = iv_DataStr;
 #endif
-
     return(rc);
 }
 
