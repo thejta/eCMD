@@ -37,6 +37,9 @@
 /* The Eclipz IP/Cronus Extension */
 #define ECMD_EIP_EXTENSION_SUPPORT
 
+/* The GFW IP Extension */
+#define ECMD_GIP_EXTENSION_SUPPORT
+
 
 #endif /* ecmdPluginExtensionSupport_h */
 
