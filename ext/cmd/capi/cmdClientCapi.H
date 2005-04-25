@@ -28,8 +28,11 @@
  2)  Allows (C-based) perl interpreter to access these functions
 
 */
+#ifndef DOCUMENTATION
 extern "C" {
+#endif
 
+#ifndef ECMD_PERLAPI
 /** @name Load/Unload Functions */
 //@{
 
@@ -46,6 +49,7 @@ uint32_t cmdInitExtension();
 
 
 //@}
+#endif
 
 /**
  @brief Run the command line command passed in , output goes to stdout and is not returned
@@ -66,7 +70,9 @@ uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_outpu
 
 
 
+#ifndef DOCUMENTATION
 } /* end extern "c" */
+#endif
 
 #endif /* cmdClientCapi_h */
 
