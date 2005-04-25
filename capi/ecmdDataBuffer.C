@@ -62,8 +62,8 @@ char **p_xargv;
 #endif
 #endif
 
-#define RETURN_ERROR(i_rc) if (iv_RealData != NULL) { iv_RealData[2] = i_rc; } return i_rc;
-#define SET_ERROR(i_rc) if (iv_RealData != NULL) { iv_RealData[2] = i_rc; }
+#define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; } return i_rc;
+#define SET_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; }
 
 //----------------------------------------------------------------------
 //  Forward declarations
@@ -151,7 +151,7 @@ uint32_t ecmdDataBuffer::clear() {
   {
       if (!isBufferOptimizable()) { // If the buffer is not optimizable, error
         ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-        return ECMD_DBUF_NOT_OWNER;
+        RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
       }
       else {  // It's a shared/optimizable buffer, don't flag error
         return ECMD_DBUF_SUCCESS;
