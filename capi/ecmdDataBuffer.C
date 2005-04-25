@@ -136,7 +136,8 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 //---------------------------------------------------------------------
 ecmdDataBuffer::~ecmdDataBuffer()
 {
-  clear();
+    // Only call clear() if buffer is owned by this user (ie, not shared)
+    if(iv_UserOwned) clear();
 }
 
 //---------------------------------------------------------------------
