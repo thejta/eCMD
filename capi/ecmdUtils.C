@@ -878,7 +878,12 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
-          sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, 128).c_str());
+	  if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+            sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+	  }
+	  else {
+	    sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, 128).c_str());
+	  }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
@@ -926,7 +931,12 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
         }
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
-          sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+	  if (numLastBytes) {
+	    sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+	  }
+	  else {
+            sprintf(tempstr,"   [%s]",i_data.genAsciiStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+	  }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
