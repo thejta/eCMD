@@ -40,6 +40,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
+
 #define ECMD_CAPI_VERSION "5.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
@@ -50,51 +51,6 @@
 #define CHIP_HDR_MAGIC   0xFFF5FFFF
 #define CORE_HDR_MAGIC   0xFF6FFFFF
 #define THREAD_HDR_MAGIC 0xF7FFFFFF
-
-/**
- @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
-*/
-
-typedef enum {
-  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
-  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
-  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
-  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
-  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
-  ECMD_DLL_SCAND                ///< Running against the ScanD dll owned by Meghna Paruthi
-
-} ecmdDllType_t;
-
-/**
- @brief This is used by ecmdQueryDllInfo to return what product the dll supports
-*/
-typedef enum {
-  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
-  ECMD_DLL_PRODUCT_ECLIPZ       ///< Eclipz
-} ecmdDllProduct_t;
-
-/**
- @brief This is used by ecmdQueryDllInfo to return what environment the dll is designed to run in (i.e Simulation vs Hardware)
-*/
-typedef enum {
-  ECMD_DLL_ENV_HW,              ///< Hardware Environment
-  ECMD_DLL_ENV_SIM              ///< Simulation Environment
-} ecmdDllEnv_t;
-
-/**
- @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
-*/
-
-struct ecmdDllInfo {
-  ecmdDllType_t         dllType;        ///< Dll instance type running
-  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
-  std::string           dllProductType; ///< Dll product type currently configured
-  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
-  std::string           dllBuildDate;   ///< Date the Dll was built
-  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
-  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
-};
-
 
 /**
  Predefined common chip names for ecmdChipData.chipCommonType
@@ -109,6 +65,35 @@ struct ecmdDllInfo {
 #define ECMD_CHIPT_MUX                  "mux"
 #define ECMD_CHIPT_SERVICE_PROCESSOR    "sp"
 
+
+
+
+
+
+//--------------------------------------------------------------------
+//  TypeDefs                                               
+//--------------------------------------------------------------------
+
+/**
+ @brief Used by ecmdCacheFlush to specify which level of cache to flush
+*/
+typedef enum {
+  ECMD_CACHE_UNKNOWN = 0,       ///< Unknown Cache Type
+  ECMD_CACHE_LEVEL1D,           ///< L1 Data Cache 
+  ECMD_CACHE_LEVEL1I,           ///< L1 Instruction Cache 
+  ECMD_CACHE_LEVEL2,            ///< L2 Cache 
+  ECMD_CACHE_LEVEL3,            ///< L3 Cache 
+  ECMD_CACHE_LEVEL4,            ///< L4 Cache 
+} ecmdCacheType_t;
+
+/**
+ @brief Used in ecmdChipData to describe the interface macro used by the chip
+*/
+typedef enum {
+  ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Access Macro
+  ECMD_INTERFACE_CFAM,                  ///< CommonFirmwareAccessMacro 
+  ECMD_INTERFACE_UNKNOWN                ///< Unknown Interface
+} ecmdChipInterfaceType_t;
 
 /**
  @brief Used by ecmdChipTarget to describe the value in the state fields
@@ -128,6 +113,178 @@ typedef enum {
 
   ECMD_TARGET_THREAD_ALIVE      ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
 } ecmdChipTargetState_t;
+
+/**
+ @brief Used by Ring/Array/Spy Query functions to return a required clock state
+*/
+typedef enum {
+  ECMD_CLOCKSTATE_UNKNOWN,              ///< Unable to determine a required clock state
+  ECMD_CLOCKSTATE_ON,                   ///< Chip clocks must be on to access
+  ECMD_CLOCKSTATE_OFF,                  ///< Chip clocks must be off to access
+  ECMD_CLOCKSTATE_NA                    ///< Chip clocks can be in any state to access
+} ecmdClockState_t;
+
+/**
+ @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
+*/
+typedef enum {
+  ECMD_SELECTED_TARGETS_LOOP,           ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to 0
+  ECMD_SELECTED_TARGETS_LOOP_DEFALL,    ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to all
+  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to 0
+  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to all
+  ECMD_ALL_TARGETS_LOOP                 ///< Loop on all valid targets in the system
+} ecmdConfigLoopType_t;
+
+/**
+ @brief Used by the get/set configuration functions to specify what data is good
+*/
+typedef enum {
+  ECMD_CONFIG_VALID_FIELD_NONE,         ///< No field is valid, must have been an error
+  ECMD_CONFIG_VALID_FIELD_ALPHA,        ///< The string field contains valid data
+  ECMD_CONFIG_VALID_FIELD_NUMERIC,      ///< The numeric field contains valid data
+  ECMD_CONFIG_VALID_FIELD_BOTH          ///< Bothe the string and numeric fields contain valid data
+} ecmdConfigValid_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return what environment the dll is designed to run in (i.e Simulation vs Hardware)
+*/
+typedef enum {
+  ECMD_DLL_ENV_HW,              ///< Hardware Environment
+  ECMD_DLL_ENV_SIM              ///< Simulation Environment
+} ecmdDllEnv_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return what product the dll supports
+*/
+typedef enum {
+  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
+  ECMD_DLL_PRODUCT_ECLIPZ       ///< Eclipz
+} ecmdDllProduct_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
+*/
+
+typedef enum {
+  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
+  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
+  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
+  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
+  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
+  ECMD_DLL_SCAND                ///< Running against the ScanD dll owned by Meghna Paruthi
+
+} ecmdDllType_t;
+
+/**
+ @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
+*/
+typedef enum {
+  ECMD_FILE_SCANDEF,    ///< Scandef file type
+  ECMD_FILE_SPYDEF,     ///< Spy Definition file
+  ECMD_FILE_ARRAYDEF,   ///< Array Definition file
+  ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file - target field of ecmdQueryFileLocation is not used for this and just a path is returned
+  ECMD_FILE_SCOMDATA,   ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
+  ECMD_FILE_SPYDEFHASH,    ///< Hash file for spy definition
+  ECMD_FILE_SCANDEFHASH ///< Hash file for the scandef
+} ecmdFileType_t;
+
+/**
+ @brief Used by simOutputFusionMessage function to specify message type
+ Values copied from globals.h of SimDispatcher delivery 
+*/
+typedef enum {
+  ECMD_SIM_MSG_EXCEPTION = 1,
+  ECMD_SIM_MSG_TESTCASE = 2,
+  ECMD_SIM_MSG_CMD_RS = 4,       // command receive / response send
+  ECMD_SIM_MSG_CMD_EXE = 8,      // command execution details (e.g. subcommands)
+  ECMD_SIM_MSG_DEBUG = 16,
+  ECMD_SIM_MSG_BROADSIDE = 32,
+  ECMD_SIM_MSG_END_SD_MSGS = 0x000000ff,
+  ECMD_SIM_MSG_ALWAYS = 0xff
+} ecmdFusionMessageType_t;
+
+/**
+ @brief Used by simOutputFusionMessage function to specify message severity
+ Values copied from globals.h of SimDispatcher delivery 
+*/
+typedef enum {
+      ECMD_SIM_ERROR = 0x1,
+      ECMD_SIM_WARNING = 0x2,
+      ECMD_SIM_INFO = 0x3,
+      ECMD_SIM_PLAIN = ~0
+} ecmdFusionSeverity_t;
+
+/**
+ @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
+*/
+typedef enum {
+  ECMD_GLOBALVAR_DEBUG,         ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
+  ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
+} ecmdGlobalVarType_t;
+
+
+/**
+ @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
+*/
+typedef enum {
+  ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
+  ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
+} ecmdLatchMode_t;
+
+
+/**
+ @brief Used by ecmdQueryConfig to specify detail level of query
+*/
+typedef enum {
+  ECMD_QUERY_DETAIL_LOW,             ///< Only config info is returned
+  ECMD_QUERY_DETAIL_HIGH             ///< All info is returned
+} ecmdQueryDetail_t;
+
+/**
+ @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData
+*/
+typedef enum {
+  ECMD_SPYTYPE_ALIAS,   ///< Spy is an alias
+  ECMD_SPYTYPE_IDIAL,   ///< Spy is an iDial
+  ECMD_SPYTYPE_EDIAL,   ///< Spy is an eDial
+  ECMD_SPYTYPE_ECCGROUP ///< Spy is an eccGrouping
+} ecmdSpyType_t;
+
+/**
+ @brief Used by ecmdSetTraceMode to specify which trace to control
+*/
+typedef enum {
+ ECMD_TRACE_SCAN,               ///< Scan Trace
+ ECMD_TRACE_PROCEDURE           ///< Procedure Trace
+} ecmdTraceType_t;
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------
+//  Structures                                    
+//--------------------------------------------------------------------
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
+*/
+
+struct ecmdDllInfo {
+  ecmdDllType_t         dllType;        ///< Dll instance type running
+  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllProductType; ///< Dll product type currently configured
+  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
+  std::string           dllBuildDate;   ///< Date the Dll was built
+  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
+  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
+};
+
+
+
 
 
 /**
@@ -203,23 +360,6 @@ unitIdState(ECMD_TARGET_UNKNOWN_STATE)
 // ecmdChipTarget Destructor
 inline ecmdChipTarget::~ecmdChipTarget() { }
 #endif
-
-/**
- @brief Used in ecmdChipData to describe the interface macro used by the chip
-*/
-typedef enum {
-  ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Access Macro
-  ECMD_INTERFACE_CFAM,                  ///< CommonFirmwareAccessMacro 
-  ECMD_INTERFACE_UNKNOWN                ///< Unknown Interface
-} ecmdChipInterfaceType_t;
-
-/**
- @brief Used by ecmdQueryConfig to specify detail level of query
-*/
-typedef enum {
-  ECMD_QUERY_DETAIL_LOW,             ///< Only config info is returned
-  ECMD_QUERY_DETAIL_HIGH             ///< All info is returned
-} ecmdQueryDetail_t;
 
 
 /**
@@ -535,16 +675,6 @@ detailLevel((ecmdQueryDetail_t)0x0)
 // ecmdQueryData Destructor
 inline ecmdQueryData::~ecmdQueryData() { }
 #endif
-
-/**
- @brief Used by Ring/Array/Spy Query functions to return a required clock state
-*/
-typedef enum {
-  ECMD_CLOCKSTATE_UNKNOWN,              ///< Unable to determine a required clock state
-  ECMD_CLOCKSTATE_ON,                   ///< Chip clocks must be on to access
-  ECMD_CLOCKSTATE_OFF,                  ///< Chip clocks must be off to access
-  ECMD_CLOCKSTATE_NA                    ///< Chip clocks can be in any state to access
-} ecmdClockState_t;
 
 /**
  @brief Used for the ecmdQueryRing function to return ring info
@@ -966,28 +1096,6 @@ inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 #endif
 
 
-/**
- @brief Used by ecmdCacheFlush to specify which level of cache to flush
-*/
-typedef enum {
-  ECMD_CACHE_UNKNOWN = 0,       ///< Unknown Cache Type
-  ECMD_CACHE_LEVEL1D,           ///< L1 Data Cache 
-  ECMD_CACHE_LEVEL1I,           ///< L1 Instruction Cache 
-  ECMD_CACHE_LEVEL2,            ///< L2 Cache 
-  ECMD_CACHE_LEVEL3,            ///< L3 Cache 
-  ECMD_CACHE_LEVEL4,            ///< L4 Cache 
-} ecmdCacheType_t;
-
-
-/**
- @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData
-*/
-typedef enum {
-  ECMD_SPYTYPE_ALIAS,   ///< Spy is an alias
-  ECMD_SPYTYPE_IDIAL,   ///< Spy is an iDial
-  ECMD_SPYTYPE_EDIAL,   ///< Spy is an eDial
-  ECMD_SPYTYPE_ECCGROUP ///< Spy is an eccGrouping
-} ecmdSpyType_t;
 
 /**
  @brief Used for the ecmdQuerySpy function to return spy info
@@ -1038,68 +1146,6 @@ isCoreRelated(false)
 // ecmdSpyData Destructor
 inline ecmdSpyData::~ecmdSpyData() { }
 #endif
-
-/**
- @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
-*/
-typedef enum {
-  ECMD_FILE_SCANDEF,    ///< Scandef file type
-  ECMD_FILE_SPYDEF,     ///< Spy Definition file
-  ECMD_FILE_ARRAYDEF,   ///< Array Definition file
-  ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file - target field of ecmdQueryFileLocation is not used for this and just a path is returned
-  ECMD_FILE_SCOMDATA,   ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
-  ECMD_FILE_SPYDEFHASH,    ///< Hash file for spy definition
-  ECMD_FILE_SCANDEFHASH ///< Hash file for the scandef
-} ecmdFileType_t; 
-
-
-/**
- @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
-*/
-typedef enum {
-  ECMD_SELECTED_TARGETS_LOOP,           ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to 0
-  ECMD_SELECTED_TARGETS_LOOP_DEFALL,    ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to all
-  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to 0
-  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to all
-  ECMD_ALL_TARGETS_LOOP                 ///< Loop on all valid targets in the system
-} ecmdConfigLoopType_t;
-
-/**
- @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
-*/
-typedef enum {
-  ECMD_GLOBALVAR_DEBUG,         ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
-  ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
-} ecmdGlobalVarType_t;
-
-
-
-/**
- @brief Used by ecmdSetTraceMode to specify which trace to control
-*/
-typedef enum {
- ECMD_TRACE_SCAN,               ///< Scan Trace
- ECMD_TRACE_PROCEDURE           ///< Procedure Trace
-} ecmdTraceType_t;
-
-
-/**
- @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
-*/
-typedef enum {
-  ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
-  ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
-} ecmdLatchMode_t;
-
-/**
- @brief Used by the get/set configuration functions to specify what data is good
-*/
-typedef enum {
-  ECMD_CONFIG_VALID_FIELD_NONE,         ///< No field is valid, must have been an error
-  ECMD_CONFIG_VALID_FIELD_ALPHA,        ///< The string field contains valid data
-  ECMD_CONFIG_VALID_FIELD_NUMERIC,      ///< The numeric field contains valid data
-  ECMD_CONFIG_VALID_FIELD_BOTH          ///< Bothe the string and numeric fields contain valid data
-} ecmdConfigValid_t;
 
 
 #ifndef ECMD_PERLAPI
