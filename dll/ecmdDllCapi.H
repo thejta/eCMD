@@ -217,11 +217,15 @@ uint32_t dllQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_
 
 uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
 
-std::string dllCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command); 
+std::string dllSimCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command); 
 
 uint32_t dllSimFusionRand32(uint32_t i_min , uint32_t i_max , const char* i_fusionRandObject ); 
 
 uint64_t dllSimFusionRand64(uint64_t i_min , uint64_t i_max , const char* i_fusionRandObject ); 
+
+uint32_t dllSimOutputFusionMessage(const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file , uint32_t i_line ); 
+
+void dllSimSetFusionMessageFormat( const char* i_format); 
 
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
