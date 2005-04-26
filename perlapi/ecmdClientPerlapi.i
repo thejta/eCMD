@@ -16,6 +16,7 @@
 %apply unsigned int &REFERENCE { uint32_t & };
 %apply std::string &REFERENCE { std::string & };
 %apply std::string *REFERENCE { std::string * };
+%apply enum SWIGTYPE &REFERENCE { enum SWIGTYPE& };
 /*********** End Applies ***********/
 
 /*********** Start Insert Code ***********/

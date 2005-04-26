@@ -46,3 +46,23 @@
   }
 }
 
+%typemap(in) enum SWIGTYPE &REFERENCE ($1_basetype dvalue)
+{
+  SV *tempsv;
+  if (!SvROK($input)) {
+    SWIG_croak("expected a reference");
+  }
+  tempsv = SvRV($input);
+  //if (!SvIOK(tempsv)) {
+  //  SWIG_croak("expected an enum reference");
+  //}
+  dvalue = ($1_basetype) SvIV(tempsv);
+  $1 = &dvalue;
+}
+
+%typemap(argout) enum SWIGTYPE &REFERENCE {
+  SV *tempsv;
+  tempsv = SvRV($input);
+  if (!$1) SWIG_croak("expected a reference");
+  sv_setiv(tempsv, (IV) *$1);
+}
