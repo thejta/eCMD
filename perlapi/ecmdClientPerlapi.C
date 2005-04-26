@@ -41,7 +41,7 @@ int ECMDPERLAPI::ecmdPerlInterfaceErrorCheck (int errorCode) {
     errorCode = myErrorCode;
     myErrorCode = ECMD_SUCCESS;
 
-    if (errorCode != ECMD_SUCCESS) {
+    if ((errorCode != ECMD_SUCCESS) && safeMode) {
       ::ecmdOutputError( (::ecmdGetErrorMsg(errorCode) + "\n").c_str());
     }
 
