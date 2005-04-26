@@ -1865,7 +1865,7 @@ uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_
 
  NOTE - The fusion module has to provide the appropriate api for this call to be functional
 */
-std::string ecmdCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command);
+std::string simCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command);
 
 
 /**
@@ -1897,6 +1897,32 @@ uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* 
 #ifndef ECMD_PERLAPI    /* Perl doesn't handle 64 bit numbers, so this interface isn't allowed */
 uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
 #endif
+
+
+/**
+ @brief Echo Messages to Fusion logs
+ @param i_header Message header
+ @param i_message Message text
+ @param i_severity Severity
+ @param i_type Message type
+ @param i_file File where message originated
+ @param i_line Line number where message originated
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file = NULL, uint32_t i_line = 0);
+/**
+ @brief Set Fusion Message Format
+ @param i_format New Format
+*/
+void simSetFusionMessageFormat ( const char* i_format);
+
+/* Macros to easily use above message functions */
+#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+
 
 #endif /* ifndef REMOVE_SIM */
 //@}
