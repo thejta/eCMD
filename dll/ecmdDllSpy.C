@@ -136,7 +136,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
   for (spyIt = mySpyList.begin(); spyIt != mySpyList.end(); spyIt++) {
     if (!spyIt->valid) {
        if (i_spyName != NULL) {
-         sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", spyIt->name);
+         sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", spyIt->name.c_str());
          dllOutputError(outstr);
          return ECMD_INVALID_SPY;
        }
@@ -152,11 +152,11 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
 
       rc = dllGetSpyInfo(i_target, syn.realName.c_str(), mySpy);
       if (rc) {
-    	sprintf(outstr,"dllQuerySpy - Problems reading spy '%s' from file!\n", spyIt->name);
+    	sprintf(outstr,"dllQuerySpy - Problems reading spy '%s' from file!\n", spyIt->name.c_str());
     	dllOutputError(outstr);
     	return ECMD_INVALID_SPY;
       } else if (!spyIt->valid) {
-    	sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", spyIt->name);
+    	sprintf(outstr,"dllQuerySpy - Read of spy '%s' from file failed!\n", spyIt->name.c_str());
     	dllOutputError(outstr);
     	return ECMD_INVALID_SPY;
       }
