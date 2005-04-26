@@ -294,14 +294,13 @@ uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  @param o_memoryData DataBuffer object that holds data read from memory
  @param o_memoryTags 1 Tag bit for every 64 bits of memory data
  @param o_memoryEcc 8 ECC bits for every 64 bits of memory data
- @param o_memoryParity 1 Parity bit for every 64 bits of memory data
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
 
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryParity);
+uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc);
 
 
 /**
@@ -319,15 +318,14 @@ uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @param i_memoryData DataBuffer object that holds data to write into memory
  @param i_memoryTags 1 Tag bit for every 64 bits of memory data
  @param i_memoryEcc 8 ECC bits for every 64 bits of memory data
- @param i_memoryParity 1 Parity bit for every 64 bits of memory data
 
  NOTE : This function requires that the address be aligned on a 64 bit boundary
-
+ NOTE : If ecmdDataBuffers for i_memoryTags and i_memoryECC have a length of zero, the user wants the HW to generate this info.  If these ecmdDataBuffers have a length, the the user wants their values to be used. 
 
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memoryParity);
+uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc);
 
 
 /**
@@ -343,16 +341,16 @@ uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_memoryData DataBuffer object that holds data read from memory
- @param o_memoryTags 1 Tag bit for every 64 bits of memory data
- @param o_memoryEcc 8 ECC bits for every 64 bits of memory data
- @param o_memoryParity 1 Parity bit for every 64 bits of memory data
+ @param o_memoryTags 2 Tag bits for every 32 bytes of memory data
+ @param o_memoryEcc 24 ECC bits for every 32 bytes of memory data
+ @param o_memorySpareBits  2 Spare bits for every 32 bytes of memory data
 
- NOTE : This function requires that the address be aligned on a 64 bit boundary
+ NOTE : This function requires that the address be aligned on a 32-byte boundary
 
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryParity);
+uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memorySpareBits);
 
 
 /**
@@ -368,17 +366,18 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_memoryData DataBuffer object that holds data to write into memory
- @param i_memoryTags 1 Tag bit for every 64 bits of memory data
- @param i_memoryEcc 8 ECC bits for every 64 bits of memory data
- @param i_memoryParity 1 Parity bit for every 64 bits of memory data
+ @param i_memoryTags [Optional] 2 Tag bits for every 32 bytes of memory data
+ @param i_memoryEcc [Optional] 24 ECC bits for every 32 bytes of memory data
+ @param i_memorySpareBits [Optional] 2 Spare bits for every 32 bytes of memory data
 
- NOTE : This function requires that the address be aligned on a 64 bit boundary
+ NOTE : This function requires that the address be aligned on a 32-byte boundary
+ NOTE : If ecmdDataBuffers for i_memoryTags and i_memoryECC have a length of zero, the user wants the HW to generate this info.  If these ecmdDataBuffers have a length, the the user wants their values to be used.
 
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 
 */
-uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memoryParity);
+uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memoryParity, ecmdDataBuffer & i_memorySpareBits);
 
 //@}
 /* End Memory Functions */
