@@ -410,10 +410,13 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
     return ECMD_SUCCESS;
   }
 
+  /* If the user specified -all or -kall we will do everything */
   if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = ALL;
   }
+
+  /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
   else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
     if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
       dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
@@ -422,8 +425,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = MULTI;
   }
+
+  /* Otherwise we have a single entry -k0 or nothing at all */
   else {
 
+    /* did the user specify a number */
     if (ecmdUserArgs.cage.length() != 0) {
       if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
         dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
@@ -432,10 +438,14 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
       i_target.cage = atoi(ecmdUserArgs.cage.c_str());
       cageType = SINGLE;
       i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
+
+      /* User didn't specify anything, if default all is on set or states */
     } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
       /* Default to all */
       i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
       cageType = ALL;
+
+      /* User didn't specify anything and we default to 0 */
     } else {
       i_target.cage = 0x0;
       cageType = SINGLE;
@@ -638,6 +648,57 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   /* Okay, target setup as best we can, let's go out to query cnfg with it */
   rc = dllQueryConfig(i_target, o_queryData, ECMD_QUERY_DETAIL_LOW);
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdGlobal_DllDebug >= 10) {
+    std::string printed;
+    char frontFPPTxt[100] = "ECMD DEBUG";
+
+    printed = frontFPPTxt;
+    printed += "Return Value from dllQueryConfig =============\n";
+    dllOutput(printed.c_str());
+
+    std::list<ecmdCageData>::iterator ecmdCurCage;
+    std::list<ecmdNodeData>::iterator ecmdCurNode;
+    std::list<ecmdSlotData>::iterator ecmdCurSlot;
+    std::list<ecmdChipData>::iterator ecmdCurChip;
+    std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdThreadData>::iterator ecmdCurThread;
+    char buf[100];
+    if (o_queryData.cageData.empty()) {
+      printed = frontFPPTxt;
+      printed += "\t \t value = EMPTY\n"; dllOutput(printed.c_str());
+    } else {
+
+      for (ecmdCurCage = o_queryData.cageData.begin(); ecmdCurCage != o_queryData.cageData.end(); ecmdCurCage ++) {
+        sprintf(buf,"%s\t \t k%d\n",frontFPPTxt, ecmdCurCage->cageId); dllOutput(buf);
+        for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+          sprintf(buf,"%s\t \t   n%d\n",frontFPPTxt, ecmdCurNode->nodeId); dllOutput(buf);
+
+          for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+            sprintf(buf,"%s\t \t     s%d\n",frontFPPTxt, ecmdCurSlot->slotId); dllOutput(buf);
+
+            for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+              sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); dllOutput(buf);
+
+              for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                sprintf(buf,"%s\t \t         c%d\n",frontFPPTxt, ecmdCurCore->coreId); dllOutput(buf);
+
+                for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                  sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); dllOutput(buf);
+                } /* curThreadIter */
+
+              } /* curCoreIter */
+
+            } /* curChipIter */
+
+          } /* curSlotIter */
+
+        } /* curNodeIter */
+
+      } /* curCageIter */
+    }
+  }
+#endif
 
   /* now I need to go in and clean out any excess stuff */
   std::list<ecmdCageData>::iterator curCage = o_queryData.cageData.begin();
@@ -645,61 +706,72 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   while (curCage != o_queryData.cageData.end()) {
 
     if (cageType == MULTI) {
+      /* Is the current element in the list of numbers the user provided, if not remove it */
       if (dllRemoveCurrentElement((*curCage).cageId, ecmdUserArgs.cage)) {
         curCage = o_queryData.cageData.erase(curCage);
         continue;
       }
     }
 
+    /* Walk through the nodes */
     std::list<ecmdNodeData>::iterator curNode = (*curCage).nodeData.begin();
 
     while (curNode != (*curCage).nodeData.end()) {
 
       if (nodeType == MULTI) {
+        /* Is the current element in the list of numbers the user provided, if not remove it */
         if (dllRemoveCurrentElement((*curNode).nodeId, ecmdUserArgs.node)) {
           curNode = (*curCage).nodeData.erase(curNode);
           continue;
         }
       }
 
+      /* Walk through the slots */
       std::list<ecmdSlotData>::iterator curSlot = (*curNode).slotData.begin();
 
       while (curSlot != (*curNode).slotData.end()) {
 
         if (slotType == MULTI) {
+          /* Is the current element in the list of numbers the user provided, if not remove it */
           if (dllRemoveCurrentElement((*curSlot).slotId, ecmdUserArgs.slot)) {
             curSlot = (*curNode).slotData.erase(curSlot);
             continue;
           }
         }
 
+        /* Walk through all the chip positions */
         std::list<ecmdChipData>::iterator curChip = (*curSlot).chipData.begin();
 
         while (curChip != (*curSlot).chipData.end()) {
 
           if (posType == MULTI) {
+            /* Is the current element in the list of numbers the user provided, if not remove it */
             if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
               curChip = (*curSlot).chipData.erase(curChip);
               continue;
             }
           }
 
+          /* Walk through all the cores */
           std::list<ecmdCoreData>::iterator curCore = (*curChip).coreData.begin();
 
           while (curCore != (*curChip).coreData.end()) {
 
             if (coreType == MULTI) {
+              /* Is the current element in the list of numbers the user provided, if not remove it */
               if (dllRemoveCurrentElement((*curCore).coreId, ecmdUserArgs.core)) {
                 curCore = (*curChip).coreData.erase(curCore);
                 continue;
               }
             }
 
+            /* Walk through the threads */
             std::list<ecmdThreadData>::iterator curThread = (*curCore).threadData.begin();
 
             while (curThread != (*curCore).threadData.end()) {
 
               if (threadType == MULTI) {
+                /* Is the current element in the list of numbers the user provided, if not remove it */
                 if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
                   curThread = (*curCore).threadData.erase(curThread);
                   continue;
@@ -709,19 +781,42 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
               curThread++;
             }  /* while curThread */
 
-            curCore++;
+            if ((i_target.threadState != ECMD_TARGET_QUERY_IGNORE) && curCore->threadData.empty()) {
+              curCore = (*curChip).coreData.erase(curCore);
+            } else {
+              curCore++;
+            }
           }  /* while curCore */
-
-          curChip++; 
+          
+          if ((i_target.coreState != ECMD_TARGET_QUERY_IGNORE) && curChip->coreData.empty()) {
+            curChip = (*curSlot).chipData.erase(curChip);
+          } else {
+            curChip++;
+          }
         }  /* while curChip */
 
-        curSlot++;
+        /* Let's check to make sure there is something left here after we removed everything */
+        if (((i_target.chipTypeState != ECMD_TARGET_QUERY_IGNORE) || (i_target.posState != ECMD_TARGET_QUERY_IGNORE)) && curSlot->chipData.empty()) {
+          curSlot = (*curNode).slotData.erase(curSlot);
+        } else {
+          curSlot++;
+        }
       }  /* while curSlot */
 
-      curNode++;
+      /* Let's check to make sure there is something left here after we removed everything */
+      if ((i_target.slotState != ECMD_TARGET_QUERY_IGNORE) && curNode->slotData.empty()) {
+        curNode = (*curCage).nodeData.erase(curNode);
+      } else {
+        curNode++;
+      }
     }  /* while curNode */
 
-    curCage++; 
+    /* Let's check to make sure there is something left here after we removed everything */
+    if ((i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) && curCage->nodeData.empty()) {
+        curCage = o_queryData.cageData.erase(curCage);
+    } else {
+      curCage++;
+    }
   }  /* while curCage */
 
   return rc;
