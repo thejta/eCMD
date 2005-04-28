@@ -489,7 +489,7 @@ struct ecmdChipData {
   uint32_t                      pos;                ///< (Detail: Low)  Position of this entry
   uint32_t                      unitId;             ///< (Detail: High) Unit Id of this entry
   uint8_t                       numProcCores;       ///< (Detail: Low)  Number of cores this entry supports - only valid for Processor compute cores
-  uint32_t                      chipEc;             ///< (Detail: High) EC level of this chip, usually 0-F (ec read from 'jtag' chip id or CFAM id)
+  uint32_t                      chipEc;             ///< (Detail: High) EC level of this chip, (ec read from 'jtag' chip id or CFAM id)
   uint32_t                      simModelEc;         ///< (Detail: High) Model EC level of this chip
   ecmdChipInterfaceType_t       interfaceType;      ///< (Detail: High) Interface Macro used by the chip
   uint32_t                      chipFlags;          ///< (Detail: High) Various additional info about the chip - bitmask of defines
