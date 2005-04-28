@@ -19,6 +19,7 @@ Syntax: getmemproc <MemAddress> <NumBytes> [-k#] [-n#] [-s#] [-p#]
         -fd <filename>  Specify full path and filename to file in D-Card format to write
                         data from system
                         Not valid with -o option.
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
 
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system

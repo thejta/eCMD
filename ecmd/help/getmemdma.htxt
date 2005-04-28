@@ -23,6 +23,7 @@ Syntax: getmemdma <MemAddress> <NumBytes> [-k#] [-n#]
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system
                         Not valid with -o option.
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

@@ -15,6 +15,7 @@ Syntax: putmemmemctrl <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#]
                         to system
 
         -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
 
         Data            Data to write into mainstore. Not valid with -f option
                         Format specified by -i<format>

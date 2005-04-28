@@ -31,6 +31,7 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
                         Run 'ecmdquery formats' to view available modifiers
 
         -f<filename>[o] Specifies the filename that the ring data should be read from
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_ASCII format
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
