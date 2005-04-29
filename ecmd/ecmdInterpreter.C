@@ -216,7 +216,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetSpyUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "gettracearray")) {
           rc = ecmdGetTraceArrayUser(argc - 1, argv + 1);
-        } else {
+        } else if (!strcmp(argv[0], "getvpdkeyword")) {
+	  rc = ecmdGetVpdKeywordUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "getvpdimage")) {
+	  rc = ecmdGetVpdImageUser(argc - 1, argv + 1);
+	} 
+	else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
 
@@ -286,7 +291,11 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutSprUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putspy")) {
           rc = ecmdPutSpyUser(argc - 1, argv + 1);
-        } else {
+        } else if (!strcmp(argv[0], "putvpdkeyword")) {
+	  rc = ecmdPutVpdKeywordUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "putvpdimage")) {
+	  rc = ecmdPutVpdImageUser(argc - 1, argv + 1);
+	} else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }

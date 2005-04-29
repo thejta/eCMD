@@ -151,6 +151,11 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]);
 uint32_t ecmdMakeSPSystemCallUser(int argc, char* argv[]);
 uint32_t ecmdPutCfamUser(int argc, char* argv[]);
 
+/* ecmdVpdUser.C */
+uint32_t ecmdPutVpdKeywordUser(int argc, char* argv[]);
+uint32_t ecmdGetVpdKeywordUser(int argc, char* argv[]);
+uint32_t ecmdPutVpdImageUser(int argc, char* argv[]);
+uint32_t ecmdGetVpdImageUser(int argc, char* argv[]);
 //@}
 
 
