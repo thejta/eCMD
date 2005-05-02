@@ -72,6 +72,12 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   std::ofstream ops;                    ///< Output stream for writing vpd data into
+  std::string newFilename;              ///< filename with target postfix incase of multi positions
+  ecmdChipTarget target1;               ///< Current target operating on-for second looper
+  ecmdLooperData looperdata1;           ///< looper to do the real work
+  char targetStr[50];                   ///< target postfix for the filename incase of multi positions
+  int targetCount=0;                    ///< counts the number of targets user specified
+  
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -119,6 +125,8 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
+  target1 = target; //Created for the second looper needed for -fb case with multiple positions
+  
   char *recordName = argv[0];
   char *keyWord = argv[1];
   
@@ -129,14 +137,6 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   
   int numBytes = atoi(argv[2]);
   
-  if (filename != NULL) {
-   ops.open(filename);
-   if (ops.fail()) {
-     printed = "getvpdkeyword - Unable to open file " + (std::string)filename + " for write\n";
-     ecmdOutputError(printed.c_str());
-     return ECMD_UNKNOWN_FILE;
-   }
-  }
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
@@ -144,15 +144,25 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
+  //Run the loop to Check the number of targets
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+    targetCount++;
+  }
+  //end check
+  
+  //Looper to do the actual work
+  rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+  if (rc) return rc;
+              
+  while ( ecmdConfigLooperNext(target1, looperdata1) ) {
 
-    rc = getModuleVpdKeyword(target, recordName, keyWord, numBytes, data);
+    rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "getvpdkeyword - Error occurred performing getModuleVpdKeyword on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -160,17 +170,24 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-
-    printed = ecmdWriteTarget(target) + "\n";
+    printed = ecmdWriteTarget(target1) + "\n";
     if (filename != NULL) {
-      rc = data.writeFileStream(ops);
+      if (targetCount > 1) {
+        sprintf(targetStr, "k%dn%ds%dp%d", target1.cage, target1.node, target1.slot, target1.pos); 
+        newFilename = (std::string)filename+"."+(std::string)targetStr;
+      }
+      else { newFilename = (std::string)filename; }
+      
+      rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
      
       if (rc) {
-       printed += "getvpdkeyword - Problems occurred writing data into file " + (std::string)filename + "\n";
+       printed += "getvpdkeyword - Problems occurred writing data into file " + newFilename + "\n";
        ecmdOutputError(printed.c_str()); 
        return rc;
       }
       ecmdOutput( printed.c_str() );
+      
+      ops.close();
     } 
     else {
       std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
@@ -178,11 +195,8 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
       ecmdOutput( printed.c_str() );
     } 
     
-
   }
-  if (filename != NULL) {
-    ops.close();
-  }
+  
   if (!validPosFound) {
     ecmdOutputError("getvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
@@ -436,6 +450,12 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   std::ofstream ops;                    ///< Output stream for writing vpd data into
+  std::string newFilename;              ///< filename with target postfix incase of multi positions
+  ecmdChipTarget target1;               ///< Current target operating on-for second looper
+  ecmdLooperData looperdata1;           ///< looper to do the real work
+  char targetStr[50];                   ///< target postfix for the filename incase of multi positions
+  int targetCount=0;                    ///< counts the number of targets user specified
+  
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -483,6 +503,8 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
+  target1 = target; //Created for the second looper needed for -fb case with multiple positions
+  
   if (!ecmdIsAllDecimal(argv[0])) {
     ecmdOutputError("getvpdimage - Non-decimal numbers detected in numBytes field\n");
     return ECMD_INVALID_ARGS;
@@ -490,14 +512,6 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   
   int numBytes = atoi(argv[0]);
   
-  if (filename != NULL) {
-   ops.open(filename);
-   if (ops.fail()) {
-     printed = "getvpdimage - Unable to open file " + (std::string)filename + " for write\n";
-     ecmdOutputError(printed.c_str());
-     return ECMD_UNKNOWN_FILE;
-   }
-  }
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
@@ -505,15 +519,26 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
+  //Run the loop to Check the number of targets
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+    targetCount++;
+  }
+  //end check
+  
+  
+  //Looper to do the actual work
+  rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+  if (rc) return rc;
+  
+  while ( ecmdConfigLooperNext(target1, looperdata1) ) {
 
-    rc = getModuleVpdImage(target, numBytes, data);
+    rc = getModuleVpdImage(target1, numBytes, data);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "getvpdimage - Error occurred performing getModuleVpdImage on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -522,16 +547,26 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
     }
 
 
-    printed = ecmdWriteTarget(target) + "\n";
+    printed = ecmdWriteTarget(target1) + "\n";
     if (filename != NULL) {
-      rc = data.writeFileStream(ops);
+      
+      if (targetCount > 1) {
+        sprintf(targetStr, "k%dn%ds%dp%d", target1.cage, target1.node, target1.slot, target1.pos); 
+        newFilename = (std::string)filename+"."+(std::string)targetStr;
+      }
+      else { newFilename = (std::string)filename; }
+      
+      rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
      
       if (rc) {
-       printed += "getvpdimage - Problems occurred writing data into file " + (std::string)filename + "\n";
+       printed += "getvpdimage - Problems occurred writing data into file " + newFilename + "\n";
        ecmdOutputError(printed.c_str()); 
        return rc;
       }
       ecmdOutput( printed.c_str() );
+      
+      ops.close();
+      
     } 
     else {
       std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
@@ -539,9 +574,7 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
       ecmdOutput( printed.c_str() );
     } 
   }
-  if (filename != NULL) {
-    ops.close();
-  }
+  
   if (!validPosFound) {
     ecmdOutputError("getvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
