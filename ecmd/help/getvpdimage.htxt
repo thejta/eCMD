@@ -16,6 +16,8 @@ Syntax: getvpdimage <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#]
                         system
                         Not valid with -o option.
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+                        Incase multiple chip positions are specified the target string will 
+                        be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
