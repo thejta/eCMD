@@ -654,7 +654,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
     char frontFPPTxt[100] = "ECMD DEBUG";
 
     printed = frontFPPTxt;
-    printed += "Return Value from dllQueryConfig =============\n";
+    printed += " Return Value from dllQueryConfig =============\n";
     dllOutput(printed.c_str());
 
     std::list<ecmdCageData>::iterator ecmdCurCage;
@@ -781,42 +781,42 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
               curThread++;
             }  /* while curThread */
 
-            if ((i_target.threadState != ECMD_TARGET_QUERY_IGNORE) && curCore->threadData.empty()) {
-              curCore = (*curChip).coreData.erase(curCore);
-            } else {
+//            if ((i_target.threadState != ECMD_TARGET_QUERY_IGNORE) && curCore->threadData.empty()) {
+//              curCore = (*curChip).coreData.erase(curCore);
+//            } else {
               curCore++;
-            }
+//            }
           }  /* while curCore */
           
-          if ((i_target.coreState != ECMD_TARGET_QUERY_IGNORE) && curChip->coreData.empty()) {
-            curChip = (*curSlot).chipData.erase(curChip);
-          } else {
+//          if ((i_target.coreState != ECMD_TARGET_QUERY_IGNORE) && curChip->coreData.empty()) {
+//            curChip = (*curSlot).chipData.erase(curChip);
+//          } else {
             curChip++;
-          }
+//          }
         }  /* while curChip */
 
         /* Let's check to make sure there is something left here after we removed everything */
-        if (((i_target.chipTypeState != ECMD_TARGET_QUERY_IGNORE) || (i_target.posState != ECMD_TARGET_QUERY_IGNORE)) && curSlot->chipData.empty()) {
-          curSlot = (*curNode).slotData.erase(curSlot);
-        } else {
+//        if (((i_target.chipTypeState != ECMD_TARGET_QUERY_IGNORE) || (i_target.posState != ECMD_TARGET_QUERY_IGNORE)) && curSlot->chipData.empty()) {
+//          curSlot = (*curNode).slotData.erase(curSlot);
+//        } else {
           curSlot++;
-        }
+//        }
       }  /* while curSlot */
 
       /* Let's check to make sure there is something left here after we removed everything */
-      if ((i_target.slotState != ECMD_TARGET_QUERY_IGNORE) && curNode->slotData.empty()) {
-        curNode = (*curCage).nodeData.erase(curNode);
-      } else {
+//      if ((i_target.slotState != ECMD_TARGET_QUERY_IGNORE) && curNode->slotData.empty()) {
+//        curNode = (*curCage).nodeData.erase(curNode);
+//      } else {
         curNode++;
-      }
+//      }
     }  /* while curNode */
 
     /* Let's check to make sure there is something left here after we removed everything */
-    if ((i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) && curCage->nodeData.empty()) {
-        curCage = o_queryData.cageData.erase(curCage);
-    } else {
+//    if ((i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) && curCage->nodeData.empty()) {
+//        curCage = o_queryData.cageData.erase(curCage);
+//    } else {
       curCage++;
-    }
+//    }
   }  /* while curCage */
 
   return rc;
