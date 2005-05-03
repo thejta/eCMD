@@ -265,13 +265,13 @@ uint32_t dllUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targ
 
 uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_target, uint32_t i_thread_seq_num); 
 
-uint32_t dllGetModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_data_length, ecmdDataBuffer & o_data, uint32_t & o_data_length, uint32_t i_module_index ); 
+uint32_t dllGetModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
-uint32_t dllPutModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_data_length, ecmdDataBuffer & i_data, uint32_t i_module_index ); 
+uint32_t dllPutModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data); 
 
-uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_data_length, ecmdDataBuffer & o_data, uint32_t & o_data_length, uint32_t i_module_index ); 
+uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
-uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_data_length, ecmdDataBuffer & i_data, uint32_t i_module_index ); 
+uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
 
 void dllPushCommandArgs(); 
 
