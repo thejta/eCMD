@@ -137,18 +137,15 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   
   int numBytes = atoi(argv[2]);
   
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
   //Run the loop to Check the number of targets
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
-    targetCount++;
+  if (filename != NULL) {
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+ 
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+      targetCount++;
+    }
   }
-  //end check
   
   //Looper to do the actual work
   rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
@@ -512,19 +509,15 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   
   int numBytes = atoi(argv[0]);
   
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
   //Run the loop to Check the number of targets
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
-    targetCount++;
+  if (filename != NULL) {
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+ 
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+      targetCount++;
+    }
   }
-  //end check
-  
   
   //Looper to do the actual work
   rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
