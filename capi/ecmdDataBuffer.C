@@ -216,7 +216,12 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
       RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
-  if ((newNumBits == iv_NumBits) && newNumBits != 0) {
+  if ((newNumBits == 0) && (iv_NumBits == 0)) {
+      // Do Nothing:  this data doesn't already have iv_RealData,iv_Data defined, and it doesn't want to define it
+      return rc;
+  }
+
+  else if ((newNumBits == iv_NumBits) && newNumBits != 0) {
     /* Just clear the buffer */
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
