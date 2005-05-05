@@ -1518,6 +1518,9 @@ uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @retval ECMD_TARGET_NOT_CONFIGURED  if target is not available in the system  
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
 */
 uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
 
