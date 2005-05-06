@@ -351,7 +351,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 1) {
-    printed = function + " - Too few arguments specified; you need at least one spr.\n";
+    printed = function + " - Too few arguments specified; you need at least one gpr/fpr.\n";
     ecmdOutputError(printed.c_str());
     printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
     ecmdOutputError(printed.c_str());
@@ -476,7 +476,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 2) {
-    printed = function + " - Too few arguments specified; you need at least an sprName  and some data.\n";
+    printed = function + " - Too few arguments specified; you need at least an gpr/fpr Name  and some data.\n";
     ecmdOutputError(printed.c_str());
     printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
     ecmdOutputError(printed.c_str());
@@ -536,7 +536,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       continue;
     }
     else if (rc) {
-        printed = function + " - Error occured performing getspr on ";
+        printed = function + " - Error occured performing getgpr/fpr on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
