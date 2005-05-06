@@ -2729,8 +2729,10 @@ uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
 uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
-  uint32_t numBits=0,numBytes=0,NumDwords=0,hexbitlen=0, *buffer;
-  char key[6],hexstr[8],binstr[64];
+  uint32_t numBits = 0, numBytes = 0, NumDwords = 0, hexbitlen = 0, *buffer;
+  uint32_t endOffset = 0;
+  bool endFound = false;
+  char key[6], hexstr[8], binstr[64], endKeyword[4];
   
   ins.open(filename);
     
@@ -2758,10 +2760,27 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ins.read((char *)&existingFmt,4); existingFmt = (ecmdFormatType_t)htonl(existingFmt);
       if (existingFmt != format) {
     	ETRAC0("**** ERROR : Format requested does not match up with the file Format.");
-    	printf("Existfmt: %d req Format: %d\n",existingFmt, format);
     	RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
       }
-      ins.seekg(begOffset+8+(4*i_dataNumber));//seek to the databuffer header
+      //Find out the END offset
+      ins.seekg(begOffset+8); //goto the beginning of the table
+      while(!endFound) {
+        ins.read(endKeyword,4);  
+	if (strcmp(endKeyword, "END") == 0) {
+	  endOffset = ins.tellg(); endOffset -= 4;
+	  endFound = true;
+	}
+	if ((uint32_t)ins.tellg() >= totalFileSz) break;
+      }
+      if (!endFound) {
+        //ETRAC0("**** ERROR : END keyword not found. Invalid File Format.");
+	RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);
+      }
+      if ((begOffset+8+(4*i_dataNumber)) >= endOffset) {
+        //ETRAC0("**** ERROR : Data Number requested exceeds the maximum Data Number in the File.");
+	RETURN_ERROR(ECMD_DBUF_DATANUMBER_NOT_FOUND);
+      }
+      ins.seekg(begOffset+8+(4*i_dataNumber));//seek to the right databuffer header
       ins.read((char *)&dataOffset,4);  dataOffset = htonl(dataOffset);
       ins.seekg(dataOffset);
     }
