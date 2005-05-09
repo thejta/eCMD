@@ -10,8 +10,20 @@ Syntax: ecmdquery <Mode> [Mode Options]
         Mode            Query type to perform
 
         Mode Values     
-                        rings ChipSelect [-k#] [-n#] [-s#] [-p#]
-                            - Display all rings available for chip
+                        rings ChipSelect [ringname] [-k#] [-n#] [-s#] [-p#]
+                            - Display all rings available (or the selected ring) for chip
+
+                        scoms ChipSelect [scomaddr] [-k#] [-n#] [-s#] [-p#]
+                            - Display all scoms available (or the selected scom) for chip
+
+                        arrays ChipSelect [arrayname] [-k#] [-n#] [-s#] [-p#]
+                            - Display all arrays available (or the selected array) for chip
+
+                        tracearrays ChipSelect [tracearrayname] [-k#] [-n#] [-s#] [-p#]
+                            - Display all tr arrays available (or the selected tr array) for chip
+
+                        spys ChipSelect [spyname] [-k#] [-n#] [-s#] [-p#]
+                            - Display all spys available (or the selected spy) for chip
 
                         formats
                             - Display help text for all available input/output formats
