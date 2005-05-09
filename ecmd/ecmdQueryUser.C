@@ -88,6 +88,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     char invmask = 'N';
     char chkable  = 'N';
     char broadmode = 'N';
+    char isCore = 'N';
     std::list<ecmdRingData> ringdata;
     std::list<ecmdRingData>::iterator ringit;
     std::list<std::string>::iterator strit;
@@ -144,9 +145,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable rings for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Ring Names                           Address    Length   Mask Chkable BroadSide ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "-----------------------------------  --------   ------   ---- ------- --------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
-
+      printed = "Ring Names                           Address    Length Core Mask Chkable BroadSide ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "-----------------------------------  --------   ------ ---- ---- ------- --------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
       for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
 
         printed = "";
@@ -169,11 +169,15 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           chkable = 'Y';
         } else chkable = 'N';
 
+        if (ringit->isCoreRelated) {
+          isCore = 'Y';
+        } else isCore = 'N';
+
         if (ringit->supportsBroadsideLoad) {
           broadmode = 'Y';
         } else broadmode = 'N';
 
-        sprintf(buf,"0x%.6X\t%d\t  %c     %c         %c     %-20s", ringit->address, ringit->bitLength, invmask, chkable, broadmode,ringit->clockDomain.c_str());
+        sprintf(buf,"0x%.6X\t%d\t %c   %c     %c         %c     %-20s", ringit->address, ringit->bitLength, isCore, invmask, chkable, broadmode,ringit->clockDomain.c_str());
         printed += buf;
 
         if (ringit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
@@ -183,6 +187,468 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         else if (ringit->clockState == ECMD_CLOCKSTATE_OFF)
           printed += "OFF\n";
         else if (ringit->clockState == ECMD_CLOCKSTATE_NA)
+          printed += "NA\n";
+
+        ecmdOutput(printed.c_str());
+      }
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+
+
+    /* ----------- */
+    /* spys        */
+    /* ----------- */
+  } else if (!strcmp(argv[0], "spys")) {
+
+    char eccChk = 'N';
+    char isEnum  = 'N';
+    char isCore = 'N';
+    std::list<ecmdSpyData> spydata;
+    std::list<ecmdSpyData>::iterator spyit;
+    std::list<std::string>::iterator strit;
+    
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for spys; you need at least a query spys <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    bool validPosFound = false;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    char buf[200];
+
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+      rc = ecmdQuerySpy(target, spydata,argv[2]);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      } else if (rc) {
+        printed = "ecmdquery - Error occured performing spy query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc) {
+        printed = "ecmdquery - Unable to lookup ec information for chip ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+        
+      sprintf(buf,"\nAvailable spys for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      printed = "SpyType   BitLength EccChked	Enum  Core ClockDomain	      ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "-------   --------- ---------   ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+
+      for (spyit = spydata.begin(); spyit != spydata.end(); spyit ++) {
+
+        printed = "SpyName = {";
+        printed += spyit->spyName; printed += "}\n";
+        ecmdOutput(printed.c_str());
+	
+	printed = "";
+        
+        if(spyit->spyType == ECMD_SPYTYPE_ALIAS) {
+          printed = "ALIAS";
+        } else if(spyit->spyType == ECMD_SPYTYPE_IDIAL) {
+          printed = "IDIAL";
+        } else if(spyit->spyType == ECMD_SPYTYPE_EDIAL) {
+          printed = "EDIAL";
+        } else if(spyit->spyType == ECMD_SPYTYPE_ECCGROUP) {
+          printed = "ECCGROUP";
+        } 
+        for (int i = printed.length(); i <= 10; i++) { 
+          printed += " ";
+        }
+
+        if(spyit->isEccChecked) {
+          eccChk = 'Y';
+        } else {
+          eccChk = 'N';
+        }
+
+        if (spyit->isEnumerated) {
+          isEnum = 'Y';
+        } else isEnum = 'N';
+
+        if (spyit->isCoreRelated) {
+          isCore = 'Y';
+        } else isCore = 'N';
+
+        sprintf(buf,"%-10d  %c          %c    %c   %-20s", spyit->bitLength, eccChk, isEnum, isCore,spyit->clockDomain.c_str());
+        printed += buf;
+
+        if (spyit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
+          printed += "UNKNOWN\n";
+        else if (spyit->clockState == ECMD_CLOCKSTATE_ON)
+          printed += "ON\n";
+        else if (spyit->clockState == ECMD_CLOCKSTATE_OFF)
+          printed += "OFF\n";
+        else if (spyit->clockState == ECMD_CLOCKSTATE_NA)
+          printed += "NA\n";
+	  
+        printed += "EpCheckers = {";
+        for (strit = spyit->epCheckers.begin(); strit != spyit->epCheckers.end(); strit ++) {
+          if (strit != spyit->epCheckers.begin()) printed += ", ";
+         printed += (*strit);
+        }
+        printed += "}\n";
+        
+        #ifndef FIPSODE
+         printed += "Enums = {";
+         for (strit = spyit->enums.begin(); strit != spyit->enums.end(); strit ++) {
+          if (strit != spyit->enums.begin()) printed += ", ";
+          printed += (*strit);
+         }
+         printed += "}\n";
+        #endif
+        
+	if (argv[2] == NULL) {
+          printed += "\n";
+        }
+        ecmdOutput(printed.c_str());
+      }
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+
+
+    /* ----------- */
+    /* tracearrays */
+    /* ----------- */
+  } else if (!strcmp(argv[0], "tracearrays")) {
+
+    char isCore='N';
+    
+    std::list<ecmdTraceArrayData> tracearraydata;
+    std::list<ecmdTraceArrayData>::iterator traceit;
+    
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for tracearrays; you need at least a query tracearrays <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    bool validPosFound = false;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    char buf[200];
+
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+      rc = ecmdQueryTraceArray(target, tracearraydata,argv[2]);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      } else if (rc) {
+        printed = "ecmdquery - Error occured performing tracearray query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc) {
+        printed = "ecmdquery - Unable to lookup ec information for chip ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+        
+      sprintf(buf,"\nAvailable tracearrays for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      printed = "TraceArray Names          Length     Width   Core    ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------  --------   ------  ------  ------------------- ----------\n"; ecmdOutput(printed.c_str());
+
+      for (traceit = tracearraydata.begin(); traceit != tracearraydata.end(); traceit ++) {
+
+        printed = "";
+        printed += traceit->traceArrayName;
+        
+	for (int i = printed.length(); i <= 25; i++) { 
+          printed += " ";
+        }
+
+        
+        if(traceit->isCoreRelated) {
+          isCore = 'Y';
+        } else {
+          isCore = 'N';
+        }
+
+        sprintf(buf,"%-11d%-8d  %c     %-20s", traceit->length, traceit->width, isCore, traceit->clockDomain.c_str());
+        printed += buf;
+	
+
+        if (traceit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
+          printed += "UNKNOWN\n";
+        else if (traceit->clockState == ECMD_CLOCKSTATE_ON)
+          printed += "ON\n";
+        else if (traceit->clockState == ECMD_CLOCKSTATE_OFF)
+          printed += "OFF\n";
+        else if (traceit->clockState == ECMD_CLOCKSTATE_NA)
+          printed += "NA\n";
+
+        ecmdOutput(printed.c_str());
+      }
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+
+    /* ----------- */
+    /* scoms       */
+    /* ----------- */
+  } else if (!strcmp(argv[0], "scoms")) {
+
+    char isCore = 'N';
+    uint32_t address =0xFFFFFFFF;
+    char addrStr[20];
+    
+    std::list<ecmdScomData> scomdata;
+    std::list<ecmdScomData>::iterator scomit;
+
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for scoms; you need at least a query scoms <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    bool validPosFound = false;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    char buf[200];
+    if (argv[2] != NULL) {
+      address = strtoul(argv[2], NULL, 16);
+    }
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+      rc = ecmdQueryScom(target, scomdata, address);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      } else if (rc) {
+        printed = "ecmdquery - Error occured performing scom query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc) {
+        printed = "ecmdquery - Unable to lookup ec information for chip ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+        
+      sprintf(buf,"\nAvailable scoms for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      printed = "Scom Address  Core    ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
+
+      for (scomit = scomdata.begin(); scomit != scomdata.end(); scomit ++) {
+
+        printed = "";
+        
+        sprintf(addrStr, "%8.8X", scomit->address);
+	printed += addrStr;
+	
+	for (int i = printed.length(); i <= 14; i++) { 
+          printed += " ";
+        }
+
+        if(scomit->isCoreRelated) {
+          isCore = 'Y';
+        } else {
+          isCore = 'N';
+        }
+
+        sprintf(buf," %c     %-21s", isCore,scomit->clockDomain.c_str());
+        printed += (std::string)buf;
+	
+
+        if (scomit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
+          printed += "UNKNOWN\n";
+        else if (scomit->clockState == ECMD_CLOCKSTATE_ON)
+          printed += "ON\n";
+        else if (scomit->clockState == ECMD_CLOCKSTATE_OFF)
+          printed += "OFF\n";
+        else if (scomit->clockState == ECMD_CLOCKSTATE_NA)
+          printed += "NA\n";
+
+        ecmdOutput(printed.c_str());
+      }
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+
+
+    /* ----------- */
+    /* arrays      */
+    /* ----------- */
+  } else if (!strcmp(argv[0], "arrays")) {
+
+    char isCore = 'N';
+    
+    std::list<ecmdArrayData> arraydata;
+    std::list<ecmdArrayData>::iterator arrayit;
+
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for arrays; you need at least a query arrays <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    bool validPosFound = false;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    char buf[200];
+    
+    while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+      rc = ecmdQueryArray(target, arraydata, argv[2]);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      } else if (rc) {
+        printed = "ecmdquery - Error occured performing array query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc) {
+        printed = "ecmdquery - Unable to lookup ec information for chip ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+        
+      sprintf(buf,"\nAvailable arrays for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      
+      printed = "Array Names                    RdAddrLen  WrtAddrLen Length Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------------ ---------- ---------- ------ ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+
+      for (arrayit = arraydata.begin(); arrayit != arraydata.end(); arrayit ++) {
+
+        printed = "";
+        printed += arrayit->arrayName;
+	for (int i = printed.length(); i <= 30; i++) { 
+          printed += " ";
+        }
+
+        if(arrayit->isCoreRelated) {
+          isCore = 'Y';
+        } else {
+          isCore = 'N';
+        }
+
+        sprintf(buf,"%-10d %-10d %-6d %-5d  %c   %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
+        printed += (std::string)buf;
+	
+
+        if (arrayit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
+          printed += "UNKNOWN\n";
+        else if (arrayit->clockState == ECMD_CLOCKSTATE_ON)
+          printed += "ON\n";
+        else if (arrayit->clockState == ECMD_CLOCKSTATE_OFF)
+          printed += "OFF\n";
+        else if (arrayit->clockState == ECMD_CLOCKSTATE_NA)
           printed += "NA\n";
 
         ecmdOutput(printed.c_str());
