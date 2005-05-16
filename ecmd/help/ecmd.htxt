@@ -12,36 +12,36 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        checkrings               putarray                 simexit                  
-                                 putbits                  simexpecttcfac           
-        deconfig                 putcfam                  simgetcurrentcycle       
-                                 putfpr                   simgethierarchy          
-        ecmd                     putgpr                   simgettcfac              
-        ecmdquery                putlatch                 siminit                  
-                                 putmemdma                simputtcfac              
-        format                   putmemmemctrl            simrestart               
-                                 putmemproc               simstktcfac              
-        getarray                 putpattern               simtckinterval           
-        getbits                  putscom                  simunsticktcfac          
-        getcfam                  putspr                   startclocks              
-        getconfig                putspy                   stopclocks               
-        getfpr                                            
-        getgpr                   reconfig                 
-        getlatch                                          
-        getmemdma                sendcmd                  
-        getmemmemctrl            setconfig                
-        getmemproc               simEXPECTFAC             
-        getringdump              simGETFAC                
-        getscom                  simGETFACX               
-        getspr                   simPUTFAC                
-        getspy                   simPUTFACX               
-        gettracearray            simSTKFAC                
-                                 simSUBCMD                
-        istep                    simUNSTICK               
-                                 simaet                   
-        makespsystemcall         simcheckpoint            
-                                 simclock                 
-        pollscom                 simecho                  
+        checkrings                                        simGETFAC                
+                                 pollscom                 simGETFACX               
+        deconfig                 putarray                 simgethierarchy          
+                                 putbits                  simgettcfac              
+        ecmd                     putcfam                  siminit                  
+        ecmdquery                putfpr                   simPUTFAC                
+                                 putgpr                   simPUTFACX               
+        format                   putlatch                 simputtcfac              
+                                 putmemdma                simrestart               
+        getarray                 putmemmemctrl            simSTKFAC                
+        getbits                  putmemproc               simstktcfac              
+        getcfam                  putpattern               simSUBCMD                
+        getconfig                putscom                  simtckinterval           
+        getfpr                   putspr                   simUNSTICK               
+        getgpr                   putspy                   simunsticktcfac          
+        getlatch                 putvpdimage              startclocks              
+        getmemdma                putvpdkeyword            stopclocks               
+        getmemmemctrl                                     
+        getmemproc               reconfig                 
+        getringdump                                       
+        getscom                  sendcmd                  
+        getspr                   setconfig                
+        getspy                   simaet                   
+        gettracearray            simcheckpoint            
+        getvpdimage              simclock                 
+        getvpdkeyword            simecho                  
+                                 simexit                  
+        istep                    simEXPECTFAC             
+                                 simexpecttcfac           
+        makespsystemcall         simgetcurrentcycle       
 
 
         Cronus/IP Extensions:
