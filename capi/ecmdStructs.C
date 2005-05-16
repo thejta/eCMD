@@ -1115,8 +1115,8 @@ void ecmdChipData::printStruct() {
 	printf("\t\t\t\t\tChip common type: %s\n", chipCommonType.c_str());
 	printf("\t\t\t\t\tPosition: %d\n", pos);
 	printf("\t\t\t\t\tNumber of proc cores: %d\n", numProcCores);
-	printf("\t\t\t\t\tChip EC: %d\n", chipEc);
-	printf("\t\t\t\t\tSim mode EC: %d\n", simModelEc);
+	printf("\t\t\t\t\tChip EC: %X\n", chipEc);
+	printf("\t\t\t\t\tSim mode EC: %X\n", simModelEc);
 	printf("\t\t\t\t\tInterface: 0x%08x\n", (uint32_t) interfaceType);
 	printf("\t\t\t\t\tChip flags: 0x%08x\n", chipFlags);
 
