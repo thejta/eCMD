@@ -144,7 +144,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      sprintf(buf,"\nAvailable rings for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,"\nAvailable rings for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       printed = "Ring Names                           Address    Length Core Mask Chkable BroadSide ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
       printed = "-----------------------------------  --------   ------ ---- ---- ------- --------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
       for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
@@ -263,7 +263,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      sprintf(buf,"\nAvailable spys for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,"\nAvailable spys for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       printed = "SpyType   BitLength EccChked	Enum  Core ClockDomain	      ClockState\n"; ecmdOutput(printed.c_str());
       printed = "-------   --------- ---------   ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
@@ -405,7 +405,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      sprintf(buf,"\nAvailable tracearrays for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,"\nAvailable tracearrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       printed = "TraceArray Names          Length     Width   Core    ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
       printed = "------------------------  --------   ------  ------  ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
@@ -513,7 +513,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      sprintf(buf,"\nAvailable scoms for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,"\nAvailable scoms for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       printed = "Scom Address  Core    ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
       printed = "------------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
 
@@ -619,7 +619,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      sprintf(buf,"\nAvailable arrays for %s ec %d:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,"\nAvailable arrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       
       printed = "Array Names                    RdAddrLen  WrtAddrLen Length Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
       printed = "------------------------------ ---------- ---------- ------ ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
@@ -1015,7 +1015,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 	    sprintf(buf2, "      %s %d\n",ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);strcat(buf, buf2);
             sprintf(buf2, "        Details: PosUid=%d, Name=%s, Short Name=%s, Common Name=%s,\n",ecmdCurChip->unitId, ecmdCurChip->chipType.c_str(),ecmdCurChip->chipShortType.c_str(),ecmdCurChip->chipCommonType.c_str());
 	    strcat(buf, buf2);
-            sprintf(buf2, "                 Pos=%d, NumProcCores=%d, EC=%d, Model EC=%d,\n",ecmdCurChip->pos,ecmdCurChip->numProcCores, ecmdCurChip->chipEc,ecmdCurChip->simModelEc );  
+            sprintf(buf2, "                 Pos=%d, NumProcCores=%d, EC=%X, Model EC=%X,\n",ecmdCurChip->pos,ecmdCurChip->numProcCores, ecmdCurChip->chipEc,ecmdCurChip->simModelEc );  
 	    strcat(buf, buf2);
 	    if (ecmdCurChip->interfaceType == ECMD_INTERFACE_ACCESS)
               sprintf(buf2,"                 Interface=ACCESS, ");
@@ -1101,8 +1101,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       printed =     "Chip Common Name : " + chipdata.chipCommonType + "\n"; ecmdOutput(printed.c_str());
       sprintf(buf,  "Chip Position    : %d\n", chipdata.pos); ecmdOutput(buf);
       sprintf(buf,  "Num Proc Cores   : %d\n", chipdata.numProcCores); ecmdOutput(buf);
-      sprintf(buf,  "Chip EC Level    : %d\n", chipdata.chipEc); ecmdOutput(buf);
-      sprintf(buf,  "Chip Model EC    : %d\n", chipdata.simModelEc); ecmdOutput(buf);
+      sprintf(buf,  "Chip EC Level    : %X\n", chipdata.chipEc); ecmdOutput(buf);
+      sprintf(buf,  "Chip Model EC    : %X\n", chipdata.simModelEc); ecmdOutput(buf);
       if (chipdata.interfaceType == ECMD_INTERFACE_ACCESS)
         sprintf(buf,"Chip Interface   : ACCESS\n");
       else if (chipdata.interfaceType == ECMD_INTERFACE_CFAM)

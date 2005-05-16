@@ -253,7 +253,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       printed += outstr;
       printed += target.chipType + " " + ringName + " Ring\n";
 
-      sprintf(outstr, "* Chip EC %d\n", chipData.chipEc);
+      sprintf(outstr, "* Chip EC %X\n", chipData.chipEc);
       printed += outstr;
       sprintf(outstr, "* Ring length: %d bits\n", ringBuffer.getBitLength());
       printed += outstr;
