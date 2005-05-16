@@ -57,7 +57,7 @@ LINK_OBJS := ${LINK_OBJS} croInterpreter.o
 
 
 # The Core Interpreter
-LINK_OBJS := ${LINK_OBJS} ecmdInterpreter.o ecmdProcUser.o ecmdJtagUser.o ecmdMemUser.o ecmdScomUser.o ecmdRingUser.o ecmdSpyUser.o ecmdMiscUser.o ecmdIstepUser.o ecmdSimUser.o ecmdCommandUtils.o ecmdQueryUser.o ecmdArrayUser.o 
+LINK_OBJS := ${LINK_OBJS} ecmdInterpreter.o ecmdProcUser.o ecmdJtagUser.o ecmdMemUser.o ecmdScomUser.o ecmdRingUser.o ecmdSpyUser.o ecmdMiscUser.o ecmdIstepUser.o ecmdSimUser.o ecmdCommandUtils.o ecmdQueryUser.o ecmdArrayUser.o ecmdVpdUser.o
 
 
 
