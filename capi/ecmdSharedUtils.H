@@ -72,6 +72,8 @@ typedef enum {
 //--------------------------------------------------------------------
 //  Forward References
 //--------------------------------------------------------------------
+/* The following two functions are overridden in ecmdClientPerlapi.H to remove io_argc */
+#ifndef ECMD_PERLAPI
 
 /** @name Command Line Parsing Functions */
 //@{
@@ -99,7 +101,7 @@ bool ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
 char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
 
 //@}
-
+#endif
 
 /**
  * @brief Breaks the string line into tokens based on all chars in seperators

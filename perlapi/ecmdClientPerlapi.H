@@ -113,6 +113,36 @@ namespace ECMDPERLAPI {
 
   //@}
 
+
+
+  /** @name Command Line Parsing Functions */
+  //@{
+
+  /**
+   * @brief Iterates over argv, looking for given option string, removes it if found
+   * @retval 1 if option found, 0 otherwise
+   * @param io_argc Pointer to number of elements in io_argv array
+   * @param io_argv Array of strings passed in from command line
+   * @param i_option Option to look for
+   * @see ecmdParseOptionWithArgs
+
+   */
+  bool ecmdParseOption (char ** i_argv, const char * i_option);
+
+  /**
+   * @brief Iterates over argv, looking for given option string, removes it if found
+   * @retval Value of option arg if found, NULL otherwise
+   * @param io_argc Pointer to number of elements in io_argv array
+   * @param io_argv Array of strings passed in from command line
+   * @param i_option Option to look for
+   * @see ecmdParseOptionWithArgs
+
+   */
+  char * ecmdParseOptionWithArgs(char ** i_argv, const char * i_option);
+
+  //@}
+
+
 #ifndef DOCUMENTATION
 }
 #endif

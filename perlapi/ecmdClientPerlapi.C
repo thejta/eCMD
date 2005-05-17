@@ -139,3 +139,24 @@ uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName
   return rc;
 }
 
+bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option){
+
+  int looper =0;
+
+  while(io_argv[looper] != NULL) looper++;
+
+  return ::ecmdParseOption(&looper, &io_argv,i_option);
+
+}
+
+char * ECMDPERLAPI::ecmdParseOptionWithArgs(char ** io_argv, const char * i_option){
+
+  char * ret = NULL;
+  int looper =0;
+
+  while(io_argv[looper] != NULL) looper++;
+
+  ret = ::ecmdParseOptionWithArgs(&looper, &io_argv,i_option);
+
+  return ret;
+}
