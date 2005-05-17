@@ -131,10 +131,18 @@ char **p_xargv;
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 
+/* @brief Parse out the scandef for the specified latch name */
 uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
+/* @brief Look up the provided latch name in the scandef hash */
 uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
+/* @brief Return the ecmdChipData structure for a target */
 uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
+/* @brief Read the ecmdReturnCodes.H file for the specified return code */
 std::string dllParseReturnCode(uint32_t i_returnCode);
+/* @brief Returns true if curPos is not in userArgs */
+uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
+/* @brief Returns true if all chars of str are decimal numbers */
+bool dllIsValidTargetString(std::string str);
 
 
 /** @brief Used to sort latch entries from the scandef */
@@ -178,10 +186,6 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 }
 
 
-uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
-
-/* Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string str);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -705,6 +709,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   while (curCage != o_queryData.cageData.end()) {
 
+    /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
     if (cageType == MULTI) {
       /* Is the current element in the list of numbers the user provided, if not remove it */
       if (dllRemoveCurrentElement((*curCage).cageId, ecmdUserArgs.cage)) {
@@ -718,6 +723,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
     while (curNode != (*curCage).nodeData.end()) {
 
+      /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
       if (nodeType == MULTI) {
         /* Is the current element in the list of numbers the user provided, if not remove it */
         if (dllRemoveCurrentElement((*curNode).nodeId, ecmdUserArgs.node)) {
@@ -731,6 +737,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
       while (curSlot != (*curNode).slotData.end()) {
 
+        /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
         if (slotType == MULTI) {
           /* Is the current element in the list of numbers the user provided, if not remove it */
           if (dllRemoveCurrentElement((*curSlot).slotId, ecmdUserArgs.slot)) {
@@ -744,6 +751,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
         while (curChip != (*curSlot).chipData.end()) {
 
+          /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
           if (posType == MULTI) {
             /* Is the current element in the list of numbers the user provided, if not remove it */
             if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
@@ -757,6 +765,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
           while (curCore != (*curChip).coreData.end()) {
 
+            /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
             if (coreType == MULTI) {
               /* Is the current element in the list of numbers the user provided, if not remove it */
               if (dllRemoveCurrentElement((*curCore).coreId, ecmdUserArgs.core)) {
@@ -770,6 +779,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
             while (curThread != (*curCore).threadData.end()) {
 
+              /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
               if (threadType == MULTI) {
                 /* Is the current element in the list of numbers the user provided, if not remove it */
                 if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
