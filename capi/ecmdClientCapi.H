@@ -1929,19 +1929,19 @@ void simSetFusionMessageFormat ( const char* i_format);
 /**
  @brief Write a simulation dial with specified value
  @param i_dialName Fully qualified dial name
- @param i_enumValue Enumerated value to set dial to
+ @param i_enumValue Value to set dial to either enum or numeric (ie 0b11 or 0xFE)
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t simPutDialEnum(const char* i_dialName, const std::string i_enumValue);
+uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
 /**
  @brief Read a simulation dial
  @param i_dialName Fully qualified dial name
- @param i_enumValue Enumerated value read from model
+ @param i_enumValue Value read from model
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t simGetDialEnum(const char* i_dialName, std::string & o_enumValue);
+uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
 
 #endif /* ifndef REMOVE_SIM */
 //@}
