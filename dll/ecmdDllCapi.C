@@ -1099,7 +1099,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
         rc = dllGetRing(target, curLatchInfo->ringName.c_str(), ringBuffer);
         if (rc) {
           dllRegisterErrorMsg(rc, "dllGetLatch", "Problems reading ring from chip\n");
-          break;
+          return rc;
         }
         curRing = curLatchInfo->ringName;
       }
