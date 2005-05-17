@@ -921,10 +921,17 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             if (!easyParse) {
               if (curchip == "") {
                 curchip = ecmdCurChip->chipType;
-                sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), decode.c_str());
+                if (ecmdCurChip->numProcCores != 0)
+                  sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), decode.c_str());
+                else
+                  sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), "[p]");
               } else if (curchip != ecmdCurChip->chipType) {
+                curchip = ecmdCurChip->chipType;
                 strcat(buf, "\n"); ecmdOutput(buf);
-                sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), decode.c_str());
+                if (ecmdCurChip->numProcCores != 0)
+                  sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), decode.c_str());
+                else
+                  sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), "[p]");
               }
             }
             if ( (ecmdCurChip->numProcCores != 0) && ( !ecmdCurChip->coreData.empty() )) {
