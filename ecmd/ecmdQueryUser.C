@@ -871,14 +871,24 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::list<ecmdChipData>::iterator ecmdCurChip;
     std::list<ecmdCoreData>::iterator ecmdCurCore;
     std::list<ecmdThreadData>::iterator ecmdCurThread;
+    std::string decode;                 ///< Number decode ie "[p]" or "[p:c]"
 
     /* Do they want to run in easy parse mode ? */
     bool easyParse = ecmdParseOption (&argc, &argv, "-ep");
     
-
-
-    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-    target.threadState = ECMD_TARGET_QUERY_IGNORE;
+    /* Figure out the depth they want */
+    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    if (ecmdParseOption (&argc, &argv, "-dt")) {
+      target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      decode = "[p:c:t]";
+    } else if (ecmdParseOption (&argc, &argv, "-dc")) {
+      target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      target.threadState = ECMD_TARGET_QUERY_IGNORE;
+      decode = "[p:c]";
+    } else { /* -dp as well */
+      target.threadState = target.coreState = ECMD_TARGET_QUERY_IGNORE;
+      decode = "[p]";
+    }
 
     rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
 
@@ -911,10 +921,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             if (!easyParse) {
               if (curchip == "") {
                 curchip = ecmdCurChip->chipType;
-                sprintf(buf,"      %s",ecmdCurChip->chipType.c_str());
+                sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), decode.c_str());
               } else if (curchip != ecmdCurChip->chipType) {
                 strcat(buf, "\n"); ecmdOutput(buf);
-                sprintf(buf,"      %s",ecmdCurChip->chipType.c_str());
+                sprintf(buf,"      %s %s",ecmdCurChip->chipType.c_str(), decode.c_str());
               }
             }
             if ( (ecmdCurChip->numProcCores != 0) && ( !ecmdCurChip->coreData.empty() )) {

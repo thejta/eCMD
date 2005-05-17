@@ -28,9 +28,12 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         formats
                             - Display help text for all available input/output formats
         
-                        chips [-ep]
+                        chips [-ep] [-dp | -dc | -dt]
                             - Display all the chips in the system
                             - Use '-ep' to display in an easier to parse format
+                            - Use -dp to specify position depth display
+                            - Use -dc to specify core depth display
+                            - Use -dt to specify trace depth display
 
                         chipinfo ChipSelect [-k#] [-n#] [-s#] [-p#]
                             - Display info about a particular chip (ex. EC level)
