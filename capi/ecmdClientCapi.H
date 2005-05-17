@@ -1926,6 +1926,22 @@ void simSetFusionMessageFormat ( const char* i_format);
 #define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
 #define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
 
+/**
+ @brief Write a simulation dial with specified value
+ @param i_dialName Fully qualified dial name
+ @param i_enumValue Enumerated value to set dial to
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simPutDialEnum(const char* i_dialName, const std::string i_enumValue);
+/**
+ @brief Read a simulation dial
+ @param i_dialName Fully qualified dial name
+ @param i_enumValue Enumerated value read from model
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simGetDialEnum(const char* i_dialName, std::string & o_enumValue);
 
 #endif /* ifndef REMOVE_SIM */
 //@}
