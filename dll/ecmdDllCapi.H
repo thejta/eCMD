@@ -227,6 +227,10 @@ uint32_t dllSimOutputFusionMessage(const char* i_header,  const char * i_message
 
 void dllSimSetFusionMessageFormat( const char* i_format); 
 
+uint32_t dllSimPutDial(const char* i_dialName, const std::string i_enumValue); 
+
+uint32_t dllSimGetDial(const char* i_dialName, std::string & o_enumValue); 
+
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
