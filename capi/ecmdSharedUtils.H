@@ -66,7 +66,17 @@ typedef enum {
   ECMD_DISPLAY_TARGET_DEFAULT   ///< Default mode
 } ecmdTargetDisplayMode_t;
 
-
+//--------------------------------------------------------------------
+//  Structures
+//--------------------------------------------------------------------
+/**
+ @brief Used by ecmdReadDcard
+*/
+typedef struct {
+  uint64_t address;
+  ecmdDataBuffer data;
+  ecmdDataBuffer tags;
+} ecmdMemoryEntry_t;
 
 
 //--------------------------------------------------------------------
@@ -193,6 +203,15 @@ uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 
  */
 uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_depth);
+
+/**
+ *  @brief Sets Fields of ecmdMemoryEntry_t from the DCard data in the file
+ *  @param i_filename file to read the d-card data from
+ *  @param o_data list to be updated with the d-card data
+ *  @retval ECMD_SUCCESS if setting successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching depth
+ */
+uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry_t> &o_data);
 
 /**
  @brief Returns a formatted string containing the data in the given ecmdChipTarget

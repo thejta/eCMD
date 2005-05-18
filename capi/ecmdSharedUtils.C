@@ -34,11 +34,11 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <fstream>
 
 #include <ecmdSharedUtils.H>
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
-
 
 #undef ecmdSharedUtils_C
 //----------------------------------------------------------------------
@@ -124,7 +124,6 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
 
   for (counter = 0; counter < *argc ; counter++) {
     if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) {
-
       if (strlen((*argv)[counter])>strlen(option)) {
         returnValue = &((*argv)[counter][strlen(option)]);
         (*argv)[counter]=NULL;
@@ -391,6 +390,49 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
 
 }
 
+uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry_t> &o_data) {
+  std::ifstream ins;
+  char *line = new char[256];
+  std::vector<std::string> splitArgs;
+  int rc = 0;
+  uint32_t bitlength;
+  
+  ins.open(i_filename);
+  
+  if (ins.fail()) {
+    return ECMD_DBUF_FOPEN_FAIL;  
+  }
+  while (!ins.eof()) {
+  
+   ecmdMemoryEntry_t dcardEntry;
+   
+   ins.getline(line, 256);
+   ecmdParseTokens(line, " \t\n", splitArgs);
+ 
+   if (splitArgs.size() == 0) continue;
+   if (splitArgs.size() != 4) {
+     return ECMD_INVALID_ARGS;
+   }
+   
+   
+   dcardEntry.address = strtoull(splitArgs[1].c_str(), NULL, 16);
+   
+   bitlength = splitArgs[2].length() * 4;
+   dcardEntry.data.setBitLength(bitlength);
+   rc = dcardEntry.data.insertFromHexLeft(splitArgs[2].c_str(), 0, bitlength);
+   if (rc) return rc;
+   
+   bitlength = splitArgs[3].length() * 4;
+   dcardEntry.tags.setBitLength(bitlength);
+   rc = dcardEntry.tags.insertFromHexLeft(splitArgs[3].c_str(), 0, bitlength);
+   if (rc) return rc;
+   
+   o_data.push_back(dcardEntry);
+  }
+  ins.close();
+  
+  return rc;
+}
 
 uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos) {
 
