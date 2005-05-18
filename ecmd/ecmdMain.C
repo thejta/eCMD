@@ -181,10 +181,12 @@ int main (int argc, char *argv[])
 
 
       if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-        if (strlen(argv[1]) < 200)
-          sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", argv[1]);
+        if (argv[1] == NULL)
+          sprintf(buf,"ecmd - Must specify a command to execute\n");
+        else if (strlen(argv[1]) < 200)
+          sprintf(buf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
         else
-          sprintf(buf,"ecmd -  Unknown Command specified \n");
+          sprintf(buf,"ecmd - Unknown Command specified \n");
         ecmdOutputError(buf);
       } else if (rc) {
         std::string parse = ecmdGetErrorMsg(rc, false);
