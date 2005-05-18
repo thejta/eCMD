@@ -26,6 +26,7 @@
 #define ecmdMemUser_C
 #include <stdio.h>
 #include <ctype.h>
+#include <fstream>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -97,11 +98,20 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
   
-  if((filename != NULL) && (formatPtr != NULL) ) {
-    printLine = cmdlineName + " - Options -fb and -o can't be specified together for format. Specify either one.\n";
+  /* Get the filename if -fd is specified */
+  char * dcardfilename = ecmdParseOptionWithArgs(&argc, &argv, "-fd");
+
+  if(((filename != NULL) || (dcardfilename != NULL)) && (formatPtr != NULL) ) {
+    printLine = cmdlineName + " - Options -f and -o can't be specified together for format. Specify either one.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   } 
+  if((dcardfilename != NULL) && (filename != NULL)) {
+    printLine = cmdlineName + "Options -fb and -fd can't be specified together for format. Specify either one.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -161,6 +171,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       rc = getMemMemCtrl(target, address, numBytes, returnData);
     } else if (memMode == ECMD_MEM_PROC) {
       rc = getMemProc(target, address, numBytes, returnData);
+
     }
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -186,6 +197,23 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
        return rc;
       }
       ecmdOutput( printLine.c_str() );
+    } else if (dcardfilename != NULL) {
+      std::string dataStr = ecmdWriteDataFormatted(returnData, "memd", address);
+      std::ofstream ops;
+      ops.open(dcardfilename);
+      if (ops.fail()) {
+       char mesg[1000];
+       sprintf(mesg, "Unable to open file : %s for write", dcardfilename);
+       ecmdOutputError(mesg);
+       return ECMD_DBUF_FOPEN_FAIL;
+      }
+      if (dataStr[0] != '\n') {
+       printLine += "\n";
+      }
+      printLine += dataStr;
+      ops << printLine.c_str();
+      ops.close();
+
     } else  {
      
      std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
@@ -214,6 +242,9 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "x";      ///< Output format - default to 'mem'
   ecmdDataBuffer inputData;             ///< Buffer to hold the data intended for memory
+  std::list<ecmdMemoryEntry_t> memdata; ///< Data from the D-Card format file 
+  std::list<ecmdMemoryEntry_t>::iterator memdataIter; ///< Data from the D-Card format file 
+  int startOffset = 0;                  ///< Start bit offset in the output databuffer
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
   uint64_t address;                     ///< The address from the command line
@@ -242,31 +273,40 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   }
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
-  
-  if((filename != NULL) && (formatPtr != NULL) ) {
-    printLine = cmdlineName + "Options -fb and -i can't be specified together for format. Specify either one.\n";
+ 
+  /* Get the filename to file in D-Card format */ 
+  char *dcardfilename = ecmdParseOptionWithArgs(&argc, &argv, "-fd");
+
+  if(((filename != NULL) || (dcardfilename != NULL)) && (formatPtr != NULL) ) {
+    printLine = cmdlineName + "Options -f and -i can't be specified together for format. Specify either one.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   } 
+
+  if((dcardfilename != NULL) && (filename != NULL)) {
+    printLine = cmdlineName + "Options -fb and -fd can't be specified together for format. Specify either one.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  if ((argc < 2)&&(filename == NULL)) {  //chip + address
+  if ((argc < 2)&&((filename == NULL) && (dcardfilename == NULL))) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and data to write.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }else if((argc < 1)&&(filename != NULL)) { 
+  }else if((argc < 1)&&((filename != NULL)||(dcardfilename != NULL))) { 
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and input data file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }else if(((argc > 2)&&(filename == NULL)) || ((argc > 1)&&(filename != NULL))) {
+  }else if(((argc > 2)&&((filename == NULL) && (dcardfilename == NULL))) || ((argc > 1)&&((filename != NULL) || (dcardfilename != NULL)))) {
     printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
@@ -311,6 +351,19 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      ecmdOutputError(printLine.c_str());
      return rc;
     }
+  } else if(dcardfilename != NULL) {
+    rc = ecmdReadDcard(dcardfilename, memdata);
+    if (rc) {
+     printLine = cmdlineName + " - Problems occurred parsing input data from file" + dcardfilename +", must be an invalid format\n";
+     ecmdOutputError(printLine.c_str());
+     return rc;
+    }
+    inputData.setBitLength(memdata.size() * 64); //assuming each data in the list has 64 bits
+    for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
+      memdataIter->data.extractPreserve(inputData, 0,  memdataIter->data.getBitLength(), startOffset);
+      startOffset += memdataIter->data.getBitLength();
+    }
+
   } else  {
    rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
    if (rc) {
