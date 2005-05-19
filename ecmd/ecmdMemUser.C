@@ -171,7 +171,6 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       rc = getMemMemCtrl(target, address, numBytes, returnData);
     } else if (memMode == ECMD_MEM_PROC) {
       rc = getMemProc(target, address, numBytes, returnData);
-
     }
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -243,7 +242,8 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   std::string inputformat = "x";      ///< Output format - default to 'mem'
   ecmdDataBuffer inputData;             ///< Buffer to hold the data intended for memory
   std::list<ecmdMemoryEntry_t> memdata; ///< Data from the D-Card format file 
-  std::list<ecmdMemoryEntry_t>::iterator memdataIter; ///< Data from the D-Card format file 
+  std::list<ecmdMemoryEntry_t>::iterator memdataIter; ///< to iterate on memdata list 
+  ecmdMemoryEntry_t memEntry;           ///< to store data from the user
   int startOffset = 0;                  ///< Start bit offset in the output databuffer
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
@@ -351,6 +351,10 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      ecmdOutputError(printLine.c_str());
      return rc;
     }
+    memEntry.address = address;
+    inputData.extract(memEntry.data, 0, inputData.getBitLength());
+    memdata.push_back(memEntry);
+    
   } else if(dcardfilename != NULL) {
     rc = ecmdReadDcard(dcardfilename, memdata);
     if (rc) {
@@ -358,12 +362,6 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      ecmdOutputError(printLine.c_str());
      return rc;
     }
-    inputData.setBitLength(memdata.size() * 64); //assuming each data in the list has 64 bits
-    for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
-      memdataIter->data.extractPreserve(inputData, 0,  memdataIter->data.getBitLength(), startOffset);
-      startOffset += memdataIter->data.getBitLength();
-    }
-
   } else  {
    rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
    if (rc) {
@@ -371,6 +369,9 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      ecmdOutputError(printLine.c_str());
      return rc;
    }
+   memEntry.address = address;
+   inputData.extract(memEntry.data, 0, inputData.getBitLength());
+   memdata.push_back(memEntry);
   }
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -380,14 +381,16 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    if (memMode == ECMD_MEM_DMA) {
-      rc = putMemDma(target, address, inputData.getByteLength(), inputData);
-    } else if (memMode == ECMD_MEM_MEMCTRL) {
-      rc = putMemMemCtrl(target, address, inputData.getByteLength(), inputData);
-    } else if (memMode == ECMD_MEM_PROC) {
-      rc = putMemProc(target, address, inputData.getByteLength(), inputData);
+    for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
+      if (memMode == ECMD_MEM_DMA) {
+        rc = putMemDma(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
+      } else if (memMode == ECMD_MEM_MEMCTRL) {
+        rc = putMemMemCtrl(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
+      } else if (memMode == ECMD_MEM_PROC) {
+        rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
+      }
     }
-
+    
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
