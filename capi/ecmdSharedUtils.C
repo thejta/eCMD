@@ -392,44 +392,116 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
 
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry_t> &o_data) {
   std::ifstream ins;
-  char *line = new char[256];
+  std::string line;
   std::vector<std::string> splitArgs;
   int rc = 0;
-  uint32_t bitlength;
+  uint32_t databitlength=0, tagbitlength=0, bitlength=0;
+  uint32_t curaddress, nextaddress=0;
+  uint32_t tagsBitOffset =0, startOffset =0;
+  bool isFirstTimeInLoop = true, setTag = true;
+  std::list<ecmdMemoryEntry_t> memdata;        //ListElements corresponding to every line in file
+  std::list<ecmdMemoryEntry_t>::iterator memdataIter;
+  std::list<ecmdMemoryEntry_t>::iterator o_dataIter;
+  ecmdMemoryEntry_t dcardEntry;
   
   ins.open(i_filename);
   
   if (ins.fail()) {
     return ECMD_DBUF_FOPEN_FAIL;  
   }
-  while (!ins.eof()) {
   
-   ecmdMemoryEntry_t dcardEntry;
-   
-   ins.getline(line, 256);
+  //Loop to ealk thru the file and set the Data databuffers bitlengths
+  while (!ins.eof()) {
+   ecmdMemoryEntry_t dcardEntryForEveryLine;
+
+   getline(ins, line, '\n');
    ecmdParseTokens(line, " \t\n", splitArgs);
  
    if (splitArgs.size() == 0) continue;
-   if (splitArgs.size() != 4) {
-     return ECMD_INVALID_ARGS;
+   if ((splitArgs.size() < 3) || (splitArgs.size() > 4)) {
+     continue;
    }
    
-   
-   dcardEntry.address = strtoull(splitArgs[1].c_str(), NULL, 16);
-   
+   //Setup the dcardEntryForEveryLine 
+   curaddress = strtoull(splitArgs[1].c_str(), NULL, 16);
+   dcardEntryForEveryLine.address = curaddress;
+
    bitlength = splitArgs[2].length() * 4;
-   dcardEntry.data.setBitLength(bitlength);
-   rc = dcardEntry.data.insertFromHexLeft(splitArgs[2].c_str(), 0, bitlength);
+   dcardEntryForEveryLine.data.setBitLength(bitlength);
+   rc = dcardEntryForEveryLine.data.insertFromHexLeft(splitArgs[2].c_str(), 0, bitlength);
    if (rc) return rc;
+
+   if (splitArgs.size() == 4) {
+    dcardEntryForEveryLine.tags.setBitLength(1);
+    if (splitArgs[3] == "1") {
+      dcardEntryForEveryLine.tags.setBit(0);
+    } else if (splitArgs[3] == "0") {
+      dcardEntryForEveryLine.tags.clearBit(0);
+    } else {
+      return ECMD_INVALID_ARGS; //tag neither 0 nor 1
+    }
+   } else { dcardEntryForEveryLine.tags.setBitLength(0); }
    
-   bitlength = splitArgs[3].length() * 4;
-   dcardEntry.tags.setBitLength(bitlength);
-   rc = dcardEntry.tags.insertFromHexLeft(splitArgs[3].c_str(), 0, bitlength);
-   if (rc) return rc;
+   memdata.push_back(dcardEntryForEveryLine);
+
+   //Combine the lines if contiguous address
+   if (isFirstTimeInLoop) {
+     isFirstTimeInLoop = false;
+     dcardEntry.address = curaddress;
+   } else {
+     if (curaddress != nextaddress) {  
+       //found a hole, so setup the buffer with bitlength so far 
+       dcardEntry.data.setBitLength(databitlength);
+       dcardEntry.tags.setBitLength(tagbitlength);
+       o_data.push_back(dcardEntry);
+       
+       //Set it up for the next data buffer
+       dcardEntry.address = curaddress;
+       databitlength = 0;
+       tagbitlength = 0;
+       setTag = true;
+     } 
+   }
+   //If data bit length is not 64 OR tags are not present in the line then
+   //set the tag buffer bitlength to 0 and ignore the tags for that buffer
+   //For every 64 bits of data there's 1 tag bit
+   if ((bitlength != 64) || (dcardEntryForEveryLine.tags.getBitLength() == 0) ) {
+     tagbitlength = 0;
+     setTag = false;
+   }
+   databitlength += bitlength;
+   if (setTag) tagbitlength++;
    
-   o_data.push_back(dcardEntry);
+   nextaddress = dcardEntry.address + databitlength/8;
   }
+  //Set the last one from the loop
+  dcardEntry.data.setBitLength(databitlength);
+  dcardEntry.tags.setBitLength(tagbitlength);
+  o_data.push_back(dcardEntry);
+  
   ins.close();
+
+  //Loop to set the buffers in the list
+  o_dataIter = o_data.begin();
+  for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
+   
+   if (startOffset >= o_dataIter->data.getBitLength()) {
+    startOffset = 0;
+    tagsBitOffset = 0;
+    if (o_dataIter != o_data.end()) {
+      o_dataIter++;
+    } else { break; }
+   }
+   memdataIter->data.extractPreserve(o_dataIter->data, 0,  memdataIter->data.getBitLength(), startOffset);
+   startOffset += memdataIter->data.getBitLength();
+   
+   if (o_dataIter->tags.getBitLength() != 0) {
+     memdataIter->tags.extractPreserve(o_dataIter->tags, 0,  memdataIter->tags.getBitLength(), tagsBitOffset);
+     tagsBitOffset++;
+   }
+   
+  }
+  
   
   return rc;
 }
