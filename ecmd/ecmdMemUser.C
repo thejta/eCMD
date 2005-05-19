@@ -244,7 +244,6 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   std::list<ecmdMemoryEntry_t> memdata; ///< Data from the D-Card format file 
   std::list<ecmdMemoryEntry_t>::iterator memdataIter; ///< to iterate on memdata list 
   ecmdMemoryEntry_t memEntry;           ///< to store data from the user
-  int startOffset = 0;                  ///< Start bit offset in the output databuffer
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
   uint64_t address;                     ///< The address from the command line
