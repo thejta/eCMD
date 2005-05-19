@@ -3120,6 +3120,189 @@ void  ecmdArrayData::printStruct() {
 
 
 /*
+ * The following methods for the ecmdIndexEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t &i_len) {
+
+    uint32_t tmpData32 = 0;
+    uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
+    uint32_t l_rc = ECMD_SUCCESS;
+    int l_left = (int) i_len;	// keeps i_len constant
+
+    uint8_t * l_ptr = o_buf;
+
+    do {    // Single entry ->
+
+        // Check for buffer size mismatch (overflow or underflow)
+        if ( this->flattenSize() != i_len ) {
+	    ETRAC2("Buffer overflow/mismatch occurred in ecmdIndexEntry::flatten() "
+                   "structure size = %d; input length = %d",
+                   this->flattenSize(), i_len );
+	    l_rc = ECMD_DATA_OVERFLOW;
+	    break;
+        }
+
+	// Copy in index integer
+	tmpData32 = htonl((uint32_t)index);
+	memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	l_ptr += sizeof(index);
+	l_left -= sizeof(index);
+
+        // Write the size of "buffer", to check against when unflattening
+        dataBufSize = buffer.flattenSize();
+        tmpData32 = htonl( dataBufSize );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( dataBufSize );
+        l_left -= sizeof( dataBufSize );
+
+        // Write contents of "buffer" into the output buffer
+        l_rc = buffer.flatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+           l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        l_left -= dataBufSize;
+
+        // Write "rc" into the output buffer
+        tmpData32 = htonl( rc );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( rc );
+        l_left -= sizeof( rc );
+
+	// Do Final Checks - If the length has not decremented to 0, something is wrong
+	if (l_left < 0)
+	{	
+	    // Generate an error for buffer overflow conditions.
+	    ETRAC3("Buffer overflow occured in "
+		   "ecmdIndexEntry::flatten() "
+		   "structure size = %d; "
+		   "input length = %x; "
+		   "remainder = %d\n",
+		   this->flattenSize(), i_len, l_left);
+	    rc = ECMD_DATA_OVERFLOW;
+	    break;
+	}
+	if (l_left > 0)
+	{	
+	    // Generate an error for buffer underflow conditions.
+	    ETRAC3("Buffer underflow occured in "
+		   "ecmdIndexEntry::flatten() "
+		   "structure size = %d; "
+		   "input length = %x; "
+		   "remainder = %d\n",
+		   this->flattenSize(), i_len, l_left);
+	    rc = ECMD_DATA_UNDERFLOW;
+	    break;
+	}
+
+
+    } while (0);	// <- single exit.
+
+    return l_rc;
+}
+
+uint32_t ecmdIndexEntry::unflatten(const uint8_t * i_buf, uint32_t &i_len) {
+
+    uint32_t l_tmp = 0;
+    uint32_t dataBufSize = 0;
+    uint32_t l_rc = ECMD_SUCCESS;
+    int l_left = (int) i_len;
+    uint8_t * l_ptr = (uint8_t *) i_buf;
+
+    do {	// Single entry ->
+
+        // Get "index" from the input buffer
+        memcpy( &l_tmp, l_ptr, sizeof(l_tmp) );
+        index = ntohl( l_tmp );
+        l_ptr += sizeof( l_tmp );
+        l_left -= sizeof( l_tmp );
+
+        // Get the size of "buffer" to pass to unflatten()
+        memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
+        dataBufSize = ntohl( dataBufSize );
+        l_ptr += sizeof( dataBufSize );
+        l_left -= sizeof( dataBufSize );
+
+        // Unflatten "buffer" from the input buffer
+        l_rc = buffer.unflatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+            l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        l_left -= dataBufSize;
+
+        // Get "rc" from the input buffer
+        memcpy( &l_tmp, l_ptr, sizeof(l_tmp) );
+        rc = ntohl( l_tmp );
+        l_ptr += sizeof( l_tmp );
+        l_left -= sizeof( l_tmp );
+
+	// Do Final Checks
+	if (l_left < 0)
+	{	
+	    // Generate an error for buffer overflow conditions.
+	    ETRAC3("Buffer overflow occured in "
+		   "ecmdIndexEntry::unflatten() "
+		   "structure size = %d; "
+		   "input length = %x; "
+		   "remainder = %d\n",
+		   this->flattenSize(), i_len, l_left);
+	    rc = ECMD_DATA_OVERFLOW;
+	    break;
+	}
+	if (l_left > 0)
+	{	
+	    // Generate an error for buffer underflow conditions.
+	    ETRAC3("Buffer underflow occured in "
+		   "ecmdIndexEntry::unflatten() "
+		   "structure size = %d; "
+		   "input length = %x; "
+		   "remainder = %d\n",
+		   this->flattenSize(), i_len, l_left);
+	    rc = ECMD_DATA_UNDERFLOW;
+	    break;
+	}
+
+
+    } while (0);	// <- single exit.
+
+    return l_rc;
+}
+
+uint32_t ecmdIndexEntry::flattenSize() {
+
+    return (sizeof(index)		// Space for member "index"
+	    + sizeof(uint32_t)		// Size of member "buffer"
+	    + buffer.flattenSize()	// Space for "buffer" flattened
+	    + sizeof(rc));		// Space for member "rc"
+}  
+
+
+#ifndef REMOVE_SIM
+void ecmdIndexEntry::printStruct() {
+
+    uint32_t tmpData = 0;
+    std::string tmpString;
+
+    printf("\neCMD Index Entry:\n");
+
+    printf("Index: %d. ", index );
+
+    tmpData = buffer.getBitLength();
+    tmpString = buffer.genHexLeftStr(0, tmpData);
+    printf("Buffer Data: %s. ", tmpString.c_str() );
+
+    printf("RC: 0x%x\n", rc );
+}
+#endif
+
+
+/*
  * The following methods for the ecmdTraceData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
@@ -3227,32 +3410,6 @@ void  ecmdNameVectorEntry::printStruct() {
 }
 #endif  // end of REMOVE_SIM
 
-/*
- * The following methods for the ecmdIndexEntry struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-uint32_t ecmdIndexEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
-
-        return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-uint32_t ecmdIndexEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-uint32_t ecmdIndexEntry::flattenSize() {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-#ifndef REMOVE_SIM
-void  ecmdIndexEntry::printStruct() {
-
-        printf("\n\t--- Index Entry Structure ---\n");
-
-        // Print non-list data.
-
-}
-#endif  // end of REMOVE_SIM
 
 /*
  * The following methods for the ecmdLatchEntry struct will flatten, unflatten &
