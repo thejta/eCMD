@@ -239,7 +239,9 @@ uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::
   fdata.dataType = SPYDATA_ENUM;
 
   rc = dllGetSpy(i_target,i_spyName,fdata);
-
+  if (!rc)
+  o_enumValue = fdata.enum_data;
+  
   return rc;
 }
 
@@ -309,7 +311,8 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 
     }
   }
-
+  else { return rc; }
+  
   if (enabledCache) {
     rc = dllDisableRingCache();
   }
@@ -483,6 +486,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_ON)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
       rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if (rc) return rc;
       if ((curClockState == ECMD_CLOCKSTATE_ON) || (curClockState == ECMD_CLOCKSTATE_NA)) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
@@ -500,6 +504,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_OFF)) {
       /* We hit a clock off section - we need to figure out if the chip clocks are off */
       rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if (rc) return rc;
       if ((curClockState == ECMD_CLOCKSTATE_OFF) || (curClockState == ECMD_CLOCKSTATE_NA)  || (curClockState == ECMD_CLOCKSTATE_UNKNOWN)  ) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
@@ -920,7 +925,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
         eccIter++;
       }
     }
-  }
+  } else { return rc;}
 
   if (enabledCache) {
     rc = dllFlushRingCache();
@@ -1124,6 +1129,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_ON)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
       rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if (rc) return rc;
       if ((curClockState == ECMD_CLOCKSTATE_ON) || (curClockState == ECMD_CLOCKSTATE_NA)) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
@@ -1144,6 +1150,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_OFF)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
       rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      if (rc) return rc;
       if ((curClockState == ECMD_CLOCKSTATE_OFF) || (curClockState == ECMD_CLOCKSTATE_NA)  || (curClockState == ECMD_CLOCKSTATE_UNKNOWN)  ) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
@@ -1380,7 +1387,8 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
   
   /* Let's get the path to the spydef */
   rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
-
+  if (rc) return rc;
+  
   spyFile.open(spyFilePath.c_str());
   if (spyFile.fail()) {
     sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePath.c_str());
@@ -1440,7 +1448,8 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
 
       /* Let's get the path to the spydef */
       rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
-
+      if (rc) return rc;
+      
       spyFile.open(spyFilePath.c_str());
       if (spyFile.fail()) {
         sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePath.c_str());
@@ -1464,7 +1473,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
           foundSpy = dllLocateSpyHash(spyFile, hashFile, key, returnSpy.name);
         }
         hashFile.close();
-      }
+      } else { return rc;}
 
       /* Couldn't find it in the hash file, try a straigh linear search */
       if (!foundSpy) {
@@ -1533,7 +1542,7 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
         out.error("Chip::getSpyClockDomain",outstr);
         return ECMD_INVALID_SPY;
       }
-      rc = getScomClockDomain(addr, o_domain, 0);
+      rc = getScomClockDomain(addr, o_domain, 0); if(rc) return rc;
       foundit = true;
       break;
 #endif
