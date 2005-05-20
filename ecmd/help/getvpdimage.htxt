@@ -1,6 +1,6 @@
 
-Syntax: getvpdimage <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#] 
-        getvpdimage <NumBytes> -fb<filename>      [-k#] [-n#] [-s#] [-p#] 
+Syntax: getvpdimage <ChipSelect> <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#] 
+        getvpdimage <ChipSelect> <NumBytes> -fb<filename>      [-k#] [-n#] [-s#] [-p#] 
 
         ECMD:           Core Common Function
 
@@ -8,6 +8,8 @@ Syntax: getvpdimage <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
+	ChipSelect      Chip to get the VPD image from
+	
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.
                         Run 'ecmdquery formats' to view available formats
@@ -33,5 +35,5 @@ Syntax: getvpdimage <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > getvpdimage 128 -p0
-                        > getvpdimage 128 -fb datafile
+        Examples:       > getvpdimage pu 128 -p0
+                        > getvpdimage pu 128 -fb datafile

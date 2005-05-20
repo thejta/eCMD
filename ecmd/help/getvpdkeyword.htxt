@@ -1,6 +1,6 @@
 
-Syntax: getvpdkeyword <RecordName> <Keyword> <NumBytes> -o<format>    [-k#] [-n#] [-s#] [-p#] 
-        getvpdkeyword <RecordName> <Keyword> <NumBytes> -fb<filename> [-k#] [-n#] [-s#] [-p#] 
+Syntax: getvpdkeyword <ChipSelect> <RecordName> <Keyword> <NumBytes> -o<format>    [-k#] [-n#] [-s#] [-p#] 
+        getvpdkeyword <ChipSelect> <RecordName> <Keyword> <NumBytes> -fb<filename> [-k#] [-n#] [-s#] [-p#] 
 
         ECMD:           Core Common Function
 
@@ -8,6 +8,8 @@ Syntax: getvpdkeyword <RecordName> <Keyword> <NumBytes> -o<format>    [-k#] [-n#
 
         Parameters:
         --------------------------------------------------------------------------------
+	ChipSelect      Chip to get the module VPD record contents from
+	
         RecordName      VPD Record Name
 
         KeyWord         VPD Keyword
@@ -37,5 +39,5 @@ Syntax: getvpdkeyword <RecordName> <Keyword> <NumBytes> -o<format>    [-k#] [-n#
 
         --------------------------------------------------------------------------------
 
-        Examples:       > getvpdkeyword record key 128 -p0
-                        > getvpdkeyword record key 128 -fb datafile
+        Examples:       > getvpdkeyword pu record key 128 -p0
+                        > getvpdkeyword pu record key 128 -fb datafile

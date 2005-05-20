@@ -1,6 +1,6 @@
 
-Syntax: putvpdkeyword <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
-        putvpdkeyword <RecordName> <Keyword> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
+Syntax: putvpdkeyword <ChipSelect> <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
+        putvpdkeyword <ChipSelect> <RecordName> <Keyword> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -8,7 +8,9 @@ Syntax: putvpdkeyword <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s
 
         Parameters:
         --------------------------------------------------------------------------------
-        RecordName      VPD Record Name
+        ChipSelect      Chip to write the VPD data into
+	
+	RecordName      VPD Record Name
 
         KeyWord         VPD Keyword
 
@@ -36,5 +38,5 @@ Syntax: putvpdkeyword <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s
 
         --------------------------------------------------------------------------------
 
-        Examples:       > putvpdkeyword record key deadbeef80000000  -p0,1 
-                        > putvpdkeyword record key -fb datafile
+        Examples:       > putvpdkeyword pu record key deadbeef80000000  -p0,1 
+                        > putvpdkeyword pu record key -fb datafile

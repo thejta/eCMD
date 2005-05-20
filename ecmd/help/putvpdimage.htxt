@@ -1,6 +1,6 @@
 
-Syntax: putvpdimage <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
-        putvpdimage -fb<filename>       [-k#] [-n#] [-s#] [-p#]
+Syntax: putvpdimage <ChipSelect> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
+        putvpdimage <ChipSelect> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -8,6 +8,8 @@ Syntax: putvpdimage <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
+	ChipSelect      Chip to write the VPD image into
+	
         Data            Data to write into VPD. Not valid with -f option
                         Format specified by -i<format>
 
@@ -32,5 +34,5 @@ Syntax: putvpdimage <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > putvpdimage deadbeef80000000  -p0,1 
-                        > putvpdimage -fb datafile
+        Examples:       > putvpdimage pu deadbeef80000000  -p0,1 
+                        > putvpdimage pu -fb datafile

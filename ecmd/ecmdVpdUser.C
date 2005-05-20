@@ -109,33 +109,33 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 3) {  
-    ecmdOutputError("getvpdkeyword - Too few arguments specified; you need at least a recordname, keyword and numbytes.\n");
+  if (argc < 4) {  
+    ecmdOutputError("getvpdkeyword - Too few arguments specified; you need at least a chip, recordname, keyword and numbytes.\n");
     ecmdOutputError("getvpdkeyword - Type 'getvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if (argc > 3) {
-    ecmdOutputError("getvpdkeyword - Too many arguments specified; you only need recordname, keyword and numbytes.\n");
+  } else if (argc > 4) {
+    ecmdOutputError("getvpdkeyword - Too many arguments specified; you only need chip, recordname, keyword and numbytes.\n");
     ecmdOutputError("getvpdkeyword - Type 'getvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   target1 = target; //Created for the second looper needed for -fb case with multiple positions
   
-  char *recordName = argv[0];
-  char *keyWord = argv[1];
+  char *recordName = argv[1];
+  char *keyWord = argv[2];
   
-  if (!ecmdIsAllDecimal(argv[2])) {
+  if (!ecmdIsAllDecimal(argv[3])) {
     ecmdOutputError("getvpdkeyword - Non-decimal numbers detected in numBytes field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  int numBytes = atoi(argv[2]);
+  int numBytes = atoi(argv[3]);
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
@@ -242,32 +242,32 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if ((argc < 3) && (filename == NULL)) {  
-    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a recordname, keyword and data.\n");
+  if ((argc < 4) && (filename == NULL)) {  
+    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, recordname, keyword and data.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc < 2) && (filename != NULL)) {
-    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a recordname, keyword and input file.\n");
+  } else if ((argc < 3) && (filename != NULL)) {
+    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, recordname, keyword and input file.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 2) && (filename != NULL)) {
-    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a recordname, keyword and input file.\n");
+  } else if ((argc > 3) && (filename != NULL)) {
+    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, recordname, keyword and input file.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 3) && (filename == NULL)) {
-    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a recordname, keyword and data.\n");
+  } else if ((argc > 4) && (filename == NULL)) {
+    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, recordname, keyword and data.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  char *recordName = argv[0];
-  char *keyWord = argv[1];
+  char *recordName = argv[1];
+  char *keyWord = argv[2];
   
   if (filename != NULL) {
     rc = data.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
@@ -278,7 +278,7 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     }
   } else  {
     //container to store data
-    rc = ecmdReadDataFormatted(data, argv[2], inputformat);
+    rc = ecmdReadDataFormatted(data, argv[3], inputformat);
     if (rc) {
       ecmdOutputError("putvpdkeyword - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
@@ -363,22 +363,22 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if ((argc < 1) && (filename == NULL)) {  
-    ecmdOutputError("putvpdimage - Too few arguments specified; you need to at least specify the data to write.\n");
+  if ((argc < 2) && (filename == NULL)) {  
+    ecmdOutputError("putvpdimage - Too few arguments specified; you need to at least specify the chip and data to write.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 0) && (filename != NULL)) {
-    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify data OR input file.\n");
+  } else if ((argc > 1) && (filename != NULL)) {
+    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip and data OR input file.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 1) && (filename == NULL)) {
-    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify data OR input file.\n");
+  } else if ((argc > 2) && (filename == NULL)) {
+    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip and data OR input file.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } 
 
   //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
@@ -392,7 +392,7 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
     }
   } else  {
     //container to store data
-    rc = ecmdReadDataFormatted(data, argv[0], inputformat);
+    rc = ecmdReadDataFormatted(data, argv[1], inputformat);
     if (rc) {
       ecmdOutputError("putvpdimage - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
@@ -484,30 +484,30 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 1) {  
-    ecmdOutputError("getvpdimage - Too few arguments specified; you need at least the numbytes.\n");
+  if (argc < 2) {  
+    ecmdOutputError("getvpdimage - Too few arguments specified; you need at least the chip and numbytes.\n");
     ecmdOutputError("getvpdimage - Type 'getvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if (argc > 1) {
-    ecmdOutputError("getvpdimage - Too many arguments specified; you only need numbytes.\n");
+  } else if (argc > 2) {
+    ecmdOutputError("getvpdimage - Too many arguments specified; you only need chip and numbytes.\n");
     ecmdOutputError("getvpdimage - Type 'getvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   target1 = target; //Created for the second looper needed for -fb case with multiple positions
   
-  if (!ecmdIsAllDecimal(argv[0])) {
+  if (!ecmdIsAllDecimal(argv[1])) {
     ecmdOutputError("getvpdimage - Non-decimal numbers detected in numBytes field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  int numBytes = atoi(argv[0]);
+  int numBytes = atoi(argv[1]);
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
