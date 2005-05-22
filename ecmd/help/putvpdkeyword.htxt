@@ -39,4 +39,4 @@ Syntax: putvpdkeyword <ChipSelect> <RecordName> <Keyword> <Data> [-i<format>] [-
         --------------------------------------------------------------------------------
 
         Examples:       > putvpdkeyword pu record key deadbeef80000000  -p0,1 
-                        > putvpdkeyword pu record key -fb datafile
+                        > putvpdkeyword l3cache record key -fb datafile
