@@ -313,7 +313,6 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
 Some eCMD functions return data to Perl in the form of a list of elements.  This is the same way this data is handled on the C-Api.<br>
 
 Functions available on a Perl list :
-<ul>
 <table>
 <tr><td>$list->size()</td><td>Returns the number of entries in the list</td></tr>
 <tr><td>$list->empty()</td><td>Returns True/False as to wether the list is empty</td></tr>
@@ -325,12 +324,10 @@ Functions available on a Perl list :
 <tr><td>$list->begin()</td><td>Returns an iterator that points to the beginning of list</td></tr>
 <tr><td>$list->end()</td><td>Returns an iterator that points to end of list</td></tr>
 </table>
-</ul>
 
 Iterators are pointers to a position in the list, they can be used to walk a list and view all elements.<br>
 
 Functions available on a Perl list iterator :
-<ul>
 <table>
 <tr><td>$entry = $listIter->getValue()</td><td>Return the entry that this iterator points to</td></tr>
 <tr><td>$listIter->setValue($entry)</td><td>Overwrite the value at this position with the new entry</td></tr>
@@ -342,7 +339,6 @@ Functions available on a Perl list iterator :
 <tr><td>$listIter2->setIter($listIter->getIter())</td><td>Retrieve the iterator pointer to assign to another iterator</td></tr>
 
 </table>
-</ul>
 <br>
 
 Loading data into a list :
@@ -370,7 +366,6 @@ Displaying data on a list :
 Some eCMD functions return data to Perl in the form of a vector(array) of elements.  This is the same way this data is handled on the C-Api.<br>
 
 Functions available on a Perl vector :
-<ul>
 <table>
 <tr><td>$vector->size()</td><td>Returns the number of entries in the vector</td></tr>
 <tr><td>$vector->empty()</td><td>Returns True/False as to wether the vector is empty</td></tr>
@@ -382,12 +377,10 @@ Functions available on a Perl vector :
 <tr><td>$vector->begin()</td><td>Returns an iterator that points to the beginning of vector</td></tr>
 <tr><td>$vector->end()</td><td>Returns an iterator that points to end of vector</td></tr>
 </table>
-</ul>
 
 Iterators are pointers to a position in the vector, they can be used to walk a vector and view all elements.<br>
 
 Functions available on a Perl vector iterator :
-<ul>
 <table>
 <tr><td>$entry = $vectorIter->getValue()</td><td>Return the entry that this iterator points to</td></tr>
 <tr><td>$vectorIter->setValue($entry)</td><td>Overwrite the value at this position with the new entry</td></tr>
@@ -396,7 +389,6 @@ Functions available on a Perl vector iterator :
 <tr><td>$vectorIter == $vectorIter2</td><td>Check if two iterators point to the same entry</td></tr>
 <tr><td>$vectorIter != $vectorIter2</td><td>Check if two iterators point to different entries</td></tr>
 </table>
-</ul>
 <br>
 
 Usage of a vector is identical to a list like above.

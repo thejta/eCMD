@@ -2173,7 +2173,7 @@ uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_tar
  @param i_thread_seq_num (OPTIONAL, default to 0) Sequence ID number of thread relative to the core parm
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to an ecmdChipTarget struct
  @retval ECMD_SUCCESS if successful
- @reval non-zero if unsuccessful
+ @retval non-zero if unsuccessful
  @pre io_target must have states defined to either core or thread level
  @pre io_target must have an acceptable processor chipType
  @post io_target fields are set accordingly
@@ -2202,7 +2202,7 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
  @retval ECMD_SUCCESS if successful
- @reval non-zero if unsuccessful
+ @retval non-zero if unsuccessful
  @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
@@ -2220,7 +2220,7 @@ uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
  @retval ECMD_SUCCESS if successful
- @reval non-zero if unsuccessful
+ @retval non-zero if unsuccessful
  @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
@@ -2237,7 +2237,7 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
  @retval ECMD_SUCCESS if successful
- @reval non-zero if unsuccessful
+ @retval non-zero if unsuccessful
  @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
@@ -2249,14 +2249,13 @@ uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
 /**
  @brief Write Module VPD Image Interface
  @param i_target Struct that contains cage/node/slot/position of module vpd to access
- @param i_data_length Size of input buffer (i_data)
  @param i_data Data buffer of data to write
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_SUCCESS if successful
- @reval non-zero if unsuccessful
+ @retval non-zero if unsuccessful
  @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
