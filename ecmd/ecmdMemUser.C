@@ -293,20 +293,20 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  if ((argc < 2)&&((filename == NULL) && (dcardfilename == NULL))) {  //chip + address
+  if ( (argc < 2)&&((filename == NULL) && (dcardfilename == NULL)) ) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and data to write.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }else if((argc < 1)&&((filename != NULL)||(dcardfilename != NULL))) { 
+  }else if((argc < 1)&&(filename != NULL)) { 
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and input data file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }else if(((argc > 2)&&((filename == NULL) && (dcardfilename == NULL))) || ((argc > 1)&&((filename != NULL) || (dcardfilename != NULL)))) {
-    printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file.\n";
+  }else if(((argc > 2)&&((filename == NULL) && (dcardfilename == NULL))) || (((argc > 1)&&(filename != NULL)) || ((argc > 0)&&(dcardfilename != NULL)))) {
+    printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file or just a dcard file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
@@ -331,16 +331,19 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
 
   // Get the address
-  if (!ecmdIsAllHex(argv[0])) {
-    printLine = cmdlineName + " - Non-hex characters detected in address field\n";
-    ecmdOutputError(printLine.c_str());
-    return ECMD_INVALID_ARGS;
-  }
-  match = sscanf(argv[0], "%llx", &address);
-  if (match != 1) {
+  if (dcardfilename != NULL) {
+   if (!ecmdIsAllHex(argv[0])) {
+     printLine = cmdlineName + " - Non-hex characters detected in address field\n";
+     ecmdOutputError(printLine.c_str());
+     return ECMD_INVALID_ARGS;
+   }
+   match = sscanf(argv[0], "%llx", &address);
+   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
+   }
   }
+  
   
   // Read in the input data
   if(filename != NULL) {

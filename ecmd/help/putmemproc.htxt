@@ -8,7 +8,7 @@ Syntax: putmemproc <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-
 
         Parameters:
         --------------------------------------------------------------------------------
-        MemAddress      64 Bit address to write to (Hex-Right)
+        MemAddress      64 Bit address to write to (Hex-Right). Not valid with -fd option
 
         -fd <filename>  Specify full path and filename to file in D-Card format to load
                         to system
