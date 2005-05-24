@@ -17,7 +17,7 @@ CFLAGS       := -I. -I../capi/export -I../dll -g
 VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
-EXTENSIONS   := cip cro eip
+EXTENSIONS   := cip cro eip gip
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
 #These are needed to define a space char for substitutions later on
