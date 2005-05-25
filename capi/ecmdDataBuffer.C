@@ -1702,6 +1702,11 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
       {
           delete[] data;
       }
+
+      if (tempData) // make sure we have the buffer before running delete on it.
+      {
+          delete[] tempData;
+      }
       return ret;
     }
     createdTemp = true;
