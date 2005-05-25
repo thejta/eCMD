@@ -1683,6 +1683,10 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   if (start+bitLen > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::genBinStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    if (data) // make sure we have the buffer before running delete on it.
+    {
+        delete[] data;
+    }
     return ret;
   }
 
@@ -1694,6 +1698,10 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
     /* extract iv_Data */
     rc = this->extract(&tempData[0], start, bitLen);
     if (rc) {
+      if (data) // make sure we have the buffer before running delete on it.
+      {
+          delete[] data;
+      }
       return ret;
     }
     createdTemp = true;
