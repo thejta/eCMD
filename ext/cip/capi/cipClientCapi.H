@@ -347,7 +347,7 @@ uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
 
  NOTE : This function requires that the address be aligned on a 32-byte boundary
 
- TARGET DEPTH  : Pos
+ TARGET DEPTH  : Cage
  TARGET STATES : Unused
 */
 uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_memorySpareBits);
@@ -375,7 +375,7 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
  NOTE : This function requires that the address be aligned on a 32-byte boundary
  NOTE : If ecmdDataBuffers for i_memoryTags and i_memorySpareBIts have a length of zero, the user wants the HW to generate this info.  If these ecmdDataBuffers have a length, the the user wants their values to be used.
 
- TARGET DEPTH  : Pos
+ TARGET DEPTH  : Cage
  TARGET STATES : Unused
 
 */

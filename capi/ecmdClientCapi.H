@@ -1484,7 +1484,7 @@ uint32_t putMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  @param o_data DataBuffer object that holds data read from memory
 
  WARNING : This operation is typically not cache-coherent
- TARGET DEPTH  : Pos
+ TARGET DEPTH  : Cage
  TARGET STATES : Unused
 
 */
@@ -1505,7 +1505,7 @@ uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @param i_data DataBuffer object that holds data to write into memory
 
  WARNING : This operation is typically not cache-coherent
- TARGET DEPTH  : Pos
+ TARGET DEPTH  : Cage
  TARGET STATES : Unused
 
 */
