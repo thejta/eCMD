@@ -115,7 +115,7 @@ extern int ecmdClientDebug;
 
 
 
-uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state) {
+uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode) {
 
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipTarget queryTarget;
@@ -136,6 +136,9 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   }
 
 #endif
+
+  /* Set the loop mode */
+  io_state.ecmdLoopMode = i_mode;
 
   /* Are we using a unitid ? */
   if ((io_target.chipTypeState == ECMD_TARGET_QUERY_FIELD_VALID) && (io_target.chipType.length() > 0) && (io_target.chipType[0] == 'u')) {
@@ -324,13 +327,16 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* Enter if : */
       /* First time in config looper */
       /* last cage != current cage */
-      /* node state changed since last call */
+      /* node state changed since last call && variable depth */
       if (io_state.ecmdLooperInitFlag ||
           io_target.cage != (*io_state.ecmdCurCage).cageId ||
-          io_state.prevTarget.nodeState != io_target.nodeState) {
+          ((io_state.prevTarget.nodeState != io_target.nodeState) &&
+           (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP))
+          ) {
 
         /* If our cage didn't change from the last loop, but our node state did we may need to force an increment */
-        if ((io_target.cage == (*io_state.ecmdCurCage).cageId) &&
+        if ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
+            (io_target.cage == (*io_state.ecmdCurCage).cageId) &&
             (io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
           /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
           /* Increment the iterators to point to the next target */
@@ -366,10 +372,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       if (level == NODE &&
           (!valid ||
            io_target.node != (*io_state.ecmdCurNode).nodeId ||
-           io_state.prevTarget.slotState != io_target.slotState)) {
+           ((io_state.prevTarget.slotState != io_target.slotState) &&
+           (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP)))) {
 
         /* If our node didn't change from the last loop, but our slot state did we may need to force an increment */
         if (!freshLoop &&
+            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
             (io_target.node == (*io_state.ecmdCurNode).nodeId) &&
             (io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_target.slotState == ECMD_TARGET_FIELD_UNUSED)) {
           /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
@@ -406,11 +414,13 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       if (level == SLOT &&
           (!valid ||
            io_target.slot != (*io_state.ecmdCurSlot).slotId || 
-           io_state.prevTarget.chipTypeState != io_target.chipTypeState ||
-           io_state.prevTarget.posState != io_target.posState )) {
+           (((io_state.prevTarget.chipTypeState != io_target.chipTypeState) ||
+           (io_state.prevTarget.posState != io_target.posState)) &&
+            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP)))) {
 
         /* If our slot  didn't change from the last loop, but our pos/chiptype state did we may need to force an increment */
         if (!freshLoop &&
+            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
             (io_target.slot == (*io_state.ecmdCurSlot).slotId) &&
             ((io_state.prevTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED) ||
              (io_state.prevTarget.posState != ECMD_TARGET_FIELD_UNUSED) && (io_target.posState == ECMD_TARGET_FIELD_UNUSED))) {
@@ -452,10 +462,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           (!valid ||
            io_target.chipType != (*io_state.ecmdCurChip).chipType ||
            io_target.pos != (*io_state.ecmdCurChip).pos ||
-           io_state.prevTarget.coreState != io_target.coreState)) {
+           ((io_state.prevTarget.coreState != io_target.coreState) &&
+           (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP))  )) {
 
         /* If our pos/chiptype didn't change from the last loop, but our core state did we may need to force an increment */
         if (!freshLoop && 
+            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
             (io_target.chipType == (*io_state.ecmdCurChip).chipType) &&
             (io_target.pos == (*io_state.ecmdCurChip).pos) &&
             (io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_target.coreState == ECMD_TARGET_FIELD_UNUSED)) {
@@ -495,10 +507,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       if (level == CORE &&
           (!valid ||
            io_target.core != (*io_state.ecmdCurCore).coreId ||
-           io_state.prevTarget.threadState != io_target.threadState)) {
+           ((io_state.prevTarget.threadState != io_target.threadState) &&
+            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP)) )) {
 
         /* If our core didn't change from the last loop, but our thread state did we may need to force an increment */
         if (!freshLoop &&
+            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
             (io_target.core == (*io_state.ecmdCurCore).coreId) &&
             (io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_target.threadState == ECMD_TARGET_FIELD_UNUSED)) {
           /* When we called into the plugin they told us that whatever we are doing is not thread dependent, so stop looping on it */

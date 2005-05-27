@@ -181,7 +181,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
 
@@ -376,7 +376,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target, looperdata)) {
@@ -596,7 +596,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
   std::string printed;
 

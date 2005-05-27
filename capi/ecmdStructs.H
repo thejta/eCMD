@@ -125,15 +125,24 @@ typedef enum {
 } ecmdClockState_t;
 
 /**
+ @brief Used by ecmdConfigLooperInit to enable/disable variable depth looping
+*/
+typedef enum {
+  ECMD_VARIABLE_DEPTH_LOOP,             ///< Allow the plugin to change states to control loop (ie in the case of core vs non core scom looping)
+  ECMD_STATIC_DEPTH_LOOP                ///< Use the state specified on init, don't allow plugin to change
+} ecmdConfigLoopMode_t;
+
+/**
  @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
 */
 typedef enum {
   ECMD_SELECTED_TARGETS_LOOP,           ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to 0
   ECMD_SELECTED_TARGETS_LOOP_DEFALL,    ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to all
-  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to 0
-  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop on only targets in the system (Variable Depth) only to depth user specified (ie -n0 then -s and below are unused) if not specified default to all
+  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop only on targets in the system to the depth user specified on command line (ie if use said only '-n0' then -s and below are unused) if not specified default to 0
+  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop only on targets in the system to the depth user specified on command line (ie if use said only '-n0' then -s and below are unused) if not specified default to all
   ECMD_ALL_TARGETS_LOOP                 ///< Loop on all valid targets in the system
 } ecmdConfigLoopType_t;
+
 
 /**
  @brief Used by the get/set configuration functions to specify what data is good

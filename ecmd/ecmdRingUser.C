@@ -177,7 +177,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
   
@@ -561,7 +561,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   /* We are going to enable the ring cache to get performance out of this beast */
   ecmdEnableRingCache();
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
 
@@ -826,7 +826,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
   char outstr[30];
   
@@ -1005,7 +1005,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
   
@@ -1179,7 +1179,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   /* We are going to enable the ring cache to get performance out of this beast */
   ecmdEnableRingCache();
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
 
@@ -1311,14 +1311,16 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
   bool allRingsFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
   ecmdChipTarget target;                ///< Current target being operated on
+  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
   ecmdDataBuffer ringOrgBuffer;         ///< Original Ring Buffer to be restored after the pattern test
   ecmdDataBuffer ringBuffer;            ///< Buffer to store ring
   ecmdDataBuffer readRingBuffer;          ///< Read out the data to test the pattern
   std::list<ecmdRingData> queryRingData;///< Ring data 
   bool validPosFound = false;           ///< Did the looper find anything ?
-  bool printedTarget;                   ///< Have we printed the target out yet?
   bool foundProblem;                    ///< Did we find a mismatch ?
+  bool isCoreRing;                      ///< Is this a core ring ?
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1342,8 +1344,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 
@@ -1363,8 +1365,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
 
   while (ecmdConfigLooperNext(target, looperdata)) {
-    printedTarget = false;
     
+
     if (allRingsFlag) {
       rc = ecmdQueryRing(target, queryRingData);
     }
@@ -1380,186 +1382,208 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
     while (curRingData != queryRingData.end()) {
 
-      
-      ringName = (*curRingData).ringNames.front();
-      /* Print out the current target */
-      if (!printedTarget) {
-        printedTarget = true;
-        printed = ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
-      }
-      //Save the Ring state 
-      printed = "Saving the Ring State before peforming pattern testing.\n";
-      ecmdOutput(printed.c_str());   
-      rc = getRing (target, ringName.c_str(), ringOrgBuffer);
-      if (rc) {
-        printed = "checkrings - Error occurred performing getring on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-      
-      ringBuffer.setBitLength((*curRingData).bitLength);
-      foundProblem = false;
 
-      if (!curRingData->isCheckable && allRingsFlag) {
-        curRingData++;
-        continue;
+      isCoreRing = curRingData->isCoreRelated;
+      coretarget = target;
+      if (isCoreRing) {
+        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+        coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+        coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+        /* Init the core loop */
+        rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+        if (rc) return rc;
       }
-
-      for (int i = 0; i < 4; i++) {
-
-        if (i == 0) {
-          pattern = pattern0;
-          ringBuffer.flushTo0();
-	  ringBuffer.setWord(0, pattern);  //write the pattern
-        }
-        else if (i == 1) {
-          pattern = pattern1;
-          ringBuffer.flushTo1();
-	  ringBuffer.setWord(0, pattern);  //write the pattern
-        }
-        else if ( i == 2 ) {
-	  // repeating pattern of 1001010s
-	  repPattern = "1001010";
-	  for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
-           ringBuffer.setBit(y++);
-           if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
-           if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
-           if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);}
-           if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
-           if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);}
-           if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
-	  }
-	
-	}
-	else if ( i == 3 ) {
-	  // repeating pattern of 0110101s
-	  repPattern = "0110101";
-	  for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
-           ringBuffer.clearBit(y++);
-           if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
-           if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
-           if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);}
-           if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
-           if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);}
-           if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
-	  }
-	
-	}
         
 
-        rc = putRing(target, ringName.c_str(), ringBuffer);
-        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          break;
-        }
-        else if (rc) {
-          printed = "checkrings - Error occurred performing putring on ";
-          printed += ecmdWriteTarget(target) + "\n";
-          ecmdOutputError( printed.c_str() );
-          return rc;
-        }
-        else {
-          validPosFound = true;
+      /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+      while (!isCoreRing ||
+             ecmdConfigLooperNext(coretarget, corelooper)) {
+
+
+        ringName = (*curRingData).ringNames.front();
+
+        if (!curRingData->isCheckable && allRingsFlag) {
+          curRingData++;
+          continue;
         }
 
-        
+        /* Print out the current target */
+        printed = ecmdWriteTarget(coretarget) + "\n"; ecmdOutput(printed.c_str());
 
-        if (i == 0) {
-          printed = "Performing 0's test on " + ringName + " ...\n";
-          ecmdOutput(printed.c_str());
-	  rc = getRing(target, ringName.c_str(), ringBuffer);
-        }
-        else if (i == 1) {
-          printed = "Performing 1's test on " + ringName + " ...\n";
-          ecmdOutput(printed.c_str());
-	  rc = getRing(target, ringName.c_str(), ringBuffer);
-        }
-        else if (i == 2) {
-          printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
-          ecmdOutput(printed.c_str());
-	  rc = getRing(target, ringName.c_str(), readRingBuffer);
-        }
-        else if (i == 3) {
-	  printed = "Performing  " + repPattern + "s pattern repeated  test on " + ringName + " ...\n";
-          ecmdOutput(printed.c_str());
-	  rc = getRing(target, ringName.c_str(), readRingBuffer);
-	}
-
+        //Save the Ring state 
+        printed = "Saving the ring state before performing pattern testing.\n";
+        ecmdOutput(printed.c_str());   
+        rc = getRing (coretarget, ringName.c_str(), ringOrgBuffer);
         if (rc) {
           printed = "checkrings - Error occurred performing getring on ";
-          printed += ecmdWriteTarget(target) + "\n";
+          printed += ecmdWriteTarget(coretarget) + "\n";
           ecmdOutputError( printed.c_str() );
           return rc;
         }
-        if ( (i==0) || (i==1) ) {
-          if (ringBuffer.getWord(0) != pattern) {
-            sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
-            ecmdOutputWarning( outstr );
-            printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(target) + "\n";
-            ecmdOutputWarning( printed.c_str() );
+
+        ringBuffer.setBitLength((*curRingData).bitLength);
+        foundProblem = false;
+
+
+        for (int i = 0; i < 4; i++) {
+
+          if (i == 0) {
+            pattern = pattern0;
+            ringBuffer.flushTo0();
+            ringBuffer.setWord(0, pattern);  //write the pattern
+          }
+          else if (i == 1) {
+            pattern = pattern1;
+            ringBuffer.flushTo1();
+            ringBuffer.setWord(0, pattern);  //write the pattern
+          }
+          else if ( i == 2 ) {
+            // repeating pattern of 1001010s
+            repPattern = "1001010";
+            for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
+              ringBuffer.setBit(y++);
+              if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
+              if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
+              if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);}
+              if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
+              if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);}
+              if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
+            }
+
+          }
+          else if ( i == 3 ) {
+            // repeating pattern of 0110101s
+            repPattern = "0110101";
+            for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
+              ringBuffer.clearBit(y++);
+              if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
+              if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
+              if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);}
+              if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
+              if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);}
+              if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
+            }
+
+          }
+
+
+          rc = putRing(coretarget, ringName.c_str(), ringBuffer);
+          if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+            break;
+          }
+          else if (rc) {
+            printed = "checkrings - Error occurred performing putring on ";
+            printed += ecmdWriteTarget(coretarget) + "\n";
+            ecmdOutputError( printed.c_str() );
+            return rc;
           }
           else {
-            /* Walk the ring looking for errors */
-            /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
-            for (uint32_t bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
-              if (i == 0) {
-         	if (ringBuffer.isBitSet(bit)) {
-         	  sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
-         	  ecmdOutputWarning( outstr );
-         	  foundProblem = true;
-         	}
-              } else if (i == 1) {
-         	if (ringBuffer.isBitClear(bit)) {
-		  sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
-         	  ecmdOutputWarning( outstr);
-         	  foundProblem = true;
-         	}
-              }
-            }
-            if (foundProblem) {
-              printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(target) + "\n";
+            validPosFound = true;
+          }
+
+
+
+          if (i == 0) {
+            printed = "Performing 0's test on " + ringName + " ...\n";
+            ecmdOutput(printed.c_str());
+            rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+          }
+          else if (i == 1) {
+            printed = "Performing 1's test on " + ringName + " ...\n";
+            ecmdOutput(printed.c_str());
+            rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+          }
+          else if (i == 2) {
+            printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
+            ecmdOutput(printed.c_str());
+            rc = getRing(coretarget, ringName.c_str(), readRingBuffer);
+          }
+          else if (i == 3) {
+            printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
+            ecmdOutput(printed.c_str());
+            rc = getRing(coretarget, ringName.c_str(), readRingBuffer);
+          }
+
+          if (rc) {
+            printed = "checkrings - Error occurred performing getring on ";
+            printed += ecmdWriteTarget(coretarget) + "\n";
+            ecmdOutputError( printed.c_str() );
+            return rc;
+          }
+          if ( (i==0) || (i==1) ) {
+            if (ringBuffer.getWord(0) != pattern) {
+              sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
+              ecmdOutputWarning( outstr );
+              printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
               ecmdOutputWarning( printed.c_str() );
             }
+            else {
+              /* Walk the ring looking for errors */
+              /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
+              for (uint32_t bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
+                if (i == 0) {
+                  if (ringBuffer.isBitSet(bit)) {
+                    sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
+                    ecmdOutputWarning( outstr );
+                    foundProblem = true;
+                  }
+                } else if (i == 1) {
+                  if (ringBuffer.isBitClear(bit)) {
+                    sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
+                    ecmdOutputWarning( outstr);
+                    foundProblem = true;
+                  }
+                }
+              }
+              if (foundProblem) {
+                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(coretarget) + "\n";
+                ecmdOutputWarning( printed.c_str() );
+              }
 
+            }
           }
-	}
-	else {//repeated patterns
-	  // Do not test the last bit or the ring (The access bit)
-          if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) { ringBuffer.setBit((readRingBuffer.getBitLength())-1);   }
-          else                                { ringBuffer.clearBit((readRingBuffer.getBitLength())-1); }
-	  if (readRingBuffer != ringBuffer) {
-	    sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
-	    repPattern.c_str());
-            ecmdOutputWarning( outstr );
-	    printed = "Offset  Data\n";
-            printed += "------------------------------------------------------------------------\n";
-	    ecmdOutput( printed.c_str() );
-	    for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
-	      printf("%6d ", y);
-	      if ( (y+64) > readRingBuffer.getBitLength()) {
-	        printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
-	      } else {
-	        printed = readRingBuffer.genBinStr(y,64) + "\n";
-	      }
-	      y += 64;
-	      ecmdOutput( printed.c_str() );
-	    }
-            printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(target) + "\n";
-            ecmdOutputWarning( printed.c_str() );
-	  } 
-	}
+          else {//repeated patterns
+            // Do not test the last bit or the ring (The access bit)
+            if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) { ringBuffer.setBit((readRingBuffer.getBitLength())-1);   }
+            else                                { ringBuffer.clearBit((readRingBuffer.getBitLength())-1); }
+            if (readRingBuffer != ringBuffer) {
+              sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
+                      repPattern.c_str());
+              ecmdOutputWarning( outstr );
+              printed = "Offset  Data\n";
+              printed += "------------------------------------------------------------------------\n";
+              ecmdOutput( printed.c_str() );
+              for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
+                printf("%6d ", y);
+                if ( (y+64) > readRingBuffer.getBitLength()) {
+                  printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
+                } else {
+                  printed = readRingBuffer.genBinStr(y,64) + "\n";
+                }
+                y += 64;
+                ecmdOutput( printed.c_str() );
+              }
+              printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
+              ecmdOutputWarning( printed.c_str() );
+            } 
+          }
 
-      }
-      //Restore ring state
-      printed = "Restoring the Ring State.\n";
-      ecmdOutput( printed.c_str() );
-      rc = putRing (target, ringName.c_str(), ringOrgBuffer);
-      if (rc) {
-        printed = "checkrings - Error occurred performing putring on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
+        }
+        //Restore ring state
+        printed = "Restoring the ring state.\n\n";
+        ecmdOutput( printed.c_str() );
+        rc = putRing (coretarget, ringName.c_str(), ringOrgBuffer);
+        if (rc) {
+          printed = "checkrings - Error occurred performing putring on ";
+          printed += ecmdWriteTarget(coretarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        }
+
+        /* If this wasn't a core ring we don't want to loop again */
+        if (!isCoreRing) break;
+      } /* end core looper */
       curRingData++;
     }
     
@@ -1627,7 +1651,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     return rc;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target, looperdata)) {

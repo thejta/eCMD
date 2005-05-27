@@ -140,6 +140,7 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 struct ecmdLooperData {
   bool             ecmdLooperInitFlag;                  ///< Is fresh ?
   bool             ecmdUseUnitid;                       ///< This looper is looping on unitid targets not config data
+  ecmdConfigLoopMode_t ecmdLoopMode;                    ///< Is this a variable depth or static loop?
 
   ecmdQueryData    ecmdSystemConfigData;                ///< Config data queried from the system
   std::list<ecmdCageData>::iterator ecmdCurCage;        ///< Pointer to current Cage
@@ -178,14 +179,17 @@ typedef enum {
  @brief Initializes data structures and code to loop over configured and selected elements of the system
  @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
  @param i_looptype Specify type of all, all chips in system or all chips selected by user
+ @param i_mode Specify if you want to allow the plugin to change the depth of your loop or not
  @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
 
+ 
+
  TARGET DEPTH  : Thread
  TARGET STATES : Must Be Initialized
  */
-uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state);
+uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode = ECMD_STATIC_DEPTH_LOOP);
 
 /**
  @brief Loops over configured and selected elements of the system, updating target to point to them

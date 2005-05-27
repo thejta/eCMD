@@ -139,7 +139,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   uint32_t startBit = 0x0, numBits = 0x0;
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
   /* We are going to enable ring caching to speed up performance */
@@ -462,7 +462,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
 
 
