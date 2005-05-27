@@ -69,7 +69,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   bool printedHeader;           ///< Have we printed the array name and pos
   std::list<ecmdArrayEntry> entries;    ///< List of arrays to fetch, to use getArrayMultiple
   ecmdArrayEntry entry;         ///< Array entry to fetch
-  uint32_t* add_buffer;         ///< Buffer to do temp work with the address for incrementing
+  uint32_t* add_buffer = NULL;  ///< Buffer to do temp work with the address for incrementing
   ecmdArrayData arrayData;      ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -191,7 +191,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       add_buffer[idx] = address.getWord(idx);
     }
     /* Setup the array entries we are going to fetch */
-    for (int idx = 0; idx < numEntries; idx ++) {
+    for (idx = 0; idx < numEntries; idx ++) {                            //@01d
       entry.address.setBitLength(address.getBitLength());
       entry.address.insert(add_buffer, 0, address.getBitLength());
 
@@ -206,6 +206,11 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
           printed = "getarray - Address overflow on " + arrayName + " ";
           printed += ecmdWriteTarget(target) + "\n";
           ecmdOutputError( printed.c_str() );
+          // Clean up allocated memory
+          if (add_buffer)                                                //@01a
+          {
+              delete[] add_buffer;
+          }
           return ECMD_DATA_OVERFLOW;
         }
 
@@ -217,6 +222,11 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
               printed = "getarray - Address overflow on " + arrayName + " ";
               printed += ecmdWriteTarget(target) + "\n";
               ecmdOutputError( printed.c_str() );
+              // Clean up allocated memory
+              if (add_buffer)                                            //@01a
+              {
+                  delete[] add_buffer;
+              }
               return ECMD_DATA_OVERFLOW;
             }
             add_buffer[word] = 0;
@@ -248,6 +258,11 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       printed = "getarray - Error occured performing getArrayMultiple on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
+      // Clean up allocated memory
+      if (add_buffer)                                                    //@01a
+      {
+          delete[] add_buffer;
+      }
       return rc;
     }
     else {
@@ -314,9 +329,19 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("getarray - Unable to find a valid chip to execute command on\n");
+    // Clean up allocated memory
+    if (add_buffer)                                                      //@01a
+    {
+        delete[] add_buffer;
+    }
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
+  // Clean up allocated memory
+  if (add_buffer)                                                        //@01a
+  {
+      delete[] add_buffer;
+  }
   return rc;
 }
 
@@ -537,5 +562,6 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              CENGEL   Initial Creation
 //  none STGC7449      04/18/05 prahl    Clean up Beam messages.
+//  @01  STGC12283     05/25/05 prahl    Fix memory leak of add_buffer
 //
 // End Change Log *****************************************************
