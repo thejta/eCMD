@@ -331,7 +331,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
 
   // Get the address
-  if (dcardfilename != NULL) {
+  if (dcardfilename == NULL) {
    if (!ecmdIsAllHex(argv[0])) {
      printLine = cmdlineName + " - Non-hex characters detected in address field\n";
      ecmdOutputError(printLine.c_str());
