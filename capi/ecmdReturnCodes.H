@@ -101,6 +101,7 @@
  #define ECMD_DBUF_FOPEN_FAIL                    (ECMD_ERR_ECMD | 0x2050) ///< File open on file for reading or writing the data buffer failed 
  #define ECMD_DBUF_FILE_FORMAT_MISMATCH          (ECMD_ERR_ECMD | 0x2051) ///< In readFile specified format not found in the data file
  #define ECMD_DBUF_DATANUMBER_NOT_FOUND          (ECMD_ERR_ECMD | 0x2052) ///< In readFileMultiple specified data number  not found in file
+ #define ECMD_DBUF_FILE_OPERATION_FAIL           (ECMD_ERR_ECMD | 0x2053) ///< File operation failed
  #define ECMD_DBUF_NOT_OWNER                     (ECMD_ERR_ECMD | 0x2060) ///< Don't own this buffer so can't do this operation
 #endif
 

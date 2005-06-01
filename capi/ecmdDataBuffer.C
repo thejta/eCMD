@@ -2575,6 +2575,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       offsetTableData = new char[totalFileSz-begOffset];
       //Read the offset Table starting from BEGIN till before the END
       ins.read(offsetTableData, totalFileSz-begOffset-12);//Take off the 4byte END,4 Byte Beg Offset, 4byte format
+      if (ins.fail()) {
+       ETRAC1("**** ERROR : Read of the offset table failed on file : %s",i_filename);
+       RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+      }
       tableSz = totalFileSz-begOffset-12;
     }
     ins.close();
@@ -2620,6 +2624,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
       ops << "\n";
     }
+    if (ops.fail()) {
+     ETRAC1("**** ERROR : Write of the header failed on file : %s",i_filename);
+     RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+    }
   }
   //Write DataBuffer
   if ( i_format == ECMD_SAVE_FORMAT_BINARY) {
@@ -2637,6 +2645,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      ops.write((char *)&buffer[i],len);
     }
     ops.write("END",3);//Key
+    if (ops.fail()) {
+     ETRAC1("**** ERROR : Write operation in format ECMD_SAVE_FORMAT_BINARY failed on file : %s",i_filename);
+     RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+    }
   }  
   else if ( i_format == ECMD_SAVE_FORMAT_ASCII) {
    while ((uint32_t)szcount < numBits) {
@@ -2657,6 +2669,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      szcount+= 32;
    }
    ops << "\nEND\n";
+   if (ops.fail()) {
+     ETRAC1("**** ERROR : Write operation in format ECMD_SAVE_FORMAT_ASCII failed on file : %s",i_filename);
+     RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+   }
   } 
   else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
    while ((uint32_t)szcount < numBits) {
@@ -2671,6 +2687,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      szcount+= 64;
    }
    ops << "\nEND\n";
+   if (ops.fail()) {
+     ETRAC1("**** ERROR : Write operation in format ECMD_SAVE_FORMAT_XSTATE failed on file : %s",i_filename);
+     RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+   }
   }
   else if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
     buffer = new uint32_t[getWordLength()];
@@ -2686,6 +2706,11 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      }
      ops.write((char *)&buffer[i],len);
     }
+    if (ops.fail()) {
+     ETRAC1("**** ERROR : Write operation in format ECMD_SAVE_FORMAT_BINARY_DATA failed on file : %s",i_filename);
+     RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+    }
+    ops.close();
   } 
   
   //Write the Offset Table Back with the new offset
@@ -2735,6 +2760,11 @@ uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
      len = 4;
    }
    o_filestream.write((char *)&buffer[i],len);
+   if (o_filestream.fail()) {
+      ETRAC0("**** ERROR : Write operation failed.");
+      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+   }
+
   }
   return rc;
 }
@@ -2795,7 +2825,15 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       }
       ins.seekg(begOffset+8+(4*i_dataNumber));//seek to the right databuffer header
       ins.read((char *)&dataOffset,4);  dataOffset = htonl(dataOffset);
+      if (ins.fail()) {
+       ETRAC1("**** ERROR : Read of the dataOffset failed on file : %s",filename);
+       RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+      }
       ins.seekg(dataOffset);
+      if (ins.eof()) {
+       ETRAC0("**** ERROR : Data Offset is greater than the file size.");
+       RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+      }
     }
   }
  
@@ -2819,6 +2857,10 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     //Read Data
     buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
+    if (ins.fail()) {
+      ETRAC1("**** ERROR : Read operation in format ECMD_SAVE_FORMAT_BINARY failed on file : %s",filename);
+      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+    }
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
     }
@@ -2831,6 +2873,10 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.seekg(0, ios::beg);
     buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
+    if (ins.fail()) {
+      ETRAC1("**** ERROR : Read operation in format ECMD_SAVE_FORMAT_BINARY_DATA failed on file : %s",filename);
+      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+    }
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
     }
@@ -2911,6 +2957,11 @@ uint32_t  ecmdDataBuffer::readFileStream(std::istream & i_filestream, uint32_t i
   
   buffer = new uint32_t[getWordLength()];
   i_filestream.read((char *)buffer, numBytes);
+  if (i_filestream.fail()) {
+      ETRAC0("**** ERROR : Read operation failed.");
+      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
+  }
+
   
   for (uint32_t i=0; i< getWordLength(); i++) {
    buffer[i] = htonl(buffer[i]);
