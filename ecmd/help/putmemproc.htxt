@@ -1,6 +1,7 @@
 
 Syntax: putmemproc <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-p#]
-        putmemproc <MemAddress> -f[d|b]<filename>           [-k#] [-n#] [-s#] [-p#]
+        putmemproc <MemAddress> -fb<filename>               [-k#] [-n#] [-s#] [-p#]
+        putmemproc -fd<filename>                            [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -39,3 +40,4 @@ Syntax: putmemproc <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-
 
         Examples:       > putmemproc 10000 deadbeef80000000  -p0,1 
                         > putmemproc 10000 -fb datafile
+                        > putmemproc -fd dcardfile

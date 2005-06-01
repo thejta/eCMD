@@ -1,6 +1,7 @@
 
 Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-p#]
-        putmemdma <MemAddress> -f[d|b]<filename>           [-k#] [-n#] [-s#] [-p#]
+        putmemdma <MemAddress> -fb<filename>               [-k#] [-n#] [-s#] [-p#]
+        putmemdma -fd<filename>                            [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -33,3 +34,4 @@ Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-p
 
         Examples:       > putmemdma 10000 deadbeef80000000  -p0,1 
                         > putmemdma 10000 -fb datafile
+                        > putmemdma -fd dcardfile
