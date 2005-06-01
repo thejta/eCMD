@@ -63,7 +63,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   std::string arrayName;        ///< Name of array to access
   ecmdDataBuffer address;       ///< Buffer to store address
   ecmdDataBuffer address_copy;  ///< Copy of address to modify in entry loop
-  int  numEntries = 1;          ///< Number of consecutive entries to fetch
+  uint32_t  numEntries = 1;     ///< Number of consecutive entries to fetch
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   bool printedHeader;           ///< Have we printed the array name and pos
