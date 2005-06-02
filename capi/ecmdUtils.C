@@ -27,6 +27,7 @@
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
 //  @02  STGC7449      04/18/05 prahl             "
+//  @03  stgc12609     06/02/05 v2cdipv   Fixed printing of uint64_t in fpp
 //   
 // End Change Log *****************************************************
 
@@ -1579,7 +1580,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       if(dummy == NULL) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
-        sprintf(tempIntStr,"0x%016lluX",(uint64_t)(*dummy));
+        sprintf(tempIntStr,"0x%016llX",(uint64_t)(*dummy));
       }
       printed += tempIntStr;
       printed += "\n";
