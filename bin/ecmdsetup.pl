@@ -45,6 +45,7 @@ my $release;
 my $plugin;
 my $product;
 my $temp;
+my $shortcut = 0;
 my $local = 1;  # Assume it's local and then disprove it by comparing ctepaths to CTEPATH
 # These ctepaths are in regular expression format for the search below.
 # This allows the user to put just rchland or rchland.ibm.com, etc..
@@ -120,55 +121,70 @@ $release = shift(@ARGV);
 # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
 if ($release eq ".") {
   if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
-    printf("echo You can\\'t specify the \\".\\" shortcut without having specified the release, product and plugin previously!;\n");
+    printf("echo here!;");
+    printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously!;");
     exit;
+  } else {
+    $shortcut = 1;
   }
-} else { # must need all three parms 
+}
 
-  # We'll see if the release is supported based upon the existence of the bin directory
-  $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
-  if (!(-d $temp)) {
-    printf("echo The eCMD release you specified is not known!;\n");
-    exit;
-  }
-
+if ($shortcut) {
+  $release = $ENV{"ECMD_RELEASE"};
+} else {
   # Also set the ECMD_RELEASE variable
   $ENV{"ECMD_RELEASE"} = $release;
   $modified{"ECMD_RELEASE"} = 1;
+}
 
-  ##########################################################################
-  # Get the plugin
-  #
+# We'll see if the release is supported based upon the existence of the bin directory
+$temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
+if (!(-d $temp)) {
+  printf("echo The eCMD release you specified is not known!;\n");
+  exit;
+}
+
+##########################################################################
+# Get the plugin
+#
+if ($shortcut) {
+  $plugin = $ENV{"ECMD_PLUGIN"};
+} else {
   $plugin = shift(@ARGV);
-
-  if ($plugin eq "cro") {
-  } elsif ($plugin eq "gip") {
-  } elsif ($plugin eq "scand") {
-  } else {
-    printf("echo The eCMD plugin you specified is not known!;\n");
-    exit;
-  }
 
   # Also set the ECMD_PLUGIN variable
   $ENV{"ECMD_PLUGIN"} = $plugin;
   $modified{"ECMD_PLUGIN"} = 1;
+}
 
-  ##########################################################################
-  # Get the product
-  #
+if ($plugin eq "cro") {
+} elsif ($plugin eq "gip") {
+} elsif ($plugin eq "scand") {
+} else {
+  printf("echo The eCMD plugin you specified is not known!;\n");
+  exit;
+}
+
+
+##########################################################################
+# Get the product
+#
+if ($shortcut) {
+  $product = $ENV{"ECMD_PRODUCT"};
+} else {
   $product = shift(@ARGV);
-
-  # We no longer want to error check the product.  It is just passed on through to the plugin
-  #if ($product eq "eclipz") {
-  #} else {
-  #  printf("echo The eCMD product you specified is not known!;\n");
-  #  exit;
-  #}
 
   # Also set the ECMD_PRODUCT variable
   $ENV{"ECMD_PRODUCT"} = $product;
   $modified{"ECMD_PRODUCT"} = 1;
 }
+
+# We no longer want to error check the product.  It is just passed on through to the plugin
+#if ($product eq "eclipz") {
+#} else {
+#  printf("echo The eCMD product you specified is not known!;\n");
+#  exit;
+#}
 
 ##########################################################################
 # Cleanup any ecmd bin dirs that might be in the path

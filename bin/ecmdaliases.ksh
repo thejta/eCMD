@@ -16,7 +16,7 @@ alias target=_target
 function _target
 {
    export TARGET_VARIABLES="$*"
-   . $CTEPATH/tools/ecmd/.common/bin/target.ksh
+   . $PWD/target.ksh
    unset TARGET_VARIABLES
 }
 
@@ -27,10 +27,10 @@ alias ecmdsetup=_ecmdsetup
 
 function _ecmdsetup
 {
-   eval `$CTEPATH/tools/ecmd/.common/bin/ecmdsetup.pl ksh $*`
+   eval `$PWD/ecmdsetup.pl ksh $*`
 }
 
 ##########################################
 # Include Cronus specific aliases
 #
-. $CTEPATH/tools/ecmd/.common/bin/.cro/croaliases.ksh
+. $PWD/../plugins/cro/croaliases.ksh

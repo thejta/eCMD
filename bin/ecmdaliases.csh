@@ -5,14 +5,14 @@
 ##########################################
 # alias for setting target script
 ##########################################
-alias target 'setenv TARGET_VARIABLES '\''\!*'\''; source $CTEPATH/tools/ecmd/.common/bin/target.csh; unsetenv TARGET_VARIABLES'
+alias target 'setenv TARGET_VARIABLES '\''\!*'\''; source $PWD/target.csh; unsetenv TARGET_VARIABLES'
 
 ##########################################
 # alias for setting ecmd_setup script
 ##########################################
-alias ecmdsetup 'eval `$CTEPATH/tools/ecmd/.common/bin/ecmdsetup.pl csh \!*`'
+alias ecmdsetup 'eval `$PWD/ecmdsetup.pl csh \!*`'
 
 ##########################################
 # Include Cronus specific aliases
 #
-source $CTEPATH/tools/ecmd/.common/bin/.cro/croaliases.csh
+source $PWD/../plugins/cro/croaliases.csh
