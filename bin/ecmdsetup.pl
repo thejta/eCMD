@@ -117,37 +117,58 @@ if ($shell eq "ksh") {
 #
 $release = shift(@ARGV);
 
-# We'll see if the release is supported based upon the existence of the bin directory
-$temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
-if (!(-d $temp)) {
-  printf("echo The eCMD release you specified is not known!;\n");
-  exit;
+# Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
+if ($release eq ".") {
+  if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
+    printf("echo You can\\'t specify the \\".\\" shortcut without having specified the release, product and plugin previously!;\n");
+    exit;
+  }
+} else { # must need all three parms 
+
+  # We'll see if the release is supported based upon the existence of the bin directory
+  $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
+  if (!(-d $temp)) {
+    printf("echo The eCMD release you specified is not known!;\n");
+    exit;
+  }
+
+  # Also set the ECMD_RELEASE variable
+  $ENV{"ECMD_RELEASE"} = $release;
+  $modified{"ECMD_RELEASE"} = 1;
+
+  ##########################################################################
+  # Get the plugin
+  #
+  $plugin = shift(@ARGV);
+
+  if ($plugin eq "cro") {
+  } elsif ($plugin eq "gip") {
+  } elsif ($plugin eq "scand") {
+  } else {
+    printf("echo The eCMD plugin you specified is not known!;\n");
+    exit;
+  }
+
+  # Also set the ECMD_PLUGIN variable
+  $ENV{"ECMD_PLUGIN"} = $plugin;
+  $modified{"ECMD_PLUGIN"} = 1;
+
+  ##########################################################################
+  # Get the product
+  #
+  $product = shift(@ARGV);
+
+  # We no longer want to error check the product.  It is just passed on through to the plugin
+  #if ($product eq "eclipz") {
+  #} else {
+  #  printf("echo The eCMD product you specified is not known!;\n");
+  #  exit;
+  #}
+
+  # Also set the ECMD_PRODUCT variable
+  $ENV{"ECMD_PRODUCT"} = $product;
+  $modified{"ECMD_PRODUCT"} = 1;
 }
-
-##########################################################################
-# Get the plugin
-#
-$plugin = shift(@ARGV);
-
-if ($plugin eq "cro") {
-} elsif ($plugin eq "gip") {
-} elsif ($plugin eq "scand") {
-} else {
-  printf("echo The eCMD plugin you specified is not known!;\n");
-  exit;
-}
-
-##########################################################################
-# Get the product
-#
-$product = shift(@ARGV);
-
-# We no longer want to error check the product.  It is just passed on through to the plugin
-#if ($product eq "eclipz") {
-#} else {
-#  printf("echo The eCMD product you specified is not known!;\n");
-#  exit;
-#}
 
 ##########################################################################
 # Cleanup any ecmd bin dirs that might be in the path
