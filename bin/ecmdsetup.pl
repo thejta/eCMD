@@ -121,7 +121,6 @@ $release = shift(@ARGV);
 # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
 if ($release eq ".") {
   if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
-    printf("echo here!;");
     printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously!;");
     exit;
   } else {
