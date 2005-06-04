@@ -109,7 +109,7 @@ my $shell = shift(@ARGV);
 if ($shell eq "ksh") {
 } elsif ($shell eq "csh") {
 } else {
-  printf("echo Your shell is unsupported!;\n");
+  printf("echo Your shell is unsupported\\!;\n");
   exit;
 }
 
@@ -121,7 +121,7 @@ $release = shift(@ARGV);
 # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
 if ($release eq ".") {
   if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
-    printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously!;");
+    printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously\\!;");
     exit;
   } else {
     $shortcut = 1;
@@ -139,7 +139,7 @@ if ($shortcut) {
 # We'll see if the release is supported based upon the existence of the bin directory
 $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
 if (!(-d $temp)) {
-  printf("echo The eCMD release you specified is not known!;\n");
+  printf("echo The eCMD release you specified is not known\\!;");
   exit;
 }
 
@@ -160,7 +160,7 @@ if ($plugin eq "cro") {
 } elsif ($plugin eq "gip") {
 } elsif ($plugin eq "scand") {
 } else {
-  printf("echo The eCMD plugin you specified is not known!;\n");
+  printf("echo The eCMD plugin you specified is not known\\!;");
   exit;
 }
 
