@@ -109,7 +109,7 @@ my $shell = shift(@ARGV);
 if ($shell eq "ksh") {
 } elsif ($shell eq "csh") {
 } else {
-  printf("echo Your shell is unsupported\\!;\n");
+  printf("echo Your shell is unsupported\\!;");
   exit;
 }
 
@@ -181,7 +181,7 @@ if ($shortcut) {
 # We no longer want to error check the product.  It is just passed on through to the plugin
 #if ($product eq "eclipz") {
 #} else {
-#  printf("echo The eCMD product you specified is not known!;\n");
+#  printf("echo The eCMD product you specified is not known\\!;");
 #  exit;
 #}
 
