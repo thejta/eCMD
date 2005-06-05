@@ -18,7 +18,7 @@ INCLUDES     :=
 
 
 # Extensions to grab the interpreters from
-EXTENSIONS   := cip cro eip
+EXTENSIONS   := cip cro eip gip
 
 ifeq (${OS},Linux)
   VPATH        := ${VPATH}../../../ecmd/linux $(foreach ext, ${EXTENSIONS},:../../${ext}/cmd/linux:../../${ext}/capi/linux)
@@ -54,6 +54,11 @@ LINK_OBJS := ${LINK_OBJS} eipInterpreter.o eipProcUser.o
 LINK_OBJS := ${LINK_OBJS} croClientCapi.o croClientCapiFunc.o
 # CRO Extension - Cmd
 LINK_OBJS := ${LINK_OBJS} croInterpreter.o
+
+# GIP Extension - Capi
+LINK_OBJS := ${LINK_OBJS} gipClientCapi.o gipClientCapiFunc.o
+# GIP Extension - Cmd
+LINK_OBJS := ${LINK_OBJS} gipInterpreter.o
 
 
 # The Core Interpreter
