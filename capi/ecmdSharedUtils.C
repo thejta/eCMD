@@ -390,7 +390,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
 
 }
 
-uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry_t> &o_data) {
+uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data) {
   std::ifstream ins;
   std::string line;
   std::vector<std::string> splitArgs;
@@ -399,10 +399,10 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry_t> &o_d
   uint32_t curaddress, nextaddress=0;
   uint32_t tagsBitOffset =0, startOffset =0;
   bool isFirstTimeInLoop = true, setTag = true;
-  std::list<ecmdMemoryEntry_t> memdata;        //ListElements corresponding to every line in file
-  std::list<ecmdMemoryEntry_t>::iterator memdataIter;
-  std::list<ecmdMemoryEntry_t>::iterator o_dataIter;
-  ecmdMemoryEntry_t dcardEntry;
+  std::list<ecmdMemoryEntry> memdata;        //ListElements corresponding to every line in file
+  std::list<ecmdMemoryEntry>::iterator memdataIter;
+  std::list<ecmdMemoryEntry>::iterator o_dataIter;
+  ecmdMemoryEntry dcardEntry;
   
   ins.open(i_filename);
   
@@ -412,7 +412,7 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry_t> &o_d
   
   //Loop to ealk thru the file and set the Data databuffers bitlengths
   while (!ins.eof()) {
-   ecmdMemoryEntry_t dcardEntryForEveryLine;
+   ecmdMemoryEntry dcardEntryForEveryLine;
 
    getline(ins, line, '\n');
    ecmdParseTokens(line, " \t\n", splitArgs);

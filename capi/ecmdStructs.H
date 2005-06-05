@@ -1156,6 +1156,15 @@ isCoreRelated(false)
 inline ecmdSpyData::~ecmdSpyData() { }
 #endif
 
+/**
+ @brief Used by ecmdReadDcard
+*/
+struct ecmdMemoryEntry {
+  uint64_t address;
+  ecmdDataBuffer data;
+  ecmdDataBuffer tags;
+};
+
 
 #ifndef ECMD_PERLAPI
 /* @name Operators */
