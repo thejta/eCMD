@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# &*&*&*&*&*&*&&*&*&*&*&*&*&&*&*&*&*&*&*&*&*&*&*&*&*&*&*&&*&*&*&*&*&*&&*&*&*&*&*&*&*&*
+#
+# WARNING DO NOT EDIT THIS SCRIPT UNLESS YOU ARE EDITING 'ecmdWrapper.sh'
+# The files are all linked together in CVS and you will cause headaches if you edit the individual commands (ie getscom)
+# Edit ecmdWrapper.sh - commit - then update and all the other files will get updated
+#
+# &*&*&*&*&*&*&&*&*&*&*&*&*&&*&*&*&*&*&*&*&*&*&*&*&*&*&*&&*&*&*&*&*&*&&*&*&*&*&*&*&*&*
+
+# ***************************************************************************
+# Get rid of any path information from the command that came in
+# ***************************************************************************
+filename=`basename $0`
+
+# ***************************************************************************
+# Figure out what the user's ecmd executable is set to, if they have one.
+# ***************************************************************************
+ecmd_exe=$ECMD_EXE
+
+if [ ! -x "$ecmd_exe" ]
+  then
+    # the ecmd_exe does not exist or is not executable;  tell that to the user and exit
+    echo "*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****"
+    echo "The eCMD executable '$ecmd_exe' does NOT exist or is not executable"
+    echo "Please modify your ECMD_EXE variable to point to a valid eCMD executable before running"
+    echo "*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****"
+    return 1
+fi
+
+
+# ***************************************************************************
+# Cat all of the argument from the command line together to get one
+# big command line.
+# ***************************************************************************
+#this is the cmd that will actually be run
+$ecmd_exe $filename $*
+
+# the script returns with the value of the the last executed cmd...in this case, the actual eCMD
+
