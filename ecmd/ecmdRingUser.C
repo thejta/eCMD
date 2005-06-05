@@ -65,8 +65,10 @@ struct ecmdLatchData {
   uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name) 
 };
 
-
-
+struct ecmdCheckRingData {
+  std::string ringName;                 ///< Name of ring
+  int core;                             ///< Core value -1 if not a core ring
+};
 
 
 //----------------------------------------------------------------------
@@ -1308,6 +1310,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
 uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t ret_rc = ECMD_SUCCESS;
 
   bool allRingsFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -1321,6 +1324,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool foundProblem;                    ///< Did we find a mismatch ?
   bool isCoreRing;                      ///< Is this a core ring ?
+  ecmdCheckRingData ringlog;            ///< Used to push new entries
+  std::list<ecmdCheckRingData> failedRings;   ///< Names of rings that failed
+  std::list<ecmdCheckRingData> passedRings;   ///< Names of rings that failed
+  bool verbose = false;                 ///< Verbose error display
+
+
+  verbose = ecmdParseOption(&argc, &argv, "-v");
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1408,6 +1418,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           continue;
         }
 
+        ringlog.ringName = ringName;
+        if (isCoreRing) ringlog.core = coretarget.core;
+        else ringlog.core = -1;
+
         /* Print out the current target */
         printed = ecmdWriteTarget(coretarget) + "\n"; ecmdOutput(printed.c_str());
 
@@ -1418,8 +1432,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (rc) {
           printed = "checkrings - Error occurred performing getring on ";
           printed += ecmdWriteTarget(coretarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          return rc;
+
+          /* Go onto the next one */
+          failedRings.push_back(ringlog);
+          break;
         }
 
         ringBuffer.setBitLength((*curRingData).bitLength);
@@ -1517,6 +1533,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               ecmdOutputWarning( outstr );
               printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
               ecmdOutputWarning( printed.c_str() );
+              foundProblem = true;
             }
             else {
               /* Walk the ring looking for errors */
@@ -1524,14 +1541,18 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               for (uint32_t bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
                 if (i == 0) {
                   if (ringBuffer.isBitSet(bit)) {
-                    sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
-                    ecmdOutputWarning( outstr );
+                    if (verbose) {
+                      sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
+                      ecmdOutputWarning( outstr );
+                    }
                     foundProblem = true;
                   }
                 } else if (i == 1) {
                   if (ringBuffer.isBitClear(bit)) {
-                    sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
-                    ecmdOutputWarning( outstr);
+                    if (verbose) {
+                      sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
+                      ecmdOutputWarning( outstr);
+                    }
                     foundProblem = true;
                   }
                 }
@@ -1548,28 +1569,31 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) { ringBuffer.setBit((readRingBuffer.getBitLength())-1);   }
             else                                { ringBuffer.clearBit((readRingBuffer.getBitLength())-1); }
             if (readRingBuffer != ringBuffer) {
-              sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
-                      repPattern.c_str());
-              ecmdOutputWarning( outstr );
-              printed = "Offset  Data\n";
-              printed += "------------------------------------------------------------------------\n";
-              ecmdOutput( printed.c_str() );
-              for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
-                printf("%6d ", y);
-                if ( (y+64) > readRingBuffer.getBitLength()) {
-                  printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
-                } else {
-                  printed = readRingBuffer.genBinStr(y,64) + "\n";
-                }
-                y += 64;
+              if (verbose) {
+                sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
+                        repPattern.c_str());
+                ecmdOutputWarning( outstr );
+                printed = "Offset  Data\n";
+                printed += "------------------------------------------------------------------------\n";
                 ecmdOutput( printed.c_str() );
+                for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
+                  printf("%6d ", y);
+                  if ( (y+64) > readRingBuffer.getBitLength()) {
+                    printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
+                  } else {
+                    printed = readRingBuffer.genBinStr(y,64) + "\n";
+                  }
+                  y += 64;
+                  ecmdOutput( printed.c_str() );
+                }
+                printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
+                ecmdOutputWarning( printed.c_str() );
               }
-              printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
-              ecmdOutputWarning( printed.c_str() );
+              foundProblem = true;
             } 
           }
 
-        }
+        } /* Test for loop */
         //Restore ring state
         printed = "Restoring the ring state.\n\n";
         ecmdOutput( printed.c_str() );
@@ -1581,6 +1605,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           return rc;
         }
 
+        if (foundProblem) {
+          failedRings.push_back(ringlog);
+        } else {
+          passedRings.push_back(ringlog);
+        }
+
+
         /* If this wasn't a core ring we don't want to loop again */
         if (!isCoreRing) break;
       } /* end core looper */
@@ -1588,7 +1619,49 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     }
     
 
+    ecmdOutput("\n\n");
+    ecmdOutput("============================================\n");
+    ecmdOutput("CheckRings Summary : \n");
+    sprintf(outstr,"Passed Rings : %d\n", passedRings.size());
+    ecmdOutput(outstr);
+    sprintf(outstr,"Failed Rings : %d\n", failedRings.size());
+    ecmdOutput(outstr);
+    ecmdOutput("============================================\n");
+    sprintf(outstr,"Passed Rings : %d\n", passedRings.size());
+    ecmdOutput(outstr);
+    for (std::list<ecmdCheckRingData>::iterator strit = passedRings.begin(); strit != passedRings.end(); strit ++) {
+      if (strit->core == -1) {
+        printed = strit->ringName + " passed.\n";
+        ecmdOutput(printed.c_str());
+      } else {
+        sprintf(outstr,"%s on core %d passed.\n",strit->ringName.c_str(), strit->core);
+        ecmdOutput(outstr);
+      }
+    }
+    ecmdOutput("============================================\n");
+    sprintf(outstr,"Failed Rings : %d\n", failedRings.size());
+    ecmdOutput(outstr);
+    for (std::list<ecmdCheckRingData>::iterator strit2 = failedRings.begin(); strit2 != failedRings.end(); strit2 ++) {
+      if (strit2->core == -1) {
+        printed = strit2->ringName + " failed.\n";
+        ecmdOutput(printed.c_str());
+      } else {
+        sprintf(outstr,"%s on core %d failed.\n",strit2->ringName.c_str(), strit2->core);
+        ecmdOutput(outstr);
+      }
 
+    }
+    ecmdOutput("============================================\n");
+
+    /* Make the final return code a failure if we found a miscompare */
+    if (failedRings.size() != 0) {
+      ret_rc = ECMD_EXPECT_FAILURE;
+      if (!verbose) {
+        ecmdOutput("checkrings - To get additional failure data run again with the -v option\n");
+      }
+    }
+
+        
   }
   
   if (!validPosFound) {
@@ -1596,7 +1669,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  return ret_rc;
 }
 
 

@@ -1,5 +1,5 @@
 
-Syntax: checkrings <ChipSelect> <RingSelect> [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: checkrings <ChipSelect> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -15,6 +15,8 @@ Syntax: checkrings <ChipSelect> <RingSelect> [-k#] [-n#] [-s#] [-p#] [-c#]
 
                         Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu                     
+
+        -v   [optional] Display detailed ring failure data
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
