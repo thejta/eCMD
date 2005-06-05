@@ -55,6 +55,8 @@ int main (int argc, char *argv[])
   cmdsave += "\n";
 
 
+#ifndef ECMD_STATIC_FUNCTIONS
+// If building the function 'statically', it doesn't need ECMD_DLL_FILE set; it'll automatically load its DLL
   if (getenv ("ECMD_DLL_FILE") == NULL) {
     printf("ecmd - You must set ECMD_DLL_FILE in order to run the eCMD command line client\n");
     rc = ECMD_INVALID_DLL_FILENAME;
@@ -62,6 +64,9 @@ int main (int argc, char *argv[])
     /* Load the one specified by ECMD_DLL_FILE */
     rc = ecmdLoadDll("");
   }
+#else
+  rc = ecmdLoadDll("");
+#endif
 
   if (rc == ECMD_SUCCESS) {
 
