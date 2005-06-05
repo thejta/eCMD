@@ -57,5 +57,5 @@ Syntax: getbits <ChipSelect> <RingName> <StartPos> <NumBits>  [-exp <data>]
 
         Examples:       > getbits pu stat 0 15 
                         > getbits pu cp_fxu 0 32 -oxw -exp feedbeef
-                        > getbits memctrl idreg 16 all
+                        > getbits memctrl idreg 16 end
                         > getbits memctrl cp_fxu -ffxuRingDump.dump
