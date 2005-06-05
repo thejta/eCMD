@@ -241,9 +241,9 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "x";      ///< Output format - default to 'mem'
   ecmdDataBuffer inputData;             ///< Buffer to hold the data intended for memory
-  std::list<ecmdMemoryEntry_t> memdata; ///< Data from the D-Card format file 
-  std::list<ecmdMemoryEntry_t>::iterator memdataIter; ///< to iterate on memdata list 
-  ecmdMemoryEntry_t memEntry;           ///< to store data from the user
+  std::list<ecmdMemoryEntry> memdata; ///< Data from the D-Card format file 
+  std::list<ecmdMemoryEntry>::iterator memdataIter; ///< to iterate on memdata list 
+  ecmdMemoryEntry memEntry;           ///< to store data from the user
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
   uint64_t address;                     ///< The address from the command line
