@@ -31,3 +31,4 @@ Syntax: istep
                         istep proc_cfaminit..proc_scominit
                         istep -s0,1..5,10,20
                         istep -i2,3
+			istep list  (NOTE:  only supported by some plugins)
