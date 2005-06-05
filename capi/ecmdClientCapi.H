@@ -1939,7 +1939,7 @@ uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
 /**
  @brief Read a simulation dial
  @param i_dialName Fully qualified dial name
- @param i_enumValue Value read from model
+ @param o_enumValue Value read from model
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
