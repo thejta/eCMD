@@ -152,8 +152,8 @@ bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
 
- int lhsLeftParen = lhs.latchName.find('(');
-  int rhsLeftParen = rhs.latchName.find('(');
+ int lhsLeftParen = lhs.latchName.find_last_of('(');
+  int rhsLeftParen = rhs.latchName.find_last_of('(');
 
   if ((uint32_t) lhsLeftParen == std::string::npos || (uint32_t) rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
     return lhs.latchName < rhs.latchName;
@@ -175,8 +175,8 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
   if (lhs.ringName != rhs.ringName)
     return true;
 
-  int lhsLeftParen = lhs.latchName.find('(');
-  int rhsLeftParen = rhs.latchName.find('(');
+  int lhsLeftParen = lhs.latchName.find_last_of('(');
+  int rhsLeftParen = rhs.latchName.find_last_of('(');
 
   if (lhsLeftParen != rhsLeftParen) {
     return true;
@@ -1115,7 +1115,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
       }
       /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
       if (((dataStartBit != -1) && (curLatchBit != (int) curLatchInfo->latchStartBit) && (curLatchBit != (int) curLatchInfo->latchEndBit)) ||
-          ((latchname == "") || (latchname.substr(0, latchname.rfind('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+          ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
         /* I have some good data here */
         if (latchname != "") {
 
