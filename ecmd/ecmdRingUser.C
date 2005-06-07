@@ -138,7 +138,6 @@ bool operator!= (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
 uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
-  ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target being operated on
   bool validPosFound = false;           ///< Did the looper find something ?
   std::string format = "default";       ///< Output format
@@ -167,53 +166,57 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     ecmdOutputError("getringdump - Type 'getring -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
+     
 
-  //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
-  if (rc) return rc;
-
+  //Loop over the rings
+  for (int i = 1; i < argc; i++) {
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
-    
-    
-    std::string printed;
-  
-    /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
-    rc = ecmdGetChipData(target, chipData);
-    if (rc) {
-      printed = "getringdump - Problems retrieving chip information on : ";
-      printed += ecmdWriteTarget(target);
-      printed += "\n";
-      ecmdOutputError( printed.c_str() );
-      return rc;
-    }
-    /* Now make sure the plugin gave us some bus info */
-    if (!(chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK)) {
-      printed = "getringdump - eCMD plugin did not implement ecmdChipData.chipFlags unable to determine if FSI or JTAG attached chip\n";
-      ecmdOutputError( printed.c_str() );
-      return ECMD_DLL_INVALID;
-    } else if (((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_JTAG) &&
-               ((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_FSI) ) {
-      printed = "getringdump - eCMD plugin returned an invalid bustype in ecmdChipData.chipFlags\n";
-      ecmdOutputError( printed.c_str() );
-      return ECMD_DLL_INVALID;
-    }
-    /* Store our type */
-    bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
+     std::string ringName = argv[i];
+     
+     //Setup the target that will be used to query the system config
+     target.chipType = argv[0];
+     target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+     target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+     target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
+
+     /************************************************************************/
+     /* Kickoff Looping Stuff						     */
+     /************************************************************************/
+     ecmdLooperData looperdata;            ///< Store internal Looper data
+  
+     rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+     if (rc) return rc;
+
+ 
+     while ( ecmdConfigLooperNext(target, looperdata) ) {
+ 
+      std::string printed;
+
+      /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
+      rc = ecmdGetChipData(target, chipData);
+      if (rc) {
+        printed = "getringdump - Problems retrieving chip information on : ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      } 
+      /* Now make sure the plugin gave us some bus info */
+      if (!(chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK)) {
+        printed = "getringdump - eCMD plugin did not implement ecmdChipData.chipFlags unable to determine if FSI or JTAG attached chip\n";
+        ecmdOutputError( printed.c_str() );
+        return ECMD_DLL_INVALID;
+      } else if (((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_JTAG) &&
+        	 ((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_FSI) ) {
+        printed = "getringdump - eCMD plugin returned an invalid bustype in ecmdChipData.chipFlags\n";
+        ecmdOutputError( printed.c_str() );
+        return ECMD_DLL_INVALID;
+      }
+      /* Store our type */
+      bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
+ 
       
-    for (int i = 1; i < argc; i++) {
-
       char outstr[1000];
       ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
       ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
@@ -221,8 +224,6 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   
   
   
-      std::string ringName = argv[i];
-      
       rc = getRing(target, ringName.c_str(), ringBuffer);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
@@ -405,9 +406,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 	  
 	}/* Case-Sort */
           
-       }/* End Args Loop */
+       }/* End ChipLooper */
        
-      } /* End ChipLooper */
+      } /* End Args Loop */
 
 
   if (!validPosFound) {
