@@ -179,8 +179,10 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif /* ECMD_STATIC_FUNCTIONS */
 
 
-    /* Query the initial state of the ring cache cq#5553 */
-    ecmdRingCacheEnabled = ecmdIsRingCacheEnabled();
+    if (!rc) {
+      /* Query the initial state of the ring cache cq#5553 */
+      ecmdRingCacheEnabled = ecmdIsRingCacheEnabled();
+    }
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
