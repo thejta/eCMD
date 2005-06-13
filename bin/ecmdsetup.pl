@@ -223,7 +223,7 @@ if ($plugin eq "scand") {
   $scand->setup(\%modified, $local, $product, $release, @ARGV);
 }
 if ($plugin eq "gip") {
-  $gip->setup(\%modified, @ARGV);
+  $gip->setup(\%modified,$local, $product, $release, @ARGV);
 }
 
 ##########################################################################
