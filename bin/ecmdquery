@@ -25,7 +25,7 @@ if [ ! -x "$ecmd_exe" ]
     echo "The eCMD executable '$ecmd_exe' does NOT exist or is not executable"
     echo "Please modify your ECMD_EXE variable to point to a valid eCMD executable before running"
     echo "*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****ERROR*****"
-    return 1
+    exit 1
 fi
 
 
