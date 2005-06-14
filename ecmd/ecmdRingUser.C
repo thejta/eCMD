@@ -194,7 +194,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       std::string printed;
 
       /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
-      rc = ecmdGetChipData(target, chipData);
+      /* Do this on a side copy so we don't mess up the looper states */
+      ecmdChipTarget dtarget = target;
+      rc = ecmdGetChipData(dtarget, chipData);
       if (rc) {
         printed = "getringdump - Problems retrieving chip information on : ";
         printed += ecmdWriteTarget(target);
@@ -252,7 +254,11 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(target);
       printed += "\n*************************************************\n* ECMD Dump scan ring contents, ";
       printed += ctime(&curTime);
-      sprintf(outstr, "* Position %d:%d, ", target.pos, target.core);
+      if (target.coreState == ECMD_TARGET_FIELD_UNUSED) {       
+        sprintf(outstr, "* Position k%d:n%d:s%d:p%d, ", target.cage, target.node, target.slot, target.pos);
+      } else {
+        sprintf(outstr, "* Position k%d:n%d:s%d:p%d:c%d, ", target.cage, target.node, target.slot, target.pos, target.core);
+      }
       printed += outstr;
       printed += target.chipType + " " + ringName + " Ring\n";
 
@@ -260,7 +266,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       printed += outstr;
       sprintf(outstr, "* Ring length: %d bits\n", ringBuffer.getBitLength());
       printed += outstr;
-      ecmdOutput(printed.c_str());
+      ecmdOutput(printed.c_str());     
 
       
       int startBit, numBits;
