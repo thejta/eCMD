@@ -1,0 +1,26 @@
+
+Syntax: setclockspeed <ClockType> <Speed> [-steer]    [-k#] 
+
+        ECMD:           Core Common Function
+
+        Function:       Change the speed of a clock in the system.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ClockType       Clock type to program in system:
+                         - pu_refclock          <-- Processor reference clock
+                         - memctrl_refclock     <-- Memory controller reference clock
+
+        Speed           New speed value to program can be specified in mhz (100mhz) or
+                        in microseconds (10us)
+
+        -steer [opt]    Steer to new value.  Default is to move in one operation.
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > setclockspeed pu_refclock 120mhz
+                        > setclockspeed memctrl_refclock 10us
+
