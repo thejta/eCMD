@@ -92,8 +92,8 @@ bool operator< (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
 
-  uint32_t lhsLeftParen = lhs.latchName.find('(');
-  uint32_t rhsLeftParen = rhs.latchName.find('(');
+  uint32_t lhsLeftParen = lhs.latchName.find_last_of('(');
+  uint32_t rhsLeftParen = rhs.latchName.find_last_of('(');
 
   if (lhsLeftParen == std::string::npos || rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
     return lhs.latchName < rhs.latchName;
@@ -115,8 +115,8 @@ bool operator!= (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
   if (lhs.ringName != rhs.ringName)
     return true;
 
-  int lhsLeftParen = lhs.latchName.find('(');
-  int rhsLeftParen = rhs.latchName.find('(');
+  int lhsLeftParen = lhs.latchName.find_last_of('(');
+  int rhsLeftParen = rhs.latchName.find_last_of('(');
 
   if (lhsLeftParen != rhsLeftParen) {
     return true;
@@ -319,7 +319,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
           if(ringName == curLatchInfo->ringName) {
          
 	     if (((dataStartBit != -1) && (curLatchBit != (int) curLatchInfo->latchStartBit) && (curLatchBit != (int) curLatchInfo->latchEndBit)) ||
-               ((latchname == "") || (latchname.substr(0, latchname.rfind('(')) != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+               ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
               /* I have some good data here */
    	      if (latchname != "") {
    		 printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format);             	
@@ -342,7 +342,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
    	        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
    	      }
              }
-	      
+
 	     /* Do we want anything in here */
              /* Check if the bits are ordered from:to (0:10) or just (1) */
              if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <= (int) curLatchInfo->latchEndBit)) ||

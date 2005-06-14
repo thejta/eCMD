@@ -462,14 +462,15 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
-  std::string arrayName;        ///< Name of array to access
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   bool printedHeader;           ///< Have we printed the array name and pos
-  std::vector <ecmdDataBuffer> arrayData; ///< Trace Array Data retrieved
   ecmdLooperData looperdata;            ///< Store internal Looper data
   uint32_t loop; 			///<loop around the array data
-  
+  bool doStopStart = true;      ///< Do we StopStart trace arrays ?
+  std::list<ecmdNameVectorEntry> arrayList;  ///< Array data fetched
+  ecmdNameVectorEntry entry;    ///< Entry to populate the list
+
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -479,6 +480,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   else {
     format = formatPtr;
   }
+
+  doStopStart = !ecmdParseOption(&argc, &argv, "-nostopstart");
+
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -503,7 +507,6 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  arrayName = argv[1];
 
   
 
@@ -512,11 +515,18 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    printedHeader = false;
+
+    arrayList.clear();
+    /* Load up the list with all the arrays */
+    for (int i = 1; i < argc; i++) {
+      entry.name = argv[i];
+      arrayList.push_back(entry);
+    }
+
 
     /* Actually go fetch the data */
-    rc = getTraceArray(target, arrayName.c_str(), true /*stop/start array */, arrayData);
-    
+    rc = getTraceArrayMultiple(target, doStopStart, arrayList);
+
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
@@ -529,20 +539,21 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     else {
       validPosFound = true;     
     }
-    
-    for(loop =0; loop < arrayData.size() ; loop++) {
-      if (!printedHeader) {
-        printed = ecmdWriteTarget(target) + " " + arrayName + "\n";
-	ecmdOutput( printed.c_str() );
-        printedHeader = true;
-      } 
 
-      printed = ecmdWriteDataFormatted(arrayData[loop], format);
+    for (std::list<ecmdNameVectorEntry>::iterator lit = arrayList.begin(); lit != arrayList.end(); lit++ ) {
+      printedHeader = false;
+      for(loop =0; loop < lit->buffer.size() ; loop++) {
+        if (!printedHeader) {
+          printed = ecmdWriteTarget(target) + " " + lit->name + "\n";
+          ecmdOutput( printed.c_str() );
+          printedHeader = true;
+        } 
 
-      ecmdOutput( printed.c_str() );
+        printed = ecmdWriteDataFormatted(lit->buffer[loop], format);
+
+        ecmdOutput( printed.c_str() );
+      }
     }
-
-    arrayData.clear();
 
   }
 
