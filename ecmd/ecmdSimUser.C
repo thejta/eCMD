@@ -274,6 +274,7 @@ uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]) {
 
   /* Ok, let's call GETFAC and do the comparison */
   rc = simGETFAC(facname, bitLength, buffer, row, offset);
+  if (rc) return rc;
 
   if (!ecmdCheckExpected ( buffer, expected)) {
 /*    char buf[200]; */
@@ -375,6 +376,7 @@ uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 
   /* Ok, let's call gettcfac and do the comparison */
   rc = simgettcfac(facname, buffer, row, startBit, bitLength);
+  if (rc) return rc;
 
   if (!ecmdCheckExpected ( buffer, expected)) {
 /*    char buf[200]; */
@@ -452,8 +454,10 @@ uint32_t ecmdSimGETFACUser(int argc, char * argv[]) {
 
   rc = simGETFAC(facname, bitLength, buffer, row, offset);
 
-  std::string printed = ecmdWriteDataFormatted(buffer, format);
-  ecmdOutput(printed.c_str());
+  if (!rc) {
+    std::string printed = ecmdWriteDataFormatted(buffer, format);
+    ecmdOutput(printed.c_str());
+  }
 
   return rc;
 
@@ -518,8 +522,10 @@ uint32_t ecmdSimGETFACXUser(int argc, char * argv[]) {
 
   rc = simGETFACX(facname, bitLength, buffer, row, offset);
 
-  std::string printed = ecmdWriteDataFormatted(buffer, format);
-  ecmdOutput(printed.c_str());
+  if (!rc) {
+    std::string printed = ecmdWriteDataFormatted(buffer, format);
+    ecmdOutput(printed.c_str());
+  }
 
   return rc;
 
@@ -602,8 +608,10 @@ uint32_t ecmdSimgettcfacUser(int argc, char * argv[]) {
 
   rc = simgettcfac(facname, buffer, row, startBit, bitLength);
 
-  std::string printed = ecmdWriteDataFormatted(buffer, format);
-  ecmdOutput(printed.c_str());
+  if (!rc) {
+    std::string printed = ecmdWriteDataFormatted(buffer, format);
+    ecmdOutput(printed.c_str());
+  }
 
   return rc;
 

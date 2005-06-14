@@ -12,7 +12,7 @@ Syntax: simPUTFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
         data            Data to write to facility
                         Format specified by -i<format>
 
-        length          Bit length of symbol to read
+        length          Bit length of symbol to write
 
         row  [optional] Facility row
  
