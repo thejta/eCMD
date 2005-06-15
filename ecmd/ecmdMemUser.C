@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <fstream>
+#include <algorithm>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -419,6 +420,106 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
+  return rc;
+}
+
+uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  ecmdChipTarget target;                        ///< Current target being operated on
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string cacheTypeStr;                        ///< User input for the cache to be flushed
+  std::string printed;                          ///< Output data
+  ecmdCacheType_t cacheType;                    ///< cache type to be flushed
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {  
+    ecmdOutputError("cacheflush - Too few arguments specified; you need at least a chip and a cachetype.\n");
+    ecmdOutputError("cacheflush - Type 'cacheflush -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (argc > 2) {
+    ecmdOutputError("cacheflush - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("cacheflush - Type 'cacheflush -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  //get the cachetype
+  cacheTypeStr = argv[1];
+  //Make the cachetype lower case
+  transform(cacheTypeStr.begin(), cacheTypeStr.end(), cacheTypeStr.begin(), (int(*)(int)) tolower);
+  
+  if (cacheTypeStr == "l1i") {
+    cacheType = ECMD_CACHE_LEVEL1I;
+  } else if (cacheTypeStr == "l1d") {
+    cacheType = ECMD_CACHE_LEVEL1D;
+  } else if (cacheTypeStr == "l2") {
+    cacheType = ECMD_CACHE_LEVEL2;
+  } else if (cacheTypeStr == "l3") {
+    cacheType = ECMD_CACHE_LEVEL3;
+  } else if (cacheTypeStr == "l4") {
+    cacheType = ECMD_CACHE_LEVEL4;
+  } else { 
+    ecmdOutputError("cacheflush - Unknown cache type specified.\n");
+    ecmdOutputError("cacheflush - Type 'cacheflush -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  if (rc) return rc;
+
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+    rc = ecmdCacheFlush(target, cacheType);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+        printed = "cacheflush - Error occured performing cacheflush on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    
+    printed = ecmdWriteTarget(target);
+    printed += "\n";
+    ecmdOutput( printed.c_str() );
+  }
+
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("cacheflush - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  
   return rc;
 }
 
