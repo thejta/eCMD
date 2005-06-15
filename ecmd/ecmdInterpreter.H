@@ -97,6 +97,7 @@ uint32_t ecmdGetSpyUser(int argc, char* argv[]);
 uint32_t ecmdPutSpyUser(int argc, char* argv[]);
 
 /* ecmdMemUser.C */
+uint32_t ecmdCacheFlushUser(int argc, char* argv[]);
 uint32_t ecmdGetMemUser(int argc, char* argv[], ECMD_DA_TYPE memMode);
 uint32_t ecmdPutMemUser(int argc, char* argv[], ECMD_DA_TYPE memMode);
 
