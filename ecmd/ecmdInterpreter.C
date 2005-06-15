@@ -161,7 +161,9 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'c':
 
-        if (!strcmp(argv[0], "checkrings")) {
+        if (!strcmp(argv[0], "cacheflush")) {
+          rc = ecmdCacheFlushUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "checkrings")) {
           rc = ecmdCheckRingsUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
