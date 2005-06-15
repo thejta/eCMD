@@ -45,7 +45,7 @@ using namespace std;
 //----------------------------------------------------------------------
 #ifdef FIPSODE
 tracDesc_t g_etrc; /** Trace Descriptor **/
-TRAC_INIT(&g_etrc, "HREG", 0x1000);
+TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 #endif
 
 //----------------------------------------------------------------------
