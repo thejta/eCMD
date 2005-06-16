@@ -31,7 +31,7 @@ ifeq (${OS},Linux)
   SUBDIR   := linux/
   CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_x86.a
-  CFLAGS := ${CFLAGS} -ftemplate-depth-30
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
 endif
 
