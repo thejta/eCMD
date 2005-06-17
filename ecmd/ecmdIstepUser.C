@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <list>
+#include <algorithm>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -408,6 +409,134 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 
   return rc;
 }  
+
+uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdDataBuffer buffer;                        ///< Buffer to hold scom data
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string printed;                          ///< Output data
+  std::string clocktype;                        ///< the clock type to change the speed on
+  std::string clockspeed;                       ///< Speed - frequency or cycle time
+  ecmdClockSpeedType_t speedType;               ///< Clock speed type - frequency or cycle time
+  ecmdClockType_t clockType;                    ///< the clock type to change the speed on
+  ecmdClockSetMode_t clockSetMode = ECMD_CLOCK_ONE_STEP; ///< do adjustment in one operation or to steer to new value
+  ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  if (ecmdParseOption(&argc, &argv, "-steer")) {
+    clockSetMode = ECMD_CLOCK_STEER;
+  }
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {  //clocktype + speed
+    ecmdOutputError("setclockspeed - Too few arguments specified; you need at least a clocktype and speed.\n");
+    ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.cageState =  ECMD_TARGET_QUERY_WILDCARD;
+  target.nodeState = target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  //Get the clock type
+  clocktype = argv[0];
+  transform(clocktype.begin(), clocktype.end(), clocktype.begin(), (int(*)(int)) tolower);
+  if (clocktype == "pu_refclock") {
+    clockType = ECMD_PROC_REFCLOCK;
+  } else if (clocktype == "memctrl_refclock") {
+    clockType = ECMD_MEMCTRL_REFCLOCK;
+  } else {
+    ecmdOutputError("setclockspeed - Unrecognizable clock Type. Should be \"pu_refclock\" or \"memctrl_refclock\"\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  //get clockspeed
+  uint32_t strpos;
+  clockspeed = argv[1];
+  transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
+  
+  if ((uint32_t)(strpos = clockspeed.find("mhz")) != std::string::npos)  {
+    speedType = ECMD_CLOCK_FREQUENCY_SPEC;
+  } else if ((uint32_t)(strpos = clockspeed.find("us")) != std::string::npos) {
+    speedType = ECMD_CLOCK_CYCLETIME_SPEC;
+  } else {
+    ecmdOutputError("setclockspeed - keyword \"mhz\" or \"us\" not found in clock speed field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  clockspeed.erase(strpos, clockspeed.length()-strpos);
+  
+  if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+    ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field\n");
+    return ECMD_INVALID_ARGS;
+  } 
+  
+  uint32_t speed = atoi(clockspeed.c_str());
+
+  if (argc > 2) {
+    ecmdOutputError("setclockspeed - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  if (rc) return rc;
+
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+    rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+        printed = "setclockspeed - Error occured performing getscom on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    
+    printed = ecmdWriteTarget(target);
+    printed += "\n";
+    ecmdOutput( printed.c_str() );
+  }
+
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("setclockspeed - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  
+
+  return rc;
+}
+
+
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
