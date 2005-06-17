@@ -115,6 +115,34 @@ typedef enum {
 } ecmdChipTargetState_t;
 
 /**
+ @brief Used by SetClockSpeed interfaces to adjust clock steering procedure
+ */
+typedef enum {
+  ECMD_CLOCK_RANGE_DEFAULT,
+  ECMD_CLOCK_RANGE_LOWEST,
+  ECMD_CLOCK_RANGE_LOW,
+  ECMD_CLOCK_RANGE_MIDDLE,
+  ECMD_CLOCK_RANGE_HIGH,
+  ECMD_CLOCK_RANGE_HIGHEST
+} ecmdClockRange_t;
+
+/**
+ @brief Used by SetClockSpeed interfaces to specify to do adjustment in one operation or to steer to new value
+*/
+typedef enum {
+  ECMD_CLOCK_ONE_STEP,          ///< Change to new frequency in one operation
+  ECMD_CLOCK_STEER              ///< Steer to new frequency
+} ecmdClockSetMode_t;
+
+/**
+ @brief Used by SetClockSpeed interfaces to specify what notation the speed is provided in
+ */
+typedef enum{
+  ECMD_CLOCK_FREQUENCY_SPEC,     ///< Clock speed is specified in Mhz
+  ECMD_CLOCK_CYCLETIME_SPEC      ///< Clock speed is specified in cycle time
+} ecmdClockSpeedType_t;
+
+/**
  @brief Used by Ring/Array/Spy Query functions to return a required clock state
 */
 typedef enum {
@@ -123,6 +151,14 @@ typedef enum {
   ECMD_CLOCKSTATE_OFF,                  ///< Chip clocks must be off to access
   ECMD_CLOCKSTATE_NA                    ///< Chip clocks can be in any state to access
 } ecmdClockState_t;
+
+/**
+ @brief Used by SetClockSpeed interfaces to specify the clock to control
+ */
+typedef enum {
+  ECMD_PROC_REFCLOCK,                   ///< Processor reference clock
+  ECMD_MEMCTRL_REFCLOCK                 ///< Memory Controller reference clock
+} ecmdClockType_t;
 
 /**
  @brief Used by ecmdConfigLooperInit to enable/disable variable depth looping

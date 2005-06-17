@@ -899,6 +899,38 @@ uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, boo
 */
 uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
+/**
+ @brief Change a system clock speed without adjusting system initialization settings using speed value
+ @param i_target Struct that contains chip and cage information
+ @param i_type Clock type to change in system
+ @param i_speed New speed value, specified in Mhz or micro-seconds based on i_speedType
+ @param i_speedType Specifies if i_speed is provided in frequency or cycle time
+ @param i_mode Do adjustment in one step or steer the clock to the new value
+ @param i_range Adjustments for the clock steer procedure
+
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : Cage
+ TARGET STATES : Unused
+*/
+uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range);
+
+/**
+ @brief Change a system clock speed without adjusting system initialization settings using speed value
+ @param i_target Struct that contains chip and cage information
+ @param i_type Clock type to change in system
+ @param i_multiplier Multiplier to use to program clock
+ @param i_divider Divider value to use to program clock
+ 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : Cage
+ TARGET STATES : Unused
+*/
+uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
+
 //@}
 
 
@@ -1519,7 +1551,7 @@ uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Pos
+ TARGET DEPTH  : Core
  TARGET STATES : Unused
 */
 uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
