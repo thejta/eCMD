@@ -25,7 +25,9 @@
 
 #include <stdio.h>
 #include <list>
+#include <string>
 #include <algorithm>
+#include <ctype.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -34,6 +36,8 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
+
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
