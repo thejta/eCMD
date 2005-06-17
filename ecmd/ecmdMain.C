@@ -103,6 +103,9 @@ int main (int argc, char *argv[])
           for (std::vector< std::string >::iterator commit = commands.begin(); commit != commands.end(); commit ++) {
 
             c_argc = 0;
+            /* Check for a comment or empty line, if so delete it */
+            if ((*commit)[0] == '#') continue;
+            else if (commit->length() == 0) continue;
 
             /* Create a char buffer to hold the whole command, we will use this to create pointers to each token in the command (like argc,argv) */
             commlen = commit->length();
