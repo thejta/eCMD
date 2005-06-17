@@ -1787,6 +1787,94 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   return rc;
 }
 
+uint32_t ecmdEnableRingCacheUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  std::string printed;                          ///< Output data
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc > 0) {
+    ecmdOutputError("enableringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("enableringcache - Type 'enableringcache -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  ecmdEnableRingCache();
+  
+  return rc;
+}
+
+uint32_t ecmdDisableRingCacheUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  std::string printed;                          ///< Output data
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc > 0) {
+    ecmdOutputError("disableringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("disableringcache - Type 'disableringcache -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  rc = ecmdDisableRingCache();
+  if (rc) {
+      printed = "disableringcache - Error occured performing ecmdDisableRingCache\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+  }
+  
+  return rc;
+}
+
+uint32_t ecmdFlushRingCacheUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  std::string printed;                          ///< Output data
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc > 0) {
+    ecmdOutputError("flushringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("flushringcache - Type 'flushringcache -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  rc = ecmdFlushRingCache();
+  if (rc) {
+      printed = "flushringcache - Error occured performing ecmdFlushRingCache\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+  }
+  
+  return rc;
+}
+
 /**
  @brief Parse the scandef for the ringname provided and load all the latches into latchBuffer for later retrieval
  @param target Chip target to operate on
