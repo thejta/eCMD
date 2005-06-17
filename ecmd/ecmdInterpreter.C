@@ -335,6 +335,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "sendcmd")) {
           rc = ecmdSendCmdUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "setclockspeed")) {
+          rc = ecmdSetClockSpeedUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "setconfig")) {
           rc = ecmdSetConfigUser(argc - 1, argv + 1);
 #ifndef REMOVE_SIM
