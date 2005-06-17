@@ -53,7 +53,7 @@ LINK_OBJS := ${LINK_OBJS} eipInterpreter.o eipProcUser.o
 # CRO Extension - Capi
 LINK_OBJS := ${LINK_OBJS} croClientCapi.o croClientCapiFunc.o
 # CRO Extension - Cmd
-LINK_OBJS := ${LINK_OBJS} croInterpreter.o
+LINK_OBJS := ${LINK_OBJS} croInterpreter.o croMiscUser.o croL2User.o
 
 # GIP Extension - Capi
 LINK_OBJS := ${LINK_OBJS} gipClientCapi.o gipClientCapiFunc.o
