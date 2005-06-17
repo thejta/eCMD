@@ -414,9 +414,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   
   ecmdChipTarget target;                        ///< Current target being operated on
-  ecmdDataBuffer buffer;                        ///< Buffer to hold scom data
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
   std::string printed;                          ///< Output data
   std::string clocktype;                        ///< the clock type to change the speed on
   std::string clockspeed;                       ///< Speed - frequency or cycle time
@@ -498,7 +497,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
