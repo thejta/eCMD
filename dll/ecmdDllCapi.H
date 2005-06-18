@@ -31,6 +31,8 @@ uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);
 
 uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo); 
 
+bool dllQueryVersionGreater(const char* version); 
+
 uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ); 
 
 uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype ); 
