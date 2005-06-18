@@ -87,7 +87,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
-  
+  bool enabledCache = false;            ///< Did we enable the cache ?
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -143,7 +144,10 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   /* We are going to enable ring caching to speed up performance */
-  ecmdEnableRingCache();
+  if (!ecmdIsRingCacheEnabled()) {
+    enabledCache = true;
+    ecmdEnableRingCache();
+  }
 
 
 
@@ -396,12 +400,13 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   }
 
-  rc = ecmdDisableRingCache();
-  if (rc) {
-    ecmdOutputError("getspy - Problems disabling the ring cache\n");
-    return rc;
+  if (enabledCache) {
+    rc = ecmdDisableRingCache();
+    if (rc) {
+      ecmdOutputError("getspy - Problems disabling the ring cache\n");
+      return rc;
+    }
   }
-
 
   if (!validPosFound) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
@@ -426,7 +431,8 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   std::string printed;                  ///< Output data
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
-  
+  bool enabledCache = false;            ///< Did we enable the cache ?
+
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     inputformat = formatPtr;
@@ -467,7 +473,10 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
 
   /* We are going to enable ring caching to speed up performance */
-  ecmdEnableRingCache();
+  if (!ecmdIsRingCacheEnabled()) {
+    enabledCache = true;
+    ecmdEnableRingCache();
+  }
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
@@ -587,12 +596,14 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
     
     /* Flush out the cache to actually write the data to the chips */
-    rc = ecmdFlushRingCache();
-    if (rc) {
-      printed = "putspy - Error occured flushing cache on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      return rc;
+    if (enabledCache) {
+      rc = ecmdFlushRingCache();
+      if (rc) {
+        printed = "putspy - Error occured flushing cache on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
     }
 
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
@@ -603,10 +614,12 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
   }
 
-  rc = ecmdDisableRingCache();
-  if (rc) {
-    ecmdOutputError("putspy - Problems disabling the ring cache\n");
-    return rc;
+  if (enabledCache) {
+    rc = ecmdDisableRingCache();
+    if (rc) {
+      ecmdOutputError("putspy - Problems disabling the ring cache\n");
+      return rc;
+    }
   }
 
   if (!validPosFound) {
