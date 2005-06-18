@@ -65,6 +65,8 @@ extern tracDesc_t g_etrc; /** Trace Descriptor **/
  #define ECMD_DBUF_DATANUMBER_NOT_FOUND          (0x01000000 | 0x2052) ///< In readFileMultiple specified data number  not found in file
  #define ECMD_DBUF_FILE_OPERATION_FAIL           (0x01000000 | 0x2053) ///< File operation failed
  #define ECMD_DBUF_NOT_OWNER                     (0x01000000 | 0x2060) ///< Don't own this buffer so can't do this operation
+# define ECMD_DBUF_XSTATE_NOT_ENABLED            (0x01000000 | 0x2062) ///< Xstate function called on a buffer that doesn't have xstates enabled
+
 #endif
 
 //--------------------------------------------------------------------
