@@ -109,6 +109,25 @@ uint32_t ecmdCommandArgs(int * i_argc, char** i_argv[]);
 uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 
 /**
+ @brief Query to see if plugin is greater or equal to release specified
+ @param version eCMD Release (ex "5.1", "6.3")
+
+ @retval true If the plugin release is >= version specified
+ @retval false If the plugin release is < version specified
+
+ eCMD won't allow your code to run if the major numbers mismatch, but at times you may want to use a
+  new function that was released in a minor release.  This api let's you see if the plugin is at least
+  or greater then the minor number where the new function was made available.
+
+ So if new function X was dropped in eCMD release v6.2 then if you include the following check in your code
+  you can neatly handle if a user is trying to run a plugin that is 6.1 or less:
+  if (!ecmdQueryVersionGreater("6.2")) {
+    ecmdOutputWarning("Plugin doesn't support function X , skipping the new stuff\n");
+  }
+*/
+bool ecmdQueryVersionGreater(const char* version);
+
+/**
  @brief Query configuration information from the DLL
  @param i_target Struct that contains partial information to limit query results
  @param o_queryData Return data from query

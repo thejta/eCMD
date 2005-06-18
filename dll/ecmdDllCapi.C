@@ -260,7 +260,6 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
     printf("ECMD DEBUG : Shared Lib Version '%s'\n", ecmdGetSharedLibVersion().c_str());
   }
 #endif
-
   return dllInitDll();
 
 }
@@ -297,6 +296,26 @@ uint32_t dllCheckDllVersion (const char* options) {
 
   return rc;
 }
+
+bool dllQueryVersionGreater(const char* version) {
+
+  std::string plver = ECMD_CAPI_VERSION;
+  std::string clver = version;
+  int plmajor, plminor;
+  int clmajor, clminor;
+
+  plmajor = atoi(plver.substr(0,plver.find('.')).c_str());
+  plminor = atoi(plver.substr(plver.find('.')+1,std::string::npos).c_str());
+
+  clmajor = atoi(clver.substr(0,clver.find('.')).c_str());
+  clminor = atoi(clver.substr(clver.find('.')+1,std::string::npos).c_str());
+
+  if (plmajor <  clmajor) return false;
+  if (plmajor >  clmajor) return true;
+  if (plminor >= clminor) return true;
+  return false;
+}
+
 
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::string ret;
