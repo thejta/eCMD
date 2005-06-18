@@ -103,6 +103,7 @@
  #define ECMD_DBUF_DATANUMBER_NOT_FOUND          (ECMD_ERR_ECMD | 0x2052) ///< In readFileMultiple specified data number  not found in file
  #define ECMD_DBUF_FILE_OPERATION_FAIL           (ECMD_ERR_ECMD | 0x2053) ///< File operation failed
  #define ECMD_DBUF_NOT_OWNER                     (ECMD_ERR_ECMD | 0x2060) ///< Don't own this buffer so can't do this operation
+# define ECMD_DBUF_XSTATE_NOT_ENABLED            (ECMD_ERR_ECMD | 0x2062) ///< Xstate function called on a buffer that doesn't have xstates enabled
 #endif
 
 
