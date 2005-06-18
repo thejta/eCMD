@@ -110,7 +110,7 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}.so ${TARGET}.pm 
+all: dir ${TARGET}.so ${TARGET}.pm test
 	@touch t.o tecmd.so tecmd.pm t_wrap.c
 	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
 	@echo "Exporting eCMD PerlApi to ${OS}/ ..."
@@ -131,6 +131,10 @@ clean:
 dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p ${OS}
+
+test:
+	@echo "***** If you see perl load errors this build of the perl module is invalid ****"
+	@./testBuild.pl
 
 
 # *****************************************************************************
