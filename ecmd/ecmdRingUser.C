@@ -447,6 +447,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
+  bool enabledCache = false;                    ///< Did we enable the cache ?
 
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -568,7 +569,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 
   /* We are going to enable the ring cache to get performance out of this beast */
-  ecmdEnableRingCache();
+  if (!ecmdIsRingCacheEnabled()) {
+    enabledCache = true;
+    ecmdEnableRingCache();
+  }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
@@ -693,10 +697,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   }
 
-  rc = ecmdDisableRingCache();
-  if (rc) {
-    ecmdOutputError("getlatch - Problems disabling the ring cache\n");
-    return rc;
+  if (enabledCache) {
+    rc = ecmdDisableRingCache();
+    if (rc) {
+      ecmdOutputError("getlatch - Problems disabling the ring cache\n");
+      return rc;
+    }
   }
 
   if (!validPosFound) {
@@ -1078,6 +1084,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer to store data from user
   ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
+  bool enabledCache = false;            ///< Did we enable the cache ?
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1186,7 +1193,10 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   }
 
   /* We are going to enable the ring cache to get performance out of this beast */
-  ecmdEnableRingCache();
+  if (!ecmdIsRingCacheEnabled()) {
+    enabledCache = true;
+    ecmdEnableRingCache();
+  }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
   if (rc) return rc;
@@ -1290,22 +1300,25 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
-    rc = ecmdFlushRingCache();
-    if (rc) {
-      ecmdOutputError("putlatch - Problems flushing the ring cache\n");
-      return rc;
+    if (enabledCache) {
+      rc = ecmdFlushRingCache();
+      if (rc) {
+        ecmdOutputError("putlatch - Problems flushing the ring cache\n");
+        return rc;
+      }
     }
 
 
 
   }
 
-  rc = ecmdDisableRingCache();
-  if (rc) {
-    ecmdOutputError("putlatch - Problems disabling the ring cache\n");
-    return rc;
+  if (enabledCache) {
+    rc = ecmdDisableRingCache();
+    if (rc) {
+      ecmdOutputError("putlatch - Problems disabling the ring cache\n");
+      return rc;
+    }
   }
-
 
   if (!validPosFound) {
     ecmdOutputError("putlatch - Unable to find a valid chip to execute command on\n");
