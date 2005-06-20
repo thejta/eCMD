@@ -406,6 +406,15 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
       RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
+  /* Maybe we don't need to do anything */
+  if (iv_NumBits == i_newNumBits) {
+    return rc;
+  } else if (i_newNumBits < iv_NumBits) {
+    /* You can't grow smaller, use shrink */
+    ETRAC0("**** ERROR (ecmdDataBuffer::growBitLength) : Attempted to grow to a smaller size then current buffer size.");
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+  }
+
   /* We need to verify we have room to do this shifting */
   /* Set our new length */
   prevwordsize = iv_NumWords;
@@ -460,7 +469,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
       clearBit(idx);
     }
     /* memset the rest */
-    memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8); /* init to 0 */
+    memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 - (idx/8): iv_NumBits / 8 - (idx/8)); /* init to 0 */
 #ifndef REMOVE_SIM
     if (iv_DataStr != NULL) {
       memset(&(iv_DataStr[idx]), '0', (iv_NumBits - idx) ); /* init to 0 */
