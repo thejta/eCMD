@@ -178,8 +178,6 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "deconfig")) {
           rc = ecmdDeconfigUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "disableringcache")) {
-          rc = ecmdDisableRingCacheUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -193,21 +191,6 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "ecmdquery")) {
           rc = ecmdQueryUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "enableringcache")) {
-          rc = ecmdEnableRingCacheUser(argc - 1, argv + 1);
-        } else {
-          /* We don't understand this function, let's let the caller know */
-          rc = ECMD_INT_UNKNOWN_COMMAND;
-        }
-        break;
-
-        /************************/
-        /* The F's              */
-        /************************/
-      case 'f':
-
-        if (!strcmp(argv[0], "flushringcache")) {
-          rc = ecmdFlushRingCacheUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -341,6 +324,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "reconfig")) {
           rc = ecmdReconfigUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ringcache")) {
+          rc = ecmdRingCacheUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
