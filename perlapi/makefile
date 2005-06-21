@@ -133,7 +133,7 @@ dir:
 	@mkdir -p ${OS}
 
 test:
-	@echo "***** If you see perl load errors this build of the perl module is invalid ****"
+	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
 	@./testBuild.pl
 
 
