@@ -23,7 +23,7 @@ my $rc = 0;
 
 $| = 1;  # set autoflush
 
-if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10")) { die "Fatal errors initializing DLL"; }
+if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10")) { exit(0); }
 
 
 $rc = ecmdCommandArgs(\@ARGV);
