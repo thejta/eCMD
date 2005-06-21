@@ -376,6 +376,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
    inputData.extract(memEntry.data, 0, inputData.getBitLength());
    memdata.push_back(memEntry);
   }
+
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
@@ -385,6 +386,15 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
+
+      /* Let's verify we have an even byte length of data */
+      if (memdataIter->data.getBitLength() != (memdataIter->data.getByteLength() * 8)) {
+        printLine = cmdlineName + " - Invalid data, must specify an even byte length of data\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+
+
       if (memMode == ECMD_MEM_DMA) {
         rc = putMemDma(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       } else if (memMode == ECMD_MEM_MEMCTRL) {
