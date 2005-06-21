@@ -79,10 +79,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string outputformat = "x";               ///< Output Format to display
   std::string inputformat = "x";                ///< Input format of data
   ecmdChipTarget target;                        ///< Current target being operated on
-  ecmdDataBuffer buffer;                        ///< Buffer to hold scom data
+  ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
+  ecmdDataBuffer buffer;                        ///< Data requested by the user
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string printed;                          ///< Output data
+  int startbit = -1;                            ///< Startbit in the scom data
+  int numbits = 0;                              ///< Number of bits to diplay
   
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -170,11 +173,38 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
 
   }
+  
   if (argc > 2) {
-    ecmdOutputError("getscom - Too many arguments specified; you probably added an option that wasn't recognized.\n");
-    ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
+    if (argc != 4) {
+      ecmdOutputError("getscom - Too many arguments specified; you probably added an unsupported option.\n");
+      ecmdOutputError("getscom - Type 'getscom -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("getscom - Non-decimal characters detected in startbit field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    startbit = atoi(argv[2]);
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("getscom - Non-decimal characters detected in numbits field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    numbits = atoi(argv[3]);
+
+
+    /* Bounds check */
+    if ((startbit + numbits) > ECMD_MAX_DATA_BITS) {
+      char errbuf[100];
+      sprintf(errbuf,"getscom - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+      ecmdOutputError(errbuf);
+      return ECMD_DATA_BOUNDS_OVERFLOW;
+    } else if (numbits == 0) {
+      ecmdOutputError("getscom - Number of bits == 0, operation not performed\n");
+      return ECMD_INVALID_ARGS;
+    }
+    
+  } 
   
   
   /************************************************************************/
@@ -186,7 +216,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-    rc = getScom(target, address, buffer);
+    rc = getScom(target, address, scombuf);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
@@ -200,7 +230,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     else {
       validPosFound = true;     
     }
-
+    
+    if (startbit != -1) {
+      scombuf.extract(buffer, startbit, numbits);
+    } else {
+      scombuf.extract(buffer, 0, scombuf.getBitLength());
+    }
+    
     if (expectFlag) {
 
       if (maskFlag) {
