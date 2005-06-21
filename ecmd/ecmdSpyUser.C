@@ -301,9 +301,11 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         ecmdOutput( printed.c_str() );
       } else {
         if (expectedEnum != enumValue) {
-          printed =  "getspy - Actual            : " + enumValue + "\n";
+          printed =  "getspy - Mismatch found on spy : " + spyName + "\n";
           ecmdOutputError( printed.c_str() );
-          printed =  "getspy - Expected          : " + expectedEnum + "\n";
+          printed =  "getspy - Actual                : " + enumValue + "\n";
+          ecmdOutputError( printed.c_str() );
+          printed =  "getspy - Expected              : " + expectedEnum + "\n";
           ecmdOutputError( printed.c_str() );
           return ECMD_EXPECT_FAILURE;
         }
@@ -339,11 +341,13 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
         if (!ecmdCheckExpected(buffer, expectedRaw)) {
           //@ make this stuff sprintf'd
-          printed =  "getspy - Actual            : ";
+          printed =  "getspy - Mismatch found on spy : " + spyName + "\n";
+          ecmdOutputError( printed.c_str() );
+          printed =  "getspy - Actual                : ";
           printed += ecmdWriteDataFormatted(buffer, outputformat);
           ecmdOutputError( printed.c_str() );
 
-          printed =  "getspy - Expected          : ";
+          printed =  "getspy - Expected              : ";
           printed += ecmdWriteDataFormatted(expectedRaw, outputformat);
           ecmdOutputError( printed.c_str() );
           return ECMD_EXPECT_FAILURE;
