@@ -1,0 +1,23 @@
+
+Syntax: ringcache enable|disable|flush|query
+        
+        ECMD:           Core Common Function
+
+        Function:       Modifies state of internal caching of reads/writes of scan rings
+
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        enable          Enables ring caching
+
+        disable         Disables ring caching
+
+        flush           Flushes ring cache and leaves enabled
+
+        query           Displays state of ring cache
+
+        --------------------------------------------------------------------------------
+
+        Example:        ringcache enable
+                        ringcache disable

@@ -72,9 +72,7 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]);
 
 /* ecmdRingUser.C */
 uint32_t ecmdCheckRingsUser(int argc, char* argv[]);
-uint32_t ecmdDisableRingCacheUser(int argc, char* argv[]);
-uint32_t ecmdEnableRingCacheUser(int argc, char* argv[]);
-uint32_t ecmdFlushRingCacheUser(int argc, char* argv[]);
+uint32_t ecmdRingCacheUser(int argc, char* argv[]);
 uint32_t ecmdGetBitsUser(int argc, char* argv[]);
 uint32_t ecmdGetLatchUser(int argc, char* argv[]);
 uint32_t ecmdGetRingDumpUser(int argc, char* argv[]);
