@@ -12,36 +12,86 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        checkrings                                        simGETFAC                
-                                 pollscom                 simGETFACX               
-        deconfig                 putarray                 simgethierarchy          
-                                 putbits                  simgettcfac              
-        ecmd                     putcfam                  siminit                  
-        ecmdquery                putfpr                   simPUTFAC                
-                                 putgpr                   simPUTFACX               
-        format                   putlatch                 simputtcfac              
-                                 putmemdma                simrestart               
-        getarray                 putmemmemctrl            simSTKFAC                
-        getbits                  putmemproc               simstktcfac              
-        getcfam                  putpattern               simSUBCMD                
-        getconfig                putscom                  simtckinterval           
-        getfpr                   putspr                   simUNSTICK               
-        getgpr                   putspy                   simunsticktcfac          
-        getlatch                 putvpdimage              startclocks              
-        getmemdma                putvpdkeyword            stopclocks               
-        getmemmemctrl                                     
-        getmemproc               reconfig                 
-        getringdump                                       
-        getscom                  sendcmd                  
-        getspr                   setconfig                
-        getspy                   simaet                   
-        gettracearray            simcheckpoint            
-        getvpdimage              simclock                 
-        getvpdkeyword            simecho                  
-                                 simexit                  
-        istep                    simEXPECTFAC             
-                                 simexpecttcfac           
-        makespsystemcall         simgetcurrentcycle       
+        cacheflush               
+        checkrings               
+                                 
+        deconfig                 
+                                 
+        ecmd                     
+        ecmdquery                
+                                 
+        format                   
+                                 
+        getarray                 
+        getbits                  
+        getcfam                  
+        getconfig                
+        getfpr                   
+        getgpr                   
+        getlatch                 
+        getmemdma                
+        getmemmemctrl            
+        getmemproc               
+        getringdump              
+        getscom                  
+        getspr                   
+        getspy                   
+        gettracearray            
+        getvpdimage              
+        getvpdkeyword            
+                                 
+        istep                    
+                                 
+        makespsystemcall         
+                                 
+        pollscom                 
+        putarray                 
+        putbits                  
+        putcfam                  
+        putfpr                   
+        putgpr                   
+        putlatch                 
+        putmemdma                
+        putmemmemctrl            
+        putmemproc               
+        putpattern               
+        putscom                  
+        putspr                   
+        putspy                   
+        putvpdimage              
+        putvpdkeyword            
+                                 
+        reconfig                 
+        ringcache                
+                                 
+        sendcmd                  
+        setclockspeed            
+        setconfig                
+        simaet                   
+        simcheckpoint            
+        simclock                 
+        simecho                  
+        simexit                  
+        simEXPECTFAC             
+        simexpecttcfac           
+        simgetcurrentcycle       
+        simGETFAC                
+        simGETFACX               
+        simgethierarchy          
+        simgettcfac              
+        siminit                  
+        simPUTFAC                
+        simPUTFACX               
+        simputtcfac              
+        simrestart               
+        simSTKFAC                
+        simstktcfac              
+        simSUBCMD                
+        simtckinterval           
+        simUNSTICK               
+        simunsticktcfac          
+        startclocks              
+        stopclocks               
 
 
         Cronus/IP Extensions:
@@ -51,5 +101,17 @@ Syntax: ecmd
         cipgetvr                 
         cipinstruct              
         cipputvr                 
+
+
+        Eclipz Cronus/IP Extensions:
+        --------------------------------------------------------------------------------
+
+        eipgetslb                
+
+
+        Cronus Extensions:
+        --------------------------------------------------------------------------------
+
+        crodmarandtest           
 
 
