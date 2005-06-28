@@ -130,10 +130,6 @@ if ($release eq ".") {
 
 if ($shortcut) {
   $release = $ENV{"ECMD_RELEASE"};
-} else {
-  # Also set the ECMD_RELEASE variable
-  $ENV{"ECMD_RELEASE"} = $release;
-  $modified{"ECMD_RELEASE"} = 1;
 }
 
 # We'll see if the release is supported based upon the existence of the bin directory
@@ -150,10 +146,6 @@ if ($shortcut) {
   $plugin = $ENV{"ECMD_PLUGIN"};
 } else {
   $plugin = shift(@ARGV);
-
-  # Also set the ECMD_PLUGIN variable
-  $ENV{"ECMD_PLUGIN"} = $plugin;
-  $modified{"ECMD_PLUGIN"} = 1;
 }
 
 if ($plugin eq "cro") {
@@ -172,10 +164,6 @@ if ($shortcut) {
   $product = $ENV{"ECMD_PRODUCT"};
 } else {
   $product = shift(@ARGV);
-
-  # Also set the ECMD_PRODUCT variable
-  $ENV{"ECMD_PRODUCT"} = $product;
-  $modified{"ECMD_PRODUCT"} = 1;
 }
 
 # We no longer want to error check the product.  It is just passed on through to the plugin
@@ -203,15 +191,31 @@ $modified{"PATH"} = 1;
 ##########################################################################
 # Call cleanup on plugins
 #
-$cro->cleanup(\%modified);
-$scand->cleanup(\%modified, $release);
-$gip->cleanup(\%modified);
+
+# Only do this if the plugin has changed from last time
+if ($ENV{"ECMD_PLUGIN"} ne $plugin) {
+  $cro->cleanup(\%modified);
+  $scand->cleanup(\%modified, $release);
+  $gip->cleanup(\%modified);
+}
 
 ##########################################################################
 # Add bin directory to path
 #
 $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin:" . $ENV{"PATH"};
 $modified{"PATH"} = 1;
+
+##########################################################################
+# Flag the ECMD_* variables as modified if appropriate
+#
+if (!$shortcut) {
+  $ENV{"ECMD_RELEASE"} = $release;
+  $modified{"ECMD_RELEASE"} = 1;
+  $ENV{"ECMD_PLUGIN"} = $plugin;
+  $modified{"ECMD_PLUGIN"} = 1;
+  $ENV{"ECMD_PRODUCT"} = $product;
+  $modified{"ECMD_PRODUCT"} = 1;
+}
 
 ##########################################################################
 # Call setup on plugin specified
