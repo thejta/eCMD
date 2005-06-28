@@ -46,7 +46,6 @@ if ($TARGET_VARIABLES == "override" || $TARGET_VARIABLES == "lock") then
       if (!($?message)) then
          echo "Please enter reason for machine lock:"
          set message = $<
-         echo "the message is :" $message
       endif
       echo "#LOCK# yes" >> $CRONUS_HOME/targets/$ECMD_TARGET""_info
       echo "#LOCK_COMMENT# $message" >> $CRONUS_HOME/targets/$ECMD_TARGET""_info
