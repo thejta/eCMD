@@ -82,6 +82,7 @@
 #define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x1055) ///< Memory Address was not on a 8-byte boundary
 #define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_IP   | 0x1056) ///< Requests that the user retries operation with returned Virtual Address
 #define ECMD_UNABLE_TO_MAP_HASHID		(ECMD_ERR_IP   | 0x1057) ///< Mapping function was unable to match the hashid given by the user
+#define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1058) ///< eCMD was unable to open arraydef file
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command
