@@ -117,6 +117,11 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
         
         if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
 
+          if (!isdigit(curSubstr[0]) || !isdigit(curSubstr[tmpOffset+2])) {
+            ecmdOutputError("istep - Non-Numeric character found in istep range (x..y)\n");
+            return ECMD_INVALID_ARGS;
+          }
+            
           int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
           int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
           
@@ -127,6 +132,11 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
 
         }
         else {
+          if (!isdigit(curSubstr[0])) {
+            ecmdOutputError("istep - Non-Numeric character found in istep steps (x,y)\n");
+            return ECMD_INVALID_ARGS;
+          }
+
           if (stepPtr != NULL)
             steps.setBit(atoi(curSubstr.c_str()));
           else
