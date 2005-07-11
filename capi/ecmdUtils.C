@@ -1019,7 +1019,20 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     int curOffset = 0;
     int numBlocks = i_data.getBitLength() % blockSize ? i_data.getBitLength() / blockSize + 1: i_data.getBitLength() / blockSize;
     int dataBitLength = i_data.getBitLength();
+    ecmdDataBuffer rightData;
 
+    /* defect 16358, for -oxrw8 data we need to right shift the whole buffer and then display */
+    if (curState == ECMD_FORMAT_XRW) {
+      if (i_data.getBitLength() % 4) {
+        rightData = i_data;
+        rightData.shiftRightAndResize(4 - (i_data.getBitLength() % 4));
+        dataBitLength += 4 - (i_data.getBitLength() % 4);
+      } else {
+        /* There are no odd bits, so to save us time just treat as left aligned */
+        curState = ECMD_FORMAT_XW;
+      }
+    }
+    
     if (numCols) {
 
       if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B || curState == ECMD_FORMAT_BXN || curState == ECMD_FORMAT_BXW) {
@@ -1036,7 +1049,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
         printed += i_data.genHexLeftStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else if (curState == ECMD_FORMAT_XRW) {
-        printed += i_data.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed += rightData.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else if ((curState == ECMD_FORMAT_BX) || (curState == ECMD_FORMAT_BXN) || (curState == ECMD_FORMAT_BXW))  {
         printed +=  i_data.genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
