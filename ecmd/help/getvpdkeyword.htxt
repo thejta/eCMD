@@ -10,9 +10,9 @@ Syntax: getvpdkeyword <ChipSelect> <RecordName> <Keyword> <NumBytes> -o<format> 
         --------------------------------------------------------------------------------
 	ChipSelect      Chip to get the module VPD record contents from
 	
-        RecordName      VPD Record Name
+        RecordName      VPD Record Name (in quotes) 
 
-        KeyWord         VPD Keyword
+        KeyWord         VPD Keyword (in quotes) 
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.
@@ -39,5 +39,5 @@ Syntax: getvpdkeyword <ChipSelect> <RecordName> <Keyword> <NumBytes> -o<format> 
 
         --------------------------------------------------------------------------------
 
-        Examples:       > getvpdkeyword pu record key 128 -p0
-                        > getvpdkeyword l3cache record key 128 -fb datafile
+        Examples:       > getvpdkeyword pu "record" "key" 128 -p0
+                        > getvpdkeyword l3cache "record" "key" 128 -fb datafile

@@ -10,9 +10,9 @@ Syntax: putvpdkeyword <ChipSelect> <RecordName> <Keyword> <Data> [-i<format>] [-
         --------------------------------------------------------------------------------
         ChipSelect      Chip to write the VPD data into
 	
-	RecordName      VPD Record Name
+	RecordName      VPD Record Name (in quotes) 
 
-        KeyWord         VPD Keyword
+        KeyWord         VPD Keyword (in quotes) 
 
         Data            Data to write into VPD. Not valid with -f option
                         Format specified by -i<format>
@@ -38,5 +38,5 @@ Syntax: putvpdkeyword <ChipSelect> <RecordName> <Keyword> <Data> [-i<format>] [-
 
         --------------------------------------------------------------------------------
 
-        Examples:       > putvpdkeyword pu record key deadbeef80000000  -p0,1 
-                        > putvpdkeyword l3cache record key -fb datafile
+        Examples:       > putvpdkeyword pu "record" "key" deadbeef80000000  -p0,1 
+                        > putvpdkeyword l3cache "record" "key" -fb datafile
