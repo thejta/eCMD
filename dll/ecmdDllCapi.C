@@ -1077,6 +1077,8 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
     dllEnableRingCache();
   }
 
+  o_data.clear();       // Flush out current list
+
   /* Let's find out if we are JTAG of FSI here */
   rc = dllGetChipData(target, chipData);
   if (rc) {
