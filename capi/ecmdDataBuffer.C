@@ -271,14 +271,17 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
     iv_DataStr = NULL;
 #ifndef DISABLE_XSTATE
     /* cje Need to see if we really want this buffer */
-    iv_DataStr = new char[iv_NumBits + 42];
+    /* For now we disable the buffer for anything > 500,000 bits, if a scan ring is that big we have a problem */
+    if (iv_NumBits < 500000) {
+      iv_DataStr = new char[iv_NumBits + 42];
 
-    if (iv_DataStr == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::setBitLength : Unable to allocate Xstate memory for new databuffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+      if (iv_DataStr == NULL) {
+        ETRAC0("**** ERROR : ecmdDataBuffer::setBitLength : Unable to allocate Xstate memory for new databuffer");
+        RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+      }
+
+      this->fillDataStr('0'); /* init to 0 */
     }
-
-    this->fillDataStr('0'); /* init to 0 */
 #endif
 #endif
 
@@ -353,14 +356,17 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
 
 #ifndef DISABLE_XSTATE
     /* cje need to see if we want this buffer at all */
-    iv_DataStr = new char[(iv_Capacity*32)+42];
+    /* For now we disable the buffer for anything > 500,000 bits, if a scan ring is that big we have a problem */
+    if (iv_Capacity*32 < 500000) {
+      iv_DataStr = new char[(iv_Capacity*32)+42];
 
-    if (iv_DataStr == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::setCapacity : Unable to allocate Xstate memory for new databuffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+      if (iv_DataStr == NULL) {
+        ETRAC0("**** ERROR : ecmdDataBuffer::setCapacity : Unable to allocate Xstate memory for new databuffer");
+        RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+      }
+
+      this->fillDataStr('0'); /* init to 0 */
     }
-
-    this->fillDataStr('0'); /* init to 0 */
 #endif
 #endif
 
@@ -1276,7 +1282,8 @@ uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_ta
     rc = this->insert(i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart);
     /* Now apply the Xstate stuff */
 #ifndef REMOVE_SIM   
-    if (iv_DataStr != NULL) {
+    /* Do we want to disable xstate here ? */
+    if ((iv_DataStr != NULL) && (i_bufferIn.iv_DataStr != NULL)) {
       if (i_targetStart+i_len <= iv_NumBits) {
         strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
       }
@@ -3201,7 +3208,6 @@ void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer 
 #ifndef REMOVE_SIM
   ecmdDataBuffer* buff = (ecmdDataBuffer*)i_buffer;
   if (buff->iv_DataStr == NULL) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::applyRawBufferToXstate: Xstate operation called on buffer without xstate's enabled");
     return;
   }
   strcpy(buff->iv_DataStr,buff->genBinStr().c_str());
