@@ -2220,6 +2220,16 @@ uint32_t ecmdUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget
 uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targetList);
 
 /**
+ *  @brief Converts a Unit Id into its String representation
+ *  @param i_unitId a uint32_t representing an unitID 
+ *  @param o_unitIdStr a string to match the unitId input 
+ *  @retval ECMD_SUCCESS if conversion successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in matching the unitID to a String
+ *  @post HOM Unit Id String is set and represents the passed in uint32_t unitId 
+ */
+uint32_t ecmdUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr);
+
+/**
  @brief Sequence ID of Cores and Threads converted to ecmdChipTarget struct
  @param i_core_seq_num Sequence ID number of the core 
  @param io_target ecmdChipTarget struct set to the result of the conversion
