@@ -8,13 +8,18 @@ use Cwd 'chdir';
 ##########################################################################
 # Figure out where the user is calling this script from
 #
+
+# Meghna needs me to save away the directory the script was called from, I'll do that here
+my $callingPwd;
+chomp($callingPwd = `pwd`);
+# Now do the rest
 my $pwd;
 my @tempArr = split(/\/+/,$0);
 pop(@tempArr); # The script name
 $" = "/"; # Make it so the array below seperates on / instead of space
 #If it starts with a ., it's being called with relative path
 if (substr($0,0,1) ne "/") {
-  chomp($pwd = `pwd`);  # Get where I got called from
+  $pwd = $callingPwd;  # Get where I got called from
   $pwd = $pwd . "/" . "@tempArr";  # Now use the relative to find out where the script is 
 } else { # Absolute path
   $pwd = "@tempArr";
