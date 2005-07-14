@@ -152,7 +152,6 @@ if ($shortcut) {
 } else {
   $plugin = shift(@ARGV);
 }
-
 if ($plugin eq "cro") {
 } elsif ($plugin eq "gip") {
 } elsif ($plugin eq "scand") {
@@ -229,7 +228,7 @@ if ($plugin eq "cro") {
   $cro->setup(\%modified, $local, $product, "ecmd", @ARGV);
 }
 if ($plugin eq "scand") {
-  $scand->setup(\%modified, $local, $product, $release, @ARGV);
+  $scand->setup(\%modified, $local, $product, $release, $callingPwd, @ARGV);
 }
 if ($plugin eq "gip") {
   $gip->setup(\%modified,$local, $product, $release, @ARGV);
