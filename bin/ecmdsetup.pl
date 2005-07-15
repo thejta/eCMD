@@ -4,14 +4,16 @@
 # Why wouldn't you use strict???
 use strict;
 use Cwd 'chdir';
-
 ##########################################################################
 # Figure out where the user is calling this script from
 #
 
 # Meghna needs me to save away the directory the script was called from, I'll do that here
 my $callingPwd;
-chomp($callingPwd = `pwd`);
+#Commenting this since this seems to be resolving the links in the path
+#chomp($callingPwd = `pwd`);
+#This seems to keep the directory intact. Tested in ksh, Jason will test in csh
+chomp($callingPwd = `cd .;pwd`);
 # Now do the rest
 my $pwd;
 my @tempArr = split(/\/+/,$0);
