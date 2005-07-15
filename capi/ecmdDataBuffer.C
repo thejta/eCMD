@@ -452,7 +452,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
     if (rc) return rc;
 
     /* Restore the data */
-    memcpy(iv_Data, tempBuf, prevbitsize % 8 ? (prevbitsize / 8) + 1 : prevbitsize / 8);
+    ecmdBigEndianMemCopy(iv_Data, tempBuf, prevbitsize % 8 ? (prevbitsize / 8) + 1 : prevbitsize / 8);
     delete[] tempBuf;
 
 #ifndef REMOVE_SIM
