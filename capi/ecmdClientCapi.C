@@ -248,6 +248,12 @@ uint32_t ecmdUnloadDll() {
     }
   }
   dlHandle = NULL;
+
+  /* Clear out the function table so we look everything up again */
+  for (int func = 0; func < ECMD_NUMFUNCTIONS; func ++) {
+    DllFnTable[func] = NULL;
+  }
+
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
