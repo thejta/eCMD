@@ -130,16 +130,12 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config 
-  if (memMode == ECMD_MEM_DMA) {
-    target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
-    target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
-  } else if (memMode == ECMD_MEM_MEMCTRL) {
-    target.chipType = ECMD_CHIPT_MEM_CNTRL;
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
-  } else if (memMode == ECMD_MEM_PROC) {
+  //Setup the target that will be used to query the system config
+  // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
+  if (memMode == ECMD_MEM_MEMCTRL) {
+    target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    target.nodeState = target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
@@ -315,15 +311,11 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   
   }
   //Setup the target that will be used to query the system config 
-  if (memMode == ECMD_MEM_DMA) {
-    target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
-    target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
-  } else if (memMode == ECMD_MEM_MEMCTRL) {
-    target.chipType = ECMD_CHIPT_MEM_CNTRL;
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
-  } else if (memMode == ECMD_MEM_PROC) {
+  // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
+  if (memMode == ECMD_MEM_MEMCTRL) {
+    target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    target.nodeState = target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
