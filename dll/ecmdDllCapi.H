@@ -273,6 +273,8 @@ uint32_t dllUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget>
 
 uint32_t dllUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targetList); 
 
+uint32_t dllUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr); 
+
 uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_target, uint32_t i_thread_seq_num); 
 
 uint32_t dllGetModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
