@@ -151,6 +151,11 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif
     }
 
+    /* Clear out the function table */
+    for (int func = 0; func < ECMD_NUMFUNCTIONS; func ++) {
+      DllFnTable[func] = NULL;
+    }
+
     /* Now we need to call loadDll on the dll itself so it can initialize */
 
     uint32_t (*Function)(const char *,uint32_t) = 
@@ -249,10 +254,6 @@ uint32_t ecmdUnloadDll() {
   }
   dlHandle = NULL;
 
-  /* Clear out the function table so we look everything up again */
-  for (int func = 0; func < ECMD_NUMFUNCTIONS; func ++) {
-    DllFnTable[func] = NULL;
-  }
 
 #endif
 
