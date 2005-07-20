@@ -1476,9 +1476,9 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
       } else { return rc;}
 
       /* Couldn't find it in the hash file, try a straigh linear search */
-      if (!foundSpy) {
+      /*if (!foundSpy) {
         foundSpy = dllLocateSpy(spyFile, returnSpy.name);
-      }
+      }*/
 
       /* If we made it here, we got nothing.. */
       if (!foundSpy) {
