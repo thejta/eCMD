@@ -266,7 +266,7 @@ Here is an example usage of the ecmdDataBuffer:
 
   # Read data from the chip
   my $rc = 0;
-  $rc = $ep->getRing($target, "idreg", $data);
+  $rc = getRing($target, "idreg", $data);
 
   # What is in the first word
   print("Data : $data->getWord(0));
@@ -276,7 +276,7 @@ Here is an example usage of the ecmdDataBuffer:
   printf("Data : %s",$data->getWord(0));
 
   # Write my new value to the chip
-  $rc = $ep->putRing($target, "idreg", $data);
+  $rc = putRing($target, "idreg", $data);
 </pre>
 
  <b>WARNING: </b> The '=' operator DOES NOT work between ecmdDataBuffer's or any other structure like you would expect it to in C. See 'Perl API Usage' below
@@ -302,7 +302,7 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
   $target->{pos} = 1;
   $target->{core} = 0;
 
-  $rc = $ep->putRing($target, "idreg", $data);
+  $rc = putRing($target, "idreg", $data);
 
 </pre>
  <b>WARNING: </b> The '=' operator DOES NOT work between ecmdChipTarget's or any other structure like you would expect it to in C. See 'Perl API Usage' below
