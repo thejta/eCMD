@@ -269,11 +269,11 @@ Here is an example usage of the ecmdDataBuffer:
   $rc = getRing($target, "idreg", $data);
 
   # What is in the first word
-  print("Data : $data->getWord(0));
+  printf("Data : %.08X",$data->getWord(0));
 
   #Change the value
   $data->setWord(0,0xAAAA5555);
-  printf("Data : %s",$data->getWord(0));
+  printf("Data : %.08X",$data->getWord(0));
 
   # Write my new value to the chip
   $rc = putRing($target, "idreg", $data);
