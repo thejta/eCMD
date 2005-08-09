@@ -1485,6 +1485,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
     } else if((!strcmp(variableType,"std::string"))       ||
               (!strcmp(variableType,"const std::string")) ||
+              (!strcmp(variableType,"const std::string &")) ||
               (!strcmp(variableType,"std::string&"))      ||
               (!strcmp(variableType,"std::string &"))       ){
 /* std::string */
