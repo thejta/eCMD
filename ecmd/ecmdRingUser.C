@@ -653,7 +653,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
         curOutputFormat = outputformat;
 
       /* Let's extract the piece the user wanted */
-      rc = latchit->buffer.extract(buffer, curStartBit, curNumBits ); if (rc) return rc;
+      rc = latchit->buffer.extract(buffer, curStartBit - latchit->latchStartBit, curNumBits ); if (rc) return rc;
 
       if (expectFlag) {
 
