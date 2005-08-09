@@ -2129,24 +2129,9 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
       std::string bitDescStr;
       for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
   	sprintf(bitDesc, "%32s ", " ");
-  	//Would print the entires string no matter how long it is
-  	//bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
-  	//ecmdOutput(bitDescStr.c_str());
-
-  	std::string tmpstr;
-  	uint32_t curptr =0, len, maxdesclen=80;
-  	while (curptr < (*bitDetIt).length()) {
-  	  if (((*bitDetIt).length() - curptr) < maxdesclen) {
-  	   len = (*bitDetIt).length() - curptr;
-  	  }
-  	  else {
-  	   len = maxdesclen;
-  	  }
-  	  tmpstr = (*bitDetIt).substr(curptr,len);
-  	  bitDescStr = (std::string)bitDesc + tmpstr + "\n";
-  	  ecmdOutput(bitDescStr.c_str());
-  	  curptr += len;
-  	}
+  	//Would print the entire string no matter how long it is
+  	bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
+  	ecmdOutput(bitDescStr.c_str());
  
       }//end for
     }//end if 
