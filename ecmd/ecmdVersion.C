@@ -68,9 +68,17 @@ int main (int argc, char *argv[])
 {
   uint32_t rc = 0;
 
+
+  /* Fix for defect 18174, if we are running the eCMD dev release, we can't query the dll version we just have to return dev here to pick up all the proper supporting files, hopefully the dll will be happy with that, if not it will be found when the real dll is loaded */
+#ifdef ECMD_DEV
+  printf("dev");
+#else 
+
   /* This is going to be real simple, we just call the dll and it does all the work */
   /* Pass in any args we may have, if argv[1] is null that is handled properly */
   rc = ecmdCheckDllVersion(argv[1]);
+#endif
+
   return rc;
 }
 
