@@ -156,7 +156,7 @@ struct ecmdLooperData {
   std::list<ecmdChipTarget>::iterator curUnitIdTarget;  ///< Pointer to current unitid target
 };
 
-
+#ifndef DOCUMENTATION
 /**
  @brief Used by the eCMD Function parm trace printer
 */
@@ -168,7 +168,7 @@ typedef enum {
   ECMD_FPP_JUSTIN,                      ///< Designatest the call in of the api function in debug 8 mode
   ECMD_FPP_JUSTOUT                      ///< Designatest the call out of the api function in debug 8 mode and rc==0
 } efppInOut_t;
-
+#endif
 
 
 
