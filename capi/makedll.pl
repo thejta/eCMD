@@ -257,6 +257,9 @@ while (<IN>) {
 	$printout .= "     if (".$DllFnTable."[$enumname] == NULL) {\n";
 
         $printout .= "       fprintf(stderr,\"$funcname : Unable to find $funcname function, must be an invalid DLL - program aborting\\n\"); \n";
+        # Defect 20342, display dll info in case of invalid symbol
+        $printout .= "       ecmdDisplayDllInfo();\n";
+
         $printout .= "       exit(ECMD_DLL_INVALID);\n";
 
 	$printout .= "     }\n";
