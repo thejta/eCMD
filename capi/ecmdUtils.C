@@ -2283,3 +2283,22 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
 
 
 
+/**
+ @brief Registers an extensions initstate pointer defect #18081
+ @param i_initState Pointer to initState static so it can be reset later
+ */
+static std::list<bool*> g_initPtrs;
+void ecmdRegisterExtensionInitState(bool* i_initState) {
+  if (find(g_initPtrs.begin(), g_initPtrs.end(), i_initState) == g_initPtrs.end()) {
+    g_initPtrs.push_back(i_initState);
+  }
+}
+
+/**
+ @brief Reset Extension initstate pointer to uninitialized
+*/
+void ecmdResetExtensionInitState() {
+  for (std::list<bool*>::iterator ptrit = g_initPtrs.begin(); ptrit != g_initPtrs.end(); ptrit ++) {
+    *(*ptrit) = false;
+  }
+}

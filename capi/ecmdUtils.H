@@ -271,10 +271,45 @@ uint32_t ecmdDisplayDllInfo();
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format);
 #endif
 
+//@}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/***** INTERNAL eCMD UTILITY FUNCTIONS NOT FOR CLIENT USE ******/
+
+
+#ifndef DOCUMENTATION
 #if !defined(ECMD_STRIP_DEBUG) && !defined(ECMD_PERLAPI)
 /**
  @brief Print the parameters pass to a given function.
- @retval Void return
  @param tCount is the trace count.
  @param inOut Tell Parm Printer if we are going into or out of the function
  @param fprototypeStr function prototype
@@ -283,8 +318,21 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
 void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
 #endif
 
+/**
+ @brief Registers an extensions initstate pointer defect #18081
+ @param i_initState Pointer to initState static so it can be reset later
+ */
+void ecmdRegisterExtensionInitState(bool* i_initState);
+
+/**
+ @brief Reset Extension initstate pointer to uninitialized
+*/
+void ecmdResetExtensionInitState();
 
 
-//@}
+#endif
+
+/***** END INTERNAL eCMD UTILITY FUNCTIONS NOT FOR CLIENT USE ******/
+
 
 #endif

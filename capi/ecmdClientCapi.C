@@ -257,6 +257,9 @@ uint32_t ecmdUnloadDll() {
 
 #endif
 
+  /* Go reset all the extensions so they know we have been unloaded */
+  ecmdResetExtensionInitState();
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
     printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
