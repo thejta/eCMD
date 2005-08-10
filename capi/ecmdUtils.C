@@ -38,6 +38,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <algorithm>
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
