@@ -119,7 +119,7 @@ all: dir ${TARGET} ${VER_TARGET}
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${VER_TARGET} export/
 
-clean:
+clean objclean:
 	rm -rf ${SUBDIR}
 
 dir:
