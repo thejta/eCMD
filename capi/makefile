@@ -116,6 +116,9 @@ clean:
 	rm -f ecmdDllCapi.H
 	rm -f ecmdClientEnums.H
 
+objclean:
+	rm -rf ${SUBDIR} 
+
 
 dir:
 	@mkdir -p ${SUBDIR}

@@ -128,6 +128,10 @@ clean:
 	rm -f ecmdClientPerlapiIterators.H
 	rm -f ecmdRename.i
 
+objclean:
+	rm -rf ${SUBDIR}
+	rm -f *.o
+
 dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p ${OS}

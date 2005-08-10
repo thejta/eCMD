@@ -69,7 +69,7 @@ all: dir ${TARGET}
 	@cp -p ../capi/${EXTENSION_NAME}ClientCapi.H ../capi/${EXTENSION_NAME}Structs.H  export/
 
 
-clean:
+clean objclean:
 	rm -rf ${SUBDIR}
 
 dir:

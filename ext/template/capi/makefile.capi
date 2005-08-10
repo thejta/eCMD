@@ -82,6 +82,9 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
 endif
 	rm -f ${EXTENSION_NAME}ClientEnums.H
 
+objclean:
+	rm -rf ${SUBDIR}
+
 dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p export
