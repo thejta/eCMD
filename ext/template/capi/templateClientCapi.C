@@ -34,7 +34,10 @@
 #include <dlfcn.h>
 
 #include <ecmdReturnCodes.H>
+#include <ecmdUtils.H>
+
 #include <templateClientCapi.H>
+#include <templateClientEnums.H>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -93,9 +96,18 @@ uint32_t templateInitExtension() {
       if (!rc) templateInitialized = true;
     }
 
+    /* Clear out the function table */
+    for (int func = 0; func < TEMPLATE_NUMFUNCTIONS; func ++) {
+      templateDllFnTable[func] = NULL;
+    }
+
   }
   
 #endif
+
+  /* Now as part of defect 18081 we register to the core client that we have been initialized */
+  ecmdRegisterExtensionInitState(&templateInitialized);
+
   return rc;
 
 }
