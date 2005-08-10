@@ -7,7 +7,7 @@ Syntax: makespsystemcall <Command>    [-k#] [-n#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        Command         Command to run on the SE/SP
+        Command         Command to run on the SE/SP. For best results place command in ""'s
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
@@ -17,4 +17,4 @@ Syntax: makespsystemcall <Command>    [-k#] [-n#]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > makespsystemcall ls
+        Examples:       > makespsystemcall "ls"
