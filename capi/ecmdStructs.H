@@ -1022,6 +1022,17 @@ inline ecmdNameVectorEntry::~ecmdNameVectorEntry() { }
 #endif
 
 /**
+ @brief Used by ???? function to pass data
+*/
+struct ecmdIndexVectorEntry {
+  // Members
+  int            index;                 ///< Index of entry
+  std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
+  uint32_t       rc;                    ///< Error code in retrieving this entry
+};
+
+
+/**
  @brief Used by get/put Gpr/Fpr Multiple function to pass data
 */
 struct ecmdIndexEntry {
