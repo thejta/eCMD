@@ -113,5 +113,7 @@ Syntax: ecmd
         --------------------------------------------------------------------------------
 
         crodmarandtest           
+        crogetconfig             
+        crosetconfig             
 
 
