@@ -1289,5 +1289,6 @@ class ecmdOptimizableDataBuffer : public ecmdDataBuffer {
      ~ecmdOptimizableDataBuffer() {}
 };
 
+  //@}
 
 #endif  /* ecmdDataBuffer_H */
