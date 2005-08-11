@@ -107,6 +107,7 @@ Syntax: ecmd
         --------------------------------------------------------------------------------
 
         eipgetslb                
+        eipproccleanup           
 
 
         Cronus Extensions:
