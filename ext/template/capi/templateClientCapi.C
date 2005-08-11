@@ -37,7 +37,9 @@
 #include <ecmdUtils.H>
 
 #include <templateClientCapi.H>
+#ifndef ECMD_STATIC_FUNCTIONS
 #include <templateClientEnums.H>
+#endif
 
 //----------------------------------------------------------------------
 //  User Types
