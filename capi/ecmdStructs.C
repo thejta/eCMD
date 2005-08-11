@@ -3412,6 +3412,33 @@ void  ecmdNameVectorEntry::printStruct() {
 
 
 /*
+ * The following methods for the ecmdIndexVectorEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdIndexVectorEntry::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdIndexVectorEntry::printStruct() {
+
+        printf("\n\t--- Index Vector Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+/*
  * The following methods for the ecmdLatchEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
