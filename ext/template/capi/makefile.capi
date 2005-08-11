@@ -24,7 +24,7 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
   INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}DllCapi.H ${EXTENSION_NAME}ClientEnums.H
 endif
 
-DEFINES      := 
+#DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -I../../../capi/export -g
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}ClientCapi.C ${AUTOGEN_SOURCE}
