@@ -14,7 +14,7 @@ SITE         := $(shell fs wscell | cut -d\' -f2)
 INCLUDES     := ${EXTENSION_NAME}Interpreter.H 
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
 
-DEFINES      := 
+#DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -I../../../capi/export -I../capi/export -I../../../ecmd/ -g
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
