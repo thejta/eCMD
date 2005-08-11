@@ -1025,11 +1025,39 @@ inline ecmdNameVectorEntry::~ecmdNameVectorEntry() { }
  @brief Used by ???? function to pass data
 */
 struct ecmdIndexVectorEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdIndexVectorEntry();
+
+  // Destructor
+  ~ecmdIndexVectorEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
   // Members
   int            index;                 ///< Index of entry
   std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
+
+#ifndef DOCUMENTATION
+// ecmdIndexEntry Constructor
+inline ecmdIndexVectorEntry::ecmdIndexVectorEntry():
+index(0),
+rc(0)
+{
+}
+
+// ecmdIndexEntry Destructor
+inline ecmdIndexVectorEntry::~ecmdIndexVectorEntry() { }
+#endif
 
 
 /**
