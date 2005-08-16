@@ -115,6 +115,12 @@ Syntax: ecmd
 
         crodmarandtest           
         crogetconfig             
+        crogetl2data             
+        crogetl2dir              
+        crogetl2                 
+        croputl2data             
+        croputl2dir              
+        croputl2                 
         crosetconfig             
 
 
