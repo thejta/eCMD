@@ -29,7 +29,7 @@ else
 endif
 
 
-VPATH        := ${VPATH}../../../ecmd/${OBJDIR} $(foreach ext, ${EXTENSIONS},:../../${ext}/cmd/${OBJDIR}:../../${ext}/capi/${OBJDIR})
+VPATH        := ${VPATH}../../../ecmd/${OBJDIR} $(foreach ext, ${EXTENSIONS},:../../${ext}/cmd/${OBJDIR}:../../${ext}/capi/${OBJDIR}:../../${ext}/capi/export:../../${ext}/cmd/export)
 # We need to tack on a seperator to get the vpath right in makefile.capi
 VPATH          := ${VPATH}:
 
@@ -38,7 +38,8 @@ empty :=
 space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
-INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
+# These are includes not to be exported
+INT_INCLUDES     := ${INT_INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
 CFLAGS       := ${CFLAGS} -I../../../capi/export -I../../../ecmd
 #######################

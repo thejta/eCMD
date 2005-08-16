@@ -11,8 +11,9 @@ EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
-INCLUDES     := ${EXTENSION_NAME}Interpreter.H 
-INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
+INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}Interpreter.H 
+CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
+INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
 
 #DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -I../../../capi/export -I../capi/export -I../../../ecmd/ -g
@@ -66,7 +67,7 @@ all: dir ${TARGET}
 	@echo "Exporting ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${INCLUDES} export/
-	@cp -p ../capi/${EXTENSION_NAME}ClientCapi.H ../capi/${EXTENSION_NAME}Structs.H  export/
+	@cp -p  $(foreach file, ${CAPI_INCLUDES}, ../capi/${file}) export/
 
 
 clean objclean:
