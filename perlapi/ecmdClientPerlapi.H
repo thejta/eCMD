@@ -78,7 +78,7 @@ namespace ECMDPERLAPI {
    @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
    @retval ECMD_SUCCESS if successful
    @retval nonzero if unsuccessful
-   @param i_argv Passed from Command line Arguments
+   @param io_argv Passed from Command line Arguments
    @pre initDll must have been called
    @post Global options (ex. -p#, -c#) will be removed from arg list
    @see initDll
@@ -93,7 +93,7 @@ namespace ECMDPERLAPI {
 
    */
 
-  int ecmdCommandArgs(char** i_argv); 
+  int ecmdCommandArgs(char** io_argv); 
 
   //@}
 
