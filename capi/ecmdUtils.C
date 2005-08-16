@@ -354,12 +354,24 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         valid = 0;
         freshLoop = true;
 
-        if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end()) {
-          io_target.node = 0;
-        }
-        else {
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.nodeState == ECMD_TARGET_FIELD_UNUSED) || 
+            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
+            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end()))) {
+          io_target.core = 0;
+          io_target.thread = 0;
+
+          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
           level = NODE;
         }
+
 
       }
       else {
@@ -396,12 +408,24 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         valid = 0;
         freshLoop = true;
 
-        if (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end()) {
-          io_target.slot = 0;
-        }
-        else {
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.slotState == ECMD_TARGET_FIELD_UNUSED) || 
+            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
+            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end()))) {
+          io_target.core = 0;
+          io_target.thread = 0;
+
+          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
           level = SLOT;
         }
+
 
       }
       else if (valid) {
@@ -440,13 +464,27 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         valid = 0;
         freshLoop = true;
 
-        if (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_target.posState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end()) {
+
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) || 
+            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
+            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end()))) {
           io_target.chipType = "";
           io_target.pos = 0;
-        }
-        else {
+          io_target.core = 0;
+          io_target.thread = 0;
+
+          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
           level = CHIP;
         }
+
 
       }
       else if (valid) {
@@ -476,8 +514,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
           /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
           /* Increment the iterators to point to the next target */
           ecmdIncrementLooperIterators(level, io_state);
-          /* Restart the process */
-          io_state.prevTarget = io_target;
           continue;
         }
 
@@ -488,11 +524,21 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         valid = 0;
         freshLoop = true;
 
-        if (io_target.coreState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end()) {
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED) || 
+            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
+            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end()))) {
           io_target.core = 0;
           io_target.thread = 0;
-        }
-        else {
+
+          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
           level = CORE;
         }
 
@@ -531,12 +577,24 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         valid = 0;
         freshLoop = true;
 
-        if (io_target.threadState == ECMD_TARGET_FIELD_UNUSED || io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end()) {
+
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) || 
+            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
+            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end()))) {
           io_target.thread = 0;
-        }
-        else {
+
+          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
           level = THREAD;
         }
+
 
       }
       else if (valid) {
@@ -572,12 +630,18 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 #endif
 
 
+  /* We are through the first init loop */
   if (io_state.ecmdLooperInitFlag) {
     io_state.ecmdLooperInitFlag = false;
   }
-  /* Store away the target */
-  io_state.prevTarget = io_target;
 
+  /* Only store away the target in variable depth mode, that way we don't loose the original state of the target passed to looperinit */
+  if (io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) {
+    /* Store away the target */
+    io_state.prevTarget = io_target;
+  }
+
+  /* We got here, we have more to do, let's tell the client */
   rc =1;
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
