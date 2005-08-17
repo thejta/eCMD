@@ -1489,8 +1489,8 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(nodeId);
 		i_len -= sizeof(nodeId);
 
-		memcpy(&nodeId, l_ptr, sizeof(unitId));
-		nodeId = ntohl(unitId);
+		memcpy(&unitId, l_ptr, sizeof(unitId)); //@03 chg dest from nodeId to unitId
+		unitId = ntohl(unitId);                 //@03 chg dest from nodeId to unitId
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
@@ -3506,7 +3506,7 @@ void  ecmdProcRegisterInfo::printStruct() {
 //  none F494212       03/06/05 baiocchi Added flatten/unflatten/flattenSize/printStruct
 //                                        for ecmdRingData and ecmdArrayData
 //  none F497173       03/18/05 scottw   Added printStruct for ecmdArrayEntry
-//
+//  @03  D516687       08/16/05 prahl    fix ecmdNodeData::unflatten method
 // End Change Log *****************************************************
 
 
