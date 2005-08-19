@@ -210,7 +210,7 @@ In a CTE only environment
  if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
  export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
  export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
- export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/`ecmdVersion`/perlapi/`uname`/;
+ export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/$ECMD_RELEASE/perlapi/`uname`/:$CTEPERLLIB;
 
  exec $CTEPERLBIN -x -S $0 ${1+"$@"}
  '
