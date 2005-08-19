@@ -2160,7 +2160,7 @@ uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
   This interface allows you to deconfigure all levels cages, nodes, slots, pos's, cores
 
  TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET STATES : Must be Initialized
 
 */
 uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
@@ -2179,7 +2179,7 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
   This interface allows you to configure all levels cages, nodes, slots, pos's, cores
 
  TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET STATES : Must be Initialized
 
 */
 uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
