@@ -178,6 +178,16 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
 
     io_state.ecmdUseUnitid = false;
+
+    /* If they passed in the wrong unused state field we will fix for them */
+    if (io_target.cageState == ECMD_TARGET_QUERY_IGNORE)        io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+    if (io_target.nodeState == ECMD_TARGET_QUERY_IGNORE)        io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+    if (io_target.slotState == ECMD_TARGET_QUERY_IGNORE)        io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+    if (io_target.chipTypeState == ECMD_TARGET_QUERY_IGNORE)    io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if (io_target.posState == ECMD_TARGET_QUERY_IGNORE)         io_target.posState = ECMD_TARGET_FIELD_UNUSED;
+    if (io_target.coreState == ECMD_TARGET_QUERY_IGNORE)        io_target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    if (io_target.threadState == ECMD_TARGET_QUERY_IGNORE)      io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
     queryTarget = io_target;
 
 
