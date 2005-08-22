@@ -1240,6 +1240,43 @@ struct ecmdMemoryEntry {
   ecmdDataBuffer tags;
 };
 
+/**
+ @brief Used by simGetModelInfo
+*/
+struct ecmdSimModelInfo {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdSimModelInfo();
+
+  // Destructor
+  ~ecmdSimModelInfo();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  char modelname[255];
+  char modeldate[255];
+  char modeltime[255];
+  char multivalue;  // > 0 -> multivalue, == 0 -> 2-state
+};
+
+#ifndef DOCUMENTATION
+// ecmdSimModelInfo Constructor
+inline ecmdSimModelInfo::ecmdSimModelInfo()
+{
+}
+
+// ecmdSimModelInfo Destructor
+inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
+#endif
+
+
 
 #ifndef ECMD_PERLAPI
 /* @name Operators */
