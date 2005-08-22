@@ -1996,6 +1996,43 @@ uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
 */
 uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
 
+
+/**
+ @brief Obtain absolute filename of a file that will be placed in the SIMOUT directory of the server / Fusion process and add new file to the bom information in the SUM file
+ @param filename i_filename (w/o path information) of the file to create / lookup in the SIMOUT directory
+ @param o_absFilename will contain the absolute filename upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simGetOutFile(const char* i_filename, std::string & o_absFilename);
+
+/**
+ @brief Resolve absolute filename of a file by searching the SIMIN paths and add new file to the bom information in the SUM file
+ @param i_filename name (w/o path information) of the file to lookup in the SIMIN directories
+ @param o_absFilename will contain the absolute filename upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simGetInFile(const char* i_filename, std::string & o_absFilename);
+
+/**
+ @brief Retrieve value of an environment variable on the server side
+ @param i_envName name of environment variable to retrieve
+ @param o_envValue will contain the envvar's value upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simGetEnvironment(const char* i_envName, std::string & o_envValue);
+
+/**
+ @brief Query information about the model from the server
+ @param o_modelInfo pointer to a user-provided sd_model_info struct; SDAPI will fill the members of this struct upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ 
+ */
+uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
+
 #endif /* ifndef REMOVE_SIM */
 //@}
 /* End Simulation Functions */

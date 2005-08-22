@@ -3492,6 +3492,34 @@ void  ecmdProcRegisterInfo::printStruct() {
 }
 #endif  // end of REMOVE_SIM
 
+/*
+ * The following methods for the ecmdSimModelInfo struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdSimModelInfo::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdSimModelInfo::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdSimModelInfo::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdSimModelInfo::printStruct() {
+
+        printf("\n\t--- Proc Register Info Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
+
 
 // Change Log *********************************************************
 //                                                                      
