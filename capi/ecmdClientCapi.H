@@ -1999,7 +1999,7 @@ uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
 
 /**
  @brief Obtain absolute filename of a file that will be placed in the SIMOUT directory of the server / Fusion process and add new file to the bom information in the SUM file
- @param filename i_filename (w/o path information) of the file to create / lookup in the SIMOUT directory
+ @param i_filename filename (w/o path information) of the file to create / lookup in the SIMOUT directory
  @param o_absFilename will contain the absolute filename upon successful return from the call
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
