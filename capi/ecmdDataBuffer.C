@@ -2179,10 +2179,12 @@ uint32_t ecmdDataBuffer::flattenSize() const {
 uint32_t  ecmdDataBuffer::flushToX(char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (iv_DataStr == NULL) {
+#ifndef REMOVE_SIM
+ if (iv_DataStr == NULL) {
     ETRAC0("**** ERROR : ecmdDataBuffer::flushToX: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
+#endif
 
   if (iv_NumWords > 0) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
@@ -2824,10 +2826,12 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
    }
   } 
   else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
+#ifndef REMOVE_SIM
   if (iv_DataStr == NULL) {
     ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
+#endif
    while ((uint32_t)szcount < numBits) {
      if((uint32_t)szcount+64 < numBits) {
       xstatestr = genXstateStr(szcount, 64) ;
