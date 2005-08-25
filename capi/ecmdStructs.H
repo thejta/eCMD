@@ -1263,7 +1263,7 @@ struct ecmdSimModelInfo {
   char modelname[255];
   char modeldate[255];
   char modeltime[255];
-  char multivalue;  // > 0 -> multivalue, == 0 -> 2-state
+  char multivalue;  ///<   !=0  multivalue, ==0  2-state
 };
 
 #ifndef DOCUMENTATION
