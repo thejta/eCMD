@@ -341,8 +341,8 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   //Setup the target that will be used to query the system config
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
 
@@ -507,8 +507,8 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   //Setup the target that will be used to query the system config
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("putcfam - Non-hex characters detected in address field\n");
