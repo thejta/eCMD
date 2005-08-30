@@ -1356,9 +1356,9 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
       }
 
       /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
-      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (i_startBit <= curLatchInfo->latchEndBit) && (i_startBit + i_data.getBitLength() >= curLatchInfo->latchStartBit)) ||
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (i_startBit <= curLatchInfo->latchEndBit) && ((i_startBit + i_data.getBitLength() - 1) >= curLatchInfo->latchStartBit)) ||
           /* Check if the bits are ordered to:from (10:0) */
-          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (i_startBit <= curLatchInfo->latchStartBit) && (i_startBit + i_data.getBitLength() >= curLatchInfo->latchEndBit))) {
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (i_startBit <= curLatchInfo->latchStartBit) && ((i_startBit + i_data.getBitLength() - 1) >= curLatchInfo->latchEndBit))) {
 
         if (i_startBit < curLatchInfo->latchStartBit) {
           /* If the data started before this entry */
@@ -1368,6 +1368,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
           curStartBitToInsert = (curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) ? i_startBit - curLatchInfo->latchStartBit : i_startBit - curLatchInfo->latchEndBit;
         }
         bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < (uint32_t) curBitsToInsert) ? curLatchInfo->length - curStartBitToInsert : curBitsToInsert;
+
 
 
         /* ********* */
