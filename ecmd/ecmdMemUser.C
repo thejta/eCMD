@@ -394,19 +394,19 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       } else if (memMode == ECMD_MEM_PROC) {
         rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       }
-    }
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-      printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
-      printLine += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printLine.c_str() );
-      return rc;
-    }
-    else {
-      validPosFound = true;     
+
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      }
+      else if (rc) {
+        printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
+        printLine += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printLine.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
     }
 
     // Write out who we wrote too
