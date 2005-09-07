@@ -1,13 +1,14 @@
 
-Syntax: makespsystemcall <Command>    [-k#] [-n#]
+Syntax: makespsystemcall "<Command>"    [-k#] [-n#]
 
         ECMD:           Core Common Function
 
         Function:       Run a command on the SE/SP and print the output to stdout.
-
+	
         Parameters:
         --------------------------------------------------------------------------------
-        Command         Command to run on the SE/SP. For best results place command in ""'s
+        Command         Command to run on the SE/SP. Place command in ""'s to avoid it 
+			being parsed.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
