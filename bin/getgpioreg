@@ -34,7 +34,7 @@ fi
 # big command line.
 # ***************************************************************************
 #this is the cmd that will actually be run
-$ecmd_exe $filename $*
+$ecmd_exe $filename "$@"
 
 # the script returns with the value of the the last executed cmd...in this case, the actual eCMD
 
