@@ -131,10 +131,11 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     args.push_back((void*) &io_target);
     args.push_back((void*) &i_looptype);
     args.push_back((void*) &io_state);
+    args.push_back((void*) &i_mode);
     args.push_back((void*) &rc);
     fppCallCount++;
     myTcount = fppCallCount;
-    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode)",args);
   }
 
 #endif
@@ -244,9 +245,10 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     args.push_back((void*) &io_target);
     args.push_back((void*) &i_looptype);
     args.push_back((void*) &io_state);
+    args.push_back((void*) &i_mode);
     args.push_back((void*) &rc);
 
-    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state)",args);
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode)",args);
   }
 
 #endif
