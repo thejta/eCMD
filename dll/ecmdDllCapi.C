@@ -433,8 +433,12 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
     return ECMD_SUCCESS;
   }
 
+  /* If the state is already valid we just continue on */
+  if (i_target.cageState == ECMD_TARGET_QUERY_FIELD_VALID) {
+      cageType = SINGLE;
+    
   /* If the user specified -all or -kall we will do everything */
-  if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
+  } else if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
     i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
     cageType = ALL;
   }
@@ -478,7 +482,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //node
-  if (i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) {
+  /* If the state is already valid we just continue on */
+  if (i_target.nodeState == ECMD_TARGET_QUERY_FIELD_VALID) {
+      nodeType = SINGLE;
+
+  } else if (i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.node == allFlag)) {
       i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
       nodeType = ALL;
@@ -516,7 +524,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //slot
-  if (i_target.slotState != ECMD_TARGET_QUERY_IGNORE) {
+  /* If the state is already valid we just continue on */
+  if (i_target.slotState == ECMD_TARGET_QUERY_FIELD_VALID) {
+      slotType = SINGLE;
+
+  } else if (i_target.slotState != ECMD_TARGET_QUERY_IGNORE) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.slot == allFlag)) {
       i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
       slotType = ALL;
@@ -554,7 +566,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //position
-  if (i_target.posState != ECMD_TARGET_QUERY_IGNORE) {
+  /* If the state is already valid we just continue on */
+  if (i_target.posState == ECMD_TARGET_QUERY_FIELD_VALID) {
+      posType = SINGLE;
+
+  } else if (i_target.posState != ECMD_TARGET_QUERY_IGNORE) {
 
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.pos == allFlag)) {
       posType = ALL;
@@ -593,7 +609,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //core
-  if (i_target.coreState != ECMD_TARGET_QUERY_IGNORE) {
+  /* If the state is already valid we just continue on */
+  if (i_target.coreState == ECMD_TARGET_QUERY_FIELD_VALID) {
+      coreType = SINGLE;
+
+  } else if (i_target.coreState != ECMD_TARGET_QUERY_IGNORE) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.core == allFlag)) {
       i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
       coreType = ALL;
@@ -631,7 +651,11 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   }
 
   //thread
-  if (i_target.threadState != ECMD_TARGET_QUERY_IGNORE) {
+  /* If the state is already valid we just continue on */
+  if (i_target.threadState == ECMD_TARGET_QUERY_FIELD_VALID) {
+      threadType = SINGLE;
+
+  } else if (i_target.threadState != ECMD_TARGET_QUERY_IGNORE) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.thread == allFlag) || (ecmdUserArgs.thread == "alive")) {
       i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
       threadType = ALL;

@@ -237,6 +237,14 @@ uint32_t dllSimPutDial(const char* i_dialName, const std::string i_enumValue);
 
 uint32_t dllSimGetDial(const char* i_dialName, std::string & o_enumValue); 
 
+uint32_t dllSimGetOutFile(const char* i_filename, std::string & o_absFilename); 
+
+uint32_t dllSimGetInFile(const char* i_filename, std::string & o_absFilename); 
+
+uint32_t dllSimGetEnvironment(const char* i_envName, std::string & o_envValue); 
+
+uint32_t dllSimGetModelInfo(ecmdSimModelInfo& o_modelInfo); 
+
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
