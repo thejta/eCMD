@@ -36,6 +36,14 @@
   #include "cipClientPerlapi.H"
   #include "cipClientPerlapiFunc.H"
 #endif
+#ifdef ECMD_GIP_EXTENSION_SUPPORT
+  #include "gipClientPerlapi.H"
+  #include "gipClientPerlapiFunc.H"
+#endif
+#ifdef ECMD_CRO_EXTENSION_SUPPORT
+  #include "croClientPerlapi.H"
+  #include "croClientPerlapiFunc.H"
+#endif
 #include "cmdClientPerlapi.H"
 #include "cmdClientPerlapiFunc.H"
 
@@ -88,6 +96,14 @@
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
   %include cipClientPerlapi.H
   %include cipClientPerlapiFunc.H
+#endif
+#ifdef ECMD_GIP_EXTENSION_SUPPORT
+  %include gipClientPerlapi.H
+  %include gipClientPerlapiFunc.H
+#endif
+#ifdef ECMD_CRO_EXTENSION_SUPPORT
+  %include croClientPerlapi.H
+  %include croClientPerlapiFunc.H
 #endif
 %include "cmdClientPerlapi.H"
 %include "cmdClientPerlapiFunc.H"

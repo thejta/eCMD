@@ -188,6 +188,15 @@ namespace ECMDPERLAPI {
  <li> cmdClientPerlapi.H </li>
  </ul>
 
+ GIP (GFW IP Series) Extension<br>
+ <ul>
+ <li> gipClientPerlapi.H </li>
+ </ul>
+
+ CRO (Cronus) Extension<br>
+ <ul>
+ <li> croClientPerlapi.H </li>
+ </ul>
 
 
  <br><br>
