@@ -197,52 +197,53 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
       entries.push_back(entry);
 
-      /* Increment for the next one */
-      // Can't hit initialized error for add_buffer that Beam calls out.  So
-      // tell it to ignore that message with the comment on the following line.
-      if (add_buffer[address.getWordLength()-1] == add_mask) {/*uninitialized*/
-        /* We are going to rollover */
-        if (address.getWordLength() == 1) {
-          printed = "getarray - Address overflow on " + arrayName + " ";
-          printed += ecmdWriteTarget(target) + "\n";
-          ecmdOutputError( printed.c_str() );
-          // Clean up allocated memory
-          if (add_buffer)                                                //@01a
-          {
+      /* Increment for the next one, if we have more to go */
+      if ((idx + 1) < numEntries) {
+        // Can't hit initialized error for add_buffer that Beam calls out.  So
+        // tell it to ignore that message with the comment on the following line.
+        if (add_buffer[address.getWordLength()-1] == add_mask) {/*uninitialized*/
+          /* We are going to rollover */
+          if (address.getWordLength() == 1) {
+            printed = "getarray - Address overflow on " + arrayName + " ";
+            printed += ecmdWriteTarget(target) + "\n";
+            ecmdOutputError( printed.c_str() );
+            // Clean up allocated memory
+            if (add_buffer)                                                //@01a
+            {
               delete[] add_buffer;
-          }
-          return ECMD_DATA_OVERFLOW;
-        }
-
-        add_buffer[address.getWordLength()-1] = 0;
-        for (int word = address.getWordLength()-2; word >= 0; word --) {
-          if (add_buffer[word] == 0xFFFFFFFF) {
-            /* We are going to rollover */
-            if (word == 0) {
-              printed = "getarray - Address overflow on " + arrayName + " ";
-              printed += ecmdWriteTarget(target) + "\n";
-              ecmdOutputError( printed.c_str() );
-              // Clean up allocated memory
-              if (add_buffer)                                            //@01a
-              {
-                  delete[] add_buffer;
-              }
-              return ECMD_DATA_OVERFLOW;
             }
-            add_buffer[word] = 0;
-          } else {
-            add_buffer[word] ++;
-            /* We took care of the carryover, let's get out of here */
-            break;
+            return ECMD_DATA_OVERFLOW;
           }
-                      
-        }
-      } else {
-        // Beam doesn't pick up add_inc initialization above.  So tell it to
-        // ignore uninitialized error message with comment in line below.
-        add_buffer[address.getWordLength()-1] += add_inc; /*uninitialized*/
-      }
 
+          add_buffer[address.getWordLength()-1] = 0;
+          for (int word = address.getWordLength()-2; word >= 0; word --) {
+            if (add_buffer[word] == 0xFFFFFFFF) {
+              /* We are going to rollover */
+              if (word == 0) {
+                printed = "getarray - Address overflow on " + arrayName + " ";
+                printed += ecmdWriteTarget(target) + "\n";
+                ecmdOutputError( printed.c_str() );
+                // Clean up allocated memory
+                if (add_buffer)                                            //@01a
+                {
+                  delete[] add_buffer;
+                }
+                return ECMD_DATA_OVERFLOW;
+              }
+              add_buffer[word] = 0;
+            } else {
+              add_buffer[word] ++;
+              /* We took care of the carryover, let's get out of here */
+              break;
+            }
+
+          }
+        } else {
+          // Beam doesn't pick up add_inc initialization above.  So tell it to
+          // ignore uninitialized error message with comment in line below.
+          add_buffer[address.getWordLength()-1] += add_inc; /*uninitialized*/
+        }
+      }
     }
   
 
