@@ -619,7 +619,6 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
   int foundit = 0;
   int wordlen = extractbuffer->getWordLength();
   uint32_t mask;
-  int valid = 1;
 
   /*--------------------------------*/
   /* GROUP VERIFICATION  SECTION    */
@@ -854,7 +853,6 @@ uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGro
   This function specification is the same as defined in ecmdClientCapi.H as PutSpy
 */
 uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
-  uint32_t rc = ECMD_SUCCESS;
   dllSpyData fdata;
 
   fdata.dataType = SPYDATA_DATA;
@@ -869,7 +867,6 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
   This function specification is the same as defined in ecmdClientCapi.H as PutSpyEnum
 */
 uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue){
-  uint32_t rc = ECMD_SUCCESS;
 
   dllSpyData fdata;
 
@@ -918,7 +915,6 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
     if (!myAIE.aeiEpcheckers.empty()) {
       std::list<std::string>::iterator eccIter;
       eccIter = myAIE.aeiEpcheckers.begin();
-      uint32_t totalrc = 0;
       while (eccIter != myAIE.aeiEpcheckers.end()) {
         rc = dllPutSpyEcc(i_target, *eccIter);
         if (rc) return rc;
@@ -1401,7 +1397,7 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
     
     /* Now that we have our position in the file, call the parser and read it in */
     std::vector<std::string> errMsgs; /* This should be empty all the time */
-    returnSpy = sedcSpyParser(spyFile, errMsgs, 0, buildflags);
+    returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
     if (!errMsgs.empty()) {
       returnSpy.valid = 0;
     }
@@ -1423,7 +1419,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   std::string spyFilePath;
   std::string spyHashFilePath;
   uint32_t key;
-  std::list<sedcSpyContainer>::iterator searchSpy;
+//  std::list<sedcSpyContainer>::iterator searchSpy;
   std::string spy_name;
   int foundSpy = 0;
   returnSpy.valid = 0;
@@ -1490,7 +1486,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
 
       /* Now that we have our position in the file, call the parser and read it in */
       std::vector<std::string> errMsgs; /* This should be empty all the time */
-      returnSpy = sedcSpyParser(spyFile, errMsgs, 0, buildflags);
+      returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
       if (!errMsgs.empty()) {
         sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",returnSpy.name.c_str());
         dllOutputError(outstr);
@@ -1602,10 +1598,8 @@ int dllLocateSpyHash(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t k
   sedcHashEntry curhash;
   int entrysize = sizeof(struct sedcHashEntry); /* We need this to be able to traverse the binary hash file */
   long filepos;
-  long endpos;
   std::string line;
   int numentries;
-  int linePos;
 
   /* first get the size of the hash file */
   filepos = hashFile.tellg();                   /* get end of file position     */
