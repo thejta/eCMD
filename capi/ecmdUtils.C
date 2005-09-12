@@ -2165,7 +2165,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
     ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
     return rc;
   }
-  scomEntry = sedcScomdefParser(scomdefFile, errMsgs, runtimeFlags);
+  sedcScomdefParser(scomEntry, scomdefFile, errMsgs, runtimeFlags);
 
   std::list< std::string >::iterator descIt;
   std::list<sedcScomdefDefLine>::iterator definIt;
