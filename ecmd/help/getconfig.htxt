@@ -1,6 +1,6 @@
 
-Syntax: getconfig [<ChipSelect>] <ConfigName> [-o<format>] 
-                                  [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: getconfig [<ChipSelect>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+                                 [-dk | -dn | -ds | -dp | -dc]
 
         ECMD:           Core Common Function
 
@@ -30,10 +30,22 @@ Syntax: getconfig [<ChipSelect>] <ConfigName> [-o<format>]
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
 
+        -dk  [optional] Specify cage depth to loop on. When no ChipSelect specified
+                        -dk is default
+
+        -dn  [optional] Specify node depth to loop on. 
+
+        -ds  [optional] Specify slot depth to loop on. 
+
+        -dp  [optional] Specify pos depth to loop on. When ChipSelect specified
+                        -dp is default
+
+        -dc  [optional] Specify core depth to loop on. 
+
         --------------------------------------------------------------------------------
 
-        Examples:       > getconfig SIM_BROADSIDE_MODE 
+        Examples:       > getconfig SIM_BROADSIDE_MODE -dk
                           SIM_BROADSIDE_MODE = none
-                        > getconfig pu PLL_TUNE
+                        > getconfig pu PLL_TUNE -dp
                           pu         k0:n0:s0:p00
                           PLL_TUNE = 3

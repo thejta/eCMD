@@ -1,6 +1,6 @@
 
-Syntax: setconfig [<ChipSelect>] <ConfigName> <Value> [-i<format>] 
-                                  [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: setconfig [<ChipSelect>] <ConfigName> <Value> [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+                                  [-dk | -dn | -ds | -dp | -dc]
 
         ECMD:           Core Common Function
 
@@ -32,7 +32,19 @@ Syntax: setconfig [<ChipSelect>] <ConfigName> <Value> [-i<format>]
         -c#  [optional] Specify which processor core to act on (0 is default). Specify
                         -call to act on all cores.
 
+        -dk  [optional] Specify cage depth to loop on. When no ChipSelect specified
+                        -dk is default
+
+        -dn  [optional] Specify node depth to loop on. 
+
+        -ds  [optional] Specify slot depth to loop on. 
+
+        -dp  [optional] Specify pos depth to loop on. When ChipSelect specified
+                        -dp is default
+
+        -dc  [optional] Specify core depth to loop on. 
+
         --------------------------------------------------------------------------------
 
-        Examples:       > setconfig SIM_BROADSIDE_MODE scan
-                        > setconfig pu PLL_TUNE 3 -id
+        Examples:       > setconfig SIM_BROADSIDE_MODE scan -dk
+                        > setconfig pu PLL_TUNE 3 -id -dp
