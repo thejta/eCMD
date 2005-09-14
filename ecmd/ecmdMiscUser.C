@@ -82,6 +82,9 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperdata;     ///< Store internal Looper data
 
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CORE = 5;
+  int depth = 0;                 ///< depth found from Command line parms
+
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -92,6 +95,12 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     format = formatPtr;
     formatSpecfied = true;
   }
+
+  if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
+  else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
+  else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
+  else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CORE;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -110,19 +119,34 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config
-  if( argc == 2) {
-   target.chipType = argv[0];
-   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-   configName = argv[1];
-  }
-  else {
-   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
-   configName = argv[0];
-  }
 
+  //Setup the target that will be used to query the system config
+  if (argc > 2) {
+    ecmdOutputError("getconfig - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("getconfig - Type 'getconfig -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if( argc == 2) {
+    /* Apply the default depth */
+    if (depth == 0) depth = POS;
+    if (depth < POS) {
+      ecmdOutputError("getconfig - Invalid Depth parm specified when a chipselect was specified.\n");
+      return ECMD_INVALID_ARGS;
+    }     
+    target.chipType = argv[0];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    configName = argv[1];
+  } else {
+    if (depth == 0) depth = CAGE;
+    configName = argv[0];
+  
+  }
+  /* Now set our states based on depth */
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  if (depth == POS)             target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  else if (depth == SLOT)       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  else if (depth == NODE)       target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
   
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
@@ -187,6 +211,8 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperdata;     ///< Store internal Looper data
 
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CORE = 5;
+  int depth = 0;                 ///< depth found from Command line parms
 
   /* get format flag, if it's there */
   std::string format;
@@ -197,6 +223,11 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   else {
     format = formatPtr;
   }
+  if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
+  else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
+  else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
+  else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CORE;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -216,16 +247,27 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config
-  if( argc == 3) {
-   target.chipType = argv[0];
-   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-   configName = argv[1];
-   strcpy(inputVal, argv[2]);
+  if (argc > 3) {
+    ecmdOutputError("getconfig - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("getconfig - Type 'getconfig -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if( argc == 3) {
+    /* Apply the default depth */
+    if (depth == 0) depth = POS;
+    if (depth < POS) {
+      ecmdOutputError("getconfig - Invalid Depth parm specified when a chipselect was specified.\n");
+      return ECMD_INVALID_ARGS;
+    }     
+    target.chipType = argv[0];
+    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    configName = argv[1];
+    strcpy(inputVal, argv[2]);
   }
   else {
-   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
-   configName = argv[0];
-   strcpy(inputVal, argv[1]);
+    if (depth == 0) depth = CAGE;
+    target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+    configName = argv[0];
+    strcpy(inputVal, argv[1]);
   }
   if(format == "a") {
     valueAlpha = inputVal;
@@ -248,6 +290,12 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  /* Now set our states based on depth */
+  if (depth == POS)             target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  else if (depth == SLOT)       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  else if (depth == NODE)       target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
   
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
