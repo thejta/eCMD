@@ -3021,7 +3021,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
     }
-    memCopyIn(buffer, numBytes);
+    rc = memCopyIn(buffer, numBytes); if (rc) return rc;
   } else if ( format == ECMD_SAVE_FORMAT_BINARY_DATA) {
     ins.seekg(0, ios::end);
     numBytes = ins.tellg();
@@ -3037,7 +3037,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     for(uint32_t i=0; i< getWordLength(); i++) {
      buffer[i]=htonl(buffer[i]);
     }
-    memCopyIn(buffer, numBytes);
+    rc = memCopyIn(buffer, numBytes); if (rc) return rc;
   } else if(format ==  ECMD_SAVE_FORMAT_ASCII) {
     ins.width(6); ins >> key; 
     if(strcmp(key,"START")!=0) {
@@ -3062,7 +3062,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       } else {
         hexbitlen = 32;
       }
-      insertFromHexLeft (hexstr, i*32, hexbitlen);
+      rc = insertFromHexLeft (hexstr, i*32, hexbitlen); if (rc) return rc;
       ins.seekg(1,ios::cur);//Space or Newline char
     }
   } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
@@ -3092,7 +3092,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ins.width(65);  ins >> binstr;
       if ((i*64)+64 > numBits) 
         binstr[strlen(binstr)] = '\0'; //strip newline char
-      setXstate(i*64, binstr);
+      rc = setXstate(i*64, binstr); if (rc) return rc;
       ins.seekg(1,ios::cur);// New line char
     }
   }

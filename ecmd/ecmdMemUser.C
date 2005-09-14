@@ -347,7 +347,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      return rc;
     }
     memEntry.address = address;
-    inputData.extract(memEntry.data, 0, inputData.getBitLength());
+    rc = inputData.extract(memEntry.data, 0, inputData.getBitLength()); if (rc) return rc;
     memdata.push_back(memEntry);
     
   } else if(dcardfilename != NULL) {
@@ -365,7 +365,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      return rc;
    }
    memEntry.address = address;
-   inputData.extract(memEntry.data, 0, inputData.getBitLength());
+   rc = inputData.extract(memEntry.data, 0, inputData.getBitLength()); if (rc) return rc;
    memdata.push_back(memEntry);
   }
 
@@ -384,7 +384,11 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
         printLine = cmdlineName + " - Invalid data, must specify an even byte length of data\n";
         ecmdOutputError(printLine.c_str());
         return ECMD_INVALID_ARGS;
-      }
+      } else if (memdataIter->data.getByteLength() == 0) {
+        printLine = cmdlineName + " - Invalid data, byte length of zero detected on incoming data\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }        
 
 
       if (memMode == ECMD_MEM_DMA) {
