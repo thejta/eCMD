@@ -342,7 +342,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if(filename != NULL) {
     rc = inputData.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
     if (rc) {
-     printLine = cmdlineName + " - Problems occurred parsing input data from file" + filename +", must be an invalid format\n";
+     printLine = cmdlineName + " - Problems occurred parsing input data from file " + filename +", must be an invalid format\n";
      ecmdOutputError(printLine.c_str());
      return rc;
     }
@@ -353,7 +353,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   } else if(dcardfilename != NULL) {
     rc = ecmdReadDcard(dcardfilename, memdata);
     if (rc) {
-     printLine = cmdlineName + " - Problems occurred parsing input data from file" + dcardfilename +", must be an invalid format\n";
+     printLine = cmdlineName + " - Problems occurred parsing input data from file " + dcardfilename +", must be an invalid format\n";
      ecmdOutputError(printLine.c_str());
      return rc;
     }
