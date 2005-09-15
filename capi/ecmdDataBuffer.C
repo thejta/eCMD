@@ -2946,8 +2946,9 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
   if (totalFileSz == 0) {
     ETRAC1("**** ERROR : File : %s is empty",filename);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+  } else {
+    ins.seekg(0); // Goto the beginning of the file 
   }
-    
   //Read the DataBuffer offset table-Seek to the right DataBuffer Hdr
   if (i_dataNumber != 0) {
     ecmdFormatType_t existingFmt;
