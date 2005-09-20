@@ -910,7 +910,7 @@ struct ecmdLatchData {
   // Members
   std::string      latchName;           ///< (Detail: Low)  Latch Name
   std::string      ringName;            ///< (Detail: Low)  Ring that this latch belongs to
-  int              bitLength;           ///< (Detail: Low)  length of ring
+  int              bitLength;           ///< (Detail: Low)  length of latch, sum of all the parts
   bool             isCoreRelated;       ///< (Detail: Low)  This latch is related to the core level of a chip
   std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
   ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this latch
