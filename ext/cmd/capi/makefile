@@ -18,7 +18,7 @@ INCLUDES     :=
 
 
 # Extensions to grab the interpreters from
-EXTENSIONS   := cip cro eip gip
+EXTENSIONS   := cip cro eip gip zse
 
 
 
@@ -65,6 +65,11 @@ LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/cmd/${OBJDIR}/*.o)
 LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/capi/${OBJDIR}/*.o)
 # GIP Extension - Cmd
 LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/cmd/${OBJDIR}/*.o)
+
+# ZSE Extension - Capi
+LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/capi/${OBJDIR}/*.o)
+# ZSE Extension - Cmd
+LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/cmd/${OBJDIR}/*.o)
 
 
 # The Core Interpreter
