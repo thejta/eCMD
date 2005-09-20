@@ -48,7 +48,7 @@ int CMDPERLAPI::cmdInitExtension(const char * i_clientVersion) {
     fprintf(stderr,"**** FATAL : eCMD Perl Module and your client major version numbers don't match, they are not compatible\n");
     fprintf(stderr,"**** FATAL : Client Version(s) : %s   : Perl Module Version : %s\n",i_clientVersion, ECMD_CMD_CAPI_VERSION);
 
-    croak("(cipInitExtension) :: Perl Module version mismatch - execution halted\n");
+    croak("(zseInitExtension) :: Perl Module version mismatch - execution halted\n");
   }
   return ::cmdInitExtension();
 }
