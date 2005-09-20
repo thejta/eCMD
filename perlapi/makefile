@@ -8,7 +8,7 @@ SITE         := $(shell fs wscell | cut -d\' -f2)
 
 
 # List the extensions to include in the compile
-EXTENSIONS   := cip cmd gip cro
+EXTENSIONS   := cip cmd gip cro zse
 
 # Ok, find our CTE path if they don't already have one
 ifeq ($(strip $(CTEPATH)),)
