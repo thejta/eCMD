@@ -58,6 +58,10 @@
  #include <gipClientCapi.H>
  #include <gipInterpreter.H>
 #endif
+#ifdef ECMD_ZSE_EXTENSION_SUPPORT
+ #include <zseClientCapi.H>
+ #include <zseInterpreter.H>
+#endif
 #undef ecmdInterpreter_C
 //----------------------------------------------------------------------
 //  User Types
@@ -127,11 +131,21 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
 #endif
 
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
-  /* Eclipz IP Extension */
+  /* GFW IP Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("gip",argv[0],3))) {
     rc = gipInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = gipCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_ZSE_EXTENSION_SUPPORT
+  /* Z Series Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("zse",argv[0],3))) {
+    rc = zseInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = zseCommandInterpreter(argc, argv);
     }
   }
 #endif
