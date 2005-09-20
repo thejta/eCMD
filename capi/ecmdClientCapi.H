@@ -2495,6 +2495,15 @@ Include files :
 <li> Library : croClientCapi_aix.a / croClientCapi_x86.a</li>
 </ul>
 
+@subsection zse Z Series Extension
+This extensions provides Z-Series only interfaces.<br>
+Include files :
+<ul>
+<li> zseClientCapi.H</li>
+<li> zseStructs.H</li>
+<li> Library : zseClientCapi_aix.a / zseClientCapi_x86.a</li>
+</ul>
+
 <hr>
 @section dllv DLL Version
 The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
