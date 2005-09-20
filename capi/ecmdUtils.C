@@ -1706,6 +1706,47 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
+    } else if (!strcmp(variableType,"std::list<ecmdScomData> &")) {
+      std::list<ecmdScomData>* dummy = (std::list<ecmdScomData>*)(args[looper]);
+
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      dataLooper = 0;
+      for (std::list<ecmdScomData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : uint32_t           address  = %X\n",frontFPPTxt, entit->address);
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL         isCoreRelated  = ",frontFPPTxt);
+        if(entit->isCoreRelated) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState = ",frontFPPTxt); 
+        if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_UNKNOWN\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_ON) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_ON\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_OFF) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_OFF\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_NA) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_NA\n");
+        } else {
+          strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
+        }
+        ecmdOutput(tempIntStr);
+      }
+
+      printed = "\n";
+      printed += frontFPPTxt;
+      printed += "\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
     } else if(!strcmp(variableType,"std::vector <ecmdDataBuffer> &")) {
 /* std::vector <ecmdDataBuffer> & */
       printed = frontFPPTxt;
