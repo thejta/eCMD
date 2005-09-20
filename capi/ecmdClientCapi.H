@@ -184,7 +184,7 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
 
 /**
  @brief Query Ring information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param i_target Struct that contains chip and cage/node/slot/position information of chip to use
  @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
  @retval ECMD_INVALID_RING if i_ringName is not valid for target
@@ -197,6 +197,26 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  TARGET STATES : Unused
 */
 uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
+
+/**
+ @brief Query Latch information from the DLL
+ @param i_target Struct that contains chip and cage/node/slot/position information of chip to use
+ @param o_queryData Return list from query
+ @param i_ringName if != NULL used to refine query to a single ring
+ @param i_latchName if != NULL used to refine query to a single latch
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL
+
+ NOTE : This function does not affect ring caching
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
+*/
+uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Array information from the DLL

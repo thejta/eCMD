@@ -883,7 +883,7 @@ struct ecmdScomData {
   // Members
   uint32_t         address;             ///< Scom Address
   bool             isCoreRelated;       ///< This scom is related to the core level of a chip
-  std::string      clockDomain;         ///< Clock domain this array belongs to
+  std::string      clockDomain;         ///< Clock domain this scom belongs to
   ecmdClockState_t clockState;          ///< Required clock state to access this scom
 };
 
@@ -899,6 +899,22 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 // ecmdScomData Destructor
 inline ecmdScomData::~ecmdScomData() { }
 #endif
+
+
+
+/**
+ @brief Used for the ecmdQueryLatch function to return latch info
+*/
+struct ecmdLatchData {
+
+  // Members
+  std::string      latchName;           ///< (Detail: Low)  Latch Name
+  std::string      ringName;            ///< (Detail: Low)  Ring that this latch belongs to
+  int              bitLength;           ///< (Detail: Low)  length of ring
+  bool             isCoreRelated;       ///< (Detail: Low)  This latch is related to the core level of a chip
+  std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
+  ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this latch
+};
 
 /**
  @brief Used by the getArrayMultiple function to pass data
