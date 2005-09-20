@@ -1579,8 +1579,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
-    } else if((!strcmp(variableType,"std::list<ecmdRingData> &"))   ||
-              (!strcmp(variableType,"std::list<ecmdArrayEntry> &")) ||
+    } else if((!strcmp(variableType,"std::list<ecmdArrayEntry> &")) ||
               (!strcmp(variableType,"std::list<ecmdNameEntry> &"))  ||
               (!strcmp(variableType,"std::list<ecmdIndexEntry> &"))  ||
               (!strcmp(variableType,"std::list <ecmdNameVectorEntry> &"))   ){
@@ -1713,7 +1712,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       dataLooper = 0;
       for (std::list<ecmdScomData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
         sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : uint32_t           address  = %X\n",frontFPPTxt, entit->address);
+        sprintf(tempIntStr,"%s\t \t \t value : uint32_t           address  = 0x%X\n",frontFPPTxt, entit->address);
         ecmdOutput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL         isCoreRelated  = ",frontFPPTxt);
@@ -1746,6 +1745,86 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
+
+    } else if (!strcmp(variableType,"std::list<ecmdRingData> &")) {
+      std::list<ecmdRingData>* dummy = (std::list<ecmdRingData>*)(args[looper]);
+
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      dataLooper = 0;
+      for (std::list<ecmdRingData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+
+        std::list<std::string >::iterator ringNamesIt;
+        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> ringNames = \n",frontFPPTxt); ecmdOutput(tempIntStr);
+        int ringNamesLooper=0;
+        for (ringNamesIt = entit->ringNames.begin(); ringNamesIt != entit->ringNames.end(); ringNamesIt++) {
+          sprintf(tempIntStr,"%s\t \t \t \t entry : %d\t = %s\n",frontFPPTxt, ringNamesLooper++, ringNamesIt->c_str());
+          ecmdOutput(tempIntStr);
+        }
+
+        sprintf(tempIntStr,"%s\t \t \t value : uint32_t            address  = 0x%X\n",frontFPPTxt, entit->address);
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL       hasInversionMask  = ",frontFPPTxt);
+        if(entit->hasInversionMask) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL  supportsBroadsideLoad  = ",frontFPPTxt);
+        if(entit->supportsBroadsideLoad) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL            isCheckable  = ",frontFPPTxt);
+        if(entit->isCheckable) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL          isCoreRelated  = ",frontFPPTxt);
+        if(entit->isCoreRelated) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState  = ",frontFPPTxt); 
+        if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_UNKNOWN\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_ON) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_ON\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_OFF) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_OFF\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_NA) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_NA\n");
+        } else {
+          strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
+        }
+        ecmdOutput(tempIntStr);
+
+      }
+
+      printed = "\n";
+      printed += frontFPPTxt;
+      printed += "\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
+
+
 
     } else if(!strcmp(variableType,"std::vector <ecmdDataBuffer> &")) {
 /* std::vector <ecmdDataBuffer> & */
