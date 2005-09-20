@@ -1618,6 +1618,94 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
+    } else if (!strcmp(variableType,"std::list<ecmdSpyData> &")) {
+      std::list<ecmdSpyData>* dummy = (std::list<ecmdSpyData>*)(args[looper]);
+
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      dataLooper = 0;
+      for (std::list<ecmdSpyData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string     spyName  = %s\n",frontFPPTxt, entit->spyName.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : int           bitLength  = %d\n",frontFPPTxt, entit->bitLength); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : ecmdSpyType_t   spyType  = ",frontFPPTxt); 
+        if(entit->spyType == ECMD_SPYTYPE_ALIAS) {
+          strcat(tempIntStr,"ECMD_SPYTYPE_ALIAS\n");
+        } else if(entit->spyType == ECMD_SPYTYPE_IDIAL) {
+          strcat(tempIntStr,"ECMD_SPYTYPE_IDIAL\n");
+        } else if(entit->spyType == ECMD_SPYTYPE_EDIAL) {
+          strcat(tempIntStr,"ECMD_SPYTYPE_EDIAL\n");
+        } else if(entit->spyType == ECMD_SPYTYPE_ECCGROUP) {
+          strcat(tempIntStr,"ECMD_SPYTYPE_ECCGROUP\n");
+        } else {
+          strcat(tempIntStr,"ERROR Unkown ecmdSpyType_t value\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL       isEccChecked  = ",frontFPPTxt);
+        if(entit->isEccChecked) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL       isEnumerated  = ",frontFPPTxt);
+        if(entit->isEnumerated) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL      isCoreRelated  = ",frontFPPTxt);
+        if(entit->isCoreRelated) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState  = ",frontFPPTxt); 
+        if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_UNKNOWN\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_ON) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_ON\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_OFF) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_OFF\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_NA) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_NA\n");
+        } else {
+          strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        std::list<std::string >::iterator enumIt;
+        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> enums = \n",frontFPPTxt); ecmdOutput(tempIntStr);
+        int enumLooper=0;
+        for (enumIt = entit->enums.begin(); enumIt != entit->enums.end(); enumIt++) {
+          sprintf(tempIntStr,"%s\t \t \t \t entry : %d\t = %s\n",frontFPPTxt, enumLooper++, enumIt->c_str());
+          ecmdOutput(tempIntStr);
+        }
+
+        std::list<std::string >::iterator epCheckersIt;
+        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> epCheckers = \n",frontFPPTxt);
+        ecmdOutput(tempIntStr);
+        int epcLooper=0;
+        for (epCheckersIt = entit->epCheckers.begin(); epCheckersIt != entit->epCheckers.end(); epCheckersIt++) {
+          sprintf(tempIntStr,"%s\t \t \t \t entry : %d\t = %s\n",frontFPPTxt, epcLooper++, epCheckersIt->c_str());
+          ecmdOutput(tempIntStr);
+        }
+
+      }
+
+      printed = "\n";
+      printed += frontFPPTxt;
+      printed += "\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
     } else if(!strcmp(variableType,"std::vector <ecmdDataBuffer> &")) {
 /* std::vector <ecmdDataBuffer> & */
       printed = frontFPPTxt;
