@@ -40,6 +40,9 @@
 /* The GFW IP Extension */
 #define ECMD_GIP_EXTENSION_SUPPORT
 
+/* The Z Series Extension */
+#define ECMD_ZSE_EXTENSION_SUPPORT
+
 
 #endif /* ecmdPluginExtensionSupport_h */
 
