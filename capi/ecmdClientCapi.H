@@ -204,6 +204,7 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
  @param i_latchName if != NULL used to refine query to a single latch
+ @param i_mode LatchName search mode (full or partial names)
  @retval ECMD_INVALID_RING if i_ringName is not valid for target
  @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -216,7 +217,7 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Array information from the DLL
@@ -375,7 +376,7 @@ uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
  @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
  @param o_data list of Entries containing all latches found matching i_latchName
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
- @param i_mode LatchName search mode
+ @param i_mode LatchName search mode (full or partial names)
 
  NOTE : This function is ring cache enabled
  TARGET DEPTH  : Core
