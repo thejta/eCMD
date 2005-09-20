@@ -44,6 +44,10 @@
   #include "croClientPerlapi.H"
   #include "croClientPerlapiFunc.H"
 #endif
+#ifdef ECMD_ZSE_EXTENSION_SUPPORT
+  #include "zseClientPerlapi.H"
+  #include "zseClientPerlapiFunc.H"
+#endif
 #include "cmdClientPerlapi.H"
 #include "cmdClientPerlapiFunc.H"
 
@@ -104,6 +108,10 @@
 #ifdef ECMD_CRO_EXTENSION_SUPPORT
   %include croClientPerlapi.H
   %include croClientPerlapiFunc.H
+#endif
+#ifdef ECMD_ZSE_EXTENSION_SUPPORT
+  %include zseClientPerlapi.H
+  %include zseClientPerlapiFunc.H
 #endif
 %include "cmdClientPerlapi.H"
 %include "cmdClientPerlapiFunc.H"
