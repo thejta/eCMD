@@ -39,6 +39,8 @@ uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDat
 
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName ); 
 
+uint32_t dllQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName , ecmdQueryDetail_t i_detail ); 
+
 uint32_t dllQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName ); 
 
 uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName ); 
