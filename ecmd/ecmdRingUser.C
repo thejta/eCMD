@@ -55,7 +55,7 @@ using namespace std;
 //----------------------------------------------------------------------
 
 /** @brief Used to hold info out of the scandef for getringdump */
-struct ecmdLatchData {
+struct ecmdLatchDataEntry {
   std::string ringName;                 ///< Name of ring that contains this latch
   std::string latchName;                ///< Full Latch Name (including any parens)
   uint32_t fsiRingOffset;               ///< Ring Offset for FSI
@@ -82,11 +82,11 @@ struct ecmdCheckRingData {
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
-uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchData > & o_latchdata);
+uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchDataEntry > & o_latchdata);
 void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format);
 
 /** @brief Used to sort latch entries from the scandef */
-bool operator< (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
+bool operator< (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs) {
 
 
   if (lhs.ringName != rhs.ringName)
@@ -110,7 +110,7 @@ bool operator< (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
 }
 
 /** @brief Used to sort latch entries from the scandef */
-bool operator!= (const ecmdLatchData & lhs, const ecmdLatchData & rhs) {
+bool operator!= (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs) {
 
   if (lhs.ringName != rhs.ringName)
     return true;
@@ -241,8 +241,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         validPosFound = true;     
       }
       
-      std::list< ecmdLatchData > curEntry;
-      std::list< ecmdLatchData >::iterator curLatchInfo;    ///< Iterator for walking through latches
+      std::list< ecmdLatchDataEntry > curEntry;
+      std::list< ecmdLatchDataEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   
       
  
@@ -1852,7 +1852,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
  @param i_ringName Ringname for which the latches need to be looked up
  @param o_latchdata Return latches data read from scandef
 */
-uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchData > & o_latchdata) {
+uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchDataEntry > & o_latchdata) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scandefFile;                      ///< Full path to scandef file
   std::string scandefHashFile;                  ///< Full path to scandefhash file
@@ -1952,7 +1952,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       while (getline(ins, curLine) && !done) {
   
         //let's go hunting in the scandef for latches for this ring
-        ecmdLatchData curLatch;
+        ecmdLatchDataEntry curLatch;
 
         std::vector<std::string> splitArgs;
         char outstr[1000];
