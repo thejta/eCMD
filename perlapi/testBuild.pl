@@ -5,7 +5,7 @@ eval '
 if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
 export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
 export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:./`uname`/;
+export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:.:./`uname`/;
 if [[ `uname` = "Linux" ]] then
  export LD_LIBRARY_PATH="../capi/export";
 else
