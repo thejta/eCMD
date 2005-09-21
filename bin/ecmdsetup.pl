@@ -53,7 +53,9 @@ my $plugin;
 my $product;
 my $temp;
 my $shortcut = 0;
-my $local = 1;  # Assume it's local and then disprove it by comparing ctepaths to CTEPATH
+my $localInstall = 1;  # Assume it's a local install and then disprove it by comparing ctepaths to CTEPATH
+my $copyLocal = 0;  # Does the user want ECMD_EXE and ECMD_DLL_FILE copied to /tmp and run from there?
+my $cleanup = 0;  # Call only cleanup on the plugins to remove anything they might have put out there.
 # These ctepaths are in regular expression format for the search below.
 # This allows the user to put just rchland or rchland.ibm.com, etc..
 my @ctepaths = ("\/afs\/rchland(|\.ibm\.com)\/rel\/common\/cte",
@@ -101,9 +103,9 @@ if ("@ARGV" =~ /-h/) {
 ##########################################################################
 # Figure out if the user is on a local copy of CTE
 #
-for (my $x = 0; $x <= $#ctepaths && $local != 0; $x++) {
+for (my $x = 0; $x <= $#ctepaths && $localInstall != 0; $x++) {
   if ($ENV{"CTEPATH"} =~ /${ctepaths[$x]}/) {
-    $local = 0;
+    $localInstall = 0;
   }
 }
 
@@ -180,6 +182,24 @@ if ($shortcut) {
 #}
 
 ##########################################################################
+# Loop through the args left and see if any are for ecmd
+#
+for (my $x = 0; $x <= $#ARGV;) {
+  if ($ARGV[$x] eq "copylocal") {
+    $copyLocal = 1;
+    splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+  } elsif ($ARGV[$x] eq "cleanup") {
+    $cleanup = 1;
+    printf("echo Removing eCMD and Plugin settings from environment;");
+    splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+  } else {
+    # We have to walk the array here because the splice shortens up the array
+    $x++;
+  }
+}
+
+
+##########################################################################
 # Cleanup any ecmd bin dirs that might be in the path
 #
 # Pull out any of the matching cases
@@ -199,7 +219,7 @@ $modified{"PATH"} = 1;
 #
 
 # Only do this if the plugin has changed from last time
-if ($ENV{"ECMD_PLUGIN"} ne $plugin) {
+if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
   $cro->cleanup(\%modified);
   $scand->cleanup(\%modified, $release);
   $gip->cleanup(\%modified);
@@ -208,8 +228,10 @@ if ($ENV{"ECMD_PLUGIN"} ne $plugin) {
 ##########################################################################
 # Add bin directory to path
 #
-$ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin:" . $ENV{"PATH"};
-$modified{"PATH"} = 1;
+if (!$cleanup) {
+  $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin:" . $ENV{"PATH"};
+  $modified{"PATH"} = 1;
+}
 
 ##########################################################################
 # Flag the ECMD_* variables as modified if appropriate
@@ -222,18 +244,55 @@ if (!$shortcut) {
   $ENV{"ECMD_PRODUCT"} = $product;
   $modified{"ECMD_PRODUCT"} = 1;
 }
+if ($cleanup) {
+  $modified{"ECMD_RELEASE"} = -1;
+  $modified{"ECMD_PLUGIN"} = -1;
+  $modified{"ECMD_PRODUCT"} = -1;
+}
 
 ##########################################################################
 # Call setup on plugin specified
 #
-if ($plugin eq "cro") {
-  $cro->setup(\%modified, $local, $product, "ecmd", @ARGV);
+if (!$cleanup) {
+  if ($plugin eq "cro") {
+    $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
+  }
+  if ($plugin eq "scand") {
+    $scand->setup(\%modified, $localInstall, $product, $release, $callingPwd, @ARGV);
+  }
+  if ($plugin eq "gip") {
+    $gip->setup(\%modified, $localInstall, $product, $release, @ARGV);
+  }
 }
-if ($plugin eq "scand") {
-  $scand->setup(\%modified, $local, $product, $release, $callingPwd, @ARGV);
-}
-if ($plugin eq "gip") {
-  $gip->setup(\%modified,$local, $product, $release, @ARGV);
+
+####################################################
+# Do the copy to /tmp if local was given
+#
+if ($copyLocal) {
+  my $command;
+  my @tempArr;
+  if ($cleanup) {
+    printf("echo Removing directory /tmp/\$ECMD_TARGET/;");
+    $command = "rm -r /tmp/" . $ENV{"ECMD_TARGET"};
+    system("$command");
+  } else {
+    printf("echo Copying ECMD_EXE and ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/;");
+    $command = "/tmp/" . $ENV{"ECMD_TARGET"};
+    if (!(-d $command)) { #if the directory isn't there, create it
+      $command = "mkdir " . $command;
+      system("$command");
+    }
+    @tempArr = split(/\//,$ENV{"ECMD_EXE"});
+    $command = "cp " . $ENV{"ECMD_EXE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+    system("$command");
+    $ENV{"ECMD_EXE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+    $modified{"ECMD_EXE"} = 1;
+    @tempArr = split(/\//,$ENV{"ECMD_DLL_FILE"});
+    $command = "cp " . $ENV{"ECMD_DLL_FILE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+    system("$command");
+    $ENV{"ECMD_DLL_FILE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+    $modified{"ECMD_DLL_FILE"} = 1;
+  }
 }
 
 ##########################################################################
@@ -244,10 +303,12 @@ $ecmd->write_environment($shell,\%modified);
 
 #  Umm.. yeah.. I'm going to need you to work this weekend on the help text.  Mkay..
 sub help {
-  printf("echo ecmdsetup \\<release\\> \\<plugin\\> \\<product\\> \\<plugin options\\>;");
+  printf("echo ecmdsetup \\<release\\> \\<plugin\\> \\<product\\> \\[copylocal\\] \\[cleanup\\] \\<plugin options\\>;");
   printf("echo \\<release\\> - Any eCMD Version currently supported in CVS \\(ex rel, ver5, ver4-3\\);");
   printf("echo \\<plugin\\> - cro\\|scand\\|gip;");
   printf("echo \\<product\\> - eclipz, etc..;");
+  printf("echo \\[copylocal\\] - Copy the \\\$ECMD_EXE and \\\$ECMD_DLL_FILE to /tmp/\\\$ECMD_TARGET/;");
+  printf("echo \\[cleanup\\] - Remove all eCMD and Plugin settings from environment;");
   printf("echo \\<plugin options\\> - anything else passed into the script is passed onto the plugin;");
   printf("echo -h                               - this help text;");
 }
