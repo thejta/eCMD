@@ -1617,6 +1617,51 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
 
+    } else if (!strcmp(variableType,"std::list<ecmdLatchData> &")) {
+      std::list<ecmdLatchData>* dummy = (std::list<ecmdLatchData>*)(args[looper]);
+
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      dataLooper = 0;
+      for (std::list<ecmdLatchData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string       latchName  = %s\n",frontFPPTxt, entit->latchName.c_str()); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string        ringName  = %s\n",frontFPPTxt, entit->ringName.c_str()); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL          isCoreRelated  = ",frontFPPTxt);
+        if(entit->isCoreRelated) {
+          strcat(tempIntStr,"TRUE\n");
+        } else {
+          strcat(tempIntStr,"FALSE\n");
+        }
+        ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); ecmdOutput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState  = ",frontFPPTxt); 
+        if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_UNKNOWN\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_ON) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_ON\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_OFF) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_OFF\n");
+        } else if(entit->clockState == ECMD_CLOCKSTATE_NA) {
+          strcat(tempIntStr,"ECMD_CLOCKSTATE_NA\n");
+        } else {
+          strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
+        }
+        ecmdOutput(tempIntStr);
+
+      }
+
+      printed = "\n";
+      printed += frontFPPTxt;
+      printed += "\t ***************************************\n";
+      ecmdOutput(printed.c_str());
+
     } else if (!strcmp(variableType,"std::list<ecmdSpyData> &")) {
       std::list<ecmdSpyData>* dummy = (std::list<ecmdSpyData>*)(args[looper]);
 
