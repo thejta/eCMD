@@ -205,6 +205,7 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  @param i_ringName if != NULL used to refine query to a single ring
  @param i_latchName if != NULL used to refine query to a single latch
  @param i_mode LatchName search mode (full or partial names)
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_INVALID_RING if i_ringName is not valid for target
  @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system

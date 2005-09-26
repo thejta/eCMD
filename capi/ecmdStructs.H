@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "5.4"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "6.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -97,21 +97,26 @@ typedef enum {
 
 /**
  @brief Used by ecmdChipTarget to describe the value in the state fields
- - The ECMD_TARGET_FIELD_* states are used for functions to return applicable values
- - The ECMD_TARGET_QUERY_* states are used by the ecmdQueryConfig and ecmdQuerySelected functions to refine the query
 */
 
 typedef enum {
   ECMD_TARGET_UNKNOWN_STATE,    ///< State field has not been initialized
 
-  ECMD_TARGET_FIELD_VALID,      ///< Associated State Field is valid for this function
-  ECMD_TARGET_FIELD_UNUSED,     ///< Associated State Field is unused for this function
+  ECMD_TARGET_FIELD_VALID,      ///< Associated State Field is set to a valid value
+  ECMD_TARGET_FIELD_UNUSED,     ///< Associated State Field is unused and should be ignored
+  ECMD_TARGET_FIELD_WILDCARD,   ///< Associated State Field is a wildcard and should be iterated on in query functions
 
-  ECMD_TARGET_QUERY_FIELD_VALID,///< Associated State Field is valid for the query
-  ECMD_TARGET_QUERY_WILDCARD,   ///< Associated State Field should be itterated on and all valid results returned
-  ECMD_TARGET_QUERY_IGNORE,     ///< Query should be limited to data above this field, ignoring data 
+
 
   ECMD_TARGET_THREAD_ALIVE      ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
+
+#ifndef DOCUMENTATION
+  ////< THE FOLLOWING VALUES ARE BEING DEPRECATED AND WILL BE REMOVED AT A LATER DATE (v7 release)
+  ECMD_TARGET_QUERY_FIELD_VALID = ECMD_TARGET_FIELD_VALID,      ///< DEPRECATED
+  ECMD_TARGET_QUERY_WILDCARD =    ECMD_TARGET_FIELD_WILDCARD,   ///< DEPRECATED
+  ECMD_TARGET_QUERY_IGNORE =      ECMD_TARGET_FIELD_UNUSED,     ///< DEPRECATED 
+#endif
+
 } ecmdChipTargetState_t;
 
 /**
@@ -160,13 +165,6 @@ typedef enum {
   ECMD_MEMCTRL_REFCLOCK                 ///< Memory Controller reference clock
 } ecmdClockType_t;
 
-/**
- @brief Used by ecmdConfigLooperInit to enable/disable variable depth looping
-*/
-typedef enum {
-  ECMD_VARIABLE_DEPTH_LOOP,             ///< Allow the plugin to change states to control loop (ie in the case of core vs non core scom looping)
-  ECMD_STATIC_DEPTH_LOOP                ///< Use the state specified on init, don't allow plugin to change
-} ecmdConfigLoopMode_t;
 
 /**
  @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
@@ -174,8 +172,8 @@ typedef enum {
 typedef enum {
   ECMD_SELECTED_TARGETS_LOOP,           ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to 0
   ECMD_SELECTED_TARGETS_LOOP_DEFALL,    ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to all
-  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop only on targets in the system to the depth user specified on command line (ie if use said only '-n0' then -s and below are unused) if not specified default to 0
-  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop only on targets in the system to the depth user specified on command line (ie if use said only '-n0' then -s and below are unused) if not specified default to all
+  ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop only on targets in the system to the depth user specified on command line (ie if user said only '-n0' then -s and below are unused) if not specified default to 0
+  ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop only on targets in the system to the depth user specified on command line (ie if user said only '-n0' then -s and below are unused) if not specified default to all
   ECMD_ALL_TARGETS_LOOP                 ///< Loop on all valid targets in the system
 } ecmdConfigLoopType_t;
 
@@ -742,15 +740,15 @@ struct ecmdRingData {
 #endif
 
   // Members
-  std::list<std::string> ringNames;                     ///< Names used to reference this ring
-  uint32_t               address;                       ///< Address modifier
-  int                    bitLength;                     ///< length of ring
-  bool                   hasInversionMask;              ///< Ring has an inversion mask applied before scanning
-  bool                   supportsBroadsideLoad;         ///< This ring supports broadside load in simulation
-  bool                   isCheckable;                   ///< This ring can be run through the check_rings command
-  bool                   isCoreRelated;                 ///< This scom is related to the core level of a chip
-  std::string            clockDomain;                   ///< Clock domain this ring belongs to
-  ecmdClockState_t       clockState;                    ///< Required clock state to access this ring
+  std::list<std::string> ringNames;                     ///< (Detail: Low)  Names used to reference this ring
+  uint32_t               address;                       ///< (Detail: Low)  Address modifier
+  int                    bitLength;                     ///< (Detail: Low)  length of ring
+  bool                   hasInversionMask;              ///< (Detail: High) Ring has an inversion mask applied before scanning
+  bool                   supportsBroadsideLoad;         ///< (Detail: High) This ring supports broadside load in simulation
+  bool                   isCheckable;                   ///< (Detail: High) This ring can be run through the check_rings command
+  bool                   isCoreRelated;                 ///< (Detail: Low)  This ring is related to the core level of a chip
+  std::string            clockDomain;                   ///< (Detail: High) Clock domain this ring belongs to
+  ecmdClockState_t       clockState;                    ///< (Detail: High) Required clock state to access this ring
 };
 
 #ifndef DOCUMENTATION
@@ -791,14 +789,14 @@ struct ecmdArrayData {
 #endif
 
   // Members
-  std::string arrayName;                ///< Names used to reference this array
-  int         readAddressLength;        ///< Bit length of read address
-  int         writeAddressLength;       ///< Bit length of write address
-  int         length;                   ///< Length of array (number of entries)
-  int         width;                    ///< Bit width of array entry
-  bool             isCoreRelated;       ///< This scom is related to the core level of a chip
-  std::string           clockDomain;    ///< Clock domain this array belongs to
-  ecmdClockState_t       clockState;    ///< Required clock state to access this array
+  std::string arrayName;                ///< (Detail: Low)  Names used to reference this array
+  int         readAddressLength;        ///< (Detail: Low)  Bit length of read address
+  int         writeAddressLength;       ///< (Detail: Low)  Bit length of write address
+  int         length;                   ///< (Detail: Low)  Length of array (number of entries)
+  int         width;                    ///< (Detail: Low)  Bit width of array entry
+  bool             isCoreRelated;       ///< (Detail: Low)  This array is related to the core level of a chip
+  std::string           clockDomain;    ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t       clockState;    ///< (Detail: High) Required clock state to access this array
 };
 
 #ifndef DOCUMENTATION
@@ -838,12 +836,12 @@ struct ecmdTraceArrayData {
 #endif
 
   // Members
-  std::string      traceArrayName;      ///< Name of Trace array
-  int              length;              ///< Length of trace array (number of entries)
-  int              width;               ///< Bit width of trace array entry
-  bool             isCoreRelated;       ///< This scom is related to the core level of a chip
-  std::string      clockDomain;         ///< Clock domain this array belongs to
-  ecmdClockState_t clockState;          ///< Required clock state to access this array
+  std::string      traceArrayName;      ///< (Detail: Low)  Name of Trace array
+  int              length;              ///< (Detail: Low)  Length of trace array (number of entries)
+  int              width;               ///< (Detail: Low)  Bit width of trace array entry
+  bool             isCoreRelated;       ///< (Detail: Low)  This tracearray is related to the core level of a chip
+  std::string      clockDomain;         ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this array
 };
 
 #ifndef DOCUMENTATION
@@ -881,10 +879,10 @@ struct ecmdScomData {
 #endif
 
   // Members
-  uint32_t         address;             ///< Scom Address
-  bool             isCoreRelated;       ///< This scom is related to the core level of a chip
-  std::string      clockDomain;         ///< Clock domain this scom belongs to
-  ecmdClockState_t clockState;          ///< Required clock state to access this scom
+  uint32_t         address;             ///< (Detail: Low)  Scom Address
+  bool             isCoreRelated;       ///< (Detail: Low)  This scom is related to the core level of a chip
+  std::string      clockDomain;         ///< (Detail: High) Clock domain this scom belongs to
+  ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this scom
 };
 
 #ifndef DOCUMENTATION
@@ -906,6 +904,22 @@ inline ecmdScomData::~ecmdScomData() { }
  @brief Used for the ecmdQueryLatch function to return latch info
 */
 struct ecmdLatchData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdLatchData();
+
+  // Destructor
+  ~ecmdLatchData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void) const;
+#ifndef REMOVE_SIM
+  void printStruct(void) const;
+#endif
+#endif
+
 
   // Members
   std::string      latchName;           ///< (Detail: Low)  Latch Name
@@ -915,6 +929,19 @@ struct ecmdLatchData {
   std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
   ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this latch
 };
+
+#ifndef DOCUMENTATION
+// ecmdLatchData Constructor
+inline ecmdLatchData::ecmdLatchData():
+bitLength(0),
+isCoreRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdLatchData Destructor
+inline ecmdLatchData::~ecmdLatchData() { }
+#endif
 
 /**
  @brief Used by the getArrayMultiple function to pass data

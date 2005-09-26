@@ -3356,6 +3356,34 @@ void  ecmdScomData::printStruct() {
 }
 #endif  // end of REMOVE_SIM
 
+
+/*
+ * The following methods for the ecmdLatchData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdLatchData::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdLatchData::printStruct() {
+
+        printf("\n\t--- Latch Data Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
 /*
  * The following methods for the ecmdNameEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
