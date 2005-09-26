@@ -3370,12 +3370,12 @@ uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdLatchData::flattenSize() {
+uint32_t ecmdLatchData::flattenSize() const {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 #ifndef REMOVE_SIM
-void  ecmdLatchData::printStruct() {
+void  ecmdLatchData::printStruct() const {
 
         printf("\n\t--- Latch Data Structure ---\n");
 

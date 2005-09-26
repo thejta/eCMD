@@ -108,7 +108,7 @@ typedef enum {
 
 
 
-  ECMD_TARGET_THREAD_ALIVE      ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
+  ECMD_TARGET_THREAD_ALIVE,     ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
 
 #ifndef DOCUMENTATION
   ////< THE FOLLOWING VALUES ARE BEING DEPRECATED AND WILL BE REMOVED AT A LATER DATE (v7 release)
@@ -164,6 +164,14 @@ typedef enum {
   ECMD_PROC_REFCLOCK,                   ///< Processor reference clock
   ECMD_MEMCTRL_REFCLOCK                 ///< Memory Controller reference clock
 } ecmdClockType_t;
+
+/**
+ @brief Used by ecmdConfigLooperInit to enable/disable variable depth looping
+*/
+typedef enum {
+  ECMD_VARIABLE_DEPTH_LOOP,             ///< Allow the plugin to change states to control loop (ie in the case of core vs non core scom looping)
+  ECMD_STATIC_DEPTH_LOOP                ///< Use the state specified on init, don't allow plugin to change
+} ecmdConfigLoopMode_t;
 
 
 /**
@@ -912,8 +920,8 @@ struct ecmdLatchData {
   ~ecmdLatchData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t& i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t& i_len);
   uint32_t flattenSize(void) const;
 #ifndef REMOVE_SIM
   void printStruct(void) const;
