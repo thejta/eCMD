@@ -125,8 +125,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
       //Setup the target that will be used to query the system config 
       target.chipType = ECMD_CHIPT_PROCESSOR;
-      target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-      target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+      target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
 
       rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
@@ -233,8 +233,8 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
   
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -327,8 +327,8 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
 
   /* Walk through the arguments and create our list of vrs */
@@ -441,8 +441,8 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
   entry = atoi(argv[0]);
 
