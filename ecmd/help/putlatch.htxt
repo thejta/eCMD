@@ -1,6 +1,6 @@
 
 Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
-                   [-exact] [-i<format>] [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
+              [-exact | -partial]  [-i<format>] [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -35,8 +35,9 @@ Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data
         Data            Data to be written to the register specified.  
                         Format specified by -i<format>
 
-        -exact    [opt] No pattern matching. Instead, search for exact latch name.
+        -exact    [opt] No pattern matching. Instead, search for exact latch name. (default)
 
+        -partial  [opt] Use pattern matching to find latch name, can be considerably slower.
 
         -i<format>[opt] Specifies the format type of input data : default 'xl'
                         Run 'ecmdquery formats' to view available formats
