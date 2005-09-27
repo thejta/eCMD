@@ -121,8 +121,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   arrayName = argv[1];
@@ -388,8 +388,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   arrayName = argv[1];
@@ -504,8 +504,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 

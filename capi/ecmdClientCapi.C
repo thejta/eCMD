@@ -377,41 +377,21 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
     queryTarget = i_target;
     myQuery = true;
 
-    if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
-
-
-    if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
-
-    if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
-
-    if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-
-    if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-
-    if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
-
-    if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
-      queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
-    } else
-      queryTarget.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+    /* Force the states to be right, if not set properly */
+    if (queryTarget.cageState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.cageState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.nodeState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.slotState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.slotState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.posState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.coreState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.coreState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.threadState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.threadState = ECMD_TARGET_FIELD_VALID;
 
 
     rc = ecmdQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);

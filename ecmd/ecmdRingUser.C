@@ -186,8 +186,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
     //Setup the target that will be used to query the system config
     target.chipType = argv[0];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 
@@ -249,8 +249,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       /* Setup our Core looper if needed */
       coretarget = target;
       if (isCoreRing) {
-        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-        coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+        coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
         coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the core loop */
@@ -529,8 +529,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState =  ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState =  ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t startBit = 0x0FFFFFFF, curStartBit, numBits = 0x0FFFFFFF, curNumBits;
@@ -655,8 +655,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreLatch) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
@@ -874,8 +874,8 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   ringName = argv[1];
@@ -960,8 +960,8 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreRing) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
@@ -1118,8 +1118,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get ring name and starting position
@@ -1180,8 +1180,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       /* Setup our Core looper if needed */
       coretarget = target;
       if (isCoreRing) {
-        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-        coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+        coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
         coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the core loop */
@@ -1285,8 +1285,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t startBit = 0x0FFFFFFF, curStartBit, numBits = 0, curNumBits;
@@ -1407,8 +1407,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreLatch) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
@@ -1590,8 +1590,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
@@ -1633,8 +1633,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       isCoreRing = curRingData->isCoreRelated;
       coretarget = target;
       if (isCoreRing) {
-        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-        coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+        coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
         coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the core loop */
@@ -1952,8 +1952,8 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
@@ -1989,8 +1989,8 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreRing) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */

@@ -104,8 +104,8 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
   // we need the instruction and modifier
