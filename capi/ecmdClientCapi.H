@@ -187,6 +187,7 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  @param i_target Struct that contains chip and cage/node/slot/position information of chip to use
  @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_INVALID_RING if i_ringName is not valid for target
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -196,7 +197,7 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL);
+uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Latch information from the DLL
@@ -225,6 +226,7 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return list from query
  @param i_arrayName if != NULL used to refine query to a single array
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY if i_arrayName is not valid for target
  @retval ECMD_SUCCESS if successful
@@ -234,13 +236,14 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL);
+uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Spy information from the DLL
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return data from query
  @param i_spyName if != NULL used to refine query to a single spy
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY if spy name is not valid for target
@@ -250,13 +253,14 @@ uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL);
+uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Scom information from the DLL
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return data from query
  @param i_address if != 0xFFFFFFFF used to refine query to a single scom
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
@@ -265,13 +269,14 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF);
+uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Trace Array information from the DLL
  @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
  @param o_queryData Return data from query
  @param i_traceArrayName if != NULL used to refine query to a single trace array
+ @param i_detail Specify the level of detail that should be returned with the query
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
@@ -280,7 +285,7 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
 */
-uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL);
+uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query the location of a specific file type for the selected target
