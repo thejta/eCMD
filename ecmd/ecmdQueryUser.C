@@ -104,8 +104,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
     target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
@@ -223,8 +223,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
     target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
@@ -365,8 +365,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
     target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
@@ -471,8 +471,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
     target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
@@ -579,8 +579,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
     target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
@@ -877,16 +877,16 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     bool easyParse = ecmdParseOption (&argc, &argv, "-ep");
     
     /* Figure out the depth they want */
-    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     if (ecmdParseOption (&argc, &argv, "-dt")) {
-      target.coreState = target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
       decode = "[p:c:t]";
     } else if (ecmdParseOption (&argc, &argv, "-dc")) {
       target.coreState = ECMD_TARGET_QUERY_WILDCARD;
       target.threadState = ECMD_TARGET_QUERY_IGNORE;
       decode = "[p:c]";
     } else { /* -dp as well */
-      target.threadState = target.coreState = ECMD_TARGET_QUERY_IGNORE;
+      target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
       decode = "[p]";
     }
 
@@ -1003,7 +1003,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
    
     target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState =
-    target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+    target.threadState = ECMD_TARGET_FIELD_WILDCARD;
     
     rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
 
@@ -1083,8 +1083,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
     target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
     bool validPosFound = false;

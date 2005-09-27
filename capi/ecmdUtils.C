@@ -144,7 +144,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   io_state.ecmdLoopMode = i_mode;
 
   /* Are we using a unitid ? */
-  if ((io_target.chipTypeState == ECMD_TARGET_QUERY_FIELD_VALID) && (io_target.chipType.length() > 0) && (io_target.chipType[0] == 'u')) {
+  if ((io_target.chipTypeState == ECMD_TARGET_FIELD_VALID) && (io_target.chipType.length() > 0) && (io_target.chipType[0] == 'u')) {
 
     /* Ok, we need to strip the u off the front for this call */
     std::string unitid = io_target.chipType.substr(1);
@@ -163,13 +163,13 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
 
     /* Ok, we still need to call queryconfig, we will use this to make sure the targets that come back actually exist */
-    queryTarget.cageState = ECMD_TARGET_QUERY_WILDCARD;
-    queryTarget.nodeState = ECMD_TARGET_QUERY_WILDCARD;
-    queryTarget.slotState = ECMD_TARGET_QUERY_WILDCARD;
-    queryTarget.chipTypeState = ECMD_TARGET_QUERY_WILDCARD;
-    queryTarget.posState = ECMD_TARGET_QUERY_WILDCARD;
-    queryTarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
-    queryTarget.threadState = ECMD_TARGET_QUERY_WILDCARD;
+    queryTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    queryTarget.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+    queryTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    queryTarget.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    queryTarget.posState = ECMD_TARGET_FIELD_WILDCARD;
+    queryTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+    queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
     rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
     if (rc) return rc;
@@ -180,35 +180,16 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
     io_state.ecmdUseUnitid = false;
 
-    /* If they passed in the wrong unused state field we will fix for them */
-    if (io_target.cageState == ECMD_TARGET_QUERY_IGNORE)        io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
-    if (io_target.nodeState == ECMD_TARGET_QUERY_IGNORE)        io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
-    if (io_target.slotState == ECMD_TARGET_QUERY_IGNORE)        io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
-    if (io_target.chipTypeState == ECMD_TARGET_QUERY_IGNORE)    io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-    if (io_target.posState == ECMD_TARGET_QUERY_IGNORE)         io_target.posState = ECMD_TARGET_FIELD_UNUSED;
-    if (io_target.coreState == ECMD_TARGET_QUERY_IGNORE)        io_target.coreState = ECMD_TARGET_FIELD_UNUSED;
-    if (io_target.threadState == ECMD_TARGET_QUERY_IGNORE)      io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
     queryTarget = io_target;
 
-
-    /* Setup the Query target */
-    if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.cageState = ECMD_TARGET_QUERY_IGNORE;
-    if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.nodeState = ECMD_TARGET_QUERY_IGNORE;
-    if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.slotState = ECMD_TARGET_QUERY_IGNORE;
-    if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)    queryTarget.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
-    if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)         queryTarget.posState = ECMD_TARGET_QUERY_IGNORE;
-    if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED)        queryTarget.coreState = ECMD_TARGET_QUERY_IGNORE;
-    if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)      queryTarget.threadState = ECMD_TARGET_QUERY_IGNORE;
-
     /* Initialize defaults into the incoming target */
-    if (io_target.cageState == ECMD_TARGET_QUERY_WILDCARD)     io_target.cage = 0;
-    if (io_target.nodeState == ECMD_TARGET_QUERY_WILDCARD)     io_target.node = 0;
-    if (io_target.slotState == ECMD_TARGET_QUERY_WILDCARD)     io_target.slot = 0;
-    if (io_target.chipTypeState == ECMD_TARGET_QUERY_WILDCARD) io_target.chipType = "na";
-    if (io_target.posState == ECMD_TARGET_QUERY_WILDCARD)      io_target.pos = 0;
-    if (io_target.coreState == ECMD_TARGET_QUERY_WILDCARD)     io_target.core = 0;
-    if (io_target.threadState == ECMD_TARGET_QUERY_WILDCARD)   io_target.thread = 0;
+    if (io_target.cageState == ECMD_TARGET_FIELD_WILDCARD)     io_target.cage = 0;
+    if (io_target.nodeState == ECMD_TARGET_FIELD_WILDCARD)     io_target.node = 0;
+    if (io_target.slotState == ECMD_TARGET_FIELD_WILDCARD)     io_target.slot = 0;
+    if (io_target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD) io_target.chipType = "na";
+    if (io_target.posState == ECMD_TARGET_FIELD_WILDCARD)      io_target.pos = 0;
+    if (io_target.coreState == ECMD_TARGET_FIELD_WILDCARD)     io_target.core = 0;
+    if (io_target.threadState == ECMD_TARGET_FIELD_WILDCARD)   io_target.thread = 0;
 
     /* Set all the states to valid, unless they are unused */
     if (io_target.cageState != ECMD_TARGET_FIELD_UNUSED)          io_target.cageState = ECMD_TARGET_FIELD_VALID;
@@ -225,13 +206,13 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
       rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
 
       /* Selected queries can change our states, so let's update them */
-      if (queryTarget.cageState == ECMD_TARGET_QUERY_IGNORE)      io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.nodeState == ECMD_TARGET_QUERY_IGNORE)      io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.slotState == ECMD_TARGET_QUERY_IGNORE)      io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.chipTypeState == ECMD_TARGET_QUERY_IGNORE)  io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.posState == ECMD_TARGET_QUERY_IGNORE)       io_target.posState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.coreState == ECMD_TARGET_QUERY_IGNORE)      io_target.coreState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.threadState == ECMD_TARGET_QUERY_IGNORE)    io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)      io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)      io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)      io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)  io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)       io_target.posState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED)      io_target.coreState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)    io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
     }
     if (rc) return rc;
 
@@ -341,24 +322,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* Enter if : */
       /* First time in config looper */
       /* last cage != current cage */
-      /* node state changed since last call && variable depth */
       if (io_state.ecmdLooperInitFlag ||
-          io_target.cage != (*io_state.ecmdCurCage).cageId ||
-          ((io_state.prevTarget.nodeState != io_target.nodeState) &&
-           (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP))
+          io_target.cage != (*io_state.ecmdCurCage).cageId
           ) {
-
-        /* If our cage didn't change from the last loop, but our node state did we may need to force an increment */
-        if ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
-            (io_target.cage == (*io_state.ecmdCurCage).cageId) &&
-            (io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
-          /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
-          /* Increment the iterators to point to the next target */
-          ecmdIncrementLooperIterators(level, io_state);
-          /* Restart the process */
-          io_state.prevTarget = io_target;
-          continue;
-        }
 
         /* Data is valid, let's setup this part of the target */
         io_target.cage = (*io_state.ecmdCurCage).cageId;
@@ -367,14 +333,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         freshLoop = true;
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.nodeState == ECMD_TARGET_FIELD_UNUSED) || 
-            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
-            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end()))) {
+        if ((io_state.prevTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
           io_target.core = 0;
           io_target.thread = 0;
 
-          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end())) {
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -394,25 +358,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* Level == Node (the user is looping with nodes  */
       /* !valid - current node iterator isn't valid */
       /* last node != current node */
-      /* slot state changed since last call */
       if (level == NODE &&
           (!valid ||
-           io_target.node != (*io_state.ecmdCurNode).nodeId ||
-           ((io_state.prevTarget.slotState != io_target.slotState) &&
-           (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP)))) {
-
-        /* If our node didn't change from the last loop, but our slot state did we may need to force an increment */
-        if (!freshLoop &&
-            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
-            (io_target.node == (*io_state.ecmdCurNode).nodeId) &&
-            (io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_target.slotState == ECMD_TARGET_FIELD_UNUSED)) {
-          /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
-          /* Increment the iterators to point to the next target */
-          ecmdIncrementLooperIterators(level, io_state);
-          /* Restart the process */
-          io_state.prevTarget = io_target;
-          continue;
-        }
+           io_target.node != (*io_state.ecmdCurNode).nodeId)) {
 
         /* Data is valid, let's setup this part of the target */
         io_target.node = (*io_state.ecmdCurNode).nodeId;
@@ -421,14 +369,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         freshLoop = true;
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.slotState == ECMD_TARGET_FIELD_UNUSED) || 
-            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
-            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end()))) {
+        if ((io_state.prevTarget.slotState == ECMD_TARGET_FIELD_UNUSED)) {
           io_target.core = 0;
           io_target.thread = 0;
 
-          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end())) {
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -448,27 +394,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* Level == Slot (the user is looping with Slots  */
       /* !valid - current Slot iterator isn't valid */
       /* last Slot != current Slot */
-      /* chippos or chiptype state changed since last call */
       if (level == SLOT &&
           (!valid ||
-           io_target.slot != (*io_state.ecmdCurSlot).slotId || 
-           (((io_state.prevTarget.chipTypeState != io_target.chipTypeState) ||
-           (io_state.prevTarget.posState != io_target.posState)) &&
-            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP)))) {
-
-        /* If our slot  didn't change from the last loop, but our pos/chiptype state did we may need to force an increment */
-        if (!freshLoop &&
-            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
-            (io_target.slot == (*io_state.ecmdCurSlot).slotId) &&
-            ((io_state.prevTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) && (io_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED) ||
-             (io_state.prevTarget.posState != ECMD_TARGET_FIELD_UNUSED) && (io_target.posState == ECMD_TARGET_FIELD_UNUSED))) {
-          /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
-          /* Increment the iterators to point to the next target */
-          ecmdIncrementLooperIterators(level, io_state);
-          /* Restart the process */
-          io_state.prevTarget = io_target;
-          continue;
-        }
+           io_target.slot != (*io_state.ecmdCurSlot).slotId)) {
 
         /* Data is valid, let's setup this part of the target */
         io_target.slot = (*io_state.ecmdCurSlot).slotId;
@@ -478,16 +406,14 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) || 
-            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
-            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end()))) {
+        if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED)) {
           io_target.chipType = "";
           io_target.pos = 0;
           io_target.core = 0;
           io_target.thread = 0;
 
-          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end())) {
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -509,25 +435,10 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* !valid - current Chip iterator isn't valid */
       /* last ChipType != current ChipType */
       /* last Chip pos != current Chip pos */
-      /* Core state changed since last call */
       if (level == CHIP &&
           (!valid ||
            io_target.chipType != (*io_state.ecmdCurChip).chipType ||
-           io_target.pos != (*io_state.ecmdCurChip).pos ||
-           ((io_state.prevTarget.coreState != io_target.coreState) &&
-           (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP))  )) {
-
-        /* If our pos/chiptype didn't change from the last loop, but our core state did we may need to force an increment */
-        if (!freshLoop && 
-            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
-            (io_target.chipType == (*io_state.ecmdCurChip).chipType) &&
-            (io_target.pos == (*io_state.ecmdCurChip).pos) &&
-            (io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_target.coreState == ECMD_TARGET_FIELD_UNUSED)) {
-          /* When we called into the plugin they told us that whatever we are doing is not core dependent, so stop looping on it */
-          /* Increment the iterators to point to the next target */
-          ecmdIncrementLooperIterators(level, io_state);
-          continue;
-        }
+           io_target.pos != (*io_state.ecmdCurChip).pos  )) {
 
         /* Data is valid, let's setup this part of the target */
         io_target.chipType = (*io_state.ecmdCurChip).chipType;
@@ -537,14 +448,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         freshLoop = true;
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED) || 
-            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
-            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end()))) {
+        if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED)) {
           io_target.core = 0;
           io_target.thread = 0;
 
-          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end())) {
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -563,25 +472,9 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* Level == Core (the user is looping with Cores  */
       /* !valid - current Core iterator isn't valid */
       /* last Core != current Core */
-      /* thread state changed since last call */
       if (level == CORE &&
           (!valid ||
-           io_target.core != (*io_state.ecmdCurCore).coreId ||
-           ((io_state.prevTarget.threadState != io_target.threadState) &&
-            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP)) )) {
-
-        /* If our core didn't change from the last loop, but our thread state did we may need to force an increment */
-        if (!freshLoop &&
-            (io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) &&
-            (io_target.core == (*io_state.ecmdCurCore).coreId) &&
-            (io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_target.threadState == ECMD_TARGET_FIELD_UNUSED)) {
-          /* When we called into the plugin they told us that whatever we are doing is not thread dependent, so stop looping on it */
-          /* Increment the iterators to point to the next target */
-          ecmdIncrementLooperIterators(level, io_state);
-          /* Restart the process */
-          io_state.prevTarget = io_target;
-          continue;
-        }
+           io_target.core != (*io_state.ecmdCurCore).coreId )) {
 
         /* Data is valid, let's setup this part of the target */
         io_target.core = (*io_state.ecmdCurCore).coreId;
@@ -591,13 +484,11 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) || 
-            /* In a variable depth loop we ignore if the lower level doesn't exist and default to 0 */
-            ((io_state.ecmdLoopMode == ECMD_VARIABLE_DEPTH_LOOP) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end()))) {
+        if (io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
           io_target.thread = 0;
 
-          /* If not in variable depth mode and the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) && (io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end())) {
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -645,12 +536,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   /* We are through the first init loop */
   if (io_state.ecmdLooperInitFlag) {
     io_state.ecmdLooperInitFlag = false;
-  }
-
-  /* Only store away the target in variable depth mode, that way we don't loose the original state of the target passed to looperinit */
-  if (io_state.ecmdLoopMode != ECMD_VARIABLE_DEPTH_LOOP) {
-    /* Store away the target */
-    io_state.prevTarget = io_target;
   }
 
   /* We got here, we have more to do, let's tell the client */
@@ -1218,8 +1103,8 @@ uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
 
   ecmdChipTarget tmp = i_target;
   ecmdQueryData needlesslySlow;
-  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-  tmp.coreState = tmp.threadState = ECMD_TARGET_QUERY_IGNORE;
+  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_FIELD_VALID;
+  tmp.coreState = tmp.threadState = ECMD_TARGET_FIELD_UNUSED;
   rc = ecmdQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
   if (rc) return rc;
 
@@ -2364,12 +2249,8 @@ typedef enum {
     return "ECMD_TARGET_FIELD_VALID\n";
   } else if (i_state == ECMD_TARGET_FIELD_UNUSED ) {
     return "ECMD_TARGET_FIELD_UNUSED\n";
-  } else if (i_state == ECMD_TARGET_QUERY_FIELD_VALID ) {
-    return "ECMD_TARGET_QUERY_FIELD_VALID\n";
-  } else if (i_state == ECMD_TARGET_QUERY_WILDCARD ) {
-    return "ECMD_TARGET_QUERY_WILDCARD\n";
-  } else if (i_state == ECMD_TARGET_QUERY_IGNORE ) {
-    return "ECMD_TARGET_QUERY_IGNORE\n";
+  } else if (i_state == ECMD_TARGET_FIELD_WILDCARD ) {
+    return "ECMD_TARGET_FIELD_WILDCARD\n";
   } else if (i_state == ECMD_TARGET_THREAD_ALIVE ) {
     return "ECMD_TARGET_THREAD_ALIVE\n";
   } else {

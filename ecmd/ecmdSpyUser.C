@@ -134,8 +134,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get spy name
@@ -244,8 +244,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreSpy) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
@@ -486,8 +486,8 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get spy name
@@ -572,8 +572,8 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreSpy) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */

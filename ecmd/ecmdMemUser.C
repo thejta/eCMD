@@ -133,12 +133,12 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   //Setup the target that will be used to query the system config
   // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
   if (memMode == ECMD_MEM_MEMCTRL) {
-    target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
   } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
   }
 
@@ -313,12 +313,12 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   //Setup the target that will be used to query the system config 
   // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
   if (memMode == ECMD_MEM_MEMCTRL) {
-    target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
   } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+    target.chipTypeState =   ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
   }
 
@@ -465,8 +465,8 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
   //get the cachetype
@@ -476,10 +476,10 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   
   if (cacheTypeStr == "l1i") {
     cacheType = ECMD_CACHE_LEVEL1I;
-    target.coreState = ECMD_TARGET_QUERY_WILDCARD;      /// adjust looper for cores
+    target.coreState = ECMD_TARGET_FIELD_WILDCARD;      /// adjust looper for cores
   } else if (cacheTypeStr == "l1d") {
     cacheType = ECMD_CACHE_LEVEL1D;
-    target.coreState = ECMD_TARGET_QUERY_WILDCARD;      /// adjust looper for cores
+    target.coreState = ECMD_TARGET_FIELD_WILDCARD;      /// adjust looper for cores
   } else if (cacheTypeStr == "l2") {
     cacheType = ECMD_CACHE_LEVEL2;
   } else if (cacheTypeStr == "l3") {

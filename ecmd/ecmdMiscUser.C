@@ -133,7 +133,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }     
     target.chipType = argv[0];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     configName = argv[1];
   } else {
     if (depth == 0) depth = CAGE;
@@ -141,7 +141,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   
   }
   /* Now set our states based on depth */
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
   if (depth == POS)             target.coreState = ECMD_TARGET_FIELD_UNUSED;
   else if (depth == SLOT)       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
@@ -259,7 +259,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }     
     target.chipType = argv[0];
-    target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     configName = argv[1];
     strcpy(inputVal, argv[2]);
   }
@@ -288,7 +288,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     validInput = ECMD_CONFIG_VALID_FIELD_NUMERIC;
   }
     
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   /* Now set our states based on depth */
@@ -388,8 +388,8 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
@@ -554,8 +554,8 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllHex(argv[1])) {
@@ -724,7 +724,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
       }
   }
 
-  target.cageState = target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+  target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
   target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
@@ -800,13 +800,13 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config
   if( argc == 1) {
    target.chipType = argv[0];
-   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   }
   else {
-   target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
