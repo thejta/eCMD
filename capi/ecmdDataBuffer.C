@@ -2162,8 +2162,8 @@ uint32_t ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
     ETRAC2("**** ERROR : ecmdDataBuffer::unflatten: iv_NumBits %d cannot be greater than iv_Capacity*32 %d", newBitLength, newCapacity*32);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
-    this->setCapacity(newCapacity);
-    this->setBitLength(newBitLength);
+    rc = this->setCapacity(newCapacity); if (rc) return rc;
+    rc = this->setBitLength(newBitLength); if (rc) return rc;
     if (newCapacity > 0)
       for (uint32_t i = 0; i < newCapacity; i++)
         setWord(i, ntohl(i_ptr[i+2]));
