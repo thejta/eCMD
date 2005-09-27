@@ -79,10 +79,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string outputformat = "x";               ///< Output Format to display
   std::string inputformat = "x";                ///< Input format of data
   ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
+  std::list<ecmdScomData> queryScomData;        ///< Ring data 
   ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
   ecmdDataBuffer buffer;                        ///< Data requested by the user
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   std::string printed;                          ///< Output data
   int startbit = -1;                            ///< Startbit in the scom data
   int numbits = 0;                              ///< Number of bits to diplay
@@ -139,8 +142,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   
@@ -211,84 +214,122 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-    rc = getScom(target, address, scombuf);
+    
+    bool isCoreScom;                              ///< Is this a core scom ?
+    
+    /* Now we need to find out if this is a core scom or not */
+    rc = ecmdQueryScom(target, queryScomData, address);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
+        continue;
     }
     else if (rc) {
-        printed = "getscom - Error occured performing getscom on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
+      printed = "getscom - Error occurred performing queryscom on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
     }
-    else {
-      validPosFound = true;     
+    if (queryScomData.size() != 1) {
+      ecmdOutputError("getscom - Too much/little ring information returned from the dll, unable to determine if it is a core scom\n");
+      return ECMD_DLL_INVALID;
     }
-    
-    if (startbit != -1) {
-      scombuf.extract(buffer, startbit, numbits);
-    } else {
-      scombuf.extract(buffer, 0, scombuf.getBitLength());
+    isCoreScom = queryScomData.begin()->isCoreRelated;
+
+    /* Setup our Core looper if needed */
+    coretarget = target;
+    if (isCoreScom) {
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the core loop */
+      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      if (rc) return rc;
     }
-    
-    if (expectFlag) {
 
-      if (maskFlag) {
-        buffer.setAnd(mask, 0, buffer.getBitLength());
-      }
+    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while (!isCoreScom ||
+           ecmdConfigLooperNext(coretarget, corelooper)) {
+	   
+     rc = getScom(coretarget, address, scombuf);
+     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+       continue;
+     }
+     else if (rc) {
+     	 printed = "getscom - Error occured performing getscom on ";
+     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += "\n";
+     	 ecmdOutputError( printed.c_str() );
+     	 return rc;
+     }
+     else {
+       validPosFound = true;
+     }
+ 
+     if (startbit != -1) {
+       scombuf.extract(buffer, startbit, numbits);
+     } else {
+       scombuf.extract(buffer, 0, scombuf.getBitLength());
+     }
+ 
+     if (expectFlag) {
 
-      if (!ecmdCheckExpected(buffer, expected)) {
+       if (maskFlag) {
+     	 buffer.setAnd(mask, 0, buffer.getBitLength());
+       }
 
-        //@ make this stuff sprintf'd
-        char outstr[50];
-        printed = ecmdWriteTarget(target);
-        sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
-        printed += outstr;
-        ecmdOutputError( printed.c_str() );
+       if (!ecmdCheckExpected(buffer, expected)) {
+
+     	 //@ make this stuff sprintf'd
+     	 char outstr[50];
+     	 printed = ecmdWriteTarget(coretarget);
+     	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
+     	 printed += outstr;
+     	 ecmdOutputError( printed.c_str() );
 
 
-        printed = "getscom - Actual";
-        if (maskFlag) {
-          printed += " (with mask): ";
-        }
-        else {
-          printed += "            : ";
-        }
+     	 printed = "getscom - Actual";
+     	 if (maskFlag) {
+     	   printed += " (with mask): ";
+     	 }
+     	 else {
+     	   printed += " 	   : ";
+     	 }
 
-        printed += ecmdWriteDataFormatted(buffer, outputformat);
-        ecmdOutputError( printed.c_str() );
+     	 printed += ecmdWriteDataFormatted(buffer, outputformat);
+     	 ecmdOutputError( printed.c_str() );
 
-        printed = "getscom - Expected          : ";
-        printed += ecmdWriteDataFormatted(expected, outputformat);
-        ecmdOutputError( printed.c_str() );
-        e_rc = ECMD_EXPECT_FAILURE;
-      }
+     	 printed = "getscom - Expected  	: ";
+     	 printed += ecmdWriteDataFormatted(expected, outputformat);
+     	 ecmdOutputError( printed.c_str() );
+     	 e_rc = ECMD_EXPECT_FAILURE;
+       }
 
-    }
-    else {
+     }
+     else {
 
-      printed = ecmdWriteTarget(target);
-      printed += ecmdWriteDataFormatted(buffer, outputformat);
-      ecmdOutput( printed.c_str() );
-      
-      if ((verbosePtr != NULL) && !expectFlag) {
-        //even if rc returned is non-zero we want to continue to the next chip
+       printed = ecmdWriteTarget(coretarget);
+       printed += ecmdWriteDataFormatted(buffer, outputformat);
+       ecmdOutput( printed.c_str() );
+ 
+       if ((verbosePtr != NULL) && !expectFlag) {
+     	 //even if rc returned is non-zero we want to continue to the next chip
 #ifndef FIPSODE
-        ecmdDisplayScomData(target, address, buffer, verbosePtr);
+        ecmdDisplayScomData(coretarget, address, buffer, verbosePtr);
 #else
 	ecmdOutputWarning("ecmdDisplayScomData not supported on FSP\n");
 #endif
-      }
-    }
-  }
+       }
+     }
+     if (!isCoreScom) break;
+    } /* End CoreLooper */
 
-
+  } /* End PosLooper */
+  
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("getscom - Unable to find a valid chip to execute command on\n");
@@ -308,7 +349,10 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
   ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   ecmdChipTarget target;                        ///< Chip target being operated on
+  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
+  std::list<ecmdScomData> queryScomData;        ///< Scom data 
   uint32_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store write data
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
@@ -349,8 +393,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("putscom - Non-hex characters detected in address field\n");
@@ -412,71 +456,106 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target, looperdata)) {
-
-    /* Do we need to perform a read/modify/write op ? */
-    if ((dataModifier != "insert") || (startbit != -1)) {
-
-
-      rc = getScom(target, address, fetchBuffer);
-
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+    
+    bool isCoreScom;                              ///< Is this a core scom ?
+    
+    /* Now we need to find out if this is a core scom or not */
+    rc = ecmdQueryScom(target, queryScomData, address);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
-      }
-      else if (rc) {
-        printed = "putscom - Error occured performing getscom on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-      else {
-        validPosFound = true;     
-      }
+    }
+    else if (rc) {
+      printed = "putscom - Error occurred performing queryscom on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    if (queryScomData.size() != 1) {
+      ecmdOutputError("putscom - Too much/little ring information returned from the dll, unable to determine if it is a core scom\n");
+      return ECMD_DLL_INVALID;
+    }
+    isCoreScom = queryScomData.begin()->isCoreRelated;
 
-      rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == -1 ? 0 : startbit), dataModifier);
+    /* Setup our Core looper if needed */
+    coretarget = target;
+    if (isCoreScom) {
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the core loop */
+      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
       if (rc) return rc;
-
-      rc = putScom(target, address, fetchBuffer);
-      if (rc) {
-        printed = "putscom - Error occured performing putscom on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-
-    }
-    else {
-
-      rc = putScom(target, address, buffer);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
-        printed = "putscom - Error occured performing putscom on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-      else {
-        validPosFound = true;     
-      }
-
     }
 
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-    }
+    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while (!isCoreScom ||
+           ecmdConfigLooperNext(coretarget, corelooper)) {
+	   
+     /* Do we need to perform a read/modify/write op ? */
+     if ((dataModifier != "insert") || (startbit != -1)) {
+
+
+       rc = getScom(coretarget, address, fetchBuffer);
+
+       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+     	 continue;
+       }
+       else if (rc) {
+     	 printed = "putscom - Error occured performing getscom on ";
+     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += "\n";
+     	 ecmdOutputError( printed.c_str() );
+     	 return rc;
+       }
+       else {
+     	 validPosFound = true;
+       }
+
+       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == -1 ? 0 : startbit), dataModifier);
+       if (rc) return rc;
+
+       rc = putScom(coretarget, address, fetchBuffer);
+       if (rc) {
+     	 printed = "putscom - Error occured performing putscom on ";
+     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += "\n";
+     	 ecmdOutputError( printed.c_str() );
+     	 return rc;
+       }
+
+     }
+     else {
+
+       rc = putScom(coretarget, address, buffer);
+       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+     	 continue;
+       }
+       else if (rc) {
+     	 printed = "putscom - Error occured performing putscom on ";
+     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += "\n";
+     	 ecmdOutputError( printed.c_str() );
+     	 return rc;
+       }
+       else {
+     	 validPosFound = true;
+       }
+
+     }
+
+     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+       printed = ecmdWriteTarget(coretarget) + "\n";
+       ecmdOutput(printed.c_str());
+     }
+     if (!isCoreScom) break;
+    } /* End CoreLooper */
+  } /* End PosLooper */
   
-  }
-
-
   if (!validPosFound) {
     ecmdOutputError("putscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
