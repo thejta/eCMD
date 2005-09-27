@@ -1252,7 +1252,6 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget coretarget;	        ///< Current target being operated on for the cores
   std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
-  bool isCoreLatch;                     ///< Is this a core latch ?
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool validLatchFound = false;                 ///< Did we find a valid latch
   std::string printed;
