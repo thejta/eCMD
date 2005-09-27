@@ -882,8 +882,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
       decode = "[p:c:t]";
     } else if (ecmdParseOption (&argc, &argv, "-dc")) {
-      target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-      target.threadState = ECMD_TARGET_QUERY_IGNORE;
+      target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      target.threadState = ECMD_TARGET_FIELD_UNUSED;
       decode = "[p:c]";
     } else { /* -dp as well */
       target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;

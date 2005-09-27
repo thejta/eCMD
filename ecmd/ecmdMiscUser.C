@@ -265,7 +265,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   }
   else {
     if (depth == 0) depth = CAGE;
-    target.chipTypeState = ECMD_TARGET_QUERY_IGNORE;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     configName = argv[0];
     strcpy(inputVal, argv[1]);
   }
