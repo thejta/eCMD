@@ -62,8 +62,6 @@ char **p_xargv;
 #endif
 #endif
 
-/** cje put this in temp to disable xstates completely, will be removed with api changes */
-//#define DISABLE_XSTATE
 
 #define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; } return i_rc;
 #define SET_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; }
@@ -89,6 +87,7 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
+  iv_XstateEnabled = false;
 #endif
 
   iv_UserOwned = true;
@@ -103,6 +102,7 @@ ecmdDataBuffer::ecmdDataBuffer(uint32_t numBits)
 
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
+  iv_XstateEnabled = false;
 #endif
   if (numBits > 0)
     setBitLength(numBits);
@@ -114,6 +114,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 {
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
+  iv_XstateEnabled = false;
 #endif
 
   iv_UserOwned = true;
@@ -129,12 +130,10 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& other)
 
 
 #ifndef REMOVE_SIM
-    /// cje This needs to be update to enable/disable xstates in the copy buffer
-    if (iv_DataStr != NULL) {
-      /* cje enable the xstate in the copy */
+    if (other.isXstateEnabled()) {
+      /* enable my xstate */
+      enableXstateBuffer();
       strncpy(iv_DataStr, other.iv_DataStr, iv_NumBits);
-    } else if (other.iv_DataStr != NULL) {
-      /* cje disable the xstate in the copy */
     }
 #endif
   }
@@ -192,6 +191,7 @@ uint32_t ecmdDataBuffer::clear() {
     delete[] iv_DataStr;
     iv_DataStr = NULL;
   }
+  iv_XstateEnabled = false;
 #endif
 
   return rc;
@@ -234,7 +234,7 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
     /* Just clear the buffer */
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL)
+    if (iv_XstateEnabled)
       this->fillDataStr('0'); /* init to 0 */
 #endif
     iv_RealData[2] = 0; ///< Reset error code
@@ -265,14 +265,10 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL)
-      delete[] iv_DataStr;
+    if (iv_XstateEnabled) {
+      if (iv_DataStr != NULL)
+        delete[] iv_DataStr;
 
-    iv_DataStr = NULL;
-#ifndef DISABLE_XSTATE
-    /* cje Need to see if we really want this buffer */
-    /* For now we disable the buffer for anything > 500,000 bits, if a scan ring is that big we have a problem */
-    if (iv_NumBits < 500000) {
       iv_DataStr = new char[iv_NumBits + 42];
 
       if (iv_DataStr == NULL) {
@@ -283,7 +279,6 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
       this->fillDataStr('0'); /* init to 0 */
     }
 #endif
-#endif
 
 
   } else if (iv_NumBits != 0) { /* no need to resize */
@@ -291,13 +286,13 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t newNumBits) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL)
+    if (iv_XstateEnabled)
       this->fillDataStr('0'); /* init to 0 */
 #endif
 
   }
 #ifndef REMOVE_SIM
-  else if (iv_DataStr != NULL) /* decreasing bit length to zero */
+  else if (iv_XstateEnabled) /* decreasing bit length to zero */
     iv_DataStr[0] = '\0'; 
 #endif
 
@@ -349,15 +344,12 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
     iv_RealData[iv_NumWords + 4] = randNum;
 
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL)
-      delete[] iv_DataStr;
+    if (iv_XstateEnabled) {
+      if (iv_DataStr != NULL)
+        delete[] iv_DataStr;
 
-    iv_DataStr = NULL;
+      iv_DataStr = NULL;
 
-#ifndef DISABLE_XSTATE
-    /* cje need to see if we want this buffer at all */
-    /* For now we disable the buffer for anything > 500,000 bits, if a scan ring is that big we have a problem */
-    if (iv_Capacity*32 < 500000) {
       iv_DataStr = new char[(iv_Capacity*32)+42];
 
       if (iv_DataStr == NULL) {
@@ -367,7 +359,6 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t newCapacity) {
 
       this->fillDataStr('0'); /* init to 0 */
     }
-#endif
 #endif
 
   }
@@ -438,7 +429,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 
 #ifndef REMOVE_SIM
     char* temp = NULL;
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       temp = new char[prevbitsize+42];
       if (temp == NULL) {
         ETRAC0("**** ERROR : ecmdDataBuffer::growBitLength : Unable to allocate temp X-State buffer");
@@ -456,7 +447,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
     delete[] tempBuf;
 
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       strncpy(iv_DataStr, temp, prevbitsize); // copy back into iv_DataStr
       delete[] temp;
     }
@@ -477,7 +468,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
     /* memset the rest */
     memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 - (idx/8): iv_NumBits / 8 - (idx/8)); /* init to 0 */
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       memset(&(iv_DataStr[idx]), '0', (iv_NumBits - idx) ); /* init to 0 */
     }
 #endif
@@ -499,7 +490,7 @@ uint32_t  ecmdDataBuffer::setBit(uint32_t bit) {
     int index = bit/32;
     iv_Data[index] |= 0x00000001 << (31 - (bit-(index * 32)));
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       iv_DataStr[bit] = '1';
     }
 #endif
@@ -539,7 +530,7 @@ uint32_t  ecmdDataBuffer::setWord(uint32_t wordOffset, uint32_t value) {
     iv_Data[wordOffset] = value;
     
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       int startBit = wordOffset * 32;
       uint32_t mask = 0x80000000;
       for (int i = 0; i < 32; i++) {
@@ -573,7 +564,7 @@ uint32_t  ecmdDataBuffer::setByte(uint32_t byteOffset, uint8_t value) {
 #endif
     
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       int startBit = byteOffset * 8;
       uint8_t mask = 0x80;
       for (int i = 0; i < 8; i++) {
@@ -622,7 +613,7 @@ uint32_t  ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_valu
   }
 
 #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     int startBit = i_halfwordoffset * 16;
     uint16_t mask = 0x8000;
     for (int i = 0; i < 16; i++) {
@@ -670,7 +661,7 @@ uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_
 
   
 #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     int startBit = i_doublewordoffset * 64;
     uint64_t mask = 0x8000000000000000ull;
     for (int i = 0; i < 64; i++) {
@@ -709,7 +700,7 @@ uint32_t  ecmdDataBuffer::clearBit(uint32_t bit) {
     int index = bit/32;
     iv_Data[index] &= ~(0x00000001 << (31 - (bit-(index * 32))));
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       iv_DataStr[bit] = '0';
     }
 #endif
@@ -735,7 +726,7 @@ uint32_t  ecmdDataBuffer::flipBit(uint32_t bit) {
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
 #ifndef REMOVE_SIM
-    if ((iv_DataStr != NULL) && this->hasXstate(bit, 1)) {
+    if ((iv_XstateEnabled) && this->hasXstate(bit, 1)) {
       ETRAC1("**** ERROR : ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d", bit);
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
     } else {
@@ -772,7 +763,7 @@ bool   ecmdDataBuffer::isBitSet(uint32_t bit) const {
     return false;
   } else {
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
         ETRAC1("**** ERROR : ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d", bit);
         SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
@@ -811,7 +802,7 @@ bool   ecmdDataBuffer::isBitClear(uint32_t bit) const {
     return false;
   } else {
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       if (iv_DataStr[bit] != '1' && iv_DataStr[bit] != '0') {
         ETRAC0( "**** ERROR : ecmdDataBuffer::isBitClear: non-binary character detected in data string");
         SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
@@ -896,7 +887,7 @@ uint32_t   ecmdDataBuffer::shiftRight(uint32_t shiftNum) {
   }
 
 #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     // shift char
     char* temp = new char[iv_NumBits+42];
     for (i = 0; i < shiftNum+1; i++) temp[i] = '0'; // backfill with zeros
@@ -946,7 +937,7 @@ uint32_t   ecmdDataBuffer::shiftLeft(uint32_t shiftNum) {
   }
 
 #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     // shift char
     char* temp = new char[iv_NumBits+42];
     for (uint32_t j = iv_NumBits - shiftNum - 1; j < iv_NumBits; j++) temp[j] = '0'; // backfill with zeros
@@ -991,7 +982,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
 
 #ifndef REMOVE_SIM
     char* temp = NULL;
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       temp = new char[iv_NumBits+42];
       if (temp == NULL) {
         ETRAC0("**** ERROR : ecmdDataBuffer::shiftRightAndResize : Unable to allocate temp X-State buffer");
@@ -1009,7 +1000,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
     delete[] tempBuf;
 
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       strncpy(iv_DataStr, temp, iv_NumBits); // copy back into iv_DataStr
       delete[] temp;
     }
@@ -1055,7 +1046,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
   iv_NumBits += shiftNum;
 
 #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     // shift char
     char* temp = new char[iv_NumBits+42];
     if (temp == NULL) {
@@ -1121,7 +1112,7 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t shiftNum) {
   iv_RealData[iv_NumWords + 4] = 0x12345678;
 
 #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     // shift char
     char* temp = new char[iv_NumBits+42];
     if (temp == NULL) {
@@ -1180,7 +1171,7 @@ uint32_t  ecmdDataBuffer::flushTo0() {
   if (iv_NumWords > 0) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL)
+    if (iv_XstateEnabled)
       rc = this->fillDataStr('0');
 #endif
   }
@@ -1192,7 +1183,7 @@ uint32_t  ecmdDataBuffer::flushTo1() {
   if (iv_NumWords > 0) {
     for (uint32_t i = 0; i < iv_NumWords; i++) iv_Data[i] = 0xFFFFFFFF;
 #ifndef REMOVE_SIM   
-    if (iv_DataStr != NULL)
+    if (iv_XstateEnabled)
       rc = this->fillDataStr('1');
 #endif
   }
@@ -1248,7 +1239,7 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
   }
      
 #ifndef REMOVE_SIM   
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     int xbuf_size = (i_invByteLen * 8) < iv_NumBits ? (i_invByteLen * 8) : iv_NumBits;
     int curbit = 0;
 
@@ -1282,8 +1273,9 @@ uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_ta
     rc = this->insert(i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart);
     /* Now apply the Xstate stuff */
 #ifndef REMOVE_SIM   
-    /* Do we want to disable xstate here ? */
-    if ((iv_DataStr != NULL) && (i_bufferIn.iv_DataStr != NULL)) {
+    /* If the input buffer has xstates enabled, we need to enable ours */
+    if (i_bufferIn.iv_XstateEnabled) {
+      enableXstateBuffer();
       if (i_targetStart+i_len <= iv_NumBits) {
         strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
       }
@@ -1390,7 +1382,8 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint
 
 
 #ifndef REMOVE_SIM   
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
+      bufferOut.enableXstateBuffer();
       if (start+len <= iv_NumBits) {
         strncpy(bufferOut.iv_DataStr, (genXstateStr(start, len)).c_str(), len);
         bufferOut.iv_DataStr[len] = '\0';
@@ -1415,7 +1408,7 @@ uint32_t ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len
     }
 
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       /* If we are using this interface and find Xstate data we have a problem */
       if (hasXstate(start, len)) {
         ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character      present\n");
@@ -1510,6 +1503,7 @@ uint32_t ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
 }
 
 uint32_t ecmdDataBuffer::setOr(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
   return this->setOr(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1540,6 +1534,7 @@ uint32_t ecmdDataBuffer::setOr(uint32_t dataIn, uint32_t startBit, uint32_t len)
 }
 
 uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
   return this->setXor(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1569,6 +1564,7 @@ uint32_t ecmdDataBuffer::setXor(uint32_t dataIn, uint32_t startBit, uint32_t len
 
 uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& bufferIn) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
   if (iv_NumBits != bufferIn.iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)", bufferIn.iv_NumBits, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1579,6 +1575,7 @@ uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& bufferIn) {
 }
 
 uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
   return this->setAnd(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1703,7 +1700,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
 
 #ifndef REMOVE_SIM
   /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_DataStr != NULL) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genHexLeftStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -1739,7 +1736,7 @@ std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) cons
 
 #ifndef REMOVE_SIM
   /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_DataStr != NULL) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genHexRightStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -1819,7 +1816,7 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 
 #ifndef REMOVE_SIM
   /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_DataStr != NULL) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genBinStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -1858,7 +1855,7 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
 
 #ifndef REMOVE_SIM
   /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_DataStr != NULL) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genAsciiStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -1870,7 +1867,7 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
 std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const {
   std::string ret;
 #ifndef REMOVE_SIM
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::genXstateStr: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
     return ret;
@@ -2041,11 +2038,13 @@ uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) const {
     // Error state
     newCopy.iv_RealData[2] = iv_RealData[2];
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
-      // cje enable xstates in copied buffer 
+    if (iv_XstateEnabled) {
+      /* enable the xstate in the copy */
+      newCopy.enableXstateBuffer();
       strncpy(newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
-    } else if (iv_DataStr == NULL) {
-      /* cje disable xstates in copied buffer */
+    } else if (newCopy.iv_XstateEnabled) {
+      /* disable the xstate in the copy */
+      newCopy.disableXstateBuffer();
     }
 #endif
   }
@@ -2065,11 +2064,11 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
     // Error state
     iv_RealData[2] = i_master.iv_RealData[2];
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
-      // cje enable xstates in copied buffer 
+    if (i_master.iv_XstateEnabled) {
+      enableXstateBuffer();
       strncpy(iv_DataStr, i_master.iv_DataStr, i_master.iv_NumBits);
-    } else if (iv_DataStr == NULL) {
-      /* cje disable xstates in copied buffer */
+    } else if (iv_XstateEnabled) {
+      disableXstateBuffer();
     }
 #endif
   }
@@ -2087,7 +2086,7 @@ uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Do
   } else {
     ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
 #ifndef REMOVE_SIM
-    if (iv_DataStr != NULL) {
+    if (iv_XstateEnabled) {
       uint32_t mask = 0x80000000;
       int curWord = 0;
 
@@ -2176,11 +2175,105 @@ uint32_t ecmdDataBuffer::flattenSize() const {
   return (iv_Capacity + 2) * 4;
 }
 
+
+/**
+ * @brief Initializes the X-state buffer, from then on all changes are reflected in Xstate
+ * @post Xstate buffer is created and initialized to value of current raw buffer
+ * @retval ECMD_DBUF_SUCCESS on success
+ * @retval ECMD_DBUF_INIT_FAIL failure occurred allocating X-state array
+ * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+ */
+uint32_t ecmdDataBuffer::enableXstateBuffer() {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  if(!iv_UserOwned)
+  {
+    ETRAC0("**** ERROR (ecmdDataBuffer::enableXstateBuffer) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  }
+#ifndef REMOVE_SIM
+
+  /* If it is already enabled, we don't do it again */
+  if (iv_XstateEnabled) return rc;
+
+  if (iv_NumBits > 0) {
+    iv_DataStr = new char[iv_NumBits + 42];
+
+    if (iv_DataStr == NULL) {
+      ETRAC0("**** ERROR : ecmdDataBuffer::enableXstateBuffer : Unable to allocate Xstate memory for new databuffer");
+      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+    }
+
+    /* Copy the raw data into the xstate buffer */
+    uint32_t mask = 0x80000000;
+    int curWord = 0;
+    uint32_t numBits = getBitLength();
+
+    for (uint32_t w = 0; w < numBits; w++) {
+      if (iv_Data[curWord] & mask) {
+        iv_DataStr[w] = '1';
+      }
+      else {
+        iv_DataStr[w] = '0';
+      }
+
+      mask >>= 1;
+
+      if (!mask) {
+        curWord++;
+        mask = 0x80000000;
+      }
+    }
+  }
+  iv_XstateEnabled = true;
+#endif
+  return rc;
+}
+
+/**
+ * @brief Removes the X-state buffer, from then on no changes are made to Xstate
+ * @post Xstate buffer is deallocated
+ * @retval ECMD_DBUF_SUCCESS on success
+  * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+  */
+uint32_t ecmdDataBuffer::disableXstateBuffer() {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if(!iv_UserOwned)
+  {
+    ETRAC0("**** ERROR (ecmdDataBuffer::disableXstateBuffer) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  }
+#ifndef REMOVE_SIM
+  if (iv_DataStr != NULL) {
+    delete[] iv_DataStr;
+    iv_DataStr = NULL;
+  }
+  iv_XstateEnabled = false;
+#endif
+  return rc;
+
+ }
+
+ /**
+  * @brief Query to find out if this buffer has X-states enabled
+  * @retval true if the Xstate buffer is active
+  * @retval false if the Xstate buffer is not active
+  */
+bool ecmdDataBuffer::isXstateEnabled() const {
+#ifndef REMOVE_SIM
+ return iv_XstateEnabled;
+#else
+ return false;
+#endif
+ }
+
+
+
 uint32_t  ecmdDataBuffer::flushToX(char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
 #ifndef REMOVE_SIM
- if (iv_DataStr == NULL) {
+ if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::flushToX: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2201,7 +2294,7 @@ bool ecmdDataBuffer::hasXstate() const {
   SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   return false;
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::hasXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
     return false;
@@ -2217,7 +2310,7 @@ bool   ecmdDataBuffer::hasXstate(uint32_t start, uint32_t length) const {
   SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   return false;
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::hasXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
     return false;
@@ -2246,7 +2339,7 @@ char ecmdDataBuffer::getXstate(uint32_t i_bit) const {
   SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   return '0';
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
     return '0';
@@ -2273,7 +2366,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value) {
   RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
 
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2305,7 +2398,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_leng
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
 
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2333,7 +2426,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
 
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2384,7 +2477,7 @@ uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bytes) 
   ETRAC0("**** ERROR : ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::memCopyInXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2423,7 +2516,7 @@ uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bytes) const
   ETRAC0("**** ERROR : ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
 #else
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::memCopyOutXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2479,7 +2572,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
 
 #ifndef REMOVE_SIM
   /* Check the X-state buffer */
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     if (strncmp(iv_DataStr, other.iv_DataStr, iv_NumBits)) {
       return 0;
     }
@@ -2523,7 +2616,7 @@ ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& other) const {
 //---------------------------------------------------------------------
 #ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::fillDataStr(char fillChar) {
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::fillDataStr: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -2691,7 +2784,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   
  //Check if format asked for is the same as what was used b4
   #ifndef REMOVE_SIM
-  if (iv_DataStr != NULL) {
+  if (iv_XstateEnabled) {
     if((hasXstate()) && (i_format != ECMD_SAVE_FORMAT_XSTATE)) {
       ETRAC0( "**** ERROR : ecmdDataBuffer: writeFileMultiple: Buffer has Xstate data but non-xstate save mode requested");
       return(ECMD_DBUF_XSTATE_ERROR);
@@ -2827,7 +2920,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   } 
   else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
 #ifndef REMOVE_SIM
-  if (iv_DataStr == NULL) {
+  if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
@@ -3152,6 +3245,7 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
     i_sharingBuffer->iv_UserOwned = false;
 #ifndef REMOVE_SIM
     i_sharingBuffer->iv_DataStr = iv_DataStr;
+    i_sharingBuffer->iv_XstateEnabled = iv_XstateEnabled;
 #endif
     return(rc);
 }
@@ -3213,7 +3307,7 @@ void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer 
   if (i_buffer == NULL) return;
 #ifndef REMOVE_SIM
   ecmdDataBuffer* buff = (ecmdDataBuffer*)i_buffer;
-  if (buff->iv_DataStr == NULL) {
+  if (!buff->iv_XstateEnabled) {
     return;
   }
   strcpy(buff->iv_DataStr,buff->genBinStr().c_str());

@@ -1061,6 +1061,30 @@ public:
   //@{
 
   /**
+   * @brief Initializes the X-state buffer, from then on all changes are reflected in Xstate
+   * @post Xstate buffer is created and initialized to value of current raw buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred allocating X-state array
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   */
+  uint32_t enableXstateBuffer();
+
+  /**
+   * @brief Removes the X-state buffer, from then on no changes are made to Xstate
+   * @post Xstate buffer is deallocated
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   */
+  uint32_t disableXstateBuffer();
+
+   /**
+    * @brief Query to find out if this buffer has X-states enabled
+    * @retval true if the Xstate buffer is active
+    * @retval false if the Xstate buffer is not active
+    */
+  bool     isXstateEnabled() const;
+
+  /**
    * @brief Load entire buffer with an X-state value
    * @param i_value Value to load into buffer
    * @retval ECMD_DBUF_SUCCESS on success
@@ -1261,6 +1285,7 @@ protected:
 #ifndef REMOVE_SIM
   char* iv_DataStr; /* binary or x data */
   uint32_t fillDataStr(char fillChar);
+  bool iv_XstateEnabled;
 #endif
 
 };
