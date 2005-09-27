@@ -156,7 +156,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str());
+    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc || spyDataList.empty()) {
@@ -510,7 +510,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
-    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str());
+    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc || spyDataList.empty()) {
