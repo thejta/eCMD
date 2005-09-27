@@ -470,7 +470,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   bool expectFlag = false;
-  ecmdLatchMode_t latchMode = ECMD_LATCHMODE_PARTIAL;   ///< Default to pattern matching on latch name
+  ecmdLatchMode_t latchMode = ECMD_LATCHMODE_FULL;   ///< Default to full match on latch name
   char* expectDataPtr = NULL;
   ecmdLooperData looperdata;                    ///< Store internal Looper data
   ecmdLooperData corelooper;	                ///< Store internal Looper data for the core loop
@@ -496,7 +496,9 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     expectFlag = true;
   }
 
-  if (ecmdParseOption(&argc, &argv, "-exact")) {
+  if (ecmdParseOption(&argc, &argv, "-partial")) {
+    latchMode = ECMD_LATCHMODE_PARTIAL;
+  } else if (ecmdParseOption(&argc, &argv, "-exact")) {
     latchMode = ECMD_LATCHMODE_FULL;
   }
 
@@ -638,6 +640,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
+        if (latchMode == ECMD_LATCHMODE_FULL)
+          ecmdOutputError("getlatch - Try using '-partial' to enable pattern matching on the latch name\n");
         return rc;
     } else if (rc) {
         printed = "getlatch - Error occurred performing querylatch on ";
@@ -1254,7 +1258,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   std::string printed;
   std::list<ecmdLatchEntry> latchs;     ///< Latchs retrieved from getLatch
   std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latchs
-  ecmdLatchMode_t latchMode = ECMD_LATCHMODE_PARTIAL;   ///< Default to pattern matching on latch name
+  ecmdLatchMode_t latchMode = ECMD_LATCHMODE_FULL;   ///< Default to full match on latch name
   ecmdDataBuffer buffer;                ///< Buffer to store data from user
   ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
@@ -1269,7 +1273,9 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
-  if (ecmdParseOption(&argc, &argv, "-exact")) {
+  if (ecmdParseOption(&argc, &argv, "-partial")) {
+    latchMode = ECMD_LATCHMODE_PARTIAL;
+  } else if (ecmdParseOption(&argc, &argv, "-exact")) {
     latchMode = ECMD_LATCHMODE_FULL;
   }
 
@@ -1391,6 +1397,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
+        if (latchMode == ECMD_LATCHMODE_FULL)
+          ecmdOutputError("getlatch - Try using '-partial' to enable pattern matching on the latch name\n");
         return rc;
     } else if (rc) {
       printed = "putlatch - Error occurred performing querylatch on ";
