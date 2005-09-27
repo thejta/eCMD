@@ -1,5 +1,5 @@
 
-Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact] 
+Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact | -partial] 
                               [-exp <value>] [-o<format>] 
                               [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -38,7 +38,9 @@ Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exa
                         and -exact not selected, prints a warning message instead of the
                         data. If -exact is selected, immediately returns an error.
 
-        -exact    [opt] No pattern matching. Instead, search for exact latch name.
+        -exact    [opt] No pattern matching. Instead, search for exact latch name. (default)
+
+        -partial  [opt] Use pattern matching to find latch name, can be considerably slower.
 
         -exp [optional] Provide an expected-value as the last argument. Returns error if
                         data miscompare, else nothing.
