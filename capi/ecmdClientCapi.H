@@ -138,9 +138,9 @@ bool ecmdQueryVersionGreater(const char* version);
  The Valid bits of the target are used to refine the query
 
  The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
- When a field state is set to ECMD_TARGET_QUERY_WILDCARD the query function will iterate on all possible values for that
+ When a field state is set to ECMD_TARGET_FIELD_WILDCARD the query function will iterate on all possible values for that
  entry and return the relevant data.
- When a field state is set to ECMD_TARGET_QUERY_IGNORE the query function will stop iterating at that level and below
+ When a field state is set to ECMD_TARGET_FIELD_UNUSED the query function will stop iterating at that level and below
 
 
  Ex: to query what positions of the Nova chip are on cage 1, node 2:<p>
@@ -1899,7 +1899,7 @@ uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdData
  @param i_target Struct that contains chip and cage/node/slot/position/core information
  @param o_hierarchy Return the model hierarchy for this target
 
-NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_QUERY_FIELD_VALID
+NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_FIELD_VALID
  TARGET DEPTH : Core
  TARGET STATES : Must be Initialized
 
