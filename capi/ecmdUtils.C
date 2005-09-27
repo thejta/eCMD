@@ -647,6 +647,7 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
   else if (localFormat == "bX") {
     bitlength = strlen(i_dataStr);
     if (i_expectedLength != 0) bitlength = i_expectedLength;
+    o_data.enableXstateBuffer();
     o_data.setBitLength(bitlength);
     o_data.setXstate(0,i_dataStr);
   }
@@ -818,7 +819,11 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_BX) {
-    //do something
+    if (!i_data.isXstateEnabled()) {
+      ecmdOutputError("ecmdWriteDataFormatted - Write of X-state data required but Xstate buffer not enabled\n");
+      printed = "";
+      return printed;
+    }
     printed = "0b" + i_data.genXstateStr();
     printed += "\n";
   }
