@@ -158,7 +158,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     /* We need to find out info about this array */
-    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str());
+    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc || arrayDataList.empty()) {
       printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
@@ -402,7 +402,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
 
     /* We need to find out info about this array */
-    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str());
+    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc || arrayDataList.empty()) {
       printed = "putarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";

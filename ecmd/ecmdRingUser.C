@@ -229,7 +229,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
 
       /* Now we need to find out if this is a core ring or not */
-      rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
+      rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
       }
@@ -945,7 +945,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     /* Now we need to find out if this is a core ring or not */
-    rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
+    rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
     }
@@ -1165,7 +1165,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
       /* Now we need to find out if this is a core ring or not */
-      rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
+      rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
       }
@@ -1622,10 +1622,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     
 
     if (allRingsFlag) {
-      rc = ecmdQueryRing(target, queryRingData);
+      rc = ecmdQueryRing(target, queryRingData, NULL, ECMD_QUERY_DETAIL_LOW);
     }
     else {
-      rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
+      rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     }
 
     if (rc) {
@@ -1976,7 +1976,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 
   while (ecmdConfigLooperNext(target, looperdata)) {
 
-    rc = ecmdQueryRing(target, queryRingData, ringName.c_str());
+    rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
