@@ -141,8 +141,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
@@ -223,7 +223,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     bool isCoreScom;                              ///< Is this a core scom ?
     
     /* Now we need to find out if this is a core scom or not */
-    rc = ecmdQueryScom(target, queryScomData, address);
+    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
     }
@@ -242,8 +242,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreScom) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
@@ -392,8 +392,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllHex(argv[1])) {
@@ -464,7 +464,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     bool isCoreScom;                              ///< Is this a core scom ?
     
     /* Now we need to find out if this is a core scom or not */
-    rc = ecmdQueryScom(target, queryScomData, address);
+    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
     }
@@ -483,8 +483,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     /* Setup our Core looper if needed */
     coretarget = target;
     if (isCoreScom) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
@@ -693,8 +693,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
