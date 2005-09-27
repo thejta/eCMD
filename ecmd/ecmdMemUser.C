@@ -438,6 +438,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   std::string cacheTypeStr;                        ///< User input for the cache to be flushed
   std::string printed;                          ///< Output data
   ecmdCacheType_t cacheType;                    ///< cache type to be flushed
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -455,17 +456,18 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (argc > 2) {
     ecmdOutputError("cacheflush - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("cacheflush - Type 'cacheflush -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_QUERY_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
   //get the cachetype
   cacheTypeStr = argv[1];
@@ -474,8 +476,10 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   
   if (cacheTypeStr == "l1i") {
     cacheType = ECMD_CACHE_LEVEL1I;
+    target.coreState = ECMD_TARGET_QUERY_WILDCARD;      /// adjust looper for cores
   } else if (cacheTypeStr == "l1d") {
     cacheType = ECMD_CACHE_LEVEL1D;
+    target.coreState = ECMD_TARGET_QUERY_WILDCARD;      /// adjust looper for cores
   } else if (cacheTypeStr == "l2") {
     cacheType = ECMD_CACHE_LEVEL2;
   } else if (cacheTypeStr == "l3") {
@@ -487,12 +491,15 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
     ecmdOutputError("cacheflush - Type 'cacheflush -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-  
+
+
+
+
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
