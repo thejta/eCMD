@@ -257,7 +257,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 	   
      rc = getScom(coretarget, address, scombuf);
      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-       continue;
+       break;
      }
      else if (rc) {
      	 printed = "getscom - Error occured performing getscom on ";
@@ -503,7 +503,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
        rc = getScom(coretarget, address, fetchBuffer);
 
        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-     	 continue;
+     	 break;
        }
        else if (rc) {
      	 printed = "putscom - Error occured performing getscom on ";
@@ -533,7 +533,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
        rc = putScom(coretarget, address, buffer);
        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-     	 continue;
+     	 break;
        }
        else if (rc) {
      	 printed = "putscom - Error occured performing putscom on ";
