@@ -100,7 +100,7 @@ uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 /**
   This function specification is the same as defined in ecmdClientCapi.H as ecmdQuerySpy
 */
-uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryDataList, const char * i_spyName) {
+uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryDataList, const char * i_spyName, ecmdQueryDetail_t i_detail) {
   uint32_t rc = ECMD_SUCCESS;
   sedcSpyContainer mySpy;
   std::list<sedcSpyContainer> mySpyList;
@@ -1514,13 +1514,14 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
   std::list<sedcLatchLine>::iterator lineit;
   char outstr[200];
   std::list<ecmdRingData> ringQueryData;
-
+  ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_HIGH;
+  
   /* Walk through the lines looking for our first scom/ring line */
   for (lineit = spy_data->aeiLines.begin(); lineit != spy_data->aeiLines.end(); lineit ++) {
 
     if (lineit->state == (SPY_SECTION_START | SPY_RING)) {
       /* Now we need to query the ring data */
-      rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str());
+      rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str(), detail);
       if (rc) return rc;
       if (!ringQueryData.empty())
         o_domain = ringQueryData.begin()->clockDomain;
