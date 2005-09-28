@@ -267,7 +267,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         rc = getRing(coretarget, ringName.c_str(), ringBuffer);
         if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          continue;
+          break;
         }
         else if (rc) {
           printed = "getringdump - Error occurred performing getring on ";
@@ -678,7 +678,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
      else
        rc = getLatch(coretarget, NULL, latchName.c_str(), latchdata, latchMode);
      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-       continue;
+       break;
      } else if (rc == ECMD_INVALID_LATCHNAME) {
      	 printed = "getlatch - Error occurred performing getlatch on ";
      	 printed += ecmdWriteTarget(coretarget) + "\n";
@@ -979,7 +979,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
       rc = getRing(coretarget, ringName.c_str(), ringBuffer);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
+        break;
       }
       else if (rc) {
         printed = "getbits - Error occurred performing getring on ";
@@ -1200,7 +1200,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
         rc = getRing(coretarget, ringName.c_str(), ringBuffer);
         if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          continue;
+          break;
         }
         else if (rc) {
           printed = "putbits - Error occurred performing getring on ";
@@ -1432,7 +1432,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       else
         rc = getLatch(coretarget, NULL, latchName.c_str(), latchs, latchMode);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
+        break;
       } else if (rc == ECMD_INVALID_LATCHNAME) {
           printed = "putlatch - Error occurred performing getlatch on ";
           printed += ecmdWriteTarget(coretarget) + "\n";
@@ -1628,7 +1628,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     }
 
-    if (rc) {
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    } else if (rc) {
       return rc;
     }
 
@@ -1659,7 +1661,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
         if (!curRingData->isCheckable && allRingsFlag) {
           curRingData++;
-          continue;
+          break;
         }
 
         ringlog.ringName = ringName;
