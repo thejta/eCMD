@@ -1815,10 +1815,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) { ringBuffer.setBit((readRingBuffer.getBitLength())-1);   }
             else                                { ringBuffer.clearBit((readRingBuffer.getBitLength())-1); }
             if (readRingBuffer != ringBuffer) {
-              if (verbose) {
-                sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
+              sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
                         repPattern.c_str());
-                ecmdOutputWarning( outstr );
+              ecmdOutputWarning( outstr );
+              if (verbose) {
                 printed = "Offset  Data\n";
                 printed += "------------------------------------------------------------------------\n";
                 ecmdOutput( printed.c_str() );
