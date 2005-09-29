@@ -2330,7 +2330,6 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
- @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
  TARGET STATES : Unused 
@@ -2348,7 +2347,6 @@ uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
- @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
  TARGET STATES : Unused 
@@ -2365,7 +2363,6 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
- @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
  TARGET STATES : Unused 
@@ -2383,13 +2380,232 @@ uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
- @pre i_target must have an acceptable processor chipType
 
  TARGET DEPTH  : Chip
  TARGET STATES : Unused 
 
 */
 uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
+
+//@}
+
+/** @name I2C Functions */
+//@{
+/**
+ @brief Resets the specified engine port
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port);
+
+
+/**
+ @brief Read data from an I2C device
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveDevice I2C slave device to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_bytes Byte length to read
+ @param o_data Data read from device
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+*/
+uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+/**
+ @brief Read data from an I2C device at the given offset
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveDevice I2C slave device to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_offset Byte offset in the device
+ @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
+ @param i_bytes Byte length to read
+ @param o_data Data read from device
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+*/
+uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+/**
+ @brief Write the provided data into the I2C device
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveDevice I2C slave device to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_data Data to write to device
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+*/
+uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data);
+
+/**
+ @brief Write the provided data into the I2C device at the given offset
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveDevice I2C slave device to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_offset Byte offset in the device
+ @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
+ @param i_data Data to write to device
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+*/
+uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data);
+
+//@}
+
+/** @name GPIO Functions */
+//@{
+/**
+ @brief Configures mode of pin
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId Gpio engine to use
+ @param i_pin Pin to use
+ @param i_mode Mode to configure pin
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ NOTE : Configuring a pin explicitly as output is not necessary since the write latch commands implicitly perform the required settings.
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode);
+
+/**
+ @brief Read the state of the specified pin (0/1)
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId Gpio engine to use
+ @param i_pin Pin to use
+ @param o_state State read on pin (0/1)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, uint32_t & o_state);
+
+/**
+ @brief Read the state of the latch
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId Gpio engine to use
+ @param i_pin Pin to use
+ @param i_mode Mode to configure pin
+ @param o_state State read on pin (0/1)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdGpioReadLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t & o_state);
+
+/**
+ @brief Write value to the specified pin
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId Gpio engine to use
+ @param i_pin Pin to use
+ @param i_mode Mode to configure pin
+ @param i_state State to write to pin
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t i_state);
+
+/**
+ @brief Read the GPIO input register and AND with i_mask 
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId Gpio engine to use
+ @param i_mask Mask to apply to pins
+ @param o_value Value read from pins with mask applied
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_mask, uint32_t & o_value);
+
+/**
+ @brief Write several pins specified by i_mask
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engineId Gpio engine to use
+ @param i_mask Mask to apply to pins
+ @param i_value Value to write to pins with mask applied
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip
+ TARGET STATES : Unused 
+
+*/
+uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value);
 
 //@}
 
