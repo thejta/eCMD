@@ -2150,6 +2150,7 @@ uint32_t ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
   uint32_t newCapacity;
   uint32_t newBitLength;
   uint32_t * i_ptr = (uint32_t *) i_data;
+  uint32_t newWordLength;
 
   newCapacity = (ntohl(i_ptr[0]) + 31) / 32;
   newBitLength = ntohl(i_ptr[1]);
@@ -2164,8 +2165,9 @@ uint32_t ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len) {
   } else {
     rc = this->setCapacity(newCapacity); if (rc) return rc;
     rc = this->setBitLength(newBitLength); if (rc) return rc;
+    newWordLength = getWordLength();
     if (newCapacity > 0)
-      for (uint32_t i = 0; i < newCapacity; i++)
+      for (uint32_t i = 0; i < newWordLength; i++)
         setWord(i, ntohl(i_ptr[i+2]));
   }
   return rc;
