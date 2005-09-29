@@ -111,10 +111,12 @@ typedef enum {
   ECMD_TARGET_THREAD_ALIVE,     ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
 
 #ifndef DOCUMENTATION
+#if 0
   ////< THE FOLLOWING VALUES ARE BEING DEPRECATED AND WILL BE REMOVED AT A LATER DATE (v7 release)
   ECMD_TARGET_QUERY_FIELD_VALID = ECMD_TARGET_FIELD_VALID,      ///< DEPRECATED
   ECMD_TARGET_QUERY_WILDCARD =    ECMD_TARGET_FIELD_WILDCARD,   ///< DEPRECATED
-  ECMD_TARGET_QUERY_IGNORE =      ECMD_TARGET_FIELD_UNUSED,     ///< DEPRECATED 
+  ECMD_TARGET_QUERY_IGNORE =      ECMD_TARGET_FIELD_UNUSED,     ///< DEPRECATED
+#endif
 #endif
 
 } ecmdChipTargetState_t;
@@ -197,6 +199,23 @@ typedef enum {
 } ecmdConfigValid_t;
 
 /**
+ @brief Used by the GPIO functions to specify the different modes for the GPIO pin
+
+             |             High (1)            |             Low (0)             |
+             | Output Enable | Output Register | Output Enable | Output Register |
+ Push Pull   |     true      |       1         |     true      |       0         |
+ Open Drain  |    false      |       0         |     true      |       0         |
+ Open Source |     true      |       1         |    false      |       1         |
+*/
+typedef enum {
+  ECMD_DIO_INPUT,                       ///< Input pin
+  ECMD_DIO_OPEN_DRAIN,                  ///< See detailed table
+  ECMD_DIO_OPEN_SOURCE,                 ///< See detailed table
+  ECMD_DIO_PUSH_PULL                    ///< See detailed table
+} ecmdDioMode_t;
+
+
+/**
  @brief This is used by ecmdQueryDllInfo to return what environment the dll is designed to run in (i.e Simulation vs Hardware)
 */
 typedef enum {
@@ -273,6 +292,14 @@ typedef enum {
   ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
 } ecmdGlobalVarType_t;
 
+/**
+ @brief Used by I2C functions to specify bus speed
+*/
+typedef enum {
+  ECMD_I2C_BUSSPEED_50KHZ,      ///< Run I2c bus at 50Khz
+  ECMD_I2C_BUSSPEED_100KHZ,     ///< Run I2c bus at 100Khz
+  ECMD_I2C_BUSSPEED_400KHZ,     ///< Run I2c bus at 400Khz
+} ecmdI2cBusSpeed_t;
 
 /**
  @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
