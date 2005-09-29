@@ -1219,6 +1219,16 @@ public:
    * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when i_dataNumber != 0
    */
   uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0); /* Reads out the buffer (in the  specified format) from the file */
+  /**
+   * @brief Get the number of databuffers stored in the file created by writeFile/writeFileMultiple
+   * @param i_filename to read from
+   * @param i_format data format to expect in the file
+   * @param o_num number of data buffers stored in the file
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
+   */
+  uint32_t  queryNumOfBuffers(const char * i_filename, ecmdFormatType_t i_format, uint32_t &o_num);
   
   /**
    * @brief Read data from the stream (in ECMD_SAVE_FORMAT_BINARY_DATA  format) into the buffer 
