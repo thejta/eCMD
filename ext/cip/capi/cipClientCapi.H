@@ -64,8 +64,8 @@ uint32_t cipInitExtension();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread
- TARGET STATES : Unused
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipStartInstructions (ecmdChipTarget & i_target);
@@ -91,8 +91,8 @@ uint32_t cipStartAllInstructions ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread
- TARGET STATES : Unused
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipStartInstructionsSreset (ecmdChipTarget & i_target);
@@ -118,8 +118,8 @@ uint32_t cipStartAllInstructionsSreset ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread
- TARGET STATES : Unused
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipStopInstructions (ecmdChipTarget & i_target);
@@ -146,8 +146,8 @@ uint32_t cipStopAllInstructions ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread
- TARGET STATES : Unused
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
@@ -163,8 +163,8 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
- TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET DEPTH  : Core<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
@@ -180,8 +180,8 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
- TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET DEPTH  : Core<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
@@ -200,8 +200,8 @@ uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmd
  @param i_vrNum Number of vr to read from
  @param o_data DataBuffer object that holds data read from vr
 
- TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET DEPTH  : Core<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & o_data);
 
@@ -220,10 +220,10 @@ uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.
+  should be considered invalid.<br>
 
- TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET DEPTH  : Core<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
@@ -243,8 +243,8 @@ uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  @param i_vrNum Number of vr to write to
  @param i_data DataBuffer object that holds data to write into vr
 
- TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET DEPTH  : Core<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & i_data);
 
@@ -264,10 +264,10 @@ uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
 
 
  The return value of this function is set to the first non-zero return code found when
-  writing multiple entries.  The function will NOT continue through all subsequent entries.
+  writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Core
- TARGET STATES : Unused
+ TARGET DEPTH  : Core<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
@@ -296,10 +296,10 @@ uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  @param o_memoryEcc 8 ECC bits for every 64 bits of memory data
  @param o_memoryEccError 1 ECC Error bit for every 64 bits of memory data
 
- NOTE : This function requires that the address be aligned on a 64 bit boundary
+ NOTE : This function requires that the address be aligned on a 64 bit boundary<br>
 
- TARGET DEPTH  : Pos
- TARGET STATES : Unused
+ TARGET DEPTH  : Pos<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError);
 
@@ -320,10 +320,10 @@ uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @param i_memoryTags 1 Tag bit for every 64 bits of memory data (If this has length of zero, the user wants the HW to generate this info; otherwise, use their their values. 
  @param i_memoryErrorInject 2 Error Inject bits for every 64 bits of memory data (If this has a length of zero, no error inject;  otherwise 0b00, 0x11 no error inject, 0b01 single-bit error inject, 0b10 double-bit error inject.)
 
- NOTE : This function requires that the address be aligned on a 64 bit boundary
+ NOTE : This function requires that the address be aligned on a 64 bit boundary<br>
 
- TARGET DEPTH  : Pos
- TARGET STATES : Unused
+ TARGET DEPTH  : Pos<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryErrorInject);
 
@@ -345,10 +345,10 @@ uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @param o_memoryEccError 1 ECC Error bit for every 32 bytes of memory data
  @param o_memorySpareBits  2 Spare bits for every 32 bytes of memory data
 
- NOTE : This function requires that the address be aligned on a 32-byte boundary
+ NOTE : This function requires that the address be aligned on a 32-byte boundary<br>
 
- TARGET DEPTH  : Cage
- TARGET STATES : Unused
+ TARGET DEPTH  : Cage<br>
+ TARGET STATES : Unused<br>
 */
 uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_memorySpareBits);
 
@@ -372,11 +372,11 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
  @param i_memoryErrorInject 2 Error Inject bits for every 64 bits of memory data (If this has a length of zero, no error inject;  otherwise 0b00, 0x11 no error inject, 0b01 single-bit error inject, 0b10 double-bit error inject.)
 
 
- NOTE : This function requires that the address be aligned on a 32-byte boundary
- NOTE : If ecmdDataBuffers for i_memoryTags and i_memorySpareBIts have a length of zero, the user wants the HW to generate this info.  If these ecmdDataBuffers have a length, the the user wants their values to be used.
+ NOTE : This function requires that the address be aligned on a 32-byte boundary<br>
+ NOTE : If ecmdDataBuffers for i_memoryTags and i_memorySpareBIts have a length of zero, the user wants the HW to generate this info.  If these ecmdDataBuffers have a length, the the user wants their values to be used.<br>
 
- TARGET DEPTH  : Cage
- TARGET STATES : Unused
+ TARGET DEPTH  : Cage<br>
+ TARGET STATES : Unused<br>
 
 */
 uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memorySpareBits, ecmdDataBuffer & i_memoryErrorInject);
