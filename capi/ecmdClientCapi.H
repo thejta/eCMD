@@ -79,7 +79,6 @@ uint32_t ecmdUnloadDll();
 
  - argc/argv get passed to the eCMD DLL.
  - Global options such as -debug flags and -p#, -c# will be parsed out.
- - Position flags can be queried later with functions like ?????
  NOTE : This function does not affect ring caching
 */
 
@@ -102,7 +101,7 @@ uint32_t ecmdCommandArgs(int * i_argc, char** i_argv[]);
  @retval nonzero on failure
 
  This interface allows you to query what particular instance of the DLL is loaded (i.e Cronus/IP/Z),
-  along with additional information.
+  along with additional information.<p>
  NOTE : This function does not affect ring caching
 */
 
@@ -138,8 +137,10 @@ bool ecmdQueryVersionGreater(const char* version);
  The Valid bits of the target are used to refine the query
 
  The target paramater should be filled in with as much data as you know to limit the query, (including the chipType).
+
  When a field state is set to ECMD_TARGET_FIELD_WILDCARD the query function will iterate on all possible values for that
  entry and return the relevant data.
+
  When a field state is set to ECMD_TARGET_FIELD_UNUSED the query function will stop iterating at that level and below
 
 
@@ -215,8 +216,8 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
 
  NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL
 
- NOTE : This function does not affect ring caching
- TARGET DEPTH  : Pos
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused
 */
 uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
