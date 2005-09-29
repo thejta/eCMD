@@ -52,9 +52,9 @@ namespace ECMDPERLAPI {
    @param i_clientVersion Comma seperated list of eCMD Perl api major numbers this script supports, see details
    @pre ecmdClientPerlapi constructor must have been called
 
-   - initializes the eCMD Dll.
+   - initializes the eCMD Dll.<br>
 
-   VERSIONS :
+   VERSIONS :<br>
    eCMD at times has to make changes to add/remove functionality and parameters to functions.  This could cause
    incompatability in your script if you used functions that have changed.  The i_clientVersion string is used
    to tell eCMD which major releases you support such that your script will not continue execution if it encounters
@@ -62,8 +62,8 @@ namespace ECMDPERLAPI {
    Perl you can support multiple versions with one script as long as the changes that were made between the versions
    do not affect your script.
 
-   USAGE :
-   if (ecmdLoadDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }
+   USAGE :<br>
+   if (ecmdLoadDll("","ver3,ver4")) { die "Fatal errors initializing DLL"; }<br>
 
    */
   int ecmdLoadDll(const char * i_dllName, const char * i_clientVersion);
@@ -83,13 +83,13 @@ namespace ECMDPERLAPI {
    @post Global options (ex. -p#, -c#) will be removed from arg list
    @see initDll
 
-   - argv gets passed to the eCMD DLL.
-   - Global options such as -p#, -c# will be parsed out.
-   - Target flags can be queried later with functions like ecmdQuerySelected
-   NOTE : This function does not affect ring caching
+   - argv gets passed to the eCMD DLL.<br>
+   - Global options such as -p#, -c# will be parsed out.<br>
+   - Target flags can be queried later with functions like ecmdQuerySelected<br>
+   NOTE : This function does not affect ring caching<br>
 
-   USAGE :
-   ecmdCommandArgs(\@ARGV);
+   USAGE :<br>
+   ecmdCommandArgs(\@ARGV);<br>
 
    */
 
