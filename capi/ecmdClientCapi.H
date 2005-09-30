@@ -2416,7 +2416,7 @@ uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
- @param i_slaveDevice I2C slave device to use
+ @param i_slaveAddress I2C slave device address to use
  @param i_busSpeed I2C Bus speed to use
  @param i_bytes Byte length to read
  @param o_data Data read from device
@@ -2429,14 +2429,14 @@ uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  TARGET DEPTH  : Chip<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Read data from an I2C device at the given offset
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
- @param i_slaveDevice I2C slave device to use
+ @param i_slaveAddress I2C slave device address to use
  @param i_busSpeed I2C Bus speed to use
  @param i_offset Byte offset in the device
  @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
@@ -2451,14 +2451,14 @@ uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_
  TARGET DEPTH  : Chip<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write the provided data into the I2C device
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
- @param i_slaveDevice I2C slave device to use
+ @param i_slaveAddress I2C slave device address to use
  @param i_busSpeed I2C Bus speed to use
  @param i_data Data to write to device
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -2470,14 +2470,14 @@ uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  TARGET DEPTH  : Chip<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data);
 
 /**
  @brief Write the provided data into the I2C device at the given offset
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
- @param i_slaveDevice I2C slave device to use
+ @param i_slaveAddress I2C slave device address to use
  @param i_busSpeed I2C Bus speed to use
  @param i_offset Byte offset in the device
  @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
@@ -2491,7 +2491,7 @@ uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  TARGET DEPTH  : Chip<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveDevice, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data);
 
 //@}
 
