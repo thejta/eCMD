@@ -1,0 +1,60 @@
+
+Syntax: 
+        WITHOUT OFFSET:
+        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Data>
+                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed=<speed>]
+        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> -f<filename>
+                        [-k#] [-n#] [-s#] [-p#] [-busspeed=<speed>]
+
+        WITH OFFSET:
+        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize>
+                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed=<speed>]
+        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize>
+                        [-k#] [-n#] [-s#] [-p#] [-busspeed=<speed>]
+
+        ECMD:           Core Common Function
+
+        Function:       Write I2C data to the specified engine/port/device.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Specifies the chip to operate on.  
+
+        EngineId        Engine number to operate on in decimal
+
+        Port            Engine port numer to operate on in decimal
+
+        SlaveAddress    Slave Device Address in hex
+
+        Data            Data to write to device
+
+        Offset          Offset into the slave device
+
+        FieldSize       Byte width of the offset
+
+        -busspeed [opt] Specifies the bus speed to run i2c in khz : default 400
+                        Valid values are 400, 100, 50
+
+        -i<format>[opt] Specifies the format type of the input : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -f<filename>[o] Specifies the filename that the data should be read from
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+        
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > puti2c fsp 0 1 A0 FFAABB -busspeed=100
+                        > puti2c fsp 0 1 A0 -fdata
+                        > puti2c fsp 0 1 A0 2 10 -fdata

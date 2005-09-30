@@ -1,0 +1,30 @@
+
+Syntax: i2creset <ChipSelect> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Resets the specified engine port
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Specifies the chip to operate on.  
+
+        EngineId        Engine number to operate on in decimal
+
+        Port            Engine port numer to operate on in decimal
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > i2creset fsp 0 1
