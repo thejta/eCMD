@@ -80,7 +80,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Input format of data
   ecmdChipTarget target;                        ///< Current target being operated on
   ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
-  std::list<ecmdScomData> queryScomData;        ///< Ring data 
+  std::list<ecmdScomData> queryScomData;        ///< Scom data 
   ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
   ecmdDataBuffer buffer;                        ///< Data requested by the user
   bool validPosFound = false;                   ///< Did the looper find anything?
@@ -234,7 +234,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       return rc;
     }
     if (queryScomData.size() != 1) {
-      ecmdOutputError("getscom - Too much/little ring information returned from the dll, unable to determine if it is a core scom\n");
+      ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
       return ECMD_DLL_INVALID;
     }
     isCoreScom = queryScomData.begin()->isCoreRelated;
@@ -475,7 +475,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       return rc;
     }
     if (queryScomData.size() != 1) {
-      ecmdOutputError("putscom - Too much/little ring information returned from the dll, unable to determine if it is a core scom\n");
+      ecmdOutputError("putscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
       return ECMD_DLL_INVALID;
     }
     isCoreScom = queryScomData.begin()->isCoreRelated;
@@ -573,8 +573,11 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   std::string outputformat = "x";               ///< Output format
   std::string inputformat = "x";                ///< Input format
   ecmdChipTarget target;                        ///< Target we are operating on
+  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
+  std::list<ecmdScomData> queryScomData;        ///< Scom data 
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   ecmdDataBuffer buffer;                        ///< Store current scom data
   ecmdDataBuffer expected;                      ///< Store expected data
   ecmdDataBuffer mask;                          ///< Store mask data
@@ -694,8 +697,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   if (!ecmdIsAllHex(argv[1])) {
@@ -711,138 +714,174 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata, ECMD_VARIABLE_DEPTH_LOOP);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   std::string printed;
 
   while (ecmdConfigLooperNext(target, looperdata)) {
+    
+    bool isCoreScom;                              ///< Is this a core scom ?
+    
+    /* Now we need to find out if this is a core scom or not */
+    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+    }
+    else if (rc) {
+      printed = "getscom - Error occurred performing queryscom on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    if (queryScomData.size() != 1) {
+      ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
+      return ECMD_DLL_INVALID;
+    }
+    isCoreScom = queryScomData.begin()->isCoreRelated;
 
-    bool done = false;
-    timerStart = time(NULL);
+    /* Setup our Core looper if needed */
+    coretarget = target;
+    if (isCoreScom) {
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-    printed = ecmdWriteTarget(target);
-    char outstr[30];
-    sprintf(outstr, "Polling address %.6X...\n", address);
-    printed += outstr;
-    ecmdOutput( printed.c_str() );
+      /* Init the core loop */
+      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      if (rc) return rc;
+    }
 
-    while (!done) {
+    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while (!isCoreScom ||
+           ecmdConfigLooperNext(coretarget, corelooper)) {
+	   
+     bool done = false;
+     timerStart = time(NULL);
+
+     printed = ecmdWriteTarget(coretarget);
+     char outstr[30];
+     sprintf(outstr, "Polling address %.6X...\n", address);
+     printed += outstr;
+     ecmdOutput( printed.c_str() );
+
+     while (!done) {
  
-      rc = getScom(target, address, buffer);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        break;
-      }
-      else if (rc) {
-        printed = "pollscom - Error occured performing getscom on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-      else {
-        validPosFound = true;     
-      }
+       rc = getScom(coretarget, address, buffer);
+       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+     	 break;
+       }
+       else if (rc) {
+     	 printed = "pollscom - Error occured performing getscom on ";
+     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += "\n";
+     	 ecmdOutputError( printed.c_str() );
+     	 return rc;
+       }
+       else {
+     	 validPosFound = true;
+       }
 
-      /* ------------------------ */
-      /* check for last iteration */
-      /* ------------------------ */
-      if ((limitFlag == ITERATIONS_T || limitFlag == CYCLES_T) && numPolls >= maxPolls) done = 1;
-      else if (limitFlag == SECONDS_T && maxPolls != 0 && ((uint32_t) time(NULL) > timerStart + maxPolls)) done = 1;
+       /* ------------------------ */
+       /* check for last iteration */
+       /* ------------------------ */
+       if ((limitFlag == ITERATIONS_T || limitFlag == CYCLES_T) && numPolls >= maxPolls) done = 1;
+       else if (limitFlag == SECONDS_T && maxPolls != 0 && ((uint32_t) time(NULL) > timerStart + maxPolls)) done = 1;
 
-      if (expectFlag) {
+       if (expectFlag) {
 
-        if (maskFlag) {
-          buffer.setAnd(mask, 0, buffer.getBitLength());
-        }
+     	 if (maskFlag) {
+     	   buffer.setAnd(mask, 0, buffer.getBitLength());
+     	 }
 
-        if (!ecmdCheckExpected(buffer, expected)) {
+     	 if (!ecmdCheckExpected(buffer, expected)) {
 
-          //mismatches
-          if (done || verboseFlag) {
+     	   //mismatches
+     	   if (done || verboseFlag) {
 
-            printed = "pollscom - Actual";
-            if (maskFlag) {
-              printed += " (with mask): ";
-            }
-            else {
-              printed += "            : ";
-            }
+     	     printed = "pollscom - Actual";
+     	     if (maskFlag) {
+     	       printed += " (with mask): ";
+     	     }
+     	     else {
+     	       printed += "	       : ";
+     	     }
 
-            printed += ecmdWriteDataFormatted(buffer, outputformat);
+     	     printed += ecmdWriteDataFormatted(buffer, outputformat);
 
-            printed += "pollscom - Expected          : ";
-            printed += ecmdWriteDataFormatted(expected, outputformat);
+     	     printed += "pollscom - Expected	      : ";
+     	     printed += ecmdWriteDataFormatted(expected, outputformat);
 
-            if (done) {
-              char outstr[50];
-              sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
-              printed = outstr + printed;
-              ecmdOutputError( printed.c_str() );
-            }
-            else {
-              ecmdOutput( printed.c_str() );
-            }
+     	     if (done) {
+     	       char outstr[50];
+     	       sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
+     	       printed = outstr + printed;
+     	       ecmdOutputError( printed.c_str() );
+     	     }
+     	     else {
+     	       ecmdOutput( printed.c_str() );
+     	     }
 
-          }
-            
-        }
-        else {
-          done = 1;  //matches
-        }
+     	   }
+ 
+     	 }
+     	 else {
+     	   done = 1;  //matches
+     	 }
 
-      }
-      else {
+       }
+       else {
 
-        printed = "Actual            : ";
-        printed += ecmdWriteDataFormatted(buffer, outputformat);
+     	 printed = "Actual	      : ";
+     	 printed += ecmdWriteDataFormatted(buffer, outputformat);
 
-        if (done) {
-          printed += ecmdWriteTarget(target);
-          printed += "\tPolling Complete\n";
-        }
+     	 if (done) {
+     	   printed += ecmdWriteTarget(coretarget);
+     	   printed += "\tPolling Complete\n";
+     	 }
 
-        ecmdOutput( printed.c_str() );
-      }
+     	 ecmdOutput( printed.c_str() );
+       }
 
-      //update poll counters
-      if (limitFlag == ITERATIONS_T) {
-        numPolls++;
+       //update poll counters
+       if (limitFlag == ITERATIONS_T) {
+     	 numPolls++;
 
-        if (intervalFlag == CYCLES_T) {
+     	 if (intervalFlag == CYCLES_T) {
 #ifndef REMOVE_SIM
           rc = simclock(interval);
           if (rc) return rc;
 #endif
-        } else if (intervalFlag == SECONDS_T) {
+         } else if (intervalFlag == SECONDS_T) {
           sleep(interval);
-        }
+         }
 
-      }
-      else if (limitFlag == CYCLES_T && intervalFlag == CYCLES_T) {
+       }
+       else if (limitFlag == CYCLES_T && intervalFlag == CYCLES_T) {
 
 #ifndef REMOVE_SIM
-        numPolls += interval;
-        rc = simclock(interval);
-        if (rc) return rc;
+         numPolls += interval;
+         rc = simclock(interval);
+         if (rc) return rc;
 #endif
 
-      }
-      else if (limitFlag == SECONDS_T && intervalFlag == SECONDS_T) {
-        sleep(interval);
-      }
-      else {
+       }
+       else if (limitFlag == SECONDS_T && intervalFlag == SECONDS_T) {
+         sleep(interval);
+       }
+       else {
 
-        ecmdOutputError("pollscom - Invalid limit/interval argument pair");
-        return ECMD_INVALID_ARGS;
+         ecmdOutputError("pollscom - Invalid limit/interval argument pair");
+         return ECMD_INVALID_ARGS;
 
-      }
+       }
         
-    
-    
       
-    }  //while (!done)
-
-  }
+     }  //while (!done)
+     
+     if (!isCoreScom) break;
+    } /* End CoreLooper */
+    
+  } /* End PosLooper */
 
 
   if (!validPosFound) {
