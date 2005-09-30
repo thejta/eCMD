@@ -11,7 +11,7 @@ Syntax: i2creset <ChipSelect> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
 
         EngineId        Engine number to operate on in decimal
 
-        Port            Engine port numer to operate on in decimal
+        Port            Engine port number to operate on in decimal
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
