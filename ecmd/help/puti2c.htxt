@@ -22,7 +22,7 @@ Syntax:
 
         EngineId        Engine number to operate on in decimal
 
-        Port            Engine port numer to operate on in decimal
+        Port            Engine port number to operate on in decimal
 
         SlaveAddress    Slave Device Address in hex
 
