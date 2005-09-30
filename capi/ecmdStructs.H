@@ -171,7 +171,6 @@ typedef enum {
  @brief Used by ecmdConfigLooperInit to enable/disable variable depth looping
 */
 typedef enum {
-  ECMD_VARIABLE_DEPTH_LOOP,             ///< Allow the plugin to change states to control loop (ie in the case of core vs non core scom looping)
   ECMD_STATIC_DEPTH_LOOP                ///< Use the state specified on init, don't allow plugin to change
 } ecmdConfigLoopMode_t;
 
