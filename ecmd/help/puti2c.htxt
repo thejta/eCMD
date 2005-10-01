@@ -2,15 +2,15 @@
 Syntax: 
         WITHOUT OFFSET:
         puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Data>
-                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed=<speed>]
+                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
         puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> -f<filename>
-                        [-k#] [-n#] [-s#] [-p#] [-busspeed=<speed>]
+                        [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         WITH OFFSET:
         puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize>
-                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed=<speed>]
+                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
         puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize>
-                        [-k#] [-n#] [-s#] [-p#] [-busspeed=<speed>]
+                        [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         ECMD:           Core Common Function
 
@@ -55,6 +55,6 @@ Syntax:
 
         --------------------------------------------------------------------------------
 
-        Examples:       > puti2c fsp 0 1 A0 FFAABB -busspeed=100
+        Examples:       > puti2c fsp 0 1 A0 FFAABB -busspeed 100
                         > puti2c fsp 0 1 A0 -fdata
                         > puti2c fsp 0 1 A0 2 10 -fdata
