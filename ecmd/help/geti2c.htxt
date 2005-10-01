@@ -2,10 +2,10 @@
 Syntax: 
         WITHOUT OFFSET:
         geti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Bytes>
-                 [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed=<speed>]
+                 [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed <speed>]
         WITH OFFSET:
         geti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize>
-                 [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed=<speed>]
+                 [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed <speed>]
 
         ECMD:           Core Common Function
 
@@ -36,7 +36,9 @@ Syntax:
 
         -f<filename>[o] Specifies the filename that the data should be written to
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
-        
+                        Incase multiple chip positions are specified the target string will
+                        be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
+			
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 
@@ -51,6 +53,6 @@ Syntax:
 
         --------------------------------------------------------------------------------
 
-        Examples:       > geti2c fsp 0 1 A0 100 -busspeed=100
+        Examples:       > geti2c fsp 0 1 A0 100 -busspeed 100
                         > geti2c fsp 0 1 A0 100 -foutput
                         > geti2c fsp 0 1 A0 100 2 10
