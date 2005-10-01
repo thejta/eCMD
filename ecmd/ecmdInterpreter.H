@@ -159,6 +159,11 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char* argv[]);
 uint32_t ecmdGetVpdKeywordUser(int argc, char* argv[]);
 uint32_t ecmdPutVpdImageUser(int argc, char* argv[]);
 uint32_t ecmdGetVpdImageUser(int argc, char* argv[]);
+
+/* ecmdI2cGpioUser.C */
+uint32_t ecmdPutI2cUser(int argc, char* argv[]);
+uint32_t ecmdGetI2cUser(int argc, char* argv[]);
+uint32_t ecmdI2cResetUser(int argc, char* argv[]);
 //@}
 
 
