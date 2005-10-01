@@ -228,6 +228,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_FPR);
         } else if (!strcmp(argv[0], "getgpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_GPR);
+        } else if (!strcmp(argv[0], "geti2c")) {
+          rc = ecmdGetI2cUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getlatch")) {
           rc = ecmdGetLatchUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getmemdma")) {
@@ -267,6 +269,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "istep")) {
           rc = ecmdIstepUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "i2creset")) {
+          rc = ecmdI2cResetUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -303,6 +307,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_FPR);
         } else if (!strcmp(argv[0], "putgpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_GPR);
+        } else if (!strcmp(argv[0], "puti2c")) {
+          rc = ecmdPutI2cUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "pollscom")) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putlatch")) {
