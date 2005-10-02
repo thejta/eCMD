@@ -164,6 +164,10 @@ uint32_t ecmdGetVpdImageUser(int argc, char* argv[]);
 uint32_t ecmdPutI2cUser(int argc, char* argv[]);
 uint32_t ecmdGetI2cUser(int argc, char* argv[]);
 uint32_t ecmdI2cResetUser(int argc, char* argv[]);
+uint32_t ecmdGetGpioPinUser(int argc, char* argv[]);
+uint32_t ecmdGetGpioLatchUser(int argc, char* argv[]);
+uint32_t ecmdPutGpioLatchUser(int argc, char* argv[]);
+uint32_t ecmdGpioConfigUser(int argc, char* argv[]);
 //@}
 
 

@@ -226,6 +226,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetConfigUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getfpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_FPR);
+        } else if (!strcmp(argv[0], "getgpiopin")) {
+          rc = ecmdGetGpioPinUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getgpiolatch")) {
+          rc = ecmdGetGpioLatchUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getgpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_GPR);
         } else if (!strcmp(argv[0], "geti2c")) {
@@ -252,7 +256,9 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 	  rc = ecmdGetVpdKeywordUser(argc - 1, argv + 1);
 	} else if (!strcmp(argv[0], "getvpdimage")) {
 	  rc = ecmdGetVpdImageUser(argc - 1, argv + 1);
-	} 
+	} else if (!strcmp(argv[0], "gpioconfig")) {
+          rc = ecmdGpioConfigUser(argc - 1, argv + 1);
+        } 
 	else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -305,6 +311,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutCfamUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putfpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_FPR);
+        } else if (!strcmp(argv[0], "putgpiolatch")) {
+          rc = ecmdPutGpioLatchUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putgpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_GPR);
         } else if (!strcmp(argv[0], "puti2c")) {
