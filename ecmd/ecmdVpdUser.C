@@ -446,7 +446,6 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   ecmdDataBuffer data;                  ///< Data from the module vpd record
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
-  std::ofstream ops;                    ///< Output stream for writing vpd data into
   std::string newFilename;              ///< filename with target postfix incase of multi positions
   ecmdChipTarget target1;               ///< Current target operating on-for second looper
   ecmdLooperData looperdata1;           ///< looper to do the real work
@@ -557,8 +556,6 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
        return rc;
       }
       ecmdOutput( printed.c_str() );
-      
-      ops.close();
       
     } 
     else {
