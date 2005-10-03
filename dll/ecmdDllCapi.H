@@ -37,17 +37,17 @@ uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
 
 uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype ); 
 
-uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName ); 
+uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName , ecmdQueryDetail_t i_detail ); 
 
 uint32_t dllQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName , ecmdQueryDetail_t i_detail ); 
 
-uint32_t dllQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName ); 
+uint32_t dllQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName , ecmdQueryDetail_t i_detail ); 
 
-uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName ); 
+uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName , ecmdQueryDetail_t i_detail ); 
 
-uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address ); 
+uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address , ecmdQueryDetail_t i_detail ); 
 
-uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName ); 
+uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName , ecmdQueryDetail_t i_detail ); 
 
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
@@ -294,6 +294,28 @@ uint32_t dllPutModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record
 uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
+
+uint32_t dllI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port); 
+
+uint32_t dllI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data); 
+
+uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data); 
+
+uint32_t dllI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data); 
+
+uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data); 
+
+uint32_t dllGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode); 
+
+uint32_t dllGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, uint32_t & o_state); 
+
+uint32_t dllGpioReadLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t & o_state); 
+
+uint32_t dllGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t i_state); 
+
+uint32_t dllGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_mask, uint32_t & o_value); 
+
+uint32_t dllGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value); 
 
 void dllPushCommandArgs(); 
 
