@@ -393,23 +393,23 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   if ((i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD) || (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL)) {
     /* If they specified -all, we do the lowest depth, like normal */
     if (!ecmdUserArgs.allTargetSpecified) {
-      if ((i_target.threadState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.thread == "")) {
-        i_target.threadState = ECMD_TARGET_QUERY_IGNORE;
+      if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.thread == "")) {
+        i_target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        if ((i_target.coreState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.core == "")) {
-          i_target.coreState = ECMD_TARGET_QUERY_IGNORE;
+        if ((i_target.coreState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.core == "")) {
+          i_target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
-          if ((i_target.posState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.pos == "")) {
-            i_target.posState = ECMD_TARGET_QUERY_IGNORE;
+          if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.pos == "")) {
+            i_target.posState = ECMD_TARGET_FIELD_UNUSED;
 
-            if ((i_target.slotState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.slot == "")) {
-              i_target.slotState = ECMD_TARGET_QUERY_IGNORE;
+            if ((i_target.slotState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.slot == "")) {
+              i_target.slotState = ECMD_TARGET_FIELD_UNUSED;
 
-              if ((i_target.nodeState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.node == "")) {
-                i_target.nodeState = ECMD_TARGET_QUERY_IGNORE;
+              if ((i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.node == "")) {
+                i_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
-                if ((i_target.cageState == ECMD_TARGET_QUERY_IGNORE) || (ecmdUserArgs.cage == "")) {
-                  i_target.cageState = ECMD_TARGET_QUERY_IGNORE;
+                if ((i_target.cageState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.cage == "")) {
+                  i_target.cageState = ECMD_TARGET_FIELD_UNUSED;
 
 
                 } /* cage */
@@ -428,18 +428,18 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //update target with useful info in the ecmdUserArgs struct
   //cage
-  if (i_target.cageState == ECMD_TARGET_QUERY_IGNORE) {
+  if (i_target.cageState == ECMD_TARGET_FIELD_UNUSED) {
     /* If the cage is set to ignore we can't return anything so let's just short circuit */
     return ECMD_SUCCESS;
   }
 
   /* If the state is already valid we just continue on */
-  if (i_target.cageState == ECMD_TARGET_QUERY_FIELD_VALID) {
+  if (i_target.cageState == ECMD_TARGET_FIELD_VALID) {
       cageType = SINGLE;
     
   /* If the user specified -all or -kall we will do everything */
   } else if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
-    i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     cageType = ALL;
   }
 
@@ -449,7 +449,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
       dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
       return ECMD_INVALID_ARGS;
     }
-    i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+    i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     cageType = MULTI;
   }
 
@@ -464,31 +464,31 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
       }
       i_target.cage = atoi(ecmdUserArgs.cage.c_str());
       cageType = SINGLE;
-      i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
+      i_target.cageState = ECMD_TARGET_FIELD_VALID;
 
       /* User didn't specify anything, if default all is on set or states */
     } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
       /* Default to all */
-      i_target.cageState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
       cageType = ALL;
 
       /* User didn't specify anything and we default to 0 */
     } else {
       i_target.cage = 0x0;
       cageType = SINGLE;
-      i_target.cageState = ECMD_TARGET_QUERY_FIELD_VALID;
+      i_target.cageState = ECMD_TARGET_FIELD_VALID;
     }
 
   }
 
   //node
   /* If the state is already valid we just continue on */
-  if (i_target.nodeState == ECMD_TARGET_QUERY_FIELD_VALID) {
+  if (i_target.nodeState == ECMD_TARGET_FIELD_VALID) {
       nodeType = SINGLE;
 
-  } else if (i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) {
+  } else if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.node == allFlag)) {
-      i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
       nodeType = ALL;
     }
     else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
@@ -496,7 +496,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
       nodeType = MULTI;
     }
     else {
@@ -508,16 +508,16 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         }
         i_target.node = atoi(ecmdUserArgs.node.c_str());
         nodeType = SINGLE;
-        i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
         /* Default to all */
-        i_target.nodeState = ECMD_TARGET_QUERY_WILDCARD;
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
         nodeType = ALL;
       }
       else {
         i_target.node = 0x0;
         nodeType = SINGLE;
-        i_target.nodeState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
       }
 
     }
@@ -525,12 +525,12 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //slot
   /* If the state is already valid we just continue on */
-  if (i_target.slotState == ECMD_TARGET_QUERY_FIELD_VALID) {
+  if (i_target.slotState == ECMD_TARGET_FIELD_VALID) {
       slotType = SINGLE;
 
-  } else if (i_target.slotState != ECMD_TARGET_QUERY_IGNORE) {
+  } else if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.slot == allFlag)) {
-      i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
       slotType = ALL;
     }
     else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
@@ -538,7 +538,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
       slotType = MULTI;
     }
     else {
@@ -550,16 +550,16 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         }
         i_target.slot = atoi(ecmdUserArgs.slot.c_str());
         slotType = SINGLE;
-        i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.slotState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
         /* Default to all */
-        i_target.slotState = ECMD_TARGET_QUERY_WILDCARD;
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
         slotType = ALL;
       }
       else {
         i_target.slot = 0x0;
         slotType = SINGLE;
-        i_target.slotState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.slotState = ECMD_TARGET_FIELD_VALID;
       }
 
     }
@@ -567,14 +567,14 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //position
   /* If the state is already valid we just continue on */
-  if (i_target.posState == ECMD_TARGET_QUERY_FIELD_VALID) {
+  if (i_target.posState == ECMD_TARGET_FIELD_VALID) {
       posType = SINGLE;
 
-  } else if (i_target.posState != ECMD_TARGET_QUERY_IGNORE) {
+  } else if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
 
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.pos == allFlag)) {
       posType = ALL;
-      i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
     }
     else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
@@ -582,7 +582,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         return ECMD_INVALID_ARGS;
       }
       posType = MULTI;
-      i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
     }
     else {
 
@@ -593,16 +593,16 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         }
         i_target.pos = atoi(ecmdUserArgs.pos.c_str());
         posType = SINGLE;
-        i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.posState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
         /* Default to all */
-        i_target.posState = ECMD_TARGET_QUERY_WILDCARD;
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
         posType = ALL;
       }
       else {
         i_target.pos = 0x0;
         posType = SINGLE;
-        i_target.posState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.posState = ECMD_TARGET_FIELD_VALID;
       }
 
     }
@@ -610,12 +610,12 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //core
   /* If the state is already valid we just continue on */
-  if (i_target.coreState == ECMD_TARGET_QUERY_FIELD_VALID) {
+  if (i_target.coreState == ECMD_TARGET_FIELD_VALID) {
       coreType = SINGLE;
 
-  } else if (i_target.coreState != ECMD_TARGET_QUERY_IGNORE) {
+  } else if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.core == allFlag)) {
-      i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coreType = ALL;
     }
     else if (ecmdUserArgs.core.find_first_of(patterns) < ecmdUserArgs.core.length()) {
@@ -623,7 +623,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
       coreType = MULTI;
     }
     else {
@@ -635,16 +635,16 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         }
         i_target.core = atoi(ecmdUserArgs.core.c_str());
         coreType = SINGLE;
-        i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.coreState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
         /* Default to all */
-        i_target.coreState = ECMD_TARGET_QUERY_WILDCARD;
+        i_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
         coreType = ALL;
       }
       else {
         i_target.core = 0x0;
         coreType = SINGLE;
-        i_target.coreState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.coreState = ECMD_TARGET_FIELD_VALID;
       }
 
     }
@@ -652,12 +652,12 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
   //thread
   /* If the state is already valid we just continue on */
-  if (i_target.threadState == ECMD_TARGET_QUERY_FIELD_VALID) {
+  if (i_target.threadState == ECMD_TARGET_FIELD_VALID) {
       threadType = SINGLE;
 
-  } else if (i_target.threadState != ECMD_TARGET_QUERY_IGNORE) {
+  } else if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
     if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.thread == allFlag) || (ecmdUserArgs.thread == "alive")) {
-      i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
       threadType = ALL;
     }
     else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
@@ -665,7 +665,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
       threadType = MULTI;    
     }
     else {
@@ -677,16 +677,16 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         }
         i_target.thread = atoi(ecmdUserArgs.thread.c_str());
         threadType = SINGLE;
-        i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.threadState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
         /* Default to all */
-        i_target.threadState = ECMD_TARGET_QUERY_WILDCARD;
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
         threadType = ALL;
       }
       else {
         i_target.thread = 0x0;
         threadType = SINGLE;
-        i_target.threadState = ECMD_TARGET_QUERY_FIELD_VALID;
+        i_target.threadState = ECMD_TARGET_FIELD_VALID;
       }
 
     }
@@ -833,7 +833,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
               curThread++;
             }  /* while curThread */
-
+printf("Should this code go back in ?\n");
 //            if ((i_target.threadState != ECMD_TARGET_QUERY_IGNORE) && curCore->threadData.empty()) {
 //              curCore = (*curChip).coreData.erase(curCore);
 //            } else {
@@ -2245,8 +2245,8 @@ uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
 
   ecmdChipTarget tmp = i_target;
   ecmdQueryData needlesslySlow;
-  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_QUERY_FIELD_VALID;
-  tmp.coreState = tmp.threadState = ECMD_TARGET_QUERY_IGNORE;
+  tmp.cageState = tmp.nodeState = tmp.slotState = tmp.chipTypeState = tmp.posState = ECMD_TARGET_FIELD_VALID;
+  tmp.coreState = tmp.threadState = ECMD_TARGET_FIELD_UNUSED;
   rc = dllQueryConfig(tmp, needlesslySlow, ECMD_QUERY_DETAIL_HIGH);
   if (rc) return rc;
 
