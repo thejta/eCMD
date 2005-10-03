@@ -1168,11 +1168,12 @@ public:
    * @brief Write buffer out into a file in the format specified. 
    * @param i_filename file to write to
    * @param i_format format to write in
+   * @param i_facName name(len <= 200) associated with the databuffer(e.g. ringname/spyname)-default is NULL
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for write
    * @retval ECMD_DBUF_XSTATE_ERROR If Xstate values are detected on non-Xstate format request
    */
-  uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format, const char * i_facName = NULL); /* Writes out the buffer (in the specified format) into the file */
   
   /**
    * @brief Writes/Appends buffer out into a file in the format specified
@@ -1180,12 +1181,13 @@ public:
    * @param i_format format to write in
    * @param i_mode mode to open the file in 
    * @param o_dataNumber the sequence number for this data, used by readFileMultiple to pick the right databuffer
+   * @param i_facName name(len <= 200) associated with the databuffer(e.g. ringname/spyname)-default is NULL
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for write
    * @retval ECMD_DBUF_XSTATE_ERROR If Xstate values are detected on non-Xstate format request
    * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when ecmdWriteMode_t is ECMD_APPEND_MODE 
    */
-  uint32_t  writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t &  o_dataNumber); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t &  o_dataNumber, const char * i_facName = NULL); /* Writes out the buffer (in the specified format) into the file */
   
   /**
    * @brief Write buffer out into the stream in ECMD_SAVE_FORMAT_BINARY_DATA format
@@ -1199,18 +1201,20 @@ public:
    * @brief Read data from the file into the buffer  
    * @param i_filename to read from
    * @param i_format data format to expect in the file
+   * @param o_facName string associated with the databuffer read from the file(if present)
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
    * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
    */
-  uint32_t  readFile(const char * i_filename, ecmdFormatType_t i_format); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_facName = NULL); /* Writes out the buffer (in the specified format) into the file */
   
   /**
    * @brief Read data from the file into the buffer  
    * @param i_filename to read from
    * @param i_format data format to expect in the file
    * @param i_dataNumber data requested in case of multiple databuffers
+   * @param o_facName string associated with the databuffer read from the file(if present)
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
@@ -1218,7 +1222,7 @@ public:
    * @retval ECMD_DBUF_DATANUMBER_NOT_FOUND If requested i_dataNumber is not available in file
    * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when i_dataNumber != 0
    */
-  uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0); /* Reads out the buffer (in the  specified format) from the file */
+  uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0, std::string *o_facName = NULL); /* Reads out the buffer (in the  specified format) from the file */
   /**
    * @brief Get the number of databuffers stored in the file created by writeFile/writeFileMultiple
    * @param i_filename to read from
