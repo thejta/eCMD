@@ -16,6 +16,7 @@ Syntax: getgpiopin <ChipSelect> <EngineId> <Pin> [-o<format>] [-k#] [-n#] [-s#] 
         Pin             Pin number to operate on in decimal
 
         -mask     [opt] To read from multiple pins specify a mask value of pins to read
+	                Binary input will be treated left-alligned
 
         -o<format>[opt] Specifies the format type of the output : default 'b'
                         Run 'ecmdquery formats' to view available formats

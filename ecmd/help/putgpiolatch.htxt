@@ -22,6 +22,7 @@ Syntax: putgpiolatch <ChipSelect> <EngineId> <Pin> <Mode> <Data>
                         Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)
 
         -mask     [opt] To write to multiple pins specify a mask value of latchs to write
+	                Binary input will be treated left-alligned
 
         -i<format>[opt] Specifies the format type of the input : default 'b'
                         Run 'ecmdquery formats' to view available formats
