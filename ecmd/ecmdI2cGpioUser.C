@@ -71,7 +71,6 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   ecmdDataBuffer data;                  ///< I2C Data from the specified engine/port/device
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
-  std::ofstream ops;                    ///< Output stream for writing i2c data into
   std::string newFilename;              ///< filename with target postfix incase of multi positions
   ecmdChipTarget target1;               ///< Current target operating on-for second looper
   ecmdLooperData looperdata1;           ///< looper to do the real work
@@ -245,7 +244,6 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
       }
       ecmdOutput( printed.c_str() );
       
-      ops.close();
     } 
     else {
       std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
@@ -548,6 +546,7 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer mask;                  ///< Container to store mask data
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   std::string inputformat = "b";        ///< Input Format to display
+  uint32_t value;                       ///< Value to write to pin/s
   std::string printed;
   
   /************************************************************************/
@@ -636,16 +635,31 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
   else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
 
-  rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat, 32);
-  if (rc) {
-    ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
+  if (maskPtr != NULL) {
+   rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat, 32);
+   if (rc) {
+     ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
+     return rc;
+   }
+   if (buffer.getBitLength() > 32) {
+     ecmdOutputError("putgpiolatch - Input Data length cannot exceed 32 bits\n");
+     return ECMD_INVALID_ARGS;
+   } 
+   value = buffer.getWord(0);
+  } else {
+   rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat);
+   if (rc) {
+     ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
+     return rc;
+   }
+   if (buffer.getBitLength() > 1) {
+     ecmdOutputError("putgpiolatch - Input Data length should be 1\n");
+     return ECMD_INVALID_ARGS;
+   }
+   if (buffer.isBitSet(0)) {
+    value = 1;
+   } else value = 0;
   }
-  if (buffer.getBitLength() > 32) {
-    ecmdOutputError("putgpiolatch - Input Data length cannot exceed 32 bits\n");
-    return ECMD_INVALID_ARGS;
-  }
-
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
@@ -656,9 +670,9 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
     if (maskPtr != NULL) {
-     rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), buffer.getWord(0) );
+     rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
     } else 
-     rc = ecmdGpioWriteLatch(target, engineId, pin, mode, buffer.getWord(0) );
+     rc = ecmdGpioWriteLatch(target, engineId, pin, mode, value );
      
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
