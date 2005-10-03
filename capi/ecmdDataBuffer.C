@@ -2786,7 +2786,7 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
   return ECMD_DBUF_SUCCESS;
 }
 
-uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t & o_dataNumber) {
+uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t & o_dataNumber, const char * i_facName) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ofstream ops;
   std::ifstream ins;
@@ -2810,11 +2810,22 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   #endif
   
   
- if ((i_format == ECMD_SAVE_FORMAT_BINARY_DATA) && (i_mode != ECMD_WRITE_MODE)) {
-   ETRAC0("**** ERROR : File Format ECMD_SAVE_FORMAT_BINARY_DATA only supported in ECMD_WRITE_MODE");
-   RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+ if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA ) {
+   if (i_mode != ECMD_WRITE_MODE) {
+    ETRAC0("**** ERROR : File Format ECMD_SAVE_FORMAT_BINARY_DATA only supported in ECMD_WRITE_MODE");
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+   } else if (i_facName != NULL) {
+    ETRAC0("**** ERROR : File Format ECMD_SAVE_FORMAT_BINARY_DATA does not support storing of string-property");
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+   }
  }
 
+  if ((i_facName != NULL) && (strlen(i_facName) > 200)) {
+    ETRAC0("**** ERROR : Input FacName string of length greater than 200 bytes not supported");
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+  } 
+  if (i_facName != NULL) tmphdrfield = 0x80000000; // set the string property bit
+  
   //Open file for Read if it exists
   ins.open(i_filename);
     
@@ -2875,6 +2886,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       numBits	  = htonl(numBits);			 ops.write((char *)&numBits,4);//Bit length field
       i_format    = (ecmdFormatType_t)htonl(i_format);   ops.write((char*)&i_format,4);//Format field
       tmphdrfield = htonl(tmphdrfield); 		 ops.write((char*)&tmphdrfield,4);//Leave 1 words extra room here
+      if (i_facName != NULL) ops.write(i_facName, 200); // String associated with the data buffer
     }
     else {
       //ASCII or XSTATE Hdr
@@ -2884,6 +2896,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       sprintf(tmpstr,"%08X",i_format); ops.write(tmpstr,8);
       sprintf(tmpstr,"%08X",tmphdrfield); ops.write(tmpstr,8);
       ops << "\n";
+      if (i_facName != NULL) {
+       ops << (i_facName); // String associated with the data buffer
+       ops << "\n";
+      }
     }
     if (ops.fail()) {
      ETRAC1("**** ERROR : Write of the header failed on file : %s",i_filename);
@@ -3002,10 +3018,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   return(rc);
 }
 
-uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format) {
+uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format, const char * i_facName) {
   ecmdWriteMode_t mode = ECMD_WRITE_MODE;
   uint32_t dataNumber;
-  return this->writeFileMultiple(filename, format, mode, dataNumber) ;
+  return this->writeFileMultiple(filename, format, mode, dataNumber, i_facName) ;
 }
 
 uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
@@ -3094,13 +3110,14 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatTyp
   
 }
 
-uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber) {
+uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber, std::string *o_facName) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
-  uint32_t numBits = 0, numBytes = 0, NumDwords = 0, hexbitlen = 0, *buffer;
+  uint32_t numBits = 0, numBytes = 0, NumDwords = 0, hexbitlen = 0, property = 0, *buffer;
   uint32_t endOffset = 0, totalFileSz=0;
   bool endFound = false;
-  char key[6], hexstr[8], binstr[64], endKeyword[4];
+  char key[6], hexstr[8], binstr[64], endKeyword[4], fac[200];
+ 
   
   ins.open(filename);
     
@@ -3108,7 +3125,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ETRAC1("**** ERROR : Unable to open file : %s for reading",filename);
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);  
   }
-  
+ 
   ins.seekg(0, ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
@@ -3178,7 +3195,11 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_BINARY.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);  
     }
-    ins.seekg(4,ios::cur);//1 empty words in hdr
+    ins.read((char *)&property,4);    property = htonl(property);
+    if (property == 0x80000000) {
+      ins.read(fac, 200);
+      *o_facName = fac;
+    }
     this->setBitLength(numBits);
     numBytes=getByteLength();
     //Read Data
@@ -3222,7 +3243,11 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_ASCII.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);  
     }
-    ins.seekg(9,ios::cur);//1 empty words in hdr + new line
+    ins.width(9); ins >> hexstr; 
+    if (strcmp(hexstr, "80000000") == 0) {
+      ins.width(200); ins >> fac;
+      *o_facName = fac;
+    } 
     this->setBitLength(numBits);
     for (uint32_t i = 0; i < iv_NumWords; i++) {
       ins.width(9);  ins >> hexstr;
@@ -3254,8 +3279,12 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_XSTATE.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);
     }
+    ins.width(9); ins >> hexstr; 
+    if (strcmp(hexstr, "80000000") == 0) { // String property set
+      ins.width(200); ins >> fac;
+      *o_facName = fac;
+    }
     
-    ins.seekg(9,ios::cur);//1 empty words in hdr + new line
     this->setBitLength(numBits);
     NumDwords = iv_NumBits % 64 ? (iv_NumBits / 64) + 1 : iv_NumBits / 64;
     for (uint32_t i = 0; i < NumDwords; i++) {
@@ -3271,9 +3300,9 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
 }
 
 
-uint32_t  ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format) {
+uint32_t  ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_facName) {
   uint32_t dataNumber=0;
-  return this->readFileMultiple(i_filename, i_format, dataNumber);
+  return this->readFileMultiple(i_filename, i_format, dataNumber, o_facName);
 }
 
 uint32_t  ecmdDataBuffer::readFileStream(std::istream & i_filestream, uint32_t i_bitlength) {
