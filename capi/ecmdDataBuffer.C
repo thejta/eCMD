@@ -3198,7 +3198,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.read((char *)&property,4);    property = htonl(property);
     if (property == 0x80000000) {
       ins.read(fac, 200);
-      *o_facName = fac;
+      if (o_facName != NULL)
+        *o_facName = fac;
     }
     this->setBitLength(numBits);
     numBytes=getByteLength();
@@ -3246,7 +3247,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.width(9); ins >> hexstr; 
     if (strcmp(hexstr, "80000000") == 0) {
       ins.width(200); ins >> fac;
-      *o_facName = fac;
+      if (o_facName != NULL)
+        *o_facName = fac;
     } 
     this->setBitLength(numBits);
     for (uint32_t i = 0; i < iv_NumWords; i++) {
@@ -3282,7 +3284,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.width(9); ins >> hexstr; 
     if (strcmp(hexstr, "80000000") == 0) { // String property set
       ins.width(200); ins >> fac;
-      *o_facName = fac;
+      if (o_facName != NULL)
+        *o_facName = fac;
     }
     
     this->setBitLength(numBits);
