@@ -1173,7 +1173,7 @@ public:
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for write
    * @retval ECMD_DBUF_XSTATE_ERROR If Xstate values are detected on non-Xstate format request
    */
-  uint32_t  i_property(const char * i_filename, ecmdFormatType_t i_format, const char * i_facName = NULL); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format, const char * i_facName = NULL); /* Writes out the buffer (in the specified format) into the file */
   
   /**
    * @brief Writes/Appends buffer out into a file in the format specified
