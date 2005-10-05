@@ -27,6 +27,7 @@
 /* Overloading check */
 %typemap(typecheck) std::string = char *;
 %typemap(typecheck) std::string & = char *;
+%typemap(typecheck) std::string * = char *;
 
 %typemap(in) std::string {
   STRLEN len;
