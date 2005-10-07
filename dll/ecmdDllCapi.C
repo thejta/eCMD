@@ -833,43 +833,22 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
               curThread++;
             }  /* while curThread */
-printf("Should this code go back in ?\n");
-//            if ((i_target.threadState != ECMD_TARGET_QUERY_IGNORE) && curCore->threadData.empty()) {
-//              curCore = (*curChip).coreData.erase(curCore);
-//            } else {
-              curCore++;
-//            }
+            curCore++;
           }  /* while curCore */
-          
-//          if ((i_target.coreState != ECMD_TARGET_QUERY_IGNORE) && curChip->coreData.empty()) {
-//            curChip = (*curSlot).chipData.erase(curChip);
-//          } else {
-            curChip++;
-//          }
+
+          curChip++;
         }  /* while curChip */
 
         /* Let's check to make sure there is something left here after we removed everything */
-//        if (((i_target.chipTypeState != ECMD_TARGET_QUERY_IGNORE) || (i_target.posState != ECMD_TARGET_QUERY_IGNORE)) && curSlot->chipData.empty()) {
-//          curSlot = (*curNode).slotData.erase(curSlot);
-//        } else {
-          curSlot++;
-//        }
+        curSlot++;
       }  /* while curSlot */
 
       /* Let's check to make sure there is something left here after we removed everything */
-//      if ((i_target.slotState != ECMD_TARGET_QUERY_IGNORE) && curNode->slotData.empty()) {
-//        curNode = (*curCage).nodeData.erase(curNode);
-//      } else {
-        curNode++;
-//      }
+      curNode++;
     }  /* while curNode */
 
     /* Let's check to make sure there is something left here after we removed everything */
-//    if ((i_target.nodeState != ECMD_TARGET_QUERY_IGNORE) && curCage->nodeData.empty()) {
-//        curCage = o_queryData.cageData.erase(curCage);
-//    } else {
-      curCage++;
-//    }
+    curCage++;
   }  /* while curCage */
 
   return rc;
