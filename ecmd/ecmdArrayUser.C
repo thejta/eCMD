@@ -35,12 +35,6 @@
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
-/** @brief Used to hold info from QueryTraceArray for gettracearray */
-struct ecmdTraceTargetData {
-  ecmdChipTarget target;                        ///< target for the querydata
-  std::list<ecmdTraceArrayData> nestTraceData;  ///< Data from QueryTraceArray
-  std::list<ecmdTraceArrayData> coreTraceData;  ///< Data from QueryTraceArray
-};
 
 //----------------------------------------------------------------------
 //  Constants
@@ -480,9 +474,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   bool doStopStart = true;              ///< Do we StopStart trace arrays ?
   std::list<ecmdTraceArrayData> queryTraceData; ///< Trace Data
   std::list<ecmdTraceArrayData>::iterator queryIt; ///< Trace Data Ietrator
-  std::list<ecmdNameVectorEntry> arrayList;        ///< Array data fetched
+  std::list<ecmdNameVectorEntry> coreArrayList;        ///< Array data fetched
+  std::list<ecmdNameVectorEntry> nestArrayList;        ///< Array data fetched
   ecmdNameVectorEntry entry;                       ///< Entry to populate the list
-  std::list<ecmdTraceTargetData> traceTargetData;  ///< Trace Data with target
   
   /* get format flag, if it's there */
   std::string format;
@@ -514,18 +508,19 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  //Setup Looper to Query the trace array 
-  //Setup the target that will be used to query the system config 
+  
+  //Setup the looper to do gettracearray
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-
+  
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
  
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+     
      
      //Get all the valid trace arrays
      rc = ecmdQueryTraceArray(target, queryTraceData, NULL, ECMD_QUERY_DETAIL_LOW);
@@ -539,74 +534,45 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
        ecmdOutputError( printed.c_str() );
        return rc;
      }
-     else {
-       validPosFound = true;
-     }
+     
      if (queryTraceData.size() < 1) {
        ecmdOutputError("gettracearray - Too much/little tracearray information returned from the dll, unable to determine core vs non-core\n");
        return ECMD_DLL_INVALID;
      }
      
-     //Compare the query data with the user input and sort it into nest or core 
-     ecmdTraceTargetData ttdata;
-     ttdata.target = target;
+     nestArrayList.clear();
+     coreArrayList.clear();
      
      for (int i = 1; i < argc; i++) {//Loop for the trace array names from the user
-      std::string traceArrayName = argv[i];
       
+      bool tracearrayfound = false;
+      std::string traceArrayName = argv[i];
+
       for (queryIt = queryTraceData.begin(); queryIt != queryTraceData.end(); queryIt++) { 
-       if (queryIt->traceArrayName == traceArrayName) {
-         if (queryIt->isCoreRelated)   {
-           ttdata.coreTraceData.push_back(*queryIt);
-         } else {
-           ttdata.nestTraceData.push_back(*queryIt);
-         }
-       }
+        if (queryIt->traceArrayName == traceArrayName) {
+          tracearrayfound = true;
+          entry.name = traceArrayName;
+	  
+          if (queryIt->isCoreRelated)	{
+             coreArrayList.push_back(entry);
+          } else {
+             nestArrayList.push_back(entry);
+          }
+        }
+      }
+      
+      if (!tracearrayfound) {
+       printed = "gettracearray - TraceArray " + traceArrayName + " not found on\n";
+       printed += ecmdWriteTarget(target) + "\n";
+       ecmdOutputError( printed.c_str() );
+       return ECMD_INVALID_ARGS;
       }
       
      }
-     traceTargetData.push_back(ttdata);
-  }
-   
-  if (!validPosFound) {
-    //this is an error common across all UI functions
-    ecmdOutputError("gettracearray - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  } 
-    
-  
-  validPosFound = false;
-  //Setup the looper to do gettracearray
-  target.chipType = argv[0];
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  std::list<ecmdTraceTargetData>::iterator traceTarIt;
-  
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
- 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
      
-     arrayList.clear();
-     
-     //Get the Trace data for this target
-     for (traceTarIt = traceTargetData.begin(); traceTarIt != traceTargetData.end(); traceTarIt++) {
-       if ((traceTarIt->target.cage == target.cage) && (traceTarIt->target.node == target.node) && (traceTarIt->target.slot == target.slot)
-            && (traceTarIt->target.chipType == target.chipType) && (traceTarIt->target.pos == target.pos)) break;
-     }
-     
-     if (traceTarIt == traceTargetData.end()) continue; // no target match found
-     
-     if (traceTarIt->nestTraceData.size() > 0) {
+     if (nestArrayList.size() > 0) {
        
-       //populate vector with nest trace arrays
-       for (std::list<ecmdTraceArrayData>::iterator traceIt = traceTarIt->nestTraceData.begin(); traceIt != traceTarIt->nestTraceData.end(); traceIt++) {
-        entry.name = traceIt->traceArrayName;
-        arrayList.push_back(entry);
-       }
-       rc = getTraceArrayMultiple(target,  doStopStart, arrayList);
+       rc = getTraceArrayMultiple(target,  doStopStart, nestArrayList);
        
        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
   	continue;
@@ -616,10 +582,11 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   	printed += ecmdWriteTarget(target) + "\n";
   	ecmdOutputError( printed.c_str() );
   	return rc;
+       } else {
+          validPosFound = true;
        }
-       
 
-       for (std::list<ecmdNameVectorEntry>::iterator lit = arrayList.begin(); lit != arrayList.end(); lit++ ) {
+       for (std::list<ecmdNameVectorEntry>::iterator lit = nestArrayList.begin(); lit != nestArrayList.end(); lit++ ) {
   	printedHeader = false;
   	for(loop =0; loop < lit->buffer.size() ; loop++) {
   	  if (!printedHeader) {
@@ -636,7 +603,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
      }
      /* Setup our Core looper if needed */
      coretarget = target;
-     if (traceTarIt->coreTraceData.size() > 0) {
+     if (coreArrayList.size() > 0) {
        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
        coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
        coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
@@ -649,17 +616,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
        while (ecmdConfigLooperNext(coretarget, corelooper)) {
 
- 
-  	/* Actually go fetch the data */
-  	arrayList.clear();
- 
-  	//populate vector with core trace arrays
-  	for (std::list<ecmdTraceArrayData>::iterator traceIt = traceTarIt->coreTraceData.begin(); traceIt != traceTarIt->coreTraceData.end(); traceIt++) {
-  	 entry.name = traceIt->traceArrayName;
-  	 arrayList.push_back(entry);
-  	}
-        
-	rc = getTraceArrayMultiple(coretarget,  doStopStart, arrayList);
+        //Clear the core List
+        for (std::list<ecmdNameVectorEntry>::iterator lit = coreArrayList.begin(); lit != coreArrayList.end(); lit++ ) {
+          lit->buffer.clear();
+	}
+	
+        rc = getTraceArrayMultiple(coretarget,  doStopStart, coreArrayList);
 
   	if (rc == ECMD_TARGET_NOT_CONFIGURED) {
   	  continue;
@@ -674,7 +636,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
           validPosFound = true;
         }
 
-  	for (std::list<ecmdNameVectorEntry>::iterator lit = arrayList.begin(); lit != arrayList.end(); lit++ ) {
+  	for (std::list<ecmdNameVectorEntry>::iterator lit = coreArrayList.begin(); lit != coreArrayList.end(); lit++ ) {
   	  printedHeader = false;
           for(loop =0; loop < lit->buffer.size() ; loop++) {
   	    if (!printedHeader) {
