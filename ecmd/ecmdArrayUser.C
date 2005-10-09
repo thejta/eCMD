@@ -24,6 +24,10 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdArrayUser_C
+
+#include <ctype.h>
+#include <algorithm>
+
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
@@ -547,6 +551,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
       
       bool tracearrayfound = false;
       std::string traceArrayName = argv[i];
+      transform(traceArrayName.begin(), traceArrayName.end(), traceArrayName.begin(), (int(*)(int)) toupper);
+
 
       for (queryIt = queryTraceData.begin(); queryIt != queryTraceData.end(); queryIt++) { 
         if (queryIt->traceArrayName == traceArrayName) {
