@@ -1,0 +1,28 @@
+
+Syntax: simoutputfusionmessage <Header> <Message> [<File> [<Line>]] 
+                        [-severity <severity>] [-msgtype <msgtype>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Echoes the message to fusion with the specified parms
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Header          Header for message
+
+        Message         String to echo to sim
+
+        File      <opt> File where message is originating from
+
+        Line      <opt> Line in File where message is originating from
+
+        -severity <opt> Message severity : default info
+                        Valid values are : error, warning, info, plain
+
+        -msgtype  <opt> Message type : default testcase
+                        Valid values are : exception, testcase, cmd_rs, cmd_exe, debug
+                          broadside, end_sd_msgs, always
+
+        --------------------------------------------------------------------------------
+
+        Example:        simoutputfusionmessage "Warning" "I'm Here"
