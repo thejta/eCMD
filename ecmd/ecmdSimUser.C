@@ -1300,4 +1300,91 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   return rc;
 }
 
+uint32_t ecmdSimOutputFusionMessageUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  std::string header;              ///< Message header
+  std::string message;             ///< Message text
+  ecmdFusionSeverity_t severity;   ///< Severity
+  ecmdFusionMessageType_t type;    ///< Message type
+  std::string file;                ///< File where the message is originating frm
+  bool fileSpecified = false;      ///< Is the file is specified
+  uint32_t line = 0;               ///< Line in File where message is originating from
+  
+  char * sev = ecmdParseOptionWithArgs(&argc, &argv, "-severity");
+  if ((sev == NULL) || (strcmp(sev, "info") == 0)) {
+    severity = ECMD_SIM_INFO;
+  } else if (strcmp(sev, "error") == 0) {
+    severity = ECMD_SIM_ERROR;
+  } else if (strcmp(sev, "warning") == 0) {
+    severity = ECMD_SIM_WARNING;
+  } else if (strcmp(sev, "plain") == 0) {
+    severity = ECMD_SIM_PLAIN;
+  } else {
+    ecmdOutputError("simoutputfusionmessage - Invalid value specified for severity.");
+    ecmdOutputError("simoutputfusionmessage - Valid values are : error, warning, info, plain\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  char * msgtype = ecmdParseOptionWithArgs(&argc, &argv, "-msgtype");
+  if ((msgtype == NULL) || (strcmp(msgtype, "testcase") == 0)) {
+    type = ECMD_SIM_MSG_TESTCASE;
+  } else if (strcmp(msgtype, "exception") == 0) {
+    type = ECMD_SIM_MSG_EXCEPTION;
+  } else if (strcmp(msgtype, "cmd_rs") == 0) {
+    type = ECMD_SIM_MSG_CMD_RS;
+  } else if (strcmp(msgtype, "cmd_exe") == 0) {
+    type = ECMD_SIM_MSG_CMD_EXE;
+  } else if (strcmp(msgtype, "debug") == 0) {
+    type = ECMD_SIM_MSG_DEBUG;
+  } else if (strcmp(msgtype, "broadside") == 0) {
+    type = ECMD_SIM_MSG_BROADSIDE;
+  } else if (strcmp(msgtype, "end_sd_msgs") == 0) {
+    type = ECMD_SIM_MSG_END_SD_MSGS;
+  } else if (strcmp(msgtype, "always") == 0) {
+    type = ECMD_SIM_MSG_ALWAYS;
+  } else {
+    ecmdOutputError("simoutputfusionmessage - Invalid value specified for msgtype.");
+    ecmdOutputError("simoutputfusionmessage - Valid values are : exception, testcase, cmd_rs, cmd_exe, debug, broadside, end_sd_msgs, always\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  if (argc < 2) {
+    ecmdOutputError("simoutputfusionmessage - Too few arguments specified;  you need at least a header and a message.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  header = argv[0];
+  message = argv[1];
+  
+  if (argc > 2) {
+    file = argv[2];
+    fileSpecified = true;
+  } 
+  
+  if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+     ecmdOutputError("simoutputfusionmessage - Non-decimal numbers detected in line field\n");
+     return ECMD_INVALID_ARGS;
+    }
+    line = atoi(argv[3]);
+  } 
+  
+  if (fileSpecified) {
+   rc = simOutputFusionMessage(header.c_str(), message.c_str(), severity, type, file.c_str(), line);
+  } else
+   rc = simOutputFusionMessage(header.c_str(), message.c_str(), severity, type, NULL, line);
+
+  return rc;
+
+}
+
 #endif

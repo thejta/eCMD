@@ -394,6 +394,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimgetcurrentcycleUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "siminit")) {
           rc = ecmdSiminitUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simoutputfusionmessage")) {
+          rc = ecmdSimOutputFusionMessageUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simPUTFAC")) {
           rc = ecmdSimPUTFACUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simPUTFACX")) {
