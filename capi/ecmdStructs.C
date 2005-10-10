@@ -2081,7 +2081,7 @@ void  ecmdQueryData::printStruct() {
 
 
 /*
- * The following methods for the ecmdSpyyData struct will flatten, unflatten &
+ * The following methods for the ecmdSpyData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
 uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t &i_len) {
@@ -2114,6 +2114,12 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 	    memcpy(l_ptr, spyName.c_str(), spyName.size() + 1);
 	    l_ptr += spyName.size() + 1;
 	    i_len -= spyName.size() + 1;
+
+	    // spyId
+	    tmpData32 = htonl(spyId);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(spyId);
+	    i_len -= sizeof(spyId);
 
 	    // bitLength
 	    tmpData32 = htonl((uint32_t)bitLength);
@@ -2240,6 +2246,12 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	    l_ptr += l_spyName.size() + 1;
 	    l_left -= l_spyName.size() + 1;
 
+	    // spyId
+	    memcpy(&spyId, l_ptr, sizeof(spyId));
+	    spyId = ntohl(spyId);
+	    l_ptr += sizeof(spyId);
+	    l_left -= sizeof(spyId);
+
 	    // bitLength
 	    memcpy(&bitLength, l_ptr, sizeof(bitLength));
 	    bitLength = ntohl(bitLength);
@@ -2353,6 +2365,7 @@ uint32_t ecmdSpyData::flattenSize() {
 
                 // Size of non-list member data.
                 flatSize += (spyName.size() + 1
+                             + sizeof(spyId)
                              + sizeof(bitLength)
                              + sizeof(spyType)
                              + sizeof(isEccChecked)
@@ -2412,6 +2425,7 @@ void  ecmdSpyData::printStruct() {
 
         // Print non-list data.
         printf("\tSpy Name:  %s\n", spyName.c_str());
+        printf("\tSpy ID: 0x%08x\n", spyId);
         printf("\tBit Length: 0x%08x\n", (uint32_t) bitLength);
         printf("\tSpy Type: 0x%08x\n", (uint32_t) spyType);
         printf("\tisEccChecked: 0x%08x\n", (uint32_t) isEccChecked);
@@ -2631,11 +2645,13 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
         uint32_t tmpData32 = 0;
         uint32_t ringNamesListSize  = 0;
+        uint32_t ringIdListSize = 0;
         uint32_t rc     = ECMD_SUCCESS;
 
         uint8_t *l_ptr = o_buf;
 
         std::list<std::string>:: iterator ringNamesIter;
+        std::list<uint32_t>::iterator ringIdIter;
 
 
         do {    // Single entry ->
@@ -2715,10 +2731,28 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 	    }
 
+            // Store the ring ID list
+            ringIdListSize = ringIds.size();
+
+            // Save the number of ring ID elements
+            tmpData32 = htonl(ringIdListSize);
+            memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+            l_ptr += sizeof(ringIdListSize);
+            i_len -= sizeof(ringIdListSize);
+ 
+            // Store each ring ID
+            for (ringIdIter = ringIds.begin(); ringIdIter != ringIds.end(); ++ringIdIter)
+            {
+               tmpData32 = htonl(*ringIdIter);
+               memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+               l_ptr += sizeof(*ringIdIter);
+               i_len -= sizeof(*ringIdIter);
+            }
+
 	    // Do final check
 	    if (i_len != 0)
 	    {
-		ETRAC2("Buffer size mismacth occured in "
+		ETRAC2("Buffer size mismatch occured in "
 		       "ecmdRingData::flatten() "
 		       "structure size = %d; "
 		       "leftover length = %d",
@@ -2740,6 +2774,7 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         uint32_t rc       = ECMD_SUCCESS;
 
         uint32_t ringNamesListSize  = 0;
+        uint32_t ringIdListSize = 0;
 	uint32_t loop = 0;
 	int l_left = (int) i_len;
 
@@ -2801,6 +2836,25 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_left -= (strlen((char *)l_ptr) +1);
 	    }
 
+            // Fetch the number of ring IDs then unflatten them
+            memcpy(&ringIdListSize, l_ptr, sizeof(ringIdListSize));
+            ringIdListSize = ntohl(ringIdListSize);
+            l_ptr += sizeof(ringIdListSize);
+            l_left -= sizeof(ringIdListSize);
+
+            // Re-create the list of ring IDs
+            for (loop = 0; loop < ringIdListSize; ++loop)
+            {
+               uint32_t l_ringId = 0;
+               memcpy(&l_ringId, l_ptr, sizeof(l_ringId));
+               l_ringId = ntohl(l_ringId);
+
+               ringIds.push_back(l_ringId);
+
+               l_ptr += sizeof(l_ringId);
+               l_left -= sizeof(l_ringId);
+            }
+
 	    // Do Final Checks
 	    if (l_left < 0)
 	    {	
@@ -2837,6 +2891,7 @@ uint32_t ecmdRingData::flattenSize() {
 
         uint32_t flatSize = 0;
         uint32_t ringNamesListSize  = 0;
+        uint32_t ringIdListSize = 0;
         std::list<std::string>:: iterator ringNamesIter;
 
 
@@ -2870,6 +2925,14 @@ uint32_t ecmdRingData::flattenSize() {
 
                 }
 
+                // Add the count and size of hashed ring IDs
+                ringIdListSize += ringIds.size();
+
+                flatSize += sizeof(ringIdListSize);
+
+                // each ring ID entry is a uint32_t
+                flatSize += ringIdListSize * sizeof(uint32_t);
+
         } while (0);    // <- single exit.
 
         return flatSize;
@@ -2881,6 +2944,7 @@ void  ecmdRingData::printStruct() {
         uint32_t ringNamesListSize  = ringNames.size(); ;
 
         std::list<std::string>:: iterator ringNamesIter;
+        std::list<uint32_t>::iterator ringIdIter;
 
 
         printf("\n\t--- Ring Data Structure ---\n");
@@ -2906,6 +2970,18 @@ void  ecmdRingData::printStruct() {
                 printf("\t\t%s\n", (*ringNamesIter).c_str());
             }
         }
+
+        // Print ring ID list
+        if (ringIds.size() == 0) {
+            printf("\tNo entries in ringIds list\n");
+        } else {
+            // Display each ring ID entry
+            printf("\tList of ringId entries:\n");
+            for (ringIdIter = ringIds.begin(); ringIdIter != ringIds.end(); ++ ringIdIter) {
+                printf("\t\t0x%08x\n", *ringIdIter);
+            }
+        }
+
 }
 #endif  // end of REMOVE_SIM
 
@@ -2939,6 +3015,12 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 	    memcpy(l_ptr, arrayName.c_str(), arrayName.size() + 1);
 	    l_ptr += arrayName.size() + 1;
 	    i_len -= arrayName.size() + 1;
+
+	    // arrayId
+	    tmpData32 = htonl(arrayId);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(arrayId);
+	    i_len -= sizeof(arrayId);
 
 	    // readAddressLength
 	    tmpData32 = htonl((uint32_t)readAddressLength);
@@ -3010,6 +3092,12 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	    arrayName = l_arrayName;
 	    l_ptr += l_arrayName.size() + 1;
 	    l_left -= l_arrayName.size() + 1;
+
+	    // arrayId
+	    memcpy(&arrayId, l_ptr, sizeof(arrayId));
+	    arrayId = ntohl(arrayId);
+	    l_ptr += sizeof(arrayId);
+	    l_left -= sizeof(arrayId);
 
 	    // readAddressLength
 	    memcpy(&readAddressLength, l_ptr, sizeof(readAddressLength));
@@ -3089,6 +3177,7 @@ uint32_t ecmdArrayData::flattenSize() {
 
                 // Size of non-list member data.
                 flatSize += (arrayName.size() + 1
+                             + sizeof(arrayId)
 			     + sizeof(readAddressLength)
 			     + sizeof(writeAddressLength)
                              + sizeof(length)
@@ -3108,6 +3197,7 @@ void  ecmdArrayData::printStruct() {
 
         // Print non-list data.
         printf("\tArray Name:  %s\n", arrayName.c_str());
+        printf("\tArray ID:  0x%08x\n", arrayId);
         printf("\tRead Address Length:  0x%08x\n", (uint32_t) readAddressLength);
         printf("\tWrite Address Length:  0x%08x\n", (uint32_t) writeAddressLength);
         printf("\tLength: 0x%08x\n", (uint32_t) length);
