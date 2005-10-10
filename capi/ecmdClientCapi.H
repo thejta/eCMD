@@ -1447,7 +1447,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
 /**
  @brief Dump all entries of specified trace array
  @param i_target Target info to specify what to configure (target states must be set)
- @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion, if false client is in control
+ @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion of all trace arrays dumped, if false client is in control
  @param o_data List of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
@@ -1457,9 +1457,6 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
-
- - NOTE : to fetch all Trace Arrays available add only one entry to io_entries and set
-    ecmdNameVectorEntry.name = "ALL"<br>
 
  TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>

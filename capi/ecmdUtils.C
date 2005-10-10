@@ -334,8 +334,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
-          io_target.core = 0;
-          io_target.thread = 0;
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
         } else if ((io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end())) {
@@ -370,8 +368,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.slotState == ECMD_TARGET_FIELD_UNUSED)) {
-          io_target.core = 0;
-          io_target.thread = 0;
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
         } else if ((io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end())) {
@@ -407,10 +403,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED)) {
-          io_target.chipType = "";
-          io_target.pos = 0;
-          io_target.core = 0;
-          io_target.thread = 0;
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
         } else if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end())) {
@@ -449,8 +441,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED)) {
-          io_target.core = 0;
-          io_target.thread = 0;
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
         } else if ((io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end())) {
@@ -485,7 +475,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
         /* If next level is unused we default to 0 */
         if (io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
-          io_target.thread = 0;
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
         } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end())) {
