@@ -27,19 +27,19 @@ Syntax: ecmd
         getcfam                  putgpiolatch             simgethierarchy          
         getconfig                putgpr                   simgettcfac              
         getfpr                   puti2c                   siminit                  
-        getgpiolatch             putlatch                 simPUTFAC                
-        getgpiopin               putmemdma                simPUTFACX               
-        getgpr                   putmemmemctrl            simputtcfac              
-        geti2c                   putmemproc               simrestart               
-        getlatch                 putpattern               simSTKFAC                
-        getmemdma                putscom                  simstktcfac              
-        getmemmemctrl            putspr                   simSUBCMD                
-        getmemproc               putspy                   simtckinterval           
-        getringdump              putvpdimage              simUNSTICK               
-        getscom                  putvpdkeyword            simunsticktcfac          
-        getspr                                            startclocks              
-        getspy                   reconfig                 stopclocks               
-        gettracearray            ringcache                
+        getgpiolatch             putlatch                 simoutputfusionmessage   
+        getgpiopin               putmemdma                simPUTFAC                
+        getgpr                   putmemmemctrl            simPUTFACX               
+        geti2c                   putmemproc               simputtcfac              
+        getlatch                 putpattern               simrestart               
+        getmemdma                putscom                  simSTKFAC                
+        getmemmemctrl            putspr                   simstktcfac              
+        getmemproc               putspy                   simSUBCMD                
+        getringdump              putvpdimage              simtckinterval           
+        getscom                  putvpdkeyword            simUNSTICK               
+        getspr                                            simunsticktcfac          
+        getspy                   reconfig                 startclocks              
+        gettracearray            ringcache                stopclocks               
         getvpdimage                                       
         getvpdkeyword            sendcmd                  
 
