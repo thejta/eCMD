@@ -1143,21 +1143,21 @@ public:
   /**
    * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
    * @param i_buf Buffer to copy from
-   * @param i_bytes Byte length to copy (char length)
+   * @param i_bits Bit length to copy (also same as ascii char string length)
    * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t  memCopyInXstate(const char * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t  memCopyInXstate(const char * i_buf, uint32_t i_bits); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   /**
    * @brief Copy DataBuffer into supplied char buffer from Xstate data
    * @param o_buf Buffer to copy into - must be pre-allocated
-   * @param i_bytes Byte length to copy (char length)
+   * @param i_bits Bit length to copy (also same as ascii char string length)
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bits) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   //@}
 
@@ -1173,7 +1173,7 @@ public:
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for write
    * @retval ECMD_DBUF_XSTATE_ERROR If Xstate values are detected on non-Xstate format request
    */
-  uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format, const char * i_facName = NULL); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t  writeFile(const char * i_filename, ecmdFormatType_t i_format, const char * i_property = NULL); /* Writes out the buffer (in the specified format) into the file */
   
   /**
    * @brief Writes/Appends buffer out into a file in the format specified
