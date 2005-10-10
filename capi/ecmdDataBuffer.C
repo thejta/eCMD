@@ -1060,7 +1060,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
     delete[] temp;
   }
 #endif
-  return rc;
+ return rc;
 }
 
 uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t shiftNum) {
@@ -1279,7 +1279,12 @@ uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_ta
       if (i_targetStart+i_len <= iv_NumBits) {
         strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
       }
-    }
+    } else if (iv_XstateEnabled) {
+      /* We have xstates, but the incoming buffer didn't, just grab the binary data */
+      if (i_targetStart+i_len <= iv_NumBits) {
+        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genBinStr(i_sourceStart, i_len)).c_str(), i_len);
+      }
+    }      
 #endif
   }
   return rc;
@@ -1382,13 +1387,20 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint
 
 
 #ifndef REMOVE_SIM   
+    /* We have xstates, force the output buffer to have them as well */
     if (iv_XstateEnabled) {
       bufferOut.enableXstateBuffer();
       if (start+len <= iv_NumBits) {
         strncpy(bufferOut.iv_DataStr, (genXstateStr(start, len)).c_str(), len);
         bufferOut.iv_DataStr[len] = '\0';
       }
-    }
+      /* Bufferout has xstates but we don't we still need to apply the binary data to it */
+    } else if (bufferOut.iv_XstateEnabled) {
+      if (start+len <= iv_NumBits) {
+        strncpy(bufferOut.iv_DataStr, (genBinStr(start, len)).c_str(), len);
+        bufferOut.iv_DataStr[len] = '\0';
+      }
+    }      
 #endif
   }
   return rc;
@@ -2214,11 +2226,11 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
 
   if (iv_NumBits > 0) {
     iv_DataStr = new char[iv_NumBits + 42];
-
     if (iv_DataStr == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::enableXstateBuffer : Unable to allocate Xstate memory for new databuffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
     }
+    iv_DataStr[iv_NumBits] = '\0';
 
     /* Copy the raw data into the xstate buffer */
     uint32_t mask = 0x80000000;
@@ -2476,17 +2488,12 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
 }
 
 
-/**
- * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
- * @param i_buf Buffer to copy from
- * @param i_bytes Byte length to copy (char length)
- */
-uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
 #ifndef REMOVE_SIM
   /* cbytes is equal to the bit length of data */
-  int cbytes = i_bytes < getBitLength() ? i_bytes : getBitLength();
+  int cbytes = i_bits < getBitLength() ? i_bits : getBitLength();
   int index;
 #endif
 
@@ -2518,15 +2525,10 @@ uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bytes) 
   return rc;
 }
 
-/**
- * @brief Copy DataBuffer into supplied char buffer from Xstate data
- * @param o_buf Buffer to copy into - must be pre-allocated
- * @param i_bytes Byte length to copy
- */
-uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 #ifndef REMOVE_SIM
-  int cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+  int cbytes = i_bits < getBitLength() ? i_bits : getBitLength();
 #endif
 
 #ifdef REMOVE_SIM
