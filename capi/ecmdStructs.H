@@ -773,6 +773,7 @@ struct ecmdRingData {
 
   // Members
   std::list<std::string> ringNames;                     ///< (Detail: Low)  Names used to reference this ring
+  std::list<uint32_t>    ringIds;                       ///< (Detail: Low)  Hashed ring IDs
   uint32_t               address;                       ///< (Detail: Low)  Address modifier
   int                    bitLength;                     ///< (Detail: Low)  length of ring
   bool                   hasInversionMask;              ///< (Detail: High) Ring has an inversion mask applied before scanning
@@ -822,6 +823,7 @@ struct ecmdArrayData {
 
   // Members
   std::string arrayName;                ///< (Detail: Low)  Names used to reference this array
+  uint32_t    arrayId;                  ///< (Detail: Low)  Hashed array ID
   int         readAddressLength;        ///< (Detail: Low)  Bit length of read address
   int         writeAddressLength;       ///< (Detail: Low)  Bit length of write address
   int         length;                   ///< (Detail: Low)  Length of array (number of entries)
@@ -834,6 +836,7 @@ struct ecmdArrayData {
 #ifndef DOCUMENTATION
 // ecmdArrayData Constructor
 inline ecmdArrayData::ecmdArrayData():
+arrayId(0),
 readAddressLength(0),
 writeAddressLength(0),
 length(0),
@@ -869,6 +872,7 @@ struct ecmdTraceArrayData {
 
   // Members
   std::string      traceArrayName;      ///< (Detail: Low)  Name of Trace array
+  uint32_t         traceArrayId;        ///< (Detail: Low)  Hashed trace array ID
   int              length;              ///< (Detail: Low)  Length of trace array (number of entries)
   int              width;               ///< (Detail: Low)  Bit width of trace array entry
   bool             isCoreRelated;       ///< (Detail: Low)  This tracearray is related to the core level of a chip
@@ -879,6 +883,7 @@ struct ecmdTraceArrayData {
 #ifndef DOCUMENTATION
 // ecmdTraceArrayData Constructor
 inline ecmdTraceArrayData::ecmdTraceArrayData():
+traceArrayId(0),
 length(0),
 width(0),
 isCoreRelated(false),
@@ -956,6 +961,8 @@ struct ecmdLatchData {
   // Members
   std::string      latchName;           ///< (Detail: Low)  Latch Name
   std::string      ringName;            ///< (Detail: Low)  Ring that this latch belongs to
+  uint32_t         latchId;             ///< (Detail: Low)  Hashed latch ID
+  uint32_t         ringId;              ///< (Detail: Low)  Hashed ring ID
   int              bitLength;           ///< (Detail: Low)  length of latch, sum of all the parts
   bool             isCoreRelated;       ///< (Detail: Low)  This latch is related to the core level of a chip
   std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
@@ -965,6 +972,8 @@ struct ecmdLatchData {
 #ifndef DOCUMENTATION
 // ecmdLatchData Constructor
 inline ecmdLatchData::ecmdLatchData():
+latchId(0),
+ringId(0),
 bitLength(0),
 isCoreRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
@@ -1279,6 +1288,7 @@ struct ecmdSpyData {
 
   // Members
   std::string   spyName;                ///< Names used to reference this spy
+  uint32_t      spyId;                  ///< (Detail: Low)  Hashed spy ID
   int           bitLength;              ///< length of spy
   ecmdSpyType_t spyType;                ///< Type of spy
   bool          isEccChecked;           ///< This spy affects some ECC groupings
@@ -1295,6 +1305,7 @@ struct ecmdSpyData {
 #ifndef DOCUMENTATION
 // ecmdSpyData Constructor
 inline ecmdSpyData::ecmdSpyData():
+spyId(0),
 bitLength(0),
 isEccChecked(false),
 isEnumerated(false),
