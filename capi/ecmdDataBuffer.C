@@ -1515,7 +1515,9 @@ uint32_t ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
 }
 
 uint32_t ecmdDataBuffer::setOr(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+#ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+#endif
   return this->setOr(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1546,7 +1548,9 @@ uint32_t ecmdDataBuffer::setOr(uint32_t dataIn, uint32_t startBit, uint32_t len)
 }
 
 uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+#ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+#endif
   return this->setXor(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1576,7 +1580,9 @@ uint32_t ecmdDataBuffer::setXor(uint32_t dataIn, uint32_t startBit, uint32_t len
 
 uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& bufferIn) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+#ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+#endif
   if (iv_NumBits != bufferIn.iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)", bufferIn.iv_NumBits, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1587,7 +1593,9 @@ uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& bufferIn) {
 }
 
 uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+#ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+#endif
   return this->setAnd(bufferIn.iv_Data, startBit, len);
 }
 
