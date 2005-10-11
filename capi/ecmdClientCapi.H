@@ -817,6 +817,7 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  @see getArray
 
  NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return<br>
+ NOTE : To fetch all addresses for the specified array pass io_entries as an empty list and it will be populated for you.<br>
 
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
