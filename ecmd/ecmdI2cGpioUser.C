@@ -630,7 +630,7 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
   else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
   else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
-  else
+  else {
     ecmdOutputError("putgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
     return ECMD_INVALID_ARGS;
   }
@@ -759,7 +759,7 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   else if (strcmp(argv[3], "OD") == 0) mode = ECMD_DIO_OPEN_DRAIN;
   else if (strcmp(argv[3], "OS") == 0) mode = ECMD_DIO_OPEN_SOURCE;
   else if (strcmp(argv[3], "PP") == 0) mode = ECMD_DIO_PUSH_PULL;
-  else
+  else {
     ecmdOutputError("gpioconfig - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
     return ECMD_INVALID_ARGS;
   }
@@ -1004,7 +1004,7 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   else if (strcmp(argv[3], "OD") == 0) mode = ECMD_DIO_OPEN_DRAIN;
   else if (strcmp(argv[3], "OS") == 0) mode = ECMD_DIO_OPEN_SOURCE;
   else if (strcmp(argv[3], "PP") == 0) mode = ECMD_DIO_PUSH_PULL;
-  else
+  else {
     ecmdOutputError("getgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
     return ECMD_INVALID_ARGS;
   }
