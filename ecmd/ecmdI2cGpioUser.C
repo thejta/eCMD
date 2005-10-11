@@ -175,7 +175,7 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   
   int numBytes = atoi(argv[4]);
   
-  uint32_t offset, fieldSize; 
+  uint32_t offset = 0, fieldSize = 0; 
   if (argc > 5) {
     if (!ecmdIsAllDecimal(argv[5])) {
       ecmdOutputError("geti2c - Non-decimal numbers detected in the offset field\n");
@@ -361,7 +361,7 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   
   uint32_t slaveAddr = ecmdGenB32FromHexRight(&slaveAddr, argv[3]);
   
-  uint32_t offset, fieldSize; 
+  uint32_t offset = 0, fieldSize = 0; 
   if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
     std::string offsetstr, fieldstr;
 
@@ -624,16 +624,16 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
    dataStr = argv[3];
   }
   
-  if ((modeStr != "IN") && (modeStr != "OD") && (modeStr != "OS") && (modeStr != "PP")) {
-    ecmdOutputError("putgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  ecmdDioMode_t mode;
+
+  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
   if (modeStr == "IN") mode = ECMD_DIO_INPUT;
   else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
   else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
   else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
+  else
+    ecmdOutputError("putgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
+    return ECMD_INVALID_ARGS;
+  }
 
   if (maskPtr != NULL) {
    rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat, 32);
@@ -753,16 +753,17 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   
   uint32_t pin = atoi(argv[2]);
   
-  if ((strcmp(argv[3], "IN") != 0) && (strcmp(argv[3], "OD") != 0) && (strcmp(argv[3], "OS") != 0) && (strcmp(argv[3], "PP") != 0)) {
-    ecmdOutputError("gpioconfig - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
-    return ECMD_INVALID_ARGS;
-  }
   
-  ecmdDioMode_t mode;
+  ecmdDioMode_t mode = ECMD_DIO_INPUT; // default to remove compiler warnings
   if (strcmp(argv[3], "IN") == 0) mode = ECMD_DIO_INPUT;
   else if (strcmp(argv[3], "OD") == 0) mode = ECMD_DIO_OPEN_DRAIN;
   else if (strcmp(argv[3], "OS") == 0) mode = ECMD_DIO_OPEN_SOURCE;
   else if (strcmp(argv[3], "PP") == 0) mode = ECMD_DIO_PUSH_PULL;
+  else
+    ecmdOutputError("gpioconfig - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
@@ -997,16 +998,17 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   
   uint32_t pin = atoi(argv[2]);
   
-  if ((strcmp(argv[3], "IN") != 0) && (strcmp(argv[3], "OD") != 0) && (strcmp(argv[3], "OS") != 0) && (strcmp(argv[3], "PP") != 0)) {
-    ecmdOutputError("getgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
-    return ECMD_INVALID_ARGS;
-  }
   
-  ecmdDioMode_t mode;
+  ecmdDioMode_t mode = ECMD_DIO_INPUT; // default to remove compiler warnings
   if (strcmp(argv[3], "IN") == 0) mode = ECMD_DIO_INPUT;
   else if (strcmp(argv[3], "OD") == 0) mode = ECMD_DIO_OPEN_DRAIN;
   else if (strcmp(argv[3], "OS") == 0) mode = ECMD_DIO_OPEN_SOURCE;
   else if (strcmp(argv[3], "PP") == 0) mode = ECMD_DIO_PUSH_PULL;
+  else
+    ecmdOutputError("getgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
