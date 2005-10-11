@@ -118,7 +118,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 3) {
-    ecmdOutputError("getarray - Too few arguments specified; you need at least a chip, an array, and an address.\n");
+    ecmdOutputError("getarray - Too few arguments specified; you need at least a chip, an array, and an address or ALL.\n");
     ecmdOutputError("getarray - Type 'getarray -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -153,104 +153,110 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
   }
   /* Did the specify more then one entry ? */
-  if( argc > 3 ) {
+  if( (argc > 3) && ((std::string)argv[2] == "ALL") ) {
+    ecmdOutputError("getarray - Cannot specify NumEntries with the ALL option.\n");
+    return ECMD_INVALID_ARGS;
+  } else if (argc > 3) {
     numEntries = atoi(argv[3]);
   } 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-
-    /* We need to find out info about this array */
-    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
-    if (rc || arrayDataList.empty()) {
-      printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      return rc;
-    }
-    arrayData = *(arrayDataList.begin());
-
-
-    /* Set the length  */
-    address.setBitLength(arrayData.readAddressLength);
-    rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
-    if (rc) {
-      ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
-      return rc;
-    }
+    
+    if ((std::string)argv[2] == "ALL") {
+      entries.clear();
+    } else {
+      /* We need to find out info about this array */
+      rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
+      if (rc || arrayDataList.empty()) {
+        printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      arrayData = *(arrayDataList.begin());
 
 
-    add_buffer = new uint32_t[address.getWordLength()];
-    uint32_t idx;
-    uint32_t add_inc = 1;           ///< Address increment, this will increment data by 1 for left aligned buffer
-    uint32_t add_mask = 0xFFFFFFFF;     ///< Mask of valid bits in the last word of the address
-    if (address.getBitLength() % 32) {
-      add_inc = 1 << (32 - (address.getBitLength() % 32));
-      add_mask <<= (32 - (address.getBitLength() % 32));
-    }
+      /* Set the length  */
+      address.setBitLength(arrayData.readAddressLength);
+      rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
+      if (rc) {
+        ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
+        return rc;
+      }
 
-    /* Extract the address into a buffer we can deal with */
-    for (idx = 0; idx < address.getWordLength(); idx ++) {
-      add_buffer[idx] = address.getWord(idx);
-    }
-    /* Setup the array entries we are going to fetch */
-    for (idx = 0; idx < numEntries; idx ++) {                            //@01d
-      entry.address.setBitLength(address.getBitLength());
-      entry.address.insert(add_buffer, 0, address.getBitLength());
 
-      entries.push_back(entry);
+      add_buffer = new uint32_t[address.getWordLength()];
+      uint32_t idx;
+      uint32_t add_inc = 1;	      ///< Address increment, this will increment data by 1 for left aligned buffer
+      uint32_t add_mask = 0xFFFFFFFF;	  ///< Mask of valid bits in the last word of the address
+      if (address.getBitLength() % 32) {
+        add_inc = 1 << (32 - (address.getBitLength() % 32));
+        add_mask <<= (32 - (address.getBitLength() % 32));
+      }
 
-      /* Increment for the next one, if we have more to go */
-      if ((idx + 1) < numEntries) {
-        // Can't hit initialized error for add_buffer that Beam calls out.  So
-        // tell it to ignore that message with the comment on the following line.
-        if (add_buffer[address.getWordLength()-1] == add_mask) {/*uninitialized*/
-          /* We are going to rollover */
-          if (address.getWordLength() == 1) {
-            printed = "getarray - Address overflow on " + arrayName + " ";
-            printed += ecmdWriteTarget(target) + "\n";
-            ecmdOutputError( printed.c_str() );
-            // Clean up allocated memory
-            if (add_buffer)                                                //@01a
-            {
-              delete[] add_buffer;
-            }
-            return ECMD_DATA_OVERFLOW;
-          }
+      /* Extract the address into a buffer we can deal with */
+      for (idx = 0; idx < address.getWordLength(); idx ++) {
+        add_buffer[idx] = address.getWord(idx);
+      }
+      /* Setup the array entries we are going to fetch */
+      for (idx = 0; idx < numEntries; idx ++) { 			   //@01d
+        entry.address.setBitLength(address.getBitLength());
+        entry.address.insert(add_buffer, 0, address.getBitLength());
 
-          add_buffer[address.getWordLength()-1] = 0;
-          for (int word = address.getWordLength()-2; word >= 0; word --) {
-            if (add_buffer[word] == 0xFFFFFFFF) {
-              /* We are going to rollover */
-              if (word == 0) {
-                printed = "getarray - Address overflow on " + arrayName + " ";
-                printed += ecmdWriteTarget(target) + "\n";
-                ecmdOutputError( printed.c_str() );
-                // Clean up allocated memory
-                if (add_buffer)                                            //@01a
-                {
-                  delete[] add_buffer;
-                }
-                return ECMD_DATA_OVERFLOW;
+        entries.push_back(entry);
+
+        /* Increment for the next one, if we have more to go */
+        if ((idx + 1) < numEntries) {
+          // Can't hit initialized error for add_buffer that Beam calls out.  So
+          // tell it to ignore that message with the comment on the following line.
+          if (add_buffer[address.getWordLength()-1] == add_mask) {/*uninitialized*/
+            /* We are going to rollover */
+            if (address.getWordLength() == 1) {
+              printed = "getarray - Address overflow on " + arrayName + " ";
+              printed += ecmdWriteTarget(target) + "\n";
+              ecmdOutputError( printed.c_str() );
+              // Clean up allocated memory
+              if (add_buffer)						     //@01a
+              {
+        	delete[] add_buffer;
               }
-              add_buffer[word] = 0;
-            } else {
-              add_buffer[word] ++;
-              /* We took care of the carryover, let's get out of here */
-              break;
+              return ECMD_DATA_OVERFLOW;
             }
 
+            add_buffer[address.getWordLength()-1] = 0;
+            for (int word = address.getWordLength()-2; word >= 0; word --) {
+              if (add_buffer[word] == 0xFFFFFFFF) {
+        	/* We are going to rollover */
+        	if (word == 0) {
+        	  printed = "getarray - Address overflow on " + arrayName + " ";
+        	  printed += ecmdWriteTarget(target) + "\n";
+        	  ecmdOutputError( printed.c_str() );
+        	  // Clean up allocated memory
+        	  if (add_buffer)					     //@01a
+        	  {
+        	    delete[] add_buffer;
+        	  }
+        	  return ECMD_DATA_OVERFLOW;
+        	}
+        	add_buffer[word] = 0;
+              } else {
+        	add_buffer[word] ++;
+        	/* We took care of the carryover, let's get out of here */
+        	break;
+              }
+
+            }
+          } else {
+            // Beam doesn't pick up add_inc initialization above.  So tell it to
+            // ignore uninitialized error message with comment in line below.
+            add_buffer[address.getWordLength()-1] += add_inc; /*uninitialized*/
           }
-        } else {
-          // Beam doesn't pick up add_inc initialization above.  So tell it to
-          // ignore uninitialized error message with comment in line below.
-          add_buffer[address.getWordLength()-1] += add_inc; /*uninitialized*/
         }
       }
-    }
   
-
+    }
 
     printedHeader = false;
 
@@ -555,7 +561,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
 
       for (queryIt = queryTraceData.begin(); queryIt != queryTraceData.end(); queryIt++) { 
-        if (queryIt->traceArrayName == traceArrayName) {
+        std::string qTrace = queryIt->traceArrayName;
+	transform(qTrace.begin(), qTrace.end(), qTrace.begin(), (int(*)(int)) toupper);
+        if (qTrace == traceArrayName) {
           tracearrayfound = true;
           entry.name = traceArrayName;
 	  
