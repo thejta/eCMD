@@ -12,7 +12,7 @@ Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>]
 
         ArrayName       Name of array to read from.
 
-        ArrayIndex      Array Index in right aligned hex.
+        ArrayIndex      Array Index in right aligned hex OR 'ALL' to fetch all entries.
 
         NumEntries[opt] Number of consecutive entries to display
                         Address is incremented by 1
@@ -47,3 +47,4 @@ Syntax: getarray <ChipSelect> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>]
         --------------------------------------------------------------------------------
 
         Examples:       > getarray pu xgpr0 deadbeef80000000 -p0,1 -c1
+                        > getarray pu xgpr0 ALL
