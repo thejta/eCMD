@@ -2302,8 +2302,8 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	    {
 		std::string l_str_enum = (char *)l_ptr; 
 		enums.push_back(l_str_enum);
-		l_ptr += (strlen((char *)l_ptr) + 1);
-		l_left -= (strlen((char *)l_ptr) +1);
+                l_ptr += l_str_enum.size() + 1;
+                l_left -= l_str_enum.size() + 1;
 	    }
 
             // Figure out how many epChecker strings are in the list and then unflatten
@@ -2317,8 +2317,8 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	    {
 		std::string l_str_epCheck = (char *)l_ptr; 
 		epCheckers.push_back(l_str_epCheck);
-		l_ptr += (strlen((char *)l_ptr) + 1);
-		l_left -= (strlen((char *)l_ptr) +1);
+                l_ptr += l_str_epCheck.size() + 1;
+                l_left -= l_str_epCheck.size() + 1;
 	    }
 
 	    if (l_left < 0)
@@ -2415,7 +2415,7 @@ uint32_t ecmdSpyData::flattenSize() {
 #ifndef REMOVE_SIM
 void  ecmdSpyData::printStruct() {
 
-        uint32_t enumsListSize  = enums.size(); ;
+        uint32_t enumsListSize  = enums.size();
         uint32_t epCheckersListSize  = epCheckers.size();
 
         std::list<std::string>:: iterator listStringIter;
@@ -2740,7 +2740,7 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t &i_len) {
             l_ptr += sizeof(ringIdListSize);
             i_len -= sizeof(ringIdListSize);
  
-            // Store each ring ID
+            // Store each ring ID (won't loop if list is empty)
             for (ringIdIter = ringIds.begin(); ringIdIter != ringIds.end(); ++ringIdIter)
             {
                tmpData32 = htonl(*ringIdIter);
@@ -2832,8 +2832,8 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	    {
 		std::string l_str_ringName = (char *)l_ptr; 
 		ringNames.push_back(l_str_ringName);
-		l_ptr += (strlen((char *)l_ptr) + 1);
-		l_left -= (strlen((char *)l_ptr) +1);
+                l_ptr += l_str_ringName.size() + 1;
+                l_left -= l_str_ringName.size() + 1;
 	    }
 
             // Fetch the number of ring IDs then unflatten them
@@ -2926,7 +2926,7 @@ uint32_t ecmdRingData::flattenSize() {
                 }
 
                 // Add the count and size of hashed ring IDs
-                ringIdListSize += ringIds.size();
+                ringIdListSize = ringIds.size();
 
                 flatSize += sizeof(ringIdListSize);
 
@@ -2941,7 +2941,7 @@ uint32_t ecmdRingData::flattenSize() {
 #ifndef REMOVE_SIM
 void  ecmdRingData::printStruct() {
 
-        uint32_t ringNamesListSize  = ringNames.size(); ;
+        uint32_t ringNamesListSize  = ringNames.size();
 
         std::list<std::string>:: iterator ringNamesIter;
         std::list<uint32_t>::iterator ringIdIter;
