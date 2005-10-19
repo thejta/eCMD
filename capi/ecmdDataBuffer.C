@@ -1518,6 +1518,10 @@ uint32_t ecmdDataBuffer::setOr(const ecmdDataBuffer& bufferIn, uint32_t startBit
 #ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
+  if (len > bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setOr: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
   return this->setOr(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1551,6 +1555,10 @@ uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& bufferIn, uint32_t startBi
 #ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
+  if (len > bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setXor: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
   return this->setXor(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1596,6 +1604,10 @@ uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& bufferIn, uint32_t startBi
 #ifndef REMOVE_SIM
   if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
+  if (len > bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setAnd: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
   return this->setAnd(bufferIn.iv_Data, startBit, len);
 }
 
