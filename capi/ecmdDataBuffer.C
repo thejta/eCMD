@@ -3266,9 +3266,9 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_ASCII.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);  
     }
-    ins.width(9); ins >> hexstr; 
+    ins.getline(hexstr, 9); 
     if (strcmp(hexstr, "80000000") == 0) {
-      ins.width(200); ins >> fac;
+      ins.getline(fac, 200);
       if (o_facName != NULL)
         *o_facName = fac;
     } 
@@ -3303,9 +3303,9 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_XSTATE.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);
     }
-    ins.width(9); ins >> hexstr; 
+    ins.getline(hexstr, 9);
     if (strcmp(hexstr, "80000000") == 0) { // String property set
-      ins.width(200); ins >> fac;
+      ins.getline(fac, 200);
       if (o_facName != NULL)
         *o_facName = fac;
     }
