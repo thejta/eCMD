@@ -2429,7 +2429,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
     return;
   }
 
-  if(i_data.hasXstate()) {
+  if(i_data.isXstateEnabled() && i_data.hasXstate()) {
     if (ecmdClientDebug == 9) {
       printed = frontFPPTxt;
       printed += "\t \t "+tabStop+"value : XSTATE iv_DataStr  = ";
