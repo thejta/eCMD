@@ -17,6 +17,12 @@
 
 /* $Header$ */
 
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Date      Coder     Description                       
+//  ---- -------- --------  --------  -------------------------------   
+//  @01x CQ32245  11/08/05  prahl     Clean up Beam errors
+  
 /**
   @file ecmdStructs.H
   @brief All the Structures required for the eCMD Capi
@@ -1352,11 +1358,12 @@ struct ecmdSimModelInfo {
   char multivalue;  ///<   !=0  multivalue, ==0  2-state
 };
 
+//@01a Tell beam to ignore error w/uninitialized memember comment.
 #ifndef DOCUMENTATION
 // ecmdSimModelInfo Constructor
 inline ecmdSimModelInfo::ecmdSimModelInfo()
 {
-}
+} /*uninitialized member*/
 
 // ecmdSimModelInfo Destructor
 inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
