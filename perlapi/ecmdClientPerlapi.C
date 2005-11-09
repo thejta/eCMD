@@ -20,17 +20,22 @@
 #include <stdio.h>
 #include <ctype.h>
 
-// Include the Swig Perl headers for Croak
-#include "EXTERN.h"    
-#include "perl.h"
-#include "XSUB.h"
-
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdUtils.H>
 #include <ecmdClientPerlapi.H>
 #include <ecmdClientPerlapiFunc.H>
 #include <ecmdSharedUtils.H>
+
+// NOTE:
+// gcc compiler used in zSeries build environment has an include order
+// dependency on the EXTERN.h, perl.h & XSUB.h header files.  They have
+// to be at the end of the included files.
+//
+// Include the Swig Perl headers for Croak
+#include "EXTERN.h"    
+#include "perl.h"
+#include "XSUB.h"
 
 static int myErrorCode = ECMD_SUCCESS;
 static bool safeMode = true;
