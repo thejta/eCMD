@@ -1189,6 +1189,7 @@ public:
    */
   uint32_t  writeFileMultiple(const char * i_filename, ecmdFormatType_t i_format, ecmdWriteMode_t i_mode, uint32_t &  o_dataNumber, const char * i_property = NULL); /* Writes out the buffer (in the specified format) into the file */
   
+#ifndef ECMD_PERLAPI
   /**
    * @brief Write buffer out into the stream in ECMD_SAVE_FORMAT_BINARY_DATA format
    * @param o_filestream output stream to write to
@@ -1196,6 +1197,7 @@ public:
    * @retval non-zero on failure
    */
   uint32_t  writeFileStream(std::ostream & o_filestream); /* Writes out the buffer (in ECMD_SAVE_FORMAT_BINARY_DATA format) into the file */
+#endif
   
   /**
    * @brief Read data from the file into the buffer  
@@ -1234,6 +1236,7 @@ public:
    */
   uint32_t  queryNumOfBuffers(const char * i_filename, ecmdFormatType_t i_format, uint32_t &o_num);
   
+#ifndef ECMD_PERLAPI
   /**
    * @brief Read data from the stream (in ECMD_SAVE_FORMAT_BINARY_DATA  format) into the buffer 
    * @param i_filestream input stream to read from
@@ -1242,6 +1245,7 @@ public:
    * @retval non-zero on failure
    */
   uint32_t  readFileStream(std::istream & i_filestream, uint32_t i_bitlength); /* Reads out the buffer (in ECMD_SAVE_FORMAT_BINARY_DATA format) from the file */
+#endif
   
   /**
    * @brief This function will take the passed in buffer, delete any current data it holds, and point its data var to that which is owned by the one being called with.  It will not have iv_UserOwned flag set, so it should not delete the buffer it points to, nor resize it, but it can alter the data.  The use of this function is for caching data for reads.
