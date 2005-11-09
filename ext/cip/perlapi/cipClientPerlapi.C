@@ -19,11 +19,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-// Include the Swig Perl headers for Croak
-#include "EXTERN.h"    
-#include "perl.h"
-#include "XSUB.h"
-
 #include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
@@ -33,6 +28,15 @@
 #include <cipClientCapi.H>
 #include <ecmdSharedUtils.H>
 
+// NOTE:
+// gcc compiler used in zSeries build environment has an include order
+// dependency on the EXTERN.h, perl.h & XSUB.h header files.  They have
+// to be at the end of the included files.
+//
+// Include the Swig Perl headers for Croak
+#include "EXTERN.h"    
+#include "perl.h"
+#include "XSUB.h"
 
 int CIPPERLAPI::cipInitExtension(const char * i_clientVersion) {
   /* Check our Perl Major Version */
