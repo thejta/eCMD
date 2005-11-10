@@ -15,6 +15,7 @@
 %apply unsigned long long { uint64_t }
 %apply unsigned char { uint8_t }
 %apply unsigned int &REFERENCE { uint32_t & };
+%apply unsigned int *REFERENCE { uint32_t * };
 %apply std::string &REFERENCE { std::string & };
 %apply std::string *REFERENCE { std::string * };
 %apply enum SWIGTYPE &REFERENCE { enum SWIGTYPE& };

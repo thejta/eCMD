@@ -66,3 +66,13 @@
   if (!$1) SWIG_croak("expected a reference");
   sv_setiv(tempsv, (IV) *$1);
 }
+
+// This is needed to get uint32_t by reference working in functions with optional arg wrapping.
+%typecheck(SWIG_TYPECHECK_INTEGER)
+	 int &, short &, long &,
+ 	 unsigned int &, unsigned short &, unsigned long &,
+	 signed char &, unsigned char &,
+	 long long &, unsigned long long &, uint32_t &
+{
+  $1 = SvROK($input) ? 1 : 0;
+}
