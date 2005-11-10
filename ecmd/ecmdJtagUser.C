@@ -182,12 +182,12 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
       printed += "\t\t " + statusBuffer.genHexRightStr(5, 1) + " CRC Miscompare on previous data scan-in" + "\n";
       printed += "\t\t " + statusBuffer.genHexRightStr(6, 1) + " Invalid Instruction" + "\n";
       printed += "\t\t " + statusBuffer.genHexRightStr(7, 1) + " PGOOD Indicator(set to '1' by flush, set to '0' by first JTAG instruction)" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(8, 4) + " JTAG Instruction count(Incremented following Shift-IR) Bits(8:11). (Hex Left)" + "\n";
+      printed += "\t\t " + statusBuffer.genHexLeftStr(8, 4) + " JTAG Instruction count(Incremented following Shift-IR) Bits(8:11). (Hex Left)" + "\n";
  
       printed += "\t\t " + statusBuffer.genHexRightStr(12, 1) + " Data scan occured after the last instruction" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(13, 3) + " Reserved Bits(13:15). (Hex Left)" + "\n";
+      printed += "\t\t " + statusBuffer.genHexLeftStr(13, 3) + " Reserved Bits(13:15). (Hex Left)" + "\n";
 
-      printed += "\t      " + statusBuffer.genHexRightStr(16,14) + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
+      printed += "\t      " + statusBuffer.genHexLeftStr(16,14) + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
   
       printed += "\t\t " + statusBuffer.genHexRightStr(30, 1) + " IEEE defined 0"  + "\n";
       printed += "\t\t " + statusBuffer.genHexRightStr(31, 1) + " IEEE defined 1"  + "\n";
