@@ -2816,7 +2816,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   uint32_t numBytes = getByteLength();
   uint32_t numBits = getBitLength();
   bool firstDBWrite = false;
-  char *offsetTableData=NULL;
+  char *offsetTableData=NULL, propertyStr[200];
   ecmdFormatType_t existingFmt;
   std::string asciidatastr,xstatestr;
   uint32_t *buffer;
@@ -2908,7 +2908,11 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       numBits	  = htonl(numBits);			 ops.write((char *)&numBits,4);//Bit length field
       i_format    = (ecmdFormatType_t)htonl(i_format);   ops.write((char*)&i_format,4);//Format field
       tmphdrfield = htonl(tmphdrfield); 		 ops.write((char*)&tmphdrfield,4);//Leave 1 words extra room here
-      if (i_facName != NULL) ops.write(i_facName, 200); // String associated with the data buffer
+      if (i_facName != NULL) {
+        memset(propertyStr, '\0', 200);
+        strcpy(propertyStr, i_facName);
+	ops.write(propertyStr, 200); // String associated with the data buffer
+      }
     }
     else {
       //ASCII or XSTATE Hdr
