@@ -607,7 +607,7 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   
   uint32_t engineId = atoi(argv[1]);
   
-  uint32_t pin;
+  uint32_t pin = 0;
   std::string modeStr, dataStr;
   
   if (maskPtr == NULL) {
@@ -879,7 +879,7 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
   uint32_t engineId = atoi(argv[1]);
   
   
-  uint32_t pin;
+  uint32_t pin=0;
   if (maskPtr == NULL) {
    if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("getgpiopin - Non-decimal numbers detected in pin field\n");
