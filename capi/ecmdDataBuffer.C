@@ -2816,7 +2816,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   uint32_t numBytes = getByteLength();
   uint32_t numBits = getBitLength();
   bool firstDBWrite = false;
-  char *offsetTableData=NULL, propertyStr[200];
+  char *offsetTableData=NULL, propertyStr[201];
   ecmdFormatType_t existingFmt;
   std::string asciidatastr,xstatestr;
   uint32_t *buffer;
@@ -2909,7 +2909,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       i_format    = (ecmdFormatType_t)htonl(i_format);   ops.write((char*)&i_format,4);//Format field
       tmphdrfield = htonl(tmphdrfield); 		 ops.write((char*)&tmphdrfield,4);//Leave 1 words extra room here
       if (i_facName != NULL) {
-        memset(propertyStr, '\0', 200);
+        memset(propertyStr, '\0', 201);
         strcpy(propertyStr, i_facName);
 	ops.write(propertyStr, 200); // String associated with the data buffer
       }
@@ -3142,7 +3142,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
   uint32_t numBits = 0, numBytes = 0, NumDwords = 0, hexbitlen = 0, property = 0, *buffer;
   uint32_t endOffset = 0, totalFileSz=0;
   bool endFound = false;
-  char key[6], hexstr[8], binstr[64], endKeyword[4], fac[200];
+  char key[6], hexstr[8], binstr[64], endKeyword[4], fac[201];
  
   
   ins.open(filename);
@@ -3224,6 +3224,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.read((char *)&property,4);    property = htonl(property);
     if (property == 0x80000000) {
       ins.read(fac, 200);
+      fac[200] = '\0'; 
       if (o_facName != NULL)
         *o_facName = fac;
     }
