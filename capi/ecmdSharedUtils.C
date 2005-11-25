@@ -20,11 +20,11 @@
 // End Module Description **********************************************
 
 // Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
+//
+//  Flag Reason   Vers Date     Coder     Description
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STGC7449      04/18/05 prahl     Fix up Beam messages.
-//   
+//
 // End Change Log *****************************************************
 
 //----------------------------------------------------------------------
@@ -118,12 +118,18 @@ bool ecmdParseOption (int *argc, char **argv[], const char *option) {
 /* while returning a pointer to the option that is used.             */
 /* If no option is available, the function will return NULL          */
 /* ----------------------------------------------------------------- */
-char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
+char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option, bool requireWhiteSpace) {
   int counter = 0;
   char *returnValue=NULL;
 
   for (counter = 0; counter < *argc ; counter++) {
-    if (((*argv)[counter] != NULL) && (strncmp((*argv)[counter],option,strlen(option))==0)) {
+    bool match;
+    if ( requireWhiteSpace ) {
+      match = strcmp((*argv)[counter],option)==0;
+    } else {
+      match = strncmp((*argv)[counter],option,strlen(option))==0;
+    }
+    if (((*argv)[counter] != NULL) && match) {
       if (strlen((*argv)[counter])>strlen(option)) {
         returnValue = &((*argv)[counter][strlen(option)]);
         (*argv)[counter]=NULL;
@@ -357,7 +363,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
         if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
           sprintf(util, ":c%d", i_target.core);
           printed += util;
-          
+
           if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
             sprintf(util, ":t%d", i_target.thread);
             printed += util;
@@ -384,7 +390,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
   } //node
 
   //set a space between the target info and the data
-  printed += " "; 
+  printed += " ";
 
   return printed;
 
@@ -403,26 +409,26 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
   std::list<ecmdMemoryEntry>::iterator memdataIter;
   std::list<ecmdMemoryEntry>::iterator o_dataIter;
   ecmdMemoryEntry dcardEntry;
-  
+
   ins.open(i_filename);
-  
+
   if (ins.fail()) {
-    return ECMD_DBUF_FOPEN_FAIL;  
+    return ECMD_DBUF_FOPEN_FAIL;
   }
-  
+
   //Loop to ealk thru the file and set the Data databuffers bitlengths
   while (!ins.eof()) {
    ecmdMemoryEntry dcardEntryForEveryLine;
 
    getline(ins, line, '\n');
    ecmdParseTokens(line, " \t\n", splitArgs);
- 
+
    if (splitArgs.size() == 0) continue;
    if ((splitArgs.size() < 3) || (splitArgs.size() > 4)) {
      continue;
    }
-   
-   //Setup the dcardEntryForEveryLine 
+
+   //Setup the dcardEntryForEveryLine
    curaddress = strtoull(splitArgs[1].c_str(), NULL, 16);
    dcardEntryForEveryLine.address = curaddress;
 
@@ -441,7 +447,7 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
       return ECMD_INVALID_ARGS; //tag neither 0 nor 1
     }
    } else { dcardEntryForEveryLine.tags.setBitLength(0); }
-   
+
    memdata.push_back(dcardEntryForEveryLine);
 
    //Combine the lines if contiguous address
@@ -449,18 +455,18 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
      isFirstTimeInLoop = false;
      dcardEntry.address = curaddress;
    } else {
-     if (curaddress != nextaddress) {  
-       //found a hole, so setup the buffer with bitlength so far 
+     if (curaddress != nextaddress) {
+       //found a hole, so setup the buffer with bitlength so far
        dcardEntry.data.setBitLength(databitlength);
        dcardEntry.tags.setBitLength(tagbitlength);
        o_data.push_back(dcardEntry);
-       
+
        //Set it up for the next data buffer
        dcardEntry.address = curaddress;
        databitlength = 0;
        tagbitlength = 0;
        setTag = true;
-     } 
+     }
    }
    //If data bit length is not 64 OR tags are not present in the line then
    //set the tag buffer bitlength to 0 and ignore the tags for that buffer
@@ -471,20 +477,20 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
    }
    databitlength += bitlength;
    if (setTag) tagbitlength++;
-   
+
    nextaddress = dcardEntry.address + databitlength/8;
   }
   //Set the last one from the loop
   dcardEntry.data.setBitLength(databitlength);
   dcardEntry.tags.setBitLength(tagbitlength);
   o_data.push_back(dcardEntry);
-  
+
   ins.close();
 
   //Loop to set the buffers in the list
   o_dataIter = o_data.begin();
   for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
-   
+
    if (startOffset >= o_dataIter->data.getBitLength()) {
     startOffset = 0;
     tagsBitOffset = 0;
@@ -494,15 +500,15 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
    }
    memdataIter->data.extractPreserve(o_dataIter->data, 0,  memdataIter->data.getBitLength(), startOffset);
    startOffset += memdataIter->data.getBitLength();
-   
+
    if (o_dataIter->tags.getBitLength() != 0) {
      memdataIter->tags.extractPreserve(o_dataIter->tags, 0,  memdataIter->tags.getBitLength(), tagsBitOffset);
      tagsBitOffset++;
    }
-   
+
   }
-  
-  
+
+
   return rc;
 }
 
@@ -547,21 +553,21 @@ uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, i
   if ((i_hexChars == NULL) || (o_numPtr == NULL))
     return 0xFFFFFFFF;
 
-  /* ----------------------------------------------------------------- */	
-  /* Telling us we are expecting few bits than the user input          */	
-  /* ----------------------------------------------------------------- */	
+  /* ----------------------------------------------------------------- */
+  /* Telling us we are expecting few bits than the user input          */
+  /* ----------------------------------------------------------------- */
   stringSize = strlen(i_hexChars);
 
-  if (expectBits==0) 
+  if (expectBits==0)
     expectBits = ((stringSize << 2) + 31) & 0xFFFE0;
 
   /* ----------------------------------------------------------------- */
   /* Can't figure out if this case is bad...                           */
   /* ----------------------------------------------------------------- */
-  if (expectBits<(stringSize*4)) 
+  if (expectBits<(stringSize*4))
     expectBits = (4-(expectBits & 0x3))+expectBits+(stringSize*4-expectBits&0xFFFC);
 
-  expectBits = (expectBits - stringSize*4)>>2; 
+  expectBits = (expectBits - stringSize*4)>>2;
 
   return ecmdGenB32FromHex(o_numPtr, i_hexChars, expectBits );
 

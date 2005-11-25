@@ -97,7 +97,7 @@ bool ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
  * @see ecmdParseOptionWithArgs
 
  */
-char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
+char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option, bool requireWhiteSpace = false);
 
 //@}
 #endif
