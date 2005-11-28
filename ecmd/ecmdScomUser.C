@@ -299,11 +299,10 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      	 else {
      	   printed += " 	   : ";
      	 }
-
      	 printed += ecmdWriteDataFormatted(buffer, outputformat);
      	 ecmdOutputError( printed.c_str() );
 
-     	 printed = "getscom - Expected  	: ";
+     	 printed = "getscom - Expected  	   : ";
      	 printed += ecmdWriteDataFormatted(expected, outputformat);
      	 ecmdOutputError( printed.c_str() );
      	 e_rc = ECMD_EXPECT_FAILURE;
