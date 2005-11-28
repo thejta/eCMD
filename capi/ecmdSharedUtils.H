@@ -15,16 +15,6 @@
 //
 // End Copyright ******************************************************
 
-// Class Description *************************************************
-//
-//  Name:  ecmdSharedUtils
-//  Base class:
-//
-//  Description:
-//  Usage:
-//
-// End Class Description *********************************************
-
 /* $Header$ */
 
 /**
@@ -97,7 +87,7 @@ bool ecmdParseOption (int * io_argc, char ** io_argv[], const char * i_option);
  * @see ecmdParseOptionWithArgs
 
  */
-char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option, bool requireWhiteSpace = false);
+char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_option);
 
 //@}
 #endif
