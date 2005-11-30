@@ -3396,17 +3396,196 @@ void ecmdIndexEntry::printStruct() {
  * The following methods for the ecmdTraceData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) 
+{
+        uint32_t tmpData32 = 0;
+        uint32_t strLen = 0;
+        uint32_t l_rc = ECMD_SUCCESS;
 
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+        int l_len = (int)i_len;  // use a local copy to decrement
+	uint8_t *l_ptr8 = o_buf;
+
+        do      // Single entry ->
+        {
+            // Check for buffer overflow conditions.
+            if (this->flattenSize() > i_len) 
+            {
+                // Generate an error for buffer overflow conditions.
+                ETRAC2("ECMD: Buffer overflow occurred in "
+                       "ecmdTraceArrayData::flatten(), "
+                       "structure size = %d; input length = %d",
+                       this->flattenSize(), i_len);
+                l_rc = ECMD_DATA_OVERFLOW;
+                break;
+            }
+
+            // Flatten and store the data in the ouput buffer
+
+            // traceArrayName
+            strLen = traceArrayName.size();
+            memcpy( l_ptr8, traceArrayName.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+            // traceArrayId
+            tmpData32 = htonl( traceArrayId );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(traceArrayId);
+            l_len -= sizeof(traceArrayId);
+
+            // length
+            tmpData32 = htonl( (uint32_t)length );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(length);
+            l_len -= sizeof(length);
+
+            // width
+            tmpData32 = htonl( (uint32_t)width );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(width);
+            l_len -= sizeof(width);
+
+	    // isCoreRelated
+	    memcpy( l_ptr8, &isCoreRelated, sizeof(isCoreRelated) ); 
+	    l_ptr8 += sizeof(isCoreRelated);
+	    l_len -= sizeof(isCoreRelated);
+
+            // clockDomain
+            strLen = clockDomain.size();
+            memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+	    // clockState
+	    tmpData32 = htonl( (uint32_t)clockState );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+	    l_ptr8 += sizeof(clockState);
+	    l_len -= sizeof(clockState);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdTraceArrayData::flatten(), struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdTraceArrayData::flatten() struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+
+uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) 
+{
+        uint32_t l_rc = ECMD_SUCCESS;
+        uint32_t tmpData32 = 0;
+
+        const uint8_t *l_ptr8 = i_buf;
+	int l_len = (int)i_len;
+
+        do    // Single entry ->
+        {
+            // Unflatten data from the input buffer
+
+	    // traceArrayName
+	    std::string l_trace_array_name = (const char *)l_ptr8;
+	    traceArrayName = l_trace_array_name;
+	    l_ptr8 += l_trace_array_name.size() + 1;
+	    l_len -= l_trace_array_name.size() + 1;
+
+            // traceArrayId
+            memcpy( &traceArrayId, l_ptr8, sizeof(traceArrayId) );
+            traceArrayId = ntohl( traceArrayId );
+            l_ptr8 += sizeof(traceArrayId);
+            l_len -= sizeof(traceArrayId);
+
+	    // length
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    length = (int)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(length);
+	    l_len -= sizeof(length);
+
+	    // width
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    width = (int)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(width);
+	    l_len -= sizeof(width);
+
+	    // isCoreRelated
+	    memcpy( &isCoreRelated, l_ptr8, sizeof(isCoreRelated) );
+	    l_ptr8 += sizeof(isCoreRelated);
+	    l_len -= sizeof(isCoreRelated);
+
+	    // clockDomain
+            std::string l_clock_domain = (const char *)l_ptr8;
+            clockDomain = l_clock_domain;
+            l_ptr8 += l_clock_domain.size() + 1;
+            l_len -= l_clock_domain.size() + 1;
+
+	    // clockState
+	    memcpy( &clockState, l_ptr8, sizeof(clockState) );
+	    clockState = (ecmdClockState_t)ntohl( (uint32_t)clockState );
+	    l_ptr8 += sizeof(clockState);
+	    l_len -= sizeof(clockState);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdTraceArrayData::unflatten(), struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdTraceArrayData::unflatten() struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdTraceArrayData::flattenSize() {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+uint32_t ecmdTraceArrayData::flattenSize() 
+{
+        uint32_t flatSize = 0;
+
+        // size needed to store the data structure
+        flatSize = traceArrayName.size() + 1
+                   + sizeof( traceArrayId )
+                   + sizeof( length )
+                   + sizeof( width )
+                   + sizeof( isCoreRelated )
+                   + clockDomain.size() + 1
+                   + sizeof( clockState );
+
+        return flatSize;
 }
 
 #ifndef REMOVE_SIM
@@ -3414,10 +3593,23 @@ void  ecmdTraceArrayData::printStruct() {
 
         printf("\n\t--- Trace Array Data Structure ---\n");
 
-        // Print non-list data.
+        printf("\tTrace Array Name: %s\n", traceArrayName.c_str() );
+        printf("\tTrace Array ID: 0x%08x\n", traceArrayId );
+        printf("\tLength: %d\n", length );
+        printf("\tWidth: %d\n", width );
+
+        if (isCoreRelated == true) {
+           printf("\tisCoreRelated: TRUE\n");
+        } else {
+           printf("\tisCoreRelated: FALSE\n");
+        }
+
+        printf("\tClock Domain: %s\n", clockDomain.c_str() );
+        printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
 
 }
 #endif  // end of REMOVE_SIM
+
 
 /*
  * The following methods for the ecmdScomData struct will flatten, unflatten &
@@ -3533,17 +3725,214 @@ void  ecmdNameVectorEntry::printStruct() {
  * The following methods for the ecmdIndexVectorEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len)
+{
+	uint32_t tmpData32 = 0;
+	uint32_t numElements = 0;
+        uint32_t flatSize = 0;
+	uint32_t l_rc = ECMD_SUCCESS ;
 
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+        int l_len = (int)i_len;  // use a local copy to decrement
+	uint8_t *l_ptr8 = o_buf;
+
+        std::vector<ecmdDataBuffer>::iterator bufIter;
+
+        do      // Single entry ->
+        {
+            // Check for buffer overflow conditions.
+            if (this->flattenSize() > i_len) 
+            {
+                // Generate an error for buffer overflow conditions.
+                ETRAC2("ECMD: Buffer overflow occurred in "
+                       "ecmdIndexVectorEntry::flatten(), "
+                       "structure size = %d; input length = %d",
+                       this->flattenSize(), i_len);
+                l_rc = ECMD_DATA_OVERFLOW;
+                break;
+            }
+
+            // Copy non-list data
+            tmpData32 = htonl( (uint32_t)index );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(index);
+            l_len -= sizeof(index);
+
+            tmpData32 = htonl( rc );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(rc);
+            l_len -= sizeof(rc);
+
+            // Store the number of elements in the vector "buffer"
+            numElements = buffer.size();
+            tmpData32 = htonl( numElements );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(numElements);
+            l_len -= sizeof(numElements);
+
+            // Loop through the vector and for each element, store the
+            //  struct size and the flattened data
+            for (bufIter = buffer.begin(); bufIter != buffer.end(); ++bufIter)
+            {
+                flatSize = bufIter->flattenSize();
+                tmpData32 = htonl( flatSize );
+                memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+                l_ptr8 += sizeof(flatSize);
+                l_len -= sizeof(flatSize);
+
+                l_rc = bufIter->flatten( l_ptr8, flatSize );
+                if ( l_rc != ECMD_DBUF_SUCCESS ) { break; }  // exit for loop
+                l_ptr8 += flatSize;
+                l_len -= flatSize;
+            }
+
+            // Error checking - if there was a flatten error, report it
+            if ( l_rc != ECMD_DBUF_SUCCESS )
+            {
+                ETRAC1("ECMD: flatten error occurred in "
+                       "ecmdIndexVectorEntry::flatten(), rc= 0x%x", l_rc );
+                break;
+            }
+            else  // only check the length if there was no flatten error
+            {     // if the length isn't 0, something went wrong
+
+               if (l_len < 0)
+               {	
+                  // Generate an error for buffer overflow conditions.
+                  ETRAC3("ECMD: Buffer overflow occurred in "
+                         "ecmdIndexVectorEntry::flatten(), struct size= %d; "
+                         "input length= %x; remainder= %d\n",
+                         this->flattenSize(), i_len, l_len);
+                  l_rc = ECMD_DATA_OVERFLOW;
+                  break;
+               }
+
+               if (l_len > 0)
+               {	
+                  // Generate an error for buffer underflow conditions.
+                  ETRAC3("ECMD: Buffer underflow occurred in "
+                         "ecmdIndexVectorEntry::flatten() struct size= %d; "
+                         "input length= %x; remainder= %d\n",
+                         this->flattenSize(), i_len, l_len);
+                  l_rc = ECMD_DATA_UNDERFLOW;
+                  break;
+               }
+
+            }  // else
+
+         } while (false);   // <- single exit
+
+         return l_rc;
 }
 
 uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+        uint32_t l_rc = ECMD_SUCCESS;
+
+        uint32_t tmpData32  = 0;
+	uint32_t numElements = 0;
+        uint32_t flatSize = 0;
+	uint32_t i = 0;
+
+        const uint8_t *l_ptr8 = i_buf;
+	int l_len = (int)i_len;
+
+        do      // Single entry ->
+        {
+           // Unflatten non-list data
+           memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+           index = (int)ntohl( tmpData32 );
+           l_ptr8 += sizeof(index);
+           l_len -= sizeof(index);
+
+           memcpy( &rc, l_ptr8, sizeof(rc) );
+           rc = ntohl( rc );
+           l_ptr8 += sizeof(rc);
+           l_len -= sizeof(rc);
+
+           // Get the number of elements in the vector to restore it
+           memcpy( &numElements, l_ptr8, sizeof(numElements) );
+           numElements = ntohl( numElements );
+           l_ptr8 += sizeof(numElements);
+           l_len -= sizeof(numElements);
+
+           // Now reconstruct the vector "buffer"
+           buffer.clear();
+
+           for (i = 0; i < numElements; ++i)
+           {
+              ecmdDataBuffer l_ecmdBuffer;
+
+              memcpy( &flatSize, l_ptr8, sizeof(flatSize) );
+              flatSize = ntohl(flatSize);
+              l_ptr8 += sizeof(flatSize);
+              l_len -= sizeof(flatSize);
+
+              l_rc = l_ecmdBuffer.unflatten( l_ptr8, flatSize );
+              if (l_rc != ECMD_DBUF_SUCCESS) { break; }  // exit for loop
+              buffer.push_back( l_ecmdBuffer );
+              l_ptr8 += flatSize;
+              l_len -= flatSize;
+           }
+
+            // Error checking - if there was an unflatten error, report it
+            if ( l_rc != ECMD_DBUF_SUCCESS )
+            {
+                ETRAC1("ECMD: unflatten error occurred in "
+                       "ecmdIndexVectorEntry::unflatten(), rc= 0x%x", l_rc );
+                break;
+            }
+            else  // only check the length if there was no unflatten error
+            {     // if the length isn't 0, something went wrong
+
+               if (l_len < 0)
+               {	
+                  // Generate an error for buffer overflow conditions.
+                  ETRAC3("ECMD: Buffer overflow occurred in "
+                         "ecmdIndexVectorEntry::unflatten(), struct size= %d; "
+                         "input length= %x; remainder= %d\n",
+                         this->flattenSize(), i_len, l_len);
+                  l_rc = ECMD_DATA_OVERFLOW;
+                  break;
+               }
+
+               if (l_len > 0)
+               {	
+                  // Generate an error for buffer underflow conditions.
+                  ETRAC3("ECMD: Buffer underflow occurred in "
+                         "ecmdIndexVectorEntry::unflatten() struct size= %d; "
+                         "input length= %x; remainder= %d\n",
+                         this->flattenSize(), i_len, l_len);
+                  l_rc = ECMD_DATA_UNDERFLOW;
+                  break;
+               }
+
+            }  // else
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdIndexVectorEntry::flattenSize() {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+uint32_t ecmdIndexVectorEntry::flattenSize()
+{
+        uint32_t flatSize = 0;
+        std::vector<ecmdDataBuffer>::iterator bufIter;
+
+        // Size of non-list member data.
+        flatSize = sizeof(index) +
+                   sizeof(rc);
+
+        // Size of the vector data
+        flatSize += sizeof(uint32_t);  // space for the number of elements
+            
+        // For each element, leave room for a struct size and the
+        //  flattened size
+        for (bufIter = buffer.begin(); bufIter != buffer.end(); ++bufIter)
+        {
+            flatSize += sizeof(uint32_t);  // space for the struct size
+            flatSize += bufIter->flattenSize();  // for the flattened struct
+        }
+
+        return flatSize;
 }
 
 #ifndef REMOVE_SIM
@@ -3552,6 +3941,10 @@ void  ecmdIndexVectorEntry::printStruct() {
         printf("\n\t--- Index Vector Entry Structure ---\n");
 
         // Print non-list data.
+        printf("\tIndex: %d\n", index);
+        printf("\trc: 0x%08x\n", rc);
+
+        printf("\tNumber of elements in buffer vector: %d\n", buffer.size());
 
 }
 #endif  // end of REMOVE_SIM
