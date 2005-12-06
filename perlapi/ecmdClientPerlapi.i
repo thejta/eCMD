@@ -101,18 +101,22 @@
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
   %include cipClientPerlapi.H
   %include cipClientPerlapiFunc.H
+  %include cipStructs.H
 #endif
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
   %include gipClientPerlapi.H
   %include gipClientPerlapiFunc.H
+//  %include gipStructs.H
 #endif
 #ifdef ECMD_CRO_EXTENSION_SUPPORT
   %include croClientPerlapi.H
   %include croClientPerlapiFunc.H
+  %include croStructs.H
 #endif
 #ifdef ECMD_ZSE_EXTENSION_SUPPORT
   %include zseClientPerlapi.H
   %include zseClientPerlapiFunc.H
+  %include zseStructs.H
 #endif
 %include "cmdClientPerlapi.H"
 %include "cmdClientPerlapiFunc.H"
@@ -121,7 +125,7 @@
 %exception {
 	$function
           if ((ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(-1)) &&
-	   (ECMDPERLAPI::ecmdQuerySafeMode() == 1)) {
+	   (ECMDPERLAPI::ecmdQuerySafeMode() == true)) {
 		croak("ecmdClientPerlapi.i::Error occured in eCMD Perl module - execution halted\n");
 	}
 }
