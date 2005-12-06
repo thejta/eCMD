@@ -51,7 +51,7 @@ ifeq (${OS},AIX)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_aix.a)
 endif
 CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/perlapi)
-SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi)
+SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi -I../ext/${ext}/capi/export)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.C)
 MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.H)
