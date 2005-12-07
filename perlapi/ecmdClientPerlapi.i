@@ -106,7 +106,7 @@
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
   %include gipClientPerlapi.H
   %include gipClientPerlapiFunc.H
-//  %include gipStructs.H
+  %include gipStructs.H
 #endif
 #ifdef ECMD_CRO_EXTENSION_SUPPORT
   %include croClientPerlapi.H
