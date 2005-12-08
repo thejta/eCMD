@@ -84,6 +84,7 @@
 #define ECMD_UNABLE_TO_MAP_HASHID		(ECMD_ERR_IP   | 0x1057) ///< Mapping function was unable to match the hashid given by the user
 #define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1058) ///< eCMD was unable to open arraydef file
 #define ECMD_INVALID_RETURN_DATA                (ECMD_ERR_ECMD | 0x1059) ///< Data returned (if any) is incomplete or invalid... caller beware
+#define ECMD_CHIP_UNKNOWN_FOR_MAPPING           (ECMD_ERR_ECMD | 0x105A) ///< Chip type did not map to a known EDC table
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command
