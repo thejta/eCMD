@@ -1,4 +1,4 @@
-
+/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // IBM Confidential                                                     
@@ -11,7 +11,6 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-/* $Header$ */
 
 //--------------------------------------------------------------------
 // Includes
@@ -37,35 +36,14 @@
 #include "perl.h"
 #include "XSUB.h"
 
-static int myErrorCode = ECMD_SUCCESS;
-static bool safeMode = true;
-
-int ECMDPERLAPI::ecmdPerlInterfaceErrorCheck (int errorCode) {
-
-  if (errorCode == -1) {
-    errorCode = myErrorCode;
-    myErrorCode = ECMD_SUCCESS;
-
-    if ((errorCode != ECMD_SUCCESS) && safeMode) {
-      ::ecmdOutputError( (::ecmdGetErrorMsg(errorCode) + "\n").c_str());
-    }
-
-    return errorCode;
-  }
-  else if (errorCode != ECMD_SUCCESS) {
-    myErrorCode = errorCode;
-  }
-
-  return ECMD_SUCCESS;
-}
-
+/* The 3 safe mode functions below are now no-ops in version 6.x.  Will be removed in v7 - JTA 12/07/05 */
 bool ECMDPERLAPI::ecmdQuerySafeMode() {
-  return safeMode;
+  return false;
 }
 
-void ECMDPERLAPI::ecmdDisablePerlSafeMode() { safeMode = false; }
+void ECMDPERLAPI::ecmdDisablePerlSafeMode() { return; }
 
-void ECMDPERLAPI::ecmdEnablePerlSafeMode() { safeMode = true; }
+void ECMDPERLAPI::ecmdEnablePerlSafeMode() { return; }
 
 
 void ECMDPERLAPI::ecmdUnloadDll()  {
@@ -82,7 +60,6 @@ int ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_clientVersi
   }
 
   rc = ::ecmdLoadDll(dllName);
-  ecmdPerlInterfaceErrorCheck(rc);
 
 
   /* Check our Perl Major Version */
@@ -113,7 +90,6 @@ int ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
 
   rc = ::ecmdCommandArgs(&looper, &i_argv);
 
-  ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
@@ -129,7 +105,6 @@ uint32_t ECMDPERLAPI::getLatch(ecmdChipTarget & i_target, const char* i_ringName
     rc = ::getLatch(i_target, NULL, i_latchName, o_data, i_mode);
   else
     rc = ::getLatch(i_target, i_ringName, i_latchName, o_data, i_mode);
-  ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 
@@ -140,7 +115,6 @@ uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName
     rc = ::putLatch(i_target, NULL, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode);
   else
     rc = ::putLatch(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode);
-  ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(rc);
   return rc;
 }
 

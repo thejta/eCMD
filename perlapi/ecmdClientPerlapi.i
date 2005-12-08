@@ -122,6 +122,7 @@
 %include "cmdClientPerlapiFunc.H"
 /*********** End Files to swigify ***********/
 
+/* Removing this from v6.1 on - JTA 12/08/05
 %exception {
 	$function
           if ((ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(-1)) &&
@@ -129,6 +130,7 @@
 		croak("ecmdClientPerlapi.i::Error occured in eCMD Perl module - execution halted\n");
 	}
 }
+*/
 
 // This line inserts a straight copy of the file below into the beginning of the swig generated perl module
 %pragma(perl5) include="ecmdClientPerlapi.pl"
