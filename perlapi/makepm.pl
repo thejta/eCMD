@@ -167,7 +167,6 @@ while (<IN>) {
         } elsif (($type eq "uint32_t") || ($type eq "uint64_t") || ($type eq "int")) {
           print OUT "$type $namespace\::$funcname(@argnames) { \n";
           print OUT "  $type rc = ::$funcname($argstring);\n";
-          print OUT "  ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(rc);\n";
           print OUT "  return rc;\n";
           print OUT "}\n\n";
         } else {

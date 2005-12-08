@@ -38,7 +38,6 @@
 #ifndef DOCUMENTATION
 namespace ECMDPERLAPI {
 
-  int ecmdPerlInterfaceErrorCheck (int rc);
   bool ecmdQuerySafeMode();
 #endif
 
