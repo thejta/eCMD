@@ -424,6 +424,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdStartClocksUser(argc - 1, argv + 1);
 	} else if (!strcmp(argv[0], "stopclocks")) {
           rc = ecmdStopClocksUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "systempower")) {
+          rc = ecmdSystemPowerUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

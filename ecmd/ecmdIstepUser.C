@@ -549,6 +549,38 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   return rc;
 }
 
+uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 1) {
+    ecmdOutputError("systempower - At least one argument ('on', 'off') is required for systempower.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if (argc > 1) {
+    ecmdOutputError("systempower - Too many arguments to systempower, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  if (!strcmp(argv[0], "on")) {
+   rc = ecmdSystemPowerOn();
+  } else if (!strcmp(argv[0], "off")) {
+   rc = ecmdSystemPowerOff();
+  } else {
+   ecmdOutputError("systempower - Invalid argument passed to systempower. Accepted arguments: ('on', 'off').\n");
+   return ECMD_INVALID_ARGS;
+  }
+
+  return rc;
+
+}
 
 // Change Log *********************************************************
 //                                                                      
