@@ -145,6 +145,7 @@ uint32_t ecmdIstepUser(int argc, char * argv[]);
 uint32_t ecmdSetClockSpeedUser(int argc, char * argv[]);
 uint32_t ecmdStartClocksUser(int argc, char * argv[]);
 uint32_t ecmdStopClocksUser(int argc, char * argv[]);
+uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
 
 /* ecmdMiscUser.C */
 uint32_t ecmdDeconfigUser(int argc, char * argv[]);
