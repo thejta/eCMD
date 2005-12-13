@@ -1,0 +1,16 @@
+
+Syntax: systempower on|off
+
+        ECMD:           Core Common Function
+
+        Function:       Power on or off the system targeted
+	
+        Parameters:
+        --------------------------------------------------------------------------------
+        on              Turn the target sytem on.  Note: Does not start the isteps
+
+        off             Turn the target system off
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > systempower on
