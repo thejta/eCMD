@@ -128,7 +128,7 @@ uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
 bool ecmdQueryVersionGreater(const char* version);
 
 /**
- @brief Query configuration information from the DLL
+ @brief Query configured target information from the DLL
  @param i_target Struct that contains partial information to limit query results
  @param o_queryData Return data from query
  @param i_detail Specify the level of detail that should be returned with the query
@@ -162,6 +162,20 @@ bool ecmdQueryVersionGreater(const char* version);
 */
    
 uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
+/**
+ @brief Query existing target information from the DLL
+ @param i_target Struct that contains partial information to limit query results
+ @param o_queryData Return data from query
+ @param i_detail Specify the level of detail that should be returned with the query
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ See the documentation on ecmdQueryConfig for examples on how to set target states.<br>
+ NOTE: If a target is existing, but not configured, it cannot be operated on by most functions
+*/
+   
+uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
@@ -2608,6 +2622,25 @@ uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
 */
 uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value);
 
+//@}
+
+/** @name Power Functions */
+//@{
+/**
+ @brief Turns power on to the system
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+*/
+uint32_t ecmdSystemPowerOn();
+
+/**
+ @brief Turns power off to the system
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+*/
+uint32_t ecmdSystemPowerOff();
 //@}
 
 #ifndef DOCUMENTATION

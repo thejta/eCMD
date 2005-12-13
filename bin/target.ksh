@@ -89,7 +89,7 @@ then
    mv $CRONUS_HOME/targets/$ECMD_TARGET""_info_temp $CRONUS_HOME/targets/$ECMD_TARGET""_info
    echo "Target is now unlocked"
 
-elif [[ $TARGET_VARIABLES = "query" ]]
+elif [[ $TARGET_VARIABLES = "query" || $TARGET_VARIABLES = "q" ]]
 then
 
    # First tell the user what their target is
