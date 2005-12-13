@@ -35,6 +35,8 @@ bool dllQueryVersionGreater(const char* version);
 
 uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ); 
 
+uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ); 
+
 uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype ); 
 
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName , ecmdQueryDetail_t i_detail ); 
@@ -316,6 +318,10 @@ uint32_t dllGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
 uint32_t dllGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_mask, uint32_t & o_value); 
 
 uint32_t dllGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value); 
+
+uint32_t dllSystemPowerOn(); 
+
+uint32_t dllSystemPowerOff(); 
 
 void dllPushCommandArgs(); 
 

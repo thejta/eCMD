@@ -80,7 +80,7 @@ else if ($TARGET_VARIABLES == "unlock") then
    mv $CRONUS_HOME/targets/$ECMD_TARGET""_info_temp $CRONUS_HOME/targets/$ECMD_TARGET""_info
    echo "Target is now unlocked"
 
-else if ($TARGET_VARIABLES == "query") then
+else if ($TARGET_VARIABLES == "query" || $TARGET_VARIABLES == "q") then
 
    # First tell the user what their target is
    echo Current target is \"$ECMD_TARGET\"
