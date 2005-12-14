@@ -2335,8 +2335,10 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
       for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
   	sprintf(bitDesc, "%32s ", " ");
   	//Would print the entire string no matter how long it is
-  	bitDescStr = (std::string)bitDesc + *bitDetIt +"\n";
+  	bitDescStr = (std::string)bitDesc + *bitDetIt;
   	ecmdOutput(bitDescStr.c_str());
+	bitDescStr = "\n";// Doing the newline separately cos there maybe control characters at the end of Desc
+	ecmdOutput(bitDescStr.c_str());
  
       }//end for
     }//end if 
