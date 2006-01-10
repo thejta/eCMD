@@ -2315,8 +2315,11 @@ void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStart
     std::string printed;
     
     printed = latchname;
-    if(dataEndBit-dataStartBit > 1) {
+    if(dataEndBit-dataStartBit >= 1) {
      sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
+     printed += temp;
+    } else if ((dataEndBit == dataStartBit) && (dataStartBit != 0)) {
+     sprintf(temp,"(%d)", dataStartBit);
      printed += temp;
     }
     if (format == "default") {
