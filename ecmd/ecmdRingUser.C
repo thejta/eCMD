@@ -183,7 +183,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   for (int i = 1; i < argc; i++) {
 
     std::string ringName = argv[i];
-
+    
+    transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
+	
     //Setup the target that will be used to query the system config
     target.chipType = argv[0];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
