@@ -83,7 +83,7 @@ struct ecmdCheckRingData {
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchDataEntry > & o_latchdata);
-void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format);
+void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch);
 
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs) {
@@ -319,7 +319,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         int dataStartBit = -1;              // Actual start bit of buffered register
         int dataEndBit = -1;                // Actual end bit of buffered register
         std::string latchname = "";
-
+        bool isMultiBitLatch = false;
+	
         if(unsort) {
           for (curLatchInfo = curEntry.begin(); curLatchInfo != curEntry.end(); curLatchInfo++) {
             if(ringName == curLatchInfo->ringName) {
@@ -369,7 +370,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                   ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
                 /* I have some good data here */
                 if (latchname != "") {
-                  printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format);             	
+                  printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format, isMultiBitLatch);             	
                 }
 
                 /* If this is a fresh one we need to reset everything */
@@ -377,8 +378,12 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                   dataStartBit = dataEndBit = -1;
                   curBitsToFetch = 0x0FFFFFFF;
                   curBufferBit = 0;
+		  isMultiBitLatch = false;
                   latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
-                  curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+		  if (curLatchInfo->latchName.rfind('(') != std::string::npos) {
+		   isMultiBitLatch = true ;
+		  }
+		  curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
 
                 } else {
                   /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
@@ -439,7 +444,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                 }
                 curBufferBit += bitsToFetch;
                 if(curLatchInfo == --curEntry.end()) {
-                  printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format);
+                  printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format, isMultiBitLatch);
                 }
               } else {
                 /* Nothing was there that we needed, let's try the next entry */
@@ -2312,7 +2317,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 }
 
 
-void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format) {
+void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch) {
     char temp[50];
     std::string printed;
     
@@ -2320,7 +2325,7 @@ void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStart
     if(dataEndBit-dataStartBit >= 1) {
      sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
      printed += temp;
-    } else if ((dataEndBit == dataStartBit) && (dataStartBit != 0)) {
+    } else if ((dataEndBit == dataStartBit) && isMultiBitLatch) {
      sprintf(temp,"(%d)", dataStartBit);
      printed += temp;
     }
