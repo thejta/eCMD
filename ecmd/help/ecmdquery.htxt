@@ -38,6 +38,9 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         chipinfo ChipSelect [-k#] [-n#] [-s#] [-p#]
                             - Display info about a particular chip (ex. EC level)
 
+                        configd ChipSelect [-k#] [-n#] [-s#] [-p#] [-c#]
+                            - Display info on whether a target is configured or not.
+
                         version
                             - Display version info about the eCMD Instance you are running
 
