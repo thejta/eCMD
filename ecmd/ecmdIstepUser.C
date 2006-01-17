@@ -570,8 +570,10 @@ uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
   }
   
   if (!strcmp(argv[0], "on")) {
+    ecmdOutput("Powering on the system ...\n");
     rc = ecmdSystemPowerOn();
   } else if (!strcmp(argv[0], "off")) {
+    ecmdOutput("Powering off the system ...\n");
     rc = ecmdSystemPowerOff();
   } else {
     ecmdOutputError("systempower - Invalid argument passed to systempower. Accepted arguments: ('on', 'off').\n");
