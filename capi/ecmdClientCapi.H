@@ -144,6 +144,8 @@ bool ecmdQueryVersionGreater(const char* version);
 
  When a field state is set to ECMD_TARGET_FIELD_UNUSED the query function will stop iterating at that level and below
 
+ If nothing is found that matches your query an empty list will be returned.
+
 
  Ex: to query what positions of the Nova chip are on cage 1, node 2:<br>
    cage = 1, node = 2, pos = 'wildcard', chipType = 'Nova', core = 'wildcard', thread = 'wildcard'<br>
@@ -154,7 +156,7 @@ bool ecmdQueryVersionGreater(const char* version);
  Ex: to query all the chips in the entire system:<br>
    cage = 'wildcard', node = 'wildcard', pos = 'wildcard', chipType = 'wildcard', core = 'wildcard', thread = 'wildcard'<br>
  Ex: to query the total nodes in a system:<br>
-   cage = 'wildcard', node = 'wildcard', pos = 'ignore', chipType = 'ignore', core = 'ignore', thread = 'ignore'<br>
+   cage = 'wildcard', node = 'wildcard', pos = 'ignore', chipType = 'unused', core = 'unused', thread = 'unused'<br>
  NOTE : This function does not affect ring caching<br>
 
  TARGET DEPTH  : Thread<br>
