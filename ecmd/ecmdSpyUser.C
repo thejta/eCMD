@@ -168,6 +168,12 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     spyData = *(spyDataList.begin());
     isCoreSpy = spyData.isCoreRelated;
 
+    /* Make sure the user didn't request enum output on an ispy */
+    if (((outputformat == "enum") || (inputformat == "enum")) && !spyData.isEnumerated) {
+      ecmdOutputError("getspy - Spy doesn't support enumerations, can't use -ienum or -oenum\n");
+      return ECMD_INVALID_ARGS;
+    }
+
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
     if ((outputformat == "default") || (inputformat == "default")) {
 
