@@ -757,7 +757,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     else {
      target.chipType = argv[1];
      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-     target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_VALID;
+     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_VALID;
     }
     
     //Go through each of the targets and check if they are configured  
