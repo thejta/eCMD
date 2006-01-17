@@ -750,7 +750,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     
     //Chiptype
     if (argc < 2) {
-      ecmdOutputError("ecmdquery - Too few arguments specified for configd; you need at least a query configd <chipname>.\n");
+      ecmdOutputError("ecmdquery - Too few arguments specified for configd; you need at least 'ecmdquery configd <chipname>'.\n");
       ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
