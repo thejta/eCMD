@@ -144,7 +144,7 @@ bool ecmdQueryVersionGreater(const char* version);
 
  When a field state is set to ECMD_TARGET_FIELD_UNUSED the query function will stop iterating at that level and below
 
- If nothing is found that matches your query an empty list will be returned.
+ If nothing is found that matches your query an empty list will be returned with an ECMD_SUCCESS return code.
 
 
  Ex: to query what positions of the Nova chip are on cage 1, node 2:<br>
