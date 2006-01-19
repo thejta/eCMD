@@ -1,16 +1,3 @@
-#!/bin/ksh 
-#! -*- perl -*-
-
-eval '
-if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
-export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
-export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPERLLIB;
-
-exec $CTEPERLBIN -x -S $0 ${1+"$@"}
-'
-if 0;
-
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
 # $Header$
 
