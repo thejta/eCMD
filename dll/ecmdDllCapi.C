@@ -2174,6 +2174,8 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
   return rc;
 }
 
+#ifndef REMOVE_SIM
+
 uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
@@ -2218,6 +2220,7 @@ uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uin
   /* We must have timed out */
   return ECMD_POLLING_FAILURE;
 }
+#endif /* REMOVE_SIM */
 
 uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data) {
   uint32_t rc = ECMD_SUCCESS;
