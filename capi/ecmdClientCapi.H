@@ -16,7 +16,7 @@
 #include <ecmdDataBuffer.H>
 
 /* We are making sure they are compiling with the right compiler here */
-#if defined(__GNUC__) && !defined(FIPSODE)
+#if defined(__GNUC__) && !defined(FIPSODE) && !defined(BML)
 # if (__GNUC__ != 3) && (__GNUC_MINOR__ != 2)
 #  error "YOU MUST USE THE GCC 3.2 COMPILER AS THAT IS THE ONLY SUPPORTED COMPILER BY ECMD CURRENTLY FOR LINUX"
 # endif
@@ -2076,7 +2076,7 @@ uint32_t simGetEnvironment(const char* i_envName, std::string & o_envValue);
  */
 uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
 
-#endif /* ifndef REMOVE_SIM */
+#endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
 //@}
 /* End Simulation Functions */
 
