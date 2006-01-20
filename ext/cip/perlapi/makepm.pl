@@ -117,7 +117,11 @@ print OUT "\n";
 
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
-    if (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
+  # Maintain the remove_sim ifdef's
+    if (/REMOVE_SIM/) {
+      print OUT $_;
+
+    } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 
 	next if (/$ignore_re/o);
 
