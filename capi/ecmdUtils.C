@@ -1145,8 +1145,10 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "Z-Series\n";
   else if (info.dllType == ECMD_DLL_SCAND)
     printed += "ScanD\n";
+  else if (info.dllType == ECMD_DLL_BML)
+    printed += "BML\n";
   else 
-    printed = "Unknown\n";
+    printed += "Unknown\n";
   ecmdOutput(printed.c_str());
 
   printed = "Dll Product      : ";
