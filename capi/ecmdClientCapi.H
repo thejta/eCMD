@@ -2076,6 +2076,21 @@ uint32_t simGetEnvironment(const char* i_envName, std::string & o_envValue);
  */
 uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
 
+/**
+ @brief Set a breakpoint in the simulator based upon a facility
+ blocks the caller until a facility has a certain value or the timeout has
+ occurred; will make use of HWBreakpoints if enabled (SDGenerator.UseHWBreakpointing=true)
+ @param i_facName   name of facility to watch
+ @param i_bitNumber which bit of the facility to watch
+ @param i_bitValue  the value to wait for
+ @param i_timeOut   number of cycles after which to fail and return control to the testcase; disabled by default (if set to 0)
+ @param i_passive  set to false to make SimDispatcher clock the simulator while waiting for the event; set to true to passively wait for the event to happen
+ (simulator is driven by other Fusion object or other testcase)
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut = 0, bool i_passive = false); 
+
 #endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
 //@}
 /* End Simulation Functions */
@@ -2633,6 +2648,8 @@ uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ec
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
+ NOTE: This command does not start the system isteps, it only turns on power.
+
 */
 uint32_t ecmdSystemPowerOn();
 
@@ -2661,6 +2678,44 @@ void ecmdPushCommandArgs();
 void ecmdPopCommandArgs();
 
 //@}
+
+/** @name Adal Functions */
+//@{
+/**
+ @brief Allow the user to call adal_psi_init
+ @param i_target Struct that contains cage/node of device to access
+ @param i_psiPort PSI Port to init
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support PSI
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
+
+/**
+ @brief Allow the user to call adal_psi_link_enable
+ @param i_target      Struct that contains cage/node of device to access
+ @param i_psiPort     PSI Port to enable
+ @param i_enableState 0 disables the link, 1 enables the link
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support PSI
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState);
+
+//@}
+
 #endif
 
 
