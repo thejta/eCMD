@@ -294,8 +294,9 @@ Here is an example usage of the ecmdDataBuffer:
 <br>
  @subsection uint64_t uint64_t (64 bit data)
  Perl doesn't support 64 bit variables, so all 64 bit data is converted to a string.
+ To specify hex numbers prefix the string with 0x otherwise it is treated as decimal
 <pre>
-  my $addr = "0012a33e884bb338";
+  my $addr = "0x0012a33e884bb338";
   putMemProc($target, $addr, $data);
 </pre>
 
