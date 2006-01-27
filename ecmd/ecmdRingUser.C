@@ -92,8 +92,8 @@ bool operator< (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs) 
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
 
-  uint32_t lhsLeftParen = lhs.latchName.find_last_of('(');
-  uint32_t rhsLeftParen = rhs.latchName.find_last_of('(');
+  size_t lhsLeftParen = lhs.latchName.find_last_of('(');
+  size_t rhsLeftParen = rhs.latchName.find_last_of('(');
 
   if (lhsLeftParen == std::string::npos || rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
     return lhs.latchName < rhs.latchName;
@@ -115,8 +115,8 @@ bool operator!= (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs)
   if (lhs.ringName != rhs.ringName)
     return true;
 
-  int lhsLeftParen = lhs.latchName.find_last_of('(');
-  int rhsLeftParen = rhs.latchName.find_last_of('(');
+  size_t lhsLeftParen = lhs.latchName.find_last_of('(');
+  size_t rhsLeftParen = rhs.latchName.find_last_of('(');
 
   if (lhsLeftParen != rhsLeftParen) {
     return true;
@@ -1875,12 +1875,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     ecmdOutput("\n\n");
     ecmdOutput("============================================\n");
     ecmdOutput("CheckRings Summary : \n");
-    sprintf(outstr,"Passed Rings : %d\n", passedRings.size());
+    sprintf(outstr,"Passed Rings : %lu \n", (unsigned long)passedRings.size());
     ecmdOutput(outstr);
-    sprintf(outstr,"Failed Rings : %d\n", failedRings.size());
+    sprintf(outstr,"Failed Rings : %lu\n", (unsigned long)failedRings.size());
     ecmdOutput(outstr);
     ecmdOutput("============================================\n");
-    sprintf(outstr,"Passed Rings : %d\n", passedRings.size());
+    sprintf(outstr,"Passed Rings : %lu\n", (unsigned long)passedRings.size());
     ecmdOutput(outstr);
     for (std::list<ecmdCheckRingData>::iterator strit = passedRings.begin(); strit != passedRings.end(); strit ++) {
       if (strit->core == -1) {
@@ -1892,7 +1892,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       }
     }
     ecmdOutput("============================================\n");
-    sprintf(outstr,"Failed Rings : %d\n", failedRings.size());
+    sprintf(outstr,"Failed Rings : %lu\n", (unsigned long)failedRings.size());
     ecmdOutput(outstr);
     for (std::list<ecmdCheckRingData>::iterator strit2 = failedRings.begin(); strit2 != failedRings.end(); strit2 ++) {
       if (strit2->core == -1) {
@@ -2198,8 +2198,8 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 
       
       bool done = false;
-      int  leftParen;
-      int  colon;
+      size_t  leftParen;
+      size_t  colon;
       
       foundRing = false;
       
@@ -2257,7 +2257,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 
           /* Let's parse out the start/end bit if they exist */
           leftParen = curLatch.latchName.rfind('(');
-          if ((uint32_t) leftParen == std::string::npos) {
+          if (leftParen == std::string::npos) {
             /* This latch doesn't have any parens */
             curLatch.latchStartBit = curLatch.latchEndBit = 0;
           } else {
@@ -2265,9 +2265,9 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
             curLatch.latchStartBit = atoi(temp.c_str());
 
             /* Is this a multibit or single bit */
-            if ((uint32_t) (colon = temp.find(':')) != std::string::npos) {
+            if ((colon = temp.find(':')) != std::string::npos) {
               curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
-            } else if ((uint32_t) (colon = temp.find(',')) != std::string::npos) {
+            } else if ((colon = temp.find(',')) != std::string::npos) {
               ecmdOutputError("readScandefFile - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
