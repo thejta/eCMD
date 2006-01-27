@@ -483,9 +483,9 @@ bool isTargetStringValid(std::string str) {
 void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
   
   std::string curSubstr;
-  uint32_t curOffset = 0;
-  uint32_t nextOffset = 0;
-  uint32_t tmpOffset = 0;
+  size_t curOffset = 0;
+  size_t nextOffset = 0;
+  size_t tmpOffset = 0;
 
   while (curOffset < userArgs.length()) {
 

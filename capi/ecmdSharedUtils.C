@@ -149,13 +149,13 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
 
 void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens) {
 
-  int curStart = 0, curEnd = 0;
+  size_t curStart = 0, curEnd = 0;
 
   tokens.clear();
 
   while (1) {
     curStart = line.find_first_not_of(seperators, curEnd);
-    if ((uint32_t)curStart == std::string::npos) break;
+    if (curStart == std::string::npos) break;
     curEnd = line.find_first_of(seperators,curStart);
     tokens.push_back(line.substr(curStart, curEnd-curStart));
   }

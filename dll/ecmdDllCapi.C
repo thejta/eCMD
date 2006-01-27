@@ -152,10 +152,10 @@ bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
 
- int lhsLeftParen = lhs.latchName.find_last_of('(');
-  int rhsLeftParen = rhs.latchName.find_last_of('(');
+  size_t lhsLeftParen = lhs.latchName.find_last_of('(');
+  size_t rhsLeftParen = rhs.latchName.find_last_of('(');
 
-  if ((uint32_t) lhsLeftParen == std::string::npos || (uint32_t) rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
+  if (lhsLeftParen == std::string::npos || rhsLeftParen == std::string::npos || lhsLeftParen != rhsLeftParen) {
     return lhs.latchName < rhs.latchName;
   }
 
@@ -988,20 +988,20 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
   uint8_t remove = 1;
 
   std::string curSubstr;
-  int curOffset = 0;
-  int nextOffset = 0;
-  int tmpOffset = 0;
+  size_t curOffset = 0;
+  size_t nextOffset = 0;
+  size_t tmpOffset = 0;
 
-  while (curOffset < (int) userArgs.length()) {
+  while (curOffset <  userArgs.length()) {
 
     nextOffset = userArgs.find(',',curOffset);
-    if ((uint32_t) nextOffset == std::string::npos) {
+    if (nextOffset == std::string::npos) {
       nextOffset = userArgs.length();
     }
 
     curSubstr = userArgs.substr(curOffset, nextOffset - curOffset);
 
-    if ((uint32_t)( tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
+    if (( tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
 
       int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
       int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
@@ -1606,8 +1606,8 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 
       bool done = false;
       bool foundRing = false;
-      int  leftParen;
-      int  colon;
+      size_t  leftParen;
+      size_t  colon;
 
       while (getline(ins, curLine) && !done) {
 
@@ -1670,7 +1670,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 
           /* Let's parse out the start/end bit if they exist */
           leftParen = curLatch.latchName.rfind('(');
-          if ((uint32_t) leftParen == std::string::npos) {
+          if (leftParen == std::string::npos) {
             /* This latch doesn't have any parens */
             curLatch.latchStartBit = curLatch.latchEndBit = 0;
           } else {
@@ -1678,9 +1678,9 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             curLatch.latchStartBit = atoi(temp.c_str());
 
             /* Is this a multibit or single bit */
-            if ((uint32_t) (colon = temp.find(':')) != std::string::npos) {
+            if ((colon = temp.find(':')) != std::string::npos) {
               curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
-            } else if ((uint32_t)(colon = temp.find(',')) != std::string::npos) {
+            } else if ((colon = temp.find(',')) != std::string::npos) {
               dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
@@ -1693,7 +1693,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
         }
         /* The user specified a ring for use to look in */
         else if ((i_ringName != NULL) &&
-                  ((curLine[0] == 'N') && ((uint32_t) curLine.find("Name") != std::string::npos))) {
+                  ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
           transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
@@ -2040,8 +2040,8 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 
       std::string temp;
 
-      int  leftParen;
-      int  colon;
+      size_t  leftParen;
+      size_t  colon;
       
       //Get the Ring Begin Offset and seek till there
       latchHashDetIter = latchHashDet.begin();
@@ -2102,16 +2102,16 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
  
             /* Let's parse out the start/end bit if they exist */
             leftParen = curLatch.latchName.rfind('(');
-            if ((uint32_t) leftParen == std::string::npos) {
+            if (leftParen == std::string::npos) {
               /* This latch doesn't have any parens */
               curLatch.latchStartBit = curLatch.latchEndBit = 0;
             } else {
               temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
               curLatch.latchStartBit = atoi(temp.c_str());
               /* Is this a multibit or single bit */
-              if ((uint32_t)(colon = temp.find(':')) != std::string::npos) {
+              if ((colon = temp.find(':')) != std::string::npos) {
         	curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
-              } else if ((uint32_t)(colon = temp.find(',')) != std::string::npos) {
+              } else if ((colon = temp.find(',')) != std::string::npos) {
         	dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
         	return ECMD_FUNCTION_NOT_SUPPORTED;
               } else {

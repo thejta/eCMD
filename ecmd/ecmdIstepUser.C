@@ -102,9 +102,9 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
         steps.flushTo1();
       }
 
-      uint32_t curOffset = 0;
-      uint32_t nextOffset = 0;
-      uint32_t tmpOffset = 0;
+      size_t curOffset = 0;
+      size_t nextOffset = 0;
+      size_t tmpOffset = 0;
 
       while (curOffset < userArgs.length()) {
 
@@ -478,13 +478,13 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   }
   
   //get clockspeed
-  uint32_t strpos;
+  size_t strpos;
   clockspeed = argv[1];
   transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
   
-  if ((uint32_t)(strpos = clockspeed.find("mhz")) != std::string::npos)  {
+  if ((strpos = clockspeed.find("mhz")) != std::string::npos)  {
     speedType = ECMD_CLOCK_FREQUENCY_SPEC;
-  } else if ((uint32_t)(strpos = clockspeed.find("us")) != std::string::npos) {
+  } else if ((strpos = clockspeed.find("us")) != std::string::npos) {
     speedType = ECMD_CLOCK_CYCLETIME_SPEC;
   } else {
     ecmdOutputError("setclockspeed - keyword \"mhz\" or \"us\" not found in clock speed field\n");
