@@ -173,6 +173,7 @@ uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_
 
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
+#ifndef REMOVE_SIM
 uint32_t dllSimaet(const char* i_function); 
 
 uint32_t dllSimcheckpoint(const char* i_checkpoint); 
@@ -249,6 +250,9 @@ uint32_t dllSimGetEnvironment(const char* i_envName, std::string & o_envValue);
 
 uint32_t dllSimGetModelInfo(ecmdSimModelInfo& o_modelInfo); 
 
+uint32_t dllSimWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut , bool i_passive ); 
+
+#endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode ); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
@@ -326,6 +330,10 @@ uint32_t dllSystemPowerOff();
 void dllPushCommandArgs(); 
 
 void dllPopCommandArgs(); 
+
+uint32_t dllAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort); 
+
+uint32_t dllAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState); 
 
 } //extern C
 
