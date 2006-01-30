@@ -890,7 +890,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       decode = "[p]";
     }
 
-    rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
+    rc = ecmdQuerySelected(target, queryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
 
     char buf[300];
     char buf2[10];
