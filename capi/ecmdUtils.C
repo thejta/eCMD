@@ -2330,8 +2330,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
   ecmdOutput(bitDesc);
 
   for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
-    sprintf(bitDesc,"%s", descIt->c_str());
-    ecmdOutput(bitDesc);
+    ecmdOutput(descIt->c_str());
   }
   ecmdOutput("\n");
   //Print Bits description
