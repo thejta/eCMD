@@ -1789,6 +1789,9 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
   std::string curRing;                          ///< Current ring being read in
   std::string i_ring;                           ///< Ring that caller specified
 
+  std::string curLine;                          ///< Current line in the scandef
+  std::vector<std::string> curArgs(4);          ///< for tokenizing
+      
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
 
@@ -1925,11 +1928,34 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       
       std::list< ecmdLatchHashInfo >::iterator latchIter;
       
+      std::ifstream ins(scandefFile.c_str());
+      if (ins.fail()) {
+        rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
+        dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
+        break;
+      }
       
       //Go back to the ring area and find out the ring for the latchname
       //Error out if latch is found in multiple rings
-      for (latchHashDetIter = latchHashDet.begin(); latchHashDetIter != latchHashDet.end(); latchHashDetIter++) {   
-        //Flag an error if the other latches dont fall into the same ring 
+      for (latchHashDetIter = latchHashDet.begin(); latchHashDetIter != latchHashDet.end(); latchHashDetIter++) {
+       
+        //Check if the latchoffset is pointing to the user latch
+	ins.seekg(latchHashDetIter->latchOffset);
+        getline(ins, curLine);
+ 
+        /* Transform to upper case */
+        transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
+      	ecmdParseTokens(curLine, " \t\n", curArgs);
+        if(curArgs.size() != 5) {
+      	   rc = ECMD_SCANDEF_LOOKUP_FAILURE;
+           dllRegisterErrorMsg(rc, "dllReadScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
+           return rc;
+      	}
+        if (latchName != curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
+      	  continue;
+        } 
+	
+	//Flag an error if the other latches dont fall into the same ring 
 	if(ringFound) {
 	  //make sure the cur latch has offset falling in the right ring boundaries
 	  if((latchHashDetIter->latchOffset > latchIter->ringBeginOffset) && (latchHashDetIter->latchOffset < latchIter->ringEndOffset)) {
@@ -1976,7 +2002,8 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	 } // end while loop
 	 if (!ringFound) latchHashDetIter->ringFound = false;
 	}
-      }   
+      }  
+      ins.close(); 
       }  
       else { //ringname != NULL and latchname == NULL, Skip Latch Lookup
         //Seek to the ring area in the hashfile
@@ -2035,9 +2062,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       //let's go hunting in the scandef for this register (pattern)
       ecmdLatchInfo curLatch;
 
-      std::string curLine;
-      std::vector<std::string> curArgs(4);
-
+      
       std::string temp;
 
       size_t  leftParen;
