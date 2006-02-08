@@ -1951,6 +1951,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
            dllRegisterErrorMsg(rc, "dllReadScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
            return rc;
       	}
+	//Latch Offset is not pointing to the latch we are looking for-skip this latch
         if (latchName != curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
       	  continue;
         } 
