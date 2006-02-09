@@ -19,6 +19,9 @@
 //
 // End Module Description **********************************************
 
+// Get rid of lint errors that will just happen
+/*lint -e611 Get rid of suspicious cast warning */
+
 /* $Header$ */
 
 //----------------------------------------------------------------------
@@ -63,7 +66,7 @@ extern void * DllFnTable[];
 
 #ifndef ECMD_STRIP_DEBUG
 /* @brief This is used to output Debug messages on the Client side */
-int ecmdClientDebug = 0;
+uint32_t ecmdClientDebug = 0;
 int fppCallCount =0;
 #endif
 
@@ -89,11 +92,11 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
-    char* tmpptr = getenv("ECMD_DEBUG");
-    if (tmpptr != NULL)
-      ecmdClientDebug = atoi(tmpptr);
-    else
-      ecmdClientDebug = 0;
+  char* tmpptr = getenv("ECMD_DEBUG");
+  if (tmpptr != NULL)
+    ecmdClientDebug = atoi(tmpptr);
+  else
+    ecmdClientDebug = 0;
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
@@ -112,71 +115,71 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #ifndef ECMD_STATIC_FUNCTIONS
 #ifdef _AIX
     /* clean up the machine from previous tests */
-    system("slibclean");
+  system("slibclean");
 #endif
 
     /* --------------------- */
     /* load DLL              */
     /* --------------------- */
-    if (i_dllName.size() == 0) {
-      /* Let's try to get it from the env var */
-      char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
-      if (tempptr != NULL) {
-        i_dllName = tempptr;
-      } else {
-        fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
-        return ECMD_INVALID_DLL_FILENAME;
-      }
+  if (i_dllName.size() == 0) {
+    /* Let's try to get it from the env var */
+    char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
+    if (tempptr != NULL) {
+      i_dllName = tempptr;
+    } else {
+      fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
+      return ECMD_INVALID_DLL_FILENAME;
     }
+  }
 
 #ifndef ECMD_STRIP_DEBUG
-    if (ecmdClientDebug > 1) 
-      printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
+  if (ecmdClientDebug > 1) 
+    printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
 #endif
 
 #ifndef FIPSODE
-    dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
+  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
 #else
-    // MAB still need to change RTLD_LAZY to RTLD_LAZY|RTLD_GLOBAL for FIPS Sim
-    dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY|RTLD_GLOBAL);
+  // MAB still need to change RTLD_LAZY to RTLD_LAZY|RTLD_GLOBAL for FIPS Sim
+  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY|RTLD_GLOBAL);
 #endif
-    if (!dlHandle) {
-      if ((dlError = dlerror()) != NULL) {
-        printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
-        return ECMD_DLL_LOAD_FAILURE;
-      }
+  if (!dlHandle) {
+    if ((dlError = dlerror()) != NULL) {
+      printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
+      return ECMD_DLL_LOAD_FAILURE;
+    }
 #ifndef ECMD_STRIP_DEBUG
-    } else if (ecmdClientDebug > 1) {
-      printf("loadDll: load successful\n");
+  } else if (ecmdClientDebug > 1) {
+    printf("loadDll: load successful\n");
 #endif
-    }
+  }
 
-    /* Clear out the function table */
-    for (int func = 0; func < ECMD_NUMFUNCTIONS; func ++) {
-      DllFnTable[func] = NULL;
-    }
+  /* Clear out the function table */
+  for (int func = 0; func < ECMD_NUMFUNCTIONS; func ++) {
+    DllFnTable[func] = NULL;
+  }
 
-    /* Now we need to call loadDll on the dll itself so it can initialize */
+  /* Now we need to call loadDll on the dll itself so it can initialize */
 
-    uint32_t (*Function)(const char *,uint32_t) = 
-      (uint32_t(*)(const char *,uint32_t))(void*)dlsym(dlHandle, "dllLoadDll");
-    if (!Function) {
-      fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
-      rc = ECMD_DLL_LOAD_FAILURE;
-    } else {
+  uint32_t (*Function)(const char *,uint32_t) = 
+    (uint32_t(*)(const char *,uint32_t))(void*)dlsym(dlHandle, "dllLoadDll");
+  if (!Function) {
+    fprintf(stderr,"ecmdLoadDll: Unable to find LoadDll function, must be an invalid DLL\n");
+    rc = ECMD_DLL_LOAD_FAILURE;
+  } else {
 #ifndef ECMD_STRIP_DEBUG
-	rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
+    rc = (*Function)(ECMD_CAPI_VERSION, ecmdClientDebug);
 #else
-	rc = (*Function)(ECMD_CAPI_VERSION, 0);
+    rc = (*Function)(ECMD_CAPI_VERSION, 0);
 #endif
-    }
+  }
 
 #else
 
 #ifndef ECMD_STRIP_DEBUG
-    rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
+  rc = dllLoadDll(ECMD_CAPI_VERSION, ecmdClientDebug);
 #else
-    rc = dllLoadDll(ECMD_CAPI_VERSION, 0);
+  rc = dllLoadDll(ECMD_CAPI_VERSION, 0);
 #endif
 	    
 
@@ -184,10 +187,10 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif /* ECMD_STATIC_FUNCTIONS */
 
 
-    if (!rc) {
-      /* Query the initial state of the ring cache cq#5553 */
-      ecmdRingCacheEnabled = ecmdIsRingCacheEnabled();
-    }
+  if (!rc) {
+    /* Query the initial state of the ring cache cq#5553 */
+    ecmdRingCacheEnabled = ecmdIsRingCacheEnabled();
+  }
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
@@ -210,7 +213,7 @@ uint32_t ecmdUnloadDll() {
 
   uint32_t rc = ECMD_SUCCESS;
 #ifndef ECMD_STATIC_FUNCTIONS
-  uint32_t c_rc = ECMD_SUCCESS;
+  int c_rc = ECMD_SUCCESS;
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
@@ -354,19 +357,19 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &i_target);
-     args.push_back((void*) &i_queryData);
-     args.push_back((void*) &rc);
+    std::vector< void * > args;
+    args.push_back((void*) &i_target);
+    args.push_back((void*) &i_queryData);
+    args.push_back((void*) &rc);
 
-     fppCallCount++;
-     myTcount = fppCallCount;
+    fppCallCount++;
+    myTcount = fppCallCount;
 
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
-     } else {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
-     }
+    if (ecmdClientDebug == 8) {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+    } else {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+    }
   }
 #endif
 
@@ -396,7 +399,6 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 
     rc = ecmdQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
-      delete i_queryData;
 #ifndef ECMD_STRIP_DEBUG
       if (ecmdClientDebug >= 8) {
         std::vector< void * > args;
@@ -411,7 +413,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
         }
       }
 #endif
-
+      delete i_queryData;
       return ret;
     }
   }
@@ -490,19 +492,20 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &i_target);
-     args.push_back((void*) &i_queryData);
-     args.push_back((void*) &ret);
+    std::vector< void * > args;
+    args.push_back((void*) &i_target);
+    args.push_back((void*) &i_queryData);
+    args.push_back((void*) &ret);
 
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
-     } else {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
-     }
+    if (ecmdClientDebug == 8) {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+    } else {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData)",args);
+    }
   }
 #endif
 
+  /*lint -e(429) i_queryData is deallocated above based on myQuery bool */
   return ret;
 }
 
@@ -518,15 +521,15 @@ void ecmdEnableRingCache() {
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     fppCallCount++;
-     myTcount = fppCallCount;
+    std::vector< void * > args;
+    fppCallCount++;
+    myTcount = fppCallCount;
 
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"void ecmdEnableRingCache()",args);
-     } else {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache()",args);
-     }
+    if (ecmdClientDebug == 8) {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"void ecmdEnableRingCache()",args);
+    } else {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache()",args);
+    }
   }
 #endif
   /* Set our local variable so we know caching is enabled */
@@ -544,29 +547,29 @@ void ecmdEnableRingCache() {
   }
 
   if (DllFnTable[ECMD_ENABLERINGCACHE] == NULL) {
-     DllFnTable[ECMD_ENABLERINGCACHE] = (void*)dlsym(dlHandle, "dllEnableRingCache");
-     if (DllFnTable[ECMD_ENABLERINGCACHE] == NULL) {
-       fprintf(stderr,"dllEnableRingCache : Unable to find dllEnableRingCache function, must be an invalid DLL - program aborting\n"); 
-       exit(ECMD_DLL_INVALID);
-     }
+    DllFnTable[ECMD_ENABLERINGCACHE] = (void*)dlsym(dlHandle, "dllEnableRingCache");
+    if (DllFnTable[ECMD_ENABLERINGCACHE] == NULL) {
+      fprintf(stderr,"dllEnableRingCache : Unable to find dllEnableRingCache function, must be an invalid DLL - program aborting\n"); 
+      exit(ECMD_DLL_INVALID);
+    }
   }
 
   void (*Function)() = 
-      (void(*)())DllFnTable[ECMD_ENABLERINGCACHE];
+    (void(*)())DllFnTable[ECMD_ENABLERINGCACHE];
 
-   (*Function)();
+  (*Function)();
 
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
+    std::vector< void * > args;
 
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache()",args);
-     } else {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache()",args);
-     }
+    if (ecmdClientDebug == 8) {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache()",args);
+    } else {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache()",args);
+    }
   }
 #endif
 
@@ -574,21 +577,21 @@ void ecmdEnableRingCache() {
 
 uint32_t ecmdDisableRingCache() {
 
-  uint32_t rc;
+  uint32_t rc = ECMD_SUCCESS;
 
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &rc);
-     fppCallCount++;
-     myTcount = fppCallCount;
+    std::vector< void * > args;
+    args.push_back((void*) &rc);
+    fppCallCount++;
+    myTcount = fppCallCount;
 
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache()",args);
-     } else {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache()",args);
-     }
+    if (ecmdClientDebug == 8) {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache()",args);
+    } else {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache()",args);
+    }
   }
 #endif
 
@@ -608,15 +611,15 @@ uint32_t ecmdDisableRingCache() {
   }
 
   if (DllFnTable[ECMD_DISABLERINGCACHE] == NULL) {
-     DllFnTable[ECMD_DISABLERINGCACHE] = (void*)dlsym(dlHandle, "dllDisableRingCache");
-     if (DllFnTable[ECMD_DISABLERINGCACHE] == NULL) {
-       fprintf(stderr,"dllDisableRingCache : Unable to find dllDisableRingCache function, must be an invalid DLL - program aborting\n"); 
-       exit(ECMD_DLL_INVALID);
-     }
+    DllFnTable[ECMD_DISABLERINGCACHE] = (void*)dlsym(dlHandle, "dllDisableRingCache");
+    if (DllFnTable[ECMD_DISABLERINGCACHE] == NULL) {
+      fprintf(stderr,"dllDisableRingCache : Unable to find dllDisableRingCache function, must be an invalid DLL - program aborting\n"); 
+      exit(ECMD_DLL_INVALID);
+    }
   }
 
   uint32_t (*Function)() = 
-      (uint32_t(*)())DllFnTable[ECMD_DISABLERINGCACHE];
+    (uint32_t(*)())DllFnTable[ECMD_DISABLERINGCACHE];
 
   rc =    (*Function)();
 
@@ -624,14 +627,14 @@ uint32_t ecmdDisableRingCache() {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
-     args.push_back((void*) &rc);
+    std::vector< void * > args;
+    args.push_back((void*) &rc);
 
-     if (ecmdClientDebug == 8) {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache()",args);
-     } else {
-        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache()",args);
-     }
+    if (ecmdClientDebug == 8) {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache()",args);
+    } else {
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache()",args);
+    }
   }
 #endif
 
