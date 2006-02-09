@@ -227,13 +227,13 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config
   if(argc >= 1) {
    target.chipType = argv[0];
-   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+   target.chipTypeState = target.posState = ECMD_TARGET_FIELD_VALID;
   }
   else {
-   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+   target.chipTypeState = target.posState = ECMD_TARGET_FIELD_UNUSED;
   }
 
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string printed;
@@ -343,13 +343,13 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config
   if(argc >= 1) {
    target.chipType = argv[0];
-   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+   target.chipTypeState = target.posState = ECMD_TARGET_FIELD_VALID;
   }
   else {
-   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+   target.chipTypeState = target.posState = ECMD_TARGET_FIELD_UNUSED;
   }
 
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string printed;
