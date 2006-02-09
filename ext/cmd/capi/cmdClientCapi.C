@@ -54,9 +54,9 @@
 //----------------------------------------------------------------------
 #ifndef ECMD_STATIC_FUNCTIONS
 /* This is from ecmdClientCapiFunc.C */
-extern void * dlHandle;
+//extern void * dlHandle;
 /* These are from cmdClientCapiFunc.C */
-extern void * cmdDllFnTable[];
+//extern void * cmdDllFnTable[];
 #endif
 bool cmdInitialized;
 
@@ -65,7 +65,7 @@ bool cmdInitialized;
 //---------------------------------------------------------------------
 uint32_t cmdInitExtension() {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
   /* Nothing to see here, we don't need any plugin functions, this extension is all on the client side */
   /* We don't have to worry about initialization because their client won't compile unless the extension is supported */
   cmdInitialized = true;
@@ -81,10 +81,11 @@ uint32_t cmdRunCommand(std::string i_command) {
 
   char* c_argv[21];
   char* buffer = NULL;
-  int   commlen;
+  size_t   commlen;
   char buf[200];
 
   c_argc = 0;
+  c_argv[0] = NULL;
 
   commlen = i_command.length();
   buffer = new char[commlen + 20];
@@ -93,7 +94,7 @@ uint32_t cmdRunCommand(std::string i_command) {
 
   /* Now start carving this thing up */
   bool lookingForStart = true; /* Are we looking for the start of a word ? */
-  for (int c = 0; c < commlen; c++) {
+  for (size_t c = 0; c < commlen; c++) {
     if (lookingForStart) {
       if (buffer[c] != ' ' && buffer[c] != '\t') {
         c_argv[c_argc++] = &buffer[c];
@@ -148,19 +149,26 @@ uint32_t cmdRunCommand(std::string i_command) {
 
 uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_output) {
   uint32_t rc = ECMD_SUCCESS;
-  char  end = EOF;
+  int  end = EOF;
   FILE* tempfile;
   char buf[1010];
   int idx;
-  char mychar;
+  int mychar;
 
   o_output = "";
 
-  int stdoutsave = dup(1);
 
 
   /* Create a tmpfile to pipe stdout through */
   tempfile = tmpfile();
+
+  if (tempfile == NULL) {
+    ecmdOutputError("cmdRunCommandCaptureOutput - Unable to allocate tempfile to capture output\n");
+    return ECMD_FAILURE;
+  }
+
+  int stdoutsave = dup(1);
+
   int newstdout = fileno(tempfile);
 
   /* Redirect stdout */
@@ -179,7 +187,7 @@ uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_outpu
   /* Let's pop 1000 chars at a time */
   idx = 0;
   while(end != (mychar = getc(tempfile))) {
-    buf[idx++] = mychar;
+    buf[idx++] = (char)mychar;
     if (idx == 1000) {
       buf[idx] = '\0';
       o_output += buf;
