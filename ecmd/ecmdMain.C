@@ -28,7 +28,7 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdMain_C
+
 
 #include <stdio.h>
 #include <string>
@@ -39,7 +39,7 @@
 #include <ecmdCommandUtils.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdMain_C
+
 
 int main (int argc, char *argv[])
 {
@@ -76,7 +76,7 @@ int main (int argc, char *argv[])
 
       /* Grab any other args that may be there */
       rc = ecmdCommandArgs(&argc, &argv);
-      if (rc) return rc;
+      if (rc) exit((int)rc);
 
       /* There shouldn't be any more args when doing a -stdin */
       if (argc > 1) {
@@ -89,8 +89,8 @@ int main (int argc, char *argv[])
         int   c_argc;
         char* c_argv[21];       ///< A limit of 20 tokens(args) per command
         char* buffer = NULL;
-        int   bufflen = 0;
-        int   commlen;
+        size_t   bufflen = 0;
+        size_t   commlen;
 
         /* ecmdParseStdInCommands reads from stdin and returns a vector of strings */
         /*  each string contains one command (ie 'ecmdquery version')              */
@@ -103,6 +103,8 @@ int main (int argc, char *argv[])
           for (std::vector< std::string >::iterator commit = commands.begin(); commit != commands.end(); commit ++) {
 
             c_argc = 0;
+	    c_argv[0] = NULL;
+
             /* Check for a comment or empty line, if so delete it */
             if ((*commit)[0] == '#') continue;
             else if (commit->length() == 0) continue;
@@ -120,11 +122,12 @@ int main (int argc, char *argv[])
             // "commands" FOR loop but commit->length = 0 ie. no command).  So
             // tell beam to ignore NULL pointer message for 'buffer' parm via
             // comment on next line.
+	    //lint -e(668) Ignore passing null, same as above for lint
             strcpy(buffer, commit->c_str()); /*passing null object*/
 
             /* Now start carving this thing up */
             bool lookingForStart = true; /* Are we looking for the start of a word ? */
-            for (int c = 0; c < commlen; c++) {
+            for (size_t c = 0; c < commlen; c++) {
               if (lookingForStart) {
                 if (buffer[c] != ' ' && buffer[c] != '\t') {
                   c_argv[c_argc++] = &buffer[c];
@@ -222,7 +225,7 @@ int main (int argc, char *argv[])
 
   }
 
-  exit(rc);
+  exit((int)rc);
 
 }
 
