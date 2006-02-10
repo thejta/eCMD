@@ -26,13 +26,15 @@
 //  Flag Reason   Vers Date     Coder     Description                       
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//  @02  STG44847      02/08/06 prahl     Fix up Lint messages.  Got most but
+//                                        still a bunch of 713, 732 & 737 left.
 //   
 // End Change Log *****************************************************
 
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdDllCapi_C
+#define ecmdDllCapi_C  //lint -e750    @02a
 #include <stdio.h>
 #include <list>
 #include <algorithm>
@@ -175,8 +177,8 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
   if (lhs.ringName != rhs.ringName)
     return true;
 
-  int lhsLeftParen = lhs.latchName.find_last_of('(');
-  int rhsLeftParen = rhs.latchName.find_last_of('(');
+  uint32_t lhsLeftParen = lhs.latchName.find_last_of('('); //@02 chg 2 uint32_t
+  uint32_t rhsLeftParen = rhs.latchName.find_last_of('('); //@02 chg 2 uint32_t
 
   if (lhsLeftParen != rhsLeftParen) {
     return true;
@@ -200,6 +202,18 @@ uint32_t ecmdGlobal_quiet = 0;
 /* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
 std::list<ecmdLatchBufferEntry> latchBuffer;
 
+// Eliminate the follow unavoidable lint message for everywhere 'major' and
+// 'minor' are declared in this file.
+//lint -e123
+//
+//   char major[10];
+// imp_ecmd/dll/ecmdDllCapi.C  279  Error 123: Macro 'major' defined with arguments at line 28, file /usr/include/sys/sysmacros.h -- this is just a warning
+// /usr/include/sys/sysmacros.h  28  Info 830: Location cited in prior message
+//       _
+//   char minor[10];
+// imp_ecmd/dll/ecmdDllCapi.C  280  Error 123: Macro 'minor' defined with arguments at line 29, file /usr/include/sys/sysmacros.h -- this is just a warning
+// /usr/include/sys/sysmacros.h  29  Info 830: Location cited in prior message
+
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
@@ -208,7 +222,8 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 
   /* First off let's check our version */
   /* Let's found our '.' char because we only fail if the Major number changes */
-  int majorlength = (int)(strchr(i_clientVersion, '.') - i_clientVersion);
+  //lint -e613 i_clientVersion is ECMD_CAPI_VERSION so it can't be NULL @02a
+  uint32_t majorlength = (uint32_t)(strchr(i_clientVersion, '.') - i_clientVersion); //@02 chg 2 uint32_t
 
   if (strncmp(i_clientVersion,ECMD_CAPI_VERSION,majorlength)) {
     fprintf(stderr,"**** FATAL : eCMD DLL and your client Major version numbers don't match, they are not compatible\n");
@@ -277,8 +292,8 @@ uint32_t dllCheckDllVersion (const char* options) {
   char major[10];
   char minor[10];
 
-
-  int majorlength = (int)(strchr(ver, '.') - ver);
+  //lint -e613 ver is set by strcpy above so can't be NULL  @02a
+  uint32_t majorlength = (uint32_t)(strchr(ver, '.') - ver);   //@02c chg 2 uint32_t
   strncpy(major, ver, majorlength);
   major[majorlength] = '\0';
   strncpy(minor, &(ver[majorlength + 1]), strlen(ver) - majorlength - 1);
@@ -294,7 +309,8 @@ uint32_t dllCheckDllVersion (const char* options) {
   /* Force an exit here as the dll is not properly initialized we can't allow things to continue */
   exit(0);
 
-  return rc;
+  //lint -e527 See exit comment above for why we'll never get here.
+  return rc; 
 }
 
 bool dllQueryVersionGreater(const char* version) {
@@ -462,7 +478,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.cage = atoi(ecmdUserArgs.cage.c_str());
+      i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str()); //@02c
       cageType = SINGLE;
       i_target.cageState = ECMD_TARGET_FIELD_VALID;
 
@@ -506,7 +522,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
-        i_target.node = atoi(ecmdUserArgs.node.c_str());
+        i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str()); //@02c
         nodeType = SINGLE;
         i_target.nodeState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -548,7 +564,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
-        i_target.slot = atoi(ecmdUserArgs.slot.c_str());
+        i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str()); //@02c
         slotType = SINGLE;
         i_target.slotState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -591,7 +607,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
-        i_target.pos = atoi(ecmdUserArgs.pos.c_str());
+        i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str()); //@02c
         posType = SINGLE;
         i_target.posState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -633,7 +649,9 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
+        //lint -e734 Disable loss of precision msg for .core assignment @02a
         i_target.core = atoi(ecmdUserArgs.core.c_str());
+        //lint +e734 Re-enable message.
         coreType = SINGLE;
         i_target.coreState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -675,7 +693,9 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
+        //lint -e734 Disable loss of precision msg for .thread assignment @02a
         i_target.thread = atoi(ecmdUserArgs.thread.c_str());
+        //lint +e734 Re-enable message.
         threadType = SINGLE;
         i_target.threadState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -751,6 +771,13 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   std::list<ecmdCageData>::iterator curCage = o_queryData.cageData.begin();
 
   while (curCage != o_queryData.cageData.end()) {
+
+    // Within this loop the first for calls to dllRemoveCurrentElement()
+    // generates lint msg 713 & 820: Loss of precision (arg. no. 1) 
+    // So disabling that message within this scope (re-enable at end of 
+    // loop).      @02a
+    //lint -e713
+    //lint -e820
 
     /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
     if (cageType == MULTI) {
@@ -849,6 +876,9 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
 
     /* Let's check to make sure there is something left here after we removed everything */
     curCage++;
+
+    //lint +e713   @02a
+    //lint +e820   @02a
   }  /* while curCage */
 
   return rc;
@@ -860,10 +890,12 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   /* We need to pull out the targeting options here, and
    store them away for future use */
-  char * curArg;
+  char * curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace=");
 
   //-trace
-  if ((curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace="))) {
+// Moved assignment of 'curArg' up to declaration stmt for lint filter.  @02c
+//  if ((curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace="))) {
+  if (curArg) {
     /* Grab all the tokens */
     std::vector<std::string> tokens;
     std::vector<std::string>::iterator tokit;
@@ -913,7 +945,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
   //slot
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-s");
-    if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
+  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -s# at the same time\n");
     return ECMD_INVALID_ARGS;
   } else if (curArg != NULL) {
@@ -985,7 +1017,8 @@ void dllPopCommandArgs() {
 
 
 uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
-  uint8_t remove = 1;
+  uint8_t l_remove = 1; //@02c Added 'l_' to fix lint msg 578 name collision 
+                        //     w/prior declaration of 'remove' in stdio.h
 
   std::string curSubstr;
   size_t curOffset = 0;
@@ -1007,7 +1040,7 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
       int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
 
       if (lowerBound <= curPos && curPos <= upperBound) {
-        remove = 0;
+        l_remove = 0;
         break;
       }
     }
@@ -1015,7 +1048,7 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
 
       int curValidPos = atoi(curSubstr.c_str());
       if (curValidPos == curPos) {
-        remove = 0;
+        l_remove = 0;
         break;
       }
     }
@@ -1024,7 +1057,7 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
 
   }
 
-  return remove;
+  return l_remove;
 }
 
 /* Returns true if all chars of str are decimal numbers */
@@ -1115,11 +1148,11 @@ const char * i_ringName, ecmdQueryDetail_t i_detail) {
          o_queryData.push_back(curLatchData);
 
        curLatch = curLatchData.latchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));  
-       curLatchData.bitLength = curLatchInfo->length;
+       curLatchData.bitLength = (int)curLatchInfo->length; //@02 add typecast to int
        
        
       } else {
-       curLatchData.bitLength += curLatchInfo->length;
+       curLatchData.bitLength += (int)curLatchInfo->length; //@02 add typecast to int
       }
   }
   o_queryData.push_back(curLatchData);//push the last entry
@@ -1644,9 +1677,9 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 
             ecmdParseTokens(curLine, " \t\n", curArgs);
-            curLatch.length = atoi(curArgs[0].c_str());
-            curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
-            curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
+            curLatch.length = (uint32_t)atoi(curArgs[0].c_str()); //@02 add typecast
+            curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());  //@02 add typecast
+            curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str()); //@02 add typecast
             curLatch.latchName = curArgs[4];
           }
           else if (i_mode == ECMD_LATCHMODE_FULL) {
@@ -1656,9 +1689,9 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             ecmdParseTokens(curLine, " \t\n", curArgs);
 
             if ((curArgs.size() >= 5) && latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
-              curLatch.length = atoi(curArgs[0].c_str());
-              curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
-              curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
+              curLatch.length = (uint32_t)atoi(curArgs[0].c_str()); //@02 add typecast
+              curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());  //@02 add typecast
+              curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str()); //@02 add typecast
               curLatch.latchName = curArgs[4];
             } else
               continue;
@@ -1675,11 +1708,11 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             curLatch.latchStartBit = curLatch.latchEndBit = 0;
           } else {
             temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
-            curLatch.latchStartBit = atoi(temp.c_str());
+            curLatch.latchStartBit = (uint32_t)atoi(temp.c_str()); //@02 add typecast
 
             /* Is this a multibit or single bit */
             if ((colon = temp.find(':')) != std::string::npos) {
-              curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
+              curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str()); //@02 add typecast
             } else if ((colon = temp.find(',')) != std::string::npos) {
               dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
@@ -1863,6 +1896,10 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       insh.read((char *)& numRings, 4);
       numRings = htonl(numRings);
 
+      // Disable lint indentation msgs for the rest of this function.  Re-enabled
+      // at the end of the function.
+      //lint -e525       @02a
+      //lint -e725       @02a
       if (!((i_ringName != NULL) && (latchName.size() == 0))) { //Can come from querylatch
       
       /* Get the Hash Key for the latchName */
@@ -2119,9 +2156,9 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
         	 break;
       	      }
               if (latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
-      	 	curLatch.length = atoi(curArgs[0].c_str());
-        	curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
-        	curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
+      	 	curLatch.length = (uint32_t)atoi(curArgs[0].c_str());         //@02 add typecast
+        	curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());  //@02 add typecast
+        	curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str()); //@02 add typecast
         	curLatch.latchName = curArgs[4];
               } else
         	continue;//Error here??
@@ -2133,10 +2170,10 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
               curLatch.latchStartBit = curLatch.latchEndBit = 0;
             } else {
               temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
-              curLatch.latchStartBit = atoi(temp.c_str());
+              curLatch.latchStartBit = (uint32_t)atoi(temp.c_str()); //@02 add typecast
               /* Is this a multibit or single bit */
               if ((colon = temp.find(':')) != std::string::npos) {
-        	curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
+        	curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str()); //@02 add typecast
               } else if ((colon = temp.find(',')) != std::string::npos) {
         	dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
         	return ECMD_FUNCTION_NOT_SUPPORTED;
@@ -2158,9 +2195,9 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       	       continue;
       	    }
 	    // only the following info is needed for querylatch purposes
-	    curLatch.length = atoi(curArgs[0].c_str());
-            curLatch.fsiRingOffset = atoi(curArgs[1].c_str());
-            curLatch.jtagRingOffset = atoi(curArgs[2].c_str());
+	    curLatch.length = (uint32_t)atoi(curArgs[0].c_str());             //@02 add typecast
+            curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());  //@02 add typecast
+            curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str()); //@02 add typecast
             curLatch.latchName = curArgs[4];
             
             curLatch.ringName = curRing;
@@ -2198,6 +2235,8 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
     } /* end !foundit */
   } /* end single exit point */
   return rc;
+  //lint +e525       @02a
+  //lint +e725       @02a
 }
 
 #ifndef REMOVE_SIM
