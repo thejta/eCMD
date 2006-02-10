@@ -2420,6 +2420,80 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
 
 //@}
 
+/** @name FRU VPD Functions */
+//@{
+
+/**
+ @brief Read Fru VPD Keyword Interface
+ @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_record_name Name of VPD Record for given keyword
+ @param i_keyword Name of VPD Keyword to Read
+ @param i_bytes Byte length to read
+ @param o_data Data buffer to copy data to
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t getFruFruKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+/**
+ @brief Write Fru VPD Keyword Interface
+ @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_record_name Name of VPD Record for given keyword
+ @param i_keyword Name of VPD Keyword to Write
+ @param i_data Data buffer of data to write
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data);
+
+/**
+ @brief Read Fru VPD Image Interface
+ @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_bytes Byte length to read
+ @param o_data Data buffer of data read from fru
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a fru
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t getFruImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+/**
+ @brief Write Fru VPD Image Interface
+ @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_data Data buffer of data to write
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a fru
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t putFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
+
+//@}
+
+
 /** @name I2C Functions */
 //@{
 /**
@@ -2521,6 +2595,23 @@ uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data);
+
+/**
+ @brief Let the user to run a series of command, while the i2c device is locked for the duration
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_cmdsEntries The series of commands to be run
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ NOTE : The i2c device targeted is locked at the first use of the device in the list and then unlocked when the command is complete.
+
+ TARGET DEPTH  : Chip<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & i_cmdsEntries);
 
 //@}
 

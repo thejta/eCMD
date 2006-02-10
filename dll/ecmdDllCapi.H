@@ -301,6 +301,14 @@ uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdD
 
 uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
 
+uint32_t dllGetFruFruKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
+
+uint32_t dllPutFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data); 
+
+uint32_t dllGetFruImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data); 
+
+uint32_t dllPutFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
+
 uint32_t dllI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port); 
 
 uint32_t dllI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data); 
@@ -310,6 +318,8 @@ uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
 uint32_t dllI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data); 
 
 uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data); 
+
+uint32_t dllI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & i_cmdsEntries); 
 
 uint32_t dllGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode); 
 

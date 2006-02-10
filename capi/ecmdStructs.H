@@ -340,10 +340,16 @@ typedef enum {
  ECMD_TRACE_PROCEDURE           ///< Procedure Trace
 } ecmdTraceType_t;
 
-
-
-
-
+/**
+ @brief Used by ecmdI2CCmdEntry to specify which commands to run
+*/
+typedef enum {
+ ECMD_I2C_RESET,          ///< Call should go ecmdI2cReset
+ ECMD_I2C_READ,           ///< Call should go ecmdI2cRead
+ ECMD_I2C_READOFFSET,     ///< Call should go ecmdI2cReadOffset
+ ECMD_I2C_WRITE,          ///< Call should go ecmdI2cWrite
+ ECMD_I2C_WRITEOFFSET     ///< Call should go ecmdI2cWriteOffset
+} ecmdI2CCmds_t;
 
 
 
@@ -352,9 +358,23 @@ typedef enum {
 //--------------------------------------------------------------------
 
 /**
+ @brief Used by ecmdI2CMultipleCmds API
+*/
+struct ecmdI2CCmdEntry {
+  ecmdI2CCmds_t ecmdI2CCmd;     ///< The eCMD API to target with this command
+  uint32_t engineId;            ///< The i2c engine to use
+  uint32_t port;                ///< The i2c port to use
+  uint32_t slaveaddress;        ///< The i2c slave device address to use
+  ecmdI2cBusSpeed_t busSpeed;   ///< The i2c bus speed to use
+  uint32_t offset;              ///< Byte offset in the device (needed for offset commands only)
+  uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
+  uint32_t byte;                ///< Byte length to read (only needed on reads)
+  ecmdDataBuffer data;         ///< The data returned from the i2c operation
+};
+
+/**
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
-
 struct ecmdDllInfo {
   ecmdDllType_t         dllType;        ///< Dll instance type running
   ecmdDllProduct_t      dllProduct;     ///< Dll product supported
@@ -539,6 +559,13 @@ inline ecmdCoreData::~ecmdCoreData() { }
 #define ECMD_CHIPFLAG_JTAG      0x40000000
 #define ECMD_CHIPFLAG_FSI       0x80000000
 #define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used) 
+
+#define ECMD_CHIPFLAG_STATEMASK         0x0000001F
+#define ECMD_CHIPFLAG_CONFIGED_USEABLE  0x00000001
+#define ECMD_CHIPFLAG_DELAYED_FENCED    0x00000002
+#define ECMD_CHIPFLAG_FENCED            0x00000004
+#define ECMD_CHIPFLAG_SPARE             0x00000008
+#define ECMD_CHIPFLAG_DEFECTIVE         0x00000010
 
 /**
  @brief Used for the ecmdQueryConfig function to return chip data
