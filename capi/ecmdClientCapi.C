@@ -94,7 +94,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #ifndef ECMD_STRIP_DEBUG
   char* tmpptr = getenv("ECMD_DEBUG");
   if (tmpptr != NULL)
-    ecmdClientDebug = atoi(tmpptr);
+    ecmdClientDebug = (uint32_t)atoi(tmpptr);
   else
     ecmdClientDebug = 0;
 #endif
@@ -505,7 +505,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
   }
 #endif
 
-  /*lint -e(429) i_queryData is deallocated above based on myQuery bool */
+  /*lint -e429 i_queryData is deallocated above based on myQuery bool */
   return ret;
 }
 
