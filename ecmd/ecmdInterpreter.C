@@ -37,7 +37,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdCommandUtils.H>
-#include <ecmdUtils.H>
 #include <ecmdSharedUtils.H>
 
 /* Extension Interpreters */
