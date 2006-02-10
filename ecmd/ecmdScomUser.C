@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdDaScomUser_C
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
@@ -39,7 +38,7 @@
 
 
 
-#undef ecmdDaScomUser_C
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -87,8 +86,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   ecmdLooperData looperdata;                    ///< Store internal Looper data
   ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   std::string printed;                          ///< Output data
-  int startbit = -1;                            ///< Startbit in the scom data
-  int numbits = 0;                              ///< Number of bits to diplay
+  uint32_t startbit = 0xFFFFFFFF;               ///< Startbit in the scom data
+  uint32_t numbits = 0;                         ///< Number of bits to diplay
   
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -188,12 +187,12 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       ecmdOutputError("getscom - Non-decimal characters detected in startbit field\n");
       return ECMD_INVALID_ARGS;
     }
-    startbit = atoi(argv[2]);
+    startbit = (uint32_t)atoi(argv[2]);
     if (!ecmdIsAllDecimal(argv[3])) {
       ecmdOutputError("getscom - Non-decimal characters detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numbits = atoi(argv[3]);
+    numbits = (uint32_t)atoi(argv[3]);
 
 
     /* Bounds check */
@@ -270,7 +269,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
        validPosFound = true;
      }
  
-     if (startbit != -1) {
+     if (startbit != 0xFFFFFFFF) {
        scombuf.extract(buffer, startbit, numbits);
      } else {
        scombuf.extract(buffer, 0, scombuf.getBitLength());
@@ -356,8 +355,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   ecmdDataBuffer buffer;                        ///< Container to store write data
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
   std::string printed;                          ///< String for printed data
-  int startbit = -1;                            ///< Startbit to insert data
-  int numbits = 0;                              ///< Number of bits to insert data
+  uint32_t startbit = 0xFFFFFFFF;               ///< Startbit to insert data
+  uint32_t numbits = 0;                         ///< Number of bits to insert data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -416,12 +415,12 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       ecmdOutputError("putscom - Non-decimal characters detected in startbit field\n");
       return ECMD_INVALID_ARGS;
     }
-    startbit = atoi(argv[2]);
+    startbit = (uint32_t)atoi(argv[2]);
     if (!ecmdIsAllDecimal(argv[3])) {
       ecmdOutputError("putscom - Non-decimal characters detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numbits = atoi(argv[3]);
+    numbits = (uint32_t)atoi(argv[3]);
 
 
     /* Bounds check */
@@ -496,7 +495,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
            ecmdConfigLooperNext(coretarget, corelooper)) {
 	   
      /* Do we need to perform a read/modify/write op ? */
-     if ((dataModifier != "insert") || (startbit != -1)) {
+     if ((dataModifier != "insert") || (startbit != 0xFFFFFFFF)) {
 
 
        rc = getScom(coretarget, address, fetchBuffer);
@@ -515,7 +514,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      	 validPosFound = true;
        }
 
-       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == -1 ? 0 : startbit), dataModifier);
+       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == 0xFFFFFFFF ? 0 : startbit), dataModifier);
        if (rc) return rc;
 
        rc = putScom(coretarget, address, fetchBuffer);
@@ -591,9 +590,10 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   uint32_t interval = 5;
   uint32_t maxPolls = 1050;
   uint32_t numPolls = 1;
-  uint32_t timerStart = 0x0;
+  time_t timerStart = 0x0;
 
   char * curArg;                                ///< Used for arg parsing
+  char outstr[100];
 
 
   /************************************************************************/
@@ -622,7 +622,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
   if (curArg != NULL) {
-    interval = atoi(curArg);
+    interval = (uint32_t)atoi(curArg);
     if (strstr(curArg, "c")) {
       intervalFlag = CYCLES_T;
     }
@@ -638,7 +638,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-limit");
   if (curArg != NULL) {
-    maxPolls = atoi(curArg);
+    maxPolls = (uint32_t)atoi(curArg);
     if (strstr(curArg, "s")) {
       limitFlag = SECONDS_T;
     } else if (strstr(curArg, "c")) {
@@ -758,7 +758,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      timerStart = time(NULL);
 
      printed = ecmdWriteTarget(coretarget);
-     char outstr[30];
      sprintf(outstr, "Polling address %.6X...\n", address);
      printed += outstr;
      ecmdOutput( printed.c_str() );
@@ -784,7 +783,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
        /* check for last iteration */
        /* ------------------------ */
        if ((limitFlag == ITERATIONS_T || limitFlag == CYCLES_T) && numPolls >= maxPolls) done = 1;
-       else if (limitFlag == SECONDS_T && maxPolls != 0 && ((uint32_t) time(NULL) > timerStart + maxPolls)) done = 1;
+       else if (limitFlag == SECONDS_T && maxPolls != 0 && (time(NULL) > timerStart + (time_t)maxPolls)) done = 1;
 
        if (expectFlag) {
 
@@ -811,7 +810,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	     printed += ecmdWriteDataFormatted(expected, outputformat);
 
      	     if (done) {
-     	       char outstr[50];
      	       sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
      	       printed = outstr + printed;
      	       ecmdOutputError( printed.c_str() );
