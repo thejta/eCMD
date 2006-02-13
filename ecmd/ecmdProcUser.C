@@ -172,7 +172,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string sprName;          ///< Name of spr to write 
   int startBit = -1;                            ///< Startbit to insert data
-  int numBits = 0;                              ///< Number of bits to insert data
+  uint32_t numBits = 0;                              ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
 
   /* get format flag, if it's there */
@@ -222,7 +222,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       ecmdOutputError("putspr - Non-decimal numbers detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numBits = atoi(argv[2]);
+    numBits = (uint32_t)atoi(argv[2]);
     
     
     dataPtr = argv[3];
@@ -440,9 +440,9 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  int entry;                    ///< Index entry to write 
+  uint32_t entry;                    ///< Index entry to write 
   int startBit = -1;                            ///< Startbit to insert data
-  int numBits = 0;                              ///< Number of bits to insert data
+  uint32_t numBits = 0;                              ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
   std::string function;         ///< Current function being run based on daType
 
@@ -488,22 +488,22 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
-  entry = atoi(argv[0]);
+  entry = (uint32_t)atoi(argv[0]);
 
   if (argc == 4) {
     if (!ecmdIsAllDecimal(argv[1])) {
       printed = function + " - Non-decimal numbers detected in startbit field\n";
-    ecmdOutputError(printed.c_str());
+      ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
     startBit = atoi(argv[1]);
 
     if (!ecmdIsAllDecimal(argv[2])) {
       printed = function + " - Non-decimal numbers detected in numbits field\n";
-    ecmdOutputError(printed.c_str());
+      ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    numBits = atoi(argv[2]);
+    numBits = (uint32_t)atoi(argv[2]);
     
     
     dataPtr = argv[3];
