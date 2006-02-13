@@ -2439,7 +2439,7 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
  TARGET STATES : Unused <br>
 
 */
-uint32_t getFruFruKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write Fru VPD Keyword Interface
@@ -2472,7 +2472,7 @@ uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
  TARGET STATES : Unused <br>
 
 */
-uint32_t getFruImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write Fru VPD Image Interface
