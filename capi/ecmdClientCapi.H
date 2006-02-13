@@ -2606,12 +2606,13 @@ uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- NOTE : The i2c device targeted is locked at the first use of the device in the list and then unlocked when the command is complete.
+ NOTE : The i2c device targeted is locked at the first use of the device in the list and then unlocked when the command is complete.<br>
+ NOTE : The output data on reads is filled into the ecmdDataBuffer in the list for that operation
 
  TARGET DEPTH  : Chip<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & i_cmdsEntries);
+uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & io_cmdsEntries);
 
 //@}
 
