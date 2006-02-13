@@ -25,8 +25,8 @@
 // End Change Log *****************************************************
 
 // Get rid of some annoying lint errors that aren't real - cje
-//lint -e 613 Possible use of null pointer, lint doesn't understand we use iv_NumBits to check length and pointer validity
-//lint -e 668 Possible passing of a null pointer, same thing as above
+//lint -e613 Possible use of null pointer, lint doesn't understand we use iv_NumBits to check length and pointer validity
+//lint -e668 Possible passing of a null pointer, same thing as above
 
 //----------------------------------------------------------------------
 //  Includes
