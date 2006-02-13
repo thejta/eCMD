@@ -138,7 +138,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif
 
 #ifndef FIPSODE
-  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
+  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY|RTLD_GLOBAL);
 #else
   // MAB still need to change RTLD_LAZY to RTLD_LAZY|RTLD_GLOBAL for FIPS Sim
   dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY|RTLD_GLOBAL);
