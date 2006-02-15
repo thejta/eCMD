@@ -137,12 +137,8 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
     printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
 #endif
 
-#ifndef FIPSODE
-  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
-#else
-  // MAB still need to change RTLD_LAZY to RTLD_LAZY|RTLD_GLOBAL for FIPS Sim
-  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY|RTLD_GLOBAL);
-#endif
+  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
       printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
