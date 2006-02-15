@@ -2260,7 +2260,7 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
 
   if (iv_NumBits > 0) {
     /* Check for null here to satisfy lint, but should always be NULL coming into this */
-    if (iv_DataStr != NULL) iv_DataStr = new char[iv_NumBits + 42];
+    if (iv_DataStr == NULL) iv_DataStr = new char[iv_NumBits + 42];
     if (iv_DataStr == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::enableXstateBuffer : Unable to allocate Xstate memory for new databuffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
