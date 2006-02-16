@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdArrayUser_C
 
 #include <ctype.h>
 #include <algorithm>
@@ -35,7 +34,6 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdArrayUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -157,7 +155,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     ecmdOutputError("getarray - Cannot specify NumEntries with the ALL option.\n");
     return ECMD_INVALID_ARGS;
   } else if (argc > 3) {
-    numEntries = atoi(argv[3]);
+    numEntries = (uint32_t)atoi(argv[3]);
   } 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -179,8 +177,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
 
       /* Set the length  */
-      address.setBitLength(arrayData.readAddressLength);
-      rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
+      address.setBitLength((uint32_t)arrayData.readAddressLength);
+      rc = address.insertFromHexRight(argv[2], 0, (uint32_t)arrayData.readAddressLength);
       if (rc) {
         ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
         return rc;
@@ -226,7 +224,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             }
 
             add_buffer[address.getWordLength()-1] = 0;
-            for (int word = address.getWordLength()-2; word >= 0; word --) {
+            for (uint32_t word = address.getWordLength()-2; word >= 0; word --) {
               if (add_buffer[word] == 0xFFFFFFFF) {
         	/* We are going to rollover */
         	if (word == 0) {
@@ -422,8 +420,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     arrayData = *(arrayDataList.begin());
 
     /* Set the length  */
-    address.setBitLength(arrayData.writeAddressLength);
-    rc = address.insertFromHexRight(argv[2], 0, arrayData.writeAddressLength);
+    address.setBitLength((uint32_t)arrayData.writeAddressLength);
+    rc = address.insertFromHexRight(argv[2], 0, (uint32_t)arrayData.writeAddressLength);
     if (rc) {
       ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
       return rc;
