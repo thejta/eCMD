@@ -227,7 +227,8 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config
   if(argc >= 1) {
    target.chipType = argv[0];
-   target.chipTypeState = target.posState = ECMD_TARGET_FIELD_VALID;
+   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+   target.posState      = ECMD_TARGET_FIELD_WILDCARD;
   }
   else {
    target.chipTypeState = target.posState = ECMD_TARGET_FIELD_UNUSED;
@@ -343,7 +344,8 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config
   if(argc >= 1) {
    target.chipType = argv[0];
-   target.chipTypeState = target.posState = ECMD_TARGET_FIELD_VALID;
+   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+   target.posState      = ECMD_TARGET_FIELD_WILDCARD;
   }
   else {
    target.chipTypeState = target.posState = ECMD_TARGET_FIELD_UNUSED;
