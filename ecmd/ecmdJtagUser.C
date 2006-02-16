@@ -23,16 +23,15 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdJtagUser_C
+#include <stdio.h>
+
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdSharedUtils.H>
-#include <stdio.h>
 
-#undef ecmdJtagUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -61,8 +60,8 @@
 uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
-/*  bool expectFlag = false; */
-/*  bool xstateFlag = false; */
+  /*  bool expectFlag = false; */
+  /*  bool xstateFlag = false; */
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target being operated on
   uint32_t instruction;                 ///< Instruction to send to chip
@@ -141,7 +140,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-/*  char outstr[30]; */
+  /*  char outstr[30]; */
   std::string printed;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
@@ -151,10 +150,10 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "sendcmd - Error occured performing sendcmd on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
+      printed = "sendcmd - Error occured performing sendcmd on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
     }
     else {
       validPosFound = true;     
@@ -168,39 +167,39 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
     
     if ( verbose ) {
     
-     ecmdChipData chipdata;
-     rc = ecmdGetChipData (target, chipdata);
+      ecmdChipData chipdata;
+      rc = ecmdGetChipData (target, chipdata);
      
-     if ( (!rc) && (chipdata.interfaceType == ECMD_INTERFACE_CFAM) ) {
-      printed = "\n\t\tInstruction Status Register\n";
-      printed += "\t\t---------------------------\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(0, 1) + " Attention Active" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(1, 1) + " Checkstop" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(2, 1) + " Special Attention" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(3, 1) + " Recoverable Error" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(4, 1) + " SCOM Attention" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(5, 1) + " CRC Miscompare on previous data scan-in" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(6, 1) + " Invalid Instruction" + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(7, 1) + " PGOOD Indicator(set to '1' by flush, set to '0' by first JTAG instruction)" + "\n";
-      printed += "\t\t " + statusBuffer.genHexLeftStr(8, 4) + " JTAG Instruction count(Incremented following Shift-IR) Bits(8:11). (Hex Left)" + "\n";
+      if ( (!rc) && (chipdata.interfaceType == ECMD_INTERFACE_CFAM) ) {
+	printed = "\n\t\tInstruction Status Register\n";
+	printed += "\t\t---------------------------\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(0, 1) + " Attention Active" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(1, 1) + " Checkstop" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(2, 1) + " Special Attention" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(3, 1) + " Recoverable Error" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(4, 1) + " SCOM Attention" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(5, 1) + " CRC Miscompare on previous data scan-in" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(6, 1) + " Invalid Instruction" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(7, 1) + " PGOOD Indicator(set to '1' by flush, set to '0' by first JTAG instruction)" + "\n";
+	printed += "\t\t " + statusBuffer.genHexLeftStr(8, 4) + " JTAG Instruction count(Incremented following Shift-IR) Bits(8:11). (Hex Left)" + "\n";
  
-      printed += "\t\t " + statusBuffer.genHexRightStr(12, 1) + " Data scan occured after the last instruction" + "\n";
-      printed += "\t\t " + statusBuffer.genHexLeftStr(13, 3) + " Reserved Bits(13:15). (Hex Left)" + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(12, 1) + " Data scan occured after the last instruction" + "\n";
+	printed += "\t\t " + statusBuffer.genHexLeftStr(13, 3) + " Reserved Bits(13:15). (Hex Left)" + "\n";
 
-      printed += "\t      " + statusBuffer.genHexLeftStr(16,14) + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
+	printed += "\t      " + statusBuffer.genHexLeftStr(16,14) + " Clock States(1 = running) Bits(16:29). (Hex Left)" + "\n";
   
-      printed += "\t\t " + statusBuffer.genHexRightStr(30, 1) + " IEEE defined 0"  + "\n";
-      printed += "\t\t " + statusBuffer.genHexRightStr(31, 1) + " IEEE defined 1"  + "\n";
-      ecmdOutput(printed.c_str());
-    }
-    else if (rc) {
-      printed = "sendcmd - Error occured performing chipinfo query on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      return rc;
-    }
+	printed += "\t\t " + statusBuffer.genHexRightStr(30, 1) + " IEEE defined 0"  + "\n";
+	printed += "\t\t " + statusBuffer.genHexRightStr(31, 1) + " IEEE defined 1"  + "\n";
+	ecmdOutput(printed.c_str());
+      }
+      else if (rc) {
+	printed = "sendcmd - Error occured performing chipinfo query on ";
+	printed += ecmdWriteTarget(target) + "\n";
+	ecmdOutputError( printed.c_str() );
+	return rc;
+      }
     
-   }
+    }
   }
 
   if (!validPosFound) {
