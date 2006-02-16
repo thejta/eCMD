@@ -30,7 +30,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdMiscUser_C
 #include <stdio.h>
 #include <ctype.h>
 
@@ -42,7 +41,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdMiscUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -278,7 +276,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
      ecmdOutputError("setconfig - Problems occurred parsing input data, must be an invalid format\n");
      return rc;
     }
-    int numBits = inputBuffer.getBitLength();
+    uint32_t numBits = inputBuffer.getBitLength();
     if(numBits > 32 ) {
      ecmdOutputError("setconfig - Problems occurred parsing input data, Bitlength should be <= 32 bits\n");
      return ECMD_INVALID_ARGS;
@@ -1009,7 +1007,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
 	    
 	    /* Ok, walk the cores */
             for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
-	      target.core = *coreListIter;
+	      target.core = (uint8_t)*coreListIter;
 
 	      rc = ecmdConfigureTarget(target);
 
