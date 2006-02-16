@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdI2cGpioUser_C
 #include <stdio.h>
 #include <fstream>
 
@@ -35,7 +34,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdI2cGpioUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -149,14 +147,14 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("geti2c - Non-decimal numbers detected in port field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t port = atoi(argv[2]);
+  uint32_t port = (uint32_t)atoi(argv[2]);
   
   if (!ecmdIsAllHex(argv[3])) {
     ecmdOutputError("geti2c - Non-hex characters detected in slaveAddr field\n");
@@ -173,7 +171,7 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } 
   
-  int numBytes = atoi(argv[4]);
+  uint32_t numBytes = (uint32_t)atoi(argv[4]);
   
   uint32_t offset = 0, fieldSize = 0; 
   if (argc > 5) {
@@ -182,14 +180,14 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
     
-    offset = atoi(argv[5]);
+    offset = (uint32_t)atoi(argv[5]);
     
     if (!ecmdIsAllDecimal(argv[6])) {
       ecmdOutputError("geti2c - Non-decimal numbers detected in fieldSize field\n");
       return ECMD_INVALID_ARGS;
     }
     
-    fieldSize = atoi(argv[6]);
+    fieldSize = (uint32_t)atoi(argv[6]);
   }
   
   //Run the loop to Check the number of targets
@@ -342,14 +340,14 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("puti2c - Non-decimal numbers detected in port field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t port = atoi(argv[2]);
+  uint32_t port = (uint32_t)atoi(argv[2]);
   
   if (!ecmdIsAllHex(argv[3])) {
     ecmdOutputError("puti2c - Non-hex characters detected in slaveAddr field\n");
@@ -377,14 +375,14 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
     
-    offset = atoi(offsetstr.c_str());
+    offset = (uint32_t)atoi(offsetstr.c_str());
     
     if (!ecmdIsAllDecimal(fieldstr.c_str())) {
       ecmdOutputError("puti2c - Non-decimal numbers detected in fieldSize field\n");
       return ECMD_INVALID_ARGS;
     }
     
-    fieldSize = atoi(fieldstr.c_str());
+    fieldSize = (uint32_t)atoi(fieldstr.c_str());
   }
   
   
@@ -490,14 +488,14 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("i2creset - Non-decimal numbers detected in port field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t port = atoi(argv[2]);
+  uint32_t port = (uint32_t)atoi(argv[2]);
   
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -605,7 +603,7 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   uint32_t pin = 0;
   std::string modeStr, dataStr;
@@ -616,7 +614,7 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
      return ECMD_INVALID_ARGS;
    }
  
-   pin = atoi(argv[2]);
+   pin = (uint32_t)atoi(argv[2]);
    modeStr = argv[3];
    dataStr = argv[4];
   } else {
@@ -744,14 +742,14 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("gpioconfig - Non-decimal numbers detected in pin field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t pin = atoi(argv[2]);
+  uint32_t pin = (uint32_t)atoi(argv[2]);
   
   
   ecmdDioMode_t mode = ECMD_DIO_INPUT; // default to remove compiler warnings
@@ -876,7 +874,7 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   
   uint32_t pin=0;
@@ -885,7 +883,7 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
     ecmdOutputError("getgpiopin - Non-decimal numbers detected in pin field\n");
     return ECMD_INVALID_ARGS;
    }
-   pin = atoi(argv[2]);
+   pin = (uint32_t)atoi(argv[2]);
   }
 
   /************************************************************************/
@@ -989,14 +987,14 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t engineId = atoi(argv[1]);
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
   
   if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("getgpiolatch - Non-decimal numbers detected in pin field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t pin = atoi(argv[2]);
+  uint32_t pin = (uint32_t)atoi(argv[2]);
   
   
   ecmdDioMode_t mode = ECMD_DIO_INPUT; // default to remove compiler warnings
