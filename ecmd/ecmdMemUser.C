@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdMemUser_C
 #include <stdio.h>
 #include <ctype.h>
 #include <fstream>
@@ -37,7 +36,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdMemUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -159,7 +157,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   }
 
   // Get the number of bits
-  numBytes = atoi(argv[1]);
+  numBytes = (uint32_t)atoi(argv[1]);
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -240,14 +238,14 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
-  std::string inputformat = "x";      ///< Output format - default to 'mem'
+  std::string inputformat = "x";        ///< Output format - default to 'mem'
   ecmdDataBuffer inputData;             ///< Buffer to hold the data intended for memory
-  std::list<ecmdMemoryEntry> memdata; ///< Data from the D-Card format file 
+  std::list<ecmdMemoryEntry> memdata;   ///< Data from the D-Card format file 
   std::list<ecmdMemoryEntry>::iterator memdataIter; ///< to iterate on memdata list 
-  ecmdMemoryEntry memEntry;           ///< to store data from the user
+  ecmdMemoryEntry memEntry;             ///< to store data from the user
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
-  uint64_t address;                     ///< The address from the command line
+  uint64_t address = 0;                 ///< The address from the command line
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
