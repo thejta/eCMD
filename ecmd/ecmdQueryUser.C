@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdQueryUser_C
 #include <stdio.h>
 
 #include <ecmdCommandUtils.H>
@@ -33,7 +32,6 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdQueryUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -155,7 +153,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           if (strit != ringit->ringNames.begin()) printed += ", ";
           printed += (*strit);
         }
-        for (int i = printed.length(); i <= 36; i++) { 
+        for (size_t i = printed.length(); i <= 36; i++) { 
           printed += " ";
         }
 
@@ -284,7 +282,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         } else if(spyit->spyType == ECMD_SPYTYPE_ECCGROUP) {
           printed = "ECCGROUP";
         } 
-        for (int i = printed.length(); i <= 10; i++) { 
+        for (size_t i = printed.length(); i <= 10; i++) { 
           printed += " ";
         }
 
@@ -414,7 +412,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         printed = "";
         printed += traceit->traceArrayName;
         
-	for (int i = printed.length(); i <= 25; i++) { 
+	for (size_t i = printed.length(); i <= 25; i++) { 
           printed += " ";
         }
 
@@ -524,7 +522,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         sprintf(addrStr, "%8.8X", scomit->address);
 	printed += addrStr;
 	
-	for (int i = printed.length(); i <= 14; i++) { 
+	for (size_t i = printed.length(); i <= 14; i++) { 
           printed += " ";
         }
 
@@ -628,7 +626,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
         printed = "";
         printed += arrayit->arrayName;
-	for (int i = printed.length(); i <= 30; i++) { 
+	for (size_t i = printed.length(); i <= 30; i++) { 
           printed += " ";
         }
 
@@ -827,7 +825,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 	    
 	    /* Ok, walk the cores */
             for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
-	      target.core = *coreListIter;
+	      target.core = (uint8_t)(*coreListIter);
 
 	      if (ecmdQueryTargetConfigured(target)) {
                  printed = "ecmdquery - Target ";
@@ -1131,6 +1129,11 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       sprintf(buf,  "Chip Flags       : %.08X\n", chipdata.chipFlags); ecmdOutput(buf);
       ecmdOutput(   "*******************************************************\n");
 
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
     }
 
     /* ---------- */
