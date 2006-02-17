@@ -31,7 +31,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdCommandUtils_C
 #include <list>
 #include <iostream>
 #include <fstream>
@@ -47,7 +46,6 @@
 #include <ecmdClientCapi.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdCommandUtils_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -75,7 +73,7 @@
 
 uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
 
-  int wordCounter = 0;
+  uint32_t wordCounter = 0;
   uint32_t maxBits = 32;
   uint32_t numBits = i_data.getBitLength();
   uint32_t numToFetch = numBits < maxBits ? numBits : maxBits;
@@ -126,7 +124,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
         
 }
 
-uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier) {
+uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier) {
   uint32_t rc = ECMD_SUCCESS;
 
 
@@ -188,8 +186,8 @@ uint32_t ecmdPrintHelp(const char* i_command) {
 bool ecmdIsAllDecimal(const char* str) {
 
   bool ret = true;
-  int len = strlen(str);
-  for (int x = 0; x < len; x ++) {
+  size_t len = strlen(str);
+  for (size_t x = 0; x < len; x ++) {
     if (!isdigit(str[x])) {
       ret = false;
       break;
@@ -203,8 +201,8 @@ bool ecmdIsAllDecimal(const char* str) {
 bool ecmdIsAllHex(const char* str) {
 
   bool ret = true;
-  int len = strlen(str);
-  for (int x = 0; x < len; x ++) {
+  size_t len = strlen(str);
+  for (size_t x = 0; x < len; x ++) {
     if (!isxdigit(str[x])) {
       ret = false;
       break;
@@ -381,19 +379,19 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
    	 return ECMD_INVALID_ARGS;
        }
        if(isCage) {
-         target.cage = atoi(targetFieldList.c_str());
+         target.cage = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isNode) {
-         target.node = atoi(targetFieldList.c_str());
+         target.node = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isSlot) {
-         target.slot = atoi(targetFieldList.c_str());
+         target.slot = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isPos) {
-         target.pos = atoi(targetFieldList.c_str());
+         target.pos = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isCore) {
-         target.core = atoi(targetFieldList.c_str());
+         target.core = (uint8_t)atoi(targetFieldList.c_str());
        }
      }
      else {
@@ -498,10 +496,10 @@ void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
 
     if ((tmpOffset = curSubstr.find("..",0)) < curSubstr.length()) {
 
-      int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
-      int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
+      uint32_t lowerBound = (uint32_t)atoi(curSubstr.substr(0,tmpOffset).c_str());
+      uint32_t upperBound = (uint32_t)atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
       
-      int curPos = lowerBound;
+      uint32_t curPos = lowerBound;
       while (lowerBound <= curPos && curPos <= upperBound) {
         targetList.push_back(curPos);
 	curPos++;
@@ -509,7 +507,7 @@ void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
     }
     else {
 
-      int curValidPos = atoi(curSubstr.c_str());
+      uint32_t curValidPos = (uint32_t)atoi(curSubstr.c_str());
       targetList.push_back(curValidPos);
     }
 

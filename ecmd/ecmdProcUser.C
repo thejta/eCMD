@@ -169,10 +169,10 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   ecmdDataBuffer sprBuffer;     ///< Buffer to store data from the spr
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperdata;    ///< Store internal Looper data
   std::string sprName;          ///< Name of spr to write 
-  int startBit = -1;                            ///< Startbit to insert data
-  uint32_t numBits = 0;                              ///< Number of bits to insert data
+  uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
+  uint32_t numBits = 0;         ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
 
   /* get format flag, if it's there */
@@ -216,7 +216,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       ecmdOutputError("putspr - Non-decimal numbers detected in startbit field\n");
       return ECMD_INVALID_ARGS;
     }
-    startBit = atoi(argv[1]);
+    startBit = (uint32_t)atoi(argv[1]);
 
     if (!ecmdIsAllDecimal(argv[2])) {
       ecmdOutputError("putspr - Non-decimal numbers detected in numbits field\n");
@@ -263,7 +263,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     if (dataPtr != NULL) {
 
       /* They didn't specify a range */
-      if (startBit == -1 ) {
+      if (startBit == ECMD_UNSET ) {
         startBit = 0;
         numBits = sprBuffer.getBitLength();
       }
@@ -439,10 +439,10 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   ecmdDataBuffer sprBuffer;     ///< Buffer to store data from the spr
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  uint32_t entry;                    ///< Index entry to write 
-  int startBit = -1;                            ///< Startbit to insert data
-  uint32_t numBits = 0;                              ///< Number of bits to insert data
+  ecmdLooperData looperdata;    ///< Store internal Looper data
+  uint32_t entry;               ///< Index entry to write 
+  uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
+  uint32_t numBits = 0;         ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
   std::string function;         ///< Current function being run based on daType
 
@@ -496,7 +496,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    startBit = atoi(argv[1]);
+    startBit = (uint32_t)atoi(argv[1]);
 
     if (!ecmdIsAllDecimal(argv[2])) {
       printed = function + " - Non-decimal numbers detected in numbits field\n";
@@ -549,7 +549,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     if (dataPtr != NULL) {
 
       /* They didn't specify a range */
-      if (startBit == -1 ) {
+      if (startBit == ECMD_UNSET ) {
         startBit = 0;
         numBits = sprBuffer.getBitLength();
       }

@@ -517,8 +517,8 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   ecmdDataBuffer buffer;                        ///< Container to store write data
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
   std::string printed;                          ///< String for printed data
-  int startbit = -1;                            ///< Startbit to insert data
-  int numbits = 0;                              ///< Number of bits to insert data
+  uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
+  uint32_t numbits = 0;                         ///< Number of bits to insert data
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -578,12 +578,12 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
       ecmdOutputError("putcfam - Non-decimal characters detected in startbit field\n");
       return ECMD_INVALID_ARGS;
     }
-    startbit = atoi(argv[2]);
+    startbit = (uint32_t)atoi(argv[2]);
     if (!ecmdIsAllDecimal(argv[3])) {
       ecmdOutputError("putcfam - Non-decimal characters detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numbits = atoi(argv[3]);
+    numbits = (uint32_t)atoi(argv[3]);
 
 
     /* Bounds check */
@@ -623,7 +623,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   while (ecmdConfigLooperNext(target, looperdata)) {
 
     /* Do we need to perform a read/modify/write op ? */
-    if ((dataModifier != "insert") || (startbit != -1)) {
+    if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
 
 
       rc = getCfamRegister(target, address, fetchBuffer);
@@ -642,7 +642,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
         validPosFound = true;
       }
 
-      rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == -1 ? 0 : startbit), dataModifier);
+      rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
       if (rc) return rc;
 
       rc = putCfamRegister(target, address, fetchBuffer);

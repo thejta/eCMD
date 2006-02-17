@@ -59,7 +59,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
  @param i_startbit Startbit of io_data to begin modification
  @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
 */
-uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, int i_startbit, std::string i_modifier);
+uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier);
 
 
 /**

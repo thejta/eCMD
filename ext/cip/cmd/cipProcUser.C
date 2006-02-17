@@ -22,7 +22,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define cipProcUser_C
 #include <ecmdClientCapi.H>
 #include <cipInterpreter.H>
 #include <ecmdStructs.H>
@@ -32,7 +31,6 @@
 #include <ecmdCommandUtils.H>
 #include <stdio.h>
 
-#undef cipProcUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -403,8 +401,8 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperdata;            ///< Store internal Looper data
   int entry;                    ///< Index entry to write 
-  int startBit = -1;                            ///< Startbit to insert data
-  int numBits = 0;                              ///< Number of bits to insert data
+  uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
+  uint32_t numBits = 0;         ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
   
   /* get format flag, if it's there */
@@ -452,14 +450,14 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
     ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    startBit = atoi(argv[1]);
+    startBit = (uint32_t)atoi(argv[1]);
 
     if (!ecmdIsAllDecimal(argv[2])) {
       printed = "cipputvr - Non-decimal numbers detected in numbits field\n";
     ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    numBits = atoi(argv[2]);
+    numBits = (uint32_t)atoi(argv[2]);
     
     
     dataPtr = argv[3];
@@ -503,7 +501,7 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
     if (dataPtr != NULL) {
 
       /* They didn't specify a range */
-      if (startBit == -1 ) {
+      if (startBit == ECMD_UNSET ) {
         startBit = 0;
         numBits = sprBuffer.getBitLength();
       }
