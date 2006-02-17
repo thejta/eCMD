@@ -72,7 +72,8 @@
 #define ECMD_CHIPT_SERVICE_PROCESSOR    "sp"
 
 
-
+// Used to signify unset or -1 for uint32_t types
+#define ECMD_UNSET 0xFFFFFFFF
 
 
 

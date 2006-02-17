@@ -312,7 +312,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         int startBit, numBits;
 
-        uint32_t bitsToFetch = 0x0FFFFFFF;  // Grab all bits
+        uint32_t bitsToFetch = ECMD_UNSET;  // Grab all bits
         int curLatchBit = -1;               // This is the actual latch bit we are looking for next
         int curBufferBit = 0;               // Current bit to insert into buffered register
         uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
@@ -376,7 +376,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                 /* If this is a fresh one we need to reset everything */
                 if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
                   dataStartBit = dataEndBit = -1;
-                  curBitsToFetch = 0x0FFFFFFF;
+                  curBitsToFetch = ECMD_UNSET;
                   curBufferBit = 0;
 		  isMultiBitLatch = false;
                   latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
@@ -542,7 +542,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState =  ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  uint32_t startBit = 0x0FFFFFFF, curStartBit, numBits = 0x0FFFFFFF, curNumBits;
+  uint32_t startBit = ECMD_UNSET, curStartBit, numBits = ECMD_UNSET, curNumBits;
 
   /* Ok, now for the rest of the args, this is getting messy */
   if ((argc == 2) || (argc == 4)) {
@@ -559,7 +559,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
      }
      startBit = atoi(argv[2]);
      if (!strcmp(argv[3], "end")) {
-       numBits = 0x0FFFFFFF;
+       numBits = ECMD_UNSET;
      }
      else {
        if (!ecmdIsAllDecimal(argv[3])) {
@@ -593,7 +593,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       }
       startBit = atoi(argv[3]);
       if (!strcmp(argv[4], "end")) {
-        numBits = 0x0FFFFFFF;
+        numBits = ECMD_UNSET;
       }
       else {
         if (!ecmdIsAllDecimal(argv[4])) {
@@ -709,10 +709,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
      for (std::list<ecmdLatchEntry>::iterator latchit = latchdata.begin(); latchit != latchdata.end(); latchit ++) {
 
 
-       if (startBit == 0x0FFFFFFF) {
+       if (startBit == ECMD_UNSET) {
      	 curStartBit = latchit->latchStartBit;
      	 curNumBits = latchit->buffer.getBitLength();
-       } else if (numBits == 0x0FFFFFFF) {
+       } else if (numBits == ECMD_UNSET) {
      	 curStartBit = startBit;
      	 curNumBits = latchit->buffer.getBitLength() - (startBit - latchit->latchStartBit);
        } else {
@@ -893,7 +893,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
   if (filename != NULL) {
     startBit = 0;
-    numBits = 0xFFFFFFFF;
+    numBits = ECMD_UNSET;
   } 
   else {
   
@@ -904,14 +904,14 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
    startBit = atoi(argv[2]);
 
    if (!strcmp(argv[3], "end")) {
-     numBits = 0xFFFFFFFF;
+     numBits = ECMD_UNSET;
    }
    else {
      if (!ecmdIsAllDecimal(argv[3])) {
        ecmdOutputError("getbits - Non-decimal numbers detected in numbits field\n");
        return ECMD_INVALID_ARGS;
      }
-     numBits = atoi(argv[3]);
+     numBits = (uint32_t)atoi(argv[3]);
 
 
      /* Bounds check */
@@ -1135,7 +1135,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   //get ring name and starting position
   std::string ringName = argv[1];
-  int startBit = 0;
+  uint32_t startBit = 0;
 
   if(filename != NULL) {
     rc = buffer.readFile(filename, ECMD_SAVE_FORMAT_ASCII);
@@ -1151,7 +1151,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     ecmdOutputError("putbits - Non-decimal numbers detected in startbit field\n");
     return ECMD_INVALID_ARGS;
    }
-   startBit = atoi(argv[2]);
+   startBit = (uint32_t)atoi(argv[2]);
    
    //container to store data
    rc = ecmdReadDataFormatted(buffer, argv[3], format);
@@ -1301,7 +1301,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  uint32_t startBit = 0x0FFFFFFF, curStartBit, numBits = 0, curNumBits;
+  uint32_t startBit = ECMD_UNSET, curStartBit, numBits = 0, curNumBits;
   std::string ringName;                 ///< Ring name selected ("" if none)
   std::string latchName;                ///< Latch name selected
 
@@ -1319,12 +1319,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
        ecmdOutputError("putlatch - Non-decimal numbers detected in startbit field\n");
        return ECMD_INVALID_ARGS;
      }
-     startBit = atoi(argv[2]);
+     startBit = (uint32_t)atoi(argv[2]);
      if (!ecmdIsAllDecimal(argv[3])) {
        ecmdOutputError("putlatch - Non-decimal numbers detected in numbits field\n");
        return ECMD_INVALID_ARGS;
      }
-     numBits = atoi(argv[3]);
+     numBits = (uint32_t)atoi(argv[3]);
 
      /* Bounds check */
      if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
@@ -1348,12 +1348,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         ecmdOutputError("putlatch - Non-decimal numbers detected in startbit field\n");
         return ECMD_INVALID_ARGS;
       }
-      startBit = atoi(argv[3]);
+      startBit = (uint32_t)atoi(argv[3]);
       if (!ecmdIsAllDecimal(argv[4])) {
         ecmdOutputError("putlatch - Non-decimal numbers detected in numbits field\n");
         return ECMD_INVALID_ARGS;
       }
-      numBits = atoi(argv[4]);
+      numBits = (uint32_t)atoi(argv[4]);
 
       /* Bounds check */
       if ((startBit + numBits) > ECMD_MAX_DATA_BITS) {
@@ -1463,7 +1463,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
         buffer_copy = buffer;
 
-        if (startBit == 0x0FFFFFFF) {
+        if (startBit == ECMD_UNSET) {
           curStartBit = latchit->latchStartBit;
           curNumBits = latchit->buffer.getBitLength();
         } else {

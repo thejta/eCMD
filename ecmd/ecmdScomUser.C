@@ -86,7 +86,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   ecmdLooperData looperdata;                    ///< Store internal Looper data
   ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   std::string printed;                          ///< Output data
-  uint32_t startbit = 0xFFFFFFFF;               ///< Startbit in the scom data
+  uint32_t startbit = ECMD_UNSET;               ///< Startbit in the scom data
   uint32_t numbits = 0;                         ///< Number of bits to diplay
   
   /************************************************************************/
@@ -269,7 +269,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
        validPosFound = true;
      }
  
-     if (startbit != 0xFFFFFFFF) {
+     if (startbit != ECMD_UNSET) {
        scombuf.extract(buffer, startbit, numbits);
      } else {
        scombuf.extract(buffer, 0, scombuf.getBitLength());
@@ -355,7 +355,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   ecmdDataBuffer buffer;                        ///< Container to store write data
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
   std::string printed;                          ///< String for printed data
-  uint32_t startbit = 0xFFFFFFFF;               ///< Startbit to insert data
+  uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
   uint32_t numbits = 0;                         ///< Number of bits to insert data
 
   /************************************************************************/
@@ -495,7 +495,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
            ecmdConfigLooperNext(coretarget, corelooper)) {
 	   
      /* Do we need to perform a read/modify/write op ? */
-     if ((dataModifier != "insert") || (startbit != 0xFFFFFFFF)) {
+     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
 
 
        rc = getScom(coretarget, address, fetchBuffer);
@@ -514,7 +514,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      	 validPosFound = true;
        }
 
-       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == 0xFFFFFFFF ? 0 : startbit), dataModifier);
+       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
        if (rc) return rc;
 
        rc = putScom(coretarget, address, fetchBuffer);

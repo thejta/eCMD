@@ -213,7 +213,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         numBits = atoi(argv[3]);
       }
       else {
-        numBits = 0xFFFFFFFF;
+        numBits = ECMD_UNSET;
       }
       if (argc > 4) {
         ecmdOutputError("getspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
@@ -223,7 +223,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         
 
       /* Bounds check */
-      if ((numBits != 0xFFFFFFFF) && (startBit + numBits) > ECMD_MAX_DATA_BITS) {
+      if ((numBits != ECMD_UNSET) && (startBit + numBits) > ECMD_MAX_DATA_BITS) {
         char errbuf[100];
         sprintf(errbuf,"getspy - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
         ecmdOutputError(errbuf);
@@ -340,7 +340,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       else {
 
         uint32_t bitsToFetch = 0x0;
-        if (numBits == 0xFFFFFFFF) {
+        if (numBits == ECMD_UNSET) {
           bitsToFetch = spyBuffer.getBitLength() - startBit;
         }
         else {
@@ -541,7 +541,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
           return ECMD_INVALID_ARGS;
         }
-        startBit = atoi(argv[2]);
+        startBit = (uint32_t)atoi(argv[2]);
       }
       else {
         startBit = 0x0;
@@ -552,7 +552,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
           return ECMD_INVALID_ARGS;
         }
-        numBits = atoi(argv[3]);
+        numBits = (uint32_t)atoi(argv[3]);
       }
       else {
         numBits = spyData.bitLength - startBit;
