@@ -60,7 +60,7 @@
 // From ecmdStructs.H
 %template(listEcmdThreadData)        std::list<ecmdThreadData>;
 %template(listEcmdCoreData)          std::list<ecmdCoreData>;
-%template(listEcmdchipData)          std::list<ecmdChipData>;
+%template(listEcmdChipData)          std::list<ecmdChipData>;
 %template(listEcmdSlotData)          std::list<ecmdSlotData>;
 %template(listEcmdNodeData)          std::list<ecmdNodeData>;
 %template(listEcmdCageData)          std::list<ecmdCageData>;
@@ -88,35 +88,35 @@
 /*********** End Renames ***********/
 
 /*********** Start Files to swigify ***********/
-%include ecmdClientPerlapi.H
-%include ecmdClientPerlapiFunc.H
-%include ecmdDataBuffer.H
-%include ecmdStructs.H
-%include ecmdClientPerlapiIterators.H
-%include ecmdUtils.H
-%include ecmdSharedUtils.H
+%include "ecmdClientPerlapi.H"
+%include "ecmdClientPerlapiFunc.H"
+%include "ecmdDataBuffer.H"
+%include "ecmdStructs.H"
+%include "ecmdClientPerlapiIterators.H"
+%include "ecmdUtils.H"
+%include "ecmdSharedUtils.H"
 
 // The extensions
-%include ecmdPluginExtensionSupport.H
+%include "ecmdPluginExtensionSupport.H"
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
-  %include cipClientPerlapi.H
-  %include cipClientPerlapiFunc.H
-  %include cipStructs.H
+  %include "cipClientPerlapi.H"
+  %include "cipClientPerlapiFunc.H"
+  %include "cipStructs.H"
 #endif
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
-  %include gipClientPerlapi.H
-  %include gipClientPerlapiFunc.H
-  %include gipStructs.H
+  %include "gipClientPerlapi.H"
+  %include "gipClientPerlapiFunc.H"
+  %include "gipStructs.H"
 #endif
 #ifdef ECMD_CRO_EXTENSION_SUPPORT
-  %include croClientPerlapi.H
-  %include croClientPerlapiFunc.H
-  %include croStructs.H
+  %include "croClientPerlapi.H"
+  %include "croClientPerlapiFunc.H"
+  %include "croStructs.H"
 #endif
 #ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  %include zseClientPerlapi.H
-  %include zseClientPerlapiFunc.H
-  %include zseStructs.H
+  %include "zseClientPerlapi.H"
+  %include "zseClientPerlapiFunc.H"
+  %include "zseStructs.H"
 #endif
 %include "cmdClientPerlapi.H"
 %include "cmdClientPerlapiFunc.H"
