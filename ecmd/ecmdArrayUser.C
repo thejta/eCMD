@@ -129,27 +129,6 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
   arrayName = argv[1];
 
-  
-
-  if (expectFlag) {
-
-    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
-    if (rc) {
-      ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
-      return rc;
-    }
-
-    if (maskFlag) {
-      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
-      if (rc) {
-        ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
-        return rc;
-      }
-
-    }
-
-
-  }
   /* Did the specify more then one entry ? */
   if( (argc > 3) && ((std::string)argv[2] == "ALL") ) {
     ecmdOutputError("getarray - Cannot specify NumEntries with the ALL option.\n");
@@ -175,6 +154,26 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       }
       arrayData = *(arrayDataList.begin());
 
+      /* We have to do the expact flag data read here so that we know the bit length in the right aligned data case - JTA 02/21/06 */
+      if (expectFlag) {
+
+        rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData.width);
+        if (rc) {
+          ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
+          return rc;
+        }
+
+        if (maskFlag) {
+          rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData.width);
+          if (rc) {
+            ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
+            return rc;
+          }
+
+        }
+
+
+      }
 
       /* Set the length  */
       address.setBitLength((uint32_t)arrayData.readAddressLength);
@@ -218,7 +217,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
               // Clean up allocated memory
               if (add_buffer)						     //@01a
               {
-        	delete[] add_buffer;
+                delete[] add_buffer;
               }
               return ECMD_DATA_OVERFLOW;
             }
@@ -226,23 +225,23 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             add_buffer[address.getWordLength()-1] = 0;
             for (uint32_t word = address.getWordLength()-2; word >= 0; word --) {
               if (add_buffer[word] == 0xFFFFFFFF) {
-        	/* We are going to rollover */
-        	if (word == 0) {
-        	  printed = "getarray - Address overflow on " + arrayName + " ";
-        	  printed += ecmdWriteTarget(target) + "\n";
-        	  ecmdOutputError( printed.c_str() );
-        	  // Clean up allocated memory
-        	  if (add_buffer)					     //@01a
-        	  {
-        	    delete[] add_buffer;
-        	  }
-        	  return ECMD_DATA_OVERFLOW;
-        	}
-        	add_buffer[word] = 0;
+                /* We are going to rollover */
+                if (word == 0) {
+                  printed = "getarray - Address overflow on " + arrayName + " ";
+                  printed += ecmdWriteTarget(target) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  // Clean up allocated memory
+                  if (add_buffer)					     //@01a
+                  {
+                    delete[] add_buffer;
+                  }
+                  return ECMD_DATA_OVERFLOW;
+                }
+                add_buffer[word] = 0;
               } else {
-        	add_buffer[word] ++;
-        	/* We took care of the carryover, let's get out of here */
-        	break;
+                add_buffer[word] ++;
+                /* We took care of the carryover, let's get out of here */
+                break;
               }
 
             }
@@ -253,7 +252,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
           }
         }
       }
-  
+
     }
 
     printedHeader = false;
@@ -303,13 +302,13 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
            printed += " (with mask): ";
          }
          else {
-           printed += " 	   : ";
+           printed += "            : ";
          }
 
          printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
          ecmdOutputError( printed.c_str() );
 
-         printed = "getscom - Expected  	: ";
+         printed = "getarray - Expected          : ";
          printed += ecmdWriteDataFormatted(expected, outputformat);
          ecmdOutputError( printed.c_str() );
        }
