@@ -464,18 +464,20 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 
   } else {
     /* Didn't need to resize, but need to clear new space added */
-    /* Clear any odd bits in a byte */
+    /* Clear any odd bits in a word */
     uint32_t idx;
-    for (idx = prevbitsize; (idx < iv_NumBits) && (idx % 8); idx ++) {
+    for (idx = prevbitsize; (idx < iv_NumBits) && (idx % 32); idx ++) {
       clearBit(idx);
     }
-    /* memset the rest */
-    memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 - (idx/8): iv_NumBits / 8 - (idx/8)); /* init to 0 */
+    if (idx < iv_NumBits) {
+      /* memset the rest */
+      memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 - (idx/8): iv_NumBits / 8 - (idx/8)); /* init to 0 */
 #ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      memset(&(iv_DataStr[idx]), '0', (iv_NumBits - idx) ); /* init to 0 */
-    }
+      if (iv_XstateEnabled) {
+	memset(&(iv_DataStr[idx]), '0', (iv_NumBits - idx) ); /* init to 0 */
+      }
 #endif
+    }
   }    
 
   iv_RealData[1] = iv_NumWords;
