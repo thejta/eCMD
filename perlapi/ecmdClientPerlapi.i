@@ -75,6 +75,11 @@
 %template(listEcmdNameVectorEntry)   std::list<ecmdNameVectorEntry>;
 %template(listEcmdIndexEntry)        std::list<ecmdIndexEntry>;
 %template(listEcmdChipTarget)        std::list<ecmdChipTarget>;
+%template(listEcmdArrayData)         std::list<ecmdArrayData>;
+%template(listEcmdTraceArrayData)    std::list<ecmdTraceArrayData>;
+%template(listEcmdSpyData)           std::list<ecmdSpyData>;
+%template(listEcmdScomData)          std::list<ecmdScomData>;
+%template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
 /*********** End Templates ***********/
 
 /*********** Start Renames ***********/
