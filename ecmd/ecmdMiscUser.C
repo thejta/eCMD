@@ -597,7 +597,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
-    rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numbits);
+    rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, (int)numbits);
     if (rc) {
       ecmdOutputError("putcfam - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
