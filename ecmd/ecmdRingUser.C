@@ -371,7 +371,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                 }
 
                 /* If this is a fresh one we need to reset everything */
-                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
                   dataStartBit = dataEndBit = ECMD_UNSET;
                   curBitsToFetch = ECMD_UNSET;
                   curBufferBit = 0;
