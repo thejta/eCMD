@@ -251,7 +251,7 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
@@ -812,7 +812,7 @@ bool      ecmdIsRingCacheEnabled();
  @see putArray
  @see getArrayMultiple
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -840,7 +840,7 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -864,7 +864,7 @@ uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  @param i_address Array Address to write to - length of DataBuffer should be set to length of valid address data
  @see getArray
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -891,7 +891,7 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
