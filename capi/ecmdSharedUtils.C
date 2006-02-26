@@ -27,10 +27,12 @@
 //   
 // End Change Log *****************************************************
 
+//lint -e571 The casts are necessary in ecmdHashString - JTA
+//lint -e744 We don't want there to be a default in the ecmdHashString case - JTA
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdSharedUtils_C
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -40,7 +42,6 @@
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 
-#undef ecmdSharedUtils_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------

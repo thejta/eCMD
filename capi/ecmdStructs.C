@@ -18,7 +18,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdStructs_C
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,7 +27,6 @@
 
 #include <ecmdReturnCodes.H>
 #include <ecmdStructs.H>
-#undef ecmdStructs_C
 
 //----------------------------------------------------------------------
 //  Constants
