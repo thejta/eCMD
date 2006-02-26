@@ -30,6 +30,7 @@
 //  @03  stgc12609     06/02/05 v2cdipv   Fixed printing of uint64_t in fpp
 //   
 // End Change Log *****************************************************
+//lint -e825 We deliberately want to fall through in ecmdIncrementLooperIterators - JTA
 
 //--------------------------------------------------------------------
 // Includes
@@ -248,7 +249,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   bool done = false;
   uint8_t level = 0;;
   uint32_t rc = 0;
-  bool freshLoop = false;               ///< Have we moved forward to a new target at a hier level of hierarchy 
 
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
@@ -330,7 +330,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         io_target.cage = (*io_state.ecmdCurCage).cageId;
         io_state.ecmdCurNode = (*io_state.ecmdCurCage).nodeData.begin();
         valid = 0;
-        freshLoop = true;
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
@@ -364,7 +363,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         io_target.node = (*io_state.ecmdCurNode).nodeId;
         io_state.ecmdCurSlot = (*io_state.ecmdCurNode).slotData.begin();
         valid = 0;
-        freshLoop = true;
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.slotState == ECMD_TARGET_FIELD_UNUSED)) {
@@ -398,7 +396,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         io_target.slot = (*io_state.ecmdCurSlot).slotId;
         io_state.ecmdCurChip = (*io_state.ecmdCurSlot).chipData.begin();
         valid = 0;
-        freshLoop = true;
 
 
         /* If next level is unused we default to 0 */
@@ -437,7 +434,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         io_target.pos = (*io_state.ecmdCurChip).pos;
         io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
         valid = 0;
-        freshLoop = true;
 
         /* If next level is unused we default to 0 */
         if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED)) {
@@ -470,7 +466,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         io_target.core = (*io_state.ecmdCurCore).coreId;
         io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
         valid = 0;
-        freshLoop = true;
 
 
         /* If next level is unused we default to 0 */
@@ -608,7 +603,7 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
   uint32_t rc = ECMD_SUCCESS;
 
   std::string localFormat = i_format;
-  int bitlength;
+  uint32_t bitlength;
 
   //ignore leading 'p'- it's for perl stuff
   if (localFormat[0] == 'p') {
