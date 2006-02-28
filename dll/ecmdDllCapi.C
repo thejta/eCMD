@@ -1236,8 +1236,8 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
         /* I have some good data here */
         if (latchname != "") {
 
-          curData.latchStartBit = dataStartBit;
-          curData.latchEndBit = dataEndBit;
+          curData.latchStartBit = (int)dataStartBit;
+          curData.latchEndBit = (int)dataEndBit;
           rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
           curData.rc = ECMD_SUCCESS;
           o_data.push_back(curData);
@@ -1327,8 +1327,8 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
     if (latchname != "") {
 
       /* Display this if we aren't expecting or the expect failed */
-      curData.latchStartBit = dataStartBit;
-      curData.latchEndBit = dataEndBit;
+      curData.latchStartBit = (int)dataStartBit;
+      curData.latchEndBit = (int)dataEndBit;
       rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
       curData.rc = ECMD_SUCCESS;
       o_data.push_back(curData);
@@ -1895,7 +1895,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       
 	//Get Offset of the end of file
 	insh.seekg (0, ios::end); 
-	size_t end = insh.tellg(); 
+	streamoff end = insh.tellg(); 
       
 	uint32_t curLKey; //LatchKey 
 	uint32_t curLOffset; //LatchOffset
@@ -1903,9 +1903,9 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	//Binary Search through the latches
 	//Index-low,mid,high
 	//Latch Section
-	size_t low=(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END
-	size_t mid=0;
-	size_t high = end/8-1;
+	streamoff low=(streamoff)(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END
+	streamoff mid=0;
+	streamoff high = end/8-1;
 	while(low <= high) {
 	  mid = (low + high) / 2;
 	  insh.seekg ( mid*8 );
