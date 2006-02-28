@@ -25,6 +25,7 @@
 //----------------------------------------------------------------------
 #include <stdio.h>
 #include <fstream>
+#include <algorithm>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -621,7 +622,9 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
    modeStr = argv[2];
    dataStr = argv[3];
   }
-  
+
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
 
   ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
   if (modeStr == "IN") mode = ECMD_DIO_INPUT;
@@ -750,13 +753,16 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   }
   
   uint32_t pin = (uint32_t)atoi(argv[2]);
+
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  std::string modeStr = argv[3];
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
   
-  
-  ecmdDioMode_t mode = ECMD_DIO_INPUT; // default to remove compiler warnings
-  if (strcmp(argv[3], "IN") == 0) mode = ECMD_DIO_INPUT;
-  else if (strcmp(argv[3], "OD") == 0) mode = ECMD_DIO_OPEN_DRAIN;
-  else if (strcmp(argv[3], "OS") == 0) mode = ECMD_DIO_OPEN_SOURCE;
-  else if (strcmp(argv[3], "PP") == 0) mode = ECMD_DIO_PUSH_PULL;
+  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
+  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
+  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
+  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
+  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
   else {
     ecmdOutputError("gpioconfig - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
     return ECMD_INVALID_ARGS;
@@ -996,12 +1002,15 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   
   uint32_t pin = (uint32_t)atoi(argv[2]);
   
-  
-  ecmdDioMode_t mode = ECMD_DIO_INPUT; // default to remove compiler warnings
-  if (strcmp(argv[3], "IN") == 0) mode = ECMD_DIO_INPUT;
-  else if (strcmp(argv[3], "OD") == 0) mode = ECMD_DIO_OPEN_DRAIN;
-  else if (strcmp(argv[3], "OS") == 0) mode = ECMD_DIO_OPEN_SOURCE;
-  else if (strcmp(argv[3], "PP") == 0) mode = ECMD_DIO_PUSH_PULL;
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  std::string modeStr = argv[3];
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
+
+  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
+  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
+  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
+  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
+  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
   else {
     ecmdOutputError("getgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
     return ECMD_INVALID_ARGS;
