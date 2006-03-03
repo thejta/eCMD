@@ -31,7 +31,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdDaSpyUser_C
 #include <stdio.h>
 #include <ctype.h>
 
@@ -43,7 +42,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdDaSpyUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -199,7 +197,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           ecmdOutputError("getspy - Non-decimal numbers detected in startbit field\n");
           return ECMD_INVALID_ARGS;
         }
-        startBit = atoi(argv[2]);
+        startBit = (uint32_t)atoi(argv[2]);
       }
       else {
         startBit = 0x0;
@@ -210,7 +208,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           ecmdOutputError("getspy - Non-decimal numbers detected in numbits field\n");
           return ECMD_INVALID_ARGS;
         }
-        numBits = atoi(argv[3]);
+        numBits = (uint32_t)atoi(argv[3]);
       }
       else {
         numBits = ECMD_UNSET;
@@ -562,7 +560,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
         return ECMD_INVALID_ARGS;
       }
-      rc = ecmdReadDataFormatted(buffer, argv[argc-1] , inputformat, numBits);
+      rc = ecmdReadDataFormatted(buffer, argv[argc-1] , inputformat, (int)numBits);
       if (rc) {
         ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
         return rc;
