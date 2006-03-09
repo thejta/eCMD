@@ -147,6 +147,11 @@ int main (int argc, char *argv[])
               }
             }
 
+			// ignore a line if it is only space or tabs - 
+			// This prevents c_argv[o] being accessed below when still pointing to NULL
+			if (c_argc == 0) continue;
+
+
             /* We now want to call the command interpreter to handle what the user provided us */
             if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
 
