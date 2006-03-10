@@ -2075,16 +2075,24 @@ private:  //data
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    node     = ";
-      sprintf(tempIntStr,"%u",dummy->node);
-      printed += tempIntStr;
+      if (dummy->node == ECMD_TARGETDEPTH_NA)
+	printed += "NA";
+      else {
+	sprintf(tempIntStr,"%u",dummy->node);
+	printed += tempIntStr;
+      }
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->nodeState);
       ecmdOutput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    slot     = ";
-      sprintf(tempIntStr,"%u",dummy->slot);
-      printed += tempIntStr;
+      if (dummy->slot == ECMD_TARGETDEPTH_NA)
+	printed += "NA";
+      else {
+	sprintf(tempIntStr,"%u",dummy->slot);
+	printed += tempIntStr;
+      }
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->slotState);
       ecmdOutput(printed.c_str());

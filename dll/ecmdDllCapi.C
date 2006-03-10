@@ -474,6 +474,10 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
+      if (ecmdUserArgs.cage == "-") {
+	dllOutputError("dllQuerySelected - Position (-k-) not supported\n");
+	return ECMD_INVALID_ARGS;
+      }
       i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str()); //@02c
       cageType = SINGLE;
       i_target.cageState = ECMD_TARGET_FIELD_VALID;
@@ -518,7 +522,10 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
-        i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str()); //@02c
+	if (ecmdUserArgs.node == "-")
+	  i_target.node = ECMD_TARGETDEPTH_NA;
+	else
+	  i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str()); //@02c
         nodeType = SINGLE;
         i_target.nodeState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -560,7 +567,10 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
-        i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str()); //@02c
+	if (ecmdUserArgs.slot == "-")
+	  i_target.slot = ECMD_TARGETDEPTH_NA;
+	else
+	  i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str()); //@02c
         slotType = SINGLE;
         i_target.slotState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
@@ -603,6 +613,10 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
+	if (ecmdUserArgs.pos == "-") {
+          dllOutputError("dllQuerySelected - Position (-p-) not supported\n");
+          return ECMD_INVALID_ARGS;
+	}
         i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str()); //@02c
         posType = SINGLE;
         i_target.posState = ECMD_TARGET_FIELD_VALID;
@@ -645,6 +659,10 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
+	if (ecmdUserArgs.core == "-") {
+          dllOutputError("dllQuerySelected - Position (-c-) not supported\n");
+          return ECMD_INVALID_ARGS;
+	}
         i_target.core = (uint8_t)atoi(ecmdUserArgs.core.c_str());
         coreType = SINGLE;
         i_target.coreState = ECMD_TARGET_FIELD_VALID;
@@ -687,6 +705,10 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
+	if (ecmdUserArgs.thread == "-") {
+          dllOutputError("dllQuerySelected - Position (-t-) not supported\n");
+          return ECMD_INVALID_ARGS;
+	}
         i_target.thread = (uint8_t)atoi(ecmdUserArgs.thread.c_str());
         threadType = SINGLE;
         i_target.threadState = ECMD_TARGET_FIELD_VALID;
@@ -1058,9 +1080,14 @@ bool dllIsValidTargetString(std::string str) {
   bool ret = true;
   for (uint32_t x = 0; x < str.length(); x ++) {
     if (isdigit(str[x])) {
+    } else if (str[x] == '-') {
+      /* Check for -..2 which isn't allowed */
+      if (str[x+1] == '.' && str[x+2] == '.') { ret = false; break; }
     } else if (str[x] == ',') {
     } else if (str[x] == '.' && str[x+1] == '.') {
       x++;
+      /* Check for 0..- which isn't allowed*/
+      if (str[x+2] == '-') { ret = false; break; }
     } else {
       ret = false;
       break;

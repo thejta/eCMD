@@ -72,8 +72,10 @@
 #define ECMD_CHIPT_SERVICE_PROCESSOR    "sp"
 
 
-// Used to signify unset or -1 for uint32_t types
-#define ECMD_UNSET 0xFFFFFFFF
+#define ECMD_UNSET          0xFFFFFFFF ///< Used to signify unset or -1 for uint32_t types
+
+
+#define ECMD_TARGETDEPTH_NA 0xFFFFFFFF ///< Used to signify a level of the ecmdChipTarget depth is not used (only valid for node/slot depths)
 
 
 
