@@ -42,6 +42,12 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         configd ChipSelect [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target is configured or not.
 
+                        showconfig
+                            - Display all configured targets, including EC info, etc..
+
+                        showexist
+                            - Display all existing targets, including EC info, etc..
+
                         version
                             - Display version info about the eCMD Instance you are running
 
