@@ -902,16 +902,32 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }        
       for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
         if (!easyParse) {
-          sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+	  if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
+	    sprintf(buf,"  Node NA\n"); ecmdOutput(buf);
+	  } else {
+	    sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+	  }
         } else {
-          sprintf(buf,"-n%d ",ecmdCurNode->nodeId); nbuf = kbuf + buf;
+	  if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
+	    sprintf(buf,"-n- "); nbuf = kbuf + buf;
+	  } else {
+	    sprintf(buf,"-n%d ",ecmdCurNode->nodeId); nbuf = kbuf + buf;
+	  }
         }
 
         for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
           if (!easyParse) {
-            sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); buf[0] = '\0';
+	    if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+	      sprintf(buf,"    Slot NA\n"); ecmdOutput(buf); buf[0] = '\0';
+	    } else {
+	      sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); buf[0] = '\0';
+	    }
           } else {
-            sprintf(buf,"-s%d ",ecmdCurSlot->slotId); sbuf = nbuf + buf;
+	    if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+	      sprintf(buf,"-s- "); sbuf = nbuf + buf;
+	    } else {
+	      sprintf(buf,"-s%d ",ecmdCurSlot->slotId); sbuf = nbuf + buf;
+	    }
           }
 
           curchip = "";
@@ -1015,12 +1031,20 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             
       for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
         
-	sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId ); ecmdOutput(buf);
+	if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+	  sprintf(buf,"  Node NA\n"); ecmdOutput(buf);
+	} else {
+	  sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId ); ecmdOutput(buf);
+	}
         sprintf(buf,"    Details: NodeUid=%8.8X\n",ecmdCurNode->unitId ); ecmdOutput(buf);
 
         for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
           
-	  sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); 
+	  if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+	    sprintf(buf,"    Slot NA\n"); ecmdOutput(buf); 
+	  } else {
+	    sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); 
+	  }
           sprintf(buf,"      Details: SlotUid=%8.8X\n",ecmdCurSlot->unitId); ecmdOutput(buf); buf[0] = '\0';
 
           for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
