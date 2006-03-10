@@ -1003,7 +1003,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
     /* showconfig */
     /* ---------- */
-  } else if (!strcmp(argv[0],"showconfig")) {
+  } else if (!strcmp(argv[0],"showconfig") || !strcmp(argv[0],"showexist")) {
 
     //Setup the target that will be used to query the system config 
     ecmdQueryData queryData;            ///< Query data
@@ -1018,8 +1018,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
    
     target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState =
     target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-    
-    rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
+
+    if (!strcmp(argv[0],"showconfig")) {
+      rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
+    } else { // exist
+      rc = ecmdQueryExist(target, queryData, ECMD_QUERY_DETAIL_HIGH);
+    }
 
     char buf[500];
     char buf2[100];
