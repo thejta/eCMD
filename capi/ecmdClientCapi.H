@@ -2853,6 +2853,8 @@ Common Hardware Access Programming Interface (eCMD)
 
 This is the documentation of the eCMD C/C++ Programming Api
 
+Last Approved: March 22nd, 2006
+
 @section inc eCMD Core Include Files
 
 To compile client code to use the C++ API, the following header files are required:
