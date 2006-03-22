@@ -36,16 +36,6 @@
 #include "perl.h"
 #include "XSUB.h"
 
-/* The 3 safe mode functions below are now no-ops in version 6.x.  Will be removed in v7 - JTA 12/07/05 */
-bool ECMDPERLAPI::ecmdQuerySafeMode() {
-  return false;
-}
-
-void ECMDPERLAPI::ecmdDisablePerlSafeMode() { return; }
-
-void ECMDPERLAPI::ecmdEnablePerlSafeMode() { return; }
-
-
 void ECMDPERLAPI::ecmdUnloadDll()  {
   ::ecmdUnloadDll();
 }

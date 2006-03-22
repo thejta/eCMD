@@ -38,7 +38,6 @@
 #ifndef DOCUMENTATION
 namespace ECMDPERLAPI {
 
-  bool ecmdQuerySafeMode();
 #endif
 
   /** @name Load/Unload Functions */
@@ -93,22 +92,6 @@ namespace ECMDPERLAPI {
    */
 
   int ecmdCommandArgs(char** io_argv); 
-
-  //@}
-
-
-
-  /** @name Error Handling Functions */
-  //@{
-  /**
-   @brief Enable Perl Error Handling Safe Mode - Croak on any eCMD error (default is enabled)
-   */
-  void ecmdEnablePerlSafeMode();
-
-  /**
-   @brief Disable Perl Error Handling Safe Mode - Return eCMD errors to client (default is enabled)
-   */
-  void ecmdDisablePerlSafeMode();
 
   //@}
 
