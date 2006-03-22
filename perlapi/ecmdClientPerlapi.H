@@ -161,7 +161,8 @@ namespace ECMDPERLAPI {
  In addition to a C/C++ API, eCMD provides a Perl API.  To do this, Perl's DynaLoader module handles the loading of a special eCMD shared object and the Perl XS interface handles the function calls between eCMD C code and Perl.
 <br><br>
  The API interface is implemented as a "ecmdClientPerlapi" object.  The ecmdClientPerlapi class has methods to initialize eCMD, make standard function calls. 
-
+<br>
+This Document Last Approved: March 22nd, 2006
  <br>
  <hr>
  @section files Related Information
