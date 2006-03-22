@@ -2343,6 +2343,28 @@ uint32_t ecmdUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr);
 uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_target, uint32_t i_thread_seq_num=0);
 
 
+/**
+ @brief ecmdChipTarget struct converted to Sequence ID of Cores and Threads
+ @param i_target ecmdChipTarget struct determines the Seq Id of the Core and Thread
+ @param o_core_seq_num Sequence ID number of the core 
+ @param o_thread_seq_num Sequence ID number of thread relative to the core parm
+ @retval ECMD_INVALID_ARGS the ecmdChipTarget inputs could not be mapped to a core and thread
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+ @pre i_target must have states defined to either core or thread level
+ @pre i_target must have an acceptable processor chipType
+ @post o_core_seq_num set accordingly based on i_target
+ @post if i_target depth is thread, o_thread_seq_num set to relative thread of o_core_seq_enum; else, o_thread_seq_num set to 0xFF
+
+ TARGET DEPTH  : Core, Thread<br>
+ TARGET STATES : Must be Initialized <br>
+
+*/
+uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num);
+
+
+
+
 //@}
 
 
