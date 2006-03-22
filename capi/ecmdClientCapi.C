@@ -73,6 +73,10 @@ int fppCallCount =0;
 /* @brief This var stores the state of ring caching */
 bool ecmdRingCacheEnabled = false;
 
+/* @brief we are going to store a copy of the args list for load/unload operations */
+int g_argc = 0;
+char* g_argv[ECMD_ARG_LIMIT+1];   ///< limit of 20 args, same limit in ecmdMain.C
+
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
@@ -188,10 +192,31 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
     ecmdRingCacheEnabled = ecmdIsRingCacheEnabled();
   }
 
+
+  /* Ok, is this a recall of ecmdLoadDll and we have some saved away parms, if so, recall */
+  if (!rc && g_argc != 0) {
+    /* ecmdCommandArgs just clears pointers it doesn't free the memory, so make a new pointer list so we don't loose our args */
+    char* l_argv[ECMD_ARG_LIMIT+1];
+    int l_argc = g_argc;
+
+    for (int idx = 0; idx < ECMD_ARG_LIMIT; idx++) {
+      if (idx < l_argc) {
+	l_argv[idx] = g_argv[idx];
+      } else {
+	l_argv[idx] = NULL;
+      }
+    }
+   
+    char** tmp = l_argv;
+
+    rc = ecmdCommandArgs(&l_argc,&tmp);
+  }
+
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
     printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
-    if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
+    if((ecmdClientDebug == 8) && (rc != ECMD_SUCCESS)) {
       printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
     if (ecmdClientDebug >= 9) {
@@ -295,6 +320,20 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
     }
   }
 #endif
+
+
+  /* We need to save away what the user provided for the load/unload dll case */
+  g_argc = *i_argc;
+
+  for (int idx = 0; idx < ECMD_ARG_LIMIT; idx++) {
+    if (idx < *i_argc) {
+      g_argv[idx] = (*i_argv)[idx];
+    } else {
+      g_argv[idx] = NULL;
+    }
+  }
+
+  
 
 
 #ifdef ECMD_STATIC_FUNCTIONS

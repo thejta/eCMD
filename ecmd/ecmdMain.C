@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
 
         std::vector< std::string > commands;
         int   c_argc;
-        char* c_argv[21];       ///< A limit of 20 tokens(args) per command
+        char* c_argv[ECMD_ARG_LIMIT + 1];       ///< A limit of 20 tokens(args) per command
         char* buffer = NULL;
         size_t   bufflen = 0;
         size_t   commlen;
@@ -140,8 +140,9 @@ int main (int argc, char *argv[])
                   lookingForStart = true;
                 }
               }
-              if (c_argc > 20) {
-                ecmdOutputError("ecmd - Found a command with greater then 20 arguments, not supported\n");
+              if (c_argc > ECMD_ARG_LIMIT) {
+		sprintf(buf,"ecmd - Found a command with greater then %d arguments, not supported\n",ECMD_ARG_LIMIT);
+                ecmdOutputError(buf);
                 rc = ECMD_INVALID_ARGS;
                 break;
               }
