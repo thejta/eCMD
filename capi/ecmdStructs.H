@@ -47,7 +47,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "7.0"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "6.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -77,7 +77,7 @@
 
 #define ECMD_TARGETDEPTH_NA 0xFFFFFFFF ///< Used to signify a level of the ecmdChipTarget depth is not used (only valid for node/slot depths)
 
-
+#define ECMD_ARG_LIMIT      20         ///< Used in a few spots set the limit of command line args
 
 //--------------------------------------------------------------------
 //  TypeDefs                                               
