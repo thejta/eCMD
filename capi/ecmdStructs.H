@@ -114,18 +114,7 @@ typedef enum {
   ECMD_TARGET_FIELD_VALID,      ///< Associated State Field is set to a valid value
   ECMD_TARGET_FIELD_UNUSED,     ///< Associated State Field is unused and should be ignored
   ECMD_TARGET_FIELD_WILDCARD,   ///< Associated State Field is a wildcard and should be iterated on in query functions
-
-
-
   ECMD_TARGET_THREAD_ALIVE,     ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
-
-#ifndef DOCUMENTATION
-  ////< THE FOLLOWING VALUES ARE BEING DEPRECATED AND WILL BE REMOVED AT A LATER DATE (v7 release)
-  ECMD_TARGET_QUERY_FIELD_VALID = ECMD_TARGET_FIELD_VALID,      ///< DEPRECATED
-  ECMD_TARGET_QUERY_WILDCARD =    ECMD_TARGET_FIELD_WILDCARD,   ///< DEPRECATED
-  ECMD_TARGET_QUERY_IGNORE =      ECMD_TARGET_FIELD_UNUSED,     ///< DEPRECATED
-#endif
-
 } ecmdChipTargetState_t;
 
 /**
