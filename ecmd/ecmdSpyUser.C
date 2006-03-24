@@ -553,7 +553,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         numBits = (uint32_t)atoi(argv[3]);
       }
       else {
-        numBits = spyData.bitLength - startBit;
+        numBits = (uint32_t)spyData.bitLength - startBit;
       }
       if (argc > 5) {
         ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
