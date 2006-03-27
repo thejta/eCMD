@@ -33,6 +33,11 @@ ifeq (${OS},Linux)
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   SLIBLDFLAGS :=  -shared  -e sdll.exp
   GPATH   := ${SUBDIR}
+
+# Let's see if we can use distcc
+  ifneq (${DISTCC_HOSTS},)
+    CC    := distcc ${CC}
+  endif
 endif
 
 # *****************************************************************************
