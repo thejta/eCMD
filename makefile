@@ -1,54 +1,60 @@
+# Let's see if we can use distcc
+ifneq (${DISTCC_HOSTS},)
+  GMAKEFLAGS    := -j8
+endif
+
+
 all:
 	@echo " "
 	@echo "Building Core Client API ..."
-	@cd capi;gmake
+	@cd capi;gmake ${GMAKEFLAGS}
 	@echo " "
 
 	@echo " "
 	@echo "Building Cronus/IP Extension API ..."
-	@cd ext/cip/capi;gmake
-	@cd ext/cip/cmd;gmake
+	@cd ext/cip/capi;gmake  ${GMAKEFLAGS}
+	@cd ext/cip/cmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
 
 	@echo " "
 	@echo "Building Cronus Extension API ..."
-	@cd ext/cro/capi;gmake
-	@cd ext/cro/cmd;gmake
+	@cd ext/cro/capi;gmake ${GMAKEFLAGS}
+	@cd ext/cro/cmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
 
 	@echo " "
 	@echo "Building Scand Extension API ..."
-	@cd ext/scand/capi;gmake
+	@cd ext/scand/capi;gmake ${GMAKEFLAGS}
 	@echo " "
 
 
 	@echo " "
 	@echo "Building Eclipz IP Extension API ..."
-	@cd ext/eip/capi;gmake
-	@cd ext/eip/cmd;gmake
+	@cd ext/eip/capi;gmake ${GMAKEFLAGS}
+	@cd ext/eip/cmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
 	@echo " "
 	@echo "Building GFW IP Extension API ..."
-	@cd ext/gip/capi;gmake
-	@cd ext/gip/cmd;gmake
+	@cd ext/gip/capi;gmake ${GMAKEFLAGS}
+	@cd ext/gip/cmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
 	@echo " "
 	@echo "Building Z Series Extension API ..."
-	@cd ext/zse/capi;gmake
-	@cd ext/zse/cmd;gmake
+	@cd ext/zse/capi;gmake ${GMAKEFLAGS}
+	@cd ext/zse/cmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
 
 	@echo "Building Core Command line Client ..."
-	@cd ecmd;gmake
+	@cd ecmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
 	@echo "Building Command line Extension API ..."
-	@cd ext/cmd/capi;gmake
+	@cd ext/cmd/capi;gmake ${GMAKEFLAGS}
 	@echo " "
 
 	@echo " "
