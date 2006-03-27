@@ -34,6 +34,12 @@ ifeq (${OS},Linux)
   TARGET = ${EXTENSION_NAME}CmdInterpreter_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
+
+# Let's see if we can use distcc
+  ifneq (${DISTCC_HOSTS},)
+    CC    := distcc ${CC}
+  endif
+
 endif
 
 # *****************************************************************************
