@@ -1894,6 +1894,9 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
       if (temp < 32 || temp > 126) {                /* decimal 32 == space, 127 == DEL */
         tempstr[0] = '.';                           /* non-printing: use a . */
         tempstr[1] = '\0';
+      } else if (temp == 37) {                      /* decimal 37 == % , messes up sprintf #51920 */
+	tempstr[0] = '%';
+	tempstr[1] = '\0';
       } else {
         sprintf(tempstr, "%c", temp);               /* convert to ascii      */
       }  
