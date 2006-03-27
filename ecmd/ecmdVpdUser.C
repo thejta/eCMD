@@ -23,7 +23,6 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#define ecmdVpdUser_C
 #include <stdio.h>
 #include <fstream>
 
@@ -35,7 +34,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-#undef ecmdVpdUser_C
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -135,7 +133,7 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  int numBytes = atoi(argv[3]);
+  uint32_t numBytes = (uint32_t)atoi(argv[3]);
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
@@ -506,7 +504,7 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  int numBytes = atoi(argv[1]);
+  uint32_t numBytes = (uint32_t)atoi(argv[1]);
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
