@@ -76,10 +76,10 @@ struct ecmdLatchBufferEntry {
 
 /** @brief Used to hold latchname keys and offsets into the scandef **/
 struct ecmdLatchHashInfo {
-  uint32_t latchHashKey;                 ///< HashKey for the Latchname in Uppercase
-  size_t latchOffset;                  ///< Offset for the latchname in the scandef file
-  size_t ringBeginOffset;              ///< Begin Offset for the latch Ring in the scandef file
-  size_t ringEndOffset;                ///< End Offset for the latch Ring in the scandef file
+  //  uint32_t latchHashKey;                 ///< HashKey for the Latchname in Uppercase
+  int latchOffset;                       ///< Offset for the latchname in the scandef file
+  int ringBeginOffset;                   ///< Begin Offset for the latch Ring in the scandef file
+  int ringEndOffset;                     ///< End Offset for the latch Ring in the scandef file
   bool ringFound;
 };
 
