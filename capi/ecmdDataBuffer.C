@@ -1895,7 +1895,7 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
         tempstr[0] = '.';                           /* non-printing: use a . */
         tempstr[1] = '\0';
       } else if (temp == 37) {                      /* decimal 37 == % , messes up sprintf #51920 */
-	tempstr[0] = '%';
+	tempstr[0] = tempstr[1] = '%';
 	tempstr[1] = '\0';
       } else {
         sprintf(tempstr, "%c", temp);               /* convert to ascii      */
