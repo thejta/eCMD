@@ -3406,8 +3406,8 @@ void ecmdIndexEntry::printStruct() {
 
 
 /*
- * The following methods for the ecmdTraceData struct will flatten, unflatten &
- * get the flattened size of the struct.
+ * The following methods for the ecmdTraceArrayData struct will flatten, 
+ * unflatten & get the flattened size of the struct.
  */
 uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) 
 {
@@ -3624,32 +3624,182 @@ void  ecmdTraceArrayData::printStruct() {
 #endif  // end of REMOVE_SIM
 
 
+// @05 start
 /*
  * The following methods for the ecmdScomData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t &i_len)
+{
+        uint32_t tmpData32 = 0;
+        uint32_t strLen = 0;
+        uint32_t l_rc = ECMD_SUCCESS;
 
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+        int l_len = (int)i_len;   // use a local copy to decrement
+	uint8_t *l_ptr8 = o_buf;  // pointer to the output buffer
+
+        do      // Single entry ->
+        {
+            // Check for buffer overflow conditions.
+            if (this->flattenSize() > i_len) 
+            {
+                // Generate an error for buffer overflow conditions.
+                ETRAC2("ECMD: Buffer overflow occurred in "
+                       "ecmdScomData::flatten(), "
+                       "structure size = %d; input length = %d",
+                       this->flattenSize(), i_len);
+                l_rc = ECMD_DATA_OVERFLOW;
+                break;
+            }
+
+            // Flatten and store each data member in the ouput buffer
+
+            // "address" (uint32_t)
+            tmpData32 = htonl( address );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(address);
+            l_len -= sizeof(address);
+
+            // "isCoreRelated" (bool, store in uint32_t)
+            tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "clockDomain" (std::string)
+            strLen = clockDomain.size();
+            memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+            // "clockState" (ecmdClockState_t, store in uint32_t)
+	    tmpData32 = htonl( (uint32_t)clockState );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdScomData::flatten(), struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdScomData::flatten() struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+
+uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t &i_len)
+{
+        uint32_t l_rc = ECMD_SUCCESS;
+        uint32_t tmpData32 = 0;
+
+	int l_len = (int)i_len;         // use a local copy to decrement
+        const uint8_t *l_ptr8 = i_buf;  // pointer to the input buffer
+
+        do    // Single entry ->
+        {
+            // Unflatten each data member from the input buffer
+
+            // "address" (uint32_t)
+            memcpy( &address, l_ptr8, sizeof(address) );
+            address = ntohl( address );
+            l_ptr8 += sizeof(address);
+            l_len -= sizeof(address);
+ 
+            // "isCoreRelated" (bool, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            isCoreRelated = (bool)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "clockDomain" (std::string)
+            std::string l_clock_domain = (const char *)l_ptr8;
+            clockDomain = l_clock_domain;
+            l_ptr8 += l_clock_domain.size() + 1;
+            l_len -= l_clock_domain.size() + 1;
+
+            // "clockState" (ecmdClockState_t, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    clockState = (ecmdClockState_t)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdScomData::unflatten(), struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdScomData::unflatten() struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdScomData::flattenSize() {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+
+uint32_t ecmdScomData::flattenSize()
+{
+        uint32_t flatSize = 0;
+
+        // Calculate the size needed to store the flattened struct
+        flatSize = sizeof(address)
+                   + sizeof(uint32_t)   // isCoreRelated stored as uint32_t
+                   + clockDomain.size() + 1
+                   + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
+
+        return flatSize;
 }
+
 
 #ifndef REMOVE_SIM
-void  ecmdScomData::printStruct() {
+void  ecmdScomData::printStruct()
+{
 
         printf("\n\t--- Scom Data Structure ---\n");
 
-        // Print non-list data.
-
+        printf("\tAddress: 0x%08x\n", address );
+        printf("\tisCoreRelated: %s\n", isCoreRelated ? "true" : "false");
+        printf("\tClock Domain: %s\n", clockDomain.c_str() );
+        printf("\tClock State: 0x%x\n", (uint32_t)clockState );
+        
 }
 #endif  // end of REMOVE_SIM
+// @05 end
 
 
 /*
@@ -4061,6 +4211,8 @@ void  ecmdSimModelInfo::printStruct() {
 //  @03  D516687       08/16/05 prahl    fix ecmdNodeData::unflatten method
 //  @04  D532808       01/26/06 prahl    update ecmdArrayData methods for new
 //                                       isCoreRelated field.
+//  @05  FW026865      03/29/06 scottw   Fill in flatten{Size}, unflatten,
+//                                        printStruct for ecmdScomData
 // End Change Log *****************************************************
 
 
