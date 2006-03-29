@@ -3044,6 +3044,12 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 	    l_ptr += sizeof(width);
 	    i_len -= sizeof(width);
 
+	    // @04a isCoreRelated (bool is stored as uint32_t)
+	    tmpData32 = htonl((uint32_t)isCoreRelated);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
+
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
 	    l_ptr += clockDomain.size() + 1;
@@ -3080,6 +3086,7 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         uint8_t *l_ptr = (uint8_t *) i_buf;
         uint32_t rc       = ECMD_SUCCESS;
 	int l_left = (int) i_len;
+        uint32_t tmpData32 = 0;
 
 
         do {    // Single entry ->
@@ -3120,6 +3127,12 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	    width = (int) ntohl(width);
 	    l_ptr += sizeof(width);
 	    l_left -= sizeof(width);
+
+	    // @04a isCoreRelated (bool stored as uint32_t)
+	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    isCoreRelated = (bool)ntohl(tmpData32);
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -3180,6 +3193,7 @@ uint32_t ecmdArrayData::flattenSize() {
 			     + sizeof(writeAddressLength)
                              + sizeof(length)
                              + sizeof(width)
+                             + sizeof(uint32_t)  //@04a for isCoreRelated
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -3200,6 +3214,7 @@ void  ecmdArrayData::printStruct() {
         printf("\tWrite Address Length:  0x%08x\n", (uint32_t) writeAddressLength);
         printf("\tLength: 0x%08x\n", (uint32_t) length);
         printf("\tWidth: 0x%08x\n", (uint32_t) width);
+        printf("\tIsCoreRelated: 0x%08x\n", (uint32_t) isCoreRelated); //@04a
         printf("\tClock Domain:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -4044,6 +4059,8 @@ void  ecmdSimModelInfo::printStruct() {
 //                                        for ecmdRingData and ecmdArrayData
 //  none F497173       03/18/05 scottw   Added printStruct for ecmdArrayEntry
 //  @03  D516687       08/16/05 prahl    fix ecmdNodeData::unflatten method
+//  @04  D532808       01/26/06 prahl    update ecmdArrayData methods for new
+//                                       isCoreRelated field.
 // End Change Log *****************************************************
 
 
