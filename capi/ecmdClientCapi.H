@@ -159,7 +159,7 @@ bool ecmdQueryVersionGreater(const char* version);
    cage = 'wildcard', node = 'wildcard', pos = 'ignore', chipType = 'unused', core = 'unused', thread = 'unused'<br>
  NOTE : This function does not affect ring caching<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
    
@@ -195,14 +195,14 @@ uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
    will be set to ECMD_TARGET_THREAD_ALIVE.<br>
  NOTE : This function does not affect ring caching<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query Ring information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position information of chip to use
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
  @param i_detail Specify the level of detail that should be returned with the query
@@ -212,14 +212,14 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Latch information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position information of chip to use
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_queryData Return list from query
  @param i_ringName if != NULL used to refine query to a single ring
  @param i_latchName if != NULL used to refine query to a single latch
@@ -234,14 +234,14 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Array information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_queryData Return list from query
  @param i_arrayName if != NULL used to refine query to a single array
  @param i_detail Specify the level of detail that should be returned with the query
@@ -251,14 +251,14 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Spy information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_queryData Return data from query
  @param i_spyName if != NULL used to refine query to a single spy
  @param i_detail Specify the level of detail that should be returned with the query
@@ -268,14 +268,14 @@ uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Scom information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_queryData Return data from query
  @param i_address if != 0xFFFFFFFF used to refine query to a single scom
  @param i_detail Specify the level of detail that should be returned with the query
@@ -284,14 +284,14 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query Trace Array information from the DLL
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information of chip to use
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_queryData Return data from query
  @param i_traceArrayName if != NULL used to refine query to a single trace array
  @param i_detail Specify the level of detail that should be returned with the query
@@ -300,14 +300,14 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query the location of a specific file type for the selected target
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
  @param o_fileLocation Return string with full path and filename to location 
  @retval ECMD_SUCCESS if successful
@@ -315,7 +315,7 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  @retval nonzero if unsuccessful
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : Pos (where applicable based on i_fileType)<br>
+ TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
@@ -330,7 +330,7 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
 
  NOTE : This function calls ecmdQueryConfig and searchs for the specified target<br>
  NOTE : The target State fields must be filled in as either VALID or UNUSED<br>
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
 bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
@@ -353,13 +353,13 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains chip and cage/node/slot/position/core information of ring to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
  @see putRing
 
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -375,13 +375,13 @@ uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
  @retval ECMD_INVALID_RING if ringname is not valid for target
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains chip and cage/node/slot/position/core information of ring to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
  @see getRing
 
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -396,14 +396,14 @@ uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
  @retval ECMD_INVALID_RING if ringname is not valid for target
  @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
  @param o_data list of Entries containing all latches found matching i_latchName
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
  @param i_mode LatchName search mode (full or partial names)
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -421,7 +421,7 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
  @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
  @param i_data DataBuffer object that holds data to write into latch
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
@@ -431,7 +431,7 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
  @param o_matchs Number of latchs found that matched your name and data was inserted
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -445,7 +445,7 @@ uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains chip and cage/node/slot/position information of ring to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Address of ring to read from
  @param i_bitLength Bit Length to scan for
  @param o_data DataBuffer object that holds data read from ring
@@ -456,7 +456,7 @@ uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
           so you are responsible for specifying the correct core address<br>
  NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
           corruption may occur<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 
@@ -472,7 +472,7 @@ uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains chip and cage/node/slot/position information of ring to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Address of ring to write to
  @param i_bitLength Bit Length to scan for
  @param i_data DataBuffer object that holds data to write into ring
@@ -483,7 +483,7 @@ uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
           so you are responsible for specifying the correct core address<br>
  NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
           corruption may occur<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 
@@ -507,13 +507,13 @@ uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of scom address to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Scom address to read from
  @param o_data DataBuffer object that holds data read from address
  @see putScom
 
  NOTE : For processor cores, only "core0 only" addresses are supported, other core addresses cause a failure<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
@@ -527,13 +527,13 @@ uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of scom address to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Scom address to write to
  @param i_data DataBuffer object that holds data to write into address
  @see getScom
 
  NOTE : For processor cores, only "core0 only" addresses are supported, other core addresses cause a failure<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -551,7 +551,7 @@ uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
 
 /**
  @brief Send a JTAG instruction and modifier to the specified chip
- @param i_target Struct that contains chip and cage/node/slot/position information of scom address to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_instruction Right aligned instruction to send to chip
  @param i_modifier Right aligned instruction modifier to send
  @param o_status Instruction status register value retrieved
@@ -562,7 +562,7 @@ uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  @retval nonzero if unsuccessful
 
  NOTE : Proper parity will be generated on the command and modifier<br>
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
@@ -584,11 +584,11 @@ uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_
  @retval nonzero if unsuccessful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_NON_FSI_CHIP Targetted chip is not attached via FSI
- @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address CFAM address to read from
  @param o_data DataBuffer object that holds data read from address
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -603,11 +603,11 @@ uint32_t getCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
  @retval ECMD_SUCCESS if successful
  @retval ECMD_NON_FSI_CHIP Targetted chip is not attached via FSI
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address CFAM address to write to
  @param i_data DataBuffer object that holds data to write into address
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -633,12 +633,12 @@ uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
  @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to read from
  @param o_data DataBuffer object that holds data read from spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -655,12 +655,12 @@ uint32_t getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuff
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to read from
  @param o_enumValue Enum value read from the spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -674,7 +674,7 @@ uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::str
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyEpCheckersName Name of spy to read from
  @param o_inLatchData Return the data for the input to the eccGroup
  @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
@@ -682,7 +682,7 @@ uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::str
  @retval nonzero if unsuccessful
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -697,12 +697,12 @@ uint32_t getSpyEpCheckers (ecmdChipTarget & i_target, const char * i_spyEpChecke
  @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to read from
  @param o_groups List of structures containing the group data and deadbits mask
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -718,12 +718,12 @@ uint32_t getSpyGroups (ecmdChipTarget & i_target, const char * i_spyName, std::l
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to write to
  @param i_data DataBuffer object that holds data to write into spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -738,12 +738,12 @@ uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuff
  @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information of spy to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to write to
  @param i_enumValue String enum value to load into the spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -805,14 +805,14 @@ bool      ecmdIsRingCacheEnabled();
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information of array to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_arrayName Name of array to read from
  @param o_data DataBuffer object that holds data read from address
  @param i_address Array Address to read from - length of DataBuffer should be set to length of valid address data
  @see putArray
  @see getArrayMultiple
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -826,7 +826,7 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information of array to read
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_arrayName Name of array to read from
  @param io_entries list of array entries to fetch
  @see putArray
@@ -840,7 +840,7 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -858,13 +858,13 @@ uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @param i_target Struct that contains chip and cage/node/slot/position information of array to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_arrayName Name of array to write to
  @param i_data DataBuffer object that holds data to write into array
  @param i_address Array Address to write to - length of DataBuffer should be set to length of valid address data
  @see getArray
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -881,7 +881,7 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @param i_target Struct that contains chip and cage/node/slot/position information of array to write
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_arrayName Name of array to write to
  @param i_entries List of addresses and data to write to chip
  @see getArray
@@ -891,7 +891,7 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -909,11 +909,11 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
- @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_clockDomain Clock domain to query - as defined in scandef - use "ALL" to check all domains
  @param o_clockState State of clocks for that domain
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : cage, node, slot, pos, core<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -929,7 +929,7 @@ uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDom
  @retval ECMD_CLOCKS_ALREADY_ON The clocks in the specified domain are already on
  @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_clockDomain Clock domain to start - as defined in scandef - use "ALL" to start all domains
  @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
 
@@ -937,7 +937,7 @@ uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDom
           If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
             documented in the eCMD system spec for your particular product.
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : cage, node, slot, pos, core<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -951,14 +951,14 @@ uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, boo
  @retval ECMD_CLOCKS_ALREADY_OFF The clocks in the specified domain are already off
  @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
  @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
 
  * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
           If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
             documented in the eCMD system spec for your particular product.<br>
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : cage, node, slot, pos, core<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -966,7 +966,7 @@ uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool
 
 /**
  @brief Change a system clock speed without adjusting system initialization settings using speed value
- @param i_target Struct that contains chip and cage information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_type Clock type to change in system
  @param i_speed New speed value, specified in Mhz or micro-seconds based on i_speedType
  @param i_speedType Specifies if i_speed is provided in frequency or cycle time
@@ -976,14 +976,14 @@ uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : Cage<br>
+ TARGET DEPTH  : cage<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range);
 
 /**
  @brief Change a system clock speed without adjusting system initialization settings using speed value
- @param i_target Struct that contains chip and cage information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_type Clock type to change in system
  @param i_multiplier Multiplier to use to program clock
  @param i_divider Divider value to use to program clock
@@ -991,7 +991,7 @@ uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ui
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : Cage<br>
+ TARGET DEPTH  : cage<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
@@ -1070,7 +1070,7 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
 
 /**
  @brief Query Information about a Processor Register (SPR/GPR/FPR)
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of the Register to fetch data about (can be either a specific SPR or GPR/FPR)
  @param o_data Data retrieved about the register
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
@@ -1079,7 +1079,7 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
@@ -1093,11 +1093,11 @@ uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_sprName Name of spr to read from
  @param o_data DataBuffer object that holds data read from spr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1112,7 +1112,7 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param io_entries List of entries to fetch ecmdNameEntry.name field must be filled in
 
  - NOTE : There are special keywords that can be specified to fetch groups of entries, they
@@ -1125,7 +1125,7 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1143,11 +1143,11 @@ uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_sprName Name of spr to write to
  @param i_data DataBuffer object that holds data to write into spr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1164,13 +1164,13 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1185,11 +1185,11 @@ uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_gprNum Number of gpr to read from
  @param o_data DataBuffer object that holds data read from gpr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1204,7 +1204,7 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
@@ -1212,7 +1212,7 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1230,11 +1230,11 @@ uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_gprNum Number of gpr to write to
  @param i_data DataBuffer object that holds data to write into gpr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1251,14 +1251,14 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1273,11 +1273,11 @@ uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fprNum Number of fpr to read from
  @param o_data DataBuffer object that holds data read from fpr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1292,7 +1292,7 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
@@ -1300,7 +1300,7 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1317,11 +1317,11 @@ uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fprNum Number of fpr to write to
  @param i_data DataBuffer object that holds data to write into fpr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1338,13 +1338,13 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1360,11 +1360,11 @@ uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_slbNum Number of fpr to read from
  @param o_data DataBuffer object that holds data read from fpr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1379,7 +1379,7 @@ uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in with slb number
 
  The return value of this function is set to the first non-zero return code found when
@@ -1387,7 +1387,7 @@ uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1404,11 +1404,11 @@ uint32_t getSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_slbNum Number of fpr to write to
  @param i_data DataBuffer object that holds data to write into fpr
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1425,13 +1425,13 @@ uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1447,7 +1447,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 
 /**
  @brief Dump all entries of specified trace array
- @param i_target Target info to specify what to configure (target states must be set)
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of trace array - names may vary for each product/chip
  @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion, if false client is in control
  @param o_data Vector of trace array data retrieved
@@ -1455,7 +1455,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1463,7 +1463,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
 
 /**
  @brief Dump all entries of specified trace array
- @param i_target Target info to specify what to configure (target states must be set)
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion of all trace arrays dumped, if false client is in control
  @param o_data List of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -1475,7 +1475,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1496,12 +1496,12 @@ uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStar
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1516,12 +1516,12 @@ uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_b
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_data DataBuffer object that holds data to write into memory
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1534,12 +1534,12 @@ uint32_t putMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_b
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains cage/node information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1553,12 +1553,12 @@ uint32_t getMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains cage/node information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_data DataBuffer object that holds data to write into memory
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1572,13 +1572,13 @@ uint32_t putMemDma (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
 
  WARNING : This operation is typically not cache-coherent<br>
- TARGET DEPTH  : Cage<br>
+ TARGET DEPTH  : cage<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1593,13 +1593,13 @@ uint32_t getMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_data DataBuffer object that holds data to write into memory
 
  WARNING : This operation is typically not cache-coherent<br>
- TARGET DEPTH  : Cage<br>
+ TARGET DEPTH  : cage<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1607,13 +1607,13 @@ uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
 
 /**
  @brief Cache Flush
- @param i_target ecmdChipTarget_t struct defines what chip(s) to flush
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_cacheType ecmdCacheType_t struct defines what type of cache gets flushed
  @retval ECMD_TARGET_NOT_CONFIGURED  if target is not available in the system  
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : pos, core<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
@@ -1917,11 +1917,11 @@ uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdData
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_hierarchy Return the model hierarchy for this target
 
 NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
- TARGET DEPTH : Core<br>
+ TARGET DEPTH : pos, core<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -1929,12 +1929,12 @@ uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
 
 /**
  @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
- @param i_target Target to query for information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_timestamp Timestamp value from simulation model
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 
- TARGET DEPTH : Pos<br>
+ TARGET DEPTH : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1942,12 +1942,12 @@ uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o
 
 /**
  @brief Will retrieve the scandef timestamp from the scandef being used for the specified target
- @param i_target Target to query for information
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_timestamp Timestamp value from scandef
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 
- TARGET DEPTH  : Pos<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
@@ -2192,7 +2192,7 @@ uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
  @param i_command Command line call to make
  @param o_stdout Standard out captured by running command
 
- TARGET DEPTH : Node
+ TARGET DEPTH : node<br>
  TARGET STATES : Unused
 
 */
@@ -2206,7 +2206,7 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
 
 /**
  @brief Retrieve the value of a Configuration Setting
- @param i_target struct that contains chip and cage/node/slot/position/core information if necessary
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
  @param o_validOutput Indicator if o_valueAlpha, o_valueNumeric (or both) are valid.
  @param o_valueAlpha Alpha value of setting (if appropriate)
@@ -2215,7 +2215,7 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : Thread (depending on value of i_name)<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
 
@@ -2223,7 +2223,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
 
 /**
  @brief Set the value of a Configuration Setting
- @param i_target struct that contains chip and cage/node/slot/position/core information if necessary
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
  @param i_validInput Indicator if i_valueAlpha, i_valueNumeric (or both) are valid.
  @param i_valueAlpha Alpha value of setting (if appropriate)
@@ -2234,7 +2234,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
- TARGET DEPTH  : Thread (depending on value of i_name)<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
 
@@ -2254,7 +2254,7 @@ uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
 
   This interface allows you to deconfigure all levels cages, nodes, slots, pos's, cores<br>
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : cage, node, slot, pos, core<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -2273,7 +2273,7 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
 
   This interface allows you to configure all levels cages, nodes, slots, pos's, cores<br>
 
- TARGET DEPTH  : Core<br>
+ TARGET DEPTH  : cage, node, slot, pos, core<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -2287,7 +2287,7 @@ uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
  *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching Unit ID
  *  @post HOM Unit Ids in ecmdChipTarget struct are set and valid
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread<br>
  TARGET STATES : Must be Initialized<br>
 
  */
@@ -2336,7 +2336,7 @@ uint32_t ecmdUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr);
  @pre io_target must have an acceptable processor chipType
  @post io_target fields are set accordingly
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Must be Initialized <br>
 
 */
@@ -2345,7 +2345,7 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
 
 /**
  @brief ecmdChipTarget struct converted to Sequence ID of Cores and Threads
- @param i_target ecmdChipTarget struct determines the Seq Id of the Core and Thread
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_core_seq_num Sequence ID number of the core 
  @param o_thread_seq_num Sequence ID number of thread relative to the core parm
  @retval ECMD_INVALID_ARGS the ecmdChipTarget inputs could not be mapped to a core and thread
@@ -2356,7 +2356,7 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
  @post o_core_seq_num set accordingly based on i_target
  @post if i_target depth is thread, o_thread_seq_num set to relative thread of o_core_seq_enum; else, o_thread_seq_num set to 0xFF
 
- TARGET DEPTH  : Core, Thread<br>
+ TARGET DEPTH  : core, thread<br>
  TARGET STATES : Must be Initialized <br>
 
 */
@@ -2374,7 +2374,7 @@ uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_n
 
 /**
  @brief Read Module VPD Keyword Interface
- @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
  @param i_bytes Byte length to read
@@ -2384,7 +2384,7 @@ uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_n
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2392,7 +2392,7 @@ uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
 
 /**
  @brief Write Module VPD Keyword Interface
- @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Write
  @param i_data Data buffer of data to write
@@ -2401,7 +2401,7 @@ uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2409,7 +2409,7 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
 
 /**
  @brief Read Module VPD Image Interface
- @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_bytes Byte length to read
  @param o_data Data buffer of data read from module
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -2417,7 +2417,7 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2425,7 +2425,7 @@ uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
 
 /**
  @brief Write Module VPD Image Interface
- @param i_target Struct that contains cage/node/slot/position of module vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_data Data buffer of data to write
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
@@ -2434,7 +2434,7 @@ uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2447,7 +2447,7 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
 
 /**
  @brief Read Fru VPD Keyword Interface
- @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
  @param i_bytes Byte length to read
@@ -2457,7 +2457,7 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2465,7 +2465,7 @@ uint32_t getFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
 
 /**
  @brief Write Fru VPD Keyword Interface
- @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Write
  @param i_data Data buffer of data to write
@@ -2474,7 +2474,7 @@ uint32_t getFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2482,7 +2482,7 @@ uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
 
 /**
  @brief Read Fru VPD Image Interface
- @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_bytes Byte length to read
  @param o_data Data buffer of data read from fru
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -2490,7 +2490,7 @@ uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2498,7 +2498,7 @@ uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuf
 
 /**
  @brief Write Fru VPD Image Interface
- @param i_target Struct that contains cage/node/slot/position of fru vpd to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_data Data buffer of data to write
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a fru
@@ -2507,7 +2507,7 @@ uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuf
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2520,7 +2520,7 @@ uint32_t putFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
 //@{
 /**
  @brief Resets the specified engine port
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -2529,7 +2529,7 @@ uint32_t putFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2538,7 +2538,7 @@ uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
 
 /**
  @brief Read data from an I2C device
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
  @param i_slaveAddress I2C slave device address to use
@@ -2551,14 +2551,14 @@ uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Read data from an I2C device at the given offset
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
  @param i_slaveAddress I2C slave device address to use
@@ -2573,14 +2573,14 @@ uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write the provided data into the I2C device
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
  @param i_slaveAddress I2C slave device address to use
@@ -2592,14 +2592,14 @@ uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data);
 
 /**
  @brief Write the provided data into the I2C device at the given offset
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId I2c engine to use
  @param i_port I2C port to use
  @param i_slaveAddress I2C slave device address to use
@@ -2613,14 +2613,14 @@ uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data);
 
 /**
  @brief Let the user to run a series of command, while the i2c device is locked for the duration
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_cmdsEntries The series of commands to be run
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
@@ -2631,7 +2631,7 @@ uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint
  NOTE : The i2c device targeted is locked at the first use of the device in the list and then unlocked when the command is complete.<br>
  NOTE : The output data on reads is filled into the ecmdDataBuffer in the list for that operation
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & io_cmdsEntries);
@@ -2642,7 +2642,7 @@ uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntr
 //@{
 /**
  @brief Configures mode of pin
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId Gpio engine to use
  @param i_pin Pin to use
  @param i_mode Mode to configure pin
@@ -2654,7 +2654,7 @@ uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntr
 
  NOTE : Configuring a pin explicitly as output is not necessary since the write latch commands implicitly perform the required settings.<br>
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2662,7 +2662,7 @@ uint32_t ecmdGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
 
 /**
  @brief Read the state of the specified pin (0/1)
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId Gpio engine to use
  @param i_pin Pin to use
  @param o_state State read on pin (0/1)
@@ -2672,7 +2672,7 @@ uint32_t ecmdGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2680,7 +2680,7 @@ uint32_t ecmdGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_
 
 /**
  @brief Read the state of the latch
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId Gpio engine to use
  @param i_pin Pin to use
  @param i_mode Mode to configure pin
@@ -2691,7 +2691,7 @@ uint32_t ecmdGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2699,7 +2699,7 @@ uint32_t ecmdGpioReadLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
 
 /**
  @brief Write value to the specified pin
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId Gpio engine to use
  @param i_pin Pin to use
  @param i_mode Mode to configure pin
@@ -2710,7 +2710,7 @@ uint32_t ecmdGpioReadLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2718,7 +2718,7 @@ uint32_t ecmdGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint
 
 /**
  @brief Read the GPIO input register and AND with i_mask 
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId Gpio engine to use
  @param i_mask Mask to apply to pins
  @param o_value Value read from pins with mask applied
@@ -2728,7 +2728,7 @@ uint32_t ecmdGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2736,7 +2736,7 @@ uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
 
 /**
  @brief Write several pins specified by i_mask
- @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_engineId Gpio engine to use
  @param i_mask Mask to apply to pins
  @param i_mode Mode to configure pin
@@ -2747,7 +2747,7 @@ uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2797,7 +2797,7 @@ void ecmdPopCommandArgs();
 //@{
 /**
  @brief Allow the user to call adal_psi_init
- @param i_target Struct that contains cage/node of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_psiPort PSI Port to init
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support PSI
@@ -2805,7 +2805,7 @@ void ecmdPopCommandArgs();
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
@@ -2813,7 +2813,7 @@ uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
 
 /**
  @brief Allow the user to call adal_psi_link_enable
- @param i_target      Struct that contains cage/node of device to access
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_psiPort     PSI Port to enable
  @param i_enableState 0 disables the link, 1 enables the link
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -2822,7 +2822,7 @@ uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : Chip<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 
 */
