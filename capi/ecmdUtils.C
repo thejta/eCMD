@@ -77,7 +77,8 @@ typedef enum {
   ECMD_FORMAT_MEM,
   ECMD_FORMAT_MEMA,
   ECMD_FORMAT_MEMD,
-  ECMD_FORMAT_MEME
+  ECMD_FORMAT_MEME,
+  ECMD_FORMAT_D
 } ecmdFormatState_t;
 
 
@@ -765,6 +766,14 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
 
         curState = ECMD_FORMAT_BX;
       }
+      else if (i_format[i] == 'd') {
+        if (curState != ECMD_FORMAT_NONE) {
+          good = false;
+          break;
+        }
+
+        curState = ECMD_FORMAT_D;
+      }
       else if (isdigit(i_format[i])) {
         numCols *= 10;
         numCols += atoi(&i_format[i]);
@@ -801,6 +810,21 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
   else if (curState == ECMD_FORMAT_B) {
     printed = "0b" + i_data.genBinStr();
     printed += "\n";
+  }
+  else if (curState == ECMD_FORMAT_D) {
+    if (i_data.getBitLength() > 32) {
+      ecmdOutputError("ecmdWriteDataFormatted - Unable to generate decimal numbers for buffers bigger than 32 bits\n");
+      printed = "";
+      return printed;
+    }
+    /* Short enough, let generate this number */
+    char tempstr[100];
+    uint32_t decimalData = i_data.getWord(0);
+    /* Right align it */
+    decimalData >>= (32 - i_data.getBitLength());
+    /* Print it */
+    sprintf(tempstr, "%d\n", decimalData);
+    printed = tempstr;
   }
   else if (curState == ECMD_FORMAT_BX) {
     if (!i_data.isXstateEnabled()) {

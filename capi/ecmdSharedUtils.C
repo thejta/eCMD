@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //
 // File ecmdSharedUtils.C
@@ -12,7 +13,6 @@
 // deposited with the U.S. Copyright Office.
 //
 // End Copyright *******************************************************
-/* $Header& */
 // Module Description **************************************************
 //
 // Description:
