@@ -2082,7 +2082,7 @@ void  ecmdQueryData::printStruct() {
  * The following methods for the ecmdSpyData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
         uint32_t enumsListSize  = 0;
@@ -2224,7 +2224,7 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 
 
-uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
         uint8_t *l_ptr = (uint8_t *) i_buf;
         uint32_t rc       = ECMD_SUCCESS;
@@ -2639,7 +2639,7 @@ void ecmdArrayEntry::printStruct() const {
  * The following methods for the ecmdRingData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
         uint32_t ringNamesListSize  = 0;
@@ -2766,7 +2766,7 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 
 
-uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
         uint8_t *l_ptr = (uint8_t *) i_buf;
         uint32_t rc       = ECMD_SUCCESS;
@@ -2988,7 +2988,7 @@ void  ecmdRingData::printStruct() {
  * The following methods for the ecmdArrayData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
         uint32_t rc     = ECMD_SUCCESS;
@@ -3081,7 +3081,7 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 
 
-uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
         uint8_t *l_ptr = (uint8_t *) i_buf;
         uint32_t rc       = ECMD_SUCCESS;
@@ -3226,7 +3226,7 @@ void  ecmdArrayData::printStruct() {
  * The following methods for the ecmdIndexEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t &i_len) {
+uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
 
     uint32_t tmpData32 = 0;
     uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
@@ -3307,7 +3307,7 @@ uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t &i_len) {
     return l_rc;
 }
 
-uint32_t ecmdIndexEntry::unflatten(const uint8_t * i_buf, uint32_t &i_len) {
+uint32_t ecmdIndexEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
 
     uint32_t l_tmp = 0;
     uint32_t dataBufSize = 0;
@@ -3409,7 +3409,7 @@ void ecmdIndexEntry::printStruct() {
  * The following methods for the ecmdTraceArrayData struct will flatten, 
  * unflatten & get the flattened size of the struct.
  */
-uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t &i_len) 
+uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) 
 {
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
@@ -3504,7 +3504,7 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t &i_len)
 }
 
 
-uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t &i_len) 
+uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) 
 {
         uint32_t l_rc = ECMD_SUCCESS;
         uint32_t tmpData32 = 0;
@@ -3629,7 +3629,7 @@ void  ecmdTraceArrayData::printStruct() {
  * The following methods for the ecmdScomData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t &i_len)
+uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
@@ -3707,7 +3707,7 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t &i_len)
 }
 
 
-uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t &i_len)
+uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 {
         uint32_t l_rc = ECMD_SUCCESS;
         uint32_t tmpData32 = 0;
@@ -3807,7 +3807,7 @@ void  ecmdScomData::printStruct()
  * The following methods for the ecmdLatchData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t &i_len)
+uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
@@ -3908,7 +3908,7 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t &i_len)
         return l_rc;
 }
 
-uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t &i_len)
+uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 {
         uint32_t l_rc = ECMD_SUCCESS;
         uint32_t tmpData32 = 0;
@@ -4037,12 +4037,12 @@ void  ecmdLatchData::printStruct() const
  * The following methods for the ecmdNameEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdNameEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdNameEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdNameEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdNameEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
@@ -4064,12 +4064,12 @@ void  ecmdNameEntry::printStruct() {
  * The following methods for the ecmdNameVectorEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdNameVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdNameVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdNameVectorEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdNameVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
@@ -4092,7 +4092,7 @@ void  ecmdNameVectorEntry::printStruct() {
  * The following methods for the ecmdIndexVectorEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len)
+uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len)
 {
 	uint32_t tmpData32 = 0;
 	uint32_t numElements = 0;
@@ -4191,7 +4191,7 @@ uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t &i_len)
          return l_rc;
 }
 
-uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         uint32_t l_rc = ECMD_SUCCESS;
 
         uint32_t tmpData32  = 0;
@@ -4320,12 +4320,12 @@ void  ecmdIndexVectorEntry::printStruct() {
  * The following methods for the ecmdLatchEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdLatchEntry::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdLatchEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdLatchEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdLatchEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
@@ -4347,12 +4347,12 @@ void  ecmdLatchEntry::printStruct() {
  * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
@@ -4374,12 +4374,12 @@ void  ecmdProcRegisterInfo::printStruct() {
  * The following methods for the ecmdSimModelInfo struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdSimModelInfo::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdSimModelInfo::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdSimModelInfo::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+uint32_t ecmdSimModelInfo::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
