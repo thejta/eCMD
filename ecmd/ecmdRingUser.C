@@ -367,7 +367,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                   ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
                 /* I have some good data here */
                 if (latchname != "") {
-                  printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format, isMultiBitLatch);             	
+                  printLatchInfo( latchname, buffer,(int) dataStartBit,(int) dataEndBit, format, isMultiBitLatch);             	
                 }
 
                 /* If this is a fresh one we need to reset everything */
@@ -440,8 +440,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                   rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch);  if (rc) return rc;
                 }
                 curBufferBit += bitsToFetch;
+                  //lint -e1058
                 if(curLatchInfo == --curEntry.end()) {
-                  printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format, isMultiBitLatch);
+                  printLatchInfo( latchname, buffer, (int) dataStartBit,(int) dataEndBit, format, isMultiBitLatch);
                 }
               } else {
                 /* Nothing was there that we needed, let's try the next entry */
@@ -707,11 +708,11 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 
 	if (startBit == ECMD_UNSET) {
-	  curStartBit = latchit->latchStartBit;
+	  curStartBit = (unsigned int)latchit->latchStartBit;
 	  curNumBits = latchit->buffer.getBitLength();
 	} else if (numBits == ECMD_UNSET) {
 	  curStartBit = startBit;
-	  curNumBits = latchit->buffer.getBitLength() - (startBit - latchit->latchStartBit);
+	  curNumBits = (unsigned int)((int)latchit->buffer.getBitLength() - (int)((int)startBit - (int)latchit->latchStartBit));
 	} else {
 	  curStartBit = startBit;
 	  curNumBits = numBits;
@@ -748,7 +749,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	  curOutputFormat = outputformat;
 
 	/* Let's extract the piece the user wanted */
-	rc = latchit->buffer.extract(buffer, curStartBit - latchit->latchStartBit, curNumBits ); if (rc) return rc;
+	rc =(unsigned int) ( latchit->buffer.extract(buffer,(unsigned int)((int) curStartBit - (int)latchit->latchStartBit),(unsigned int) curNumBits )); if (rc) return rc;
 
 	if (expectFlag) {
 
@@ -1488,8 +1489,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         /* Let's apply our data */
         /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
         if (curNumBits < buffer_copy.getBitLength())
-          buffer_copy.shrinkBitLength(curNumBits);
-        rc = ecmdApplyDataModifier(latchit->buffer, buffer_copy, curStartBit - latchit->latchStartBit, dataModifier);
+          buffer_copy.shrinkBitLength(curNumBits); //lint -e732
+        rc = (unsigned int) ecmdApplyDataModifier(latchit->buffer, buffer_copy,(int) ((int)curStartBit - (int)latchit->latchStartBit), dataModifier);
         if (rc) {
           printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
           printed += ecmdWriteTarget(coretarget) + "\n";
@@ -1499,7 +1500,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
  
         /* We can do a full latch compare here now to make sure we don't cause matching problems */
         if (ringName.length() != 0)
-          rc = putLatch(coretarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer, (latchit->latchStartBit), (latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
+          rc = putLatch(coretarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(unsigned int) (latchit->latchStartBit), (unsigned int)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
         else
           rc = putLatch(coretarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL);
         if (rc) {
@@ -2195,7 +2196,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   foundRing = false;
       
   //Seek to the beginning of the ring
-  if (ringOffsetFound == true) ins.seekg((size_t)ringBeginOffset);
+  if (ringOffsetFound == true) ins.seekg((long)(size_t)ringBeginOffset);
 
   while (getline(ins, curLine) && !done) {
   
@@ -2257,7 +2258,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 
 	/* Is this a multibit or single bit */
 	if ((colon = temp.find(':')) != std::string::npos) {
-	  curLatch.latchEndBit = atoi(temp.substr(colon+1, temp.length()).c_str());
+	  curLatch.latchEndBit = (unsigned int)atoi(temp.substr(colon+1, temp.length()).c_str());
 	} else if ((colon = temp.find(',')) != std::string::npos) {
 	  ecmdOutputError("readScandefFile - Array's not currently supported with getlatch\n");
 	  return ECMD_FUNCTION_NOT_SUPPORTED;
