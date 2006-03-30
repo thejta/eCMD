@@ -3368,6 +3368,14 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
   return(rc);
 }
 
+uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, const char * i_property, uint32_t &o_dataNumber) {
+
+  uint32_t rc = ECMD_DBUF_UNDEFINED_FUNCTION;
+  ETRAC0("**** ERROR : readFileMultiple by property is not yet supported!");
+  RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);  
+  return(rc);
+}
+
 
 uint32_t  ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_facName) {
   uint32_t dataNumber=0;

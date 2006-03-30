@@ -1225,6 +1225,23 @@ public:
    * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when i_dataNumber != 0
    */
   uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0, std::string *o_property = NULL); /* Reads out the buffer (in the  specified format) from the file */
+
+/**
+   * @brief Read data from the file into the buffer
+   * @param i_filename to read from
+   * @param i_format data format to expect in the file
+   * @param i_property string for which the databuffer is requested 
+   * @param o_dataNumber data Number associated with the buffer requested in case of multiple databuffers
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
+   * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined f
+or the configuration
+   * @retval ECMD_DBUF_INVALID_ARGS If requested i_property is not available in file
+   * ECMD_SAVE_FORMAT_BINARY_DATA not accepted because the binary file does not support properties
+   */
+  uint32_t  readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, const char * i_property, uint32_t &o_dataNumber ); /* Reads out the buffer (in the  specified format) from the file */
+
   /**
    * @brief Get the number of databuffers stored in the file created by writeFile/writeFileMultiple
    * @param i_filename to read from
