@@ -3802,32 +3802,236 @@ void  ecmdScomData::printStruct()
 // @05 end
 
 
+// @06 start
 /*
  * The following methods for the ecmdLatchData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t &i_len)
+{
+        uint32_t tmpData32 = 0;
+        uint32_t strLen = 0;
+        uint32_t l_rc = ECMD_SUCCESS;
 
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+        int l_len = (int)i_len;   // use a local copy to decrement
+	uint8_t *l_ptr8 = o_buf;  // pointer to the output buffer
+
+        do      // Single entry ->
+        {
+            // Check for buffer overflow conditions.
+            if (this->flattenSize() > i_len) 
+            {
+                // Generate an error for buffer overflow conditions.
+                ETRAC2("ECMD: Buffer overflow occurred in "
+                       "ecmdLatchData::flatten(), "
+                       "structure size = %d; input length = %d",
+                       this->flattenSize(), i_len);
+                l_rc = ECMD_DATA_OVERFLOW;
+                break;
+            }
+
+            // Flatten and store each data member in the ouput buffer
+
+            // "latchName" (std::string)
+            strLen = latchName.size();
+            memcpy( l_ptr8, latchName.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+            // "ringName" (std::string)
+            strLen = ringName.size();
+            memcpy( l_ptr8, ringName.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+            // "latchId" (uint32_t)
+            tmpData32 = htonl( latchId );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(latchId);
+            l_len -= sizeof(latchId);
+
+            // "ringId" (uint32_t)
+            tmpData32 = htonl( ringId );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(ringId);
+            l_len -= sizeof(ringId);
+
+            // "bitLength" (int)
+            tmpData32 = htonl( (uint32_t)bitLength );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(bitLength);
+            l_len -= sizeof(bitLength);
+
+            // "isCoreRelated" (bool, store in uint32_t)
+            tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "clockDomain" (std::string)
+            strLen = clockDomain.size();
+            memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+            // "clockState" (ecmdClockState_t, store in uint32_t)
+	    tmpData32 = htonl( (uint32_t)clockState );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdLatchData::flatten(), struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdLatchData::flatten() struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t &i_len)
+{
+        uint32_t l_rc = ECMD_SUCCESS;
+        uint32_t tmpData32 = 0;
+
+	int l_len = (int)i_len;         // use a local copy to decrement
+        const uint8_t *l_ptr8 = i_buf;  // pointer to the input buffer
+
+        do    // Single entry ->
+        {
+            // Unflatten each data member from the input buffer
+
+            // "latchName" (std::string)
+            std::string l_latch_name = (const char *)l_ptr8;
+            latchName = l_latch_name;
+            l_ptr8 += l_latch_name.size() + 1;
+            l_len -= l_latch_name.size() + 1;
+
+            // "ringName" (std::string)
+            std::string l_ring_name = (const char *)l_ptr8;
+            ringName = l_ring_name;
+            l_ptr8 += l_ring_name.size() + 1;
+            l_len -= l_ring_name.size() + 1;
+
+            // "latchId" (uint32_t)
+            memcpy( &latchId, l_ptr8, sizeof(latchId) );
+            latchId = ntohl( latchId );
+            l_ptr8 += sizeof(latchId);
+            l_len -= sizeof(latchId);
+
+            // "ringId" (uint32_t)
+            memcpy( &ringId, l_ptr8, sizeof(ringId) );
+            ringId = ntohl( ringId );
+            l_ptr8 += sizeof(ringId);
+            l_len -= sizeof(ringId);
+ 
+            // "bitLength" (int)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    bitLength = (int)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(bitLength);
+	    l_len -= sizeof(bitLength);
+
+            // "isCoreRelated" (bool, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            isCoreRelated = (bool)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "clockDomain" (std::string)
+            std::string l_clock_domain = (const char *)l_ptr8;
+            clockDomain = l_clock_domain;
+            l_ptr8 += l_clock_domain.size() + 1;
+            l_len -= l_clock_domain.size() + 1;
+
+            // "clockState" (ecmdClockState_t, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    clockState = (ecmdClockState_t)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdLatchData::unflatten(), struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdLatchData::unflatten() struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
 }
 
-uint32_t ecmdLatchData::flattenSize() const {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
+uint32_t ecmdLatchData::flattenSize() const
+{
+        uint32_t flatSize = 0;
+
+        // Calculate the size needed to store the flattened struct
+        flatSize = latchName.size() + 1
+                   + ringName.size() + 1
+                   + sizeof(latchId)
+                   + sizeof(ringId)
+                   + sizeof(bitLength)
+                   + sizeof(uint32_t)   // isCoreRelated stored as uint32_t
+                   + clockDomain.size() + 1
+                   + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
+
+        return flatSize;
 }
 
 #ifndef REMOVE_SIM
-void  ecmdLatchData::printStruct() const {
+void  ecmdLatchData::printStruct() const
+{
 
         printf("\n\t--- Latch Data Structure ---\n");
 
-        // Print non-list data.
+        printf("\tLatch Name: %s\n", latchName.c_str() );
+        printf("\tRing Name: %s\n", ringName.c_str() );
+        printf("\tLatch ID: 0x%08x\n", latchId );
+        printf("\tRing ID: 0x%08x\n", ringId );
+        printf("\tBit Length: %d\n", bitLength );
+
+        printf("\tisCoreRelated: %s\n", isCoreRelated ? "true" : "false");
+        printf("\tClock Domain: %s\n", clockDomain.c_str() );
+        printf("\tClock State: 0x%x\n", (uint32_t)clockState );
 
 }
 #endif  // end of REMOVE_SIM
+// @06 end
 
 /*
  * The following methods for the ecmdNameEntry struct will flatten, unflatten &
@@ -4213,6 +4417,8 @@ void  ecmdSimModelInfo::printStruct() {
 //                                       isCoreRelated field.
 //  @05  FW026865      03/29/06 scottw   Fill in flatten{Size}, unflatten,
 //                                        printStruct for ecmdScomData
+//  @06  FW026866      03/29/06 scottw   Fill in flatten{Size}, unflatten,
+//                                        printStruct for ecmdLatchData
 // End Change Log *****************************************************
 
 
