@@ -789,8 +789,8 @@ struct ecmdRingData {
   ~ecmdRingData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -839,8 +839,8 @@ struct ecmdArrayData {
   ~ecmdArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -888,8 +888,8 @@ struct ecmdTraceArrayData {
   ~ecmdTraceArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -933,8 +933,8 @@ struct ecmdScomData {
   ~ecmdScomData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -975,8 +975,8 @@ struct ecmdLatchData {
   ~ecmdLatchData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t& i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t& i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef REMOVE_SIM
   void printStruct(void) const;
@@ -1069,8 +1069,8 @@ struct ecmdNameEntry {
   ~ecmdNameEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1106,8 +1106,8 @@ struct ecmdNameVectorEntry {
   ~ecmdNameVectorEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1143,8 +1143,8 @@ struct ecmdIndexVectorEntry {
   ~ecmdIndexVectorEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1182,8 +1182,8 @@ struct ecmdIndexEntry {
   ~ecmdIndexEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1220,8 +1220,8 @@ struct ecmdLatchEntry {
   ~ecmdLatchEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1262,8 +1262,8 @@ struct ecmdProcRegisterInfo {
   ~ecmdProcRegisterInfo();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1304,8 +1304,8 @@ struct ecmdSpyData {
   ~ecmdSpyData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
@@ -1364,8 +1364,8 @@ struct ecmdSimModelInfo {
   ~ecmdSimModelInfo();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void);
 #ifndef REMOVE_SIM
   void printStruct(void);
