@@ -228,6 +228,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetGpioPinUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getgpiolatch")) {
           rc = ecmdGetGpioLatchUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getgpioreg")) {
+          rc = ecmdGetGpioRegUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getgpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_GPR);
         } else if (!strcmp(argv[0], "geti2c")) {
@@ -311,6 +313,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_FPR);
         } else if (!strcmp(argv[0], "putgpiolatch")) {
           rc = ecmdPutGpioLatchUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putgpioreg")) {
+          rc = ecmdPutGpioRegUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putgpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_GPR);
         } else if (!strcmp(argv[0], "puti2c")) {
