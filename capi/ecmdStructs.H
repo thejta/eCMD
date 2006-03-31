@@ -390,10 +390,10 @@ struct ecmdI2CCmdEntry {
   uint32_t port;                ///< The i2c port to use
   uint32_t slaveaddress;        ///< The i2c slave device address to use
   ecmdI2cBusSpeed_t busSpeed;   ///< The i2c bus speed to use
-  uint32_t offset;              ///< Byte offset in the device (needed for offset commands only)
+  uint32_t byteOffset;          ///< Byte offset in the device (needed for offset commands only)
   uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
-  uint32_t byte;                ///< Byte length to read (only needed on reads)
-  ecmdDataBuffer data;         ///< The data returned from the i2c operation
+  uint32_t readByteLength;      ///< Byte length to read (only needed on reads)
+  ecmdDataBuffer data;          ///< The data returned from the i2c operation
 };
 
 #ifndef DOCUMENTATION
@@ -402,9 +402,9 @@ inline ecmdI2CCmdEntry::ecmdI2CCmdEntry():
 engineId(0),
 port(0),
 slaveaddress(0),
-offset(0),
+byteOffset(0),
 offsetFieldSize(0),
-byte(0)
+readByteLength(0)
 {
 }
 

@@ -2131,20 +2131,23 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(spyType);
 	    i_len -= sizeof(spyType);
 
-	    // isEccChecked
-	    memcpy(l_ptr, &isEccChecked, sizeof(isEccChecked)); 
-	    l_ptr += sizeof(isEccChecked);
-	    i_len -= sizeof(isEccChecked);
+	    // isEccChecked (bool, store in uint32_t) @08 start
+            tmpData32 = htonl( (uint32_t)isEccChecked );
+	    memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
 
-	    // isEnumerated
-	    memcpy(l_ptr, &isEnumerated, sizeof(isEnumerated));
-	    l_ptr += sizeof(isEnumerated);
-	    i_len -= sizeof(isEnumerated);
+	    // isEnumerated (bool, store in uint32_t)
+            tmpData32 = htonl( (uint32_t)isEnumerated );
+	    memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
 
-	    // isCoreRelated
-	    memcpy(l_ptr, &isCoreRelated, sizeof(isCoreRelated)); 
-	    l_ptr += sizeof(isCoreRelated);
-	    i_len -= sizeof(isCoreRelated);
+            // "isCoreRelated" (bool, store in uint32_t)
+            tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -2229,6 +2232,7 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         uint8_t *l_ptr = (uint8_t *) i_buf;
         uint32_t rc       = ECMD_SUCCESS;
 
+        uint32_t tmpData32 = 0;  // @08
         uint32_t enumsListSize  = 0;
         uint32_t epCheckersListSize  = 0;
 	uint32_t loop = 0;
@@ -2262,20 +2266,23 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(spyType);
 	    l_left -= sizeof(spyType);
 
-	    // isEccChecked
-	    memcpy(&isEccChecked, l_ptr, sizeof(isEccChecked));
-	    l_ptr += sizeof(isEccChecked);
-	    l_left -= sizeof(isEccChecked);
+	    // isEccChecked (bool, stored as uint32_t) @08 start
+	    memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+            isEccChecked = (bool)ntohl( tmpData32 );
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);
 
-	    // isEnumerated
-	    memcpy(&isEnumerated, l_ptr, sizeof(isEnumerated));
-	    l_ptr += sizeof(isEnumerated);
-	    l_left -= sizeof(isEnumerated);
+	    // isEnumerated (bool, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+            isEnumerated = (bool)ntohl( tmpData32 );
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);
 
-	    // isCoreRelated
-	    memcpy(&isCoreRelated, l_ptr, sizeof(isCoreRelated));
-	    l_ptr += sizeof(isCoreRelated);
-	    l_left -= sizeof(isCoreRelated);
+	    // isCoreRelated (bool, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+            isCoreRelated = (bool)ntohl( tmpData32 );
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -2366,9 +2373,9 @@ uint32_t ecmdSpyData::flattenSize() {
                              + sizeof(spyId)
                              + sizeof(bitLength)
                              + sizeof(spyType)
-                             + sizeof(isEccChecked)
-                             + sizeof(isEnumerated)
-			     + sizeof(isCoreRelated)
+                             + sizeof(uint32_t) // for isEccChecked @08
+                             + sizeof(uint32_t) // for isEnumerated
+			     + sizeof(uint32_t) // for isCoreRelated
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -2678,20 +2685,29 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(bitLength);
 	    i_len -= sizeof(bitLength);
 
-	    // hasInversionMask
-	    memcpy(l_ptr, &hasInversionMask, sizeof(hasInversionMask)); 
-	    l_ptr += sizeof(hasInversionMask);
-	    i_len -= sizeof(hasInversionMask);
+	    // hasInversionMask (bool, store in uint32_t) @08 start
+	    tmpData32 = htonl((uint32_t)hasInversionMask);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
 
-	    // supportsBroadsideLoad
-	    memcpy(l_ptr, &supportsBroadsideLoad, sizeof(supportsBroadsideLoad));
-	    l_ptr += sizeof(supportsBroadsideLoad);
-	    i_len -= sizeof(supportsBroadsideLoad);
+	    // supportsBroadsideLoad (bool, store in uint32_t)
+	    tmpData32 = htonl((uint32_t)supportsBroadsideLoad);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
 
-	    // isCheckable
-	    memcpy(l_ptr, &isCheckable, sizeof(isCheckable)); 
-	    l_ptr += sizeof(isCheckable);
-	    i_len -= sizeof(isCheckable);
+	    // isCheckable (bool, store in uint32_t)
+	    tmpData32 = htonl((uint32_t)isCheckable);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
+
+            // isCoreRelated (bool, store in uint32_t)
+	    tmpData32 = htonl((uint32_t)isCoreRelated);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -2771,6 +2787,7 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         uint8_t *l_ptr = (uint8_t *) i_buf;
         uint32_t rc       = ECMD_SUCCESS;
 
+        uint32_t tmpData32 = 0;
         uint32_t ringNamesListSize  = 0;
         uint32_t ringIdListSize = 0;
 	uint32_t loop = 0;
@@ -2792,20 +2809,29 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(bitLength);
 	    l_left -= sizeof(bitLength);
 
-	    // hasInversionMask
-	    memcpy(&hasInversionMask, l_ptr, sizeof(hasInversionMask));
-	    l_ptr += sizeof(hasInversionMask);
-	    l_left -= sizeof(hasInversionMask);
+	    // hasInversionMask (bool stored in uint32_t) @08 start
+	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    hasInversionMask = (bool)ntohl(tmpData32);
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);
 
-	    // supportsBroadsideLoad
-	    memcpy(&supportsBroadsideLoad, l_ptr, sizeof(supportsBroadsideLoad));
-	    l_ptr += sizeof(supportsBroadsideLoad);
-	    l_left -= sizeof(supportsBroadsideLoad);
+	    // supportsBroadsideLoad (bool stored in uint32_t)
+	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    supportsBroadsideLoad = (bool)ntohl(tmpData32);
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);
 
-	    // isCheckable
-	    memcpy(&isCheckable, l_ptr, sizeof(isCheckable));
-	    l_ptr += sizeof(isCheckable);
-	    l_left -= sizeof(isCheckable);
+	    // isCheckable (bool stored in uint32_t)
+	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    isCheckable = (bool)ntohl(tmpData32);
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);
+
+            // isCoreRelated (bool stored in uint32_t)
+	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    isCoreRelated = (bool)ntohl(tmpData32);
+	    l_ptr += sizeof(tmpData32);
+	    l_left -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -2899,9 +2925,10 @@ uint32_t ecmdRingData::flattenSize() {
                 // Size of non-list member data.
                 flatSize += (sizeof(address)
                              + sizeof(bitLength)
-                             + sizeof(hasInversionMask)
-                             + sizeof(supportsBroadsideLoad)
-			     + sizeof(isCheckable)
+                             + sizeof(uint32_t) // hasInversionMask @08
+                             + sizeof(uint32_t) // supportsBroadsideLoad
+			     + sizeof(uint32_t) // isCheckable
+                             + sizeof(uint32_t) // isCoreRelated
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -2953,6 +2980,7 @@ void  ecmdRingData::printStruct() {
         printf("\thasInversionMask: 0x%08x\n", (uint32_t) hasInversionMask);
         printf("\tsupportsBroadsideLoad: 0x%08x\n", (uint32_t) supportsBroadsideLoad);
         printf("\tisCheckable: 0x%08x\n", (uint32_t) isCheckable);
+        printf("\tisCoreRelated: %s\n", isCoreRelated ? "true" : "false"); //@08
         printf("\tClock Domain:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -3458,10 +3486,11 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += sizeof(width);
             l_len -= sizeof(width);
 
-	    // isCoreRelated
-	    memcpy( l_ptr8, &isCoreRelated, sizeof(isCoreRelated) ); 
-	    l_ptr8 += sizeof(isCoreRelated);
-	    l_len -= sizeof(isCoreRelated);
+            // "isCoreRelated" (bool, store in uint32_t) @08
+            tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
 
             // clockDomain
             strLen = clockDomain.size();
@@ -3540,10 +3569,11 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 	    l_ptr8 += sizeof(width);
 	    l_len -= sizeof(width);
 
-	    // isCoreRelated
-	    memcpy( &isCoreRelated, l_ptr8, sizeof(isCoreRelated) );
-	    l_ptr8 += sizeof(isCoreRelated);
-	    l_len -= sizeof(isCoreRelated);
+            // "isCoreRelated" (bool, stored as uint32_t) @08
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            isCoreRelated = (bool)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
 
 	    // clockDomain
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -3594,7 +3624,7 @@ uint32_t ecmdTraceArrayData::flattenSize()
                    + sizeof( traceArrayId )
                    + sizeof( length )
                    + sizeof( width )
-                   + sizeof( isCoreRelated )
+                   + sizeof( uint32_t ) // isCoreRelated in uint32_t @08
                    + clockDomain.size() + 1
                    + sizeof( clockState );
 
@@ -4094,11 +4124,11 @@ uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len)
 	    l_ptr8 += sizeof(tmpData32);
 	    l_len -= sizeof(tmpData32);
 
-            // "offset" (uint32_t)
-            tmpData32 = htonl( offset );
+            // "byteOffset" (uint32_t)
+            tmpData32 = htonl( byteOffset );
             memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(offset);
-            l_len -= sizeof(offset);
+            l_ptr8 += sizeof(byteOffset);
+            l_len -= sizeof(byteOffset);
 
             // "offsetFieldSize" (uint32_t)
             tmpData32 = htonl( offsetFieldSize );
@@ -4106,11 +4136,11 @@ uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += sizeof(offsetFieldSize);
             l_len -= sizeof(offsetFieldSize);
 
-            // "byte" (uint32_t)
-            tmpData32 = htonl( byte );
+            // "readByteLength" (uint32_t)
+            tmpData32 = htonl( readByteLength );
             memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(byte);
-            l_len -= sizeof(byte);
+            l_ptr8 += sizeof(readByteLength);
+            l_len -= sizeof(readByteLength);
 
             // "data" (ecmdDataBuffer)
             //  1st save the size of the buffer
@@ -4207,11 +4237,11 @@ uint32_t ecmdI2CCmdEntry::unflatten(const uint8_t *i_buf, uint32_t i_len)
 	    l_ptr8 += sizeof(tmpData32);
 	    l_len -= sizeof(tmpData32);
 
-            // "offset" (uint32_t)
-            memcpy( &offset, l_ptr8, sizeof(offset) );
-            offset = ntohl( offset );
-            l_ptr8 += sizeof(offset);
-            l_len -= sizeof(offset);
+            // "byteOffset" (uint32_t)
+            memcpy( &byteOffset, l_ptr8, sizeof(byteOffset) );
+            byteOffset = ntohl( byteOffset );
+            l_ptr8 += sizeof(byteOffset);
+            l_len -= sizeof(byteOffset);
 
             // "offsetFieldSize" (uint32_t)
             memcpy( &offsetFieldSize, l_ptr8, sizeof(offsetFieldSize) );
@@ -4219,11 +4249,11 @@ uint32_t ecmdI2CCmdEntry::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += sizeof(offsetFieldSize);
             l_len -= sizeof(offsetFieldSize);
 
-            // "byte" (uint32_t)
-            memcpy( &byte, l_ptr8, sizeof(byte) );
-            byte = ntohl( byte );
-            l_ptr8 += sizeof(byte);
-            l_len -= sizeof(byte);
+            // "readByteLength" (uint32_t)
+            memcpy( &readByteLength, l_ptr8, sizeof(readByteLength) );
+            readByteLength = ntohl( readByteLength );
+            l_ptr8 += sizeof(readByteLength);
+            l_len -= sizeof(readByteLength);
 
             // "data" (ecmdDataBuffer)
             //  1st get the size of the data buffer
@@ -4286,9 +4316,9 @@ uint32_t ecmdI2CCmdEntry::flattenSize() const
                    + sizeof(port)
                    + sizeof(slaveaddress)
                    + sizeof(uint32_t)  // busSpeed stored as uint32_t
-                   + sizeof(offset)
+                   + sizeof(byteOffset)
                    + sizeof(offsetFieldSize)
-                   + sizeof(byte)
+                   + sizeof(readByteLength)
                    + sizeof(uint32_t)  // size of "data" stored in uint32_t
                    + data.flattenSize();
 
@@ -4309,9 +4339,9 @@ void  ecmdI2CCmdEntry::printStruct() const
         printf("\tPort: 0x%08x\n", port);
         printf("\tSlave Address: 0x%08x\n", slaveaddress);
         printf("\tBus Speed: 0x%x\n", (uint32_t)busSpeed);
-        printf("\tOffset: 0x%08x\n", offset);
+        printf("\tOffset: 0x%08x\n", byteOffset);
         printf("\tOffset Field Size: 0x%08x\n", offsetFieldSize);
-        printf("\tByte: 0x%08x\n", byte);
+        printf("\tByte: 0x%08x\n", readByteLength);
 
         bufSize = data.getBitLength();
         bufString = data.genHexLeftStr(0, bufSize);
@@ -4711,6 +4741,7 @@ void  ecmdSimModelInfo::printStruct() {
 //                                        printStruct for ecmdLatchData
 //  @07  FW038451      03/30/06 scottw   Add flatten, unflatten, flattenSize,
 //                                        and printStruct for ecmdI2CCmdEntry
+//  @08  FW041574      03/31/06 scottw   Store bools as uint32_t
 // End Change Log *****************************************************
 
 
