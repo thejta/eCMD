@@ -72,6 +72,7 @@
 #define ECMD_CHIPT_IOHUB                "iohub"
 #define ECMD_CHIPT_MUX                  "mux"
 #define ECMD_CHIPT_SERVICE_PROCESSOR    "sp"
+#define ECMD_CHIPT_IOU                  "iou"
 
 
 #define ECMD_UNSET          0xFFFFFFFF ///< Used to signify unset or -1 for uint32_t types
