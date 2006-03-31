@@ -170,6 +170,8 @@ uint32_t ecmdGetGpioPinUser(int argc, char* argv[]);
 uint32_t ecmdGetGpioLatchUser(int argc, char* argv[]);
 uint32_t ecmdPutGpioLatchUser(int argc, char* argv[]);
 uint32_t ecmdGpioConfigUser(int argc, char* argv[]);
+uint32_t ecmdGetGpioRegUser(int argc, char* argv[]);
+uint32_t ecmdPutGpioRegUser(int argc, char* argv[]);
 //@}
 
 
