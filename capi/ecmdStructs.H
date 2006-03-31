@@ -301,6 +301,16 @@ typedef enum {
 } ecmdI2cBusSpeed_t;
 
 /**
+ @brief Used by ecmdGpioConfig to specify the type of operation to do
+*/
+typedef enum {
+  ECMD_GPIO_CONFIG_READ,        ///< Copy the current value of i_config to io_value. 
+  ECMD_GPIO_CONFIG_WRITE,       ///< Set the current value of i_config to io_value
+  ECMD_GPIO_SET_BIT,            ///<Set each bit of  i_config that is true in io_value. 
+  ECMD_GPIO_CLEAR_BIT           ///<Clear each bit of i_config that is set to true in io_value. 
+} ecmdGpioConfigType_t;
+
+/**
  @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
 */
 typedef enum {
