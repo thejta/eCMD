@@ -220,6 +220,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getcfam")) {
           rc = ecmdGetCfamUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getclockspeed")) {
+          rc = ecmdGetClockSpeedUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getconfig")) {
           rc = ecmdGetConfigUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getfpr")) {

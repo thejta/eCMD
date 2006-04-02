@@ -109,6 +109,8 @@ uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, b
 
 uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
 
+uint32_t dllGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed); 
+
 uint32_t dllSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range); 
 
 uint32_t dllSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider); 

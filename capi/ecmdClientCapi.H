@@ -965,6 +965,21 @@ uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, boo
 uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
 /**
+ @brief Read a current system clock speed
+ @param i_target Struct that contains chip and cage information
+ @param i_type Clock type to read in system
+ @param i_speedType Specifies if o_speed is provided in frequency or cycle time
+ @param o_speed Read speed value, specified in Mhz or micro-seconds based on i_speedType
+
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed);
+
+/**
  @brief Change a system clock speed without adjusting system initialization settings using speed value
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_type Clock type to change in system
