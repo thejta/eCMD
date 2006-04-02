@@ -1,0 +1,32 @@
+
+Syntax: getclockspeed <ClockType> mhz|us   [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Read the speed of a clock in the system.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        ClockType       Clock type to read in system:
+                         - pu_refclock          <-- Processor reference clock
+                         - memctrl_refclock     <-- Memory controller reference clock
+
+        mhz|us           Speed Type that read value will be formatted in:  either mhz or
+                         microseconds (us)
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > getclockspeed pu_refclock us
+                        > getclockspeed memctrl_refclock mhz
