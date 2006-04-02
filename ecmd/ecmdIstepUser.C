@@ -523,7 +523,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "setclockspeed - Error occured performing getscom on ";
+        printed = "setclockspeed - Error occured performing setclockspeed on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -543,6 +543,115 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("setclockspeed - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  
+
+  return rc;
+}
+
+uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  
+  ecmdChipTarget target;                        ///< Current target being operated on
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  std::string printed;                          ///< Output data
+  ecmdClockSpeedType_t speedType;               ///< Clock speed type - frequency or cycle time
+  ecmdClockType_t clockType;                    ///< the clock type to change the speed on
+  std::string outputformat = "d";               ///< Output Format to display
+  uint32_t speed;                               ///< The speed return value
+  ecmdDataBuffer buffer(32);
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {  //clocktype + speed
+    ecmdOutputError("getclockspeed - Too few arguments specified; you need at least a clocktype and speed.\n");
+    ecmdOutputError("getclockspeed - Type 'getclockspeed -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  if (argc > 2) {
+    ecmdOutputError("getclockspeed - Too many arguments specified; you need only a clocktype and speed.\n");
+    ecmdOutputError("getclockspeed - Type 'getclockspeed -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  //Get the clock type
+  std::string clocktype = argv[0];
+  transform(clocktype.begin(), clocktype.end(), clocktype.begin(), (int(*)(int)) tolower);
+  if (clocktype == "pu_refclock") {
+    clockType = ECMD_PROC_REFCLOCK;
+  } else if (clocktype == "memctrl_refclock") {
+    clockType = ECMD_MEMCTRL_REFCLOCK;
+  } else {
+    ecmdOutputError("getclockspeed - Unrecognizable clock Type. Should be \"pu_refclock\" or \"memctrl_refclock\"\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  //get clockspeed
+  std::string clockspeed = argv[1];
+  transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
+  
+  if (clockspeed == "mhz")  {
+    speedType = ECMD_CLOCK_FREQUENCY_SPEC;
+  } else if (clockspeed == "us") {
+    speedType = ECMD_CLOCK_CYCLETIME_SPEC;
+  } else {
+    ecmdOutputError("getclockspeed - keyword \"mhz\" or \"us\" not found in clock speed field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+    rc = ecmdGetClockSpeed(target, clockType, speedType, speed);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+        printed = "getclockspeed - Error occured performing getclockspeed on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    buffer.setWord(0, speed);
+    printed = ecmdWriteTarget(target);
+    printed += ecmdWriteDataFormatted(buffer, outputformat);
+    ecmdOutput( printed.c_str() );
+  }
+
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("getclockspeed - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 

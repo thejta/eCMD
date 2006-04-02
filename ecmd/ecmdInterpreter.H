@@ -143,6 +143,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType);
 /* ecmdIstepUser.C */
 uint32_t ecmdIstepUser(int argc, char * argv[]);
 uint32_t ecmdSetClockSpeedUser(int argc, char * argv[]);
+uint32_t ecmdGetClockSpeedUser(int argc, char * argv[]);
 uint32_t ecmdStartClocksUser(int argc, char * argv[]);
 uint32_t ecmdStopClocksUser(int argc, char * argv[]);
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
