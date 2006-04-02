@@ -301,14 +301,13 @@ typedef enum {
 } ecmdI2cBusSpeed_t;
 
 /**
- @brief Used by ecmdGpioConfig to specify the type of operation to do
+ @brief Used by ecmdGpioWriteConfigRegister to specify the type of operation to do
 */
 typedef enum {
-  ECMD_GPIO_CONFIG_READ,        ///< Copy the current value of i_config to io_value. 
-  ECMD_GPIO_CONFIG_WRITE,       ///< Set the current value of i_config to io_value
-  ECMD_GPIO_SET_BIT,            ///<Set each bit of  i_config that is true in io_value. 
-  ECMD_GPIO_CLEAR_BIT           ///<Clear each bit of i_config that is set to true in io_value. 
-} ecmdGpioConfigType_t;
+  ECMD_GPIO_CONFIG_WRITE,       ///< Set the current value of i_configReg to i_value
+  ECMD_GPIO_SET_BIT,            ///< Set each bit of  i_configReg that is true in i_value. 
+  ECMD_GPIO_CLEAR_BIT           ///< Clear each bit of i_configReg that is set to true in i_value. 
+} ecmdGpioWriteMode_t;
 
 /**
  @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
@@ -1340,6 +1339,17 @@ inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 #endif
 
 
+/**
+ @brief Used by ecmdSpyData when returning the latches that are part of a spy
+*/
+struct ecmdSpyLatchData {
+  std::string   latchName;   ///< The latch name, including the ()'s
+  int length;     ///< The length in bits of this latch
+  int lhsNum;     ///< left hand side Number - Value x of an (x:y) entry
+  int rhsNum;     ///< right hand side Number - Value y of an (x:y) entry
+  int direction;  ///< 1 if data in normal order (3:5), 0 if singlebit, -1 if data in reverse (5:3)
+};
+
 
 /**
  @brief Used for the ecmdQuerySpy function to return spy info
@@ -1363,19 +1373,21 @@ struct ecmdSpyData {
 #endif
 
   // Members
-  std::string   spyName;                ///< Names used to reference this spy
-  uint32_t      spyId;                  ///< (Detail: Low)  Hashed spy ID
-  int           bitLength;              ///< length of spy
-  ecmdSpyType_t spyType;                ///< Type of spy
-  bool          isEccChecked;           ///< This spy affects some ECC groupings
-  bool          isEnumerated;           ///< This spy has enumerated values
-  bool          isCoreRelated;          ///< This spy is related to the core level of a chip
+  std::string   spyName;                   ///< Names used to reference this spy
+  uint32_t      spyId;                     ///< (Detail: Low)  Hashed spy ID
+  int           bitLength;                 ///< length of spy
+  ecmdSpyType_t spyType;                   ///< Type of spy
+  bool          isEccChecked;              ///< This spy affects some ECC groupings
+  bool          isEnumerated;              ///< This spy has enumerated values
+  bool          isCoreRelated;             ///< This spy is related to the core level of a chip
 
-  std::string           clockDomain;    ///< Clock domain this spy belongs to
-  ecmdClockState_t       clockState;    ///< Required clock state to access this spy
+  std::string           clockDomain;       ///< Clock domain this spy belongs to
+  ecmdClockState_t       clockState;       ///< Required clock state to access this spy
   
-  std::list<std::string> enums;         ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
-  std::list<std::string> epCheckers;     ///< Possible epChecker names affected by this Spy
+  std::list<std::string> enums;            ///< Possible enum values for Spy - I/P Can only provide this on a client, not on the FSP
+  std::list<std::string> epCheckers;       ///< Possible epChecker names affected by this Spy
+
+  std::list<ecmdSpyLatchData> spyLatches;  ///< The latches that are associated with a spy, not valid with group spies
 };
 
 #ifndef DOCUMENTATION

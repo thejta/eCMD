@@ -89,6 +89,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
   bool enabledCache = false;            ///< Did we enable the cache ?
+  ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -112,6 +113,11 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   }
   //Check verbose option
   bool verbose = ecmdParseOption(&argc, &argv, "-v");
+
+  if (verbose) {
+    detail = ECMD_QUERY_DETAIL_HIGH;
+  }
+    
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -154,7 +160,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
+    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), detail);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     } else if (rc || spyDataList.empty()) {
@@ -419,6 +425,28 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           printed = "   Error Mask: 0x" + errorMask.genHexLeftStr() + "\n";
           ecmdOutput(printed.c_str());
           epcheckersIter++;
+        }
+        /* Spy Latch Data */
+        std::list<ecmdSpyLatchData>::iterator latchDataIter = spyData.spyLatches.begin();
+        ecmdOutput("===== latch information for this spy ");
+        printed = spyName + ": =====\n";
+        ecmdOutput(printed.c_str());
+        char tempstr[50];
+        int offset = 0;
+        if (!spyData.isEnumerated) { // Can't do this on enumerated spies
+          while (latchDataIter != spyData.spyLatches.end()) {
+            // Format my data
+            sprintf(tempstr,"   %s%-8s ", ((latchDataIter->length > 8) ? "0x" : "0b"), ((latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, latchDataIter->length).c_str()));
+            printed = tempstr;
+            // Now tack on the latch name
+            printed += latchDataIter->latchName;
+            printed += "\n";
+            ecmdOutput(printed.c_str());
+
+            // Walk some stuff
+            offset += latchDataIter->length;
+            latchDataIter++;
+          }
         }
         ecmdOutput("============================================================\n");
 

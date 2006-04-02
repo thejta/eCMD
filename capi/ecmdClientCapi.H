@@ -2754,12 +2754,12 @@ uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
 uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value);
 
 /**
- @brief Provide accesses to the PLD configuration functions on a GPIO device
+ @brief Provides read accesses to the GPIO/DIO configuration registers
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_engine Gpio engine to use
  @param i_type The config operation to do
  @param i_config The config mode register to talk to 
- @param io_value The value to either write, or have returned.  It depends upon the operation being done
+ @param o_value The value returned by your read
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
  @retval ECMD_INVALID_ARGS Invalid argument values found
@@ -2770,7 +2770,26 @@ uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ec
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioConfig(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioConfigType_t i_type, uint32_t & i_config, uint32_t & io_value);
+uint32_t ecmdGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, uint32_t i_configReg, uint32_t & o_value);
+
+/**
+ @brief Provides write accesses to the GPIO/DIO configuration registers
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_engine Gpio engine to use
+ @param i_mode The mode of write operation to do
+ @param i_config The config mode register to talk to 
+ @param i_value The value to set the specified config freg to
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t ecmdGpioWriteConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioWriteMode_t i_mode, uint32_t i_configReg, uint32_t i_value);
 
 //@}
 
