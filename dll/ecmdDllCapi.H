@@ -335,7 +335,9 @@ uint32_t dllGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_
 
 uint32_t dllGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value); 
 
-uint32_t dllGpioConfig(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioConfigType_t i_type, uint32_t & i_config, uint32_t & io_value); 
+uint32_t dllGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, uint32_t i_configReg, uint32_t & o_value); 
+
+uint32_t dllGpioWriteConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioWriteMode_t i_mode, uint32_t i_configReg, uint32_t i_value); 
 
 uint32_t dllSystemPowerOn(); 
 

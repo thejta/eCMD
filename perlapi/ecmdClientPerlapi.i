@@ -78,6 +78,7 @@
 %template(listEcmdArrayData)         std::list<ecmdArrayData>;
 %template(listEcmdTraceArrayData)    std::list<ecmdTraceArrayData>;
 %template(listEcmdSpyData)           std::list<ecmdSpyData>;
+%template(listEcmdSpyLatchData)      std::list<ecmdSpyLatchData>;
 %template(listEcmdScomData)          std::list<ecmdScomData>;
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
 /*********** End Templates ***********/
