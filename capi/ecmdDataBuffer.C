@@ -1350,19 +1350,6 @@ uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint
   return rc;
 }
 
-
-uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::insert with const * uint8_t input has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
-}
-
-uint32_t  ecmdDataBuffer::insert(uint8_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::insert with uint8_t input has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
-}
-
 uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -1402,6 +1389,20 @@ uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, u
   return this->insertFromRight(&i_datain, i_start, i_len);
 }
 
+  // The uint8 interfaces collide with the uint32 interfaces in perl, removing uint8 - JTA 04/04/06
+#ifndef ECMD_PERLAPI
+uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::insert with const * uint8_t input has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
+uint32_t  ecmdDataBuffer::insert(uint8_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::insert with uint8_t input has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
 uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
     // function not implemented yet
     ETRAC0("**** ERROR : ecmdDataBuffer::insertFromRight with const * uint8_t input has not been implemented yet");
@@ -1413,7 +1414,7 @@ uint32_t  ecmdDataBuffer::insertFromRight(uint8_t i_dataIn, uint32_t i_targetSta
     ETRAC0("**** ERROR : ecmdDataBuffer::insertFromRight with uint8_t input has not been implemented yet");
     RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
 }
-
+#endif
 
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint32_t len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;

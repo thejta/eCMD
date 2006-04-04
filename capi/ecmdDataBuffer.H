@@ -589,31 +589,6 @@ public:
   uint32_t  insert(uint32_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
   /**
-   * @brief Copy part of a uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
-   * @param i_datain uint8_t array to copy into this DataBuffer - data is taken left aligned
-   * @param i_targetStart Start bit to insert into
-   * @param i_len Length of bits to insert
-   * @param i_sourceStart Start bit in i_datain - default value is zero
-   * @pre DataBuffer must be pre-allocated
-   * @post Data is copied from i_datain to this DataBuffer in specified location
-   * @retval ECMD_DBUF_SUCCESS on success
-   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
-   */
-  uint32_t  insert(const uint8_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
-  /**
-   * @brief Copy part of a uint8_t into the DataBuffer - NOT IMPLEMENTED YET
-   * @param i_datain uint8_t value to copy into DataBuffer - data is taken left aligned
-   * @param i_targetStart Start bit to insert into
-   * @param i_len Length of bits to insert (must be <= 8)
-   * @param i_sourceStart Start bit in i_datain - default value is zero
-   * @pre DataBuffer must be pre-allocated
-   * @post Data is copied from bufferIn to this DataBuffer in specified location
-   * @retval ECMD_DBUF_SUCCESS on success
-   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
-   */
-  uint32_t  insert(uint8_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
-
-  /**
    * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
    * @param i_start Start bit to insert into
@@ -638,6 +613,34 @@ public:
    */
   uint32_t  insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len);
 
+  // The uint8 interfaces collide with the uint32 interfaces in perl, removing uint8 - JTA 04/04/06
+#ifndef ECMD_PERLAPI
+  /**
+   * @brief Copy part of a uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
+   * @param i_datain uint8_t array to copy into this DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t  insert(const uint8_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief Copy part of a uint8_t into the DataBuffer - NOT IMPLEMENTED YET
+   * @param i_datain uint8_t value to copy into DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 8)
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t  insert(uint8_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
   /**
    * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
    * @param i_datain uint8_t array to copy into this DataBuffer - data is taken right aligned
@@ -650,6 +653,7 @@ public:
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
+
   uint32_t  insertFromRight(const uint8_t * i_datain, uint32_t i_start, uint32_t i_len);
   /**
    * @brief Copy a right aligned (decimal) uint8_t into the DataBuffer - NOT IMPLEMENTED YET
@@ -662,7 +666,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t  insertFromRight(uint8_t i_datain, uint32_t i_start, uint32_t i_len);
-
+#endif
 
   /**
    * @brief Copy data from this DataBuffer into another
