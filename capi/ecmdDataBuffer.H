@@ -587,6 +587,32 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t  insert(uint32_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief Copy part of a uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
+   * @param i_datain uint8_t array to copy into this DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t  insert(const uint8_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  /**
+   * @brief Copy part of a uint8_t into the DataBuffer - NOT IMPLEMENTED YET
+   * @param i_datain uint8_t value to copy into DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 8)
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t  insert(uint8_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
   /**
    * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
    * @param i_datain uint32_t array to copy into this DataBuffer - data is taken right aligned
@@ -612,6 +638,31 @@ public:
    */
   uint32_t  insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len);
 
+  /**
+   * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
+   * @param i_datain uint8_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   *
+   * NOTE : Data is assumed to be aligned on the word boundary of i_len
+   */
+  uint32_t  insertFromRight(const uint8_t * i_datain, uint32_t i_start, uint32_t i_len);
+  /**
+   * @brief Copy a right aligned (decimal) uint8_t into the DataBuffer - NOT IMPLEMENTED YET
+   * @param i_datain uint8_t value to copy into DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 8)
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t  insertFromRight(uint8_t i_datain, uint32_t i_start, uint32_t i_len);
+
 
   /**
    * @brief Copy data from this DataBuffer into another
@@ -627,7 +678,7 @@ public:
    */
   uint32_t  extract(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
   /**
-   * @brief Copy data from this DataBuffer into another
+   * @brief Copy data from this DataBuffer into a uint32_t buffer
    * @param o_data uint32_t buffer to copy into - data is placed left aligned - must be pre-allocated
    * @param i_start Start bit of data in DataBuffer to copy
    * @param i_len Length of consecutive bits to copy
@@ -636,6 +687,17 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t  extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a uint8_t buffer - NOT IMPLEMENTED YET
+   * @param o_data uint8_t buffer to copy into - data is placed left aligned - must be pre-allocated
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_data
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t  extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
   /**
    * @brief Copy data from this buffer into another at a given offset, preserving the size and other data in the output buffer
@@ -650,7 +712,7 @@ public:
   uint32_t extractPreserve(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
 
   /**
-   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer
    * @param o_data Array of data to write into, must be pre-allocated
    * @param i_start Start bit in this DataBuffer to begin the copy
    * @param i_len Length of consecutive bits to copy
@@ -661,6 +723,19 @@ public:
    * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
    */
   uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const; 
+
+  /**
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer - NOT IMPLEMENTED YET
+   * @param o_data Array of data to write into, must be pre-allocated
+   * @param i_start Start bit in this DataBuffer to begin the copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Starting bit in output data to place extracted data, defaults to zero
+   * @post Data is copied from offset in this DataBuffer to offset in output buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
+   * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
+   */
+  uint32_t extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
 
   /**
    * @brief Copy data from this DataBuffer into another DataBuffer and right justify
@@ -682,6 +757,17 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a uint8_t buffer - NOT YET IMPLEMENTED
+   * @param o_data uint8_t buffer to copy into - data is placed right aligned - must be pre-allocated
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_data, right aligned.  Data is only right aligned if i_len < 8
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
   /**
    * @brief Concatenate 2 DataBuffers into in this one

@@ -1350,6 +1350,19 @@ uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint
   return rc;
 }
 
+
+uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::insert with const * uint8_t input has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
+uint32_t  ecmdDataBuffer::insert(uint8_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::insert with uint8_t input has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
 uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -1384,9 +1397,23 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
   }
   return rc;
 }
+
 uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
   return this->insertFromRight(&i_datain, i_start, i_len);
 }
+
+uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::insertFromRight with const * uint8_t input has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
+uint32_t  ecmdDataBuffer::insertFromRight(uint8_t i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::insertFromRight with uint8_t input has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
 
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint32_t len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -1450,6 +1477,13 @@ uint32_t ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len
   return rc;
 }
 
+uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::extract with a * uint8_t ouput has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+}
+
+
 // extractPreserve() takes data from current and inserts it in the passed in
 //  buffer at a given offset. This is the same as insert() with the args and
 //  the data flow reversed, so insert() is called to do the work
@@ -1490,6 +1524,12 @@ uint32_t ecmdDataBuffer::extractPreserve(uint32_t *outBuffer, uint32_t start, ui
 
 }
 
+uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve with a * uint8_t ouput has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+} 
+
 uint32_t ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1510,6 +1550,12 @@ uint32_t ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uin
     *o_data >>= (32 - i_len);
   return rc;
 }
+
+uint32_t ecmdDataBuffer::extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
+    // function not implemented yet
+    ETRAC0("**** ERROR : ecmdDataBuffer::extractToRight with a * uint8_t ouput has not been implemented yet");
+    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+} 
 
 uint32_t ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
                             const ecmdDataBuffer & i_buf1) {
