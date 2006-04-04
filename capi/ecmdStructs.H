@@ -1343,11 +1343,13 @@ inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
  @brief Used by ecmdSpyData when returning the latches that are part of a spy
 */
 struct ecmdSpyLatchData {
+
   std::string   latchName;   ///< The latch name, including the ()'s
-  int offset;     ///< The starting bit offset of this latch in the spy
-  int length;     ///< The length in bits of this latch
-  int lhsNum;     ///< left hand side Number - Value x of an (x:y) entry
-  int rhsNum;     ///< right hand side Number - Value y of an (x:y) entry
+  uint32_t hashKey;          ///< The hashKey for the latchName
+  int offset;                ///< The starting bit offset of this latch in the spy
+  int length;                ///< The length in bits of this latch
+  int lhsNum;                ///< left hand side Number - Value x of an (x:y) entry
+  int rhsNum;                ///< right hand side Number - Value y of an (x:y) entry
 };
 
 
