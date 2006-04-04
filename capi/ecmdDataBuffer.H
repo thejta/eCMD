@@ -946,6 +946,14 @@ public:
   std::string genAsciiStr(uint32_t i_start, uint32_t i_bitlen) const; 
 
   /**
+   * @brief Return Data as an ASCII char string formatted to be through printf.  If it's out of range, a . is printed.
+   * @param i_start Start bit of data to convert
+   * @param i_bitlen Number of consecutive bits to convert
+   * @retval String containing requested data
+   */
+  std::string genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen) const; 
+
+  /**
    * @brief Return entire buffer as a hex left aligned char string
    * @retval String containing requested data
    */
