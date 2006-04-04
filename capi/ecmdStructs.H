@@ -1344,10 +1344,10 @@ inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 */
 struct ecmdSpyLatchData {
   std::string   latchName;   ///< The latch name, including the ()'s
+  int offset;     ///< The starting bit offset of this latch in the spy
   int length;     ///< The length in bits of this latch
   int lhsNum;     ///< left hand side Number - Value x of an (x:y) entry
   int rhsNum;     ///< right hand side Number - Value y of an (x:y) entry
-  int direction;  ///< 1 if data in normal order (3:5), 0 if singlebit, -1 if data in reverse (5:3)
 };
 
 
