@@ -2636,7 +2636,7 @@ uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint
 /**
  @brief Let the user to run a series of command, while the i2c device is locked for the duration
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_cmdsEntries The series of commands to be run
+ @param io_cmdsEntries The series of commands to be run
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
  @retval ECMD_INVALID_ARGS Invalid argument values found
@@ -2771,9 +2771,8 @@ uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ec
 /**
  @brief Provides read accesses to the GPIO/DIO configuration registers
  @param i_target Struct that contains cage/node/slot/position of device to access
- @param i_engine Gpio engine to use
- @param i_type The config operation to do
- @param i_config The config mode register to talk to 
+ @param i_engineId Gpio engine to use
+ @param i_configReg The config mode register to talk to 
  @param o_value The value returned by your read
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
@@ -2790,9 +2789,9 @@ uint32_t ecmdGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engi
 /**
  @brief Provides write accesses to the GPIO/DIO configuration registers
  @param i_target Struct that contains cage/node/slot/position of device to access
- @param i_engine Gpio engine to use
+ @param i_engineId Gpio engine to use
  @param i_mode The mode of write operation to do
- @param i_config The config mode register to talk to 
+ @param i_configReg The config mode register to talk to 
  @param i_value The value to set the specified config freg to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
