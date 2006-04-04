@@ -1894,9 +1894,6 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
       if (temp < 32 || temp > 126) {                /* decimal 32 == space, 127 == DEL */
         tempstr[0] = '.';                           /* non-printing: use a . */
         tempstr[1] = '\0';
-      } else if (temp == 37) {                      /* decimal 37 == % , messes up sprintf #51920 */
-	tempstr[0] = tempstr[1] = '%';
-	tempstr[2] = '\0';
       } else {
         sprintf(tempstr, "%c", temp);               /* convert to ascii      */
       }  
@@ -1911,6 +1908,27 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
 #endif
+
+  return ret;
+}
+
+std::string ecmdDataBuffer::genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen) const {
+
+  // Call genAsciiStr to get the string, this will take care of all our error checking
+  std::string ret = genAsciiStr(i_start, i_bitlen);
+
+  // Now search through the buffer, dealing with special characters
+  uint32_t linePos = 0;
+  while (linePos != std::string::npos) {
+
+    // Handle %
+    linePos = ret.find("%", linePos);
+    if (linePos != std::string::npos) {
+      ret.insert(linePos, "%");
+      linePos += 2; // Skip past what we just inserted
+    }
+
+  }
 
   return ret;
 }
