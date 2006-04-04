@@ -1032,10 +1032,13 @@ public:
   std::string genAsciiStr(uint32_t i_start, uint32_t i_bitlen) const; 
 
   /**
-   * @brief Return Data as an ASCII char string formatted to be through printf.  If it's out of range, a . is printed.
+   * @brief Return Data as an ASCII char string formatted to be put through printf.
    * @param i_start Start bit of data to convert
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
+   *
+   * NOTE: This handles special characters like % that would be eaten by a C printf.  If you are doing a cout or using
+   *       printf in perl, you don't need this function.
    */
   std::string genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen) const; 
 
