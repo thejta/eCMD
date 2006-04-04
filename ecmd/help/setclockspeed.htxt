@@ -11,8 +11,17 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]    [-k#]
                          - pu_refclock          <-- Processor reference clock
                          - memctrl_refclock     <-- Memory controller reference clock
 
-        Speed           New speed value to program can be specified in mhz (100mhz) or
-                        in microseconds (10us)
+        Speed           New speed value to program can be specified with any of the
+                        following keyword(s) preceded by decimal numbers:
+                        'mhz' for megahertz (100mhz)
+                        'us' for microseconds (10us)
+                        'npu' for nominal percentage up (1npu)
+                        'npd' for nominal percentage down (3npd)
+                        'cpu' for current percentage up (4npu)
+                        'cpd' for current percentage down (2npu)
+                        'mult' AND 'div' -- MUST have both, with mult first --
+                            for multiplier and divider (100mult 10div)
+
 
         -steer [opt]    Steer to new value.  Default is to move in one operation.
 
@@ -23,4 +32,6 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]    [-k#]
 
         Examples:       > setclockspeed pu_refclock 120mhz
                         > setclockspeed memctrl_refclock 10us
+                        > setclockspeed pu_refclock 3npd
+                        > setclockspeed pu_refclock 150mult 10div
 
