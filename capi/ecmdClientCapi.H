@@ -983,8 +983,8 @@ uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ec
  @brief Change a system clock speed without adjusting system initialization settings using speed value
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_type Clock type to change in system
- @param i_speed New speed value, specified in Mhz or micro-seconds based on i_speedType
- @param i_speedType Specifies if i_speed is provided in frequency or cycle time
+ @param i_speed based on i_speedType: could be specified in Mhz, micro-seconds, or percentage points
+ @param i_speedType Specifies if i_speed is provided in frequency, cycle time, or % of nominal or current value
  @param i_mode Do adjustment in one step or steer the clock to the new value
  @param i_range Adjustments for the clock steer procedure
 

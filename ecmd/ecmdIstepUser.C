@@ -439,7 +439,9 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   ecmdClockType_t clockType;                    ///< the clock type to change the speed on
   ecmdClockSetMode_t clockSetMode = ECMD_CLOCK_ONE_STEP; ///< do adjustment in one operation or to steer to new value
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
-  
+  uint32_t mult=0;                              ///< Multiplier value, if present 
+  uint32_t div=0;                           ///< Divider value, if present
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -488,8 +490,60 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     speedType = ECMD_CLOCK_FREQUENCY_SPEC;
   } else if ((strpos = clockspeed.find("us")) != std::string::npos) {
     speedType = ECMD_CLOCK_CYCLETIME_SPEC;
+  } else if ((strpos = clockspeed.find("npu")) != std::string::npos) {
+    speedType = ECMD_CLOCK_NOMINAL_PERCENT_UP;
+  } else if ((strpos = clockspeed.find("npd")) != std::string::npos) {
+    speedType = ECMD_CLOCK_NOMINAL_PERCENT_DOWN;
+  } else if ((strpos = clockspeed.find("cpu")) != std::string::npos) {
+    speedType = ECMD_CLOCK_CURRENT_PERCENT_UP;
+  } else if ((strpos = clockspeed.find("cpd")) != std::string::npos) {
+    speedType = ECMD_CLOCK_NOMINAL_PERCENT_DOWN;
+  } else if ((strpos = clockspeed.find("mult")) != std::string::npos) {
+
+    // get mult and divider value from cmdline
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
+
+    if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+      ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'mult' parm\n");
+      return ECMD_INVALID_ARGS;
+    }
+    mult = atoi(clockspeed.c_str());
+    if (mult==0) {
+      ecmdOutputError("setclockspeed - 'mult' value cannot equal 0\n");
+      return ECMD_INVALID_ARGS;
+    }
+    
+    // divider is the next parm
+    clockspeed = argv[2];
+    transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
+
+    if ((strpos = clockspeed.find("div")) != std::string::npos) {
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
+
+      if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+        ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'div' parm\n");
+        return ECMD_INVALID_ARGS;
+      }
+    div = atoi(clockspeed.c_str());
+      if (div==0) {
+        ecmdOutputError("setclockspeed - 'div' value cannot equal 0\n");
+        return ECMD_INVALID_ARGS;
+      }
+    // set 'clockspeed' variable back to argv[1], as if another parm was used rather than mult and div
+    //  therefore, code after this check will work
+    clockspeed = argv[1];
+
+    } else {
+      // this is supposed to be 'div'
+      ecmdOutputError("setclockspeed - 'div' parm needs to come after 'mult' parm\n");
+      ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+
   } else {
-    ecmdOutputError("setclockspeed - keyword \"mhz\" or \"us\" not found in clock speed field\n");
+    ecmdOutputError("setclockspeed - Speed Keyword not found in clock speed field\n");
+    ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
   
@@ -502,7 +556,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   
   uint32_t speed = atoi(clockspeed.c_str());
 
-  if (argc > 2) {
+  if (((argc > 2) && (mult==0)) || ((argc > 3) && (mult!=0)))  {
     ecmdOutputError("setclockspeed - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
     return ECMD_INVALID_ARGS;
@@ -518,7 +572,10 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
 
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-    rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
+    if (mult==0)
+      rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
+    else 
+      rc = ecmdSetClockMultDiv(target, clockType, mult, div);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
