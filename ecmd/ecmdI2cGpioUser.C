@@ -1170,7 +1170,7 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   ecmdDataBuffer mask;                  ///< Container to store mask data
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   std::string inputformat = "xl";       ///< Input Format to display
-  uint32_t value;                       ///< Value to write to pin/s
+  uint32_t value=0;                     ///< Value to write to pin/s
   std::string printed;
   
   /************************************************************************/
