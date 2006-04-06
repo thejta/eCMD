@@ -435,8 +435,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   std::string printed;                          ///< Output data
   std::string clocktype;                        ///< the clock type to change the speed on
   std::string clockspeed;                       ///< Speed - frequency or cycle time
-  ecmdClockSpeedType_t speedType;               ///< Clock speed type - frequency or cycle time
-  ecmdClockType_t clockType;                    ///< the clock type to change the speed on
+  ecmdClockSpeedType_t speedType = ECMD_CLOCK_FREQUENCY_SPEC; ///< Clock speed type - frequency or cycle time
+  ecmdClockType_t clockType = ECMD_PROC_REFCLOCK;  ///< the clock type to change the speed on
   ecmdClockSetMode_t clockSetMode = ECMD_CLOCK_ONE_STEP; ///< do adjustment in one operation or to steer to new value
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
   uint32_t mult=0;                              ///< Multiplier value, if present 
