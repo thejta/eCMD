@@ -1370,13 +1370,6 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   }
 
 
-  //data is always the last arg
-  rc = ecmdReadDataFormatted(buffer, argv[argc-1], format, (int)numBits);
-  if (rc) {
-    ecmdOutputError("putlatch - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }
-
   /* We are going to enable the ring cache to get performance out of this beast */
   if (!ecmdIsRingCacheEnabled()) {
     enabledCache = true;
@@ -1415,6 +1408,16 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       ecmdOutputError("putlatch - Too much/little latch information returned from the dll, unable to determine if it is a core latch\n");
       return ECMD_DLL_INVALID;
     }
+
+    /* We have to look at the data here so that we can read in right aligned data properly - JTA 04/07/06 */
+    //data is always the last arg
+    rc = ecmdReadDataFormatted(buffer, argv[argc-1], format, ((numBits) ? (int)numBits : queryLatchData.begin()->bitLength));
+    if (rc) {
+      ecmdOutputError("putlatch - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+
+
     isCoreLatch = queryLatchData.begin()->isCoreRelated;//We expect all latches to belong to one ring
 
     /* Setup our Core looper if needed */
