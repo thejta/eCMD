@@ -694,6 +694,12 @@ uint32_t ecmdCoreData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(listSize);
 		i_len -= sizeof(listSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        threadData.clear();
+
 		// Check to see if the list is populated.
 		if (0 == listSize) {
 			// Nothing to create, just leave.
@@ -1016,6 +1022,12 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(listSize);
 		i_len -= sizeof(listSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        coreData.clear();
+
 		// Check to see if the list is populated.
 		if (0 == listSize) {
 			// Nothing to create, just leave.
@@ -1262,6 +1274,12 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(listSize);
 		i_len -= sizeof(listSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        chipData.clear();
+
 		// Check to see if the list is populated.
 		if (0 == listSize) {
 			// Nothing to create, just leave.
@@ -1498,6 +1516,12 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(listSize);
 		i_len -= sizeof(listSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        slotData.clear();
+
 		// Check to see if the list is populated.
 		if (0 == listSize) {
 			// Nothing to create, just leave.
@@ -1733,6 +1757,12 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(listSize);
 		i_len -= sizeof(listSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        nodeData.clear();
+
 		// Check to see if the list is populated.
 		if (0 == listSize) {
 			// Nothing to create, just leave.
@@ -1957,6 +1987,12 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		listSize = ntohl(listSize);
 		l_ptr += sizeof(listSize);
 		i_len -= sizeof(listSize);
+
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        cageData.clear();
 
 		// Check to see if the list is populated.
 		if (0 == listSize) {
@@ -2302,6 +2338,10 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(enumsListSize);
 	    l_left -= sizeof(enumsListSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared            @09a
+        enums.clear();
+
 	    // create list of string of enums (nothing happens if enumsListSize=0)
 	    for (loop = 0; loop < enumsListSize; loop++)
 	    {
@@ -2316,6 +2356,10 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    epCheckersListSize = ntohl(epCheckersListSize);
 	    l_ptr += sizeof(epCheckersListSize);
 	    l_left -= sizeof(epCheckersListSize);
+
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared            @09a
+        epCheckers.clear();
 
 	    // create list of string of enums (nothing happens if enumsListSize=0)
 	    for (loop = 0; loop < epCheckersListSize; loop++)
@@ -2851,6 +2895,10 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(ringNamesListSize);
 	    l_left -= sizeof(ringNamesListSize);
 
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared            @09a
+        ringNames.clear();
+
 	    // create list of string of ringNames (nothing happens if ringNamesListSize=0)
 	    for (loop = 0; loop < ringNamesListSize; loop++)
 	    {
@@ -2860,24 +2908,28 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
                 l_left -= l_str_ringName.size() + 1;
 	    }
 
-            // Fetch the number of ring IDs then unflatten them
-            memcpy(&ringIdListSize, l_ptr, sizeof(ringIdListSize));
-            ringIdListSize = ntohl(ringIdListSize);
-            l_ptr += sizeof(ringIdListSize);
-            l_left -= sizeof(ringIdListSize);
+        // Fetch the number of ring IDs then unflatten them
+        memcpy(&ringIdListSize, l_ptr, sizeof(ringIdListSize));
+        ringIdListSize = ntohl(ringIdListSize);
+        l_ptr += sizeof(ringIdListSize);
+        l_left -= sizeof(ringIdListSize);
 
-            // Re-create the list of ring IDs
-            for (loop = 0; loop < ringIdListSize; ++loop)
-            {
-               uint32_t l_ringId = 0;
-               memcpy(&l_ringId, l_ptr, sizeof(l_ringId));
-               l_ringId = ntohl(l_ringId);
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared            @09a
+        ringIds.clear();
 
-               ringIds.push_back(l_ringId);
+        // Re-create the list of ring IDs
+        for (loop = 0; loop < ringIdListSize; ++loop)
+        {
+            uint32_t l_ringId = 0;
+            memcpy(&l_ringId, l_ptr, sizeof(l_ringId));
+            l_ringId = ntohl(l_ringId);
 
-               l_ptr += sizeof(l_ringId);
-               l_left -= sizeof(l_ringId);
-            }
+            ringIds.push_back(l_ringId);
+
+            l_ptr += sizeof(l_ringId);
+            l_left -= sizeof(l_ringId);
+        }
 
 	    // Do Final Checks
 	    if (l_left < 0)
@@ -4742,6 +4794,7 @@ void  ecmdSimModelInfo::printStruct() {
 //  @07  FW038451      03/30/06 scottw   Add flatten, unflatten, flattenSize,
 //                                        and printStruct for ecmdI2CCmdEntry
 //  @08  FW041574      03/31/06 scottw   Store bools as uint32_t
+//  @09  D546092       04/12/06 prahl    Fix unflatten to clear list data
 // End Change Log *****************************************************
 
 
