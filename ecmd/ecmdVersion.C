@@ -120,7 +120,7 @@ uint32_t ecmdCheckDllVersion(const char* options) {
   dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY);
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
-      printf("ERROR: ecmdCheckDllVersion: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
+      fprintf(stderr,"ERROR: ecmdCheckDllVersion: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
       return ECMD_DLL_LOAD_FAILURE;
     }
   }
