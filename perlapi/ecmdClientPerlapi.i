@@ -101,6 +101,7 @@
 %include "ecmdClientPerlapiIterators.H"
 %include "ecmdUtils.H"
 %include "ecmdSharedUtils.H"
+%include "ecmdReturnCodes.H"
 
 // The extensions
 %include "ecmdPluginExtensionSupport.H"
