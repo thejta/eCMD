@@ -62,6 +62,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
   std::string arrayName;        ///< Name of array to access
   ecmdDataBuffer address;       ///< Buffer to store address
   ecmdDataBuffer address_copy;  ///< Copy of address to modify in entry loop
@@ -75,6 +76,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   ecmdArrayData arrayData;      ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   std::string outputformat = "x";  ///< Output Format to display
   std::string inputformat = "x";   ///< Input format of data
   bool expectFlag = false;
@@ -124,8 +126,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   arrayName = argv[1];
 
@@ -135,45 +137,48 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if (argc > 3) {
     numEntries = (uint32_t)atoi(argv[3]);
-  } 
+  }
+
+ 
+  bool isCoreArray;   ///< Is this a core array ?
+
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-    
-    if ((std::string)argv[2] == "ALL") {
-      entries.clear();
-    } else {
-      /* We need to find out info about this array */
-      rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
-      if (rc || arrayDataList.empty()) {
-        printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
+
+    /* We need to find out info about this array */
+    rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
+    if (rc || arrayDataList.empty()) {
+      printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    arrayData = *(arrayDataList.begin());
+
+    /* We have to do the expact flag data read here so that we know the bit length in the right aligned data case - JTA 02/21/06 */
+    if (expectFlag) {
+
+      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData.width);
+      if (rc) {
+        ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
         return rc;
       }
-      arrayData = *(arrayDataList.begin());
 
-      /* We have to do the expact flag data read here so that we know the bit length in the right aligned data case - JTA 02/21/06 */
-      if (expectFlag) {
-
-        rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData.width);
+      if (maskFlag) {
+        rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData.width);
         if (rc) {
-          ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
+          ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
           return rc;
         }
 
-        if (maskFlag) {
-          rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData.width);
-          if (rc) {
-            ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
-            return rc;
-          }
-
-        }
-
-
       }
+    }
+
+    if ((std::string)argv[2] == "ALL") {
+      entries.clear();
+    } else {
 
       /* Set the length  */
       address.setBitLength((uint32_t)arrayData.readAddressLength);
@@ -257,82 +262,100 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
     printedHeader = false;
 
+    isCoreArray = arrayData.isCoreRelated;
+
+    /* Setup our Core looper if needed */
+    coretarget = target;
+    if (isCoreArray) {
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the core loop */
+      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      if (rc) return rc;
+    }
+
     /* Actually go fetch the data */
-    rc = getArrayMultiple(target, arrayName.c_str(), entries);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-      printed = "getarray - Error occured performing getArrayMultiple on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      // Clean up allocated memory
-      if (add_buffer)                                                    //@01a
-      {
-          delete[] add_buffer;
+    while (!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper)) {
+      rc = getArrayMultiple(coretarget, arrayName.c_str(), entries);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
       }
-      return rc;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    for (std::list<ecmdArrayEntry>::iterator entit = entries.begin(); entit != entries.end(); entit ++) {
-      if (expectFlag) {
-
-       if (maskFlag) {
-         entit->buffer.setAnd(mask, 0, entit->buffer.getBitLength());
-       }
-
-       if (!ecmdCheckExpected(entit->buffer, expected)) {
-
-         //@ make this stuff sprintf'd
-         
-	 if (!printedHeader) {
-           printed = ecmdWriteTarget(target) + " " + arrayName + "\n";
-           printedHeader = true;
-         } 
-       
-         printed = "\ngetarray - Data miscompare occured at address: " + entit->address.genHexRightStr() + "\n";
-         ecmdOutputError( printed.c_str() );
-
-
-         printed = "getarray - Actual";
-         if (maskFlag) {
-           printed += " (with mask): ";
-         }
-         else {
-           printed += "            : ";
-         }
-
-         printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
-         ecmdOutputError( printed.c_str() );
-
-         printed = "getarray - Expected          : ";
-         printed += ecmdWriteDataFormatted(expected, outputformat);
-         ecmdOutputError( printed.c_str() );
-       }
-
+      else if (rc) {
+        printed = "getarray - Error occured performing getArrayMultiple on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        // Clean up allocated memory
+        if (add_buffer)                                                    //@01a
+        {
+          delete[] add_buffer;
+        }
+        return rc;
       }
       else {
- 
-       if (!printedHeader) {
-         printed = ecmdWriteTarget(target) + " " + arrayName + "\n" + entit->address.genHexRightStr() + "\t";
-         printedHeader = true;
-       } else {
-         printed = entit->address.genHexRightStr() + "\t";
-       }
-
-       printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
-
-       ecmdOutput( printed.c_str() );
+        validPosFound = true;     
       }
-    }
 
-    /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
-    entries.clear();
+      for (std::list<ecmdArrayEntry>::iterator entit = entries.begin(); entit != entries.end(); entit ++) {
+        if (expectFlag) {
 
-  }
+          if (maskFlag) {
+            entit->buffer.setAnd(mask, 0, entit->buffer.getBitLength());
+          }
+
+          if (!ecmdCheckExpected(entit->buffer, expected)) {
+
+            //@ make this stuff sprintf'd
+
+            if (!printedHeader) {
+              printed = ecmdWriteTarget(target) + " " + arrayName + "\n";
+              printedHeader = true;
+            } 
+
+            printed = "\ngetarray - Data miscompare occured at address: " + entit->address.genHexRightStr() + "\n";
+            ecmdOutputError( printed.c_str() );
+
+
+            printed = "getarray - Actual";
+            if (maskFlag) {
+              printed += " (with mask): ";
+            }
+            else {
+              printed += "            : ";
+            }
+
+            printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
+            ecmdOutputError( printed.c_str() );
+
+            printed = "getarray - Expected          : ";
+            printed += ecmdWriteDataFormatted(expected, outputformat);
+            ecmdOutputError( printed.c_str() );
+          }
+
+        }
+        else {
+
+          if (!printedHeader) {
+            printed = ecmdWriteTarget(target) + " " + arrayName + "\n" + entit->address.genHexRightStr() + "\t";
+            printedHeader = true;
+          } else {
+            printed = entit->address.genHexRightStr() + "\t";
+          }
+
+          printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
+
+          ecmdOutput( printed.c_str() );
+        }
+      }
+
+      /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
+      entries.clear();
+
+     if (!isCoreArray) break;
+    } /* End CoreLooper */
+
+  } /* End PosLooper */
 
   if (!validPosFound) {
     //this is an error common across all UI functions
@@ -357,12 +380,14 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget coretarget;    ///< Current target being operated on for the cores
   std::string arrayName;        ///< Name of array to access
   ecmdDataBuffer address;       ///< Buffer to store address
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
   ecmdArrayData arrayData;      ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
 
@@ -396,11 +421,12 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   arrayName = argv[1];
 
+  bool isCoreArray;   ///< Is this a core array ?
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -417,6 +443,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       return rc;
     }
     arrayData = *(arrayDataList.begin());
+    isCoreArray = arrayData.isCoreRelated;
 
     /* Set the length  */
     address.setBitLength((uint32_t)arrayData.writeAddressLength);
@@ -432,30 +459,44 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       return rc;
     }
 
+    /* Setup our Core looper if needed */
+    coretarget = target;
+    if (isCoreArray) {
+      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
+      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-
-
-    rc = putArray(target, arrayName.c_str(), address, buffer);
-
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
+      /* Init the core loop */
+      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      if (rc) return rc;
     }
-    else if (rc) {
+
+    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while (!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper)) {
+
+      rc = putArray(target, arrayName.c_str(), address, buffer);
+
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      }
+      else if (rc) {
         printed = "putarray - Error occured performing putarray on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
-    }
-    else {
-      validPosFound = true;     
-    }
+      }
+      else {
+        validPosFound = true;     
+      }
 
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-    }
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(target) + "\n";
+        ecmdOutput(printed.c_str());
+      }
 
-  }
+      if (!isCoreArray) break;
+    } /* End CoreLooper */
+  } /* End PosLooper */
 
   if (!validPosFound) {
     //this is an error common across all UI functions

@@ -584,18 +584,31 @@ uint32_t ecmdSimgettcfacUser(int argc, char * argv[]) {
       ecmdOutputError("simgettcfac - Too few arguments to simgettcfac, you need to specify startbits and numbits with -subset.\n");
       return ECMD_INVALID_ARGS;
     }
-    if (!ecmdIsAllDecimal(argv[1])) {
+    /* Originally this code assumed the row would always be 0, we need to allow the user to pass in a row */
+    /* If argc == 4, then a row number was given.  Use that.  Otherwise, default to 0 - JTA 04/23/06 */
+    int argOffset = 0;
+    if (argc == 4) {
+      if (!ecmdIsAllDecimal(argv[1])) {
+      ecmdOutputError("simgettcfac - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+      }
+      row = (uint32_t)atoi(argv[1]);
+      argOffset = 1;
+    }
+
+    if (!ecmdIsAllDecimal(argv[(1 + argOffset)])) {
       ecmdOutputError("simgettcfac - Non-decimal numbers detected in startBit field\n");
       return ECMD_INVALID_ARGS;
     }
-    startBit = (uint32_t)atoi(argv[1]);
-    if (!ecmdIsAllDecimal(argv[2])) {
+    startBit = (uint32_t)atoi(argv[(1 + argOffset)]);
+
+    if (!ecmdIsAllDecimal(argv[(2 + argOffset)])) {
       ecmdOutputError("simgettcfac - Non-decimal numbers detected in bitLength field\n");
       return ECMD_INVALID_ARGS;
     }
-    bitLength = (uint32_t)atoi(argv[2]);
+    bitLength = (uint32_t)atoi(argv[(2 + argOffset)]);
 
-    if (argc > 3) {
+    if ((argOffset && argc > 4) || (!argOffset && argc > 3)) {
       ecmdOutputError("simgettcfac - Too many arguments to simgettcfac, you probably added a non-supported option.\n");
       return ECMD_INVALID_ARGS;
     }
