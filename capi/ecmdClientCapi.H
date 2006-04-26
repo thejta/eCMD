@@ -2828,23 +2828,6 @@ uint32_t ecmdSystemPowerOn();
 uint32_t ecmdSystemPowerOff();
 //@}
 
-#ifndef DOCUMENTATION
-/** @name BackDoor Target Arg functions */
-//@{
-/**
- * @brief Push current arg state onto a stack so it can be restored
- NOTE : This is meant to be used by the command line extension where ecmdCommandArgs is called multiple times
-  This causes the previous state of the target args to get lost, the command line extension will do a push/pop
-  to save restore the state
-*/
-void ecmdPushCommandArgs();
-/**
- * @brief Pop current arg state off the stack so it can be restored
-*/
-void ecmdPopCommandArgs();
-
-//@}
-
 /** @name Adal Functions */
 //@{
 /**
@@ -2882,8 +2865,23 @@ uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, ui
 
 //@}
 
-#endif
+#ifndef DOCUMENTATION
+/** @name BackDoor Target Arg functions */
+//@{
+/**
+ * @brief Push current arg state onto a stack so it can be restored
+ NOTE : This is meant to be used by the command line extension where ecmdCommandArgs is called multiple times
+  This causes the previous state of the target args to get lost, the command line extension will do a push/pop
+  to save restore the state
+*/
+void ecmdPushCommandArgs();
+/**
+ * @brief Pop current arg state off the stack so it can be restored
+*/
+void ecmdPopCommandArgs();
 
+//@}
+#endif
 
 #ifndef DOCUMENTATION
 }  //extern "C"
