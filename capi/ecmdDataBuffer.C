@@ -1951,7 +1951,7 @@ std::string ecmdDataBuffer::genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen
   std::string ret = genAsciiStr(i_start, i_bitlen);
 
   // Now search through the buffer, dealing with special characters
-  uint32_t linePos = 0;
+  size_t linePos = 0;
   while (linePos != std::string::npos) {
 
     // Handle %
