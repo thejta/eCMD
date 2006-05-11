@@ -2340,6 +2340,17 @@ uint32_t ecmdUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_tar
 uint32_t ecmdUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr);
 
 /**
+ *  @brief Gets Unit Id Version Number Used in the Dll
+ *  @param o_unitIdVersion uint32_t representing the Unit Id Version Number
+ *  @retval ECMD_SUCCESS if Unit Id Version Number retreived successfully
+ *  @retval non-zero on failure
+
+NOTE : o_unitIdVersion = 0xAAAABBCC, where 0xAAAA is reserved, 0xBB is major number, and 0xCC is minor number.<br>
+NOTE:  Different Major Versions are NOT compatible.  Some Unit Ids might be missing between different minor versions.<br>
+ */
+uint32_t ecmdGetUnitIdVersion(uint32_t & o_unitIdVersion);
+
+/**
  @brief Sequence ID of Cores and Threads converted to ecmdChipTarget struct
  @param i_core_seq_num Sequence ID number of the core 
  @param io_target ecmdChipTarget struct set to the result of the conversion
