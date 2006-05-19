@@ -340,15 +340,19 @@ Functions available on a Perl list iterator :
 Loading data into a list :
 <pre>
   my $isteps = new ecmd::listString();
-  $isteps->push_back("proc_cfaminit");
-  $isteps->push_back("proc_runiap");
-  $isteps->push_back("asic_cfaminit");
+  my $step = "proc_cfaminit";
+  $isteps->push_back($step);
+  $step = "proc_runiap";
+  $isteps->push_back($step);
+  $step = "asic_cfaminit";
+  $isteps->push_back($step);
   iStepsByNameMultiple($isteps);
 </pre>
 
 Displaying data on a list :
 <pre>
   my $istepIter = new ecmd::listStringIterator();
+  $istepIter->setIter($isteps->begin());
   while ($istepIter != $isteps->end()) {
     printf(" name: %s", $istepIter->getValue());
     $istepIter++;
