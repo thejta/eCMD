@@ -60,6 +60,10 @@
  #include <zseClientCapi.H>
  #include <zseInterpreter.H>
 #endif
+#ifdef ECMD_BML_EXTENSION_SUPPORT
+ #include <bmlClientCapi.H>
+ #include <bmlInterpreter.H>
+#endif
 
 //----------------------------------------------------------------------
 //  User Types
@@ -144,6 +148,16 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     rc = zseInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = zseCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_BML_EXTENSION_SUPPORT
+  /* BML Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("bml",argv[0],3))) {
+    rc = bmlInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = bmlCommandInterpreter(argc, argv);
     }
   }
 #endif

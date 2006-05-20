@@ -43,6 +43,8 @@
 /* The Z Series Extension */
 #define ECMD_ZSE_EXTENSION_SUPPORT
 
+/* The BML Extension */
+//#define ECMD_BML_EXTENSION_SUPPORT
 
 #endif /* ecmdPluginExtensionSupport_h */
 
