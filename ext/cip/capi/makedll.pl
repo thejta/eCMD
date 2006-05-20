@@ -2,10 +2,12 @@
 #! -*- perl -*-
 
 eval '
-if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
-export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
-export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPERLLIB;
+if [ "X$CTEPERLBIN" = "X" ] ; then
+ if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
+ export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
+ export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+ export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPERLLIB;
+fi
 
 exec $CTEPERLBIN -x -S $0 ${1+"$@"}
 '
