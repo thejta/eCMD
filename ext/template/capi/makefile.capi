@@ -13,7 +13,6 @@ SITE         := $(shell fs wscell | cut -d\' -f2)
 
 # We need to do extra for Linux
 ifeq (${OS},Linux)
-  TEST := $(strip $(shell uname -a |grep ppc))
   ifneq ($(strip $(shell uname -a |grep ppc)),)
     OS := Linux_ppc
   else

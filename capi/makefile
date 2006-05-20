@@ -6,6 +6,15 @@
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
+
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H
 EXPORTS      := ${INCLUDES}
 INT_INCLUDES := ecmdDllCapi.H
@@ -24,12 +33,31 @@ CFLAGS       := ${CFLAGS} -IsedcScomdef
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   SUBDIR   := linux/
   CC       := g++
   LD       := ${CC}
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
+  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
+  SLIBLDFLAGS :=  -shared  -e sdll.exp
+  GPATH   := ${SUBDIR}
+
+# Let's see if we can use distcc
+  ifneq (${DISTCC_HOSTS},)
+    CC    := distcc ${CC}
+  endif
+endif
+
+# *****************************************************************************
+# The Linux Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_ppc)
+  SUBDIR   := linux_ppc/
+  CC       := g++
+  LD       := ${CC}
+  TARGET   := ecmdClientCapi_ppc.a
+  SLIB     := libecmd_ppc.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   SLIBLDFLAGS :=  -shared  -e sdll.exp
   GPATH   := ${SUBDIR}
@@ -83,7 +111,7 @@ endif
 ifeq (${MPATROL},yes) 
   DEFINES   := ${DEFINES} -DENABLE_MPATROL
 
-  ifeq (${OS},Linux)
+  ifeq (${OS},Linux_x86)
     CFLAGS  := ${CFLAGS} -fcheck-memory-usage -I${MPATROL_HOME}include/
     LDFLAGS := ${LDFLAGS} -L${MPATROL_HOME}x86/ -lmpatrol -lbfd 
     TARGET   := ecmdClientCapi_x86_mp.a
