@@ -11,6 +11,16 @@ EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  TEST := $(strip $(shell uname -a |grep ppc))
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
+
 INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}Interpreter.H 
 CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
@@ -28,10 +38,27 @@ SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   SUBDIR   := linux/
   CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_x86.a
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
+  GPATH   := ${SUBDIR}
+
+# Let's see if we can use distcc
+  ifneq (${DISTCC_HOSTS},)
+    CC    := distcc ${CC}
+  endif
+
+endif
+
+# *****************************************************************************
+# The Linux Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_ppc)
+  SUBDIR   := linux_ppc/
+  CC := g++
+  TARGET = ${EXTENSION_NAME}CmdInterpreter_ppc.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
 

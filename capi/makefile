@@ -40,7 +40,7 @@ ifeq (${OS},Linux_x86)
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS :=  -shared  -e sdll.exp
+  SLIBLDFLAGS := ${SLIBLDFLAGS}  -shared  -e sdll.exp
   GPATH   := ${SUBDIR}
 
 # Let's see if we can use distcc
@@ -59,7 +59,7 @@ ifeq (${OS},Linux_ppc)
   TARGET   := ecmdClientCapi_ppc.a
   SLIB     := libecmd_ppc.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS :=  -shared  -e sdll.exp
+  SLIBLDFLAGS := ${SLIBLDFLAGS} -shared  -e sdll.exp
   GPATH   := ${SUBDIR}
 
 # Let's see if we can use distcc
