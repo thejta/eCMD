@@ -11,6 +11,16 @@ EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  TEST := $(strip $(shell uname -a |grep ppc))
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
+
 INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}ClientCapi.H ${EXTENSION_NAME}Structs.H
 INT_INCLUDES := ${INT_INCLUDES} ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
 
@@ -34,7 +44,7 @@ SOURCE       := ${SOURCE} ${EXTENSION_NAME}ClientCapi.C ${AUTOGEN_SOURCE}
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   SUBDIR   := linux/
   CC := g++
   TARGET = ${EXTENSION_NAME}ClientCapi_x86.a
@@ -45,8 +55,25 @@ ifeq (${OS},Linux)
   ifneq (${DISTCC_HOSTS},)
     CC    := distcc ${CC}
   endif
+endif
+
+# *****************************************************************************
+# The Linux PPC Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_ppc)
+  SUBDIR   := linux_ppc/
+  CC := g++
+  TARGET = ${EXTENSION_NAME}ClientCapi_ppc.a
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
+  GPATH   := ${SUBDIR}
+
+# Let's see if we can use distcc
+  ifneq (${DISTCC_HOSTS},)
+    CC    := distcc ${CC}
+  endif
 
 endif
+
 
 # *****************************************************************************
 # The Aix Setup stuff
