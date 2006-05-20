@@ -6,18 +6,30 @@
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
+
+
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
 INT_INCLUDES := ecmdInterpreter.H
 SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C ecmdVpdUser.C ecmdI2cGpioUser.C
 #DEFINES      := 
-CFLAGS       := -I. -I../capi/export -I../dll -g 
+CFLAGS       := ${CFLAGS} -I. -I../capi/export -I../dll -g 
 
 
 VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
-EXTENSIONS   := cip cro eip gip zse
+ifeq ($(strip $EXTENSIONS),)
+  EXTENSIONS   := cip cro eip gip zse
+endif
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
 #These are needed to define a space char for substitutions later on
@@ -26,8 +38,11 @@ space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_x86.a ${ext}CmdInterpreter_x86.a)
+endif
+ifeq (${OS},Linux_ppc)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_ppc.a ${ext}CmdInterpreter_ppc.a)
 endif
 ifeq (${OS},AIX)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_aix.a ${ext}CmdInterpreter_aix.a)
@@ -39,14 +54,34 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd/expo
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   SUBDIR  := linux/
   CC      := g++
   TARGET  := ecmd_x86
   VER_TARGET  := ecmdVersion_x86
   LD      := ${CC}
-  LDFLAGS := -ldl -L../capi/export -lecmd_x86
+  LDFLAGS := ${LDFLAGS} -ldl -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a
+  CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
+  GPATH   := ${SUBDIR}
+
+# Let's see if we can use distcc
+  ifneq (${DISTCC_HOSTS},)
+    CC    := distcc ${CC}
+  endif
+endif
+
+# *****************************************************************************
+# The Linux Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_ppc)
+  SUBDIR  := linux_ppc/
+  CC      := g++
+  TARGET  := ecmd_ppc
+  VER_TARGET  := ecmdVersion_ppc
+  LD      := ${CC}
+  LDFLAGS := ${LDFLAGS} -ldl -L../capi/export -lecmd_ppc
+  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_ppc.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
 
@@ -100,7 +135,7 @@ endif
 ifeq (${MPATROL},yes) 
   DEFINES   := ${DEFINES} -DENABLE_MPATROL
 
-  ifeq (${OS},Linux)
+  ifeq (${OS},Linux_x86)
     CFLAGS  := ${CFLAGS} -fcheck-memory-usage -I${MPATROL_HOME}include/
     LDFLAGS := ${LDFLAGS} -L${MPATROL_HOME}x86/ -lmpatrol -lbfd 
   endif
@@ -118,8 +153,8 @@ endif
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} ${VER_TARGET}
-	@touch t.o t_x86 t_aix t_ppc
-	@mv *.o *_x86 *_aix *_ppc  ${SUBDIR}
+	@touch t.o
+	@mv *.o  ${TARGET} ${VER_TARGET}  ${SUBDIR}
 	@echo "Exporting eCMD Client to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${VER_TARGET} export/
@@ -172,8 +207,11 @@ ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 ifeq (${OS},AIX)
-	${LD}  -brtl -bloadmap:PARM -w $^ -o $@ 
+	${LD} ${LDFLAGS}  -brtl -bloadmap:PARM -w $^ -o $@ 
 endif
-ifeq (${OS},Linux)
-	${LD}  -ldl $^ -o $@ 
+ifeq (${OS},Linux_x86)
+	${LD} ${LDFLAGS} -ldl $^ -o $@ 
+endif
+ifeq (${OS},Linux_ppc)
+	${LD} ${LDFLAGS} -ldl $^ -o $@ 
 endif
