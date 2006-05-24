@@ -6,9 +6,19 @@
 OS           := $(shell uname)
 SITE         := $(shell fs wscell | cut -d\' -f2)
 
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
 
 # List the extensions to include in the compile
-EXTENSIONS   := cip cmd gip cro zse
+ifeq ($(strip ${EXTENSIONS}),)
+  EXTENSIONS   := cip cmd gip cro zse
+endif
 
 # Ok, find our CTE path if they don't already have one
 ifeq ($(strip $(CTEPATH)),)
@@ -33,8 +43,8 @@ INT_INCLUDES :=
 SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
 MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRenames.i
 DEFINES      := 
-CFLAGS       := -I. -I../capi/export -g -I../dll
-SWIGFLAGS    := -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
+CFLAGS       := ${CFLAGS} -I. -I../capi/export -g -I../dll
+SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
 
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi/export:../ext/${ext}/perlapi)
@@ -44,8 +54,11 @@ space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H )
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
+endif
+ifeq (${OS},Linux_ppc)
+  LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_ppc.a)
 endif
 ifeq (${OS},AIX)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_aix.a)
@@ -59,7 +72,7 @@ MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiF
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   SUBDIR    := obj_linux/
   CC        := g++
   TARGET    := ecmd
@@ -70,6 +83,31 @@ ifeq (${OS},Linux)
   PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
   SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+  GPATH   := ${SUBDIR}
+endif
+
+# *****************************************************************************
+# The Linux PPC Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_ppc)
+  SUBDIR    := obj_linux_ppc/
+  CC        := g++
+  TARGET    := ecmd
+  LD        := ${CC}
+  LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_ppc
+  LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_ppc.a 
+  CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
+  ifeq ($(strip ${PERLINC}),)
+    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
+  endif
+  ifeq ($(strip ${SWIG}),)
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+  endif
+  ifeq ($(strip ${SWIGDIR}),)
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+  else
+    SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
+  endif
   GPATH   := ${SUBDIR}
 endif
 
