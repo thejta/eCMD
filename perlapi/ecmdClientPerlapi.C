@@ -83,10 +83,12 @@ int ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
   return rc;
 }
 
+#ifndef REMOVE_SIM
 /* This is overwritten because the retval is a number not a return code */
 uint32_t ECMDPERLAPI::simFusionRand32(uint32_t i_min , uint32_t i_max , const char* i_fusionRandObject ) { 
   return ::simFusionRand32(i_min, i_max, i_fusionRandObject);
 }
+#endif
 
 /* This is overwritten to handle passing in NULL for ringName */
 uint32_t ECMDPERLAPI::getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) { 
