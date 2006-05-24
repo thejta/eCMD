@@ -8,6 +8,14 @@
 EXTENSION_NAME   := cmd
 OS           := $(shell uname)
 
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
 
 # This is Additional extension for the client api
 SOURCE       := 
@@ -24,9 +32,13 @@ endif
 
 
 
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   OBJDIR := linux
-else
+endif
+ifeq (${OS},Linux_ppc)
+  OBJDIR := linux_ppc
+endif
+ifeq (${OS},AIX)
   OBJDIR := aix
 endif
 
@@ -47,31 +59,36 @@ CFLAGS       := ${CFLAGS} -I../../../capi/export -I../../../ecmd
 #######################
 # Extension Objects   #
 #######################
+
+# LINK_OBJS - Capi
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ../../${ext}/capi/${OBJDIR}/*.o) )
+# LINK_OBJS - Cmd
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ../../${ext}/cmd/${OBJDIR}/*.o) )
+
 # CIP Extension - Capi
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cip/capi/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cip/capi/${OBJDIR}/*.o)
 # CIP Extension - Cmd
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cip/cmd/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cip/cmd/${OBJDIR}/*.o)
 
 # EIP Extension - Capi
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../eip/capi/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../eip/capi/${OBJDIR}/*.o)
 # EIP Extension - Cmd
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../eip/cmd/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../eip/cmd/${OBJDIR}/*.o)
 
 # CRO Extension - Capi
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/capi/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/capi/${OBJDIR}/*.o)
 # CRO Extension - Cmd
-#LINK_OBJS := ${LINK_OBJS} croInterpreter.o croMiscUser.o croL2User.o
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/cmd/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/cmd/${OBJDIR}/*.o)
 
 # GIP Extension - Capi
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/capi/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/capi/${OBJDIR}/*.o)
 # GIP Extension - Cmd
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/cmd/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/cmd/${OBJDIR}/*.o)
 
 # ZSE Extension - Capi
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/capi/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/capi/${OBJDIR}/*.o)
 # ZSE Extension - Cmd
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/cmd/${OBJDIR}/*.o)
+#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/cmd/${OBJDIR}/*.o)
 
 
 # The Core Interpreter
