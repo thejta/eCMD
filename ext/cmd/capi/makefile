@@ -18,7 +18,9 @@ INCLUDES     :=
 
 
 # Extensions to grab the interpreters from
-EXTENSIONS   := cip cro eip gip zse
+ifeq ($(strip ${EXTENSIONS}),)
+  EXTENSIONS   := cip cro eip gip zse
+endif
 
 
 
