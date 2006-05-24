@@ -1,16 +1,18 @@
-#!/bin/ksh 
+#!/bin/sh 
 #! -*- perl -*-
 
 eval '
-if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
-export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
-export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-if [[ `uname` = "Linux" ]] then
- export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:.:./obj_linux/;
- export LD_LIBRARY_PATH="../capi/export";
-else
- export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:.:./obj_aix/;
- export LIBPATH="../capi/export";
+if [ "X$CTEPERLBIN" = "X" ]; then
+ if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
+ export CTEPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
+ export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+ if [[ `uname` = "Linux" ]]; then
+  export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:.:./obj_linux/;
+  export LD_LIBRARY_PATH="../capi/export";
+ else
+  export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:.:./obj_aix/;
+  export LIBPATH="../capi/export";
+ fi
 fi
 
 exec $CTEPERLBIN -x -S $0 ${1+"$@"}
