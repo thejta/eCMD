@@ -293,6 +293,8 @@ uint32_t dllUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_targ
 
 uint32_t dllUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr); 
 
+uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion); 
+
 uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_target, uint32_t i_thread_seq_num); 
 
 uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num); 
@@ -345,13 +347,13 @@ uint32_t dllSystemPowerOn();
 
 uint32_t dllSystemPowerOff(); 
 
-void dllPushCommandArgs(); 
-
-void dllPopCommandArgs(); 
-
 uint32_t dllAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort); 
 
 uint32_t dllAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState); 
+
+void dllPushCommandArgs(); 
+
+void dllPopCommandArgs(); 
 
 } //extern C
 
