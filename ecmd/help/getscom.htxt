@@ -31,6 +31,10 @@ Syntax: getscom <ChipSelect> <ScanCommAddr> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         -v   [optional] Print out Scan Comm bit meaning if available
 
+        -vs0 [optional] Print out Scan Comm bit meaning if available and equal to 0
+
+        -vs1 [optional] Print out Scan Comm bit meaning if available and equal to 1
+
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 
