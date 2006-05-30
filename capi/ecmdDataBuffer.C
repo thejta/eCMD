@@ -50,6 +50,8 @@ using namespace std;
 #ifdef FIPSODE
 tracDesc_t g_etrc; /** Trace Descriptor **/
 TRAC_INIT(&g_etrc, "ECMD", 0x1000);
+#elif defined ZSERIES_SWITCH
+#define TRACE_ID ECMDBUF
 #endif
 
 //----------------------------------------------------------------------

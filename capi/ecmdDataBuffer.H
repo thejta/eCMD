@@ -38,6 +38,8 @@
 #endif
 #ifdef FIPSODE
 #include <tracinterface.H>
+#elif defined ZSERIES_SWITCH
+#include <yemtraceinterface.h>
 #endif
 
 //----------------------------------------------------------------------
@@ -45,6 +47,8 @@
 //----------------------------------------------------------------------
 #ifdef FIPSODE
 extern tracDesc_t g_etrc; /** Trace Descriptor **/
+#elif defined ZSERIES_SWITCH
+#define g_etrc TRACE_ID
 #endif
 
 //----------------------------------------------------------------------
@@ -95,6 +99,30 @@ extern tracDesc_t g_etrc; /** Trace Descriptor **/
   arg7, arg8)
 #define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
   TRACFCOMP9(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  arg7, arg8, arg9)
+#elif defined ZSERIES_SWITCH
+#define ETRAC0(fmt) \
+  FTRACE(__LINE__, fmt)
+#define ETRAC1(fmt, arg1) \
+  FTRACE1(__LINE__, fmt, arg1)
+#define ETRAC2(fmt, arg1, arg2) \
+  FTRACE2(__LINE__, fmt, arg1, arg2)
+#define ETRAC3(fmt, arg1, arg2, arg3) \
+  FTRACE3(__LINE__, fmt, arg1, arg2, arg3)
+#define ETRAC4(fmt, arg1, arg2, arg3, arg4) \
+  FTRACE4(__LINE__, fmt, arg1, arg2, arg3, arg4)
+#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
+  FTRACE5(__LINE__, fmt, arg1, arg2, arg3, arg4, arg5)
+#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
+  FTRACE6(__LINE__, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
+#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
+  FTRACE7(__LINE__, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  arg7)
+#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
+  FTRACE8(__LINE__, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
+  arg7, arg8)
+#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
+  FTRACE9(__LINE__, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
   arg7, arg8, arg9)
 #else
 #define ETRAC0(fmt) printf( "%s> ETRC: " fmt "\n", __FUNCTION__);
