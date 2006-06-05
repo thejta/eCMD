@@ -153,9 +153,9 @@ endif
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} ${VER_TARGET}
+	@echo "Exporting eCMD Client to export/ ..."
 	@touch t.o
 	@mv *.o  ${TARGET} ${VER_TARGET}  ${SUBDIR}
-	@echo "Exporting eCMD Client to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${VER_TARGET} export/
 
