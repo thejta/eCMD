@@ -2994,6 +2994,15 @@ Include files :
 <li> Library : zseClientCapi_aix.a / zseClientCapi_x86.a</li>
 </ul>
 
+@subsection bml BML Extension
+This extensions provides BML only interfaces and is only available running eCMD in a BML environment.<br>
+Include files :
+<ul>
+<li> bmlClientCapi.H</li>
+<li> bmlStructs.H</li>
+<li> Library : bmlClientCapi_ppc.a </li>
+</ul>
+
 <hr>
 @section dllv DLL Version
 The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
