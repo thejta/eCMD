@@ -27,7 +27,7 @@ CFLAGS       := ${CFLAGS} -I. -I../capi/export -I../dll -g
 VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
-ifeq ($(strip $EXTENSIONS),)
+ifeq ($(strip ${EXTENSIONS}),)
   EXTENSIONS   := cip cro eip gip zse
 endif
 
