@@ -107,12 +107,12 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 4) {  
-    ecmdOutputError("getvpdkeyword - Too few arguments specified; you need at least a chip, recordname, keyword and numbytes.\n");
+  if (argc < 5) {  
+    ecmdOutputError("getvpdkeyword - Too few arguments specified; you need at least a chip, vpdtype, recordname, keyword and numbytes.\n");
     ecmdOutputError("getvpdkeyword - Type 'getvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if (argc > 4) {
-    ecmdOutputError("getvpdkeyword - Too many arguments specified; you only need chip, recordname, keyword and numbytes.\n");
+  } else if (argc > 5) {
+    ecmdOutputError("getvpdkeyword - Too many arguments specified; you only need chip, vpdtype, recordname, keyword and numbytes.\n");
     ecmdOutputError("getvpdkeyword - Type 'getvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -124,16 +124,22 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   target1 = target; //Created for the second looper needed for -fb case with multiple positions
+
+  char *vpdType = argv[1];
+  if (!strcasecmp(vpdType, "MOD") && !strcasecmp(vpdType, "FRU")) {
+    ecmdOutputError("getvpdkeyword - You have to specify either mod or fru for the vpd type\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  char *recordName = argv[2];
+  char *keyWord = argv[3];
   
-  char *recordName = argv[1];
-  char *keyWord = argv[2];
-  
-  if (!ecmdIsAllDecimal(argv[3])) {
+  if (!ecmdIsAllDecimal(argv[4])) {
     ecmdOutputError("getvpdkeyword - Non-decimal numbers detected in numBytes field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t numBytes = (uint32_t)atoi(argv[3]);
+  uint32_t numBytes = (uint32_t)atoi(argv[4]);
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
@@ -151,13 +157,18 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
               
   while ( ecmdConfigLooperNext(target1, looperdata1) ) {
 
-    rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
+    if (!strcasecmp(vpdType, "MOD")) {
+      rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
+    } else {
+      rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
+    }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-        printed = "getvpdkeyword - Error occurred performing getModuleVpdKeyword on ";
-        printed += ecmdWriteTarget(target1) + "\n";
+        printed = "getvpdkeyword - Error occurred performing ";
+        printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdKeyword" : "getFruVpdKeyword");
+        printed += " on " + ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -240,20 +251,20 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if ((argc < 4) && (filename == NULL)) {  
-    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, recordname, keyword and data.\n");
+  if ((argc < 5) && (filename == NULL)) {  
+    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, vpdtype, recordname, keyword and data.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc < 3) && (filename != NULL)) {
-    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, recordname, keyword and input file.\n");
+  } else if ((argc < 4) && (filename != NULL)) {
+    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, vpdtype, recordname, keyword and input file.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 3) && (filename != NULL)) {
-    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, recordname, keyword and input file.\n");
+  } else if ((argc > 4) && (filename != NULL)) {
+    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, vpdtype, recordname, keyword and input file.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 4) && (filename == NULL)) {
-    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, recordname, keyword and data.\n");
+  } else if ((argc > 5) && (filename == NULL)) {
+    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, vpdtype, recordname, keyword and data.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -264,8 +275,14 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  char *recordName = argv[1];
-  char *keyWord = argv[2];
+  char *vpdType = argv[1];
+  if (!strcasecmp(vpdType, "MOD") && !strcasecmp(vpdType, "FRU")) {
+    ecmdOutputError("putvpdkeyword - You have to specify either mod or fru for the vpd type\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  char *recordName = argv[2];
+  char *keyWord = argv[3];
   
   if (filename != NULL) {
     rc = data.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
@@ -276,7 +293,7 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     }
   } else  {
     //container to store data
-    rc = ecmdReadDataFormatted(data, argv[3], inputformat);
+    rc = ecmdReadDataFormatted(data, argv[4], inputformat);
     if (rc) {
       ecmdOutputError("putvpdkeyword - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
@@ -292,13 +309,18 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = putModuleVpdKeyword(target, recordName, keyWord, data);
+    if (!strcasecmp(vpdType, "MOD")) {
+      rc = putModuleVpdKeyword(target, recordName, keyWord, data);
+    } else {
+      rc = putFruVpdKeyword(target, recordName, keyWord, data);
+    }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-        printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword ";
+        printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdKeyword" : "putFruVpdKeyword");
+        printed += " on " + ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -362,15 +384,15 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if ((argc < 2) && (filename == NULL)) {  
-    ecmdOutputError("putvpdimage - Too few arguments specified; you need to at least specify the chip and data to write.\n");
+    ecmdOutputError("putvpdimage - Too few arguments specified; you need to at least specify the chip, vpdtype and data to write.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if ((argc > 1) && (filename != NULL)) {
-    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip and data OR input file.\n");
+    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip, vpdtype and data OR input file.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if ((argc > 2) && (filename == NULL)) {
-    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip and data OR input file.\n");
+    ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip, vpdtype and data OR input file.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } 
@@ -380,6 +402,12 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  char *vpdType = argv[1];
+  if (!strcasecmp(vpdType, "MOD") && !strcasecmp(vpdType, "FRU")) {
+    ecmdOutputError("putvpdimage - You have to specify either mod or fru for the vpd type\n");
+    return ECMD_INVALID_ARGS;
+  }
 
   if (filename != NULL) {
     rc = data.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
@@ -406,13 +434,18 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = putModuleVpdImage(target, data);
+    if (!strcasecmp(vpdType, "MOD")) {
+      rc = putModuleVpdImage(target, data);
+    } else {
+      rc = putFruVpdImage(target, data);
+    }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
-        printed = "putvpdimage - Error occurred performing putModuleVpdImage on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed = "putvpdimage - Error occurred performing putModuleVpdImage ";
+        printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdImage" : "putFruVpdImage");
+        printed += " on " + ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -481,12 +514,12 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 2) {  
-    ecmdOutputError("getvpdimage - Too few arguments specified; you need at least the chip and numbytes.\n");
+  if (argc < 3) {  
+    ecmdOutputError("getvpdimage - Too few arguments specified; you need at least the chip, vpdtype and numbytes.\n");
     ecmdOutputError("getvpdimage - Type 'getvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if (argc > 2) {
-    ecmdOutputError("getvpdimage - Too many arguments specified; you only need chip and numbytes.\n");
+  } else if (argc > 3) {
+    ecmdOutputError("getvpdimage - Too many arguments specified; you only need chip, vpdtype and numbytes.\n");
     ecmdOutputError("getvpdimage - Type 'getvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -498,13 +531,19 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   target1 = target; //Created for the second looper needed for -fb case with multiple positions
-  
-  if (!ecmdIsAllDecimal(argv[1])) {
+
+  char *vpdType = argv[1];
+  if (!strcasecmp(vpdType, "MOD") && !strcasecmp(vpdType, "FRU")) {
+    ecmdOutputError("getvpdimage - You have to specify either mod or fru for the vpd type\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  if (!ecmdIsAllDecimal(argv[2])) {
     ecmdOutputError("getvpdimage - Non-decimal numbers detected in numBytes field\n");
     return ECMD_INVALID_ARGS;
   }
   
-  uint32_t numBytes = (uint32_t)atoi(argv[1]);
+  uint32_t numBytes = (uint32_t)atoi(argv[2]);
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
@@ -522,13 +561,18 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   
   while ( ecmdConfigLooperNext(target1, looperdata1) ) {
 
-    rc = getModuleVpdImage(target1, numBytes, data);
+    if (!strcasecmp(vpdType, "MOD")) {
+      rc = getModuleVpdImage(target1, numBytes, data);
+    } else {
+      rc = getFruVpdImage(target1, numBytes, data);
+    }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "getvpdimage - Error occurred performing getModuleVpdImage on ";
-        printed += ecmdWriteTarget(target1) + "\n";
+        printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdImage" : "getFruVpdImage");
+        printed += " on " + ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
