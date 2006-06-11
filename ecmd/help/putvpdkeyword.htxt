@@ -1,6 +1,6 @@
 
-Syntax: putvpdkeyword <ChipSelect> <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
-        putvpdkeyword <ChipSelect> <RecordName> <Keyword> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
+Syntax: putvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
+        putvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -10,6 +10,8 @@ Syntax: putvpdkeyword <ChipSelect> <RecordName> <Keyword> <Data> [-i<format>] [-
         --------------------------------------------------------------------------------
         ChipSelect      Chip to write the VPD data into
 	
+        VpdType         "mod" for Module vpd, "fru" for FRU vpd 
+
 	RecordName      VPD Record Name (in quotes) 
 
         KeyWord         VPD Keyword (in quotes) 

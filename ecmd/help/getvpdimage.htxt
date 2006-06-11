@@ -1,6 +1,6 @@
 
-Syntax: getvpdimage <ChipSelect> <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#] 
-        getvpdimage <ChipSelect> <NumBytes> -fb<filename>      [-k#] [-n#] [-s#] [-p#] 
+Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#] 
+        getvpdimage <ChipSelect> <VpdType> <NumBytes> -fb<filename>      [-k#] [-n#] [-s#] [-p#] 
 
         ECMD:           Core Common Function
 
@@ -10,6 +10,8 @@ Syntax: getvpdimage <ChipSelect> <NumBytes> -o<format>         [-k#] [-n#] [-s#]
         --------------------------------------------------------------------------------
 	ChipSelect      Chip to get the VPD image from
 	
+        VpdType         "mod" for Module vpd, "fru" for FRU vpd 
+
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.
                         Run 'ecmdquery formats' to view available formats
