@@ -1063,6 +1063,360 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
 }
 
 
+uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  bool expectFlag = false;
+  bool maskFlag = false;
+  char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
+  char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
+  ecmdDataBuffer expected;                      ///< Buffer to store expected data
+  ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
+  std::string outputformat = "x";               ///< Output Format to display
+  std::string inputformat = "x";                ///< Input format of data
+  ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdDataBuffer buffer;                        ///< Buffer to hold gp register data
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string printed;                          ///< Output data
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  //expect and mask flags check
+  if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
+    expectFlag = true;
+
+    if ((maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
+      maskFlag = true;
+    }
+  }
+
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {  //chip + address
+    ecmdOutputError("getgpreg - Too few arguments specified; you need at least a chip and a gpregister.\n");
+    ecmdOutputError("getgpreg - Type 'getgpreg -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  //get address to fetch
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("getgpreg - Non-decimal characters detected in reg num field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  uint32_t gpRegister = (uint32_t)atoi(argv[1]);
+
+
+  if (expectFlag) {
+
+    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
+    if (rc) {
+      ecmdOutputError("getgpreg - Problems occurred parsing expected data, must be an invalid format\n");
+      return rc;
+    }
+
+    if (maskFlag) {
+      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
+      if (rc) {
+        ecmdOutputError("getgpreg - Problems occurred parsing mask data, must be an invalid format\n");
+        return rc;
+      }
+
+    }
+
+
+  }
+  if (argc > 2) { 
+    ecmdOutputError("getgpreg - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("getgpreg - Type 'getgpreg -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    rc = getGpRegister(target, gpRegister, buffer);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+        printed = "getgpreg - Error occured performing getgpreg on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;
+    }
+
+    if (expectFlag) {
+
+      if (maskFlag) {
+        buffer.setAnd(mask, 0, buffer.getBitLength());
+      }
+
+      if (!ecmdCheckExpected(buffer, expected)) {
+
+        //@ make this stuff sprintf'd
+        char outstr[50];
+        printed = ecmdWriteTarget(target);
+        sprintf(outstr, "\ngetgpreg - Data miscompare occured at address: %d\n", gpRegister);
+        printed += outstr;
+        ecmdOutputError( printed.c_str() );
+
+
+        printed = "getgpreg - Actual";
+        if (maskFlag) {
+          printed += " (with mask): ";
+        }
+        else {
+          printed += "            : ";
+        }
+
+        printed += ecmdWriteDataFormatted(buffer, outputformat);
+        ecmdOutputError( printed.c_str() );
+
+        printed = "getgpreg - Expected          : ";
+        printed += ecmdWriteDataFormatted(expected, outputformat);
+        ecmdOutputError( printed.c_str() );
+      }
+
+    }
+    else {
+
+      printed = ecmdWriteTarget(target);
+      printed += ecmdWriteDataFormatted(buffer, outputformat);
+      ecmdOutput( printed.c_str() );
+
+    }
+
+  }
+
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    ecmdOutputError("getgpreg - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  std::string inputformat = "x";                ///< Default input format
+  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
+  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdChipTarget target;                        ///< Chip target being operated on
+  ecmdDataBuffer buffer;                        ///< Container to store write data
+  bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
+  std::string printed;                          ///< String for printed data
+  uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
+  uint32_t numbits = 0;                         ///< Number of bits to insert data
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args,                                           */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+
+  if (argc < 3) {  //chip + gpRegister + some data
+    ecmdOutputError("putgpreg - Too few arguments specified; you need at least a chip, reg num, and some data.\n");
+    ecmdOutputError("putgpreg - Type 'putgpreg -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("putgpreg - Non-decimal characters detected in reg num field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  uint32_t gpRegister = (uint32_t)atoi(argv[1]);
+
+  /* Did they specify a start/numbits */
+  if (argc > 3) {
+    if (argc != 5) {
+      ecmdOutputError("putgpreg - Too many arguments specified; you probably added an unsupported option.\n");
+
+      ecmdOutputError("putgpreg - Type 'putgpreg -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("putgpreg - Non-decimal characters detected in startbit field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    startbit = (uint32_t)atoi(argv[2]);
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("putgpreg - Non-decimal characters detected in numbits field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    numbits = (uint32_t)atoi(argv[3]);
+
+
+    /* Bounds check */
+    if ((startbit + numbits) > ECMD_MAX_DATA_BITS) {
+      char errbuf[100];
+      sprintf(errbuf,"putgpreg - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+      ecmdOutputError(errbuf);
+      return ECMD_DATA_BOUNDS_OVERFLOW;
+    } else if (numbits == 0) {
+      ecmdOutputError("putgpreg - Number of bits == 0, operation not performed\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, (int)numbits);
+    if (rc) {
+      ecmdOutputError("putgpreg - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+
+
+  } else {
+
+    rc = ecmdReadDataFormatted(buffer, argv[2], inputformat);
+    if (rc) {
+      ecmdOutputError("putgpreg - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+  }
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdConfigLooperNext(target, looperdata)) {
+
+    /* Do we need to perform a read/modify/write op ? */
+    if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
+
+
+      rc = getGpRegister(target, gpRegister, fetchBuffer);
+
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      }
+      else if (rc) {
+        printed = "putgpreg - Error occured performing putgpreg on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;
+      }
+
+      rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
+      if (rc) return rc;
+
+      rc = putGpRegister(target, gpRegister, fetchBuffer);
+      if (rc) {
+        printed = "putgpreg - Error occured performing putgpreg on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+
+    }
+    else {
+
+      rc = putGpRegister(target, gpRegister, buffer);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      }
+      else if (rc) {
+        printed = "putgpreg - Error occured performing putgpreg on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;
+      }
+
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+
+  }
+
+
+  if (!validPosFound) {
+    ecmdOutputError("putgpreg - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
 
 // Change Log *********************************************************
 //                                                                      

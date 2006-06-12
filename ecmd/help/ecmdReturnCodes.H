@@ -85,6 +85,7 @@
 #define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1058) ///< eCMD was unable to open arraydef file
 #define ECMD_INVALID_RETURN_DATA                (ECMD_ERR_ECMD | 0x1059) ///< Data returned (if any) is incomplete or invalid... caller beware
 #define ECMD_CHIP_UNKNOWN_FOR_MAPPING           (ECMD_ERR_ECMD | 0x105A) ///< Chip type did not map to a known EDC table
+#define ECMD_INVALID_GP_REGISTER                (ECMD_ERR_ECMD | 0x105B) ///< Invalid GP Register was provided
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1900)  ///< Command interpreter didn't understand command

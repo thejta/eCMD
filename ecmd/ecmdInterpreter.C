@@ -248,6 +248,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetGpioRegUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getgpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_GPR);
+        } else if (!strcmp(argv[0], "getgpreg")) {
+          rc = ecmdGetGpRegisterUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "geti2c")) {
           rc = ecmdGetI2cUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getlatch")) {
@@ -333,6 +335,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutGpioRegUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putgpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_GPR);
+        } else if (!strcmp(argv[0], "putgpreg")) {
+          rc = ecmdPutGpRegisterUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "puti2c")) {
           rc = ecmdPutI2cUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "pollscom")) {
