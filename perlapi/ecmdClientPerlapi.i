@@ -49,6 +49,10 @@
   #include "zseClientPerlapi.H"
   #include "zseClientPerlapiFunc.H"
 #endif
+#ifdef ECMD_BML_EXTENSION_SUPPORT
+  #include "bmlClientPerlapi.H"
+  #include "bmlClientPerlapiFunc.H"
+#endif
 #include "cmdClientPerlapi.H"
 #include "cmdClientPerlapiFunc.H"
 
@@ -124,6 +128,11 @@
   %include "zseClientPerlapi.H"
   %include "zseClientPerlapiFunc.H"
   %include "zseStructs.H"
+#endif
+#ifdef ECMD_BML_EXTENSION_SUPPORT
+  %include "bmlClientPerlapi.H"
+  %include "bmlClientPerlapiFunc.H"
+  %include "bmlStructs.H"
 #endif
 %include "cmdClientPerlapi.H"
 %include "cmdClientPerlapiFunc.H"
