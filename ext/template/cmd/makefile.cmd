@@ -56,7 +56,7 @@ endif
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR   := linux_ppc/
+  SUBDIR   := linux_PPC/
   CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_ppc.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall

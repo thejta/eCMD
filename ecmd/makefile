@@ -75,7 +75,7 @@ endif
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR  := linux_ppc/
+  SUBDIR  := linux_PPC/
   CC      := g++
   TARGET  := ecmd_ppc
   VER_TARGET  := ecmdVersion_ppc
