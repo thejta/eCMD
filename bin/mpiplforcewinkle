@@ -11,7 +11,7 @@
 # ***************************************************************************
 # Get rid of any path information from the command that came in
 # ***************************************************************************
-filename=`basename $0`
+filename=${0##*/}
 
 # ***************************************************************************
 # Figure out what the user's ecmd executable is set to, if they have one.
