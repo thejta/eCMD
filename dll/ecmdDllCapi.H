@@ -267,6 +267,10 @@ void dllOutputWarning(const char* i_message);
 
 void dllOutput(const char* i_message); 
 
+uint32_t dllGetGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpregister, ecmdDataBuffer & o_data); 
+
+uint32_t dllPutGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpregister, ecmdDataBuffer & i_data); 
+
 uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
 
 void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable); 
