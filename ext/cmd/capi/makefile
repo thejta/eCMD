@@ -36,7 +36,7 @@ ifeq (${OS},Linux_x86)
   OBJDIR := linux
 endif
 ifeq (${OS},Linux_ppc)
-  OBJDIR := linux_ppc
+  OBJDIR := linux_PPC
 endif
 ifeq (${OS},AIX)
   OBJDIR := aix
