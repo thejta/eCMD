@@ -37,11 +37,11 @@ ifeq ($(strip $(CTEPATH)),)
   endif
 endif
 
-VPATH        := ../capi/export:../capi
+VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H
 INT_INCLUDES := 
 SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
-MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRenames.i
+MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRename.i
 DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -I../capi/export -g -I../dll
 SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
@@ -53,7 +53,7 @@ empty :=
 space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
-INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H )
+INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H ${ext}ClientCapi.H )
 ifeq (${OS},Linux_x86)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
 endif
@@ -174,7 +174,7 @@ dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p ${OS}
 
-test:
+test: ${TARGET}.pm ${TARGET}.so
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
 	@./testBuild.pl
 
@@ -202,7 +202,7 @@ ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
 # *****************************************************************************
 # Create the Perl Shared Library
 # *****************************************************************************
-${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o  
+${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o ${LINK_OBJS}
 	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
 
 

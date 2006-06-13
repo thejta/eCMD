@@ -27,9 +27,9 @@ my $ignore_re = join '|', @ignores;
 
 
 if ($ARGV[0] ne "ecmd") {
-  open IN, "${curdir}/../ext/$ARGV[0]/capi/$ARGV[0]ClientCapi.H" or die "Could not find $ARGV[0]ClientCapi.H: $!\n";
+  open IN, "${curdir}/../ext/$ARGV[0]/capi/export/$ARGV[0]ClientCapi.H" or die "Could not find $ARGV[0]ClientCapi.H: $!\n";
 } else {
-  open IN, "${curdir}/../capi/$ARGV[0]ClientCapi.H" or die "Could not find $ARGV[0]ClientCapi.H: $!\n";
+  open IN, "${curdir}/../capi/export/$ARGV[0]ClientCapi.H" or die "Could not find $ARGV[0]ClientCapi.H: $!\n";
 }
 open OUT, ">${curdir}/$ARGV[0]ClientPerlapiFunc.H" or die $!;
 
