@@ -12,6 +12,7 @@
 /*********** Start Applies ***********/
 // These are used to map C types that swig doesn't understand to types swig does understand
 %apply unsigned int { uint32_t }
+%apply unsigned short { uint16_t }
 %apply unsigned long long { uint64_t }
 %apply unsigned char { uint8_t }
 %apply unsigned int &REFERENCE { uint32_t & };
