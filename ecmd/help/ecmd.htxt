@@ -12,25 +12,100 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
+        cacheflush               getvpdimage              ringcache                stopclocks               
+        checkrings               getvpdkeyword                                     systempower              
+                                 gpioconfig               sendcmd                  
+        deconfig                                          setclockspeed            
+                                 i2creset                 setconfig                
+        ecmd                     istep                    simaet                   
+        ecmdquery                                         simcheckpoint            
+                                 makespsystemcall         simclock                 
+        format                                            simecho                  
+                                 pollscom                 simexit                  
+        getarray                 putarray                 simEXPECTFAC             
+        getbits                  putbits                  simexpecttcfac           
+        getcfam                  putcfam                  simgetcurrentcycle       
+        getclockspeed            putfpr                   simGETFAC                
+        getconfig                putgpiolatch             simGETFACX               
+        getfpr                   putgpioreg               simgethierarchy          
+        getgpiolatch             putgpr                   simgettcfac              
+        getgpiopin               puti2c                   siminit                  
+        getgpioreg               putlatch                 simoutputfusionmessage   
+        getgpr                   putmemdma                simPUTFAC                
+        geti2c                   putmemmemctrl            simPUTFACX               
+        getlatch                 putmemproc               simputtcfac              
+        getmemdma                putpattern               simrestart               
+        getmemmemctrl            putscom                  simSTKFAC                
+        getmemproc               putspr                   simstktcfac              
+        getringdump              putspy                   simSUBCMD                
+        getscom                  putvpdimage              simtckinterval           
+        getspr                   putvpdkeyword            simUNSTICK               
+        getspy                                            simunsticktcfac          
+        gettracearray            reconfig                 startclocks              
 
 
         Cronus/IP Extensions:
         --------------------------------------------------------------------------------
 
+        cipbreakpoint            
+        cipgetvr                 
+        cipinstruct              
+        cipputvr                 
 
 
         Eclipz Cronus/IP Extensions:
         --------------------------------------------------------------------------------
 
+        eipgetslb                
+        eipproccleanup           
 
 
         Cronus Extensions:
         --------------------------------------------------------------------------------
 
+        crodmarandtest           
+        crogetconfig             
+        crogetl2data             
+        crogetl2dir              
+        crogetl2                 
+        croputl2data             
+        croputl2dir              
+        croputl2                 
+        crosetconfig             
 
 
         Z Series Extensions:
         --------------------------------------------------------------------------------
 
+        zseactivatefru           zseoscillatorswitchover  zsesetupi390tracelevels  
+        zseactivatenetworkfru    zsepchid                 zsesetw1controls         
+        zsealternatepath         zsepppcchillerreadtemper zseshfinit               
+        zsececdump               zsepppcchillersetbias    zsesigmclose             
+        zsechecketr              zsepppcextendedbiasmode  zsesigmderegister        
+        zsecheckicbwrap          zsepppcgenericcommand    zsesigmgetdata           
+        zsecheckservicenetwork   zsepppcgetamdspeedandambienttemperaturezsesigmopen              
+        zsecheckstatus           zsepppcgetbpastate       zsesigmregister          
+        zsechkpscnnetwork        zsepppcgetcageinfolog    zsesimenv                
+        zsecleari390tracebuffer  zsepppcgetnodepowerstate zsesimread               
+        zsecontrolledwarmstart   zsepppcmcmreadtemperaturezsesimwrite              
+        zsecsadisable            zsepppcreadcurrentdca    zsestartmirroring        
+        zsecsaenable             zsepppcreadvoltagedca    zsesysstatus             
+        zsecsagetstatedump       zsepppcsetamdspeed       zsesystempoweroff        
+        zsecsehactive            zsepppcsetbackupblowercontroltempzsesystempoweron         
+        zsedeactivatefru         zsepurgelog              zsevoltagebiasfru        
+        zsedflogread             zsequerycryptostate      zsewaitforcecsw          
+        zseenablei390trace       zsequeryrefc             zsewaitforwarmstart      
+        zseenterlogmode          zseratestate             zsewarmstart             
+        zseetrnowrap             zseresetcpusaptracecontrolszsewriteerrorlog         
+        zseetrstatus             zseresetcsscontrols      zsewriteeventlog         
+        zsegetalli390traces      zsereseti390tracesettingszsewriteinfolog          
+        zsegetalliputraces       zseresetiottcontrols     zsexcryptorunmode        
+        zsegetallunits           zsesavei390tracetofile   
+        zsegetmbastispeed        zsesendsw                
+        zsegetpchids             zsesetcecoscdefaultnestspeed
+        zseiml                   zsesetcpusaptracecontrols
+        zseinpa                  zsesetcsscontrols        
+        zseitemxfer              zsesetiottcontrols       
+        zseleavelogmode          zsesetmbastispeed        
 
 
