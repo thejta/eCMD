@@ -2186,7 +2186,7 @@ void ecmdOutput(const char* i_message);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpRegister, ecmdDataBuffer & o_data); 
+uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & o_data); 
 
 /**
  @brief Writes a GP Register in CFAM/Access from the data buffer into the selected chip in the selected GR Register
@@ -2206,7 +2206,7 @@ uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpRegister, ecmdD
  TARGET STATES : Unused<br>
 
 */
-uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpRegister, ecmdDataBuffer & i_data); 
+uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data); 
 
 /**
  @brief Retrieve the value of some ecmdGlobalVars
