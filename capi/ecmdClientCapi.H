@@ -2178,7 +2178,7 @@ void ecmdOutput(const char* i_message);
  @retval nonzero if unsuccessful
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_gpregister Number of the GP Resiter to read from
+ @param i_gpRegister Number of the GP Resiter to read from
  @param o_data DataBuffer object that holds data read from ring
 
 
@@ -2186,7 +2186,7 @@ void ecmdOutput(const char* i_message);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpregister, ecmdDataBuffer & o_data); 
+uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpRegister, ecmdDataBuffer & o_data); 
 
 /**
  @brief Writes a GP Register in CFAM/Access from the data buffer into the selected chip in the selected GR Register
@@ -2198,7 +2198,7 @@ uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpregister, ecmdD
  @retval ECMD_INVALID_GP_REGISTER if GP Regiter is not valid for target
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_gpregister Number of the GP Resiter to read from
+ @param i_gpRegister Number of the GP Resiter to read from
  @param i_data DataBuffer object that holds data to write into ring
 
 
@@ -2206,7 +2206,7 @@ uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpregister, ecmdD
  TARGET STATES : Unused<br>
 
 */
-uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpregister, ecmdDataBuffer & i_data); 
+uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t & i_gpRegister, ecmdDataBuffer & i_data); 
 
 /**
  @brief Retrieve the value of some ecmdGlobalVars
