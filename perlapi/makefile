@@ -11,7 +11,7 @@ ifeq (${OS},Linux)
   ifneq ($(strip $(shell uname -a |grep ppc)),)
     OS := Linux_ppc
   else
-    OS := Linux_x86
+    OS := Linux
   endif
 endif
 
@@ -54,7 +54,7 @@ space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H ${ext}ClientCapi.H )
-ifeq (${OS},Linux_x86)
+ifeq (${OS},Linux)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
 endif
 ifeq (${OS},Linux_ppc)
@@ -72,7 +72,7 @@ MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiF
 # *****************************************************************************
 # The Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
+ifeq (${OS},Linux)
   SUBDIR    := obj_linux/
   CC        := g++
   TARGET    := ecmd
