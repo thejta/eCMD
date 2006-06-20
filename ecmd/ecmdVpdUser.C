@@ -383,15 +383,15 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if ((argc < 2) && (filename == NULL)) {  
+  if ((argc < 3) && (filename == NULL)) {  
     ecmdOutputError("putvpdimage - Too few arguments specified; you need to at least specify the chip, vpdtype and data to write.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 1) && (filename != NULL)) {
+  } else if ((argc > 2) && (filename != NULL)) {
     ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip, vpdtype and data OR input file.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if ((argc > 2) && (filename == NULL)) {
+  } else if ((argc > 3) && (filename == NULL)) {
     ecmdOutputError("putvpdimage - Too many arguments specified; you only need to specify chip, vpdtype and data OR input file.\n");
     ecmdOutputError("putvpdimage - Type 'putvpdimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
