@@ -1035,7 +1035,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             
       for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
         
-	if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+	if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
 	  sprintf(buf,"  Node NA\n"); ecmdOutput(buf);
 	} else {
 	  sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId ); ecmdOutput(buf);
