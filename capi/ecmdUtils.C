@@ -81,9 +81,10 @@ typedef enum {
   ECMD_FORMAT_D
 } ecmdFormatState_t;
 
-
+#ifndef ECMD_STRIP_DEBUG
 char frontFPPTxt[40]; //@01c Bumped from 35 to 40 (max str len = 37)
 extern int  fppCallCount;
+#endif
 
 
 //--------------------------------------------------------------------
@@ -91,6 +92,8 @@ extern int  fppCallCount;
 //--------------------------------------------------------------------
 
 void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state);
+
+#ifndef ECMD_STRIP_DEBUG
 std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
 /**
  @brief Print ecmdDataBuffer's for the EFPP
@@ -98,8 +101,12 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
  @param i_tabStop Any additional spacing that should be done in display (ie "  \t")
 */
 void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
+#endif
 
+#ifndef FIPSODE
 uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
+#endif
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -1311,6 +1318,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
 }
 #endif
 
+#ifndef FIPSODE
 uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                      ///< Full path to scomdef file
@@ -1351,6 +1359,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
   }
   return rc;
 }
+#endif
 
 
 
@@ -2407,7 +2416,9 @@ struct ecmdDllInfo {
   ecmdOutput(printed.c_str());
 
 }
+#endif
 
+#ifndef ECMD_STRIP_DEBUG
 std::string printEcmdChipTargetState_t(ecmdChipTargetState_t i_state) {
 
 /***
@@ -2440,8 +2451,9 @@ typedef enum {
   }
 
 }
+#endif
 
-
+#ifndef ECMD_STRIP_DEBUG
 void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string tabStop) {
   std::string printed;
   char tempIntStr[180];
