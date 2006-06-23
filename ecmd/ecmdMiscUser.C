@@ -461,7 +461,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
       if (!ecmdCheckExpected(buffer, expected)) {
 
         //@ make this stuff sprintf'd
-        char outstr[50];
+        char outstr[75];
         printed = ecmdWriteTarget(target);
         sprintf(outstr, "\ngetcfam - Data miscompare occured at address: %.8X\n", address);
         printed += outstr;
@@ -1193,7 +1193,7 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
       if (!ecmdCheckExpected(buffer, expected)) {
 
         //@ make this stuff sprintf'd
-        char outstr[50];
+        char outstr[75];
         printed = ecmdWriteTarget(target);
         sprintf(outstr, "\ngetgpreg - Data miscompare occured at address: %d\n", gpRegister);
         printed += outstr;

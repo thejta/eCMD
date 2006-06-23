@@ -273,7 +273,17 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
       /* Init the core loop */
       rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      if (rc) return rc;
+      if (rc) {
+        printed = "getarray - Error returned from ecmdConfigLooperInit on Core Looper ";
+        printed += ecmdWriteTarget(coretarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        // Clean up allocated memory
+        if (add_buffer)                                                    //@01a
+        {
+          delete[] add_buffer;
+        }
+        return rc;
+      }
     }
 
     /* Actually go fetch the data */
