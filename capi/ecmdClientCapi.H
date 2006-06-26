@@ -11,6 +11,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <ecmdDefines.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdStructs.H>
 #include <ecmdDataBuffer.H>

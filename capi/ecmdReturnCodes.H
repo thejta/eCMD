@@ -22,6 +22,8 @@
  * @brief All Return Codes for the eCmd Capi
 */
 
+#include <ecmdDefines.H>
+
 
 /* These are the prefixs that the plugins will use to specify their specific errors as well as eCMD errors itself */
 #define ECMD_ERR_UNKNOWN                        0x00000000 ///< This error code wasn't flagged to which plugin it came from

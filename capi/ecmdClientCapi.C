@@ -32,10 +32,11 @@
 #include <stdio.h>
 
 #include <ecmdClientCapi.H>
-#include <ecmdDllCapi.H>
 #include <ecmdUtils.H>
 #ifndef ECMD_STATIC_FUNCTIONS
 # include <ecmdClientEnums.H>
+#else
+# include <ecmdDllCapi.H>
 #endif
 
 //----------------------------------------------------------------------
