@@ -636,6 +636,7 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
     o_data.setBitLength(bitlength);
     rc = o_data.insertFromBin(i_dataStr);
   }
+#ifndef REMOVE_SIM
   else if (localFormat == "bX") {
     bitlength = strlen(i_dataStr);
     if (i_expectedLength != 0) bitlength = i_expectedLength;
@@ -643,6 +644,7 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
     o_data.setBitLength(bitlength);
     o_data.setXstate(0,i_dataStr);
   }
+#endif
   else if (localFormat == "d") {
     if(strlen(i_dataStr) > 10) {
      ecmdOutputError( "Integer overflow. Decimal number should be less that 4G.\n" );
@@ -833,6 +835,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     sprintf(tempstr, "%d\n", decimalData);
     printed = tempstr;
   }
+#ifndef REMOVE_SIM
   else if (curState == ECMD_FORMAT_BX) {
     if (!i_data.isXstateEnabled()) {
       ecmdOutputError("ecmdWriteDataFormatted - Write of X-state data required but Xstate buffer not enabled\n");
@@ -842,6 +845,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     printed = "0b" + i_data.genXstateStr();
     printed += "\n";
   }
+#endif
   else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
     uint64_t myAddr = address;
     uint32_t wordsDone = 0;
@@ -1056,9 +1060,11 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
       else if (curState == ECMD_FORMAT_XRW) {
         printed += rightData.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
+#ifndef REMOVE_SIM
       else if ((curState == ECMD_FORMAT_BX) || (curState == ECMD_FORMAT_BXN) || (curState == ECMD_FORMAT_BXW))  {
         printed +=  i_data.genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
+#endif
       else {
         printed += i_data.genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
@@ -2497,7 +2503,8 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
     return;
   }
 
-  if(i_data.isXstateEnabled() && i_data.hasXstate()) {
+#ifndef REMOVE_SIM
+  if (i_data.isXstateEnabled() && i_data.hasXstate()) {
     if (ecmdClientDebug == 9) {
       printed = frontFPPTxt;
       printed += "\t \t "+tabStop+"value : XSTATE iv_DataStr  = ";
@@ -2512,6 +2519,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
       ecmdOutput(printed.c_str());
     }
   } else {
+#endif /* REMOVE_SIM */
     if (ecmdClientDebug == 9) {
       printed = frontFPPTxt;
       printed += "\t \t "+tabStop+"value : uint32_t[] iv_Data = ";
@@ -2544,7 +2552,9 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
       ecmdOutput(printed.c_str());
 
     }
+#ifndef REMOVE_SIM
   }
+#endif
   printed = frontFPPTxt;
   printed += "\t "+tabStop+"***************************************\n";
   ecmdOutput(printed.c_str());
