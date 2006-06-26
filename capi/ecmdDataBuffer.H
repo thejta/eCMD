@@ -32,6 +32,8 @@
 #include <string>
 #include <inttypes.h>
 
+#include <ecmdDefines.H>
+
 
 #ifdef ENABLE_MPATROL
  #include <mpatrol.h>
@@ -1090,6 +1092,7 @@ public:
    */
   std::string genAsciiStr() const; 
 
+#ifndef REMOVE_SIM
   /**
    * @brief Retrieve a section of the Xstate Data
    * @param i_start Start bit of data to retrieve
@@ -1103,7 +1106,7 @@ public:
    * @retval String containing requested data
    */
   std::string genXstateStr() const;
-
+#endif
 
   //@}
 
@@ -1181,6 +1184,7 @@ public:
   //@}
 
 
+#ifndef REMOVE_SIM
   /** @name Simulation Buffer Functions */
   //@{
 
@@ -1284,6 +1288,7 @@ public:
   uint32_t  memCopyOutXstate(char * o_buf, uint32_t i_bits) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   //@}
+#endif /* REMOVE_SIM */
 
   /** @name Misc Functions */
   //@{
