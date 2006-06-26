@@ -31,6 +31,7 @@
 #include <vector>
 #include <inttypes.h>
 
+#include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdStructs.H>
 

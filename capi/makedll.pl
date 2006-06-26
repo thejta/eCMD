@@ -49,7 +49,9 @@ print OUT "#define $ARGV[0]DllCapi_H\n\n";
 
 print OUT "#include <inttypes.h>\n";
 print OUT "#include <vector>\n";
-print OUT "#include <string>\n";
+print OUT "#include <string>\n\n";
+
+print OUT "#include <ecmdDefines.H>\n";
 print OUT "#include <ecmdStructs.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdDataBuffer.H>\n\n\n";

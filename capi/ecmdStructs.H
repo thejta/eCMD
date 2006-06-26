@@ -38,6 +38,7 @@
 #include <vector>
 #include <string>
 
+#include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
 
 //--------------------------------------------------------------------

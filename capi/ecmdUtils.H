@@ -31,6 +31,8 @@
 #include <inttypes.h>
 #include <string>
 #include <vector>
+
+#include <ecmdDefines.H>
 #include <ecmdClientCapi.H>
 #ifdef FIPSODE
 #include <tracinterface.H>
