@@ -15,7 +15,7 @@ ifeq (${OS},Linux)
   endif
 endif
 
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H
 EXPORTS      := ${INCLUDES}
 INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
