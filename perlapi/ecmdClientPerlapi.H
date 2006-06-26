@@ -22,6 +22,8 @@
 // Includes
 //--------------------------------------------------------------------
 #include <string>
+
+#include <ecmdDefines.H>
 #include <ecmdStructs.H>
 #include <ecmdDataBuffer.H>
 

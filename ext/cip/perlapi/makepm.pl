@@ -102,6 +102,7 @@ print OUT "#include <stdio.h>\n";
 print OUT "#include <ctype.h>\n";
 print OUT "\n";
 
+print OUT "#include <ecmdDefines.H>\n";
 print OUT "#include <ecmdClientCapi.H>\n";
 print OUT "#include <ecmdReturnCodes.H>\n";
 print OUT "#include <ecmdUtils.H>\n";
