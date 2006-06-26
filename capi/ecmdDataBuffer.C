@@ -42,6 +42,7 @@
 
 using namespace std;
 
+#include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
 
 //----------------------------------------------------------------------
@@ -1968,9 +1969,9 @@ std::string ecmdDataBuffer::genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen
   return ret;
 }
 
+#ifndef REMOVE_SIM
 std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const {
   std::string ret;
-#ifndef REMOVE_SIM
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::genXstateStr: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -1991,18 +1992,18 @@ std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const 
   ret = copyStr;
 
   delete[] copyStr;
-#else
-  ETRAC0( "**** ERROR : ecmdDataBuffer: genXstateStr: Not defined in this configuration");
-  SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-#endif
+
   return ret;
 }
+#endif /* REMOVE_SIM */
 
 std::string ecmdDataBuffer::genHexLeftStr() const { return this->genHexLeftStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genHexRightStr() const { return this->genHexRightStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genBinStr() const { return this->genBinStr(0, iv_NumBits); }
 std::string ecmdDataBuffer::genAsciiStr() const { return this->genAsciiStr(0, iv_NumBits); }
+#ifndef REMOVE_SIM
 std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
+#endif /* REMOVE_SIM */
 
 uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, uint32_t start, uint32_t length) {
   if (length == 0) 
@@ -2317,6 +2318,7 @@ uint32_t ecmdDataBuffer::flattenSize() const {
  * @retval ECMD_DBUF_INIT_FAIL failure occurred allocating X-state array
  * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
  */
+#ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::enableXstateBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if(!iv_UserOwned)
@@ -2324,7 +2326,6 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
     ETRAC0("**** ERROR (ecmdDataBuffer::enableXstateBuffer) : Attempt to modify non user owned buffer size.");
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
-#ifndef REMOVE_SIM
 
   /* If it is already enabled, we don't do it again */
   if (iv_XstateEnabled) return rc;
@@ -2360,9 +2361,9 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
     }
   }
   iv_XstateEnabled = true;
-#endif
   return rc;
 }
+#endif /* REMOVE_SIM */
 
 /**
  * @brief Removes the X-state buffer, from then on no changes are made to Xstate
@@ -2370,6 +2371,7 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
  * @retval ECMD_DBUF_SUCCESS on success
   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
   */
+#ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::disableXstateBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -2378,57 +2380,44 @@ uint32_t ecmdDataBuffer::disableXstateBuffer() {
     ETRAC0("**** ERROR (ecmdDataBuffer::disableXstateBuffer) : Attempt to modify non user owned buffer size.");
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
-#ifndef REMOVE_SIM
   if (iv_DataStr != NULL) {
     delete[] iv_DataStr;
     iv_DataStr = NULL;
   }
   iv_XstateEnabled = false;
-#endif
   return rc;
 
  }
+#endif /* REMOVE_SIM */
 
  /**
   * @brief Query to find out if this buffer has X-states enabled
   * @retval true if the Xstate buffer is active
   * @retval false if the Xstate buffer is not active
   */
-bool ecmdDataBuffer::isXstateEnabled() const {
 #ifndef REMOVE_SIM
+bool ecmdDataBuffer::isXstateEnabled() const {
  return iv_XstateEnabled;
-#else
- return false;
-#endif
- }
+}
+#endif /* REMOVE_SIM */
 
 
 
+#ifndef REMOVE_SIM
 uint32_t  ecmdDataBuffer::flushToX(char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-#ifndef REMOVE_SIM
- if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::flushToX: Xstate operation called on buffer without xstate's enabled");
-    RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
-  }
-#endif
 
   if (iv_NumWords > 0) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-#ifndef REMOVE_SIM
     rc = this->fillDataStr(i_value);
-#endif
   }
   return rc;
 }
+#endif /* REMOVE_SIM */
 
+#ifndef REMOVE_SIM
 bool ecmdDataBuffer::hasXstate() const {
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
-  SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-  return false;
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::hasXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2436,15 +2425,11 @@ bool ecmdDataBuffer::hasXstate() const {
   }
 
   return (hasXstate(0,iv_NumBits));
-#endif
 }
+#endif /* REMOVE_SIM */
 
+#ifndef REMOVE_SIM
 bool   ecmdDataBuffer::hasXstate(uint32_t start, uint32_t length) const {
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: hasXstate: Not defined in this configuration");
-  SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-  return false;
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::hasXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2459,8 +2444,8 @@ bool   ecmdDataBuffer::hasXstate(uint32_t start, uint32_t length) const {
       return true;
   }
   return false;
-#endif
 }
+#endif /* REMOVE_SIM */
 
 /**
  * @brief Retrieve an Xstate value from the buffer
@@ -2468,12 +2453,8 @@ bool   ecmdDataBuffer::hasXstate(uint32_t start, uint32_t length) const {
 
  * NOTE - To retrieve multipe bits use genXstateStr
  */
+#ifndef REMOVE_SIM
 char ecmdDataBuffer::getXstate(uint32_t i_bit) const {
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: getXstate: Not defined in this configuration");
-  SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-  return '0';
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2486,21 +2467,17 @@ char ecmdDataBuffer::getXstate(uint32_t i_bit) const {
     return '0';
   }
   return iv_DataStr[i_bit];
-#endif
 }
+#endif /* REMOVE_SIM */
 
 /**
  * @brief Set an Xstate value in the buffer
  * @param i_bit Bit to set
  */
+#ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
-  RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2521,18 +2498,14 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value) {
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
     }
   }
-#endif
   return rc;
 }
+#endif /* REMOVE_SIM */
 
+#ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_length) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
-      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2544,23 +2517,19 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_leng
   } else {
     for (uint32_t idx = 0; idx < i_length; idx ++) rc |= this->setXstate(i_bit + idx, i_value);    
   }
-#endif
   return rc;
 }
+#endif /* REMOVE_SIM */
 
 /**
  * @brief Set a range of Xstate values in buffer
  * @param i_bitoffset bit in buffer to start inserting
  * @param i_datastr Character value to set bit - can be "0", "1", "X"
  */
+#ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: setXstate: Not defined in this configuration");
-      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2588,25 +2557,20 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
     }
 
   }
-#endif
   return rc;
 
 }
+#endif /* REMOVE_SIM */
 
 
+#ifndef REMOVE_SIM
 uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-#ifndef REMOVE_SIM
   /* cbytes is equal to the bit length of data */
   int cbytes = i_bits < getBitLength() ? i_bits : getBitLength();
   int index;
-#endif
 
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: memCopyInXstate: Not defined in this configuration");
-      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::memCopyInXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2627,20 +2591,14 @@ uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) {
     }
   }
 
-#endif
   return rc;
 }
+#endif /* REMOVE_SIM */
 
+#ifndef REMOVE_SIM
 uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
-#ifndef REMOVE_SIM
   int cbytes = i_bits < getBitLength() ? i_bits : getBitLength();
-#endif
-
-#ifdef REMOVE_SIM
-  ETRAC0("**** ERROR : ecmdDataBuffer: memCopyOutXstate: Not defined in this configuration");
-      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-#else
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::memCopyOutXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
@@ -2649,9 +2607,9 @@ uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const 
   strncpy(o_buf, iv_DataStr, cbytes);
   o_buf[cbytes] = '\0';
 
-#endif
   return rc;
 }
+#endif /* REMOVE_SIM */
 
 
 
@@ -2915,6 +2873,11 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       return(ECMD_DBUF_XSTATE_ERROR);
     }
   }
+  #else
+  if (i_format == ECMD_SAVE_FORMAT_XSTATE) {
+    ETRAC0( "**** ERROR : ecmdDataBuffer: writeFileMultiple: FORMAT_XSTATE not supported in this configuration");
+    return(ECMD_DBUF_XSTATE_ERROR);
+  }    
   #endif
   
   
@@ -3069,14 +3032,13 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
    }
   } 
-  else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
 #ifndef REMOVE_SIM
+  else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstate's enabled");
     if (offsetTableData != NULL) delete[] offsetTableData;
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
-#endif
    while ((uint32_t)szcount < numBits) {
      if((uint32_t)szcount+64 < numBits) {
       xstatestr = genXstateStr(szcount, 64) ;
@@ -3095,6 +3057,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
    }
   }
+#endif
   else if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
     buffer = new uint32_t[getWordLength()];
     memCopyOut(buffer, numBytes);
@@ -3238,11 +3201,22 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatTyp
 uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber, std::string *o_facName) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
-  uint32_t numBits = 0, numBytes = 0, NumDwords = 0, hexbitlen = 0, property = 0, *buffer;
+  uint32_t numBits = 0, numBytes = 0, hexbitlen = 0, property = 0, *buffer;
   uint32_t endOffset = 0, totalFileSz=0;
   bool endFound = false;
-  char key[6], hexstr[8], binstr[64], endKeyword[4], fac[201];
- 
+  char key[6], hexstr[8], endKeyword[4], fac[201];
+
+#ifndef REMOVE_SIM
+  uint32_t NumDwords = 0;
+  char binstr[64];
+#endif 
+
+#ifdef REMOVE_SIM
+  if (format == ECMD_SAVE_FORMAT_XSTATE) {
+    ETRAC0( "**** ERROR : ecmdDataBuffer: readFileMultiple: FORMAT_XSTATE not supported in this configuration");
+    return(ECMD_DBUF_XSTATE_ERROR);
+  }    
+#endif
   
   ins.open(filename);
     
@@ -3394,11 +3368,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       rc = insertFromHexLeft (hexstr, i*32, hexbitlen); if (rc) return rc;
       ins.seekg(1,ios::cur);//Space or Newline char
     }
+#ifndef REMOVE_SIM
   } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
-    #ifdef REMOVE_SIM
-      ETRAC0("**** ERROR : ecmdDataBuffer: XState: Not defined in this configuration");
-      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-    #endif
       /// cje need to enable xstate
     ins.width(6); ins >> key; 
     if(strcmp(key,"START")!=0) {
@@ -3429,6 +3400,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       rc = setXstate(i*64, binstr); if (rc) return rc;
       ins.seekg(1,ios::cur);// New line char
     }
+#endif
   }
   ins.close();
   return(rc);
