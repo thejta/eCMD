@@ -484,7 +484,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while (!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper)) {
 
-      rc = putArray(target, arrayName.c_str(), address, buffer);
+      rc = putArray(coretarget, arrayName.c_str(), address, buffer);
 
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
