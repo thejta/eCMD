@@ -71,6 +71,7 @@
 %template(listEcmdCageData)          std::list<ecmdCageData>;
 %template(listString)                std::list<std::string>;
 %template(vectorEcmdDataBuffer)      std::vector<ecmdDataBuffer>;
+%template(listEcmdMemoryEntry)       std::list<ecmdMemoryEntry>;
 // From ecmdClientPerlapi.H
 %template(listEcmdRingData)          std::list<ecmdRingData>;
 %template(listEcmdLatchEntry)        std::list<ecmdLatchEntry>;
