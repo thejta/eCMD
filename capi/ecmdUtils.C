@@ -68,6 +68,7 @@ typedef enum {
   ECMD_FORMAT_XR,
   ECMD_FORMAT_XW,
   ECMD_FORMAT_XRW,
+  ECMD_FORMAT_A,
   ECMD_FORMAT_B,
   ECMD_FORMAT_BN,
   ECMD_FORMAT_BW,
@@ -645,6 +646,12 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
     o_data.setXstate(0,i_dataStr);
   }
 #endif
+  else if (localFormat == "a") {
+    bitlength = strlen(i_dataStr)*8;
+    if (i_expectedLength != 0) bitlength = i_expectedLength;
+    o_data.setBitLength(bitlength);
+    rc = o_data.insert((uint8_t *)i_dataStr, 0, bitlength,0);
+  }
   else if (localFormat == "d") {
     if(strlen(i_dataStr) > 10) {
      ecmdOutputError( "Integer overflow. Decimal number should be less that 4G.\n" );
@@ -737,6 +744,14 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
 
         curState = ECMD_FORMAT_B;
       }
+      else if (i_format[i] == 'a') {
+        if (curState != ECMD_FORMAT_NONE) {
+          good = false;
+          break;
+        }
+
+        curState = ECMD_FORMAT_A;
+      }
       else if (i_format[i] == 'n') {
         if (curState == ECMD_FORMAT_B) {
           curState = ECMD_FORMAT_BN;
@@ -819,6 +834,12 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
   else if (curState == ECMD_FORMAT_B) {
     printed = "0b" + i_data.genBinStr();
     printed += "\n";
+  }
+  else if (curState == ECMD_FORMAT_A) {
+    if (i_data.getByteLength()>0) {
+      printed =  i_data.genAsciiStr(0, i_data.getBitLength()).substr(0,i_data.getByteLength());
+      printed += "\n";
+    }
   }
   else if (curState == ECMD_FORMAT_D) {
     if (i_data.getBitLength() > 32) {
