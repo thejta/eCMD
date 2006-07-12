@@ -1393,9 +1393,20 @@ uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, u
 }
 
 uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::insert with const * uint8_t input has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+    uint32_t rc = ECMD_DBUF_SUCCESS;
+
+
+    if (i_targetStart+i_len > iv_NumBits) {
+      ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
+      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    } else {
+
+      const uint8_t * sourcePtr = i_dataIn;
+      for (uint32_t i = 0; i < i_len/8; i++) {
+          rc = this->setByte(i_targetStart+i,(unsigned char)*(sourcePtr+i+i_sourceStart));
+      }
+   }
+   return rc;
 }
 
 uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
