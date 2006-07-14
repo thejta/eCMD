@@ -765,7 +765,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 	    if (mismatchBit != ECMD_UNSET) {
 	      sprintf(temp, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
-	      ecmdOutputError( printed.c_str() );
+	      ecmdOutputError( temp );
 	    }
 
 	    printed = "getlatch - Actual 	   : ";
