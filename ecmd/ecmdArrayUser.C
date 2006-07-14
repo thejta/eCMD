@@ -330,7 +330,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 	    if (mismatchBit != ECMD_UNSET) {
 	      char outstr[200];
 	      sprintf(outstr, "First bit mismatch found at bit %d\n",mismatchBit);
-	      ecmdOutputError( printed.c_str() );
+	      ecmdOutputError( outstr );
 	    }
 
 
