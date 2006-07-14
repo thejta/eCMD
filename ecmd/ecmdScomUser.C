@@ -281,7 +281,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      	 buffer.setAnd(mask, 0, buffer.getBitLength());
        }
 
-       if (!ecmdCheckExpected(buffer, expected)) {
+       uint32_t mismatchBit = ECMD_UNSET;
+       if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
      	 //@ make this stuff sprintf'd
      	 char outstr[50];
@@ -791,7 +792,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	   buffer.setAnd(mask, 0, buffer.getBitLength());
      	 }
 
-     	 if (!ecmdCheckExpected(buffer, expected)) {
+	 uint32_t mismatchBit = ECMD_UNSET;
+     	 if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
      	   //mismatches
      	   if (done || verboseFlag) {

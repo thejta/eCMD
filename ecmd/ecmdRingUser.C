@@ -755,13 +755,18 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	if (expectFlag) {
 
 
-	  if (!ecmdCheckExpected(buffer, expected)) {
+	  uint32_t mismatchBit = 0;
+	  if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
 	    //@ make this stuff sprintf'd
 	    sprintf(temp, "getlatch - Data miscompare occurred for latch: %s\n", latchit->latchName.c_str());
 	    printed = temp;
 	    ecmdOutputError( printed.c_str() );
 
+	    if (mismatchBit != ECMD_UNSET) {
+	      sprintf(temp, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
+	      ecmdOutputError( printed.c_str() );
+	    }
 
 	    printed = "getlatch - Actual 	   : ";
 	    printed += ecmdWriteDataFormatted(buffer, curOutputFormat);
@@ -1003,13 +1008,18 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
       if (expectFlag) {
 
-        if (!ecmdCheckExpected(buffer, expected)) {
+	uint32_t mismatchBit = 0;
+        if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
           //@ make this stuff sprintf'd
           printed = ecmdWriteTarget(coretarget) + "  " + ringName;
           sprintf(outstr, "(%d:%d)\n", startBit, startBit + numBits - 1);
           printed += outstr;
           ecmdOutputError( printed.c_str() );
+	  if (mismatchBit != ECMD_UNSET) {
+	    sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
+	    ecmdOutputError( outstr );
+	  }
           printed =  "Actual            : ";
           printed += ecmdWriteDataFormatted(buffer, outputformat);
           ecmdOutputError( printed.c_str() );

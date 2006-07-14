@@ -47,8 +47,9 @@
  @retval 1 if match, 0 if mismatch
  @param i_data The actual data fetched from the chip
  @param i_expected The user-supplied data to match the fetched data to
+ @param o_mismatchBit Return the first bit that mismatched in the data, set to ECMD_UNSET to not calculate when calling, will be set to ECMD_UNSET if wasn't a bit mismatch but was a length difference
  */
-uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected);
+uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected, uint32_t & o_mismatchBit);
 
 /**
  @brief Applies the buffer i_newData to the io_data buffer based upon the specified i_modifier for length of i_newData

@@ -74,6 +74,15 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
 
+  bool expectFlag = false;              ///< Are we doing an expect?
+  bool maskFlag = false;                ///< Are we masking our expect data?
+  char* expectPtr = NULL;               ///< Pointer to expected data in arg list
+  char* maskPtr = NULL;                 ///< Pointer to mask data in arg list
+  ecmdDataBuffer expected;                      ///< Buffer to store expected data
+  ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
+  std::string inputformat = "x";                ///< Input format of data
+
+
   /************************************************************************/
   /* Setup the cmdlineName variable                                       */
   /************************************************************************/
@@ -88,11 +97,25 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
+  //expect and mask flags check
+  if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
+    expectFlag = true;
+
+    if ((maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
+      maskFlag = true;
+    }
+  }
+
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
     outputformat = formatPtr;
+  }  
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
+
 
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
@@ -110,6 +133,11 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
+  if(((dcardfilename != NULL) || (filename != NULL)) && expectFlag) {
+    printLine = cmdlineName + "Options -fb and -fd can't be specified with expect (-exp).\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }    
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -159,6 +187,27 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   // Get the number of bits
   numBytes = (uint32_t)atoi(argv[1]);
 
+  if (expectFlag) {
+
+    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
+    if (rc) {
+      ecmdOutputError((cmdlineName + " - Problems occurred parsing expected data, must be an invalid format\n").c_str());
+      return rc;
+    }
+
+    if (maskFlag) {
+      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
+      if (rc) {
+        ecmdOutputError((cmdlineName + " - Problems occurred parsing mask data, must be an invalid format\n").c_str());
+        return rc;
+      }
+
+    }
+
+
+  }
+
+
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -186,42 +235,71 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     }
     
     printLine = ecmdWriteTarget(target);
-    if (filename != NULL) {
-      rc = returnData.writeFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+    if (expectFlag) {
+      uint32_t mismatchBit = 0;
+
+      if (maskFlag) {
+	returnData.setAnd(mask, 0, returnData.getBitLength());
+      }
+
+      if (!ecmdCheckExpected(returnData, expected, mismatchBit)) {
+
+     	 //@ make this stuff sprintf'd
+     	 char outstr[50];
+     	 printLine = ecmdWriteTarget(target) + "\n";
+     	 ecmdOutputError( printLine.c_str() );
+	 if (mismatchBit != ECMD_UNSET) {
+#ifdef _LP64
+	   sprintf(outstr, "%s - Data miscompare occured at address (%lX) bit (%d)\n", 
+		 cmdlineName.c_str(), address, mismatchBit);
+#else
+	   sprintf(outstr, "%s - Data miscompare occured at address (%llX) bit (%d)\n", 
+		 cmdlineName.c_str(), address, mismatchBit);
+#endif
+	   ecmdOutputError( outstr );
+	 }
+
+     	 return ECMD_EXPECT_FAILURE;
+	
+      }
+
+    } else {
+      if (filename != NULL) {
+	rc = returnData.writeFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
        
-      if (rc) {
-       printLine += cmdlineName + " - Problems occurred writing data into file" + filename +"\n";
-       ecmdOutputError(printLine.c_str()); 
-       return rc;
-      }
-      ecmdOutput( printLine.c_str() );
-    } else if (dcardfilename != NULL) {
-      std::string dataStr = ecmdWriteDataFormatted(returnData, "memd", address);
-      std::ofstream ops;
-      ops.open(dcardfilename);
-      if (ops.fail()) {
-       char mesg[1000];
-       sprintf(mesg, "Unable to open file : %s for write", dcardfilename);
-       ecmdOutputError(mesg);
-       return ECMD_DBUF_FOPEN_FAIL;
-      }
-      if (dataStr[0] != '\n') {
-       printLine += "\n";
-      }
-      printLine += dataStr;
-      ops << printLine.c_str();
-      ops.close();
+	if (rc) {
+	  printLine += cmdlineName + " - Problems occurred writing data into file" + filename +"\n";
+	  ecmdOutputError(printLine.c_str()); 
+	  return rc;
+	}
+	ecmdOutput( printLine.c_str() );
+      } else if (dcardfilename != NULL) {
+	std::string dataStr = ecmdWriteDataFormatted(returnData, "memd", address);
+	std::ofstream ops;
+	ops.open(dcardfilename);
+	if (ops.fail()) {
+	  char mesg[1000];
+	  sprintf(mesg, "Unable to open file : %s for write", dcardfilename);
+	  ecmdOutputError(mesg);
+	  return ECMD_DBUF_FOPEN_FAIL;
+	}
+	if (dataStr[0] != '\n') {
+	  printLine += "\n";
+	}
+	printLine += dataStr;
+	ops << printLine.c_str();
+	ops.close();
 
-    } else  {
+      } else  {
      
-     std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
-     if (dataStr[0] != '\n') {
-       printLine += "\n";
-     }
-     printLine += dataStr;
-     ecmdOutput( printLine.c_str() );
+	std::string dataStr = ecmdWriteDataFormatted(returnData, outputformat, address);
+	if (dataStr[0] != '\n') {
+	  printLine += "\n";
+	}
+	printLine += dataStr;
+	ecmdOutput( printLine.c_str() );
+      }
     }
-
     
   }
 

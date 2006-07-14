@@ -354,9 +354,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         buffer.setBitLength(bitsToFetch);
         spyBuffer.extract(buffer, startBit, bitsToFetch);
 
+	char outstr[200];
         if (!expectFlag) {
 
-          char outstr[20];
           sprintf(outstr, "(%d:%d)", startBit, startBit + bitsToFetch - 1);
           printed += outstr;
 
@@ -369,10 +369,17 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         }
         else {
 
-          if (!ecmdCheckExpected(buffer, expectedRaw)) {
+	  uint32_t mismatchBit = 0;
+          if (!ecmdCheckExpected(buffer, expectedRaw, mismatchBit)) {
             //@ make this stuff sprintf'd
             printed =  "getspy - Mismatch found on spy : " + spyName + "\n";
             ecmdOutputError( printed.c_str() );
+
+	    if (mismatchBit != ECMD_UNSET) {
+	      sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
+	      ecmdOutputError( printed.c_str() );
+	    }
+
             printed =  "getspy - Actual                : ";
             printed += ecmdWriteDataFormatted(buffer, outputformat);
             ecmdOutputError( printed.c_str() );

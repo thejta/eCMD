@@ -71,7 +71,7 @@
 //---------------------------------------------------------------------
 
 
-uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected) {
+uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected, uint32_t & o_mismatchBit) {
 
   uint32_t wordCounter = 0;
   uint32_t maxBits = 32;
@@ -84,15 +84,18 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
   /* We will just check below that all the extra data was zero's */
   if ((i_data.getBitLength()-1)/4 > (i_expected.getBitLength()-1)/4) {
     ecmdOutputError("ecmdCheckExpected - Not enough expect data provided\n");
+    o_mismatchBit = ECMD_UNSET;
     return 0;
   } else if ((i_data.getBitLength()-1)/4 < (i_expected.getBitLength()-1)/4) {
     ecmdOutputError("ecmdCheckExpected - More expect data provided than data that was retrieved\n");
+    o_mismatchBit = ECMD_UNSET;
     return 0;
 
     /* Now we are going to check to see if expect bits we specified in any odd nibble bits */
   } else if ((i_data.getBitLength() < i_expected.getBitLength()) &&
              (!i_expected.isBitClear(i_data.getBitLength(), i_expected.getBitLength() - i_data.getBitLength()))) {
     ecmdOutputError("ecmdCheckExpected - More non-zero expect data provided in odd bits of a nibble then data retrieved\n");
+    o_mismatchBit = ECMD_UNSET;
     return 0;
   }
 
@@ -102,13 +105,25 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
     curExpected = i_expected.getWord(wordCounter);
 
     if (numToFetch == maxBits) {
-      if (curData != curExpected) 
+      if (curData != curExpected) {
+	if (o_mismatchBit != ECMD_UNSET) {
+	  uint32_t mask = 0x80000000;
+	  for (uint32_t i = 0; i < numToFetch; i++, mask >>= 1) {
+	    if ( (curData & mask) != (curExpected & mask) ) {
+	      o_mismatchBit = (wordCounter * 32) + i;
+	      break;
+	    }
+	  }
+	}
         return 0;
+      }
     }
     else {
       uint32_t mask = 0x80000000;
       for (uint32_t i = 0; i < numToFetch; i++, mask >>= 1) {
         if ( (curData & mask) != (curExpected & mask) ) {
+	  if (o_mismatchBit != ECMD_UNSET) 
+	    o_mismatchBit = (wordCounter * 32) + i;
           return 0;
         }
       }

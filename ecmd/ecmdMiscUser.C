@@ -458,7 +458,8 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
         buffer.setAnd(mask, 0, buffer.getBitLength());
       }
 
-      if (!ecmdCheckExpected(buffer, expected)) {
+      uint32_t mismatch = ECMD_UNSET;
+      if (!ecmdCheckExpected(buffer, expected, mismatch)) {
 
         //@ make this stuff sprintf'd
         char outstr[75];
@@ -1190,7 +1191,8 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
         buffer.setAnd(mask, 0, buffer.getBitLength());
       }
 
-      if (!ecmdCheckExpected(buffer, expected)) {
+      uint32_t mismatch = ECMD_UNSET;
+      if (!ecmdCheckExpected(buffer, expected, mismatch)) {
 
         //@ make this stuff sprintf'd
         char outstr[75];

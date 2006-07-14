@@ -274,7 +274,8 @@ uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]) {
   rc = simGETFAC(facname, bitLength, buffer, row, offset);
   if (rc) return rc;
 
-  if (!ecmdCheckExpected ( buffer, expected)) {
+  uint32_t mismatchedBit = ECMD_UNSET;
+  if (!ecmdCheckExpected ( buffer, expected, mismatchedBit)) {
 /*    char buf[200]; */
     std::string printed;
     ecmdOutputError("simEXPECTFAC - Expect failure\n");
@@ -376,7 +377,8 @@ uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]) {
   rc = simgettcfac(facname, buffer, row, startBit, bitLength);
   if (rc) return rc;
 
-  if (!ecmdCheckExpected ( buffer, expected)) {
+  uint32_t mismatchedBit = ECMD_UNSET;
+  if (!ecmdCheckExpected ( buffer, expected, mismatchedBit)) {
 /*    char buf[200]; */
     std::string printed;
     ecmdOutputError("simexpecttcfac - Expect failure\n");

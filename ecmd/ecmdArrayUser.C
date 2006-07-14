@@ -314,7 +314,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             entit->buffer.setAnd(mask, 0, entit->buffer.getBitLength());
           }
 
-          if (!ecmdCheckExpected(entit->buffer, expected)) {
+	  uint32_t mismatchBit = 0;
+          if (!ecmdCheckExpected(entit->buffer, expected, mismatchBit)) {
 
             //@ make this stuff sprintf'd
 
@@ -325,6 +326,12 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
             printed = "\ngetarray - Data miscompare occured at address: " + entit->address.genHexRightStr() + "\n";
             ecmdOutputError( printed.c_str() );
+
+	    if (mismatchBit != ECMD_UNSET) {
+	      char outstr[200];
+	      sprintf(outstr, "First bit mismatch found at bit %d\n",mismatchBit);
+	      ecmdOutputError( printed.c_str() );
+	    }
 
 
             printed = "getarray - Actual";
