@@ -658,8 +658,9 @@ uint16_t ecmdDataBuffer::getHalfWord(uint32_t i_halfwordoffset) const {
 uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (i_doublewordoffset >= (getWordLength()/2)) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::setDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", i_doublewordoffset, (getWordLength()/2));
+  if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)"
+	   , i_doublewordoffset, ((getWordLength()+1)/2));
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 #ifdef _LP64
@@ -671,18 +672,25 @@ uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_
 #endif
 
   iv_Data[i_doublewordoffset*2] = hivalue;
-  iv_Data[(i_doublewordoffset*2)+1] = lovalue;
+  /* Don't set the second word if we are on oddwords */
+  if (!((i_doublewordoffset*2)+1 >= getWordLength()) ) {
+    iv_Data[(i_doublewordoffset*2)+1] = lovalue;
+  }
 
   
 #ifndef REMOVE_SIM
   if (iv_XstateEnabled) {
     int startBit = i_doublewordoffset * 64;
+    int bits = 64;
+    if (!((i_doublewordoffset*2)+1 >= getWordLength()) ) {
+      bits = 32;
+    }
 #ifdef _LP64
     uint64_t mask = 0x8000000000000000ul;
 #else
     uint64_t mask = 0x8000000000000000ull;
 #endif
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < bits; i++) {
       if (i_value & mask) {
         iv_DataStr[startBit+i] = '1';
       }
@@ -698,14 +706,19 @@ uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_
 }
 
 uint64_t ecmdDataBuffer::getDoubleWord(uint32_t i_doublewordoffset) const {
-  if (i_doublewordoffset >= (getWordLength()/2)) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::getDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", i_doublewordoffset, (getWordLength()/2));
+  // Round up to the next word and check length
+  if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::getDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", 
+	   i_doublewordoffset, ((getWordLength()+1)/2));
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
   uint64_t ret;
   ret = ((uint64_t)(iv_Data[i_doublewordoffset*2])) << 32;
-  ret |= iv_Data[(i_doublewordoffset*2)+1];
+  // If we have an odd length of words we can't pull the second word if we are at the end
+  if (!((i_doublewordoffset*2)+1 >= getWordLength()) ) {
+    ret |= iv_Data[(i_doublewordoffset*2)+1];
+  }
   return ret;
 }
 
