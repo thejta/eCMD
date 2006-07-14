@@ -377,7 +377,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
 	    if (mismatchBit != ECMD_UNSET) {
 	      sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
-	      ecmdOutputError( printed.c_str() );
+	      ecmdOutputError( outstr );
 	    }
 
             printed =  "getspy - Actual                : ";
