@@ -83,13 +83,21 @@ uint32_t ecmdUnloadDll();
  NOTE : This function does not affect ring caching
 */
 
-uint32_t ecmdCommandArgs(int * i_argc, char** i_argv[]); 
+uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]); 
+
+/**
+ @brief Set the eCMD environment variables
+ @param i_args The args that determine the ecmd release, plugin, etc..
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ Even though you have to pass in the eCMD Release, you are not able to actually change it (because eCMD is alread loaded<br>
+*/
+
+uint32_t ecmdSetup(char* i_args);
 
 //@}
 #endif // ifndef ECMD_PERLAPI
-
-
-
 
 
 /** @name Query Functions */

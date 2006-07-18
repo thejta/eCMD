@@ -5,6 +5,8 @@
 #include <inttypes.h>
 #include <vector>
 #include <string>
+
+#include <ecmdDefines.H>
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBuffer.H>
