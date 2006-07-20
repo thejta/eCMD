@@ -95,7 +95,6 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]);
 */
 
 uint32_t ecmdSetup(char* i_args);
-
 //@}
 #endif // ifndef ECMD_PERLAPI
 

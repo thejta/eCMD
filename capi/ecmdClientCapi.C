@@ -376,6 +376,63 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   return rc;
 }
 
+uint32_t ecmdSetup(char* i_args) {
+
+  char command[200];
+  std::string retstr;
+  FILE * lFilePtr ;
+  unsigned char lChar;
+
+  sprintf(command, "%s/tools/ecmd/%s/bin/ecmdsetup.pl ksh %s", getenv("CTEPATH"), getenv("ECMD_RELEASE"), i_args);
+  lFilePtr = popen(command, "r") ;
+  // read the output from the command
+  while (255 != (lChar = getc(lFilePtr)))
+  {
+    retstr += lChar;
+  }
+  pclose(lFilePtr);
+
+  /* Print what we got back for debug */
+  //printf("output: %s\n", retstr.c_str());
+
+  std::vector<std::string> tokens;
+  /* Can't call ecmdParseTokens from here, so do it manually */
+  size_t curStart = 0, curEnd = 0;
+
+  while (1) {
+    curStart = retstr.find_first_not_of(";", curEnd);
+    if (curStart == std::string::npos) break;
+    curEnd = retstr.find_first_of(";",curStart);
+    tokens.push_back(retstr.substr(curStart, curEnd-curStart));
+  }
+  /* End ecmdParseTokens yank */
+
+  int linePos;
+  for (uint32_t idx = 0; idx < tokens.size(); idx++) {
+    /* Take an export command to the shell and turn it into a setenv command */
+    if (tokens[idx].substr(0, 6) == "export") {
+      linePos = tokens[idx].find("=");
+      std::string envVariable = tokens[idx].substr(7,(linePos - 7));
+      /* linePos + 2 gets past the =" in the output.  length() - (linePos + 3) pulls the quote off the end */
+      std::string envData = tokens[idx].substr(linePos+2, (tokens[idx].length() - (linePos+3)));
+      setenv(envVariable.c_str(), envData.c_str(), 1 /* Overwrite */);
+    }
+
+    /* If they are trying to echo it to the shell, print it here */
+    else if (tokens[idx].substr(0, 4) == "echo") {
+      printf("%s\n", tokens[idx].substr(5, tokens[idx].length()).c_str());
+    }
+
+    /* If they are trying to unset a variable, do it here */
+    else if (tokens[idx].substr(0, 5) == "unset") {
+      unsetenv(tokens[idx].substr(6, tokens[idx].length()).c_str());
+    }
+  }
+
+  return 0;
+}
+
+
 bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
   uint32_t rc = ECMD_SUCCESS;
   bool ret = false;
