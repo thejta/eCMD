@@ -24,7 +24,6 @@
 //----------------------------------------------------------------------
 #include <string>
 #include <stdio.h>
-#include <dlfcn.h>
 #include <unistd.h>
 
 #include <ecmdClientCapi.H>

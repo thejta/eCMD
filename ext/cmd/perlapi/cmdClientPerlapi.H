@@ -57,7 +57,7 @@ namespace CMDPERLAPI {
      if (cmdInitExtension("ver3,ver4")) { die "Fatal errors initializing DLL"; }
 
      */
-    int cmdInitExtension(const char * i_clientVersion);
+    uint32_t cmdInitExtension(const char * i_clientVersion);
 
     //@}
 
