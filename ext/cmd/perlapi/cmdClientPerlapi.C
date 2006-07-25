@@ -39,7 +39,9 @@
 #include "perl.h"
 #include "XSUB.h"  
 
-int CMDPERLAPI::cmdInitExtension(const char * i_clientVersion) {
+//lint -e613 Possible passing of a null pointer, shouldn't because version should always have a . in it
+
+uint32_t CMDPERLAPI::cmdInitExtension(const char * i_clientVersion) {
   /* Check our Perl Major Version */
   char capiVersion[10];
   strcpy(capiVersion,"ver");
