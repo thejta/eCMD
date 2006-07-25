@@ -122,8 +122,8 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
             return ECMD_INVALID_ARGS;
           }
             
-          int lowerBound = atoi(curSubstr.substr(0,tmpOffset).c_str());
-          int upperBound = atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
+          uint32_t lowerBound = (uint32_t)atoi(curSubstr.substr(0,tmpOffset).c_str());
+          uint32_t upperBound = (uint32_t)atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
           
           if (stepPtr != NULL)
             steps.setBit(lowerBound, upperBound - lowerBound + 1);
@@ -138,9 +138,9 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
           }
 
           if (stepPtr != NULL)
-            steps.setBit(atoi(curSubstr.c_str()));
+            steps.setBit((uint32_t)atoi(curSubstr.c_str()));
           else
-            steps.clearBit(atoi(curSubstr.c_str()));
+            steps.clearBit((uint32_t)atoi(curSubstr.c_str()));
 
         }
         
@@ -439,8 +439,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   ecmdClockType_t clockType = ECMD_PROC_REFCLOCK;  ///< the clock type to change the speed on
   ecmdClockSetMode_t clockSetMode = ECMD_CLOCK_ONE_STEP; ///< do adjustment in one operation or to steer to new value
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
-  uint32_t mult=0;                              ///< Multiplier value, if present 
-  uint32_t div=0;                           ///< Divider value, if present
+  uint32_t iv_mult=0;                              ///< Multiplier value, if present 
+  uint32_t iv_div=0;                           ///< Divider value, if present
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -507,8 +507,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'mult' parm\n");
       return ECMD_INVALID_ARGS;
     }
-    mult = atoi(clockspeed.c_str());
-    if (mult==0) {
+    iv_mult = (uint32_t)atoi(clockspeed.c_str());
+    if (iv_mult==0) {
       ecmdOutputError("setclockspeed - 'mult' value cannot equal 0\n");
       return ECMD_INVALID_ARGS;
     }
@@ -518,20 +518,20 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
 
     if ((strpos = clockspeed.find("div")) != std::string::npos) {
-    clockspeed.erase(strpos, clockspeed.length()-strpos);
+      clockspeed.erase(strpos, clockspeed.length()-strpos);
 
       if (!ecmdIsAllDecimal(clockspeed.c_str())) {
         ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'div' parm\n");
         return ECMD_INVALID_ARGS;
       }
-    div = atoi(clockspeed.c_str());
-      if (div==0) {
+      iv_div = (uint32_t)atoi(clockspeed.c_str());
+      if (iv_div==0) {
         ecmdOutputError("setclockspeed - 'div' value cannot equal 0\n");
         return ECMD_INVALID_ARGS;
       }
-    // set 'clockspeed' variable back to argv[1], as if another parm was used rather than mult and div
-    //  therefore, code after this check will work
-    clockspeed = argv[1];
+      // set 'clockspeed' variable back to argv[1], as if another parm was used rather than mult and div
+      //  therefore, code after this check will work
+      clockspeed = argv[1];
 
     } else {
       // this is supposed to be 'div'
@@ -554,9 +554,9 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   } 
   
-  uint32_t speed = atoi(clockspeed.c_str());
+  uint32_t speed = (uint32_t)atoi(clockspeed.c_str());
 
-  if (((argc > 2) && (mult==0)) || ((argc > 3) && (mult!=0)))  {
+  if (((argc > 2) && (iv_mult==0)) || ((argc > 3) && (iv_mult!=0)))  {
     ecmdOutputError("setclockspeed - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
     return ECMD_INVALID_ARGS;
@@ -572,10 +572,10 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
 
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-    if (mult==0)
+    if (iv_mult==0)
       rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
     else 
-      rc = ecmdSetClockMultDiv(target, clockType, mult, div);
+      rc = ecmdSetClockMultDiv(target, clockType, iv_mult, iv_div);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
