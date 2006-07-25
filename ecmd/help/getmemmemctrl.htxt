@@ -3,6 +3,7 @@ Syntax: getmemmemctrl <MemAddress> <NumBytes> [-k#] [-n#] [-s#] [-p#]
                                               [-o<format> | -f[d|b]<filename>]
         getmemmemctrl <MemAddress> <NumBytes> [-k#] [-n#] [-p#]
                                  [-exp <data> [-i<format>] [-mask <data>]]
+        getmemmemctrl <MemAddress>  [-exp -f[d|b]<filename> ] [-k#] [-n#] [-p#]
   
         ECMD:           Core Common Function
 
@@ -21,11 +22,11 @@ Syntax: getmemmemctrl <MemAddress> <NumBytes> [-k#] [-n#] [-s#] [-p#]
 
         -fd <filename>  Specify full path and filename to file in D-Card format to write
                         data from system
-                        Not valid with -o or -exp option.
+                        Not valid with -o or -i option.
 
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system
-                        Not valid with -o or -exp option.
+                        Not valid with -o or -i option.
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
 
         -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
@@ -35,6 +36,7 @@ Syntax: getmemmemctrl <MemAddress> <NumBytes> [-k#] [-n#] [-s#] [-p#]
                         error/no data returned if expected == actual.
 
         -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
+                        Not valid with '-exp -f[d|b]'
 
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
@@ -53,3 +55,4 @@ Syntax: getmemmemctrl <MemAddress> <NumBytes> [-k#] [-n#] [-s#] [-p#]
 
         Examples:       > getmemmemctrl 1000 128 -p0
                         > getmemmemctrl 1000 128 -fb datafile
+                        > getmemmemctrl 1000 -exp -fb datafile

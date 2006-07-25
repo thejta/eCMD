@@ -3,6 +3,7 @@ Syntax: getmemdma <MemAddress> <NumBytes> [-k#] [-n#] [-p#]
                                           [-o<format> | -f[d|b]<filename>]
         getmemdma <MemAddress> <NumBytes> [-k#] [-n#] [-p#]
                                  [-exp <data> [-i<format>] [-mask <data>]]
+        getmemdma <MemAddress>  [-exp -f[d|b]<filename> ] [-k#] [-n#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -20,11 +21,11 @@ Syntax: getmemdma <MemAddress> <NumBytes> [-k#] [-n#] [-p#]
 
         -fd <filename>  Specify full path and filename to file in D-Card format to write
                         data from system
-                        Not valid with -o or -exp option.
+                        Not valid with -o or -i option.
 
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system
-                        Not valid with -o or -exp option.
+                        Not valid with -o or -i option.
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
 
         -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
@@ -50,3 +51,4 @@ Syntax: getmemdma <MemAddress> <NumBytes> [-k#] [-n#] [-p#]
 
         Examples:       > getmemdma 1000 128 -p0
                         > getmemdma 1000 128 -fb datafile
+                        > getmemdma 1000 -exp -fb datafile
