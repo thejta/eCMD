@@ -1677,7 +1677,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         ringName = (*curRingData).ringNames.front();
 
         if (!curRingData->isCheckable && allRingsFlag) {
-          curRingData++;
           break;
         }
 
