@@ -30,6 +30,7 @@
 #include <dlfcn.h>
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
@@ -424,9 +425,12 @@ uint32_t ecmdSetup(char* i_args) {
     }
 
     /* If they are trying to unset a variable, do it here */
+    /* Beautiful, aix doesn't support it - shouldn't be a show stopper, so pulling.  JTA 07/26/06 */
+#ifndef _AIX
     else if (tokens[idx].substr(0, 5) == "unset") {
       unsetenv(tokens[idx].substr(6, tokens[idx].length()).c_str());
     }
+#endif
   }
 
   return 0;
