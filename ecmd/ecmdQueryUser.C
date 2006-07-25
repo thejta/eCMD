@@ -1016,8 +1016,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::list<ecmdThreadData>::iterator ecmdCurThread;
 
    
-    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = target.coreState =
-    target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     if (!strcmp(argv[0],"showconfig")) {
       rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
@@ -1070,13 +1070,53 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             sprintf(buf2,  "Flags=0x%.08X\n", ecmdCurChip->chipFlags); strcat(buf, buf2);
 	    ecmdOutput(buf);   buf[0] = '\0';
 	    	  
-            if ( (ecmdCurChip->numProcCores != 0) && ( !ecmdCurChip->coreData.empty() )) {
-              for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+            if (ecmdCurChip->numProcCores != 0) {
+              /* If the chip has cores, we have to redo the query down to the core level to get that information */
+              /* This fixes STGC00070795 - JTA 07/25/06 */
+              ecmdQueryData coreQueryData;            ///< Query data
+              ecmdChipTarget coreTarget;              ///< Target to refine query
+              coreTarget.cage = ecmdCurCage->cageId;
+              coreTarget.node = ecmdCurNode->nodeId;
+              coreTarget.slot = ecmdCurSlot->slotId;
+              coreTarget.chipType = ecmdCurChip->chipType;
+              coreTarget.pos  = ecmdCurChip->pos;
+              coreTarget.chipTypeState = coreTarget.cageState = coreTarget.nodeState = coreTarget.slotState = coreTarget.posState = ECMD_TARGET_FIELD_VALID;
+              coreTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+              coreTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+              if (!strcmp(argv[0],"showconfig")) {
+                rc = ecmdQueryConfig(coreTarget, coreQueryData, ECMD_QUERY_DETAIL_HIGH);
+              } else { // exist
+                rc = ecmdQueryExist(coreTarget, coreQueryData, ECMD_QUERY_DETAIL_HIGH);
+              }
+              /* I know this begin()->begin()->etc.. stuff is nasty, but it's the quick way down through return structure to get to my core data */
+              /* Everything should be just one position because the coreTarget states above are set to valid down to this level */
+              for (ecmdCurCore = coreQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin(); ecmdCurCore != coreQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.end(); ecmdCurCore++) {
                 sprintf(buf, "        Core %d\n", ecmdCurCore->coreId ); ecmdOutput(buf); 
-                sprintf(buf, "          Details: CoreUid=%8.8X\n", ecmdCurCore->unitId ); ecmdOutput(buf); 
-		if ((ecmdCurCore->numProcThreads != 0) || !ecmdCurCore->threadData.empty()) {
-                  /* For threaded chips */
-                  for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                sprintf(buf, "          Details: CoreUid=%8.8X\n", ecmdCurCore->unitId ); ecmdOutput(buf);
+
+
+                if (ecmdCurCore->numProcThreads != 0) {
+                  /* A continuation of cores from above.  If the chip has threads, we have to redo the query down to the thread level to get that information */
+                  ecmdQueryData threadQueryData;            ///< Query data
+                  ecmdChipTarget threadTarget;              ///< Target to refine query
+                  threadTarget.cage = ecmdCurCage->cageId;
+                  threadTarget.node = ecmdCurNode->nodeId;
+                  threadTarget.slot = ecmdCurSlot->slotId;
+                  threadTarget.chipType = ecmdCurChip->chipType;
+                  threadTarget.pos  = ecmdCurChip->pos;
+                  threadTarget.core  = ecmdCurCore->coreId;
+                  threadTarget.chipTypeState = threadTarget.cageState = threadTarget.nodeState = threadTarget.slotState = threadTarget.posState = threadTarget.coreState = ECMD_TARGET_FIELD_VALID;
+                  threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+                  if (!strcmp(argv[0],"showconfig")) {
+                    rc = ecmdQueryConfig(threadTarget, threadQueryData, ECMD_QUERY_DETAIL_HIGH);
+                  } else { // exist
+                    rc = ecmdQueryExist(threadTarget, threadQueryData, ECMD_QUERY_DETAIL_HIGH);
+                  }
+                  /* I know this begin()->begin()->etc.. stuff is nasty, but it's the quick way down through return structure to get to my thread data */
+                  /* Everything should be just one position because the threadTarget states above are set to valid down to this level */
+                  for (ecmdCurThread = threadQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin()->threadData.begin(); ecmdCurThread != threadQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin()->threadData.end(); ecmdCurThread++) {
                     sprintf(buf, "          Thread %d\n", ecmdCurThread->threadId );ecmdOutput(buf); 
                     sprintf(buf, "            Details: ThreadUid=%8.8X\n", ecmdCurThread->unitId );ecmdOutput(buf); 
                   } 
