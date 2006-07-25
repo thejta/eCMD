@@ -77,9 +77,9 @@ struct ecmdLatchBufferEntry {
 /** @brief Used to hold latchname keys and offsets into the scandef **/
 struct ecmdLatchHashInfo {
   //  uint32_t latchHashKey;                 ///< HashKey for the Latchname in Uppercase
-  int latchOffset;                       ///< Offset for the latchname in the scandef file
-  int ringBeginOffset;                   ///< Begin Offset for the latch Ring in the scandef file
-  int ringEndOffset;                     ///< End Offset for the latch Ring in the scandef file
+  uint32_t  latchOffset;                       ///< Offset for the latchname in the scandef file
+  uint32_t ringBeginOffset;                   ///< Begin Offset for the latch Ring in the scandef file
+  uint32_t ringEndOffset;                     ///< End Offset for the latch Ring in the scandef file
   bool ringFound;
 };
 
@@ -1909,7 +1909,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       }
       
       uint32_t curRingKey;
-      int ringBeginOffset, ringEndOffset;
+      uint32_t ringBeginOffset, ringEndOffset;
       bool ringFound = false;	
       bool foundLatch = false;
       uint32_t numRings =0;
