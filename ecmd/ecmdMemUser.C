@@ -69,7 +69,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
   uint64_t address;                     ///< The address from the command line
-  uint32_t numBytes;                    ///< Number of bytes from the command line
+  uint32_t numBytes = ECMD_UNSET;       ///< Number of bytes from the command line
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
@@ -97,23 +97,15 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
-  //expect and mask flags check
-  if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
-    expectFlag = true;
-
-    if ((maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
-      maskFlag = true;
-    }
-  }
 
   /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr != NULL) {
-    outputformat = formatPtr;
+  char * outputFormatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (outputFormatPtr != NULL) {
+    outputformat = outputFormatPtr;
   }  
-  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
+  char * inputFormatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (inputFormatPtr != NULL) {
+    inputformat = inputFormatPtr;
   }
 
 
@@ -123,8 +115,9 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /* Get the filename if -fd is specified */
   char * dcardfilename = ecmdParseOptionWithArgs(&argc, &argv, "-fd");
 
-  if(((filename != NULL) || (dcardfilename != NULL)) && (formatPtr != NULL) ) {
-    printLine = cmdlineName + " - Options -f and -o can't be specified together for format. Specify either one.\n";
+  if(((filename != NULL) || (dcardfilename != NULL)) && 
+     ((outputFormatPtr != NULL) || (inputFormatPtr != NULL))) {
+    printLine = cmdlineName + " - Options -f and -o/-i can't be specified together for format. Specify either one.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   } 
@@ -133,11 +126,21 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
-  if(((dcardfilename != NULL) || (filename != NULL)) && expectFlag) {
-    printLine = cmdlineName + "Options -fb and -fd can't be specified with expect (-exp).\n";
-    ecmdOutputError(printLine.c_str());
-    return ECMD_INVALID_ARGS;
-  }    
+
+  //expect and mask flags check
+  if (filename == NULL && dcardfilename == NULL) {
+    if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
+      expectFlag = true;
+      
+      if ((maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL) {
+	maskFlag = true;
+      }
+    }
+  } else {
+    // If we are passing in data with a file, just look for -exp
+    expectFlag = ecmdParseOption(&argc, &argv, "-exp");
+  }
+
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -145,27 +148,84 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  //Setup the target that will be used to query the system config
+  // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
+  if (memMode == ECMD_MEM_MEMCTRL) {
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    target.nodeState = target.chipTypeState = target.slotState = 
+      target.posState = target.threadState = 
+      target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = 
+      target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  }
+
+  // Read in the expect data
+  if (expectFlag) {
+    if ((filename == NULL) && (dcardfilename == NULL)) {
+
+      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
+      if (rc) {
+	ecmdOutputError((cmdlineName + " - Problems occurred parsing expected data, must be an invalid format\n").c_str());
+	return rc;
+      }
+
+      if (maskFlag) {
+	rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
+	if (rc) {
+	  ecmdOutputError((cmdlineName + " - Problems occurred parsing mask data, must be an invalid format\n").c_str());
+	  return rc;
+	}
+	
+      }
+
+    } else {
+      // Read from a file 
+      if (filename != NULL) {
+	rc = expected.readFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+	if (rc) {
+	  ecmdOutputError((cmdlineName + " - Problems occurred parsing expected data from file " + filename + " , must be an invalid format\n").c_str());
+	  return rc;
+	}
+      } else {
+	// Dcard
+	// Pulled support for this as it is a pain, could be added if needed, 
+	//   ecmdReadDcard returns a list of memory entries because there could 
+	//   be holes, so would have to loop down below
+	ecmdOutputError((cmdlineName + " - Currently Dcard support is not supported with -exp\n").c_str());
+	return ECMD_INVALID_ARGS;
+	//	rc = ecmdReadDcard(dcardfilename, expected);
+	//	if (rc) {
+	//	  printLine = cmdlineName + " - Problems occurred parsing input data from file " + dcardfilename +", must be an invalid format\n";
+	//	  ecmdOutputError(printLine.c_str());
+	//	  return rc;
+	//	}
+
+      }
+      // Let's pull the length from the file
+      numBytes = expected.getByteLength();
+    }
+	
+  }
+
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc < 2) {  //chip + address
+  if ((numBytes == ECMD_UNSET) && (argc < 2)) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }
-
-  //Setup the target that will be used to query the system config
-  // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
-  if (memMode == ECMD_MEM_MEMCTRL) {
-    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    target.nodeState = target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
-  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
-    target.chipType = ECMD_CHIPT_PROCESSOR;
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (argc < 1) { 
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
   }
 
   // Get the address
@@ -184,28 +244,12 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     return ECMD_INVALID_ARGS;
   }
 
-  // Get the number of bits
-  numBytes = (uint32_t)atoi(argv[1]);
-
-  if (expectFlag) {
-
-    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
-    if (rc) {
-      ecmdOutputError((cmdlineName + " - Problems occurred parsing expected data, must be an invalid format\n").c_str());
-      return rc;
-    }
-
-    if (maskFlag) {
-      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
-      if (rc) {
-        ecmdOutputError((cmdlineName + " - Problems occurred parsing mask data, must be an invalid format\n").c_str());
-        return rc;
-      }
-
-    }
-
-
+  // Get the number of bytes
+  if (numBytes == ECMD_UNSET) {
+    numBytes = (uint32_t)atoi(argv[1]);
   }
+
+
 
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
