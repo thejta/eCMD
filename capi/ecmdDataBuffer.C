@@ -945,7 +945,7 @@ uint32_t   ecmdDataBuffer::shiftLeft(uint32_t shiftNum) {
   // shift iv_Data array
   for (uint32_t iter = 0; iter < shiftNum; iter++) {
     prevCarry = 0;
-    for (i = iv_NumWords-1; i >= 0; i--) {
+    for (i = iv_NumWords-1; i != 0xFFFFFFFF; i--) {
 
       if (this->iv_Data[i] & 0x80000000) 
         thisCarry = 0x00000001;
@@ -1050,7 +1050,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t shiftNum) {
     /* We will do this faster if we are shifting nice word boundaries */
     uint32_t numwords = shiftNum / 32;
 
-    for (uint32_t witer = iv_NumWords - numwords - 1; witer >= 0; witer --) {
+    for (uint32_t witer = iv_NumWords - numwords - 1; witer != 0xFFFFFFFF; witer--) {
       iv_Data[witer + numwords] = iv_Data[witer];
     }
     /* Zero out the bottom of the array */
@@ -1121,7 +1121,7 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t shiftNum) {
   // shift iv_Data array
   for (uint32_t iter = 0; iter < shiftNum; iter++) {
     prevCarry = 0;
-    for (i = (iv_NumWords-1); i >= 0; i--) {
+    for (i = (iv_NumWords-1); i != 0xFFFFFFFF; i--) {
 
       if (this->iv_Data[i] & 0x80000000) 
         thisCarry = 0x00000001;
