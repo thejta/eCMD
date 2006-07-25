@@ -439,11 +439,11 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         printed = spyName + ": =====\n";
         ecmdOutput(printed.c_str());
         char tempstr[50];
-        int offset = 0;
+        uint32_t offset = 0;
         if (!spyData.isEnumerated) { // Can't do this on enumerated spies
           while (latchDataIter != spyData.spyLatches.end()) {
             // Format my data
-            sprintf(tempstr,"   %s%-8s ", ((latchDataIter->length > 8) ? "0x" : "0b"), ((latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, latchDataIter->length).c_str()));
+            sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
             printed = tempstr;
             // Now tack on the latch name
             printed += latchDataIter->latchName;
@@ -451,7 +451,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
             ecmdOutput(printed.c_str());
 
             // Walk some stuff
-            offset += latchDataIter->length;
+            offset += (uint32_t)latchDataIter->length;
             latchDataIter++;
           }
         }
