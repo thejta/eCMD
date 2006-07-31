@@ -1408,30 +1408,28 @@ uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, u
 
 uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
 
-    uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
 
-    if (i_targetStart+i_len > iv_NumBits) {
-      ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
-      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-    } else {
+  if (i_targetStart+i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else {
 
-      const uint8_t * sourcePtr = i_dataIn;
+    const uint8_t * sourcePtr = i_dataIn;
 
-        for (uint32_t i=0; i< i_len; i++) {
+    for (uint32_t i=0; i< i_len; i++) {
 
-            int index = (i+i_sourceStart)/8;
-            if (sourcePtr[index]& 0x00000001 << (7-(i+i_sourceStart -(index*8)))) {
-                 rc = this->setBit(i_targetStart + i );
-            }else {
-                if (this->isBitSet(i_targetStart +i  )){
-                    rc= this->clearBit(i_targetStart + i );
-                }
-            }
-            if (rc) break;
-          }
-   }
-   return rc;
+      int index = (i+i_sourceStart)/8;
+      if (sourcePtr[index]& 0x00000001 << (7-(i+i_sourceStart -(index*8)))) {
+        rc = this->setBit(i_targetStart + i );
+      }else {
+        rc= this->clearBit(i_targetStart + i );
+      }
+      if (rc) break;
+    }
+  }
+  return rc;
 }
 
 uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
