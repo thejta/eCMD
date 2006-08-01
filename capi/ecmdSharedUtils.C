@@ -326,7 +326,7 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
 std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
   std::string printed;
-  char util[7];
+  char util[10];
 
   if ((i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
     printed = i_target.chipType + "\t";
@@ -351,8 +351,8 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
       if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
 
 	if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED) {
-	  sprintf(util, ":%s", i_target.chipType.c_str());
-	  printed += util;
+	  printed += ":";
+	  printed += i_target.chipType;
 	}
 
 	sprintf(util, ":p%02d", i_target.pos);
