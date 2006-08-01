@@ -352,6 +352,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
 
 	if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED) {
 	  sprintf(util, ":%s", i_target.chipType.c_str());
+	  printed += util;
 	}
 
 	sprintf(util, ":p%02d", i_target.pos);
