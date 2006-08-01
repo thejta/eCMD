@@ -54,7 +54,8 @@ typedef enum {
  @brief Used by ecmdWriteTarget to specify displayMode
 */
 typedef enum {
-  ECMD_DISPLAY_TARGET_DEFAULT   ///< Default mode
+  ECMD_DISPLAY_TARGET_DEFAULT,    ///< Default mode : 'pu k0:n0:s0:p01:c1' or 'k0:n0'
+  ECMD_DISPLAY_TARGET_COMPRESSED  ///< Compressed : 'k0:n0:s0:pu:p01:c1' or 'k0:n0'
 } ecmdTargetDisplayMode_t;
 
 

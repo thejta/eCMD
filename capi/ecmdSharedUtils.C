@@ -328,7 +328,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
   std::string printed;
   char util[7];
 
-  if (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
+  if ((i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
     printed = i_target.chipType + "\t";
   }
 
@@ -350,12 +350,11 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
 
       if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
 
-        if (i_target.pos < 10) {
-          sprintf(util, ":p0%d", i_target.pos);
-        }
-        else {
-          sprintf(util, ":p%d", i_target.pos);
-        }
+	if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED) {
+	  sprintf(util, ":%s", i_target.chipType.c_str());
+	}
+
+	sprintf(util, ":p%02d", i_target.pos);
         printed += util;
 
         if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
@@ -366,29 +365,31 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
             sprintf(util, ":t%d", i_target.thread);
             printed += util;
           }
-          else {
+          else if (i_displayMode != ECMD_DISPLAY_TARGET_COMPRESSED) {
             printed += "   ";  //adjust spacing
           }
 
         } //core
-        else {
+        else if (i_displayMode != ECMD_DISPLAY_TARGET_COMPRESSED) {
           printed += "      ";  //adjust spacing
         }
 
       } //pos
-      else {
+      else if (i_displayMode != ECMD_DISPLAY_TARGET_COMPRESSED) {
         printed += "          ";  //adjust spacing
       }
 
     } //slot
-    else {
+    else if (i_displayMode != ECMD_DISPLAY_TARGET_COMPRESSED) {
       printed += "             ";  //adjust spacing
     }
 
   } //node
 
   //set a space between the target info and the data
-  printed += " "; 
+  if (i_displayMode != ECMD_DISPLAY_TARGET_COMPRESSED) {
+    printed += " "; 
+  }
 
   return printed;
 
