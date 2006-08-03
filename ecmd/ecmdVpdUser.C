@@ -76,13 +76,6 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   char targetStr[50];                   ///< target postfix for the filename incase of multi positions
   int targetCount=0;                    ///< counts the number of targets user specified
   
-  std::string cage;	
-  std::string node;	
-  std::string slot;	
-
-  uint8_t cageType;
-  uint8_t nodeType;
-  uint8_t slotType;
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -124,20 +117,12 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-
-  rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
-  if(rc) return rc;
-
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  if (!strcasecmp(target.chipType.c_str(),"ANYCHIP")) {
-      target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  if (target.chipType == "nochip") {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else {
-     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   }
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
@@ -242,14 +227,6 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
-  
-  std::string cage;	
-  std::string node;	
-  std::string slot;	
-
-  uint8_t cageType;
-  uint8_t nodeType;
-  uint8_t slotType;
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -295,19 +272,12 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
-  if(rc) return rc;
-
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  if (!strcasecmp(target.chipType.c_str(),"ANYCHIP")) {
-      target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  if (target.chipType == "nochip") {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else {
-     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   }
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
