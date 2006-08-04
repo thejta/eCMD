@@ -363,13 +363,6 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   
-  std::string cage;	
-  std::string node;	
-  std::string slot;	
-
-  uint8_t cageType;
-  uint8_t nodeType;
-  uint8_t slotType;
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -411,16 +404,9 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } 
 
-  rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
-  if(rc) return rc;
-
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  if (!strcasecmp(target.chipType.c_str(),"ANYCHIP")) {
+  if (target.chipType == "nochip") {
       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else {
      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -512,13 +498,6 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   
-  std::string cage;	
-  std::string node;	
-  std::string slot;	
-
-  uint8_t cageType;
-  uint8_t nodeType;
-  uint8_t slotType;
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
@@ -556,18 +535,9 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-
-
-  rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
-  if(rc) return rc;
-
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
-  if (!strcasecmp(target.chipType.c_str(),"ANYCHIP")) {
+  if (target.chipType == "nochip") {
       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else {
      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
