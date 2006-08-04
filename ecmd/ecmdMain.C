@@ -199,7 +199,7 @@ int main (int argc, char *argv[])
 
       if (rc == ECMD_INT_UNKNOWN_COMMAND) {
         if (argv[1] == NULL)
-          sprintf(buf,"ecmd - Must specify a command to execute\n");
+          sprintf(buf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
         else if (strlen(argv[1]) < 200)
           sprintf(buf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
         else
