@@ -81,6 +81,8 @@ if ($ARGV[0] eq "ecmd") {
 } else {
   print OUT "/* Extension initialization function - verifies version */\n";
   print OUT "uint32_t dll".ucfirst($ARGV[0])."InitExtension (const char * i_version);\n\n";
+  print OUT "/* Extension Specific load function - used by Cronus/GFW to see if extension is supported */\n";
+  print OUT "uint32_t dll".ucfirst($ARGV[0])."InitExtensionDll ();\n\n";
 }
 
 #parse file spec'd by $ARGV[0]
