@@ -353,6 +353,10 @@ uint32_t dllSystemPowerOn();
 
 uint32_t dllSystemPowerOff(); 
 
+uint32_t dllBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait ); 
+
+uint32_t dllQueryBiasState(ecmdChipTarget & i_target, uint32_t i_voltageLevel, uint32_t & o_currentVoltage, uint32_t & o_targetVoltage, uint32_t & o_timeValue); 
+
 uint32_t dllAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort); 
 
 uint32_t dllAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState); 

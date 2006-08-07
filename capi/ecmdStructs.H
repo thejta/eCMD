@@ -155,6 +155,16 @@ typedef enum{
 } ecmdClockSpeedType_t;
 
 /**
+ @brief Used by ecmdBiasVoltage interfaces to specify what notation the voltage is provided in
+ */
+typedef enum{
+  ECMD_VOLTAGE_UNKNOWN,      ///< Default
+  ECMD_VOLTAGE_NOMINAL,      ///< Set the voltaget to nominal
+  ECMD_VOLTAGE_PERCENT_DOWN, ///< Voltage in % below nominal
+  ECMD_VOLTAGE_PERCENT_UP,   ///< Voltage in % above nominal value
+} ecmdVoltageType_t;
+
+/**
  @brief Used by Ring/Array/Spy Query functions to return a required clock state
 */
 typedef enum {

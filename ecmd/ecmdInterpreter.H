@@ -146,7 +146,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char * argv[]);
 uint32_t ecmdGetClockSpeedUser(int argc, char * argv[]);
 uint32_t ecmdStartClocksUser(int argc, char * argv[]);
 uint32_t ecmdStopClocksUser(int argc, char * argv[]);
-uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
 
 /* ecmdMiscUser.C */
 uint32_t ecmdDeconfigUser(int argc, char * argv[]);
@@ -175,6 +174,11 @@ uint32_t ecmdPutGpioLatchUser(int argc, char* argv[]);
 uint32_t ecmdGpioConfigUser(int argc, char* argv[]);
 uint32_t ecmdGetGpioRegUser(int argc, char* argv[]);
 uint32_t ecmdPutGpioRegUser(int argc, char* argv[]);
+
+/* ecmdPowerUser.C */
+uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
+uint32_t ecmdBiasVoltageUser(int argc, char * argv[]);
+uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]);
 //@}
 
 
