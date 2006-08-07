@@ -1,0 +1,14 @@
+
+Syntax: querybiasstate <level> [-k#] [-n#]
+
+        ECMD:           Core Common Function
+
+        Function:       Querys the state of voltage bias operation
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        level           The voltage level to query on
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > querybiasstate 13 

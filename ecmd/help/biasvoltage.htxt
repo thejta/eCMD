@@ -1,0 +1,23 @@
+
+Syntax: biasvoltage <level> <direction> <biasValue> [imm]
+
+        ECMD:           Core Common Function
+
+        Function:       Write the biasValue to the level specified
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        level           The voltage level to query on
+
+        direction       Possible values are nom/up/down
+
+        biasValue       Voltage bias value in absolute voltage . If the value parameter 
+                        ends with a % sign it is is treated as a 10th of a percent value
+
+        imm   [opt]     If "imm" is given on the command line the operation returns 
+                        immediately instead of waiting for it to finish.
+
+        --------------------------------------------------------------------------------
+
+        Examples:       > biasvoltage 12 nom 45  -k1 -n0 
+                        > biasvoltage 10 up 21 
