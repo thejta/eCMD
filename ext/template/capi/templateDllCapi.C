@@ -99,5 +99,5 @@ uint32_t dllTemplateInitExtension (const char * i_clientVersion) {
   }
 #endif
 
-  return dllTemplateInitExtensionDll();
+  return dllTemplateInitExtensionInPlugin();
 }
