@@ -2884,6 +2884,43 @@ uint32_t ecmdSystemPowerOn();
 
 */
 uint32_t ecmdSystemPowerOff();
+
+/**
+ @brief Provides the ability to bias a voltage on a per target basis.
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_voltageLevel  Voltage level on the target we want to bias
+ @param i_direction Direction the voltage command is to go
+ @param i_biasValue The voltage bias value in 10 percent
+ @param i_wait Whether or not to wait for the operation to complete before return.  Default is to wait.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage,node<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait = true);
+
+/**
+ @brief Provides the ability to query the bias state to see if the operation is complete or any are pending.
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_voltageLevel  Voltage level on the target we want to bias
+ @param o_currentVoltage The current voltage value
+ @param o_targetVoltage  The voltage value we are trying to get to
+ @param o_timeValue The time in ms until the operation completes
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support Gpio
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage,node<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdQueryBiasState(ecmdChipTarget & i_target, uint32_t i_voltageLevel, uint32_t & o_currentVoltage, uint32_t & o_targetVoltage, uint32_t & o_timeValue);
+
 //@}
 
 /** @name Adal Functions */
