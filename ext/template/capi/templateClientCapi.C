@@ -39,6 +39,8 @@
 #include <templateClientCapi.H>
 #ifndef ECMD_STATIC_FUNCTIONS
 #include <templateClientEnums.H>
+#else
+#include <templateDllCapi.H>
 #endif
 
 //----------------------------------------------------------------------
@@ -74,44 +76,46 @@ extern bool templateInitialized;
 uint32_t templateInitExtension() {
 
   int rc = ECMD_SUCCESS;
-#ifdef ECMD_STATIC_FUNCTIONS
-  /* Nothing to see here */
-  /* We don't have to worry about initialization because their client won't compile unless the extension is supported */
-  templateInitialized = true;
 
-#else
-
+#ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
     fprintf(stderr,"templateInitExtension: eCMD TEMPLATE Extension Initialization function called before DLL has been loaded\n");
     exit(ECMD_DLL_INVALID);
   }
+#endif
 
-  if (!templateInitialized) {
-    /* look for init function */
-    uint32_t (*Function)(const char *) =
-      (uint32_t(*)(const char *))(void*)dlsym(dlHandle, "dllTemplateInitExtension");
-    if (!Function) {
-      /* This extension is not supported by this plugin */
-      rc = ECMD_EXTENSION_NOT_SUPPORTED;
-    } else {
-      rc = (*Function)(ECMD_TEMPLATE_CAPI_VERSION);
-      if (!rc) templateInitialized = true;
-    }
+  /* Only do this if it hasn't been done already */
+  if (templateInitialized) {
+    return ECMD_SUCCESS;
+  }
 
-    /* Clear out the function table */
-    for (int func = 0; func < TEMPLATE_NUMFUNCTIONS; func ++) {
-      templateDllFnTable[func] = NULL;
-    }
-
+#ifndef ECMD_STATIC_FUNCTIONS
+  /* look for init function */
+  uint32_t (*Function)(const char *) =
+    (uint32_t(*)(const char *))(void*)dlsym(dlHandle, "dllTemplateInitExtension");
+  if (!Function) {
+    /* This extension is not supported by this plugin */
+    rc = ECMD_EXTENSION_NOT_SUPPORTED;
+  } else {
+    rc = (*Function)(ECMD_TEMPLATE_CAPI_VERSION);
+    if (!rc) templateInitialized = true;
   }
   
-#endif
+  /* Clear out the function table */
+  for (int func = 0; func < TEMPLATE_NUMFUNCTIONS; func ++) {
+    templateDllFnTable[func] = NULL;
+  }
+#else
+
+  rc = dllTemplateInitExtension(ECMD_TEMPLATE_CAPI_VERSION);
+  if (!rc) templateInitialized = true;
+
+#endif /* ECMD_STATIC_FUNCTIONS */
 
   /* Now as part of defect 18081 we register to the core client that we have been initialized */
   ecmdRegisterExtensionInitState(&templateInitialized);
 
   return rc;
-
 }
 
 
