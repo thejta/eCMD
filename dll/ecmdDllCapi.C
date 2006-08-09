@@ -2202,7 +2202,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 
 	  }
 	} else { //latchname = null for QueryLatch
-	  while (getline(ins, curLine) && (ins.tellg() < latchHashDetIter->ringEndOffset)) {
+	  while (getline(ins, curLine) && (ins.tellg() < (int) latchHashDetIter->ringEndOffset)) {
               
 	    /* Transform to upper case */
             transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
