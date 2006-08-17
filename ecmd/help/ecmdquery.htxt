@@ -51,6 +51,7 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         version
                             - Display version info about the eCMD Instance you are running
 
+
         --------------------------------------------------------------------------------
 
         Example:        ecmdquery rings pu -p0,1
