@@ -41,6 +41,7 @@ Syntax: ecmdquery <Mode> [Mode Options]
 
                         configd ChipSelect [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target is configured or not.
+                            - -all options not supported for configd.
 
                         showconfig
                             - Display all configured targets, including EC info, etc..
@@ -51,8 +52,28 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         version
                             - Display version info about the eCMD Instance you are running
 
+        Addendum Options
+
+                        -k#  [optional] Specify which cage to act on (0 is default !). Specify -kall
+                                        to act on all cages (-kall is default for mode value 'chips').
+
+                        -n#  [optional] Specify which node to act on (0 is default !). Specify -nall
+                                        to act on all nodes (-nall is default for mode value 'chips').
+
+                        -s#  [optional] Specify which slot to act on (0 is default !). Specify -sall
+                                        to act on all slots (-sall is default for mode value 'chips').
+
+                        -p#  [optional] Specify which chip position to act on (0 is default !). Specify
+                                        -pall to act on all chips (-pall is default for mode value 'chips').
+
+                        -c#  [optional] Specify which processor core to act on (0 is default !). Specify
+                                        -call to act on all cores.
+
+                        -all [optional] Is short for -kall -nall -sall -pall [-call].
+                                        Note: -all options not supported for
 
         --------------------------------------------------------------------------------
 
         Example:        ecmdquery rings pu -p0,1
+                        ecmdquery rings pu -kall -nall -s4351 -pall
                         ecmdquery formats
