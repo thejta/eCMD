@@ -37,5 +37,5 @@ Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [
 
         --------------------------------------------------------------------------------
 
-        Examples:       > getvpdimage pu 128 -p0
-                        > getvpdimage l3cache 128 -fb datafile
+        Examples:       > getvpdimage pu mod 128 -p0
+                        > getvpdimage l3cache fru 128 -fb datafile

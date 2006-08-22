@@ -41,5 +41,5 @@ Syntax: getvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <NumBytes> -
 
         --------------------------------------------------------------------------------
 
-        Examples:       > getvpdkeyword pu "record" "key" 128 -p0
-                        > getvpdkeyword l3cache "record" "key" 128 -fb datafile
+        Examples:       > getvpdkeyword pu mod "record" "key" 128 -p0
+                        > getvpdkeyword l3cache fru "record" "key" 128 -fb datafile

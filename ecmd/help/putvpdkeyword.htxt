@@ -40,5 +40,5 @@ Syntax: putvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <Data> [-i<f
 
         --------------------------------------------------------------------------------
 
-        Examples:       > putvpdkeyword pu "record" "key" deadbeef80000000  -p0,1 
-                        > putvpdkeyword l3cache "record" "key" -fb datafile
+        Examples:       > putvpdkeyword pu mod "record" "key" deadbeef80000000  -p0,1 
+                        > putvpdkeyword l3cache fru "record" "key" -fb datafile

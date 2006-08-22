@@ -36,5 +36,5 @@ Syntax: putvpdimage <ChipSelect> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > putvpdimage pu deadbeef80000000  -p0,1 
-                        > putvpdimage l3cache -fb datafile
+        Examples:       > putvpdimage pu mod deadbeef80000000  -p0,1 
+                        > putvpdimage l3cache fru -fb datafile
