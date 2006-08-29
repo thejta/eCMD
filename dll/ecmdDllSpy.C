@@ -60,6 +60,13 @@ struct dllSpyData {
   std::list< ecmdSpyGroupData > *  group_data;     ///< Group Data
 };
 
+/* @brief Used to buffer spies info from spydef to avoid seraching for each chip ec */
+struct chipSpies{
+  std::string spydefName;              ///< Name of spydef where data was retrieved
+  std::list<sedcSpyContainer> spies;
+};
+
+
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
@@ -93,6 +100,9 @@ uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 /* Defined in ecmdDllCapi.C */
 uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 
+/* @brief Used by getSpy to buffer spy entries in memory to improve performance */
+std::list<chipSpies> spyBuffer;
+ 
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
@@ -1419,22 +1429,48 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   std::string spyFilePath;
   std::string spyHashFilePath;
   uint32_t key;
-//  std::list<sedcSpyContainer>::iterator searchSpy;
+  std::list<sedcSpyContainer>::iterator searchSpy;
   std::string spy_name;
   int foundSpy = 0;
   returnSpy.valid = 0;
   uint32_t buildflags = 0;
   char outstr[200];
-
+  std::list<chipSpies>::iterator  searchSpyList;
+  chipSpies curSpyInfo;
+  bool spyFnd = false; 
+  
   /* Convert to a STL string */
   spy_name = name;
   transform(spy_name.begin(), spy_name.end(), spy_name.begin(), (int(*)(int)) toupper);
 
   /* Look in the DB to see if we've read this in already */
   returnSpy.setName(spy_name);
-
   do {
-//    searchSpy = find(spies.begin(), spies.end(), returnSpy);
+      /* Let's get the path to the spydef */
+      rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
+      if (rc) return rc;
+
+
+      for (searchSpyList = spyBuffer.begin(); searchSpyList != spyBuffer.end(); searchSpyList ++) {
+        if (searchSpyList->spydefName == spyFilePath) {
+          searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
+
+          if (searchSpy != searchSpyList->spies.end()) { /* Found! */
+  
+            returnSpy = (*searchSpy);
+	    spyFnd = true;
+          } 
+          break;
+        }
+      }  
+      if ( spyBuffer.empty() || (!spyFnd && (searchSpyList->spydefName != spyFilePath)))  {
+        curSpyInfo.spydefName = spyFilePath; 
+        curSpyInfo.spies.clear();
+        spyBuffer.push_front(curSpyInfo);
+        searchSpyList = spyBuffer.begin();
+      }
+ 
+//    searchSpy = find(spyBuffer.begin(), spyBuffer.end(), returnSpy);
 
 //    if (searchSpy != spies.end()) { /* Found! */
 
@@ -1442,9 +1478,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
 
 //    } else { /* Not Found */
 
-      /* Let's get the path to the spydef */
-      rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
-      if (rc) return rc;
+      if (!spyFnd) {
       
       spyFile.open(spyFilePath.c_str());
       if (spyFile.fail()) {
@@ -1494,9 +1528,9 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
         return ECMD_INVALID_SPY;
       }
       /* Everything looks good, let's get out of here */
-//      spies.push_front(returnSpy);
+      searchSpyList->spies.push_front(returnSpy);
       spyFile.close();
-//    }
+    }
 
     /* If we found a synonym, go back and look up what it is suppose to point to */
     if (returnSpy.type == SC_SYNONYM) {
