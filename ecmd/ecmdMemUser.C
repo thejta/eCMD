@@ -289,7 +289,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       if (!ecmdCheckExpected(returnData, expected, mismatchBit)) {
 
      	 //@ make this stuff sprintf'd
-     	 char outstr[50];
+     	 char outstr[300];
      	 printLine = ecmdWriteTarget(target) + "\n";
      	 ecmdOutputError( printLine.c_str() );
 	 if (mismatchBit != ECMD_UNSET) {

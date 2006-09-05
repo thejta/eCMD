@@ -951,7 +951,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
-  char outstr[30];
+  char outstr[300];
   
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 

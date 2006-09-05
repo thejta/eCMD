@@ -3340,6 +3340,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
         }
       }
     }
+    delete [] dataOffsets;
     if (!propertyMatch) {
        ETRAC1("**** ERROR : Match for property: %s not found",i_property.c_str());
        RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
