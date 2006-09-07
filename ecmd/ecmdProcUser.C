@@ -62,14 +62,17 @@
 uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
-  ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget coreTarget;        ///< Current target
+  ecmdLooperData coreLooperData;    ///< Store internal Looper data
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  std::list<ecmdNameEntry> entries;    ///< List of spr's to fetch, to use getSprMultiple
-  std::list<ecmdNameEntry> entries_copy;    ///< List of spr's to fetch, to use getSprMultiple
-  ecmdNameEntry  entry;         ///< Spr entry to fetch
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::list<ecmdNameEntry> threadEntries;    ///< List of thread spr's to fetch, to use getSprMultiple
+  std::list<ecmdNameEntry> coreEntries;      ///< List of core spr's to fetch, to use getSprMultiple
+  ecmdNameEntry  entry;               ///< Spr entry to fetch
+  ecmdChipTarget threadTarget;        ///< Current thread target
+  ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
   int idx;
+  ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not 
 
   /* get format flag, if it's there */
   std::string format;
@@ -99,55 +102,118 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  coreTarget.chipType = ECMD_CHIPT_PROCESSOR;
+  coreTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  coreTarget.cageState = coreTarget.nodeState = coreTarget.slotState = coreTarget.posState = coreTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+  coreTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 
-  /* Walk through the arguments and create our list of sprs */
-  for (idx = 0; idx < argc; idx ++) {
-    entry.name = argv[idx];
-    entries.push_back(entry);
-  }
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdConfigLooperNext(coreTarget, coreLooperData) ) {
 
-  
+    /* Clear my lists out */
+    threadEntries.clear();
+    coreEntries.clear();
 
-    /* Restore to our initial list */
-    entries_copy = entries;
+    /* Walk through the arguments and create our list of sprs */
+    /* We have to re-establish this list on each position because one position may be dd2.0 and another 3.0 and the spr state changed */
+    for (idx = 0; idx < argc; idx ++) {
 
+      /* First thing we need to do is find out for this particular target if the SPR is threaded */
+      rc = ecmdQueryProcRegisterInfo(coreTarget, argv[idx], sprInfo);
+      if (rc) {
+        printed = "getspr - Error occured getting spr info for ";
+        printed += argv[idx];
+        printed += " on ";
+        printed += ecmdWriteTarget(coreTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
 
-    /* Actually go fetch the data */
-    rc = getSprMultiple(target, entries_copy);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
+      /* If it's thread, push onto one list.  Otherwise, push onto another */
+      entry.name = argv[idx];
+      if (sprInfo.threadReplicated) {
+        threadEntries.push_back(entry);
+      } else {
+        coreEntries.push_back(entry);
+      }
     }
-    else if (rc) {
-      printed = "getspr - Error occured performing getSprMultiple on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      return rc;
-    }
-    else {
-      validPosFound = true;     
-    }
 
-    printed = ecmdWriteTarget(target) + "\n";
-    ecmdOutput( printed.c_str() );
-    for (std::list<ecmdNameEntry>::iterator entit = entries_copy.begin(); entit != entries_copy.end(); entit ++) {
 
-      printed = entit->name + "\t";
+    /* Now go through and get all of our core spr's */
+    if (coreEntries.size()) {
 
-      printed += ecmdWriteDataFormatted(entit->buffer, format);
+      /* Actually go fetch the data */
+      rc = getSprMultiple(coreTarget, coreEntries);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      }
+      else if (rc) {
+        printed = "getspr - Error occured performing getSprMultiple on ";
+        printed += ecmdWriteTarget(coreTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
 
+      printed = ecmdWriteTarget(coreTarget) + "\n";
       ecmdOutput( printed.c_str() );
-    }
-    ecmdOutput("\n");
+      for (std::list<ecmdNameEntry>::iterator entit = coreEntries.begin(); entit != coreEntries.end(); entit ++) {
 
+        printed = entit->name + "\t";
+
+        printed += ecmdWriteDataFormatted(entit->buffer, format);
+
+        ecmdOutput( printed.c_str() );
+      }
+      ecmdOutput("\n");
+    }
+
+    /* Now go through and get all of our thread spr's */
+    if (threadEntries.size()) {
+
+      //Setup the target that will be used to query the system config 
+      // Copy everything over, just change the threadState
+      threadTarget = coreTarget;
+      threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+      rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
+      if (rc) return rc;
+
+      while ( ecmdConfigLooperNext(threadTarget, threadLooperData) ) {
+
+        /* Actually go fetch the data */
+        rc = getSprMultiple(threadTarget, threadEntries);
+        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+          continue;
+        }
+        else if (rc) {
+          printed = "getspr - Error occured performing getSprMultiple on ";
+          printed += ecmdWriteTarget(threadTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        }
+        else {
+          validPosFound = true;     
+        }
+
+        printed = ecmdWriteTarget(threadTarget) + "\n";
+        ecmdOutput( printed.c_str() );
+        for (std::list<ecmdNameEntry>::iterator entit = threadEntries.begin(); entit != threadEntries.end(); entit ++) {
+
+          printed = entit->name + "\t";
+
+          printed += ecmdWriteDataFormatted(entit->buffer, format);
+
+          ecmdOutput( printed.c_str() );
+        }
+        ecmdOutput("\n");
+      }
+    }
   }
 
   if (!validPosFound) {
@@ -162,18 +228,21 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
-  ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget coreTarget;        ///< Current target
+  ecmdLooperData coreLooperData;    ///< Store internal Looper data
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
   ecmdDataBuffer sprBuffer;     ///< Buffer to store data from the spr
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  ecmdLooperData looperdata;    ///< Store internal Looper data
   std::string sprName;          ///< Name of spr to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
+  ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not 
+  ecmdChipTarget threadTarget;        ///< Current thread target
+  ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -205,9 +274,10 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  coreTarget.chipType = ECMD_CHIPT_PROCESSOR;
+  coreTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  coreTarget.cageState = coreTarget.nodeState = coreTarget.slotState = coreTarget.posState = coreTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+  coreTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   sprName = argv[0];
 
@@ -239,62 +309,84 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   }
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdConfigLooperNext(coreTarget, coreLooperData) ) {
 
-
-    rc = getSpr(target, sprName.c_str(), sprBuffer);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "putspr - Error occured performing getspr on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-    }
-    else {
-      validPosFound = true;     
+    /* First thing we need to do is find out for this particular target if the SPR is threaded */
+    rc = ecmdQueryProcRegisterInfo(coreTarget, sprName.c_str(), sprInfo);
+    if (rc) {
+      printed = "putspr - Error occured getting spr info for ";
+      printed += sprName;
+      printed += " on ";
+      printed += ecmdWriteTarget(coreTarget) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
     }
 
-    /* Only do this once */
-    if (dataPtr != NULL) {
-
-      /* They didn't specify a range */
-      if (startBit == ECMD_UNSET ) {
-        startBit = 0;
-        numBits = sprBuffer.getBitLength();
-      }
-
-      rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
-      if (rc) {
-        ecmdOutputError("putspr - Problems occurred parsing input data, must be an invalid format\n");
-        return rc;
-      }
-
-      dataPtr = NULL;
+    /* Set the buffer length */
+    sprBuffer.setBitLength(sprInfo.bitLength);
+    
+    /* We now have the length of the SPR, read the data in */
+    /* They didn't specify a range */
+    if (startBit == ECMD_UNSET ) {
+      startBit = 0;
+      numBits = sprInfo.bitLength;
+    }
+    rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
+    if (rc) {
+      ecmdOutputError("putspr - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
     }
 
-    rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
+    // We've done the core loop and gotten the SPR info, now we need to loop on threads if this SPR has them.
+    // Copy everything over, just change the threadState
+    threadTarget = coreTarget;
+    threadTarget.threadState = (sprInfo.threadReplicated ? ECMD_TARGET_FIELD_WILDCARD : ECMD_TARGET_FIELD_UNUSED);
+
+    rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
     if (rc) return rc;
 
+    while ( ecmdConfigLooperNext(threadTarget, threadLooperData) ) {
 
-    rc = putSpr(target, sprName.c_str(), sprBuffer);
+      /* The user did the r/m/w version, so we need to do a get spr */
+      if (argc == 4) {
+        rc = getSpr(threadTarget, sprName.c_str(), sprBuffer);
+        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+          continue;
+        }
+        else if (rc) {
+          printed = "putspr - Error occured performing getspr on ";
+          printed += ecmdWriteTarget(threadTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        }
+        else {
+          validPosFound = true;     
+        }
+      }
 
-    if (rc) {
+      rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
+      if (rc) return rc;
+
+
+      rc = putSpr(threadTarget, sprName.c_str(), sprBuffer);
+
+      if (rc) {
         printed = "putspr - Error occured performing putspr on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(threadTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
-    }
+      } else {
+        validPosFound = true;     
+      }
 
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(threadTarget) + "\n";
+        ecmdOutput(printed.c_str());
+      }
     }
-
   }
 
   if (!validPosFound) {
