@@ -68,6 +68,29 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
+
+ 
+
+  /* Temporary fix:   get the target thread(s) if -all is used */
+  uint8_t thread = 0x80;
+
+  for (int i = 0; i < argc; i++){
+    if ((!strcasecmp(argv[i], "-all")) || (!strcasecmp(argv[i], "-tall"))){
+      thread = 0xC0;
+      break;
+    } else if (!strcasecmp(argv[i], "-t1")){ 
+      thread = 0x40;
+      break;
+    } else if (!strcasecmp(argv[i], "-t0")){ 
+      thread = 0x80;
+      break;
+    }
+  }
+
+  
+
+
+ 
   if (ecmdParseOption(&argc, &argv, "all"))
     executeAll = true;
 
@@ -124,8 +147,11 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       //Setup the target that will be used to query the system config 
       target.chipType = ECMD_CHIPT_PROCESSOR;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-      target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
 
+      /* Temporary fix: */
+      target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      target.thread = thread;
 
       rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
       if (rc) return rc;
