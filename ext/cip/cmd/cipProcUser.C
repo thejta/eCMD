@@ -149,8 +149,10 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
       target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
 
-      /* Temporary fix: */
-      target.threadState = ECMD_TARGET_FIELD_UNUSED;
+       /* Temporary fix: */
+      if ((!strcasecmp(argv[0],"start")) || (!strcasecmp(argv[0], "sreset"))) {     
+        target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      }
       target.thread = thread;
 
       rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
