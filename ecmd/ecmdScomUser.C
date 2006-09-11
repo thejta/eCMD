@@ -815,6 +815,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	       sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
      	       printed = outstr + printed;
      	       ecmdOutputError( printed.c_str() );
+	       return ECMD_EXPECT_FAILURE;
      	     }
      	     else {
      	       ecmdOutput( printed.c_str() );
