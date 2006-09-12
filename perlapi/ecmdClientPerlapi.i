@@ -54,6 +54,10 @@
   #include "bmlClientPerlapi.H"
   #include "bmlClientPerlapiFunc.H"
 #endif
+#ifdef ECMD_EIP_EXTENSION_SUPPORT
+  #include "eipClientPerlapi.H"
+  #include "eipClientPerlapiFunc.H"
+#endif
 #include "cmdClientPerlapi.H"
 #include "cmdClientPerlapiFunc.H"
 
@@ -135,6 +139,11 @@
   %include "bmlClientPerlapi.H"
   %include "bmlClientPerlapiFunc.H"
   %include "bmlStructs.H"
+#endif
+#ifdef ECMD_EIP_EXTENSION_SUPPORT
+  %include "eipClientPerlapi.H"
+  %include "eipClientPerlapiFunc.H"
+  %include "eipStructs.H"
 #endif
 %include "cmdClientPerlapi.H"
 %include "cmdClientPerlapiFunc.H"

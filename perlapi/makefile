@@ -17,7 +17,7 @@ endif
 
 # List the extensions to include in the compile
 ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cmd gip cro zse
+  EXTENSIONS   := cip cmd gip cro zse eip
 endif
 
 # Ok, find our CTE path if they don't already have one
@@ -73,7 +73,7 @@ MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiF
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux)
-  SUBDIR    := obj_linux/
+  SUBDIR    := obj_x86/
   CC        := g++
   TARGET    := ecmd
   LD        := ${CC}
@@ -90,7 +90,7 @@ endif
 # The Linux PPC Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR    := obj_linux_ppc/
+  SUBDIR    := obj_ppc/
   CC        := g++
   TARGET    := ecmd
   LD        := ${CC}
