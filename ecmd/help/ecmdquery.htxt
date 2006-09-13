@@ -41,7 +41,6 @@ Syntax: ecmdquery <Mode> [Mode Options]
 
                         configd ChipSelect [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target is configured or not.
-                            - -all options not supported for configd.
 
                         showconfig
                             - Display all configured targets, including EC info, etc..
@@ -69,11 +68,11 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         -c#  [optional] Specify which processor core to act on (0 is default !). Specify
                                         -call to act on all cores.
 
-                        -all [optional] Is short for -kall -nall -sall -pall [-call].
-                                        Note: -all options not supported for
+                        -all [optional] Shortcut for -kall -nall -sall -pall [-call]. e.g. -all -p0 is not allowed.
+                                        Note: -all options not supported for showconfig and showexist. See above.
 
         --------------------------------------------------------------------------------
 
-        Example:        ecmdquery rings pu -p0,1
-                        ecmdquery rings pu -kall -nall -s4351 -pall
+        Example:        ecmdquery rings pu -p0,1             (Note: works for I/P Series since default is -c0 -n0 -s0)
+                        ecmdquery rings pu -k1 -sall -p0,1   (Note: e.g. -k1 -sall needed for ZSeries since default 0)
                         ecmdquery formats
