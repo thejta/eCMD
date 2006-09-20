@@ -76,8 +76,16 @@ int fppCallCount =0;
 bool ecmdRingCacheEnabled = false;
 
 /* @brief we are going to store a copy of the args list for load/unload operations */
-int g_argc = 0;
-char* g_argv[ECMD_ARG_LIMIT+1];   ///< limit of 20 args, same limit in ecmdMain.C
+struct ecmdGlobalArgs {
+  int argc;
+  char* argv[ECMD_ARG_LIMIT+1];   ///< limit of 20 args, same limit in ecmdMain.C
+
+  // Constructor
+  ecmdGlobalArgs() {argc = 0; for (int x = 0; x < ECMD_ARG_LIMIT; x++) argv[x] = NULL; }
+  // Destructor, deallocate saved args
+  ~ecmdGlobalArgs() { for (int x = 0; x < argc; x ++) delete[] argv[x]; }
+};
+ecmdGlobalArgs g_args;
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -196,14 +204,14 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 
   /* Ok, is this a recall of ecmdLoadDll and we have some saved away parms, if so, recall */
-  if (!rc && g_argc != 0) {
+  if (!rc && g_args.argc != 0) {
     /* ecmdCommandArgs just clears pointers it doesn't free the memory, so make a new pointer list so we don't loose our args */
     char* l_argv[ECMD_ARG_LIMIT+1];
-    int l_argc = g_argc;
+    int l_argc = g_args.argc;
 
     for (int idx = 0; idx < ECMD_ARG_LIMIT; idx++) {
       if (idx < l_argc) {
-	l_argv[idx] = g_argv[idx];
+	l_argv[idx] = g_args.argv[idx];
       } else {
 	l_argv[idx] = NULL;
       }
@@ -325,17 +333,22 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 
 
   /* We need to save away what the user provided for the load/unload dll case */
-  g_argc = *i_argc;
 
+  g_args.argc = *i_argc;
+
+  char* tmp;
   for (int idx = 0; idx < ECMD_ARG_LIMIT; idx++) {
     if (idx < *i_argc) {
-      g_argv[idx] = (*i_argv)[idx];
+      tmp = g_args.argv[idx];
+      g_args.argv[idx] = new char[strlen((*i_argv)[idx])];
+      strcpy(g_args.argv[idx],(*i_argv)[idx]);
+      if (tmp != NULL) delete[] tmp;
     } else {
-      g_argv[idx] = NULL;
+      if (g_args.argv[idx] != NULL) delete[] g_args.argv[idx];
+      g_args.argv[idx] = NULL;
     }
   }
 
-  
 
 
 #ifdef ECMD_STATIC_FUNCTIONS
