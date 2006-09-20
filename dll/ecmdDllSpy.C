@@ -212,6 +212,35 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
       /* The eccGroups */
       queryData.epCheckers = spyent.aeiEpcheckers;
 
+      /* Fill in the latch information in high detail mode */
+      if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
+        if (spyent.states & SPY_GROUP_BITS) {
+          // Groups aren't supported for latch return data
+        } else {
+
+          // Loop over the latches, putting them together */
+          ecmdSpyLatchData latchData;
+          std::list<sedcLatchLine>::iterator aeiLineIter = spyent.aeiLines.begin();
+          while (aeiLineIter != spyent.aeiLines.end()) {
+
+            /* Look for the actual latch lines */
+            if ((aeiLineIter->state & SPY_RING) && !(aeiLineIter->state & SPY_SECTION_DEFINE)) {
+
+              /* Copy over what we retrieved */
+              latchData.latchName = aeiLineIter->latchName + aeiLineIter->latchExtras;
+              latchData.length = aeiLineIter->length;
+              latchData.lhsNum = aeiLineIter->lhsNum;
+              latchData.rhsNum = aeiLineIter->rhsNum;
+
+              /* Now save away what we got */
+              ret.spyLatches.push_back(latchData);
+            }
+
+            aeiLineIter++;
+          }
+        }
+      }
+
     } else {
       if (i_spyName != NULL) {
         dllOutputError("dllQuerySpy - Unknown spy type returned\n");
