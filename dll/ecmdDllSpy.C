@@ -1373,7 +1373,11 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
   uint32_t buildflags = 0;
   char outstr[200];
   sedcSpyContainer returnSpy;
-  
+
+  /* We have to do this because won't don't have an easy way to swtich between high and low detail - JTA 09/22/06 */
+  /* We'll just save all the information everytime (high detail).  Hopefully this won't hose performance */
+  buildflags |= RTF_RETAIN_LATCH_NAME;
+
   /* ----------------------------------------------------------------- */
   /*  Try to find the spy position from the hash file		     */
   /* ----------------------------------------------------------------- */
@@ -1467,7 +1471,11 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   std::list<chipSpies>::iterator  searchSpyList;
   chipSpies curSpyInfo;
   bool spyFnd = false; 
-  
+
+  /* We have to do this because won't don't have an easy way to swtich between high and low detail - JTA 09/22/06 */
+  /* We'll just save all the information everytime (high detail).  Hopefully this won't hose performance */
+  buildflags |= RTF_RETAIN_LATCH_NAME;
+
   /* Convert to a STL string */
   spy_name = name;
   transform(spy_name.begin(), spy_name.end(), spy_name.begin(), (int(*)(int)) toupper);
