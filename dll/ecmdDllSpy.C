@@ -233,7 +233,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
               latchData.rhsNum = aeiLineIter->rhsNum;
 
               /* Now save away what we got */
-              ret.spyLatches.push_back(latchData);
+              queryData.spyLatches.push_back(latchData);
             }
 
             aeiLineIter++;
