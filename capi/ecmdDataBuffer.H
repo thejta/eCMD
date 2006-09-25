@@ -151,6 +151,7 @@ extern tracDesc_t g_etrc; /** Trace Descriptor **/
 */
 
 typedef enum {
+  ECMD_SAVE_FORMAT_UNKNOWN,     ///< Default value
   ECMD_SAVE_FORMAT_BINARY,      ///< binary file with header with info like bit length, format etc
   ECMD_SAVE_FORMAT_BINARY_DATA, ///< binary file with data only - will NOT work with scan ring data as length is rounded up to next byte
   ECMD_SAVE_FORMAT_ASCII,       ///< ascii text file with header having same info like binary hdr
@@ -163,6 +164,7 @@ typedef enum {
 */
 
 typedef enum {
+  ECMD_UNKNOWN_MODE,    ///< Default value
   ECMD_WRITE_MODE,      ///< Overrwrite the data if the file already exists
   ECMD_APPEND_MODE,     ///< Add databuffer to the end of the file
 } ecmdWriteMode_t;

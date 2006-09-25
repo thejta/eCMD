@@ -39,6 +39,7 @@
  @brief Used by setBreakpoint to specify what type of breakpoint to set
 */
 typedef enum {
+  CIP_BREAKPOINT_UNKNOWN,      ///< Default
   CIP_BREAKPOINT_IABR,         ///< Instruction Address Breakpoint
   CIP_BREAKPOINT_DABR,         ///< Data Address Breakpoint
   CIP_BREAKPOINT_CIABR         ///< ?? Breakpoint
