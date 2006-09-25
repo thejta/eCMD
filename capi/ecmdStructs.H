@@ -50,7 +50,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "7.2"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "8.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -104,9 +104,9 @@ typedef enum {
  @brief Used in ecmdChipData to describe the interface macro used by the chip
 */
 typedef enum {
+  ECMD_INTERFACE_UNKNOWN,               ///< Unknown Interface
   ECMD_INTERFACE_ACCESS,                ///< Standard Jtag Access Macro
-  ECMD_INTERFACE_CFAM,                  ///< CommonFirmwareAccessMacro 
-  ECMD_INTERFACE_UNKNOWN                ///< Unknown Interface
+  ECMD_INTERFACE_CFAM                   ///< CommonFirmwareAccessMacro 
 } ecmdChipInterfaceType_t;
 
 /**
@@ -115,7 +115,6 @@ typedef enum {
 
 typedef enum {
   ECMD_TARGET_UNKNOWN_STATE,    ///< State field has not been initialized
-
   ECMD_TARGET_FIELD_VALID,      ///< Associated State Field is set to a valid value
   ECMD_TARGET_FIELD_UNUSED,     ///< Associated State Field is unused and should be ignored
   ECMD_TARGET_FIELD_WILDCARD,   ///< Associated State Field is a wildcard and should be iterated on in query functions
@@ -126,6 +125,7 @@ typedef enum {
  @brief Used by SetClockSpeed interfaces to adjust clock steering procedure
  */
 typedef enum {
+  ECMD_CLOCK_RANGE_UNKNOWN,
   ECMD_CLOCK_RANGE_DEFAULT,
   ECMD_CLOCK_RANGE_LOWEST,
   ECMD_CLOCK_RANGE_LOW,
@@ -138,6 +138,7 @@ typedef enum {
  @brief Used by SetClockSpeed interfaces to specify to do adjustment in one operation or to steer to new value
 */
 typedef enum {
+  ECMD_CLOCK_UNKNOWN,           ///< Default for not initialized
   ECMD_CLOCK_ONE_STEP,          ///< Change to new frequency in one operation
   ECMD_CLOCK_STEER              ///< Steer to new frequency
 } ecmdClockSetMode_t;
@@ -145,7 +146,8 @@ typedef enum {
 /**
  @brief Used by SetClockSpeed interfaces to specify what notation the speed is provided in
  */
-typedef enum{
+typedef enum {
+  ECMD_CLOCK_FREQUENCY_UNKNOWN,    ///< Default for not initialized
   ECMD_CLOCK_FREQUENCY_SPEC,       ///< Clock speed is specified in Mhz
   ECMD_CLOCK_CYCLETIME_SPEC,       ///< Clock speed is specified in cycle time
   ECMD_CLOCK_NOMINAL_PERCENT_UP,   ///< Clock speed specified in % above nominal
@@ -157,7 +159,7 @@ typedef enum{
 /**
  @brief Used by ecmdBiasVoltage interfaces to specify what notation the voltage is provided in
  */
-typedef enum{
+typedef enum {
   ECMD_VOLTAGE_UNKNOWN,      ///< Default
   ECMD_VOLTAGE_NOMINAL,      ///< Set the voltaget to nominal
   ECMD_VOLTAGE_PERCENT_DOWN, ///< Voltage in % below nominal
@@ -178,6 +180,7 @@ typedef enum {
  @brief Used by SetClockSpeed interfaces to specify the clock to control
  */
 typedef enum {
+  ECMD_REFCLOCK_UNKNOWN,                ///< Default for not initialized
   ECMD_PROC_REFCLOCK,                   ///< Processor reference clock
   ECMD_MEMCTRL_REFCLOCK                 ///< Memory Controller reference clock
 } ecmdClockType_t;
@@ -186,6 +189,7 @@ typedef enum {
  @brief Used by ecmdConfigLooperInit to enable/disable variable depth looping
 */
 typedef enum {
+  ECMD_LOOP_MODE_UNKNOWN,               ///< Default for not initialized
   ECMD_STATIC_DEPTH_LOOP                ///< Use the state specified on init, don't allow plugin to change
 } ecmdConfigLoopMode_t;
 
@@ -194,6 +198,7 @@ typedef enum {
  @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
 */
 typedef enum {
+  ECMD_LOOP_TYPE_UNKNOWN,               ///< Default for not initialized
   ECMD_SELECTED_TARGETS_LOOP,           ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to 0
   ECMD_SELECTED_TARGETS_LOOP_DEFALL,    ///< Loop on only targets in the system the user specified with -p# -c# -n#, etc. if not specified default to all
   ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop only on targets in the system to the depth user specified on command line (ie if user said only '-n0' then -s and below are unused) if not specified default to 0
@@ -222,6 +227,7 @@ typedef enum {
  Open Source |     true      |       1         |    false      |       1         |
 */
 typedef enum {
+  ECMD_DIO_UNKNOWN,                     ///< Default for not initialized
   ECMD_DIO_INPUT,                       ///< Input pin
   ECMD_DIO_OPEN_DRAIN,                  ///< See detailed table
   ECMD_DIO_OPEN_SOURCE,                 ///< See detailed table
@@ -233,6 +239,7 @@ typedef enum {
  @brief This is used by ecmdQueryDllInfo to return what environment the dll is designed to run in (i.e Simulation vs Hardware)
 */
 typedef enum {
+  ECMD_DLL_ENV_UNKNOWN,         ///< Default for not initialized
   ECMD_DLL_ENV_HW,              ///< Hardware Environment
   ECMD_DLL_ENV_SIM              ///< Simulation Environment
 } ecmdDllEnv_t;
@@ -264,6 +271,7 @@ typedef enum {
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
 */
 typedef enum {
+  ECMD_FILE_UNKNOWN,    ///< Default for not initialized
   ECMD_FILE_SCANDEF,    ///< Scandef file type
   ECMD_FILE_SPYDEF,     ///< Spy Definition file
   ECMD_FILE_ARRAYDEF,   ///< Array Definition file
@@ -278,6 +286,7 @@ typedef enum {
  Values copied from globals.h of SimDispatcher delivery 
 */
 typedef enum {
+  ECMD_SIM_MSG_UNKNOWN,    ///< Default for not initialized
   ECMD_SIM_MSG_EXCEPTION = 1,
   ECMD_SIM_MSG_TESTCASE = 2,
   ECMD_SIM_MSG_CMD_RS = 4,       // command receive / response send
@@ -293,16 +302,18 @@ typedef enum {
  Values copied from globals.h of SimDispatcher delivery 
 */
 typedef enum {
-      ECMD_SIM_ERROR = 0x1,
-      ECMD_SIM_WARNING = 0x2,
-      ECMD_SIM_INFO = 0x3,
-      ECMD_SIM_PLAIN = ~0
+  ECMD_SIM_UNKNOWN,    ///< Default for not initialized
+  ECMD_SIM_ERROR = 0x1,
+  ECMD_SIM_WARNING = 0x2,
+  ECMD_SIM_INFO = 0x3,
+  ECMD_SIM_PLAIN = ~0
 } ecmdFusionSeverity_t;
 
 /**
  @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
 */
 typedef enum {
+  ECMD_GLOBALVAR_UNKNOWN,    ///< Default for not initialized
   ECMD_GLOBALVAR_DEBUG,         ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
   ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
 } ecmdGlobalVarType_t;
@@ -311,6 +322,7 @@ typedef enum {
  @brief Used by I2C functions to specify bus speed
 */
 typedef enum {
+  ECMD_I2C_BUSSPEED_UNKNOWN,    ///< Default for not initialized
   ECMD_I2C_BUSSPEED_50KHZ,      ///< Run I2c bus at 50Khz
   ECMD_I2C_BUSSPEED_100KHZ,     ///< Run I2c bus at 100Khz
   ECMD_I2C_BUSSPEED_400KHZ,     ///< Run I2c bus at 400Khz
@@ -320,6 +332,7 @@ typedef enum {
  @brief Used by ecmdGpioWriteConfigRegister to specify the type of operation to do
 */
 typedef enum {
+  ECMD_GPIO_UNKNOWN,            ///< Default for not initialized
   ECMD_GPIO_CONFIG_WRITE,       ///< Set the current value of i_configReg to i_value
   ECMD_GPIO_SET_BIT,            ///< Set each bit of  i_configReg that is true in i_value. 
   ECMD_GPIO_CLEAR_BIT           ///< Clear each bit of i_configReg that is set to true in i_value. 
@@ -329,6 +342,7 @@ typedef enum {
  @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
 */
 typedef enum {
+  ECMD_LATCHMODE_UNKNOWN,       ///< Default for not initialized
   ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
   ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
 } ecmdLatchMode_t;
@@ -338,6 +352,7 @@ typedef enum {
  @brief Used by ecmdQueryConfig to specify detail level of query
 */
 typedef enum {
+  ECMD_QUERY_DETAIL_UNKNOWN,         ///< Default for not initialized
   ECMD_QUERY_DETAIL_LOW,             ///< Only config info is returned
   ECMD_QUERY_DETAIL_HIGH             ///< All info is returned
 } ecmdQueryDetail_t;
@@ -346,6 +361,7 @@ typedef enum {
  @brief Used for the ecmdQuerySpy function to specify which type of spy we have @see ecmdSpyData
 */
 typedef enum {
+  ECMD_SPYTYPE_UNKNOWN, ///< Default for not initialized
   ECMD_SPYTYPE_ALIAS,   ///< Spy is an alias
   ECMD_SPYTYPE_IDIAL,   ///< Spy is an iDial
   ECMD_SPYTYPE_EDIAL,   ///< Spy is an eDial
@@ -356,19 +372,21 @@ typedef enum {
  @brief Used by ecmdSetTraceMode to specify which trace to control
 */
 typedef enum {
- ECMD_TRACE_SCAN,               ///< Scan Trace
- ECMD_TRACE_PROCEDURE           ///< Procedure Trace
+  ECMD_TRACE_UNKNOWN,           ///< Default for not initialized
+  ECMD_TRACE_SCAN,              ///< Scan Trace
+  ECMD_TRACE_PROCEDURE          ///< Procedure Trace
 } ecmdTraceType_t;
 
 /**
  @brief Used by ecmdI2CCmdEntry to specify which commands to run
 */
 typedef enum {
- ECMD_I2C_RESET,          ///< Call should go ecmdI2cReset
- ECMD_I2C_READ,           ///< Call should go ecmdI2cRead
- ECMD_I2C_READOFFSET,     ///< Call should go ecmdI2cReadOffset
- ECMD_I2C_WRITE,          ///< Call should go ecmdI2cWrite
- ECMD_I2C_WRITEOFFSET     ///< Call should go ecmdI2cWriteOffset
+  ECMD_I2C_UNKNOWN,        ///< Default for not initialized
+  ECMD_I2C_RESET,          ///< Call should go ecmdI2cReset
+  ECMD_I2C_READ,           ///< Call should go ecmdI2cRead
+  ECMD_I2C_READOFFSET,     ///< Call should go ecmdI2cReadOffset
+  ECMD_I2C_WRITE,          ///< Call should go ecmdI2cWrite
+  ECMD_I2C_WRITEOFFSET     ///< Call should go ecmdI2cWriteOffset
 } ecmdI2CCmds_t;
 
 
