@@ -933,10 +933,10 @@ struct ecmdArrayData {
   // Members
   std::string arrayName;                ///< (Detail: Low)  Names used to reference this array
   uint32_t    arrayId;                  ///< (Detail: Low)  Hashed array ID
-  int         readAddressLength;        ///< (Detail: Low)  Bit length of read address
-  int         writeAddressLength;       ///< (Detail: Low)  Bit length of write address
-  int         length;                   ///< (Detail: Low)  Length of array (number of entries)
-  int         width;                    ///< (Detail: Low)  Bit width of array entry
+  uint32_t    readAddressLength;        ///< (Detail: Low)  Bit length of read address
+  uint32_t    writeAddressLength;       ///< (Detail: Low)  Bit length of write address
+  uint64_t    length;                   ///< (Detail: Low)  Length of array (number of entries)
+  uint32_t    width;                    ///< (Detail: Low)  Bit width of array entry
   bool             isCoreRelated;       ///< (Detail: Low)  This array is related to the core level of a chip
   std::string           clockDomain;    ///< (Detail: High) Clock domain this array belongs to
   ecmdClockState_t       clockState;    ///< (Detail: High) Required clock state to access this array
