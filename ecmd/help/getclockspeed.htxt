@@ -9,10 +9,12 @@ Syntax: getclockspeed <ClockType> mhz|us   [-k#] [-n#] [-s#] [-p#]
         --------------------------------------------------------------------------------
         ClockType       Clock type to read in system:
                          - pu_refclock          <-- Processor reference clock
-                         - memctrl_refclock     <-- Memory controller reference clock
                          - pu_coreclock         <-- Processor core clock
                          - pu_nestclock         <-- Processor nest clock
+                         - memctrl_refclock     <-- Memory controller reference clock
                          - memctrl_clock        <-- Memory controller clock
+                         - io_refclock          <-- IO chip reference clock
+                         - io_clock             <-- IO chip clock
 
         mhz|us           Speed Type that read value will be formatted in:  either mhz or
                          microseconds (us)
