@@ -619,8 +619,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         
       sprintf(buf,"\nAvailable arrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       
-      printed = "Array Names                    RdAddrLen  WrtAddrLen Length Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------------------------ ---------- ---------- ------ ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Array Names                    RdAddrLen  WrtAddrLen          Length Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------------ ---------- ---------- ---------------- ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
       for (arrayit = arraydata.begin(); arrayit != arraydata.end(); arrayit ++) {
 
@@ -636,7 +636,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isCore = 'N';
         }
 
-        sprintf(buf,"%-10d %-10d %-6d %-5d  %c   %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
+        sprintf(buf,"%-10d %-10d %-16dull %-5d  %c   %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
         printed += (std::string)buf;
 	
 
