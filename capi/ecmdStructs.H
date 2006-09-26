@@ -180,9 +180,12 @@ typedef enum {
  @brief Used by SetClockSpeed interfaces to specify the clock to control
  */
 typedef enum {
-  ECMD_REFCLOCK_UNKNOWN,                ///< Default for not initialized
+  ECMD_CLOCKTYPE_UNKNOWN,               ///< Default for not initialized
   ECMD_PROC_REFCLOCK,                   ///< Processor reference clock
-  ECMD_MEMCTRL_REFCLOCK                 ///< Memory Controller reference clock
+  ECMD_MEMCTRL_REFCLOCK,                ///< Memory Controller reference clock
+  ECMD_PROC_CORE_CLOCK,                 ///< Processor Core Clock
+  ECMD_PROC_NEST_CLOCK,                 ///< Processor Nest Clock
+  ECMD_MEMCTRL_CLOCK                    ///< Memory Controller Clock
 } ecmdClockType_t;
 
 /**
