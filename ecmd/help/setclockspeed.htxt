@@ -10,6 +10,9 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]    [-k#]
         ClockType       Clock type to program in system:
                          - pu_refclock          <-- Processor reference clock
                          - memctrl_refclock     <-- Memory controller reference clock
+                         - pu_coreclock         <-- Processor core clock
+                         - pu_nestclock         <-- Processor nest clock
+                         - memctrl_clock        <-- Memory controller clock
 
         Speed           New speed value to program can be specified with any of the
                         following keyword(s) preceded by decimal numbers:

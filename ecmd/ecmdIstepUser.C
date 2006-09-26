@@ -436,7 +436,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   std::string clocktype;                        ///< the clock type to change the speed on
   std::string clockspeed;                       ///< Speed - frequency or cycle time
   ecmdClockSpeedType_t speedType = ECMD_CLOCK_FREQUENCY_SPEC; ///< Clock speed type - frequency or cycle time
-  ecmdClockType_t clockType = ECMD_PROC_REFCLOCK;  ///< the clock type to change the speed on
+  ecmdClockType_t clockType = ECMD_CLOCKTYPE_UNKNOWN;  ///< the clock type to change the speed on
   ecmdClockSetMode_t clockSetMode = ECMD_CLOCK_ONE_STEP; ///< do adjustment in one operation or to steer to new value
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
   uint32_t iv_mult=0;                              ///< Multiplier value, if present 
@@ -476,8 +476,14 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     clockType = ECMD_PROC_REFCLOCK;
   } else if (clocktype == "memctrl_refclock") {
     clockType = ECMD_MEMCTRL_REFCLOCK;
+  } else if (clocktype == "pu_coreclock") {
+    clockType = ECMD_PROC_CORE_CLOCK;
+  } else if (clocktype == "pu_nestclock") {
+    clockType = ECMD_PROC_NEST_CLOCK;
+  } else if (clocktype == "memctrl_clock") {
+    clockType = ECMD_MEMCTRL_CLOCK;
   } else {
-    ecmdOutputError("setclockspeed - Unrecognizable clock Type. Should be \"pu_refclock\" or \"memctrl_refclock\"\n");
+    ecmdOutputError("setclockspeed - Unrecognized clocktype! 'setclockspeed -h' for recognized types.\n");
     return ECMD_INVALID_ARGS;
   }
   
@@ -656,8 +662,14 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     clockType = ECMD_PROC_REFCLOCK;
   } else if (clocktype == "memctrl_refclock") {
     clockType = ECMD_MEMCTRL_REFCLOCK;
+  } else if (clocktype == "pu_coreclock") {
+    clockType = ECMD_PROC_CORE_CLOCK;
+  } else if (clocktype == "pu_nestclock") {
+    clockType = ECMD_PROC_NEST_CLOCK;
+  } else if (clocktype == "memctrl_clock") {
+    clockType = ECMD_MEMCTRL_CLOCK;
   } else {
-    ecmdOutputError("getclockspeed - Unrecognizable clock Type. Should be \"pu_refclock\" or \"memctrl_refclock\"\n");
+    ecmdOutputError("getclockspeed - Unrecognized clocktype! 'getclockspeed -h' for recognized types.\n");
     return ECMD_INVALID_ARGS;
   }
   
