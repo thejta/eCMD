@@ -183,9 +183,11 @@ typedef enum {
   ECMD_CLOCKTYPE_UNKNOWN,               ///< Default for not initialized
   ECMD_PROC_REFCLOCK,                   ///< Processor reference clock
   ECMD_MEMCTRL_REFCLOCK,                ///< Memory Controller reference clock
-  ECMD_PROC_CORE_CLOCK,                 ///< Processor Core Clock
-  ECMD_PROC_NEST_CLOCK,                 ///< Processor Nest Clock
-  ECMD_MEMCTRL_CLOCK                    ///< Memory Controller Clock
+  ECMD_PROC_CORE_CLOCK,                 ///< Processor Core Clock (actual speed of the domain)
+  ECMD_PROC_NEST_CLOCK,                 ///< Processor Nest Clock (actual speed of the domain)
+  ECMD_MEMCTRL_CLOCK,                   ///< Memory Controller Clock (actual speed of the chip)
+  ECMD_IO_REFCLOCK,                     ///< IO Chip reference clock
+  ECMD_IO_CLOCK                         ///< IO Chip Clock (actual speed of the chip)
 } ecmdClockType_t;
 
 /**
