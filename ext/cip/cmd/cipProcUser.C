@@ -70,26 +70,21 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   /************************************************************************/
 
  
-
-  /* Temporary fix:   get the target thread(s) if -all is used */
-  uint8_t thread = 0x80;
-
+  /* We can no longer loop at a thread level, so we need to fish out what the user wants and turn it into a thread parm */
+  /* JTA 09/27/06 */
+  uint32_t thread = 0x8;
   for (int i = 0; i < argc; i++){
     if ((!strcasecmp(argv[i], "-all")) || (!strcasecmp(argv[i], "-tall"))){
-      thread = 0xC0;
+      thread = 0xC;
       break;
     } else if (!strcasecmp(argv[i], "-t1")){ 
-      thread = 0x40;
+      thread = 0x4;
       break;
     } else if (!strcasecmp(argv[i], "-t0")){ 
-      thread = 0x80;
+      thread = 0x8;
       break;
     }
   }
-
-  
-
-
  
   if (ecmdParseOption(&argc, &argv, "all"))
     executeAll = true;
@@ -148,14 +143,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       target.chipType = ECMD_CHIPT_PROCESSOR;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
       target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-
-      /* Temporary fix: */
-      if ((!strcasecmp(argv[0],"start")) || (!strcasecmp(argv[0], "sreset"))) {     
-        target.threadState = ECMD_TARGET_FIELD_UNUSED;
-      } else {
-        target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      }
-      target.thread = thread;
+      target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
       if (rc) return rc;
@@ -178,13 +166,13 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
 
         if (!strcasecmp(argv[0],"start")) {
-          rc = cipStartInstructions(target);
+          rc = cipStartInstructions(target, thread);
         } else if (!strcasecmp(argv[0], "sreset")) {
-          rc = cipStartInstructionsSreset(target);
+          rc = cipStartInstructionsSreset(target, thread);
         } else if (!strcasecmp(argv[0], "stop")) {
-          rc = cipStopInstructions(target);
+          rc = cipStopInstructions(target, thread);
         } else if (!strcasecmp(argv[0], "step")) {
-          rc = cipStepInstructions(target, 1);
+          rc = cipStepInstructions(target, 1, thread);
         }
 
         if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -231,6 +219,23 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
+  /* We can no longer loop at a thread level, so we need to fish out what the user wants and turn it into a thread parm */
+  /* JTA 09/27/06 */
+  uint32_t thread = 0x8;
+  for (int i = 0; i < argc; i++){
+    if ((!strcasecmp(argv[i], "-all")) || (!strcasecmp(argv[i], "-tall"))){
+      thread = 0xC;
+      break;
+    } else if (!strcasecmp(argv[i], "-t1")){ 
+      thread = 0x4;
+      break;
+    } else if (!strcasecmp(argv[i], "-t0")){ 
+      thread = 0x8;
+      break;
+    }
+  }
+ 
+
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
@@ -262,7 +267,8 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -271,9 +277,9 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
 
 
     if (!strcasecmp(argv[0],"set")) {
-      rc = cipSetBreakpoint(target, address, type);
+      rc = cipSetBreakpoint(target, address, type, thread);
     } else if (!strcasecmp(argv[0], "clear")) {
-      rc = cipClearBreakpoint(target,address, type );
+      rc = cipClearBreakpoint(target,address, type, thread);
     } else {
        printed = "cipbreakpoint - Invalid argument '";
        printed += (std::string)argv[0];

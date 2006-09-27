@@ -56,7 +56,8 @@ uint32_t cipInitExtension();
 
 /**
  @brief Start Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_thread The thread to start instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -64,11 +65,11 @@ uint32_t cipInitExtension();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStartInstructions (ecmdChipTarget & i_target);
+uint32_t cipStartInstructions (ecmdChipTarget & i_target, uint32_t i_thread);
 
 /**
  @brief Start Instructions on all configured processors
@@ -83,7 +84,8 @@ uint32_t cipStartAllInstructions ();
 
 /**
  @brief Start Instructions using an S-Reset
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_thread The thread to start instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -91,11 +93,11 @@ uint32_t cipStartAllInstructions ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStartInstructionsSreset (ecmdChipTarget & i_target);
+uint32_t cipStartInstructionsSreset (ecmdChipTarget & i_target, uint32_t i_thread);
 
 /**
  @brief Start Instructions on all configured processors using an S-Reset
@@ -110,7 +112,8 @@ uint32_t cipStartAllInstructionsSreset ();
 
 /**
  @brief Stop Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_thread The thread to stop instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -118,11 +121,11 @@ uint32_t cipStartAllInstructionsSreset ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStopInstructions (ecmdChipTarget & i_target);
+uint32_t cipStopInstructions (ecmdChipTarget & i_target, uint32_t i_thread);
 
 /**
  @brief Stop All Instructions
@@ -137,8 +140,9 @@ uint32_t cipStopAllInstructions ();
 
 /**
  @brief Step Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/core information
  @param i_steps Number of steps to execute
+ @param i_thread The thread to step instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -146,17 +150,18 @@ uint32_t cipStopAllInstructions ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- TARGET DEPTH  : Thread<br>
+ TARGET DEPTH  : Core<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
+uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_thread);
 
 /**
  @brief Set a hardware breakpoint in Processor using a real address
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/core information
  @param i_address Address to set breakpoint at
  @param i_type Type of breakpoint to set
+ @param i_thread The thread to set a breakpoint on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
@@ -167,13 +172,14 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps);
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
+uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type, uint32_t i_thread);
 
 /**
  @brief Clear a hardware breakpoint from Processor using a real address
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/core information
  @param i_address Address to clear breakpoint at
  @param i_type Type of breakpoint to set
+ @param i_thread The thread to clear a breakpoint on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful
@@ -184,7 +190,7 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type);
+uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type, uint32_t i_thread);
 
 
 /**
