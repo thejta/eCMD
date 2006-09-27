@@ -1006,127 +1006,220 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
   } else if (!strcmp(argv[0],"showconfig") || !strcmp(argv[0],"showexist")) {
 
     //Setup the target that will be used to query the system config 
-    ecmdQueryData queryData;            ///< Query data
     ecmdChipTarget target;              ///< Target to refine query
     std::list<ecmdCageData>::iterator ecmdCurCage;      ///< Iterators
     std::list<ecmdNodeData>::iterator ecmdCurNode;
+    std::list<ecmdNodeData>::iterator ecmdBeginNode;
+    std::list<ecmdNodeData>::iterator ecmdEndNode;
     std::list<ecmdSlotData>::iterator ecmdCurSlot;
+    std::list<ecmdSlotData>::iterator ecmdBeginSlot;
+    std::list<ecmdSlotData>::iterator ecmdEndSlot;
     std::list<ecmdChipData>::iterator ecmdCurChip;
+    std::list<ecmdChipData>::iterator ecmdBeginChip;
+    std::list<ecmdChipData>::iterator ecmdEndChip;
     std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdCoreData>::iterator ecmdBeginCore;
+    std::list<ecmdCoreData>::iterator ecmdEndCore;
     std::list<ecmdThreadData>::iterator ecmdCurThread;
+    std::list<ecmdThreadData>::iterator ecmdBeginThread;
+    std::list<ecmdThreadData>::iterator ecmdEndThread;
 
-   
-    target.chipTypeState = target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-    if (!strcmp(argv[0],"showconfig")) {
-      rc = ecmdQueryConfig(target, queryData, ECMD_QUERY_DETAIL_HIGH);
-    } else { // exist
-      rc = ecmdQueryExist(target, queryData, ECMD_QUERY_DETAIL_HIGH);
-    }
+    /* query info structures for each level */
+    ecmdQueryData cageQueryData;            
+    ecmdQueryData nodeQueryData;            
+    ecmdQueryData slotQueryData;            
+    ecmdQueryData chipQueryData;            
+    ecmdQueryData coreQueryData;            
+    ecmdQueryData threadQueryData;            
 
     char buf[500];
     char buf2[100];
     
-    for (ecmdCurCage = queryData.cageData.begin(); ecmdCurCage != queryData.cageData.end(); ecmdCurCage ++) {
+
+    /* Start looking at the cage level */
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    target.nodeState = target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (!strcmp(argv[0],"showconfig")) {
+      rc = ecmdQueryConfig(target, cageQueryData, ECMD_QUERY_DETAIL_HIGH);
+    } else { // exist
+      rc = ecmdQueryExist(target, cageQueryData, ECMD_QUERY_DETAIL_HIGH);
+    }
+
+    for (ecmdCurCage = cageQueryData.cageData.begin(); ecmdCurCage != cageQueryData.cageData.end(); ecmdCurCage++) {
       
       sprintf(buf,"Cage %d\n",ecmdCurCage->cageId); ecmdOutput(buf);
-      sprintf(buf,"  Details: CageUid=%8.8X\n",ecmdCurCage->unitId); ecmdOutput(buf);
-            
-      for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
-        
-	if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
-	  sprintf(buf,"  Node NA\n"); ecmdOutput(buf);
-	} else {
-	  sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId ); ecmdOutput(buf);
-	}
-        sprintf(buf,"    Details: NodeUid=%8.8X\n",ecmdCurNode->unitId ); ecmdOutput(buf);
+      sprintf(buf,"  Details: CageUid=%8.8X, Flags=0x%.08X\n",ecmdCurCage->unitId, ecmdCurCage->cageFlags); ecmdOutput(buf);
 
-        for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
-          
-	  if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
-	    sprintf(buf,"    Slot NA\n"); ecmdOutput(buf); 
-	  } else {
-	    sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); 
-	  }
-          sprintf(buf,"      Details: SlotUid=%8.8X\n",ecmdCurSlot->unitId); ecmdOutput(buf); buf[0] = '\0';
 
-          for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
-	  
-	    buf[0] = '\0';
-	    //Common chip details
-	    sprintf(buf2, "      %s %d\n",ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);strcat(buf, buf2);
+      /* Now get our node level info */
+      target.cage = ecmdCurCage->cageId;
+      target.cageState = ECMD_TARGET_FIELD_VALID;
+      target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+      target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      if (!strcmp(argv[0],"showconfig")) {
+        rc = ecmdQueryConfig(target, nodeQueryData, ECMD_QUERY_DETAIL_HIGH);
+      } else { // exist
+        rc = ecmdQueryExist(target, nodeQueryData, ECMD_QUERY_DETAIL_HIGH);
+      }
+      /* If we get back an empty query, we should just continue and try the next item in the list */
+      if (nodeQueryData.cageData.empty()) {
+        continue;
+      }
+      /* We have good data, so assign our Begin and End iterators so the for loop below is easily readable */
+      ecmdBeginNode = nodeQueryData.cageData.begin()->nodeData.begin();
+      ecmdEndNode = nodeQueryData.cageData.begin()->nodeData.end();
+
+      for (ecmdCurNode = ecmdBeginNode; ecmdCurNode != ecmdEndNode; ecmdCurNode++) {
+
+        if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
+          sprintf(buf,"  Node NA\n"); ecmdOutput(buf);
+        } else {
+          sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId ); ecmdOutput(buf);
+        }
+        sprintf(buf,"    Details: NodeUid=%8.8X, Flags=0x%.08X\n",ecmdCurNode->unitId, ecmdCurNode->nodeFlags); ecmdOutput(buf);
+
+        /* Now get our slot level info */
+        target.cage = ecmdCurCage->cageId;
+        target.cageState = ECMD_TARGET_FIELD_VALID;
+        target.node = ecmdCurNode->nodeId;
+        target.nodeState = ECMD_TARGET_FIELD_VALID;
+        target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+        if (!strcmp(argv[0],"showconfig")) {
+          rc = ecmdQueryConfig(target, slotQueryData, ECMD_QUERY_DETAIL_HIGH);
+        } else { // exist
+          rc = ecmdQueryExist(target, slotQueryData, ECMD_QUERY_DETAIL_HIGH);
+        }
+        /* If we get back an empty query, we should just continue and try the next item in the list */
+        if (slotQueryData.cageData.empty()) {
+          continue;
+        }
+        /* We have good data, so assign our Begin and End iterators so the for loop below is easily readable */
+        ecmdBeginSlot = slotQueryData.cageData.begin()->nodeData.begin()->slotData.begin();
+        ecmdEndSlot = slotQueryData.cageData.begin()->nodeData.begin()->slotData.end();
+
+        for (ecmdCurSlot = ecmdBeginSlot; ecmdCurSlot != ecmdEndSlot; ecmdCurSlot++) {
+
+          if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+            sprintf(buf,"    Slot NA\n"); ecmdOutput(buf); 
+          } else {
+            sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); 
+          }
+          sprintf(buf,"      Details: SlotUid=%8.8X, Flags=0x%.08X\n",ecmdCurSlot->unitId, ecmdCurSlot->slotFlags); ecmdOutput(buf); buf[0] = '\0';
+
+          /* Now get our chip level info */
+          target.cage = ecmdCurCage->cageId;
+          target.cageState = ECMD_TARGET_FIELD_VALID;
+          target.node = ecmdCurNode->nodeId;
+          target.nodeState = ECMD_TARGET_FIELD_VALID;
+          target.slot = ecmdCurSlot->slotId;
+          target.slotState = ECMD_TARGET_FIELD_VALID;
+          target.chipTypeState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+          target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+          if (!strcmp(argv[0],"showconfig")) {
+            rc = ecmdQueryConfig(target, chipQueryData, ECMD_QUERY_DETAIL_HIGH);
+          } else { // exist
+            rc = ecmdQueryExist(target, chipQueryData, ECMD_QUERY_DETAIL_HIGH);
+          }
+          /* If we get back an empty query, we should just continue and try the next item in the list */
+          if (chipQueryData.cageData.empty()) {
+            continue;
+          }
+          /* We have good data, so assign our Begin and End iterators so the for loop below is easily readable */
+          ecmdBeginChip = chipQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin();
+          ecmdEndChip = chipQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.end();
+
+          for (ecmdCurChip = ecmdBeginChip; ecmdCurChip != ecmdEndChip; ecmdCurChip++) {
+
+            buf[0] = '\0';
+            //Common chip details
+            sprintf(buf2, "      %s %d\n",ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);strcat(buf, buf2);
             sprintf(buf2, "        Details: PosUid=%8.8X, Name=%s, Short Name=%s, Common Name=%s,\n",ecmdCurChip->unitId, ecmdCurChip->chipType.c_str(),ecmdCurChip->chipShortType.c_str(),ecmdCurChip->chipCommonType.c_str());
-	    strcat(buf, buf2);
+            strcat(buf, buf2);
             sprintf(buf2, "                 Pos=%d, NumProcCores=%d, EC=%X, Model EC=%X,\n",ecmdCurChip->pos,ecmdCurChip->numProcCores, ecmdCurChip->chipEc,ecmdCurChip->simModelEc );  
-	    strcat(buf, buf2);
-	    if (ecmdCurChip->interfaceType == ECMD_INTERFACE_ACCESS)
+            strcat(buf, buf2);
+            if (ecmdCurChip->interfaceType == ECMD_INTERFACE_ACCESS)
               sprintf(buf2,"                 Interface=ACCESS, ");
             else if (ecmdCurChip->interfaceType == ECMD_INTERFACE_CFAM)
               sprintf(buf2,"                 Interface=CFAM, ");
             else
               sprintf(buf2,"                 Interface=UNKNOWN, ");  
-	    strcat(buf, buf2);
+            strcat(buf, buf2);
             sprintf(buf2,  "Flags=0x%.08X\n", ecmdCurChip->chipFlags); strcat(buf, buf2);
-	    ecmdOutput(buf);   buf[0] = '\0';
-	    	  
-            if (ecmdCurChip->numProcCores != 0) {
-              /* If the chip has cores, we have to redo the query down to the core level to get that information */
-              /* This fixes STGC00070795 - JTA 07/25/06 */
-              ecmdQueryData coreQueryData;            ///< Query data
-              ecmdChipTarget coreTarget;              ///< Target to refine query
-              coreTarget.cage = ecmdCurCage->cageId;
-              coreTarget.node = ecmdCurNode->nodeId;
-              coreTarget.slot = ecmdCurSlot->slotId;
-              coreTarget.chipType = ecmdCurChip->chipType;
-              coreTarget.pos  = ecmdCurChip->pos;
-              coreTarget.chipTypeState = coreTarget.cageState = coreTarget.nodeState = coreTarget.slotState = coreTarget.posState = ECMD_TARGET_FIELD_VALID;
-              coreTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-              coreTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+            ecmdOutput(buf);   buf[0] = '\0';
+
+            /* Now get our core level info */
+            target.cage = ecmdCurCage->cageId;
+            target.cageState = ECMD_TARGET_FIELD_VALID;
+            target.node = ecmdCurNode->nodeId;
+            target.nodeState = ECMD_TARGET_FIELD_VALID;
+            target.slot = ecmdCurSlot->slotId;
+            target.slotState = ECMD_TARGET_FIELD_VALID;
+            target.chipType = ecmdCurChip->chipType;
+            target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+            target.pos = ecmdCurChip->pos;
+            target.posState = ECMD_TARGET_FIELD_VALID;
+            target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+            target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+            if (!strcmp(argv[0],"showconfig")) {
+              rc = ecmdQueryConfig(target, coreQueryData, ECMD_QUERY_DETAIL_HIGH);
+            } else { // exist
+              rc = ecmdQueryExist(target, coreQueryData, ECMD_QUERY_DETAIL_HIGH);
+            }
+            /* If we get back an empty query, we should just continue and try the next item in the list */
+            if (coreQueryData.cageData.empty()) {
+              continue;
+            }
+            /* We have good data, so assign our Begin and End iterators so the for loop below is easily readable */
+            ecmdBeginCore = coreQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin();
+            ecmdEndCore = coreQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.end();
+
+            for (ecmdCurCore = ecmdBeginCore; ecmdCurCore != ecmdEndCore; ecmdCurCore++) {
+              sprintf(buf, "        Core %d\n", ecmdCurCore->coreId ); ecmdOutput(buf); 
+              sprintf(buf, "          Details: CoreUid=%8.8X, Flags=0x%.08X\n", ecmdCurCore->unitId, ecmdCurCore->coreFlags); ecmdOutput(buf);
+
+              /* Now get our thread level info */
+              target.cage = ecmdCurCage->cageId;
+              target.cageState = ECMD_TARGET_FIELD_VALID;
+              target.node = ecmdCurNode->nodeId;
+              target.nodeState = ECMD_TARGET_FIELD_VALID;
+              target.slot = ecmdCurSlot->slotId;
+              target.slotState = ECMD_TARGET_FIELD_VALID;
+              target.chipType = ecmdCurChip->chipType;
+              target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+              target.pos = ecmdCurChip->pos;
+              target.posState = ECMD_TARGET_FIELD_VALID;
+              target.core = ecmdCurCore->coreId;
+              target.coreState = ECMD_TARGET_FIELD_VALID;
+              target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
               if (!strcmp(argv[0],"showconfig")) {
-                rc = ecmdQueryConfig(coreTarget, coreQueryData, ECMD_QUERY_DETAIL_HIGH);
+                rc = ecmdQueryConfig(target, threadQueryData, ECMD_QUERY_DETAIL_HIGH);
               } else { // exist
-                rc = ecmdQueryExist(coreTarget, coreQueryData, ECMD_QUERY_DETAIL_HIGH);
+                rc = ecmdQueryExist(target, threadQueryData, ECMD_QUERY_DETAIL_HIGH);
               }
-              /* I know this begin()->begin()->etc.. stuff is nasty, but it's the quick way down through return structure to get to my core data */
-              /* Everything should be just one position because the coreTarget states above are set to valid down to this level */
-              for (ecmdCurCore = coreQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin(); ecmdCurCore != coreQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.end(); ecmdCurCore++) {
-                sprintf(buf, "        Core %d\n", ecmdCurCore->coreId ); ecmdOutput(buf); 
-                sprintf(buf, "          Details: CoreUid=%8.8X\n", ecmdCurCore->unitId ); ecmdOutput(buf);
+              /* If we get back an empty query, we should just continue and try the next item in the list */
+              if (threadQueryData.cageData.empty()) {
+                continue;
+              }
+              /* We have good data, so assign our Begin and End iterators so the for loop below is easily readable */
+              ecmdBeginThread = threadQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin()->threadData.begin();
+              ecmdEndThread = threadQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin()->threadData.end();
 
+              for (ecmdCurThread = ecmdBeginThread; ecmdCurThread != ecmdEndThread; ecmdCurThread++) {
+                sprintf(buf, "          Thread %d\n", ecmdCurThread->threadId );ecmdOutput(buf); 
+                sprintf(buf, "            Details: ThreadUid=%8.8X, Flags=0x%.08X\n", ecmdCurThread->unitId , ecmdCurThread->threadFlags);ecmdOutput(buf); 
+              }
 
-                if (ecmdCurCore->numProcThreads != 0) {
-                  /* A continuation of cores from above.  If the chip has threads, we have to redo the query down to the thread level to get that information */
-                  ecmdQueryData threadQueryData;            ///< Query data
-                  ecmdChipTarget threadTarget;              ///< Target to refine query
-                  threadTarget.cage = ecmdCurCage->cageId;
-                  threadTarget.node = ecmdCurNode->nodeId;
-                  threadTarget.slot = ecmdCurSlot->slotId;
-                  threadTarget.chipType = ecmdCurChip->chipType;
-                  threadTarget.pos  = ecmdCurChip->pos;
-                  threadTarget.core  = ecmdCurCore->coreId;
-                  threadTarget.chipTypeState = threadTarget.cageState = threadTarget.nodeState = threadTarget.slotState = threadTarget.posState = threadTarget.coreState = ECMD_TARGET_FIELD_VALID;
-                  threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
-
-                  if (!strcmp(argv[0],"showconfig")) {
-                    rc = ecmdQueryConfig(threadTarget, threadQueryData, ECMD_QUERY_DETAIL_HIGH);
-                  } else { // exist
-                    rc = ecmdQueryExist(threadTarget, threadQueryData, ECMD_QUERY_DETAIL_HIGH);
-                  }
-                  /* I know this begin()->begin()->etc.. stuff is nasty, but it's the quick way down through return structure to get to my thread data */
-                  /* Everything should be just one position because the threadTarget states above are set to valid down to this level */
-                  for (ecmdCurThread = threadQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin()->threadData.begin(); ecmdCurThread != threadQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->coreData.begin()->threadData.end(); ecmdCurThread++) {
-                    sprintf(buf, "          Thread %d\n", ecmdCurThread->threadId );ecmdOutput(buf); 
-                    sprintf(buf, "            Details: ThreadUid=%8.8X\n", ecmdCurThread->unitId );ecmdOutput(buf); 
-                  } 
-                }
-
-              } /* curCoreIter */
-            }
+            } /* curCoreIter */
 
           } /* curChipIter */
-              
+
         } /* curSlotIter */
 
       } /* curNodeIter */
