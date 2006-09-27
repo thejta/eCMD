@@ -55,6 +55,8 @@ uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayD
 
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
+bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData ); 
+
 uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
