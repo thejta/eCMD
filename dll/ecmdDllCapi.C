@@ -307,6 +307,7 @@ uint32_t dllCheckDllVersion (const char* options) {
   /* Force an exit here as the dll is not properly initialized we can't allow things to continue */
   exit(0);
 
+  return 0; // JTA 09/27/06 - added to shut down a compiler warning.  It's not smart enough to see the exit above
 }
 
 bool dllQueryVersionGreater(const char* version) {
@@ -2434,6 +2435,126 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
   } else {
     ret = retdefine;
   }
+  return ret;
+}
+
+bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
+  uint32_t rc = ECMD_SUCCESS;
+  bool ret = false;
+  bool myQuery = false;
+  ecmdChipTarget queryTarget;
+
+  std::list<ecmdCageData>::iterator ecmdCurCage;
+  std::list<ecmdNodeData>::iterator ecmdCurNode;
+  std::list<ecmdSlotData>::iterator ecmdCurSlot;
+  std::list<ecmdChipData>::iterator ecmdCurChip;
+  std::list<ecmdCoreData>::iterator ecmdCurCore;
+  std::list<ecmdThreadData>::iterator ecmdCurThread;
+
+
+  /* Do we need to do our own query ? */
+  if (i_queryData == NULL) {
+    i_queryData = new ecmdQueryData;
+    queryTarget = i_target;
+    myQuery = true;
+
+    /* Force the states to be right, if not set properly */
+    if (queryTarget.cageState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.cageState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.nodeState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.slotState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.slotState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.chipTypeState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.posState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.coreState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.coreState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.threadState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.threadState = ECMD_TARGET_FIELD_VALID;
+
+
+    rc = dllQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
+    if (rc) {
+      delete i_queryData;
+      return ret;
+    }
+  }
+
+
+  /* Now we have our data, let's start walking the data we have */
+  for (ecmdCurCage = i_queryData->cageData.begin(); ecmdCurCage != i_queryData->cageData.end(); ecmdCurCage ++) {
+    if (ecmdCurCage->cageId == i_target.cage) {
+      if (i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) {
+        ret = true;
+        break;
+      }
+
+      for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
+        if (ecmdCurNode->nodeId == i_target.node) {
+          if (i_target.slotState == ECMD_TARGET_FIELD_UNUSED) {
+            ret = true;
+            break;
+          }
+
+
+          for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
+            if (ecmdCurSlot->slotId == i_target.slot) {
+              if (i_target.chipTypeState == ECMD_TARGET_FIELD_UNUSED || i_target.posState == ECMD_TARGET_FIELD_UNUSED) {
+                ret = true;
+                break;
+              }
+
+              for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+                if (((ecmdCurChip->chipType == i_target.chipType) || (ecmdCurChip->chipCommonType == i_target.chipType) || (ecmdCurChip->chipShortType == i_target.chipType)) &&
+                    (ecmdCurChip->pos == i_target.pos)) {
+                  if (i_target.coreState == ECMD_TARGET_FIELD_UNUSED) {
+                    ret = true;
+                    break;
+                  }
+                  
+                  for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
+                    if (ecmdCurCore->coreId == i_target.core) {
+                      if (i_target.threadState == ECMD_TARGET_FIELD_UNUSED) {
+                        ret = true;
+                        break;
+                      }
+
+                      for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                        if (ecmdCurThread->threadId == i_target.thread) {
+                          ret = true;
+                          break;
+                        } /* curThreadId == tarThreadId */
+                      } /* for ecmdCurThread */
+                        
+                      if (ret) break;
+                    } /* curCoreId == tarCoreId */
+                  } /* for ecmdCurCore */
+
+                  if (ret) break;
+                } /* curChipType == tarChipType && curChipPos == tarChipPos */
+              } /* for ecmdCurChip */
+
+              if (ret) break;
+            } /* curSlotId == tarSlotId */
+          } /* for ecmdCurSlot */
+
+          if (ret) break;
+        } /* curNodeId == tarNodeId */
+      } /* for ecmdCurNode */
+
+      if (ret) break;
+    } /* curCageId == tarCageId */
+  } /* for ecmdCurCage */
+
+
+  if (myQuery) {
+    delete i_queryData;
+    i_queryData = NULL;
+  }
+
+  /*lint -e429 i_queryData is deallocated above based on myQuery bool */
   return ret;
 }
 
