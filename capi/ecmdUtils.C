@@ -1253,7 +1253,7 @@ uint32_t ecmdDisplayDllInfo() {
 }
 
 #ifndef FIPSODE
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format) {
+uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
@@ -1301,11 +1301,23 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
 
   sprintf(bitDesc,"Name       : %20s%s\nDesc	   : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
+  if (o_strData != NULL) {
+    *o_strData += bitDesc;
+  }
 
   for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
     ecmdOutput(descIt->c_str());
+    if (o_strData != NULL) {
+      *o_strData += *descIt;
+    }
   }
-  ecmdOutput("\n");
+
+  printed = "\n";
+  ecmdOutput(printed.c_str());
+  if (o_strData != NULL) {
+    *o_strData += printed;
+  }
+
   //Print Bits description
   for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
     if ((i_data.getNumBitsSet(definIt->lhsNum, definIt->length) && verboseBitsSetFlag) ||
@@ -1319,6 +1331,9 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
       }
       sprintf(bitDesc, "%-10s : ",bitDesc);
       ecmdOutput(bitDesc);
+      if (o_strData != NULL) {
+        *o_strData += bitDesc;
+      }
 
       if (definIt->length <= 8) {
   	std::string binstr = i_data.genBinStr(definIt->lhsNum, definIt->length);
@@ -1329,15 +1344,24 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
   	sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
       }
       ecmdOutput(bitDesc);
+      if (o_strData != NULL) {
+        *o_strData += bitDesc;
+      }
       std::string bitDescStr;
       for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
   	sprintf(bitDesc, "%32s ", " ");
   	//Would print the entire string no matter how long it is
   	bitDescStr = (std::string)bitDesc + *bitDetIt;
   	ecmdOutput(bitDescStr.c_str());
+        if (o_strData != NULL) {
+          *o_strData += bitDescStr;
+        }
 	bitDescStr = "\n";// Doing the newline separately cos there maybe control characters at the end of Desc
 	ecmdOutput(bitDescStr.c_str());
- 
+        if (o_strData != NULL) {
+          *o_strData += bitDescStr;
+        }       
+
       }//end for
     }//end if 
   }// end for
