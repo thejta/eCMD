@@ -11,16 +11,16 @@
 
 /*********** Start Applies ***********/
 // These are used to map C types that swig doesn't understand to types swig does understand
-%apply unsigned char { uint8_t }
-%apply unsigned char &REFERENCE { uint8_t & }
-%apply unsigned char *REFERENCE { uint8_t * }
-%apply unsigned short { uint16_t }
-%apply unsigned short &REFERENCE { uint16_t & }
-%apply unsigned short *REFERENCE { uint16_t * }
-%apply unsigned int { uint32_t }
+%apply unsigned char { uint8_t };
+%apply unsigned char &REFERENCE { uint8_t & };
+%apply unsigned char *REFERENCE { uint8_t * };
+%apply unsigned short { uint16_t };
+%apply unsigned short &REFERENCE { uint16_t & };
+%apply unsigned short *REFERENCE { uint16_t * };
+%apply unsigned int { uint32_t };
 %apply unsigned int &REFERENCE { uint32_t & };
 %apply unsigned int *REFERENCE { uint32_t * };
-%apply ecmdBit64 { uint64_t }
+%apply ecmdBit64 { uint64_t };
 %apply ecmdBit64 &REFERENCE { uint64_t & };
 %apply ecmdBit64 *REFERENCE { uint64_t * };
 %apply std::string &REFERENCE { std::string & };

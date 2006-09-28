@@ -80,7 +80,6 @@
 
 // These typemaps are setup to take either string values or ecmdBit64 classes for uint64_t args
 %typemap(in) ecmdBit64 {
-
   ecmdBit64* tmp;
   if (SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
     $1 = tmp->getRawValue();
@@ -119,4 +118,22 @@
       }
       sv_setpv($arg,temp);
     }
+}
+
+// This typemap is for functions that return uint64_t(ecmdDataBuffer::getDoubleWord) and also uint64_t members of structures returned ecmdQueryArray
+
+%typemap(out) uint64_t {
+// This commented stuff returns the data as a string instead of ecmdBit64
+//  char temp[256];
+//  if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
+//  sprintf(temp,"%llu", (unsigned long long)($1));
+//  sv_setpv($result = sv_newmortal(),temp);
+//  ++argvi;
+
+  if (argvi >= items) EXTEND(sp, 1);	// bump stack ptr, if needed
+  $result = sv_newmortal();
+  ecmdBit64* tmp = new ecmdBit64();
+  SWIG_MakePtr(ST(argvi++), (void *) tmp, SWIGTYPE_p_ecmdBit64, $shadow|$owner);
+  tmp->setRawValue($1);
+
 }
