@@ -50,10 +50,10 @@ public:
   */
   ecmdBit64();
   /**
-     @brief Constructor, init with hex right aligned string 'FEEDBEEFB0B0BEEF'
-     @param i_hexData Right aligned hex string
+     @brief Constructor, init to string value
+     @param i_strData String value to init, ie ('0xFFEE', '1234')
   */
-  ecmdBit64(const char* i_hexData);
+  ecmdBit64(const char* i_strData);
   /**
      @brief Constructor, init with integer value
      @param i_newValue Value to initialize to
@@ -67,10 +67,16 @@ public:
   ecmdBit64(uint32_t i_hiValue, uint32_t i_loValue);
 
   /**
-     @brief Set with hex right aligned string 'FEEDBEEFB0B0BEEF'
-     @param i_hexData Right aligned hex string
+     @brief Copy the contents of this ecmdBit64 into another
+     @param o_copy Value copied into this class
   */
-  void setValue(const char* i_hexData);
+  void copy(ecmdBit64 & o_copy) { o_copy.value = value; }
+
+  /**
+     @brief Set with string value
+     @param i_strData String value to init, ie ('0xFFEE', '1234')
+  */
+  void setValue(const char* i_strData);
   /**
      @brief Set with integer value
      @param i_newValue Value to initialize to
