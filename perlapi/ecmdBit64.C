@@ -33,7 +33,8 @@
 #include <ecmdBit64.H>
 #include <inttypes.h>
 
-uint64_t getHexValue(const char* hexValue);
+/* Pass in either dec '1234' or hex '0xFEED' */
+uint64_t getHexValue(const char* strValue);
 
 ecmdBit64::ecmdBit64() : value(0) {
 }
@@ -59,11 +60,9 @@ void ecmdBit64::setValue(uint32_t hiValue, uint32_t loValue) {
   value = (value << 32) | (uint64_t)loValue;
 }
 
-std::string ecmdBit64::getValue(bool i_hex) {
+std::string ecmdBit64::getValue(bool i_decimal) {
   char tmp[100];
-
-  
-  if (i_hex)
+  if (!i_decimal)
     sprintf(tmp,"0x%llX",value);
   else
     sprintf(tmp,"%llu",value);

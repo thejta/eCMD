@@ -91,10 +91,10 @@ public:
 
   /**
      @brief Retrieve String value '0xFEEDBEEFB0B0BEEF'
-     @param i_Oxprefix Add the 'Ox' on the front of the string
-     @retval 64 bit value in the form of a right aligned string
+     @param i_decimal Print the string in decimal '1234' instead of hex '0xFEED'
+     @retval 64 bit value in a string
   */
-  std::string getValue(bool i_Oxprefix = true);
+  std::string getValue(bool i_decimal = false);
   /**
      @brief Retrive the hi and low word in integer form
      @param o_hiValue High(Left) word, bits (0-31)
