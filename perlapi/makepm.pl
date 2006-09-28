@@ -227,8 +227,10 @@ if (-e "$curdir/$ARGV[0]ClientPerlapi.i") {
       # Now Write it out
       print RENAMEOUT "%rename(operatorEqualTo)    operator==(const $codeName\::iterator& rhs) const;\n";
       print RENAMEOUT "%rename(operatorNotEqualTo) operator!=(const $codeName\::iterator& rhs) const;\n";
-      print RENAMEOUT "%rename(operatorIncrement)  operator++(int);\n";
-      print RENAMEOUT "%rename(operatorDecrement)  operator--(int);\n";
+
+      # These are now just in ecmdClientPerlapi.i
+#      print RENAMEOUT "%rename(operatorIncrement)  operator++(int);\n";
+#      print RENAMEOUT "%rename(operatorDecrement)  operator--(int);\n";
 
       # Move on to the header file
       print HEADEROUT "struct $swigName {\n";
