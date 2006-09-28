@@ -38,9 +38,9 @@ ifeq ($(strip $(CTEPATH)),)
 endif
 
 VPATH        := ../capi/export
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H ecmdBit64.H
 INT_INCLUDES := 
-SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C
+SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C ecmdBit64.C
 MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRename.i
 DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -I../capi/export -g -I../dll

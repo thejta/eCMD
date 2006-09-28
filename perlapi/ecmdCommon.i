@@ -76,3 +76,47 @@
 {
   $1 = SvROK($input) ? 1 : 0;
 }
+
+
+// These typemaps are setup to take either string values or ecmdBit64 classes for uint64_t args
+%typemap(in) ecmdBit64 {
+
+  ecmdBit64* tmp;
+  if (SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
+    $1 = tmp->getRawValue();
+  } else {
+    $1 = (uint64_t) strtoull(SvPV($input, PL_na), 0, 0);
+  }
+}
+
+%typemap(in) ecmdBit64 &REFERENCE ($1_basetype dvalue), ecmdBit64 *REFERENCE ($1_basetype dvalue){
+
+  ecmdBit64* tmp;
+  if (SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
+    dvalue = tmp->getRawValue();
+    $1 = &dvalue;
+  } else {
+    dvalue = (uint64_t) strtoull(SvPV($input, PL_na), 0, 0);
+    $1 = &dvalue;
+  }
+}
+
+%typemap(argout) ecmdBit64 &REFERENCE, ecmdBit64 *REFERENCE {
+    char temp[256];
+    ecmdBit64* tmp;
+
+    if (argvi >= items) {
+	EXTEND(sp,1);
+    }
+    if (SWIG_ConvertPtr($arg, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
+      tmp->setRawValue(*$1);
+    } else {
+      char* prev = SvPV($arg, PL_na);
+      if (prev != NULL && prev[0] == '0' && prev[1] == 'x') {
+        sprintf(temp,"0x%llX", (unsigned long long)*($1));
+      } else {
+        sprintf(temp,"%llu", (unsigned long long)*($1));
+      }
+      sv_setpv($arg,temp);
+    }
+}
