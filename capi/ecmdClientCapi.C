@@ -72,9 +72,6 @@ uint32_t ecmdClientDebug = 0;
 int fppCallCount =0;
 #endif
 
-/* @brief This var stores the state of ring caching */
-bool ecmdRingCacheEnabled = false;
-
 /* @brief we are going to store a copy of the args list for load/unload operations */
 struct ecmdGlobalArgs {
   int argc;
@@ -195,12 +192,6 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
     
 #endif /* ECMD_STATIC_FUNCTIONS */
-
-
-  if (!rc) {
-    /* Query the initial state of the ring cache cq#5553 */
-    ecmdRingCacheEnabled = ecmdIsRingCacheEnabled();
-  }
 
 
   /* Ok, is this a recall of ecmdLoadDll and we have some saved away parms, if so, recall */
@@ -456,7 +447,7 @@ uint32_t ecmdSetup(char* i_args) {
 /* ------------------------------------------------------------------------------------ */
 
 
-void ecmdEnableRingCache() {
+void ecmdEnableRingCache(ecmdChipTarget & i_target) {
 
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
@@ -472,12 +463,10 @@ void ecmdEnableRingCache() {
     }
   }
 #endif
-  /* Set our local variable so we know caching is enabled */
-  ecmdRingCacheEnabled = true;
 
 #ifdef ECMD_STATIC_FUNCTIONS
 
-  dllEnableRingCache();
+  dllEnableRingCache(i_target);
 
 #else
 
@@ -494,10 +483,10 @@ void ecmdEnableRingCache() {
     }
   }
 
-  void (*Function)() = 
-    (void(*)())DllFnTable[ECMD_ENABLERINGCACHE];
+  void (*Function)(ecmdChipTarget &) = 
+    (void(*)(ecmdChipTarget &))DllFnTable[ECMD_ENABLERINGCACHE];
 
-  (*Function)();
+  (*Function)(i_target);
 
 #endif
 
@@ -515,7 +504,7 @@ void ecmdEnableRingCache() {
 
 }
 
-uint32_t ecmdDisableRingCache() {
+uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
 
   uint32_t rc = ECMD_SUCCESS;
 
@@ -535,13 +524,9 @@ uint32_t ecmdDisableRingCache() {
   }
 #endif
 
-
-  /* Set our local variable so we know caching is enabled */
-  ecmdRingCacheEnabled = false;
-
 #ifdef ECMD_STATIC_FUNCTIONS
 
-  rc = dllDisableRingCache();
+  rc = dllDisableRingCache(i_target);
 
 #else
 
@@ -558,10 +543,10 @@ uint32_t ecmdDisableRingCache() {
     }
   }
 
-  uint32_t (*Function)() = 
-    (uint32_t(*)())DllFnTable[ECMD_DISABLERINGCACHE];
+  uint32_t (*Function)(ecmdChipTarget &) = 
+    (uint32_t(*)(ecmdChipTarget &))DllFnTable[ECMD_DISABLERINGCACHE];
 
-  rc =    (*Function)();
+  rc =    (*Function)(i_target);
 
 #endif
 
