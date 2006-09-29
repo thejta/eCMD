@@ -42,6 +42,9 @@ ecmdBit64::ecmdBit64() : value(0) {
 ecmdBit64::ecmdBit64(const char* strValue) : value(0) {
   value = getHexValue(strValue);
 }
+ecmdBit64::ecmdBit64(const ecmdBit64 & newValue) {
+  value = newValue.value;
+}
 ecmdBit64::ecmdBit64(uint32_t newValue) : value(newValue) {
 }
 ecmdBit64::ecmdBit64(uint32_t hiValue, uint32_t loValue) {
@@ -51,6 +54,9 @@ ecmdBit64::ecmdBit64(uint32_t hiValue, uint32_t loValue) {
 
 void ecmdBit64::setValue(const char* strValue) {
   value = getHexValue(strValue);
+}
+void ecmdBit64::setValue(const ecmdBit64 & newValue) {
+  value = newValue.value;
 }
 void ecmdBit64::setValue(uint32_t newValue) {
   value = (uint64_t)newValue;
