@@ -290,12 +290,32 @@ Here is an example usage of the ecmdDataBuffer:
  <b>WARNING: </b> The '=' operator DOES NOT work between ecmdDataBuffer's or any other structure like you would expect it to in C. See 'Perl API Usage' below
 <br>
  @subsection uint64_t uint64_t (64 bit data)
- Perl doesn't support 64 bit variables, so all 64 bit data is converted to a string.
- To specify hex numbers prefix the string with 0x otherwise it is treated as decimal
+ Perl doesn't support 64 bit variables, so eCMD provides an ecmdBit64 class to try to make up for this.
+ The following operators have been overloaded with this class :
+<li> * - * / %
+<li> == != &lt; &lt;= &gt; &gt;=
+<li> & | ^ ! ~
+<li> ++ --
+<li> &lt;&lt; &gt;&gt;
+This will allow you to do things like the following :
 <pre>
-  my $addr = "0x0012a33e884bb338";
+  my $addr = new ecmd::ecmdBit64("0x00100FFE00000000");
+  $addr |= 0x100200;
+  $addr += 100;
   putMemProc($target, $addr, $data);
+
+  $addr->setValue(1000);  # Set to decimal value 1000
+  $addr->setValue(0x1000); # Set to hex value 0x1000
+
+  if ($addr != 0x1000) { die ("failed") }
+  
+  my $addr2 = new ecmd::ecmdBit64();
+  $addr->copy($addr2);                # Make addr2 == addr , you CANNOT do a '$addr2 = $addr;' see warning below
+  # Or you could do this
+  my $addr2 = new ecmd::ecmdBit64($addr);
+
 </pre>
+ <b>WARNING: </b> The '=' operator DOES NOT work between ecmdBit64's or any other structure like you would expect it to in C. See 'Perl API Usage' below
 
  <br><br>
  <hr>
