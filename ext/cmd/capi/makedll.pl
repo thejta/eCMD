@@ -16,6 +16,8 @@ if 0;
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
 # $Header$
 
+use strict;
+
 my $curdir = ".";
 
 #constants
@@ -31,9 +33,9 @@ my $ignore_re = join '|', @ignores;
 my @no_gen = qw( ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
-# These are functions that are ring cache enabled or aren't affected at all by ring caches
-my @dont_flush_sdcache = qw( Query Cache Output Error Spy ecmdGetGlobalVar ecmdSetTraceMode Latch UnitId);
-my $dont_flush_sdcache_re = join '|', @dont_flush_sdcache;
+# These are functions that we want to check ring cache on.  If not added here, a function won't have ring cache checks
+my @check_ring_cache = qw(getRing putRing getScom putScom sendCmd CfamRegister getArray putArray TraceArray startClocks stopClocks iSteps systemPower Spr Fpr Gpr Slb GpRegister);
+my $check_ring_cache_re = join '|', @check_ring_cache;
  
 my $printout;
 my $DllFnTable;
@@ -101,6 +103,8 @@ while (<IN>) {
 	my $type_flag = $INT;
 	$type_flag = $VOID if (/^void/);
 	$type_flag = $STRING if (/^std::string/);
+        my $chipTarget = 0;
+        $chipTarget = 1 if (/ecmdChipTarget/);
 
 	chomp; chop;  
 	my ($func, $args) = split /\(|\)/ , $_;
@@ -187,7 +191,7 @@ while (<IN>) {
 			my @pp_argsplit = split /\s+/, $curarg;
 
 			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
-			$tmptypestring = "@typeargs";
+			my $tmptypestring = "@pp_typeargs";
 
 			my $tmparg = $pp_argsplit[-1];
 			if ($tmparg =~ /\[\]$/) {
@@ -212,20 +216,28 @@ while (<IN>) {
 	    $printout .= "#endif\n\n";
 	}
 
-	unless (/$dont_flush_sdcache_re/o) {
-  
+        if (/$check_ring_cache_re/) {
 
-	    if ($type_flag == $STRING) {
-		$printout .= "   if (ecmdRingCacheEnabled) return ecmdGetErrorMsg(ECMD_RING_CACHE_ENABLED);\n";
-	    }
-	    elsif ($type_flag == $INT) {
-		$printout .= "   if (ecmdRingCacheEnabled) return ECMD_RING_CACHE_ENABLED;\n";
-	    }
-	    else { #type is VOID
-		$printout .= "   if (ecmdRingCacheEnabled) return;\n";
-	    }
 
-	}
+          $printout .= "   ecmdChipTarget cacheTarget;\n";
+          if ($chipTarget) {
+            $printout .= "   cacheTarget = i_target;\n";
+            $printout .= "   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);\n";
+          } else {
+            $printout .= "   cacheTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;\n";
+          }
+
+          if ($type_flag == $STRING) {
+            $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return ecmdGetErrorMsg(ECMD_RING_CACHE_ENABLED);\n";
+          }
+          elsif ($type_flag == $INT) {
+            $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;\n";
+          }
+          else { #type is VOID
+            $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return;\n";
+          }
+
+        }
 	
 	$printout .= "#ifdef ECMD_STATIC_FUNCTIONS\n\n";
 
@@ -246,7 +258,7 @@ while (<IN>) {
 	    my @argsplit = split /\s+/, $curarg;
 
 	    my @typeargs = @argsplit[0..$#argsplit-1];
-	    $tmptypestring = "@typeargs";
+	    my $tmptypestring = "@typeargs";
 
 	    my $tmparg = $argsplit[-1];
 	    if ($tmparg =~ /\[\]$/) {
@@ -328,7 +340,7 @@ while (<IN>) {
 			my @pp_argsplit = split /\s+/, $curarg;
 
 			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
-			$tmptypestring = "@typeargs";
+			my $tmptypestring = "@pp_typeargs";
 
 			my $tmparg = $pp_argsplit[-1];
 			if ($tmparg =~ /\[\]$/) {
@@ -401,6 +413,7 @@ print OUT "#include <stdio.h>\n\n";
 if ($ARGV[0] ne "ecmd") {
   print OUT "#include <ecmdClientCapi.H>\n";
 }
+print OUT "#include <ecmdSharedUtils.H>\n";
 print OUT "#include <$ARGV[0]ClientCapi.H>\n";
 print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
 print OUT "#include <$ARGV[0]ClientEnums.H>\n\n\n";
@@ -442,9 +455,6 @@ print OUT "extern int ecmdClientDebug;\n";
 print OUT "extern int fppCallCount;\n";
 
 print OUT "#endif\n\n\n";
-
-print OUT "extern int ecmdRingCacheEnabled;\n\n\n";
-
 
 print OUT $printout;
 

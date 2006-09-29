@@ -766,36 +766,56 @@ uint32_t putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const st
 
 /**
  @brief Enables internal caching of read/writes of scan rings to the chip for functions like getring/getspy/getspr
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @post Ring caching is enabled on cache enabled functions
  - Functions that support caching are documented in the detailed description of the function
  - Functions that do not affect the state of the cache are documented in the detailed description of the function
  - Any non-cache enabled function will force a flush of the cache before performing the operation
  - Some Dll's may not support ring caching, they will not fail on these functions but you will not see the performance gains
+ - Some Dll's may not support all target levels of caching.  If it doesn't support the level you picked
+   it will chose the next highest level.  i.e.  If you enable caching on a chip, and your plugin only supports
+   it on a cage, caching will be enabled on the cage level.
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be initialized<br>
+
 */
-void ecmdEnableRingCache();
+void ecmdEnableRingCache(ecmdChipTarget & i_target);
 
 /**
  @brief Disable internal caching of reads/writes of scan rings
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
  NOTE: A Flush of the cache is performed before disabling the cache<br>
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be initialized<br>
 */
-uint32_t  ecmdDisableRingCache();
+uint32_t  ecmdDisableRingCache(ecmdChipTarget & i_target);
 
 /**
  @brief Flush all modified data from the internal cache to the hardware, then remove all rings from cache
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be initialized<br>
 */
-uint32_t  ecmdFlushRingCache();
+uint32_t  ecmdFlushRingCache(ecmdChipTarget & i_target);
 
 /**
  @brief Returns true/false to signify if caching is currently enabled
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval true if ring caching is enabled
  @retval false if ring caching is disabled
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be initialized<br>
 */
-bool      ecmdIsRingCacheEnabled();
+bool      ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
 
 //@}
 
