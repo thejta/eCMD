@@ -1206,7 +1206,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   return rc;
 }
 
-uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
+uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
   uint32_t rc = 0;
 
   ecmdLatchBufferEntry curEntry;
@@ -1221,15 +1221,18 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
   std::string printed;
 
-  if (!dllIsRingCacheEnabled()) {
+  ecmdChipTarget cacheTarget;
+  cacheTarget = i_target;
+  ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+  if (!dllIsRingCacheEnabled(cacheTarget)) {
     enabledCache = true;
-    dllEnableRingCache();
+    dllEnableRingCache(cacheTarget);
   }
 
   o_data.clear();       // Flush out current list
 
   /* Let's find out if we are JTAG of FSI here */
-  rc = dllGetChipData(target, chipData);
+  rc = dllGetChipData(i_target, chipData);
   if (rc) {
     printed = "Problems retrieving chip information on target\n";
     dllRegisterErrorMsg(rc, "dllGetLatch", printed.c_str() );
@@ -1249,14 +1252,14 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
 
   
   if( i_mode == ECMD_LATCHMODE_FULL) {
-    rc = dllReadScandefHash(target, i_ringName, i_latchName, curEntry);
+    rc = dllReadScandefHash(i_target, i_ringName, i_latchName, curEntry);
     if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc ==
 															  ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
       return rc;
     }
   }
   if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
-    rc = dllReadScandef(target, i_ringName, i_latchName, i_mode, curEntry);
+    rc = dllReadScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
     if (rc) return rc;
   }
 
@@ -1277,7 +1280,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
 
       /* Let's grab the ring for this latch entry */
       if (curRing != curLatchInfo->ringName) {
-        rc = dllGetRing(target, curLatchInfo->ringName.c_str(), ringBuffer);
+        rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer);
         if (rc) {
           dllRegisterErrorMsg(rc, "dllGetLatch", "Problems reading ring from chip\n");
           return rc;
@@ -1393,7 +1396,7 @@ uint32_t dllGetLatch(ecmdChipTarget & target, const char* i_ringName, const char
   } /* end while (exit point) */
 
   if (enabledCache) {
-    rc = dllDisableRingCache();
+    rc = dllDisableRingCache(cacheTarget);
   }
 
   return rc;
@@ -1416,9 +1419,12 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
   o_matchs = 0;
 
-  if (!dllIsRingCacheEnabled()) {
+  ecmdChipTarget cacheTarget;
+  cacheTarget = i_target;
+  ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+  if (!dllIsRingCacheEnabled(cacheTarget)) {
     enabledCache = true;
-    dllEnableRingCache();
+    dllEnableRingCache(cacheTarget);
   }
 
   /* Do we have the right amount of data ? */
@@ -1594,8 +1600,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
   if (enabledCache) {
     /* Write all the data to the chip */
-    rc = dllFlushRingCache(); if (rc) return rc;
-    rc = dllDisableRingCache();
+    rc = dllDisableRingCache(cacheTarget);
   }
 
   return rc;

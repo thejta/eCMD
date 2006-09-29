@@ -496,7 +496,6 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
-  bool enabledCache = false;                    ///< Did we enable the cache ?
 
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -619,18 +618,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 
 
-  /* We are going to enable the ring cache to get performance out of this beast */
-  if (!ecmdIsRingCacheEnabled()) {
-    enabledCache = true;
-    ecmdEnableRingCache();
-  }
-
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-  
+
     bool isCoreLatch;		                ///< Is this a core latch ?
   
     /* Now we need to find out if this is a core latch or not */
@@ -798,16 +791,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
       if (!isCoreLatch) break;
     } /* End CoreLooper */
-  
   } /* End PosLooper */
   
-  if (enabledCache) {
-    rc = ecmdDisableRingCache();
-    if (rc) {
-      ecmdOutputError("getlatch - Problems disabling the ring cache\n");
-      return rc;
-    }
-  }
 
   if (!validPosFound) {
     ecmdOutputError("getlatch - Unable to find a valid chip to execute command on\n");
@@ -1380,20 +1365,22 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   }
 
 
-  /* We are going to enable the ring cache to get performance out of this beast */
-  if (!ecmdIsRingCacheEnabled()) {
-    enabledCache = true;
-    ecmdEnableRingCache();
-  }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
-    
+
+    /* We are going to enable the ring cache to get performance out of this beast */
+    /* Since we are in a target looper, the state fields should be set properly so just use this target */
+    if (!ecmdIsRingCacheEnabled(target)) {
+      enabledCache = true;
+      ecmdEnableRingCache(target);
+    }
+
     bool isCoreLatch;                         ///< Is this a core latch ?
-    
+
     if (ringName.length() != 0) 
       rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     else
@@ -1406,7 +1393,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
       if (latchMode == ECMD_LATCHMODE_FULL)
-	ecmdOutputError("getlatch - Try using '-partial' to enable pattern matching on the latch name\n");
+        ecmdOutputError("getlatch - Try using '-partial' to enable pattern matching on the latch name\n");
       return rc;
     } else if (rc) {
       printed = "putlatch - Error occurred performing querylatch on ";
@@ -1445,7 +1432,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while (!isCoreLatch ||
            ecmdConfigLooperNext(coretarget, corelooper)) {
-	   
+
       if (ringName.length() != 0)
         rc = getLatch(coretarget, ringName.c_str(), latchName.c_str(), latchs, latchMode);
       else
@@ -1453,11 +1440,11 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         break;
       } else if (rc == ECMD_INVALID_LATCHNAME) {
-	printed = "putlatch - Error occurred performing getlatch on ";
-	printed += ecmdWriteTarget(coretarget) + "\n";
-	ecmdOutputError( printed.c_str() );
-	ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
-	return rc;
+        printed = "putlatch - Error occurred performing getlatch on ";
+        printed += ecmdWriteTarget(coretarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
+        return rc;
       } else if (rc) {
         printed = "putlatch - Error occurred performing getlatch on ";
         printed += ecmdWriteTarget(coretarget) + "\n";
@@ -1511,7 +1498,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
           ecmdOutputError( printed.c_str() );
           return rc;
         }
- 
+
         /* We can do a full latch compare here now to make sure we don't cause matching problems */
         if (ringName.length() != 0)
           rc = putLatch(coretarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(unsigned int) (latchit->latchStartBit), (unsigned int)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
@@ -1535,28 +1522,28 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         printed = ecmdWriteTarget(coretarget) + "\n";
         ecmdOutput(printed.c_str());
       }
- 
+
       if (!validLatchFound) {
         ecmdOutputError("putlatch - Unable to find a latch with the given startbit\n");
         return ECMD_INVALID_LATCHNAME;
       }
 
-      /* Now that we are moving onto the next target, let's flush the cache we have */
-      if (enabledCache) {
-        rc = ecmdFlushRingCache();
-        if (rc) {
-          ecmdOutputError("putlatch - Problems flushing the ring cache\n");
-          return rc;
-        }
-      }
-
       if (!isCoreLatch) break;
     } /* End CoreLooper */
 
+    /* Now that we are moving onto the next target, let's flush the cache we have */
+    if (enabledCache) {
+      rc = ecmdFlushRingCache(target);
+      if (rc) {
+        ecmdOutputError("putlatch - Problems flushing the ring cache\n");
+        return rc;
+      }
+      enabledCache = false;
+    }
   } /* End PosLooper */
   
   if (enabledCache) {
-    rc = ecmdDisableRingCache();
+    rc = ecmdDisableRingCache(target);
     if (rc) {
       ecmdOutputError("putlatch - Problems disabling the ring cache\n");
       return rc;
@@ -2069,10 +2056,13 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   
   std::string printed;                          ///< Output data
+  ecmdChipTarget target;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string action;
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
@@ -2080,34 +2070,67 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc > 1) {
-    ecmdOutputError("ringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
-    ecmdOutputError("ringcache - Type 'ringcache -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if (argc == 0) {
+  if (argc == 0) {
     ecmdOutputError("ringcache - Need to specify an operation on the ring cache 'enable', 'disable', 'flush', 'query'.\n");
     ecmdOutputError("ringcache - Type 'ringcache -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
+  /* First arg is what to do, let's parse that */
   if (!strcmp(argv[0],"enable")) {
-    ecmdEnableRingCache();
+    action = argv[0];
   } else if (!strcmp(argv[0],"disable")) {
-    ecmdDisableRingCache();
+    action = argv[0];
   } else if (!strcmp(argv[0],"flush")) {
-    ecmdFlushRingCache();
+    action = argv[0];
   } else if (!strcmp(argv[0],"query")) {
-    if (ecmdIsRingCacheEnabled()) {
-      ecmdOutput("eCMD ring cache is enabled\n");
-    } else {
-      ecmdOutput("eCMD ring cache is disabled\n");
-    }
+    action = argv[0];
   } else {
     ecmdOutputError("ringcache - Invalid ringcache argument specified.\n");
     ecmdOutputError("ringcache - Type 'ringcache -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }    
-  
+
+  if (argc == 1) {
+    /* By default, all cache functions are at the highest level for this function */
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, looperdata);
+
+  } else if (argc == 2) {
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+  } else {
+    ecmdOutputError("ringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+    ecmdOutputError("ringcache - Type 'ringcache -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  while (ecmdConfigLooperNext(target, looperdata)) {
+
+    if (action == "enable") {
+      ecmdEnableRingCache(target);
+    } else if (action == "disable") {
+      ecmdDisableRingCache(target);
+    } else if (action == "flush") {
+      ecmdFlushRingCache(target);
+    } else if (action == "query") {
+      printed = "eCMD ring cache is ";
+      if (ecmdIsRingCacheEnabled(target)) {
+        printed += "enabled";
+      } else {
+        printed += "disabled";
+      }
+      printed += " on " + ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+  }
+
   return rc;
 }
 
