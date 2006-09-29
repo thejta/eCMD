@@ -150,15 +150,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  /* We are going to enable ring caching to speed up performance */
-  if (!ecmdIsRingCacheEnabled()) {
-    enabledCache = true;
-    ecmdEnableRingCache();
-  }
-
-
-
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    /* We are going to enable ring caching to speed up performance */
+    /* Since we are in a target looper, the state fields should be set properly so just use this target */
+    if (!ecmdIsRingCacheEnabled(target)) {
+      enabledCache = true;
+      ecmdEnableRingCache(target);
+    }
 
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), detail);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -224,7 +223,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
         return ECMD_INVALID_ARGS;
       }
-        
+
 
       /* Bounds check */
       if ((numBits != ECMD_UNSET) && (startBit + numBits) > ECMD_MAX_DATA_BITS) {
@@ -247,7 +246,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
       else
         expectedEnum = expectArg;
-        
+
       if (rc) return rc;
     }
 
@@ -354,7 +353,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         buffer.setBitLength(bitsToFetch);
         spyBuffer.extract(buffer, startBit, bitsToFetch);
 
-	char outstr[200];
+        char outstr[200];
         if (!expectFlag) {
 
           sprintf(outstr, "(%d:%d)", startBit, startBit + bitsToFetch - 1);
@@ -369,16 +368,16 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         }
         else {
 
-	  uint32_t mismatchBit = 0;
+          uint32_t mismatchBit = 0;
           if (!ecmdCheckExpected(buffer, expectedRaw, mismatchBit)) {
             //@ make this stuff sprintf'd
             printed =  "getspy - Mismatch found on spy : " + spyName + "\n";
             ecmdOutputError( printed.c_str() );
 
-	    if (mismatchBit != ECMD_UNSET) {
-	      sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
-	      ecmdOutputError( outstr );
-	    }
+            if (mismatchBit != ECMD_UNSET) {
+              sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
+              ecmdOutputError( outstr );
+            }
 
             printed =  "getspy - Actual                : ";
             printed += ecmdWriteDataFormatted(buffer, outputformat);
@@ -463,15 +462,17 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       if (!isCoreSpy) break;
     } /* End CoreLooper */
 
+    /* Now that we are moving onto the next target, let's flush the cache we have */
+    if (enabledCache) {
+      rc = ecmdDisableRingCache(target);
+      if (rc) {
+        ecmdOutputError("getspy - Problems disabling the ring cache\n");
+        return rc;
+      }
+      enabledCache = false;
+    }
   } /* End poslooper */
 
-  if (enabledCache) {
-    rc = ecmdDisableRingCache();
-    if (rc) {
-      ecmdOutputError("getspy - Problems disabling the ring cache\n");
-      return rc;
-    }
-  }
 
   if (!validPosFound) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
@@ -540,13 +541,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  /* We are going to enable ring caching to speed up performance */
-  if (!ecmdIsRingCacheEnabled()) {
-    enabledCache = true;
-    ecmdEnableRingCache();
-  }
-
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    /* We are going to enable ring caching to speed up performance */
+    if (!ecmdIsRingCacheEnabled(target)) {
+      enabledCache = true;
+      ecmdEnableRingCache(target);
+    }
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -600,7 +601,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
         return rc;
       }
-        
+
     } else if (argc > 3) {
       ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
       ecmdOutputError("putspy - It is also possible you specified <start> <numbits> with an enumerated alias or dial\n");
@@ -680,16 +681,6 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
       }
 
-      /* Flush out the cache to actually write the data to the chips */
-      if (enabledCache) {
-        rc = ecmdFlushRingCache();
-        if (rc) {
-          printed = "putspy - Error occured flushing cache on ";
-          printed += ecmdWriteTarget(coretarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          return rc;
-        }
-      }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
         printed = ecmdWriteTarget(coretarget) + "\n";
@@ -699,15 +690,16 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       if (!isCoreSpy) break;
     } /* End CoreLooper */
 
-  } /* End poslooper */
-
-  if (enabledCache) {
-    rc = ecmdDisableRingCache();
-    if (rc) {
-      ecmdOutputError("putspy - Problems disabling the ring cache\n");
-      return rc;
+    /* Now that we are moving onto the next target, let's flush the cache we have */
+    if (enabledCache) {
+      rc = ecmdDisableRingCache(target);
+      if (rc) {
+        ecmdOutputError("putspy - Problems disabling the ring cache\n");
+        return rc;
+      }
+      enabledCache = false;
     }
-  }
+  } /* End poslooper */
 
   if (!validPosFound) {
     ecmdOutputError("putspy - Unable to find a valid chip to execute command on\n");
