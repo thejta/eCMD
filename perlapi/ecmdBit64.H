@@ -55,8 +55,13 @@ public:
   */
   ecmdBit64(const char* i_strData);
   /**
-     @brief Constructor, init with integer value
-     @param i_newValue Value to initialize to
+     @brief Constructor, init with another ecmdBit64
+     @param i_newValue Value to initialze to
+  */
+  ecmdBit64(const ecmdBit64 & i_newValue);
+  /**
+     @brief Constructor, init with integer value (only works for values < 32bits long
+     @param i_newValue 32 bit value to initialize to
   */
   ecmdBit64(uint32_t i_newValue);
   /**
@@ -77,6 +82,11 @@ public:
      @param i_strData String value to init, ie ('0xFFEE', '1234')
   */
   void setValue(const char* i_strData);
+  /**
+     @brief Set with another ecmdBit64
+     @param i_newValue Value to initialize to
+  */
+  void setValue(const ecmdBit64 & i_newValue);
   /**
      @brief Set with integer value
      @param i_newValue Value to initialize to
