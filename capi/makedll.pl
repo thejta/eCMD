@@ -34,7 +34,7 @@ my @no_gen = qw( ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
 # These are functions that we want to check ring cache on.  If not added here, a function won't have ring cache checks
-my @check_ring_cache = qw(getRing putRing getScom putScom sendCmd CfamRegister getArray putArray TraceArray startClocks stopClocks iSteps systemPower Spr Fpr Gpr Slb GpRegister);
+my @check_ring_cache = qw(getRing putRing getScom putScom sendCmd CfamRegister getArray putArray TraceArray startClocks stopClocks iSteps SystemPower FruPower Spr Fpr Gpr Slb GpRegister);
 my $check_ring_cache_re = join '|', @check_ring_cache;
  
 my $printout;

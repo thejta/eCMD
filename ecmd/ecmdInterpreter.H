@@ -177,6 +177,7 @@ uint32_t ecmdPutGpioRegUser(int argc, char* argv[]);
 
 /* ecmdPowerUser.C */
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
+uint32_t ecmdFruPowerUser(int argc, char * argv[]);
 uint32_t ecmdBiasVoltageUser(int argc, char * argv[]);
 uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]);
 //@}

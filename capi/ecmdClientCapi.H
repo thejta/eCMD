@@ -2906,6 +2906,30 @@ uint32_t ecmdSystemPowerOn();
 uint32_t ecmdSystemPowerOff();
 
 /**
+ @brief Turns power on to the given fru
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_smart Dependent fru's will be powered on when smart is true
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : slot, pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdFruPowerOn(ecmdChipTarget & i_target, bool i_smart = false);
+
+/**
+ @brief Turns power off to the given fru
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param i_smart Dependent fru's will be powered off when smart is true
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : slot, pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdFruPowerOff(ecmdChipTarget & i_target, bool i_smart = false);
+
+/**
  @brief Provides the ability to bias a voltage on a per target basis.
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_voltageLevel  Voltage level on the target we want to bias
