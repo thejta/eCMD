@@ -96,6 +96,98 @@ uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
 
 }
 
+uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string printed;
+  std::string state;
+  bool smart = false;
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  /* get the smart flag, if it's there */
+  smart = ecmdParseOption(&argc, &argv, "-smart");
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 2) {
+    ecmdOutputError("frupower - At least one argument ('on', 'off') is required for frupower.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if (argc > 2) {
+    ecmdOutputError("frupower - Too many arguments to frupower, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  if (!strcmp(argv[0], "on")) {
+    state = "on";
+  } else if (!strcmp(argv[0], "off")) {
+    state = "off";
+  } else {
+    ecmdOutputError("frupower - Invalid argument passed to frupower. Accepted arguments: ('on', 'off').\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used 
+  target.chipType = argv[1];
+  if (target.chipType == "nochip") {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
+  } else {
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  }
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+    if (state == "on") {
+      printed = "Powering on";
+      printed += ecmdWriteTarget(target) + " ..\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdFruPowerOn(target, smart);
+    } else if (state == "off") {
+      printed = "Powering off";
+      printed += ecmdWriteTarget(target) + " ..\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdFruPowerOff(target, smart);
+    }
+
+    if (rc) {
+      printed = "frupower - Error occurred performing frupower on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+  }
+
+  if (!validPosFound) {
+    ecmdOutputError("frupower - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
 uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
@@ -196,6 +288,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
     ecmdOutputError("biasvoltage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+
   return rc;
 }
 

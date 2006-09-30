@@ -121,10 +121,12 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   target.chipType = argv[0];
   if (target.chipType == "nochip") {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
   } else {
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
   }
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   target1 = target; //Created for the second looper needed for -fb case with multiple positions
@@ -276,10 +278,12 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   target.chipType = argv[0];
   if (target.chipType == "nochip") {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
   } else {
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
   }
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   char *vpdType = argv[1];
@@ -407,11 +411,13 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   if (target.chipType == "nochip") {
-      target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
   } else {
-     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
   }
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   char *vpdType = argv[1];
@@ -538,11 +544,13 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   if (target.chipType == "nochip") {
-      target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
   } else {
-     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
   }
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
   target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   target1 = target; //Created for the second looper needed for -fb case with multiple positions
