@@ -28,12 +28,13 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         formats
                             - Display help text for all available input/output formats
         
-                        chips [-ep] [-dp | -dc | -dt] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+                        chips [-ep] [-dp | -dc | -dt | -dall] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
                             - Display all the chips in the system
                             - Use '-ep' to display in an easier to parse format
                             - Use -dp to specify position depth display
                             - Use -dc to specify core depth display
-                            - Use -dt to specify trace depth display
+                            - Use -dt to specify thread depth display
+                            - Use -dall to display all depths from position thru thread
                             - Use -k# -n# -s# -p# -c# -t# to limit query to that target
 
                         chipinfo ChipSelect [-k#] [-n#] [-s#] [-p#]
@@ -69,10 +70,9 @@ Syntax: ecmdquery <Mode> [Mode Options]
                                         -call to act on all cores.
 
                         -all [optional] Shortcut for -kall -nall -sall -pall [-call]. e.g. -all -p0 is not allowed.
-                                        Note: -all options not supported for showconfig and showexist. See above.
 
         --------------------------------------------------------------------------------
 
-        Example:        ecmdquery rings pu -p0,1             (Note: works for I/P Series since default is -c0 -n0 -s0)
-                        ecmdquery rings pu -k1 -sall -p0,1   (Note: e.g. -k1 -sall needed for ZSeries since default 0)
+        Example:        ecmdquery rings pu -p0,1 
+                        ecmdquery rings pu -k1 -sall -p0,1
                         ecmdquery formats
