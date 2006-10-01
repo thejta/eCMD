@@ -510,6 +510,7 @@ uint32_t  ecmdDataBuffer::setBit(uint32_t bit) {
 
 uint32_t  ecmdDataBuffer::setBit(uint32_t bit, uint32_t len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+
   if (bit+len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)", bit, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1300,9 +1301,17 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
 uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+// check that we have enough space with the i_bufferIn
   if (i_sourceStart + i_len > i_bufferIn.iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > i_bufferIn.iv_NumBits (%d)\n", i_sourceStart, i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_sourceStart >= i_bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d >= i_bufferIn.iv_NumBits (%d)", i_sourceStart, i_bufferIn.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > i_bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > i_bufferIn.iv_NumBits (%d)", i_len, i_bufferIn.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other checks are in other insert function that gets called below
   } else {
 
     rc = this->insert(i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart);
@@ -1332,6 +1341,12 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
   if (i_targetStart+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_targetStart >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
     
     uint32_t mask = 0x80000000 >> (i_sourceStart % 32);
@@ -1360,6 +1375,13 @@ uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint
   if ( i_sourceStart + i_len > 32 ) {
     ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > sizeof i_dataIn (32)\n", i_sourceStart, i_len );
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_sourceStart >= 32) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d >= sizeof i_dataIn (32)", i_sourceStart);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > 32) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_len %d > sizeof i_dataIn (32)", i_len);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks are perfomred in the insert function called below
   } else {
 
     rc = this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
@@ -1378,9 +1400,11 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
     offset = 32 - (i_len % 32);
   }  
 
+
   if (i_start+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks happen below in setBit and clearBit
   } else {
     
     uint32_t mask = 0x80000000 >> offset;
@@ -1403,7 +1427,20 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
 }
 
 uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
-  return this->insertFromRight(&i_datain, i_start, i_len);
+
+  if ( i_start + i_len > 32 ) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insertFromRight: i_start %d + i_len %d > sizeof i_dataIn (32)\n", i_start, i_len );
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_start >= 32) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_start %d >= sizeof i_dataIn (32)", i_start);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > 32) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_len %d > sizeof i_dataIn (32)", i_len);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks are perfomred in the insertFromRight function called below
+  } else {}
+
+    return this->insertFromRight(&i_datain, i_start, i_len);
 }
 
 uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
@@ -1414,6 +1451,7 @@ uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart
   if (i_targetStart+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks are perfomred in the setBit(), clearBit() functions called below
   } else {
 
     const uint8_t * sourcePtr = i_dataIn;
@@ -1433,6 +1471,7 @@ uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart
 }
 
 uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
+
     // function not implemented yet
     ETRAC0("**** ERROR : ecmdDataBuffer::insertFromRight with const * uint8_t input has not been implemented yet");
     RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
@@ -1442,8 +1481,18 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_ta
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint32_t len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if ((start > iv_NumBits) || (start + len > iv_NumBits)) {
-    ETRAC2( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)", start + len, iv_NumBits);
+// ecmdExtract can't make good input checks, so we have to do that here
+  if (len > bufferOut.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: len %d > bufferOut.iv_NumBits (%d)\n", len, bufferOut.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (start + len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::extract: start %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: start %d >= bufferOut.iv_NumBits (%d)\n", start, bufferOut.iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if ( len > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: len %d > iv_NumBits (%d)\n", len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
     rc = bufferOut.setBitLength(len);
@@ -1452,8 +1501,7 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint
     rc = ecmdExtract(this->iv_Data, start, len, bufferOut.iv_Data);
     if (rc) {
       RETURN_ERROR(rc);
-    }
-
+ }
 
 #ifndef REMOVE_SIM   
     /* We have xstates, force the output buffer to have them as well */
@@ -1478,9 +1526,18 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& bufferOut, uint32_t start, uint
 uint32_t ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+// ecmdExtract can't make good input checks, so we have to do that here
   if (start + len > iv_NumBits) {
-    ETRAC2( "**** ERROR : ecmdDataBuffer::extract: start + len %d > NumBits (%d)\n", start + len, iv_NumBits);
+    ETRAC3("**** ERROR : ecmdDataBuffer::extract: start %d + len %d > iv_NumBits (%d)\n", start, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: start %d >= iv_NumBits (%d)", start, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (len > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: len %d > iv_NumBits (%d)", len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (len == 0) {
+    return ECMD_DBUF_SUCCESS;
   } else {
 
     rc = ecmdExtract(this->iv_Data, start, len, dataOut);
@@ -1502,6 +1559,7 @@ uint32_t ecmdDataBuffer::extract(uint32_t *dataOut, uint32_t start, uint32_t len
 }
 
 uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
+
     // function not implemented yet
     ETRAC0("**** ERROR : ecmdDataBuffer::extract with a * uint8_t ouput has not been implemented yet");
     RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
@@ -1512,6 +1570,7 @@ uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_
 //  buffer at a given offset. This is the same as insert() with the args and
 //  the data flow reversed, so insert() is called to do the work
 uint32_t ecmdDataBuffer::extractPreserve(ecmdDataBuffer & bufferOut, uint32_t start, uint32_t len, uint32_t targetStart) const {
+// input checks done in the insert function
   return bufferOut.insert( *this, targetStart, len, start );
 }
 
@@ -1521,6 +1580,7 @@ uint32_t ecmdDataBuffer::extractPreserve(ecmdDataBuffer & bufferOut, uint32_t st
 uint32_t ecmdDataBuffer::extractPreserve(uint32_t *outBuffer, uint32_t start, uint32_t len, uint32_t targetStart) const {
   
   uint32_t rc = ECMD_DBUF_SUCCESS;
+// input checks done in the insert function
 
   const uint32_t numWords = ( targetStart + len + 31 ) / 32;
   if ( numWords == 0 ) return rc;
@@ -1549,6 +1609,7 @@ uint32_t ecmdDataBuffer::extractPreserve(uint32_t *outBuffer, uint32_t start, ui
 }
 
 uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const {
+
     // function not implemented yet
     ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve with a * uint8_t ouput has not been implemented yet");
     RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
@@ -1557,6 +1618,7 @@ uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uin
 uint32_t ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+// input checks done in the extract function
   rc = this->extract(o_bufferOut, i_start, i_len);
   if (rc) return rc;
 
@@ -1568,6 +1630,7 @@ uint32_t ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i
 uint32_t ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+// input checks done in the extract function
   rc = this->extract(o_data, i_start, i_len);
 
   if (i_len < 32)
@@ -1576,6 +1639,7 @@ uint32_t ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uin
 }
 
 uint32_t ecmdDataBuffer::extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
+
     // function not implemented yet
     ETRAC0("**** ERROR : ecmdDataBuffer::extractToRight with a * uint8_t ouput has not been implemented yet");
     RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
@@ -1619,6 +1683,7 @@ uint32_t ecmdDataBuffer::setOr(const uint32_t * dataIn, uint32_t startBit, uint3
   if (startBit + len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", startBit, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks done as part of setBit()
   } else {
     uint32_t mask = 0x80000000;
     for (uint32_t i = 0; i < len; i++) {
@@ -1636,6 +1701,7 @@ uint32_t ecmdDataBuffer::setOr(const uint32_t * dataIn, uint32_t startBit, uint3
 }
 
 uint32_t ecmdDataBuffer::setOr(uint32_t dataIn, uint32_t startBit, uint32_t len) {
+// input checks done as part of setOr()
   return this->setOr(&dataIn, startBit, len);
 }
 
@@ -1647,6 +1713,7 @@ uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& bufferIn, uint32_t startBi
     ETRAC2("**** ERROR : ecmdDataBuffer::setXor: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+// other input checks done as part of setXor()
   return this->setXor(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1656,6 +1723,7 @@ uint32_t ecmdDataBuffer::setXor(const uint32_t * dataIn, uint32_t startBit, uint
   if (startBit + len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", startBit, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks done as part of writeBit()
   } else {
     uint32_t mask = 0x80000000;
     for (uint32_t i = 0; i < len; i++) {
@@ -1671,6 +1739,7 @@ uint32_t ecmdDataBuffer::setXor(const uint32_t * dataIn, uint32_t startBit, uint
 }
 
 uint32_t ecmdDataBuffer::setXor(uint32_t dataIn, uint32_t startBit, uint32_t len) {
+// input checks done as part of setXor()
   return this->setXor(&dataIn, startBit, len);
 }
 
@@ -1694,6 +1763,7 @@ uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& bufferIn, uint32_t startBi
     ETRAC2("**** ERROR : ecmdDataBuffer::setAnd: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+// other input checks done as part of setAnd()
   return this->setAnd(bufferIn.iv_Data, startBit, len);
 }
 
@@ -1702,6 +1772,7 @@ uint32_t ecmdDataBuffer::setAnd(const uint32_t * dataIn, uint32_t startBit, uint
   if (startBit + len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)", startBit, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+// other input checks done as part of setClearBit()
   } else {
     uint32_t mask = 0x80000000;
     for (uint32_t i = 0; i < len; i++) {
@@ -1719,6 +1790,7 @@ uint32_t ecmdDataBuffer::setAnd(const uint32_t * dataIn, uint32_t startBit, uint
 }
 
 uint32_t ecmdDataBuffer::setAnd(uint32_t dataIn, uint32_t startBit, uint32_t len) {
+// input checks done as part of setAnd()
   return this->setAnd(&dataIn, startBit, len);
 }
 
@@ -1730,21 +1802,31 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
   int parity = 1;
   uint32_t mask;
 
-  charOffset = start / 32;
-  posOffset = start - charOffset * 32;
-  mask = 0x80000000 >> posOffset;
+  if (start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: start %d >= iv_NumBits (%d)\n", start, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if ( stop >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: stop %d >= iv_NumBits (%d)\n", stop, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else {
 
-  for (counter = 0; counter < (stop - start + 1); counter++) {
-    if (mask & iv_Data[charOffset]) {
-      parity ^= 1;
+    charOffset = start / 32;
+    posOffset = start - charOffset * 32;
+    mask = 0x80000000 >> posOffset;
+
+    for (counter = 0; counter < (stop - start + 1); counter++) {
+      if (mask & iv_Data[charOffset]) {
+        parity ^= 1;
+      }
+      posOffset++;
+      mask >>= 1;
+      if (posOffset > 31) {
+        charOffset++;
+        posOffset = 0;
+        mask = 0x80000000;
+      }
     }
-    posOffset++;
-    mask >>= 1;
-    if (posOffset > 31) {
-      charOffset++;
-      posOffset = 0;
-      mask = 0x80000000;
-    }
+
   }
 
   return parity;
@@ -1752,6 +1834,7 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
 }
 
 uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop) const {
+// input checks done as part of oddParity()
   if (this->oddParity(start, stop))
     return 0;
   else
@@ -1759,6 +1842,7 @@ uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop) const {
 }
 
 uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop, uint32_t insertPos) {
+// input checks done as part of oddParity()
   if (this->oddParity(start,stop))
     this->setBit(insertPos);
   else 
@@ -1767,6 +1851,7 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop, uint32_t ins
 }
 
 uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop, uint32_t insertPos) {
+// input checks done as part of evenParity()...which calls oddParity
   if (this->evenParity(start,stop))
     this->setBit(insertPos);
   else
@@ -1794,6 +1879,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
   }
+// more input checks done as part of extract()
 
   char cPtr[10];
   /* extract iv_Data */
@@ -1839,6 +1925,7 @@ std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) cons
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
   }
+// more input checks done as part of shiftRightAndResize and genHexLeftStr()
 
   ecmdDataBuffer temp;
   temp.setBitLength(bitLen);
@@ -1881,6 +1968,7 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
     }
     return ret;
   }
+// more input checks done as part of extract()
 
   /* Let's see if we can get a perf bonus */
   if ((start == 0) && (bitLen == iv_NumBits))
@@ -1953,10 +2041,21 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
   char tempstr[4];
 
   if (start+bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::genAsciiStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
+    ETRAC3("**** ERROR : ecmdDataBuffer::genAsciiStr: start %d + bitLen %d >= NumBits (%d)", start, bitLen, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
-  }
+  } else if (start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bit %d >= NumBits (%d)", start, iv_NumBits);
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return ret;
+  } else if (bitLen > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bitLen %d > NumBits (%d)", bitLen, iv_NumBits);
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return ret;
+  } else if (bitLen == 0) {
+    ret = "\0";
+    return ret;
+  } 
 
   for (i = 0; i < numwords; i++) { /* word loop */
     for (j = 0; j < 4; j++) { /* byte loop */
@@ -2149,7 +2248,7 @@ uint32_t ecmdDataBuffer::insertFromBinAndResize (const char * i_hexChars, uint32
 
 uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t start) {
   int rc = ECMD_DBUF_SUCCESS;
-
+// input checking done with clearBit() and setBit()
   uint32_t strLen = (uint32_t)strlen(i_binChars);
 
   for (uint32_t i = 0; i < strLen; i++) {
@@ -2762,10 +2861,10 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
   /*----------------------------line 98--------------------------------*/
 
   if ((num_bits_to_extract == 0) || (scr_ptr == NULL)){
-    ETRAC0("**** ERROR : extract: Number of bits to extract = 0");
+    ETRAC0("**** ERROR : ecmdDataBuffer ecmdExtract: Number of bits to extract = 0");
     out_iv_Data_ptr = NULL;
     return ECMD_DBUF_INVALID_ARGS;
-  }
+  } 
 
   count = (num_bits_to_extract + 31) / 32;
 
