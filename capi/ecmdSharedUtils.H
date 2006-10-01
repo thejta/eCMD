@@ -100,7 +100,7 @@ char * ecmdParseOptionWithArgs(int * io_argc, char ** io_argv[], const char * i_
  * @param seperators String of characters to use as seperators
  * @param tokens Vector of strings that contain all the tokens
 */
-void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens);
+void ecmdParseTokens(std::string line, const char* seperators, std::vector<std::string> & tokens);
 
 /** @name Gen Functions */
 //@{
@@ -111,7 +111,7 @@ void ecmdParseTokens (std::string line, const char* seperators, std::vector<std:
  * @param start Bit to start at
  * @param bitLen Number of bits
 */
-std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
+std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen);
 
 
 /**
@@ -123,7 +123,7 @@ std::string ecmdGenEbcdic (ecmdDataBuffer &i_data, int start, int bitLen);
  * @see ecmdGenB32FromHexRight
  * @see ecmdGenB32FromHexLeft
  */
-uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos);
+uint32_t ecmdGenB32FromHex(uint32_t * o_numPtr, const char * i_hexChars, int startPos);
 
 /**
  * @brief Convert a string of left-aligned Hex chars into a left-aligned unsigned int array
@@ -133,7 +133,7 @@ uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int st
  * @see ecmdGenB32FromHexRight
  * @see ecmdGenB32FromHex
  */
-uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
+uint32_t ecmdGenB32FromHexLeft(uint32_t * o_numPtr, const char * i_hexChars);
 
 /**
  * @brief Convert a string of right-aligned Hex chars into a left-aligned unsigned int array
@@ -144,7 +144,7 @@ uint32_t ecmdGenB32FromHexLeft (uint32_t * o_numPtr, const char * i_hexChars);
  * @see ecmdGenB32FromHex
  * @see ecmdGenB32FromHexLeft
  */
-uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, int i_expectBits = 0);
+uint32_t ecmdGenB32FromHexRight(uint32_t * o_numPtr, const char * i_hexChars, int i_expectBits = 0);
 
 //@}
 
@@ -200,12 +200,19 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
  @param i_target ecmdChipTarget containing data to format into string
  @param i_displayMode Mode to format data
 
- TARGET DEPTH  : Thread
+ TARGET DEPTH  : cage, node, slot, pos, core, thread
  TARGET STATES : Must be Initialized
  */
-std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_DEFAULT);
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_DEFAULT);
 
 
+/**
+ @brief Reads in a target string, returns a filled in target
+ @return String with formatted target data
+ @param i_targetStr String in a "k0:nall:s0:pu:p0" format to be turned into a target
+ @param o_target ecmdChipTarget initialized based upon i_targetStr
+ */
+uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
 
 
 #endif /* ecmdSharedUtils_h */

@@ -393,8 +393,97 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
   }
 
   return printed;
-
 }
+
+uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  std::vector<std::string> tokens;
+  bool allFound;
+  bool naFound;
+  int match;
+  int num;
+
+  /* Tokenize my string on colon */
+  ecmdParseTokens(i_targetStr, ":", tokens);
+
+  for (uint32_t x = 0; x < tokens.size(); x++) {
+    allFound = false;
+    naFound = false;
+    match = 0;
+    if (tokens[x].substr(1,tokens[x].length()) == "all") {
+      allFound = true;
+    } else if (tokens[x].substr(1,tokens[x].length()) == "-") {
+      naFound = true;
+    } else {
+      match = sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
+    }
+    /* I didn't get a number, - or all, must be a chip */
+    if (!match && !allFound && !naFound) {
+      o_target.chipType = tokens[x];
+      o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    } else {    
+      if (tokens[x].substr(0, 1) == "k") {
+        if (allFound) {
+          o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.cage = num;
+          o_target.cageState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "n") {
+        if (allFound) {
+          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        } else if (naFound) {
+          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          if (naFound) {
+            o_target.node = ECMD_TARGETDEPTH_NA;
+          } else {
+            o_target.node = num;
+          }
+          o_target.nodeState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "s") {
+        if (allFound) {
+          o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          if (naFound) {
+            o_target.slot = ECMD_TARGETDEPTH_NA;
+          } else {
+            o_target.slot = num;
+          }
+          o_target.slotState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "p") {
+        if (allFound) {
+          o_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.pos = num;
+          o_target.posState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "c") {
+        if (allFound) {
+          o_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.core = num;
+          o_target.coreState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "t") {
+        if (allFound) {
+          o_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.thread = num;
+          o_target.threadState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else {
+        return ECMD_INVALID_ARGS;
+      }
+    }
+  }
+
+  return rc;
+}
+
 
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data) {
   std::ifstream ins;
