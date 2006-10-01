@@ -228,7 +228,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             }
 
             add_buffer[address.getWordLength()-1] = 0;
-            for (int word = (uint32_t)address.getWordLength()-2; word >= 0; word --) {
+            for (int word = (int)address.getWordLength()-2; word >= 0; word --) {
               if (add_buffer[word] == 0xFFFFFFFF) {
                 /* We are going to rollover */
                 if (word == 0) {

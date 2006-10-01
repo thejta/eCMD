@@ -242,13 +242,13 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   }
   uint32_t value = (uint32_t)atoi(argv[2]);
 
-  bool wait = true;
+  bool waitState = true;
   if (argc == 4) {
     std::string waitStr = argv[3];
     transform(waitStr.begin(), waitStr.end(), waitStr.begin(), (int(*)(int)) toupper);
 
     if (waitStr == "IMM") {
-      wait = false;
+      waitState = false;
     }
   }
 
@@ -262,7 +262,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = ecmdBiasVoltage(target, level, direction, value, wait);
+    rc = ecmdBiasVoltage(target, level, direction, value, waitState);
     
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
