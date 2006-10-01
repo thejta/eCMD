@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdSimUser.C                                  
@@ -12,7 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
 
 // Module Description **************************************************
 //
@@ -591,8 +591,8 @@ uint32_t ecmdSimgettcfacUser(int argc, char * argv[]) {
     int argOffset = 0;
     if (argc == 4) {
       if (!ecmdIsAllDecimal(argv[1])) {
-      ecmdOutputError("simgettcfac - Non-decimal numbers detected in row field\n");
-      return ECMD_INVALID_ARGS;
+        ecmdOutputError("simgettcfac - Non-decimal numbers detected in row field\n");
+        return ECMD_INVALID_ARGS;
       }
       row = (uint32_t)atoi(argv[1]);
       argOffset = 1;
