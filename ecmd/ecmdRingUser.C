@@ -2057,7 +2057,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   
   std::string printed;                          ///< Output data
   ecmdChipTarget target;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
   std::string action;
 
   /************************************************************************/
@@ -2092,17 +2092,26 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   }    
 
   if (argc == 1) {
-    /* By default, all cache functions are at the highest level for this function */
-    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, looperdata);
+    /* First we need to do a query for variable depth specified (i.e. -nall).  */
+    /* If the looper data comes back empty, we then need to create a cageState = WILDCARD target and loop */
+    target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperData);
+    if (rc) return rc;
 
+    if (looperData.ecmdSystemConfigData.cageData.empty()) {
+      /* No valid command lines were given, so force it to loop over cages */
+      target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      target.nodeState = target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      rc = ecmdConfigLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
+      if (rc) return rc;
+    }
   } else if (argc == 2) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
   } else {
@@ -2111,7 +2120,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  while (ecmdConfigLooperNext(target, looperdata)) {
+  while (ecmdConfigLooperNext(target, looperData)) {
 
     if (action == "enable") {
       ecmdEnableRingCache(target);
