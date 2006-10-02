@@ -2704,6 +2704,15 @@ uint32_t ecmdArrayEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
         l_ptr += sizeof( rcTemp );
         i_len -= sizeof( rcTemp );
 
+        // If the length has not decremented to 0, something is wrong
+        if ( i_len != 0 )
+        {
+          ETRAC1("Buffer overflow occurred in ecmdArrayEntry::unflatten() "
+                 "leftover data bytes = %d", i_len );
+          l_rc = ECMD_DATA_OVERFLOW;
+          break;
+        }
+	
     } while (0);	// <- single exit.
 
     return l_rc;
