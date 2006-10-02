@@ -34,8 +34,11 @@ my @no_gen = qw( ecmdEnableRingCache ecmdDisableRingCache);
 my $no_gen_re = join '|', @no_gen;
 
 # These are functions that we want to check ring cache on.  If not added here, a function won't have ring cache checks
-my @check_ring_cache = qw(getRing putRing getScom putScom sendCmd CfamRegister getArray putArray TraceArray startClocks stopClocks iSteps SystemPower FruPower Spr Fpr Gpr Slb GpRegister);
+my @check_ring_cache = qw(getRing putRing getScom putScom sendCmd CfamRegister getArray putArray getTraceArray putTraceArray startClocks stopClocks iSteps SystemPower FruPower Spr Fpr Gpr Slb GpRegister);
 my $check_ring_cache_re = join '|', @check_ring_cache;
+# These functions have variable depth and require state fields, so we can use their state fields to do ring cache check
+# Functions still need to be included above in check_ring_cache to work here
+my $check_ring_cache_state_valid = "startClocks|stopClocks";
  
 my $printout;
 my $DllFnTable;
@@ -220,11 +223,19 @@ while (<IN>) {
 
 
           $printout .= "   ecmdChipTarget cacheTarget;\n";
-          if ($chipTarget) {
+          if (/$check_ring_cache_state_valid/) {
+            # State fields should be valid to appropriate depth, so just pass through
+            $printout .= "   cacheTarget = i_target;\n";
+          } elsif ($chipTarget) {
             $printout .= "   cacheTarget = i_target;\n";
             $printout .= "   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);\n";
           } else {
+            # Since this function doesn't take a cage, I need to loop over cages and check all caches 
+            $printout .= "   ecmdLooperData looperdata;\n";
             $printout .= "   cacheTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;\n";
+            $printout .= "   rc = ecmdConfigLooperInit(cacheTarget, ECMD_ALL_TARGETS_LOOP, looperdata);\n";
+            $printout .= "   if (rc) return rc;\n\n";
+            $printout .= "   while (ecmdConfigLooperNext(cacheTarget, looperdata)) {\n";
           }
 
           if ($type_flag == $STRING) {
@@ -235,6 +246,10 @@ while (<IN>) {
           }
           else { #type is VOID
             $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return;\n";
+          }
+          # Close up my while loop above 
+          if (!$chipTarget) {
+            $printout .= "   }\n";
           }
 
         }
