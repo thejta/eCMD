@@ -457,9 +457,9 @@ void ecmdEnableRingCache(ecmdChipTarget & i_target) {
     myTcount = fppCallCount;
 
     if (ecmdClientDebug == 8) {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"void ecmdEnableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"void ecmdEnableRingCache(ecmdChipTarget & i_target)",args);
     } else {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void ecmdEnableRingCache(ecmdChipTarget & i_target)",args);
     }
   }
 #endif
@@ -495,9 +495,9 @@ void ecmdEnableRingCache(ecmdChipTarget & i_target) {
     std::vector< void * > args;
 
     if (ecmdClientDebug == 8) {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"void ecmdEnableRingCache(ecmdChipTarget & i_target)",args);
     } else {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void ecmdEnableRingCache(ecmdChipTarget & i_target)",args);
     }
   }
 #endif
@@ -517,9 +517,9 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
     myTcount = fppCallCount;
 
     if (ecmdClientDebug == 8) {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTIN,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
     } else {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
     }
   }
 #endif
@@ -556,9 +556,9 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
     args.push_back((void*) &rc);
 
     if (ecmdClientDebug == 8) {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_JUSTOUT,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
     } else {
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache()",args);
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
     }
   }
 #endif
