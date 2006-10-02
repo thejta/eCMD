@@ -60,8 +60,10 @@ my $cleanup = 0;  # Call only cleanup on the plugins to remove anything they mig
 # This allows the user to put just rchland or rchland.ibm.com, etc..
 my @ctepaths = ("\/afs\/rchland(|\.ibm\.com)\/rel\/common\/cte",
                 "\/afs\/awd(|\.austin\.ibm\.com)\/projects\/cte",
+                "\/afs\/austin(|\.ibm\.com)\/projects\/cte",
                 "\/afs\/apd(|\.pok\.ibm\.com)\/func\/vlsi\/cte",
                 "\/afs\/vlsilab(|\.boeblingen\.ibm\.com)\/proj\/cte",
+                "\/afs\/bb\/proj\/cte",
                 "\/afs\/btv(|\.ibm\.com)\/data\/vlsi\/cte",
                 "\/afs\/raleigh(|\.ibm\.com)\/cadtools\/cte",
                 "\/afs\/watson(|\.ibm\.com)\/projects\/vlsi\/cte");
