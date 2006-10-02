@@ -468,6 +468,10 @@ uint32_t ecmdThreadData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
+		memcpy(l_ptr, &threadFlags, sizeof(threadFlags));
+		l_ptr += sizeof(threadFlags);
+		i_len -= sizeof(threadFlags);
+
 	} while (0);	// <- single exit.
 
 	return rc;
@@ -518,6 +522,10 @@ uint32_t ecmdThreadData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
+		memcpy(&threadFlags, l_ptr, sizeof(threadFlags));
+		l_ptr += sizeof(threadFlags);
+		i_len -= sizeof(threadFlags);
+
 	} while (0);	// <- single exit.
 
 	return rc;
@@ -540,6 +548,7 @@ uint32_t ecmdThreadData::flattenSize() {
 	// Size of non-list member data.
 	flatSize += sizeof(threadId);
 	flatSize += sizeof(unitId);
+	flatSize += sizeof(threadFlags);
 
 	return flatSize;
 }
@@ -549,7 +558,8 @@ void ecmdThreadData::printStruct() {
 
 	printf("\n\t\t\t\t\t\t\tThread Data:\n");
 	printf("\t\t\t\t\t\t\tThread ID: %d\n", threadId);
-	printf("\t\t\t\t\t\t\tUnit ID: %d\n", unitId);
+	printf("\t\t\t\t\t\t\tUnit ID: 0x%x\n", unitId);
+	printf("\t\t\t\t\t\t\tThread Flags: 0x%x\n", threadFlags);
 }
 #endif
 
@@ -600,6 +610,10 @@ uint32_t ecmdCoreData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		memcpy(l_ptr, &unitId, sizeof(unitId));
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
+
+		memcpy(l_ptr, &coreFlags, sizeof(coreFlags));
+		l_ptr += sizeof(coreFlags);
+		i_len -= sizeof(coreFlags);
 
 		/*
 		 * Figure out how many threadData structs are in the list for 
@@ -688,6 +702,10 @@ uint32_t ecmdCoreData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
+		memcpy(&coreFlags, l_ptr, sizeof(coreFlags));
+		l_ptr += sizeof(coreFlags);
+		i_len -= sizeof(coreFlags);
+
 		// Get the number of thredData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
 		listSize = ntohl(listSize);
@@ -749,7 +767,7 @@ uint32_t ecmdCoreData::flattenSize() {
 		flatSize += sizeof(CORE_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(coreId) + sizeof(numProcThreads) + sizeof(unitId);
+		flatSize += sizeof(coreId) + sizeof(numProcThreads) + sizeof(unitId) + sizeof(coreFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -786,7 +804,8 @@ void ecmdCoreData::printStruct() {
 	// Print non-list data.
 	printf("\t\t\t\t\t\tCore ID: %d\n", coreId);
 	printf("\t\t\t\t\t\tNumber of proc threads: %d\n", numProcThreads);
-	printf("\t\t\t\t\t\tUnit ID: %d\n", unitId);
+	printf("\t\t\t\t\t\tUnit ID: 0x%x\n", unitId);
+	printf("\t\t\t\t\t\tCore Flags: 0x%x\n", coreFlags);
 
 	// Print list data.
 	if (threadData.size() == 0) {
@@ -857,7 +876,13 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(pos);
 		i_len -= sizeof(pos);
 	
-		memcpy(l_ptr, &numProcCores, sizeof(numProcCores));
+		tmpData32 = htonl(unitId);
+		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+		l_ptr += sizeof(unitId);
+		i_len -= sizeof(unitId);
+
+		tmpData32 = htonl(numProcCores);
+		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(numProcCores);
 		i_len -= sizeof(numProcCores);
 	
@@ -956,6 +981,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += l_chipCommonType.size() + 1;
 
 		uint32_t l_byteCount = sizeof(pos)
+				       + sizeof(unitId)
 				       + sizeof(numProcCores)
 				       + sizeof(chipEc)
 				       + sizeof(simModelEc)
@@ -991,6 +1017,11 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(pos);
 		i_len -= sizeof(pos);
 
+		memcpy(&unitId, l_ptr, sizeof(unitId));
+		unitId = ntohl(unitId);
+		l_ptr += sizeof(unitId);
+		i_len -= sizeof(unitId);
+
 		memcpy(&numProcCores, l_ptr, sizeof(numProcCores));
 		l_ptr += sizeof(numProcCores);
 		i_len -= sizeof(numProcCores);
@@ -1016,7 +1047,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(chipFlags);
 		i_len -= sizeof(chipFlags);
 
-		// Get the number of cageData structs from the buffer.
+		// Get the number of coreData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
 		listSize = ntohl(listSize);
 		l_ptr += sizeof(listSize);
@@ -1078,6 +1109,7 @@ uint32_t ecmdChipData::flattenSize() {
 
 		// Size of non-list member data.
 		flatSize += (sizeof(pos) 
+			     + sizeof(unitId)
 			     + sizeof(numProcCores) 
 			     + sizeof(chipEc) 
 			     + sizeof(simModelEc) 
@@ -1124,6 +1156,7 @@ void ecmdChipData::printStruct() {
 	printf("\t\t\t\t\tChip short type: %s\n", chipShortType.c_str());
 	printf("\t\t\t\t\tChip common type: %s\n", chipCommonType.c_str());
 	printf("\t\t\t\t\tPosition: %d\n", pos);
+	printf("\t\t\t\t\tUnitId: 0x%x\n", unitId);
 	printf("\t\t\t\t\tNumber of proc cores: %d\n", numProcCores);
 	printf("\t\t\t\t\tChip EC: %X\n", chipEc);
 	printf("\t\t\t\t\tSim mode EC: %X\n", simModelEc);
@@ -1187,6 +1220,12 @@ uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
+		tmpData32 = htonl((uint32_t) slotFlags);
+		memcpy(l_ptr, &tmpData32, sizeof(slotFlags));
+		l_ptr += sizeof(slotFlags);
+		i_len -= sizeof(slotFlags);
+
+   
 		/* 
 		 * Figure out how many chipData structs are in the list for 
 		 * future unflattening.
@@ -1263,12 +1302,17 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(slotId);
 		i_len -= sizeof(slotId);
 
-		memcpy(&slotId, l_ptr, sizeof(unitId));
-		slotId = ntohl(unitId);
+		memcpy(&unitId, l_ptr, sizeof(unitId));
+		unitId = ntohl(unitId);
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		// Get the number of cageData structs from the buffer.
+		memcpy(&slotFlags, l_ptr, sizeof(slotFlags));
+		slotFlags = ntohl(slotFlags);
+		l_ptr += sizeof(slotFlags);
+		i_len -= sizeof(slotFlags);
+
+		// Get the number of chipData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
 		listSize = ntohl(listSize);
 		l_ptr += sizeof(listSize);
@@ -1329,7 +1373,7 @@ uint32_t ecmdSlotData::flattenSize() {
 		flatSize += sizeof(SLOT_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(slotId) + sizeof(unitId);
+		flatSize += sizeof(slotId) + sizeof(unitId) + sizeof(slotFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -1366,6 +1410,7 @@ void ecmdSlotData::printStruct() {
 	// Print non-list data.
 	printf("\t\t\t\tSlot ID: 0x%08x\n", slotId);
 	printf("\t\t\t\tUnit ID: 0x%08x\n", unitId);
+	printf("\t\t\t\tslot Flags: 0x%08x\n", slotFlags);
 
 	// Print list data.
 	if (chipData.size() == 0) {
@@ -1424,6 +1469,11 @@ uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
+
+		tmpData32 = htonl((uint32_t) nodeFlags);
+		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+		l_ptr += sizeof(nodeFlags);
+		i_len -= sizeof(nodeFlags);
 
 		/*
 		 * Figure out how many slotData structs are in the list for 
@@ -1510,7 +1560,12 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		// Get the number of cageData structs from the buffer.
+		memcpy(&nodeFlags, l_ptr, sizeof(nodeFlags));
+		nodeFlags = ntohl(nodeFlags);
+		l_ptr += sizeof(nodeFlags);
+		i_len -= sizeof(nodeFlags);
+
+		// Get the number of slotData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
 		listSize = ntohl(listSize);
 		l_ptr += sizeof(listSize);
@@ -1571,7 +1626,7 @@ uint32_t ecmdNodeData::flattenSize()  {
 		flatSize += sizeof(NODE_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(nodeId) + sizeof(unitId);
+		flatSize += sizeof(nodeId) + sizeof(unitId) + sizeof(nodeFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -1608,6 +1663,7 @@ void ecmdNodeData::printStruct() {
 	// Print non-list data.
 	printf("\t\t\tNode ID: 0x%08x\n", nodeId);
 	printf("\t\t\tUnit ID: 0x%08x\n", unitId);
+	printf("\t\t\tNode Flags: 0x%08x\n", nodeFlags);
 
 	// Print list data.
 	if (slotData.size() == 0) {
@@ -1665,6 +1721,11 @@ uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
+
+		tmpData32 = htonl((uint32_t) cageFlags);
+		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+		l_ptr += sizeof(cageFlags);
+		i_len -= sizeof(cageFlags);
 
 		/*
 		 * Figure out how many nodeData structs are in the list for 
@@ -1746,10 +1807,15 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(cageId);
 		i_len -= sizeof(cageId);
 
-		memcpy(&cageId, l_ptr, sizeof(unitId));
-		cageId = ntohl(unitId);
-		l_ptr += sizeof(unitId);
-		i_len -= sizeof(unitId);
+        memcpy(&unitId, l_ptr, sizeof(unitId));
+        unitId = ntohl(unitId);
+        l_ptr += sizeof(unitId);
+        i_len -= sizeof(unitId);
+
+		memcpy(&cageFlags, l_ptr, sizeof(cageFlags));
+		cageFlags = ntohl(cageFlags);
+		l_ptr += sizeof(cageFlags);
+		i_len -= sizeof(cageFlags);
 
 		// Get the number of nodeData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
@@ -1812,7 +1878,7 @@ uint32_t ecmdCageData::flattenSize() {
 		flatSize += sizeof(CAGE_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(cageId) + sizeof(unitId);
+		flatSize += sizeof(cageId) + sizeof(unitId) + sizeof(cageFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -1849,6 +1915,7 @@ void ecmdCageData::printStruct() {
 	// Print non-list data.
 	printf("\t\tCage ID: 0x%08x\n", cageId);
 	printf("\t\tUnit ID: 0x%08x\n", unitId);
+	printf("\t\tCage Flags: 0x%08x\n", cageFlags);
 
 	// Print list data.
 	if (nodeData.size() == 0) {
