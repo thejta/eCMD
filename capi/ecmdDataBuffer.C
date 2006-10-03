@@ -1535,11 +1535,8 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_ta
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-// ecmdExtract can't make good input checks, so we have to do that here
-  if (i_len > o_bufferOut.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::extract: len %d > o_bufferOut.iv_NumBits (%d)\n", i_len, o_bufferOut.iv_NumBits);
-    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if (i_start + i_len > iv_NumBits) {
+  // ecmdExtract can't make good input checks, so we have to do that here
+  if (i_start + i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::extract: start %d + len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start >= iv_NumBits) {
