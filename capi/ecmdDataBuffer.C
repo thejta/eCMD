@@ -1329,6 +1329,7 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
 
   /* We need to make sure our last word is clean if numBits isn't on a word boundary */
   if ((wordlen == iv_NumWords) && (iv_NumBits%32)) {
+    /* Reading out the last word and writing it back will clear any bad bits on */
     uint32_t myWord = getWord((wordlen-1));
     rc = setWord((wordlen-1), myWord);
     if (rc) return rc;
