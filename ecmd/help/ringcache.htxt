@@ -1,9 +1,18 @@
 
-Syntax: ringcache enable|disable|flush|query
+Syntax: ringcache enable|disable|flush|query [<ChipSelect>] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
         Function:       Modifies state of internal caching of reads/writes of scan rings
+
+	NOTE:           ringcache supports varying levels of caching, cage thru chip.
+                        When a chip is given, it will operate on the chip level.
+                        If you don't give a chip, it will operate on the depth you specify.
+                        i.e. "ringcache enable -nall", will loop on all nodes in k0.
+                        "ringcache enable -n1 -kall", will loop on n1 in all cages.
+                        If no options are given, it will operate on the entire
+                        system.. (-kall -nall -sall)
+                        Your plugin may not support all levels, consult your plugin.
 
 
         Parameters:
@@ -17,7 +26,23 @@ Syntax: ringcache enable|disable|flush|query
 
         query           Displays state of ring cache
 
+        ChipSelect[opt] Chip to flush the cache on, if your plugin supports chip level
+                        cache
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+
         --------------------------------------------------------------------------------
 
         Example:        ringcache enable
-                        ringcache disable
+                        ringcache disable -nall
+                        ringcache query pu -k0 -n1 -s4281 -pall
