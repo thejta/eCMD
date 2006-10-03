@@ -40,6 +40,7 @@
 #include <netinet/in.h> /* for htonl */
 #include <fstream>
 #include <iostream>
+#include <math.h> /* for exp2 */
 
 using namespace std;
 
@@ -385,6 +386,13 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
   if (i_newNumBits == iv_NumBits)
     return rc;  /* nothing to do */
 
+  // before shrinking, clear all data that is going to now be invalid
+  this->clearBit(i_newNumBits, (iv_NumBits-i_newNumBits));
+  if (rc != ECMD_DBUF_SUCCESS) { 
+    ETRAC3("**** ERROR : ecmdDataBuffer::shrinkBitLength: Error Back from clearBit(%d, %d). rc=0x%x", i_newNumBits, (iv_NumBits-i_newNumBits), rc); 
+    RETURN_ERROR(rc);  
+  }
+
   uint32_t newNumWords = i_newNumBits % 32 ? i_newNumBits / 32 + 1 : i_newNumBits / 32;
   uint32_t randNum = 0x12345678;
 
@@ -538,6 +546,17 @@ uint32_t  ecmdDataBuffer::setWord(uint32_t wordOffset, uint32_t value) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)", wordOffset, iv_NumWords);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
+
+    // Create mask if part of this word is not in the valid part of the ecmdDataBuffer 
+    if ( ( 32 * wordOffset + 1 <= iv_NumBits ) && ( iv_NumBits < (32 * (wordOffset+1)) + 1 ) )
+    {
+      uint32_t bitmask = 0x80000000, wordmask=0x0;
+      uint32_t num_bits_to_keep = iv_NumBits - (32 * wordOffset);
+      for (uint32_t  counter = 1; counter <= num_bits_to_keep ; counter++, bitmask >>=1)
+        wordmask = bitmask | wordmask; 
+      value = wordmask & value;
+    }
+
     iv_Data[wordOffset] = value;
     
 #ifndef REMOVE_SIM
@@ -568,6 +587,17 @@ uint32_t  ecmdDataBuffer::setByte(uint32_t byteOffset, uint8_t value) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setByte: byteOffset %d >= NumBytes (%d)", byteOffset, getByteLength());
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
+
+    // Create mask if part of this byte is not in the valid part of the ecmdDataBuffer 
+    if ( ( 8 * byteOffset + 1 <= iv_NumBits ) && ( iv_NumBits < (8 * (byteOffset+1)) + 1 ) )
+    {
+      uint8_t bitmask = 0x80, bytemask=0x0;
+      uint32_t num_bits_to_keep = iv_NumBits - (8 * byteOffset);
+      for (uint32_t  counter = 1; counter <= num_bits_to_keep ; counter++, bitmask >>=1)
+        bytemask = bitmask | bytemask; 
+      value = bytemask & value;
+    }
+
 #if defined (i386)
     ((uint8_t*)(this->iv_Data))[byteOffset^3] = value;
 #else
@@ -612,10 +642,21 @@ uint8_t ecmdDataBuffer::getByte(uint32_t byteOffset) const {
 uint32_t  ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (i_halfwordoffset >= (getWordLength()*2)) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::setHalfWord: halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, (getWordLength()*2));
+  if (i_halfwordoffset >= ((getByteLength()+1)/2)) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setHalfWord: halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, ((getByteLength()+1)/2));
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+
+  // Create mask if part of this half-word is not in the valid part of the ecmdDataBuffer 
+  if ( ( 16 * i_halfwordoffset + 1 <= iv_NumBits ) && ( iv_NumBits < (16 * (i_halfwordoffset+1)) + 1 ) )
+  {
+    uint16_t bitmask = 0x8000, halfwordmask=0x0;
+    uint32_t num_bits_to_keep = iv_NumBits - (16 * i_halfwordoffset);
+    for (uint32_t  counter = 1; counter <= num_bits_to_keep ; counter++, bitmask >>=1)
+      halfwordmask = bitmask | halfwordmask;
+    i_value = halfwordmask & i_value;
+  }
+
   uint32_t value32 = (uint32_t)i_value;
   if (i_halfwordoffset % 2) {
     iv_Data[i_halfwordoffset/2] = (iv_Data[i_halfwordoffset/2] & 0xFFFF0000) | (value32 & 0x0000FFFF);
@@ -665,6 +706,23 @@ uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_
 	   , i_doublewordoffset, ((getWordLength()+1)/2));
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+
+  // Create mask if part of this double-word is not in the valid part of the ecmdDataBuffer 
+  if ( ( 64 * i_doublewordoffset + 1 <= iv_NumBits ) && ( iv_NumBits < (64 * (i_doublewordoffset+1)) + 1 ) )
+  {
+
+#ifdef _LP64
+    uint64_t bitmask = 0x8000000000000000ul, doublewordmask=0x0ul;
+#else
+    uint64_t bitmask = 0x8000000000000000ull, doublewordmask=0x0ull;
+#endif
+    uint32_t num_bits_to_keep = iv_NumBits - (64 * i_doublewordoffset);
+    for (uint32_t  counter = 1; counter <= num_bits_to_keep ; counter++, bitmask >>=1)
+      doublewordmask = bitmask | doublewordmask;
+    i_value = doublewordmask & i_value;
+  }
+
+
 #ifdef _LP64
   uint32_t hivalue = (uint32_t)((i_value & 0xFFFFFFFF00000000ul) >> 32);
   uint32_t lovalue = (uint32_t)((i_value & 0x00000000FFFFFFFFul));
@@ -1428,17 +1486,11 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
 
 uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
 
-  if ( i_start + i_len > 32 ) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::insertFromRight: i_start %d + i_len %d > sizeof i_dataIn (32)\n", i_start, i_len );
-    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if (i_start >= 32) {
-    ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_start %d >= sizeof i_dataIn (32)", i_start);
-    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if (i_len > 32) {
+  if (i_len > 32) {
     ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_len %d > sizeof i_dataIn (32)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
 // other input checks are perfomred in the insertFromRight function called below
-  } else {}
+  }
 
     return this->insertFromRight(&i_datain, i_start, i_len);
 }
@@ -2323,6 +2375,22 @@ uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Do
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
     ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
+
+    // Create mask if part of the LAST byte is not in the valid part of the ecmdDataBuffer 
+    // This code similar to ::setByte()
+    uint32_t byteOffset = cbytes - 1;
+    if ( ( 8 * byteOffset + 1 <= iv_NumBits ) && ( iv_NumBits < (8 * (byteOffset+1)) + 1 ) )
+    {
+      uint8_t bitmask = 0x80, bytemask=0x0;
+      uint8_t value = this->getByte(byteOffset);
+      uint32_t num_bits_to_keep = iv_NumBits - (8 * byteOffset);
+      for (uint32_t  counter = 1; counter <= num_bits_to_keep ; counter++, bitmask >>=1)
+        bytemask = bitmask | bytemask;
+      value = bytemask & value;
+      this->setByte(byteOffset, value);  // write over the last byte written with ecmdBigEndianMemCopy
+    }
+
+
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
       uint32_t mask = 0x80000000;
