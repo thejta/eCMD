@@ -213,7 +213,7 @@ public:
    * @brief Copy Constructor
    * @param other Buffer to copy
    */
-  ecmdDataBuffer(const ecmdDataBuffer &other);
+  ecmdDataBuffer(const ecmdDataBuffer &i_other);
 
   /**
    * @brief Default Destructor
@@ -1415,22 +1415,22 @@ or the configuration
   /**
    * @brief Overload the == operator
    */
-  int operator == (const ecmdDataBuffer& other) const;    
+  int operator == (const ecmdDataBuffer& i_other) const;    
 
   /**
    * @brief Overload the != operator
    */
-  int operator != (const ecmdDataBuffer& other) const;    
+  int operator != (const ecmdDataBuffer& i_other) const;    
 
   /**
    * @brief Overload the & operator
    */
-  ecmdDataBuffer operator & (const ecmdDataBuffer& other) const;    
+  ecmdDataBuffer operator & (const ecmdDataBuffer& i_other) const;    
 
   /**
    * @brief Overload the | operator
    */
-  ecmdDataBuffer operator | (const ecmdDataBuffer& other) const;    
+  ecmdDataBuffer operator | (const ecmdDataBuffer& i_other) const;    
 
   //@}
 
@@ -1450,7 +1450,7 @@ protected: //methods
 protected:
 #ifndef REMOVE_SIM
   char* iv_DataStr; /* binary or x data */
-  uint32_t fillDataStr(char fillChar);
+  uint32_t fillDataStr(char i_fillChar);
   bool iv_XstateEnabled;
 #endif
 
@@ -1472,7 +1472,7 @@ class ecmdOptimizableDataBuffer : public ecmdDataBuffer {
      /**
       * @brief Constructor with bit length specified
       */
-     ecmdOptimizableDataBuffer(uint32_t numBits);
+     ecmdOptimizableDataBuffer(uint32_t i_numBits);
      
      /**
       * @brief Destructor for ecmdOptimizableDataBuffer class
