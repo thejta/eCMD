@@ -1183,6 +1183,28 @@ public:
 
    */
   uint32_t insertFromBinAndResize (const char * i_binChars, uint32_t i_start = 0);
+
+  /**
+   * @brief Convert data from an ascii string and insert it into this data buffer
+   * @retval 0 on success- non-zero on failure
+   * @param i_asciiChars String of data to insert 
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
+
+   */
+  uint32_t insertFromAscii(const char * i_asciiChars, uint32_t i_start = 0);
+
+  /**
+   * @brief Convert data from an ascii string and insert it into this data buffer - and set's buffer length to size of data
+   * @retval 0 on success- non-zero on failure
+   * @param i_asciiChars String of data to insert 
+   * @param i_start Starting position in data buffer to insert to, 0 by default
+   * @retval ECMD_SUCCESS on success
+   * @retval non-zero on failure
+
+   */
+  uint32_t insertFromAsciiAndResize(const char * i_asciiChars, uint32_t i_start = 0);
   //@}
 
 
