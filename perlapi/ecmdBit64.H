@@ -75,7 +75,7 @@ public:
      @brief Copy the contents of this ecmdBit64 into another
      @param o_copy Value copied into this class
   */
-  void copy(ecmdBit64 & o_copy) { o_copy.value = value; }
+  void copy(ecmdBit64 & o_copy) { o_copy.iv_value = iv_value; }
 
   /**
      @brief Set with string value
@@ -100,11 +100,16 @@ public:
   void setValue(uint32_t i_hiValue, uint32_t i_loValue);
 
   /**
-     @brief Retrieve String value '0xFEEDBEEFB0B0BEEF'
-     @param i_decimal Print the string in decimal '1234' instead of hex '0xFEED'
+     @brief Retrieve Hex string value '0xFEEDBEEFB0B0BEEF'
+     @param i_alignLen Display width (ex 3 = '0x001' 10 = '0x0000000001')
      @retval 64 bit value in a string
   */
-  std::string getValue(bool i_decimal = false);
+  std::string getHexValue(uint32_t i_alignLen = 1);
+  /**
+     @brief Retrieve Decimal string value '1234576'
+     @retval 64 bit value in a string
+  */
+  std::string getDecimalValue();
   /**
      @brief Retrive the hi and low word in integer form
      @param o_hiValue High(Left) word, bits (0-31)
@@ -122,11 +127,11 @@ public:
   /**
      @brief Return the actual uint64_t value, only for swig to work, not available to user
   */
-  uint64_t getRawValue() { return value; }
+  uint64_t getRawValue() { return iv_value; }
   /**
      @brief Set the actual uint64_t value, only for swig to work
   */
-  void setRawValue(uint64_t i_newValue) { value = i_newValue; }
+  void setRawValue(uint64_t i_newValue) { iv_value = i_newValue; }
 #endif
 
 
@@ -329,7 +334,7 @@ public:
   void operator -- (int i_num);
 
 private:
-  uint64_t value;
+  uint64_t iv_value;
 	    
 };
 
