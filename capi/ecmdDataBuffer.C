@@ -1324,9 +1324,35 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
   uint32_t wordlen = (i_invByteLen / 4) + 1 < iv_NumWords ? (i_invByteLen / 4) + 1 : iv_NumWords;
 
   for (uint32_t i = 0; i < wordlen; i++) {
-    setWord(i, (iv_Data[i] ^ i_invMask[i])); /* Xor the data */
+    iv_Data[i] = iv_Data[i] ^ i_invMask[i]; /* Xor */
+  }
+
+  /* We need to make sure our last word is clean if numBits isn't on a word boundary */
+  if ((wordlen == iv_NumWords) && (iv_NumBits%32)) {
+    uint32_t myWord = getWord((wordlen-1));
+    rc = setWord((wordlen-1), myWord);
+    if (rc) return rc;
   }
      
+#ifndef REMOVE_SIM   
+  if (iv_XstateEnabled) {
+    uint32_t xbuf_size = (i_invByteLen * 8) < iv_NumBits ? (i_invByteLen * 8) : iv_NumBits;
+    uint32_t curbit = 0;
+
+    for (uint32_t word = 0; word < wordlen; word ++) {
+      for (uint32_t bit = 0; bit < 32; bit ++) {
+        
+        if (curbit >= xbuf_size) break;
+
+        if (i_invMask[word] & (0x80000000 >> bit)) {
+          if (iv_DataStr[curbit] == '0') iv_DataStr[curbit] = '1';
+          else if (iv_DataStr[curbit] == '1') iv_DataStr[curbit] = '0';
+        }
+        curbit ++;
+      }
+    }
+  }
+#endif
   return rc;
 }
 
@@ -2267,29 +2293,41 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t s
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insertFromBinAndResize (const char * i_hexChars, uint32_t start) {
+uint32_t ecmdDataBuffer::insertFromBinAndResize (const char * i_hexChars, uint32_t i_start) {
   int rc = setBitLength(strlen(i_hexChars));
   if (rc) return rc;
-  return insertFromBin(i_hexChars, start);
+  return insertFromBin(i_hexChars, i_start);
 }
 
-uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t start) {
+uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t i_start) {
   int rc = ECMD_DBUF_SUCCESS;
 // input checking done with clearBit() and setBit()
   uint32_t strLen = (uint32_t)strlen(i_binChars);
 
   for (uint32_t i = 0; i < strLen; i++) {
     if (i_binChars[i] == '0') {
-      this->clearBit(start+i);
+      this->clearBit(i_start+i);
     }
     else if (i_binChars[i] == '1') {
-      this->setBit(start+i);
+      this->setBit(i_start+i);
     } else {
       RETURN_ERROR(ECMD_DBUF_INVALID_DATA_FORMAT);
     }
   }
 
   return rc;
+}
+
+uint32_t ecmdDataBuffer::insertFromAsciiAndResize(const char * i_asciiChars, uint32_t i_start) {
+  int rc = setBitLength(strlen(i_asciiChars)*8);
+  if (rc) return rc;
+  return insertFromAscii(i_asciiChars, i_start);
+}
+
+uint32_t ecmdDataBuffer::insertFromAscii(const char * i_asciiChars, uint32_t i_start) {
+  /* We can just call insert on this for the bitLength of the char buffer */
+  uint32_t bitLength = strlen(i_asciiChars)*8;
+  return insert((uint8_t *)i_asciiChars, i_start, bitLength, 0);
 }
 
 uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) const {

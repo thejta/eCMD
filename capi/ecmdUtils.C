@@ -650,7 +650,7 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
     bitlength = strlen(i_dataStr)*8;
     if (i_expectedLength != 0) bitlength = i_expectedLength;
     o_data.setBitLength(bitlength);
-    rc = o_data.insert((uint8_t *)i_dataStr, 0, bitlength,0);
+    rc = o_data.insertFromAscii(i_dataStr, 0);
   }
   else if (localFormat == "d") {
     if(strlen(i_dataStr) > 10) {
