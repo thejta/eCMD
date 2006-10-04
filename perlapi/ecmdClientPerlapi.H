@@ -292,11 +292,13 @@ Here is an example usage of the ecmdDataBuffer:
  @subsection uint64_t uint64_t (64 bit data)
  Perl doesn't support 64 bit variables, so eCMD provides an ecmdBit64 class to try to make up for this.
  The following operators have been overloaded with this class :
+<ul>
 <li> * - * / %
 <li> == != &lt; &lt;= &gt; &gt;=
 <li> & | ^ ! ~
 <li> ++ --
 <li> &lt;&lt; &gt;&gt;
+</ul>
 This will allow you to do things like the following :
 <pre>
   my $addr = new ecmd::ecmdBit64("0x00100FFE00000000");
