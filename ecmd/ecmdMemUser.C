@@ -294,11 +294,13 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      	 ecmdOutputError( printLine.c_str() );
 	 if (mismatchBit != ECMD_UNSET) {
 #ifdef _LP64
-	   sprintf(outstr, "%s - Data miscompare occured at address (%lX) bit (%d)\n", 
-		 cmdlineName.c_str(), address, mismatchBit);
+	   sprintf(outstr, "%s - Data miscompare occured at (address %lX) (bit %d) (byte %d bit %d\n", 
+		 cmdlineName.c_str(), address, mismatchBit, mismatchBit/8,
+		   mismatchBit%8);
 #else
-	   sprintf(outstr, "%s - Data miscompare occured at address (%llX) bit (%d)\n", 
-		 cmdlineName.c_str(), address, mismatchBit);
+	   sprintf(outstr, "%s - Data miscompare occured at (address %llX) (bit %d) (byte %d:0x%X bit %d)\n", 
+		   cmdlineName.c_str(), address, mismatchBit, mismatchBit/8,
+		   mismatchBit/8, mismatchBit%8);
 #endif
 	   ecmdOutputError( outstr );
 	 }
