@@ -12,17 +12,18 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        biasvoltage              getspr                   putvpdimage              simstktcfac              
-                                 getspy                   putvpdkeyword            simSUBCMD                
-        cacheflush               gettracearray                                     simtckinterval           
-        checkrings               getvpdimage              querybiasstate           simUNSTICK               
-                                 getvpdkeyword                                     simunsticktcfac          
-        deconfig                 gpioconfig               reconfig                 startclocks              
-                                                          ringcache                stopclocks               
-        ecmd                     i2creset                                          systempower              
-        ecmdquery                istep                    sendcmd                  
-                                                          setclockspeed            
-        format                   makespsystemcall         setconfig                
+        biasvoltage              getscom                  putspy                   simSTKFAC                
+                                 getspr                   putvpdimage              simstktcfac              
+        cacheflush               getspy                   putvpdkeyword            simSUBCMD                
+        checkrings               gettracearray                                     simtckinterval           
+                                 getvpdimage              querybiasstate           simUNSTICK               
+        deconfig                 getvpdkeyword                                     simunsticktcfac          
+                                 gpioconfig               reconfig                 startclocks              
+        ecmd                                              ringcache                stopclocks               
+        ecmdquery                i2creset                                          systempower              
+                                 istep                    sendcmd                  
+        format                                            setclockspeed            
+        frupower                 makespsystemcall         setconfig                
                                                           simaet                   
         getarray                 pollscom                 simcheckpoint            
         getbits                  putarray                 simclock                 
@@ -41,7 +42,6 @@ Syntax: ecmd
         getmemmemctrl            putpattern               simPUTFACX               
         getmemproc               putscom                  simputtcfac              
         getringdump              putspr                   simrestart               
-        getscom                  putspy                   simSTKFAC                
 
 
         Cronus/IP Extensions:
@@ -77,35 +77,35 @@ Syntax: ecmd
         Z Series Extensions:
         --------------------------------------------------------------------------------
 
-        zseactivatefru           zseoscillatorswitchover  zsesetupi390tracelevels  
-        zseactivatenetworkfru    zsepchid                 zsesetw1controls         
-        zsealternatepath         zsepppcchillerreadtemper zseshfinit               
-        zsececdump               zsepppcchillersetbias    zsesigmclose             
-        zsechecketr              zsepppcextendedbiasmode  zsesigmderegister        
-        zsecheckicbwrap          zsepppcgenericcommand    zsesigmgetdata           
-        zsecheckservicenetwork   zsepppcgetamdspeedandambienttemperaturezsesigmopen              
-        zsecheckstatus           zsepppcgetbpastate       zsesigmregister          
-        zsechkpscnnetwork        zsepppcgetcageinfolog    zsesimenv                
-        zsecleari390tracebuffer  zsepppcgetnodepowerstate zsesimread               
-        zsecontrolledwarmstart   zsepppcmcmreadtemperaturezsesimwrite              
-        zsecsadisable            zsepppcreadcurrentdca    zsestartmirroring        
-        zsecsaenable             zsepppcreadvoltagedca    zsesysstatus             
-        zsecsagetstatedump       zsepppcsetamdspeed       zsesystempoweroff        
-        zsecsehactive            zsepppcsetbackupblowercontroltempzsesystempoweron         
-        zsedeactivatefru         zsepurgelog              zsevoltagebiasfru        
-        zsedflogread             zsequerycryptostate      zsewaitforcecsw          
-        zseenablei390trace       zsequeryrefc             zsewaitforwarmstart      
-        zseenterlogmode          zseratestate             zsewarmstart             
-        zseetrnowrap             zseresetcpusaptracecontrolszsewriteerrorlog         
-        zseetrstatus             zseresetcsscontrols      zsewriteeventlog         
-        zsegetalli390traces      zsereseti390tracesettingszsewriteinfolog          
-        zsegetalliputraces       zseresetiottcontrols     zsexcryptorunmode        
-        zsegetallunits           zsesavei390tracetofile   
-        zsegetmbastispeed        zsesendsw                
-        zsegetpchids             zsesetcecoscdefaultnestspeed
-        zseiml                   zsesetcpusaptracecontrols
-        zseinpa                  zsesetcsscontrols        
-        zseitemxfer              zsesetiottcontrols       
-        zseleavelogmode          zsesetmbastispeed        
+        zseactivatefru           zsegetpchids             zsepurgelog              zsewriteerrorlog         
+        zseactivatenetworkfru    zseiml                   zsequerycryptostate      zsewriteeventlog         
+        zsealternatepath         zseinpa                  zsequerylicccfilenames   zsewriteinfolog          
+        zsececdump               zseitemxfer              zsequeryrefc             zsexcryptorunmode        
+        zsechecketr              zsenetacdlsystem         zseratestate             
+        zsecheckicbwrap          zsenetactivatenetwork    zseresetcpusaptracecontrols
+        zsecheckservicenetwork   zsenetcctakeover         zseresetcsscontrols      
+        zsecheckstatus           zsenetcheckservicenetworkzsereseti390tracesettings
+        zsechkpscnnetwork        zsenetchkpscnnetwork     zseresetiottcontrols     
+        zsecleari390tracebuffer  zsenetdeactivatenetworkfruzsesavei390tracetofile   
+        zsecontrolledwarmstart   zsenetpscnnetinfo        zsesendsw                
+        zsecsaactivatenode       zsenetpscnsetccslave     zsesetcecoscdefaultnestspeed
+        zsecsadeactivatenode     zsenetpscnversioninfo    zsesetcpusaptracecontrols
+        zsecsadisable            zsenetstartmirroring     zsesetcsstracecontrols   
+        zsecsaenable             zsenetupdateccload       zsesetiottcontrols       
+        zsecsagetstatedump       zseoscillatorswitchover  zsesetmbastispeed        
+        zsecsaissueinfolog       zsepchid                 zsesetupi390tracelevels  
+        zsecsasetforcedegrade    zsepppcchillerreadtemper zsesetw1controls         
+        zsecsasetimlmode         zsepppcchillersetbias    zseshfinit               
+        zsecsasuppresswarninglogszsepppcextendedbiasmode  zsesimenv                
+        zsecsaunsetforcedegrade  zsepppcgenericcommand    zsesimread               
+        zsecsehactive            zsepppcgetamdspeedandambienttemperaturezsesimwrite              
+        zsedeactivatefru         zsepppcgetbpastate       zsestartmirroring        
+        zsedflogread             zsepppcgetcageinfolog    zsesysstatus             
+        zseenablei390trace       zsepppcgetnodepowerstate zsesystempoweroff        
+        zseetrnowrap             zsepppcmcmreadtemperaturezsesystempoweron         
+        zseetrstatus             zsepppcreadcurrentdca    zsevoltagebiasfru        
+        zsegetalli390traces      zsepppcreadvoltagedca    zsewaitforcecsw          
+        zsegetallunits           zsepppcsetamdspeed       zsewaitforwarmstart      
+        zsegetmbastispeed        zsepppcsetbackupblowercontroltempzsewarmstart             
 
 
