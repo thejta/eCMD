@@ -131,6 +131,10 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipTarget queryTarget;
+
+  // Clear to unknown so we can error check later
+  io_state.ecmdLoopMode = ECMD_LOOP_MODE_UNKNOWN;
+
 #ifndef ECMD_STRIP_DEBUG
   int myTcount =0;
 #endif
@@ -149,9 +153,6 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   }
 
 #endif
-
-  /* Set the loop mode */
-  io_state.ecmdLoopMode = i_mode;
 
   /* Are we using a unitid ? */
   if ((io_target.chipTypeState == ECMD_TARGET_FIELD_VALID) && (io_target.chipType.length() > 0) && (io_target.chipType[0] == 'u')) {
@@ -230,6 +231,10 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     io_state.ecmdLooperInitFlag = true;
     io_state.prevTarget = io_target;
   }
+
+  /* Set the loop mode */
+  io_state.ecmdLoopMode = i_mode;
+
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
     std::vector< void * > args;
@@ -273,6 +278,12 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
    }
 
 #endif
+
+  if (io_state.ecmdLoopMode == ECMD_LOOP_MODE_UNKNOWN) {
+    ecmdOutputError("ecmdConfigLooperNext - Invalid io_state passed, verify ecmdConfigLooperInit was run successfully\n");
+    /* We return 0 which stops the loop, we can't return any failure from here */
+    return 0;
+  }
 
   /* Are we using unitids ? */
   if (io_state.ecmdUseUnitid) {
