@@ -302,9 +302,12 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   char outstr[200];
 
 
-  if (!dllIsRingCacheEnabled()) {
+  ecmdChipTarget cacheTarget;
+  cacheTarget = i_target;
+  ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+  if (!dllIsRingCacheEnabled(cacheTarget)) {
     enabledCache = true;
-    dllEnableRingCache();
+    dllEnableRingCache(cacheTarget);
   }
 
 
@@ -353,7 +356,7 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   else { return rc; }
   
   if (enabledCache) {
-    rc = dllDisableRingCache();
+    rc = dllDisableRingCache(cacheTarget);
   }
 
   return rc;
@@ -823,10 +826,10 @@ uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDa
 
   if (eccfuncName == "ODDPARITY") {
     goodECC.setBitLength(1);
-    goodECC.writeBit(0, inLatches.oddParity(0, inLatches.getBitLength()));
+    goodECC.writeBit(0, inLatches.oddParity(0, (inLatches.getBitLength()-1)));
   } else if (eccfuncName == "EVENPARITY") {
     goodECC.setBitLength(1);
-    goodECC.writeBit(0, inLatches.evenParity(0, inLatches.getBitLength()));
+    goodECC.writeBit(0, inLatches.evenParity(0, (inLatches.getBitLength()-1)));
   } else {
     /* See if we can lookup the name of the function before doing anything else */
     rc = dllGetSpyInfo(i_target, eccfuncName.c_str(), myDC);
@@ -862,9 +865,9 @@ uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDa
 
         /* Now all loaded up with the data, gen the parity and insert it into the goodECC */
         if (eccfuncIter->parityType == "odd") {
-          goodECC.writeBit(outbitOffset, tempBuffer.oddParity(0, tempBuffer.getBitLength()));
+          goodECC.writeBit(outbitOffset, tempBuffer.oddParity(0, (tempBuffer.getBitLength()-1)));
         } else {
-          goodECC.writeBit(outbitOffset, tempBuffer.evenParity(0, tempBuffer.getBitLength()));
+          goodECC.writeBit(outbitOffset, tempBuffer.evenParity(0, (tempBuffer.getBitLength()-1)));
         }
         outbitOffset++; // Increment where we're sticking the gen'd ecc bits
       }
@@ -923,9 +926,12 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   sedcSpyContainer mySpy;
   char outstr[200];
 
-  if (!dllIsRingCacheEnabled()) {
+  ecmdChipTarget cacheTarget;
+  cacheTarget = i_target;
+  ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+  if (!dllIsRingCacheEnabled(cacheTarget)) {
     enabledCache = true;
-    dllEnableRingCache();
+    dllEnableRingCache(cacheTarget);
   }
 
 
@@ -963,11 +969,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   } else { return rc;}
 
   if (enabledCache) {
-    rc = dllFlushRingCache();
-    if (rc) {
-      dllOutputError("dllPutSpy - Problems flushing the ring cache\n");
-    }
-    rc = dllDisableRingCache();
+    rc = dllDisableRingCache(cacheTarget);
   }
 
   return rc;
