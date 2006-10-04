@@ -293,7 +293,7 @@ Here is an example usage of the ecmdDataBuffer:
  Perl doesn't support 64 bit variables, so eCMD provides an ecmdBit64 class to try to make up for this.
  The following operators have been overloaded with this class :
 <ul>
-<li> * - * / %
+<li> + - * / &#37;
 <li> == != &lt; &lt;= &gt; &gt;=
 <li> & | ^ ! ~
 <li> ++ --
