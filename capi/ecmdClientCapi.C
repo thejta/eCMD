@@ -331,7 +331,7 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   for (int idx = 0; idx < ECMD_ARG_LIMIT; idx++) {
     if (idx < *i_argc) {
       tmp = g_args.argv[idx];
-      g_args.argv[idx] = new char[strlen((*i_argv)[idx])];
+      g_args.argv[idx] = new char[strlen((*i_argv)[idx])+1];
       strcpy(g_args.argv[idx],(*i_argv)[idx]);
       if (tmp != NULL) delete[] tmp;
     } else {
