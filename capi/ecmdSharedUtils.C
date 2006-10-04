@@ -337,13 +337,19 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
   printed += util;
 
   if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
-    if (i_target.node != ECMD_TARGETDEPTH_NA) {
+    if (i_target.node == ECMD_TARGETDEPTH_NA) {
+      sprintf(util, ":n-");
+      printed += util;
+    } else {
       sprintf(util, ":n%d", i_target.node);
       printed += util;
     }
 
     if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
-      if (i_target.slot != ECMD_TARGETDEPTH_NA) {
+      if (i_target.slot == ECMD_TARGETDEPTH_NA) {
+	sprintf(util, ":s-");
+	printed += util;
+      } else {
 	sprintf(util, ":s%d", i_target.slot);
 	printed += util;
       }
