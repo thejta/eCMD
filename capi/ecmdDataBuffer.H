@@ -211,7 +211,7 @@ public:
 
   /**
    * @brief Copy Constructor
-   * @param other Buffer to copy
+   * @param i_other Buffer to copy
    */
   ecmdDataBuffer(const ecmdDataBuffer &i_other);
 
