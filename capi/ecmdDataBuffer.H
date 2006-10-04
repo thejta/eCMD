@@ -150,13 +150,13 @@ extern tracDesc_t g_etrc; /** Trace Descriptor **/
  @brief This is the different formats in which the output file will be written
 */
 
+/* ALL new enums must be added to the end of this list or it will break compatability with old save files - JTA 10/4/06 */
 typedef enum {
-  ECMD_SAVE_FORMAT_UNKNOWN,     ///< Default value
   ECMD_SAVE_FORMAT_BINARY,      ///< binary file with header with info like bit length, format etc
   ECMD_SAVE_FORMAT_BINARY_DATA, ///< binary file with data only - will NOT work with scan ring data as length is rounded up to next byte
   ECMD_SAVE_FORMAT_ASCII,       ///< ascii text file with header having same info like binary hdr
   ECMD_SAVE_FORMAT_XSTATE,      ///< xstate text file with header having same info like binary hdr
-
+  ECMD_SAVE_FORMAT_UNKNOWN,     ///< Default value
 } ecmdFormatType_t;
 
 /**
