@@ -69,7 +69,7 @@ public:
      @param i_hiWord Integer value to place in high(left) word (bits 0-31)
      @param i_loWord Integer value to place in low(right) word (bits 32-63)
   */
-  ecmdBit64(uint32_t i_hiValue, uint32_t i_loValue);
+  ecmdBit64(uint32_t i_hiWord, uint32_t i_loWord);
 
   /**
      @brief Copy the contents of this ecmdBit64 into another
@@ -97,7 +97,7 @@ public:
      @param i_hiWord Integer value to place in high(left) word (bits 0-31)
      @param i_loWord Integer value to place in low(right) word (bits 32-63)
   */
-  void setValue(uint32_t i_hiValue, uint32_t i_loValue);
+  void setValue(uint32_t i_hiWord, uint32_t i_loWord);
 
   /**
      @brief Retrieve Hex string value '0xFEEDBEEFB0B0BEEF'
@@ -112,7 +112,7 @@ public:
   std::string getDecimalValue();
   /**
      @brief Retrive the hi and low word in integer form
-     @param o_hiValue High(Left) word, bits (0-31)
+     @param o_hiWord High(Left) word, bits (0-31)
      @param o_loWord Low(Right) word, bits (32-63)
 
      NOTE : To use this interface preset your input variables to a number and pass as a reference<p>
@@ -120,7 +120,7 @@ public:
      my $lo = 0;<p>
      $x->getValue(\$hi, \$lo);<p>
   */
-  void getValue(uint32_t & o_hiValue, uint32_t & o_loValue);
+  void getValue(uint32_t & o_hiWord, uint32_t & o_loWord);
 
 
 #ifndef ECMD_PERLAPI
