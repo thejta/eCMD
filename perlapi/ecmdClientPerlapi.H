@@ -463,8 +463,10 @@ Usage of a vector is identical to a list like above.
  NOTE : Since both $data1 and $data2 point to the same memory space when one is modified they are both modified.  This behavior is the same for the ecmdDataBuffer and all eCMD structures found in ecmdStructs.H
 
  To work around this problem you need to copy the contents of a structure manually :
+ <ul>
  <li> For ecmdDataBuffer/ecmdBit64 : $data1->copy($data2)
  <li> For Structures : $target2->{cage} = $target->{cage}
+ </ul>
 
  <br>
  <hr>
