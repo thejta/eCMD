@@ -205,12 +205,6 @@ This Document Last Approved: March 22nd, 2006
  @section perlv Perl Version
  eCMD Scripts need Perl version 5.8.1 which is installed as part of the CTE package on all supported sites.  All scripts using the perl module should start with the following: 
 
-In an IP Series LAB environment
-<pre>
-TBD ...
-</pre>
-<br>
-In a CTE only environment
  <pre>
  #!/bin/ksh 
  #! -*- perl -*-
