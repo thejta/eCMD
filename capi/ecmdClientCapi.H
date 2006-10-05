@@ -122,14 +122,13 @@ uint32_t ecmdQueryDllInfo(ecmdDllInfo & o_dllInfo);
  @retval true If the plugin release is >= version specified
  @retval false If the plugin release is < version specified
 
-#ifdef ECMD_PERLAPI
- eCMD Perl-api allows a script to support multiple major and minor versions of eCMD, but at times api's you use may change or new interfaces are added.  This interface allows you to query at runtime which version of eCMD you are running against and make calls appropriately.
-#else
- eCMD C-api won't allow your code to run if the major numbers mismatch, but at times you may want to use a
+ The eCMD C-api won't allow your code to run if the major numbers mismatch, but at times you may want to use a
   new function that was released in a minor release.  This api let's you see if the plugin is at least
   or greater then the minor number where the new function was made available.
 
-#endif
+ The eCMD Perl-api allows a script to support multiple major and minor versions of eCMD, but at times api's you use may change or new interfaces are added.  This interface allows you to query at runtime which version of eCMD you are running against and make calls appropriately.
+ 
+
  So if new function X was dropped in eCMD release v6.2 then if you include the following check in your code
   you can neatly handle if a user is trying to run a plugin that is 6.1 or less:
 
