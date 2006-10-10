@@ -78,7 +78,24 @@
 }
 
 
+
+
 // These typemaps are setup to take either string values or ecmdBit64 classes for uint64_t args
+// typecheck looking for either an incoming ecmdBit64 or a string 
+%typecheck(SWIG_TYPECHECK_UINT64) 
+        ecmdBit64, ecmdBit64 &, ecmdBit64 *,
+	uint64_t, uint64_t &, uint64_t * 
+{
+  ecmdBit64* tmp;
+  int res = SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0);
+  $1 = SWIG_CheckState(res);
+  if (!$1) {
+    res = SWIG_AsCharPtrAndSize($input, 0, NULL, 0);
+    _v = SWIG_CheckState(res);
+  }
+}
+  	
+
 %typemap(in) ecmdBit64 {
   ecmdBit64* tmp;
   if (SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
