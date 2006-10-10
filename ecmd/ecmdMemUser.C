@@ -477,7 +477,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      return rc;
     }
     memEntry.address = address;
-    rc = inputData.extract(memEntry.data, 0, inputData.getBitLength()); if (rc) return rc;
+    memEntry.data = inputData;
     memdata.push_back(memEntry);
     
   } else if(dcardfilename != NULL) {
@@ -495,7 +495,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      return rc;
    }
    memEntry.address = address;
-   rc = inputData.extract(memEntry.data, 0, inputData.getBitLength()); if (rc) return rc;
+   memEntry.data = inputData;
    memdata.push_back(memEntry);
   }
 
