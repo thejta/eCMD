@@ -899,7 +899,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     rc = ecmdQuerySelected(target, queryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
 
     char buf[300];
-    char buf2[10];
+    char buf2[20];
     std::string curchip, kbuf, nbuf, sbuf;
 
     for (ecmdCurCage = queryData.cageData.begin(); ecmdCurCage != queryData.cageData.end(); ecmdCurCage ++) {
