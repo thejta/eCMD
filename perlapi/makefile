@@ -43,7 +43,7 @@ INT_INCLUDES :=
 SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C ecmdBit64.C
 MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRename.i
 DEFINES      := 
-CFLAGS       := ${CFLAGS} -I. -I../capi/export -g -I../dll
+CFLAGS       := ${CFLAGS} -I. -I../capi/export -I../dll
 SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
 
 # Ok, tack on all the extension stuff
