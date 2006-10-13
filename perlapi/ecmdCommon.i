@@ -79,6 +79,20 @@
 
 
 // These typemaps are setup to take either string values or ecmdBit64 classes for uint64_t args
+// typecheck looking for either an incoming ecmdBit64 or a string
+%typecheck(SWIG_TYPECHECK_UINT64)
+        uint64_t, uint64_t &, uint64_t *
+{
+  ecmdBit64* tmp;
+  if (SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
+    _v = 1;
+  } else {
+    _v = SvPOK($input) ? 1 : 0;
+  }
+}
+
+
+
 %typemap(in) ecmdBit64 {
   ecmdBit64* tmp;
   if (SWIG_ConvertPtr($input, (void **) &tmp, SWIGTYPE_p_ecmdBit64,0) >= 0) {
