@@ -2025,7 +2025,6 @@ std::string simCallFusionCommand(const char* i_fusionObject, const char* i_repli
  */
 uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* i_fusionRandObject = NULL);
 
-#ifndef ECMD_PERLAPI    /* Perl doesn't handle 64 bit numbers, so this interface isn't allowed */
 /**
  @brief Returns a random 64 bit number in the range [min,max] using the Fusion MasterSeed;
  by default each client will have an own instance of Fusion's
@@ -2039,7 +2038,6 @@ uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* 
  @retval Random number
  */
 uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
-#endif
 
 
 /**
