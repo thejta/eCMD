@@ -315,6 +315,12 @@ public:
   ecmdBit64 operator | (const ecmdBit64& i_rhs) const;    
 
   /**
+     @brief Operator |
+     @param i_rhs Right-Hand-Side, can only modify right had word with this api
+  */
+  ecmdBit64 operator | (const uint32_t i_rhs) const;    
+
+  /**
      @brief Operator ^
      @param i_rhs Right-Hand-Side
   */
