@@ -1,0 +1,19 @@
+
+Syntax: ecmdecho [-warning | -error] <message>
+        
+        ECMD:           Core Common Function
+
+        Function:       Call ecmdOutput API functions - to allow for plugin logging
+                        Output will be echoed to screen as well.  
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        -warning [opt]  Use the ecmdOutputWarning interface
+
+        -error   [opt]  Use the ecmdOutputError interface
+
+        message         String to echo
+
+        --------------------------------------------------------------------------------
+
+        Example:        ecmdecho "Hello" -quiet

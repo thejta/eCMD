@@ -228,7 +228,9 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'e':
 
-        if (!strcmp(argv[0], "ecmdquery")) {
+        if (!strcmp(argv[0], "ecmdecho")) {
+          rc = ecmdEchoUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ecmdquery")) {
           rc = ecmdQueryUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */

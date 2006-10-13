@@ -1420,6 +1420,47 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   return rc;
 }
 
+uint32_t ecmdEchoUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  std::string message;
+
+  bool warning = false;
+  bool error = false;
+
+  warning = ecmdParseOption(&argc, &argv, "-warning");
+  error = ecmdParseOption(&argc, &argv, "-error");
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 1) {
+    ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  for (int idx = 0; idx < argc; idx ++) {
+    message += argv[idx];
+    message += " ";
+  }
+  message += "\n";
+
+  if (error) {
+    ecmdOutputError(message.c_str());
+  } else if (warning) {
+    ecmdOutputWarning(message.c_str());
+  } else {
+    ecmdOutput(message.c_str());
+  }
+
+  return rc;
+
+}
+
+
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
