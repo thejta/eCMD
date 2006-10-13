@@ -212,6 +212,12 @@ ecmdBit64 ecmdBit64::operator | (const ecmdBit64 & i_other) const {
   return newItem;
 }
 
+ecmdBit64 ecmdBit64::operator | (const uint32_t i_rhs) const {
+  ecmdBit64 newItem = *this;
+  newItem.iv_value |= (uint64_t)i_rhs;
+  return newItem;
+}
+
 ecmdBit64 ecmdBit64::operator ^ (const ecmdBit64 & i_other) const {
   ecmdBit64 newItem = *this;
   newItem.iv_value ^= i_other.iv_value;

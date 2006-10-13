@@ -115,6 +115,7 @@
 %rename(operatorNotEqualTo) operator!=(const ecmdDataBuffer& other) const;
 %rename(operatorAnd)        operator&(const ecmdDataBuffer& other) const;
 %rename(operatorOr)         operator|(const ecmdDataBuffer& other) const;
+%rename(operatorOr)         operator|(const uint32_t) const;
 // ecmdBit64
 %rename(operatorEqualTo)    operator==(const ecmdBit64& other) const;
 %rename(operatorNotEqualTo) operator!=(const ecmdBit64& other) const;
