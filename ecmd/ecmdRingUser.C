@@ -1538,7 +1538,6 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         ecmdOutputError("putlatch - Problems flushing the ring cache\n");
         return rc;
       }
-      enabledCache = false;
     }
   } /* End PosLooper */
   
