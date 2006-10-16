@@ -64,6 +64,10 @@
  #include <bmlClientCapi.H>
  #include <bmlInterpreter.H>
 #endif
+#ifdef ECMD_MBO_EXTENSION_SUPPORT
+ #include <mboClientCapi.H>
+ #include <mboInterpreter.H>
+#endif
 
 //----------------------------------------------------------------------
 //  User Types
@@ -158,6 +162,16 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     rc = bmlInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = bmlCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_MBO_EXTENSION_SUPPORT
+  /* Mambo Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("mbo",argv[0],3))) {
+    rc = mboInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = mboCommandInterpreter(argc, argv);
     }
   }
 #endif

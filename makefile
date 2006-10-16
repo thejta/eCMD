@@ -48,6 +48,12 @@ all:
 	@cd ext/zse/cmd;gmake ${GMAKEFLAGS}
 	@echo " "
 
+	@echo " "
+	@echo "Building Mambo Extension API ..."
+	@cd ext/mbo/capi;gmake ${GMAKEFLAGS}
+	@cd ext/mbo/cmd;gmake ${GMAKEFLAGS}
+	@echo " "
+
 
 	@echo "Building Core Command line Client ..."
 	@cd ecmd;gmake ${GMAKEFLAGS}
@@ -84,6 +90,9 @@ clean:
 	@cd ext/zse/capi;gmake clean
 	@cd ext/zse/cmd;gmake clean
 
+	@cd ext/mbo/capi;gmake clean
+	@cd ext/mbo/cmd;gmake clean
+
 	@cd ecmd;gmake clean
 
 	@cd ext/cmd/capi;gmake clean
@@ -111,6 +120,9 @@ objclean:
 
 	@cd ext/zse/capi;gmake objclean
 	@cd ext/zse/cmd;gmake objclean
+
+	@cd ext/mbo/capi;gmake objclean
+	@cd ext/mbo/cmd;gmake objclean
 
 	@cd ecmd;gmake objclean
 

@@ -3132,6 +3132,15 @@ Include files :
 <li> Library : bmlClientCapi_ppc.a </li>
 </ul>
 
+@subsection mbo MBO (Mambo) Extension
+This extensions provides Mambo Simulator only interfaces.<br>
+Include files :
+<ul>
+<li> mboClientCapi.H</li>
+<li> mboStructs.H</li>
+<li> Library : mboClientCapi_aix.a / mboClientCapi_x86.a</li>
+</ul>
+
 <hr>
 @section dllv DLL Version
 The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
