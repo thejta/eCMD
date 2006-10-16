@@ -1472,7 +1472,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   char outstr[200];
   std::list<chipSpies>::iterator  searchSpyList;
   chipSpies curSpyInfo;
-  bool spyFnd = false; 
+  bool spyFnd = false, spydefFnd = false; 
 
   /* We have to do this because won't don't have an easy way to swtich between high and low detail - JTA 09/22/06 */
   /* We'll just save all the information everytime (high detail).  Hopefully this won't hose performance */
@@ -1489,9 +1489,9 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
       rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePath);
       if (rc) return rc;
 
-
       for (searchSpyList = spyBuffer.begin(); searchSpyList != spyBuffer.end(); searchSpyList ++) {
         if (searchSpyList->spydefName == spyFilePath) {
+	  spydefFnd = true;
           searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
 
           if (searchSpy != searchSpyList->spies.end()) { /* Found! */
@@ -1500,12 +1500,12 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
 	    spyFnd = true;
           } 
           break;
-        }
+        } 
       }  
-      if ( spyBuffer.empty() || (!spyFnd && (searchSpyList->spydefName != spyFilePath)))  {
+      if ( spyBuffer.empty() || (!spyFnd && !spydefFnd))  {
         curSpyInfo.spydefName = spyFilePath; 
         curSpyInfo.spies.clear();
-        spyBuffer.push_front(curSpyInfo);
+	spyBuffer.push_front(curSpyInfo);
         searchSpyList = spyBuffer.begin();
       }
  
@@ -1567,7 +1567,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
         return ECMD_INVALID_SPY;
       }
       /* Everything looks good, let's get out of here */
-      searchSpyList->spies.push_front(returnSpy);
+      (*searchSpyList).spies.push_front(returnSpy);
       spyFile.close();
     }
 
