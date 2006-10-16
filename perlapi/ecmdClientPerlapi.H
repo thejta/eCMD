@@ -198,6 +198,11 @@ This Document Last Approved: March 22nd, 2006
  <li> eipClientPerlapi.H </li>
  </ul>
 
+ MBO (Mambo) Extension<br>
+ <ul>
+ <li> mboClientPerlapi.H </li>
+ </ul>
+
 
  <br><br>
 

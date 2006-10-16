@@ -28,7 +28,7 @@ VER_SOURCE   := ecmdVersion.C
 
 # Common stuff for all extension interpreters
 ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cro eip gip zse
+  EXTENSIONS   := cip cro eip gip zse mbo
 endif
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)

@@ -46,6 +46,9 @@
 /* The BML Extension */
 //#define ECMD_BML_EXTENSION_SUPPORT
 
+/* The Mambo Extension */
+#define ECMD_MBO_EXTENSION_SUPPORT
+
 #endif /* ecmdPluginExtensionSupport_h */
 
 // Change Log *********************************************************

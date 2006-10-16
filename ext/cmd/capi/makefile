@@ -27,7 +27,7 @@ INCLUDES     :=
 
 # Extensions to grab the interpreters from
 ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cro eip gip zse
+  EXTENSIONS   := cip cro eip gip zse mbo
 endif
 
 

@@ -17,7 +17,7 @@ endif
 
 # List the extensions to include in the compile
 ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cmd gip cro zse eip
+  EXTENSIONS   := cip cmd gip cro zse eip mbo
 endif
 
 # Ok, find our CTE path if they don't already have one
