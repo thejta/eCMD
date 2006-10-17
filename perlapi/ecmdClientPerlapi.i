@@ -69,9 +69,10 @@
   #include "eipClientPerlapi.H"
   #include "eipClientPerlapiFunc.H"
 #endif
-#include "cmdClientPerlapi.H"
-#include "cmdClientPerlapiFunc.H"
-
+#ifdef ECMD_CMD_EXTENSION_SUPPORT
+  #include "cmdClientPerlapi.H"
+  #include "cmdClientPerlapiFunc.H"
+#endif
 %}
 /*********** End Insert Code ***********/
 
@@ -199,8 +200,10 @@
   %include "eipClientPerlapiFunc.H"
   %include "eipStructs.H"
 #endif
-%include "cmdClientPerlapi.H"
-%include "cmdClientPerlapiFunc.H"
+#ifdef ECMD_CMD_EXTENSION_SUPPORT
+  %include "cmdClientPerlapi.H"
+  %include "cmdClientPerlapiFunc.H"
+#endif
 /*********** End Files to swigify ***********/
 
 /* Removing this from v6.1 on - JTA 12/08/05
