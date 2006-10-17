@@ -49,6 +49,9 @@
 /* The Mambo Extension */
 #define ECMD_MBO_EXTENSION_SUPPORT
 
+/* The CommandLine Extension */
+#define ECMD_CMD_EXTENSION_SUPPORT
+
 #endif /* ecmdPluginExtensionSupport_h */
 
 // Change Log *********************************************************
