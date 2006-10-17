@@ -30,8 +30,10 @@ my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDispla
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
-my @no_gen = qw( ecmdEnableRingCache ecmdDisableRingCache);
-my $no_gen_re = join '|', @no_gen;
+# Removed no_gen because it is an empty list now.  If things need to be re-added, uncomment the below two lines
+# and the 3rd $no_gen_re line further down in the script - JTA 10/17/06
+#my @no_gen = qw( );
+#my $no_gen_re = join '|', @no_gen;
 
 # These are functions that we want to check ring cache on.  If not added here, a function won't have ring cache checks
 my @check_ring_cache = qw(getRing putRing getScom putScom sendCmd CfamRegister getArray putArray getTraceArray putTraceArray startClocks stopClocks iSteps SystemPower FruPower Spr Fpr Gpr Slb GpRegister);
@@ -148,7 +150,8 @@ while (<IN>) {
 
         print OUT "$type $funcname(@argnames); \n\n";
 
-	next if (/$no_gen_re/o);
+        # Pulled because we no longer have functions that aren't auto generated - JTA 10/17/06
+	#next if (/$no_gen_re/o);
 
         $printout .= "$type $orgfuncname(@argnames) {\n\n";
 
