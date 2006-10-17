@@ -6,126 +6,94 @@ endif
 
 all:
 	@echo " "
-	@echo "Building Core Client API ..."
-	@cd capi;gmake ${GMAKEFLAGS}
+	@echo "Core Client API ..."
+	@cd capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 	@echo " "
-	@echo "Building Cronus/IP Extension API ..."
-	@cd ext/cip/capi;gmake  ${GMAKEFLAGS}
-	@cd ext/cip/cmd;gmake ${GMAKEFLAGS}
-	@echo " "
-
-
-	@echo " "
-	@echo "Building Cronus Extension API ..."
-	@cd ext/cro/capi;gmake ${GMAKEFLAGS}
-	@cd ext/cro/cmd;gmake ${GMAKEFLAGS}
+	@echo "Cronus/IP Extension API ..."
+	@cd ext/cip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
 	@echo " "
-	@echo "Building Scand Extension API ..."
-	@cd ext/scand/capi;gmake ${GMAKEFLAGS}
+	@echo "Cronus Extension API ..."
+	@cd ext/cro/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cro/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
 	@echo " "
-	@echo "Building Eclipz IP Extension API ..."
-	@cd ext/eip/capi;gmake ${GMAKEFLAGS}
-	@cd ext/eip/cmd;gmake ${GMAKEFLAGS}
-	@echo " "
-
-	@echo " "
-	@echo "Building GFW IP Extension API ..."
-	@cd ext/gip/capi;gmake ${GMAKEFLAGS}
-	@cd ext/gip/cmd;gmake ${GMAKEFLAGS}
-	@echo " "
-
-	@echo " "
-	@echo "Building Z Series Extension API ..."
-	@cd ext/zse/capi;gmake ${GMAKEFLAGS}
-	@cd ext/zse/cmd;gmake ${GMAKEFLAGS}
-	@echo " "
-
-	@echo " "
-	@echo "Building Mambo Extension API ..."
-	@cd ext/mbo/capi;gmake ${GMAKEFLAGS}
-	@cd ext/mbo/cmd;gmake ${GMAKEFLAGS}
+	@echo "Scand Extension API ..."
+	@cd ext/scand/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
-	@echo "Building Core Command line Client ..."
-	@cd ecmd;gmake ${GMAKEFLAGS}
 	@echo " "
-
-	@echo "Building Command line Extension API ..."
-	@cd ext/cmd/capi;gmake ${GMAKEFLAGS}
+	@echo "Eclipz IP Extension API ..."
+	@cd ext/eip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/eip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 	@echo " "
-
-	@echo "Building Perl Module ..."
-	@cd perlapi;gmake
+	@echo "GFW IP Extension API ..."
+	@cd ext/gip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/gip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-clean:
-	@cd capi;gmake clean
+	@echo " "
+	@echo "Z Series Extension API ..."
+	@cd ext/zse/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/zse/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
 
-	@cd ext/cip/capi;gmake clean
-	@cd ext/cip/cmd;gmake clean
-
-	@cd ext/cro/capi;gmake clean
-	@cd ext/cro/cmd;gmake clean
-
-	@cd ext/scand/capi;gmake clean
-
-
-	@cd ext/eip/capi;gmake clean
-	@cd ext/eip/cmd;gmake clean
-
-	@cd ext/gip/capi;gmake clean
-	@cd ext/gip/cmd;gmake clean
-
-	@cd ext/zse/capi;gmake clean
-	@cd ext/zse/cmd;gmake clean
-
-	@cd ext/mbo/capi;gmake clean
-	@cd ext/mbo/cmd;gmake clean
-
-	@cd ecmd;gmake clean
-
-	@cd ext/cmd/capi;gmake clean
-
-	@cd perlapi;gmake clean
+	@echo " "
+	@echo "Mambo Extension API ..."
+	@cd ext/mbo/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/mbo/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
 
 
-objclean:
-	@cd capi;gmake objclean
+	@echo "Core Command line Client ..."
+	@cd ecmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
 
-	@cd ext/cip/capi;gmake objclean
-	@cd ext/cip/cmd;gmake objclean
+	@echo "Command line Extension API ..."
+	@cd ext/cmd/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
 
-	@cd ext/cro/capi;gmake objclean
-	@cd ext/cro/cmd;gmake objclean
+	@echo " "
 
-	@cd ext/scand/capi;gmake objclean
+	@echo "Perl Module ..."
+	@cd perlapi;${MAKE} ${MAKECMDGOALS}
+	@echo " "
+
+clean: all
+
+objclean: all
+
+avail:
+	@echo " "
+	@echo "Core Client API ..."
+	@cd capi;${MAKE} all
+
+	@echo " "
+	@echo "Extension API's ..."
+	@$(foreach dir, $(shell /bin/ls -d ext/*/capi | grep -v template | grep -v cmd), (cd ${dir}; ${MAKE} all; echo " ");)
+
+	@echo "Extension Command Interpreters ..."
+	@$(foreach dir, $(shell /bin/ls -d ext/*/cmd | grep -v template), (cd ${dir}; ${MAKE} all; echo " ");)
+
+	@echo " "
+	@echo "Core Command line Client ..."
+	@$(foreach dir, $(shell /bin/ls -d ecmd), cd ${dir}; ${MAKE} all)
 
 
-	@cd ext/eip/capi;gmake objclean
-	@cd ext/eip/cmd;gmake objclean
+	@echo " "
+	@echo "Command line Extension API ..."
+	@$(foreach dir, $(shell /bin/ls -d ext/cmd/capi), cd ${dir}; ${MAKE} all)
 
-	@cd ext/gip/capi;gmake objclean
-	@cd ext/gip/cmd;gmake objclean
-
-	@cd ext/zse/capi;gmake objclean
-	@cd ext/zse/cmd;gmake objclean
-
-	@cd ext/mbo/capi;gmake objclean
-	@cd ext/mbo/cmd;gmake objclean
-
-	@cd ecmd;gmake objclean
-
-	@cd ext/cmd/capi;gmake objclean
-
-	@cd perlapi;gmake objclean
+	@echo " "
+	@echo "Perl Module ..."
+	@$(foreach dir, $(shell /bin/ls -d perlapi), cd ${dir}; ${MAKE} all)
