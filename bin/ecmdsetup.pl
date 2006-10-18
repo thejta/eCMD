@@ -37,12 +37,14 @@ chdir "$pwd";
 use lib '../plugins/cro';
 use lib '../plugins/scand';
 use lib '../plugins/gip';
+use lib '../plugins/mbo';
 
 # The setup modules to include
 require ecmdsetup;
 require crosetup;
 require scandsetup;
 require gipsetup;
+require mbosetup;
 
 ##########################################################################
 #  Variables
@@ -73,6 +75,7 @@ my $ecmd = new ecmdsetup();
 my $cro = new crosetup();
 my $scand = new scandsetup();
 my $gip = new gipsetup();
+my $mbo = new mbosetup();
 
 
 #####################################################
@@ -161,6 +164,7 @@ if ($shortcut) {
 if ($plugin eq "cro") {
 } elsif ($plugin eq "gip") {
 } elsif ($plugin eq "scand") {
+} elsif ($plugin eq "mbo") {
 } else {
   printf("echo The eCMD plugin you specified is not known\\!;");
   exit;
@@ -225,6 +229,7 @@ if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
   $cro->cleanup(\%modified);
   $scand->cleanup(\%modified, $release);
   $gip->cleanup(\%modified);
+  $mbo->cleanup(\%modified);
 }
 
 ##########################################################################
@@ -264,6 +269,9 @@ if (!$cleanup) {
   }
   if ($plugin eq "gip") {
     $gip->setup(\%modified, $localInstall, $product, $release, @ARGV);
+  }
+  if ($plugin eq "mbo") {
+    $mbo->setup(\%modified, $localInstall, $product, $release, @ARGV);
   }
 }
 
@@ -307,7 +315,7 @@ $ecmd->write_environment($shell,\%modified);
 sub help {
   printf("echo ecmdsetup \\<release\\> \\<plugin\\> \\<product\\> \\[copylocal\\] \\[cleanup\\] \\<plugin options\\>;");
   printf("echo \\<release\\> - Any eCMD Version currently supported in CVS \\(ex rel, ver5, ver4-3\\);");
-  printf("echo \\<plugin\\> - cro\\|scand\\|gip;");
+  printf("echo \\<plugin\\> - cro\\|scand\\|gip\\|mbo;");
   printf("echo \\<product\\> - eclipz, etc..;");
   printf("echo \\[copylocal\\] - Copy the \\\$ECMD_EXE and \\\$ECMD_DLL_FILE to /tmp/\\\$ECMD_TARGET/;");
   printf("echo \\[cleanup\\] - Remove all eCMD and Plugin settings from environment;");
