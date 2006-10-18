@@ -80,9 +80,17 @@ ifeq (${OS},Linux)
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
-  PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
-  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+  ifeq ($(strip ${PERLINC}),)
+    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
+  endif
+  ifeq ($(strip ${SWIG}),)
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+  endif
+  ifeq ($(strip ${SWIGDIR}),)
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+  else
+    SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
+  endif
   GPATH   := ${SUBDIR}
 endif
 
@@ -137,9 +145,17 @@ ifeq (${OS},AIX)
   LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
-  PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
-  SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
-  SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+  ifeq ($(strip ${PERLINC}),)
+    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
+  endif
+  ifeq ($(strip ${SWIG}),)
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+  endif
+  ifeq ($(strip ${SWIGDIR}),)
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+  else
+    SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
+  endif
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 
