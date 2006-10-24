@@ -1,7 +1,7 @@
 
-Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<format>] 
-                              [-i<format>] [-limit #[s|c]] [-interval #[s|c]] [-verbose] 
-                              [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-mismatch <data>]
+			      [-o<format>] [-i<format>] [-limit #[s|c]] [-interval #[s|c]] 
+			      [-verbose] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -36,6 +36,10 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-o<fo
                         'c' to #.  If interval is not specified it defaults to 5secs.
         
         -verbose  [opt] Prints warning message after each getscom if actual != expected.
+	
+	-mismatch [opt] Provide expected data. If expected == actual keeps polling OR
+			returns error if limit is specified and reached.  No data/error 
+			returned if expected != actual (i.e., mismatch occurred)..
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
