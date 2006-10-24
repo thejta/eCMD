@@ -569,6 +569,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   bool expectFlag = false;
   bool maskFlag = false;
   bool verboseFlag = false;
+  bool misMatchFlag = false;
   std::string outputformat = "x";               ///< Output format
   std::string inputformat = "x";                ///< Input format
   ecmdChipTarget target;                        ///< Target we are operating on
@@ -616,6 +617,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       
     }
   }
+
+  if ((curArg = ecmdParseOptionWithArgs(&argc, &argv, "-mismatch")) != NULL) {
+    misMatchFlag = true;
+
+    rc = ecmdReadDataFormatted(expected, curArg, inputformat);
+    if (rc) return rc;
+  }
+
+
 
   if (ecmdParseOption(&argc, &argv, "-verbose")) {
     verboseFlag = true;
@@ -786,13 +796,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
        if ((limitFlag == ITERATIONS_T || limitFlag == CYCLES_T) && numPolls >= maxPolls) done = 1;
        else if (limitFlag == SECONDS_T && maxPolls != 0 && (time(NULL) > timerStart + (time_t)maxPolls)) done = 1;
 
+       uint32_t mismatchBit = ECMD_UNSET;
+
        if (expectFlag) {
 
      	 if (maskFlag) {
      	   buffer.setAnd(mask, 0, buffer.getBitLength());
      	 }
 
-	 uint32_t mismatchBit = ECMD_UNSET;
+	 
      	 if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
      	   //mismatches
@@ -828,6 +840,33 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	   done = 1;  //matches
      	 }
 
+       } else if (misMatchFlag) {
+         if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
+           done = 1; //found a mismatch
+           if (verboseFlag){
+             printed = "";
+             sprintf(outstr, "pollscom - Data mismatch occurred at 0x%.8X\n", address);
+             printed = outstr + printed;
+             ecmdOutput( printed.c_str() );
+             return 0;
+           }
+         } else {
+           if (verboseFlag){
+             printed = "pollscom - Actual == Expected ";
+             printed += "	       : ";
+             printed += ecmdWriteDataFormatted(buffer, outputformat);
+             ecmdOutput( printed.c_str() );
+           }
+
+           if (done){
+             sprintf(outstr, "pollscom - Mismatch never occurred at address 0x%.8X\n", address);
+             printed = outstr + printed;
+             ecmdOutputError( printed.c_str() );
+             return ECMD_EXPECT_FAILURE;
+
+           }
+
+         }
        }
        else {
 
