@@ -489,7 +489,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
   std::string inputformat = "default";  ///< Input data format
   std::string dataModifier = "insert";  ///< Default data modifier
-  uint32_t startBit = 0;                //@01 add init 
+  uint32_t startBit = ECMD_UNSET;       //@01 add init 
   uint32_t numBits  = 0; 
   ecmdDataBuffer buffer;                ///< Buffer to hold input data
   ecmdDataBuffer spyBuffer;             ///< Buffer to hold current spy data
@@ -569,44 +569,37 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
 
     /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
-    if (inputformat != "enum") {
-      if (argc > 3) {
-        if (!ecmdIsAllDecimal(argv[2])) {
-          ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
-          return ECMD_INVALID_ARGS;
-        }
-        startBit = (uint32_t)atoi(argv[2]);
-      }
-      else {
-        startBit = 0x0;
-      }
-
-      if (argc > 4) {
-        if (!ecmdIsAllDecimal(argv[3])) {
-          ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
-          return ECMD_INVALID_ARGS;
-        }
-        numBits = (uint32_t)atoi(argv[3]);
-      }
-      else {
-        numBits = (uint32_t)spyData.bitLength - startBit;
-      }
-      if (argc > 5) {
+    if (inputformat != "enum" && argc > 3) {
+      if (argc != 5) {
         ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
         ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
         return ECMD_INVALID_ARGS;
       }
-      rc = ecmdReadDataFormatted(buffer, argv[argc-1] , inputformat, (int)numBits);
+
+      if (!ecmdIsAllDecimal(argv[2])) {
+        ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
+        return ECMD_INVALID_ARGS;
+      }
+      startBit = (uint32_t)atoi(argv[2]);
+
+      if (!ecmdIsAllDecimal(argv[3])) {
+        ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
+        return ECMD_INVALID_ARGS;
+      }
+      numBits = (uint32_t)atoi(argv[3]);
+
+      rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numBits);
       if (rc) {
         ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
         return rc;
       }
 
-    } else if (argc > 3) {
-      ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
-      ecmdOutputError("putspy - It is also possible you specified <start> <numbits> with an enumerated alias or dial\n");
-      ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
-      return ECMD_INVALID_ARGS;
+    } else {
+      rc = ecmdReadDataFormatted(buffer, argv[2], inputformat, spyData.bitLength);
+      if (rc) {
+        ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
+        return rc;
+      }
     }
 
     /* Setup our Core looper if needed */
@@ -626,49 +619,38 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     while (!isCoreSpy ||
            ecmdConfigLooperNext(coretarget, corelooper)) {
 
-      if (inputformat == "enum") {
-        rc = putSpyEnum(coretarget, spyName.c_str(), argv[argc-1] );
-      }
-      else {
+
+      if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
+
         rc = getSpy(coretarget, spyName.c_str(), spyBuffer);
-      }
 
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        break;
-      } else if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == (uint32_t) spyData.bitLength)) {
-        /* We will go on if the user was going to write the whole spy anyway */
-        ecmdOutputWarning("putspy - Problems reading group spy - found a mismatch - going ahead with write\n");
-        rc = 0;
-      } else if (rc == ECMD_SPY_GROUP_MISMATCH) {
-        /* If the user was only going to write part of the spy we can't go on because we don't ahve valid data to merge with */
-        printed = "putspy - Problems reading group spy - found a mismatch - to force write don't use start/numbits - on ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        ecmdOutputError("Use getspy with the -v option to get the detailed failure information\n");
-        return rc;
+        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+          break;
+        } else if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == (uint32_t) spyData.bitLength)) {
+          /* We will go on if the user was going to write the whole spy anyway */
+          ecmdOutputWarning("putspy - Problems reading group spy - found a mismatch - going ahead with write\n");
+          rc = 0;
+        } else if (rc == ECMD_SPY_GROUP_MISMATCH) {
+          /* If the user was only going to write part of the spy we can't go on because we don't ahve valid data to merge with */
+          printed = "putspy - Problems reading group spy - found a mismatch - to force write don't use start/numbits - on ";
+          printed += ecmdWriteTarget(coretarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          ecmdOutputError("Use getspy with the -v option to get the detailed failure information\n");
+          return rc;
 
-      } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
-        ecmdOutputWarning("putspy - Problems reading spy - ECC check failed - going ahead with write\n");
-        rc = 0;
-      } else if (rc) {
-        if (inputformat == "enum") {
-          printed = "putspy - Error occured performing putspy (enumerated) on ";
-        }
-        else {
+        } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
+          ecmdOutputWarning("putspy - Problems reading spy - ECC check failed - going ahead with write\n");
+          rc = 0;
+        } else if (rc) {
           printed = "putspy - Error occured performing getspy on ";
+          printed += ecmdWriteTarget(coretarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        } else {
+          validPosFound = true;     
         }
 
-        printed += ecmdWriteTarget(coretarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-
-      validPosFound = true;     
-
-      if (inputformat != "enum") {
-
-
-        rc = ecmdApplyDataModifier(spyBuffer, buffer,  startBit, dataModifier);
+        rc = ecmdApplyDataModifier(spyBuffer, buffer, (startBit == ECMD_UNSET ? 0 : startBit), dataModifier);
         if (rc) return rc;
 
         rc = putSpy(coretarget, spyName.c_str(), spyBuffer);
@@ -678,9 +660,26 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           ecmdOutputError( printed.c_str() );
           return rc;
         }
+      } else {
 
+        if (inputformat == "enum") {
+          rc = putSpyEnum(coretarget, spyName.c_str(), argv[argc-1] );
+        } else {
+          rc = putSpy(coretarget, spyName.c_str(), buffer);
+        }
+
+        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+          break;
+        }
+        else if (rc) {
+          printed = "putspy - Error occured performing putspy on ";
+          printed += ecmdWriteTarget(coretarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        } else {
+          validPosFound = true;
+        }
       }
-
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
         printed = ecmdWriteTarget(coretarget) + "\n";
