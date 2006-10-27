@@ -84,10 +84,10 @@ ifeq (${OS},Linux)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/newswig/bin/swig
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/newswig/lib -I${CTEPATH}/tools/ecmd/utils/newswig/lib/perl5
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
@@ -109,10 +109,10 @@ ifeq (${OS},Linux_ppc)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/newswig/bin/swig
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/newswig/lib -I${CTEPATH}/tools/ecmd/utils/newswig/lib/perl5
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
@@ -149,10 +149,10 @@ ifeq (${OS},AIX)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/newswig/bin/swig
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/newswig/lib -I${CTEPATH}/tools/ecmd/utils/newswig/lib/perl5
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif

@@ -625,11 +625,6 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
   std::string localFormat = i_format;
   uint32_t bitlength;
 
-  //ignore leading 'p'- it's for perl stuff
-  if (localFormat[0] == 'p') {
-    localFormat = localFormat.substr(1, localFormat.size());
-  }
-
   if (localFormat == "x" || localFormat == "xl") {
     bitlength = strlen(i_dataStr) * 4;
     if (i_expectedLength != 0) bitlength = i_expectedLength;
