@@ -16,7 +16,6 @@
 /* $Header$ */
 
                                
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder     Description                       
@@ -2435,16 +2434,32 @@ uint32_t  ecmdDataBuffer::memCopyOut(uint32_t* buf, uint32_t bytes) const { /* D
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::memCopyIn(const uint8_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::memCopyIn with * uint8_t input has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+uint32_t ecmdDataBuffer::memCopyIn(const uint8_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+  if (cbytes == 0) {
+    ETRAC0("**** ERROR : ecmdDataBuffer: memCopyIn: Copy performed on buffer with length of 0");
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else {
+    for (uint32_t i=0; i<cbytes; i++) {
+      setByte(i, i_buf[i]);
+    }
+  }
+  return rc;
 }
 
-uint32_t  ecmdDataBuffer::memCopyOut(uint8_t* i_buf, uint32_t i_bytes) const { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::memCopyOut with * uint8_t input has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+uint32_t ecmdDataBuffer::memCopyOut(uint8_t* o_buf, uint32_t i_bytes) const { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+  if (cbytes == 0) {
+    ETRAC0("**** ERROR : ecmdDataBuffer: memCopyIn: Copy performed on buffer with length of 0");
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else {
+    for (uint32_t i=0; i<cbytes; i++) {
+      o_buf[i] = getByte(i);
+    }
+  }
+  return rc;
 }
 
 uint32_t ecmdDataBuffer::flatten(uint8_t * o_data, uint32_t i_len) const {
