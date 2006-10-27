@@ -233,12 +233,14 @@ while (<IN>) {
             $printout .= "   cacheTarget = i_target;\n";
             $printout .= "   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);\n";
           } else {
-            # Since this function doesn't take a cage, I need to loop over cages and check all caches 
-            $printout .= "   ecmdLooperData looperdata;\n";
-            $printout .= "   cacheTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;\n";
-            $printout .= "   rc = ecmdConfigLooperInit(cacheTarget, ECMD_ALL_TARGETS_LOOP, looperdata);\n";
-            $printout .= "   if (rc) return rc;\n\n";
-            $printout .= "   while (ecmdConfigLooperNext(cacheTarget, looperdata)) {\n";
+            # Temporary fix for I/P GFW so that the looper isn't called when the HOM isn't up
+            $printout .= "   cacheTarget = i_target;\n";
+            ## Since this function doesn't take a cage, I need to loop over cages and check all caches
+            #$printout .= "   ecmdLooperData looperdata;\n";
+            #$printout .= "   cacheTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;\n";
+            #$printout .= "   rc = ecmdConfigLooperInit(cacheTarget, ECMD_ALL_TARGETS_LOOP, looperdata);\n";
+            #$printout .= "   if (rc) return rc;\n\n";
+            #$printout .= "   while (ecmdConfigLooperNext(cacheTarget, looperdata)) {\n";
           }
 
           if ($type_flag == $STRING) {
