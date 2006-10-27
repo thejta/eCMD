@@ -16,7 +16,12 @@ alias target=_target
 function _target
 {
    export TARGET_VARIABLES="$*"
-   . $PWD/target.ksh
+   if [[ $ECMD_RELEASE != "" ]]
+   then
+      . $CTEPATH/tools/ecmd/$ECMD_RELEASE/bin/target.ksh
+   else 
+      . $PWD/target.ksh
+   fi
    unset TARGET_VARIABLES
 }
 
@@ -27,10 +32,16 @@ alias ecmdsetup=_ecmdsetup
 
 function _ecmdsetup
 {
-   eval `$PWD/ecmdsetup.pl ksh $*`
+   if [[ $ECMD_RELEASE != "" ]]
+   then
+      eval `$CTEPATH/tools/ecmd/$ECMD_RELEASE/bin/ecmdsetup.pl ksh $*`
+   else 
+      eval `$PWD/ecmdsetup.pl ksh $*`
+   fi
 }
 
 ##########################################
 # Include Cronus specific aliases
 #
-. $PWD/../plugins/cro/croaliases.ksh
+# I'm pulling these, no one has used them - JTA 10/27/06
+#. $PWD/../plugins/cro/croaliases.ksh
