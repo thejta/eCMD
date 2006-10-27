@@ -5,9 +5,9 @@ my $osname = `uname`;
 chomp $osname;
 
 if ($osname eq "AIX") {
-	system("ecmdVersion_aix");
+	system("./ecmdVersion_aix @ARGV");
 } else {
-	system("ecmdVersion_x86");
+	system("./ecmdVersion_x86 @ARGV");
 }
 
 exit($?/256);  #return code from the system call above

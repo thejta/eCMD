@@ -33,11 +33,13 @@ chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
 # We have to change to the directory the script is in for the module requires below
 # This will enable the modules to be found in the local directory in the @INC
 chdir "$pwd";
-# Now add the relative paths the modules reside in
-use lib '../plugins/cro';
-use lib '../plugins/scand';
-use lib '../plugins/gip';
-use lib '../plugins/mbo';
+
+# The below is now no longer necessary, you new need to link the plugins into bin in CVS
+## Now add the relative paths the modules reside in
+#use lib '../plugins/cro';
+#use lib '../plugins/scand';
+#use lib '../plugins/gip';
+#use lib '../plugins/mbo';
 
 # The setup modules to include
 require ecmdsetup;
@@ -147,10 +149,12 @@ if ($shortcut) {
 }
 
 # We'll see if the release is supported based upon the existence of the bin directory
-$temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
-if (!(-d $temp)) {
-  printf("echo The eCMD release you specified is not known\\!;");
-  exit;
+if ($release ne "auto") {
+  $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
+  if (!(-d $temp)) {
+    printf("echo The eCMD release you specified is not known\\!;");
+    exit;
+  }
 }
 
 ##########################################################################
@@ -265,13 +269,13 @@ if (!$cleanup) {
     $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
   }
   if ($plugin eq "scand") {
-    $scand->setup(\%modified, $localInstall, $product, $release, $callingPwd, @ARGV);
+    $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
   }
   if ($plugin eq "gip") {
-    $gip->setup(\%modified, $localInstall, $product, $release, @ARGV);
+    $gip->setup(\%modified, $localInstall, $product, @ARGV);
   }
   if ($plugin eq "mbo") {
-    $mbo->setup(\%modified, $localInstall, $product, $release, @ARGV);
+    $mbo->setup(\%modified, $localInstall, $product, @ARGV);
   }
 }
 
