@@ -72,7 +72,8 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
   int idx;
-  ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not 
+  ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not
+  std::string sprName;
 
   /* get format flag, if it's there */
   std::string format;
@@ -120,20 +121,29 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
     /* Walk through the arguments and create our list of sprs */
     /* We have to re-establish this list on each position because one position may be dd2.0 and another 3.0 and the spr state changed */
     for (idx = 0; idx < argc; idx ++) {
+      sprName = argv[idx];
 
-      /* First thing we need to do is find out for this particular target if the SPR is threaded */
-      rc = ecmdQueryProcRegisterInfo(coreTarget, argv[idx], sprInfo);
-      if (rc) {
-        printed = "getspr - Error occured getting spr info for ";
-        printed += argv[idx];
-        printed += " on ";
-        printed += ecmdWriteTarget(coreTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
+      /* If it's the two special keywords, handle those before calling ecmdQueryProcRegisterInfo */
+      if (sprName == "ALL_SHARED") {
+        sprInfo.threadReplicated = 0;
+      } else if (sprName == "ALL_THREADED") {
+        sprInfo.threadReplicated = 1;
+      } else {
+
+        /* First thing we need to do is find out for this particular target if the SPR is threaded */
+        rc = ecmdQueryProcRegisterInfo(coreTarget, sprName.c_str(), sprInfo);
+        if (rc) {
+          printed = "getspr - Error occured getting spr info for ";
+          printed += sprName;
+          printed += " on ";
+          printed += ecmdWriteTarget(coreTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          return rc;
+        }
       }
 
       /* If it's thread, push onto one list.  Otherwise, push onto another */
-      entry.name = argv[idx];
+      entry.name = sprName;
       if (sprInfo.threadReplicated) {
         threadEntries.push_back(entry);
       } else {
