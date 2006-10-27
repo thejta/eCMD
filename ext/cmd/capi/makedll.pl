@@ -235,6 +235,7 @@ while (<IN>) {
           } else {
             # Temporary fix for I/P GFW so that the looper isn't called when the HOM isn't up
             # We don't do anything and just pass the cacheTarget right in
+            # Also comment the while loop close up back in below
             ## Since this function doesn't take a cage, I need to loop over cages and check all caches
             #$printout .= "   ecmdLooperData looperdata;\n";
             #$printout .= "   cacheTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;\n";
@@ -253,9 +254,9 @@ while (<IN>) {
             $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return;\n";
           }
           # Close up my while loop above 
-          if (!$chipTarget) {
-            $printout .= "   }\n";
-          }
+          #if (!$chipTarget) {
+          #  $printout .= "   }\n";
+          #}
 
         }
 	
