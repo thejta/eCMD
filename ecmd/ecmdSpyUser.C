@@ -569,36 +569,38 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
 
     /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
-    if (inputformat != "enum" && argc > 3) {
-      if (argc != 5) {
-        ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
-        ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
-        return ECMD_INVALID_ARGS;
-      }
+    if (inputformat != "enum") {
+      if (argc > 3) {
+        if (argc != 5) {
+          ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+          ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
+          return ECMD_INVALID_ARGS;
+        }
 
-      if (!ecmdIsAllDecimal(argv[2])) {
-        ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
-        return ECMD_INVALID_ARGS;
-      }
-      startBit = (uint32_t)atoi(argv[2]);
+        if (!ecmdIsAllDecimal(argv[2])) {
+          ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
+          return ECMD_INVALID_ARGS;
+        }
+        startBit = (uint32_t)atoi(argv[2]);
 
-      if (!ecmdIsAllDecimal(argv[3])) {
-        ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
-        return ECMD_INVALID_ARGS;
-      }
-      numBits = (uint32_t)atoi(argv[3]);
+        if (!ecmdIsAllDecimal(argv[3])) {
+          ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
+          return ECMD_INVALID_ARGS;
+        }
+        numBits = (uint32_t)atoi(argv[3]);
 
-      rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numBits);
-      if (rc) {
-        ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
-        return rc;
-      }
+        rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numBits);
+        if (rc) {
+          ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
+          return rc;
+        }
 
-    } else {
-      rc = ecmdReadDataFormatted(buffer, argv[2], inputformat, spyData.bitLength);
-      if (rc) {
-        ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
-        return rc;
+      } else {
+        rc = ecmdReadDataFormatted(buffer, argv[2], inputformat, spyData.bitLength);
+        if (rc) {
+          ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
+          return rc;
+        }
       }
     }
 

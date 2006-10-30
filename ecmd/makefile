@@ -156,7 +156,7 @@ all: dir ${TARGET} ${VER_TARGET}
 	@echo "Exporting eCMD Client to export/ ..."
 	@touch t.o touch t_x86 t_aix t_ppc
 	@mv *.o  *_x86 *_aix *_ppc  ${SUBDIR}
-	-@cp -p ${SUBDIR}${VER_TARGET} ../bin
+	@cp -p ${SUBDIR}${VER_TARGET} export/
 	@cp -p ${SUBDIR}${TARGET} export/
 
 clean objclean:
@@ -165,6 +165,11 @@ clean objclean:
 dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p export
+
+release:
+	cp ${SUBDIR}${TARGET} ../bin/
+	cp ${SUBDIR}${VER_TARGET} ../bin/
+
 
 # Build the extensions
 extensions:
