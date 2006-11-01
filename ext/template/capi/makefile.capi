@@ -114,6 +114,7 @@ clean:
 	rm -f ${EXTENSION_NAME}ClientCapi.C
       endif
 	rm -f ${EXTENSION_NAME}ClientEnums.H
+	rm -f ${EXTENSION_NAME}DllCapi.*
 
 objclean:
 	rm -rf ${SUBDIR}

@@ -191,7 +191,6 @@ install:
 
 dir:
 	@mkdir -p ${SUBDIR}
-	@mkdir -p ${OS}
 
 test: ${TARGET}.pm ${TARGET}.so
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"

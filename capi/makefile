@@ -145,7 +145,7 @@ all: dir ${TARGET} ${SLIB}
 
 clean:
 	rm -rf ${SUBDIR} 
-	rm -rf $export/ 
+	rm -rf export/ 
 	rm -f ecmdClientCapiFunc.C
 	rm -f ecmdDllCapi.H
 	rm -f ecmdClientEnums.H
