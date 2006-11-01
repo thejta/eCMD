@@ -3,57 +3,55 @@ ifneq (${DISTCC_HOSTS},)
   GMAKEFLAGS    := -j8
 endif
 
+# Setup the install path if the user didn't specify one
+ifeq ($(strip $(INSTALL_PATH)),)
+  INSTALL_PATH := $(shell pwd)
+  INSTALL_PATH := ${INSTALL_PATH}/install/
+  # Tack this onto the GMAKEFLAGS so that sub makes get them
+  GMAKEFLAGS   := ${GMAKEFLAGS} INSTALL_PATH=${INSTALL_PATH} 
+endif
 
 all:
-	@echo " "
 	@echo "Core Client API ..."
 	@cd capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-	@echo " "
 	@echo "Cronus/IP Extension API ..."
 	@cd ext/cip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
-	@echo " "
 	@echo "Cronus Extension API ..."
 	@cd ext/cro/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cro/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
-	@echo " "
 	@echo "Scand Extension API ..."
 	@cd ext/scand/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
-	@echo " "
 	@echo "Eclipz IP Extension API ..."
 	@cd ext/eip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/eip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-	@echo " "
 	@echo "GFW IP Extension API ..."
 	@cd ext/gip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/gip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-	@echo " "
 	@echo "Z Series Extension API ..."
 	@cd ext/zse/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/zse/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-	@echo " "
 	@echo "Mambo Extension API ..."
 	@cd ext/mbo/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/mbo/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-
 
 	@echo "Core Command line Client ..."
 	@cd ecmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -63,15 +61,40 @@ all:
 	@cd ext/cmd/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-	@echo " "
-
 	@echo "Perl Module ..."
-	@cd perlapi;${MAKE} ${MAKECMDGOALS}
+	@cd perlapi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 clean: all
 
 objclean: all
+
+install: install_setup all
+
+install_setup:
+	@echo "Creating bin dir ..."
+	@mkdir -p ${INSTALL_PATH}/bin
+	cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
+	cp -R `find ext/*/bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
+	@echo " "
+##############
+# Need PWD stuff for setup aliases
+##############
+
+	@echo "Creating help dir ..."
+	@mkdir -p ${INSTALL_PATH}/help
+	cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
+	cp -R `find ext/*/cmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
+	@echo " "
+
+	@echo "Creating plugins dir ..."
+	@mkdir -p ${INSTALL_PATH}/plugins
+	cp -R `find plugins/* | grep -v CVS` ${INSTALL_PATH}/plugins/.
+	@echo " "
+
+	@echo "Installing utils ..."
+	@cd utils;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
 
 avail:
 	@echo " "

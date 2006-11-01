@@ -105,6 +105,15 @@ all: dir ${TARGET}
 
 clean objclean:
 	rm -rf ${SUBDIR}
+	rm -rf export/
+
+install:
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/ ..."
+	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/
+	cp export/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
+	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
+	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
+	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 
 dir:
 	@mkdir -p ${SUBDIR}

@@ -34,12 +34,11 @@ chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
 # This will enable the modules to be found in the local directory in the @INC
 chdir "$pwd";
 
-# The below is now no longer necessary, you new need to link the plugins into bin in CVS
-## Now add the relative paths the modules reside in
-#use lib '../plugins/cro';
-#use lib '../plugins/scand';
-#use lib '../plugins/gip';
-#use lib '../plugins/mbo';
+# Now add the relative paths the modules reside in
+use lib '../plugins/cro';
+use lib '../plugins/scand';
+use lib '../plugins/gip';
+use lib '../plugins/mbo';
 
 # The setup modules to include
 require ecmdsetup;

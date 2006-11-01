@@ -167,9 +167,6 @@ VPATH     := ${VPATH}:${SUBDIR}
 all: dir ${TARGET}.so ${TARGET}.pm test
 	@touch t.o tecmd.so tecmd.pm t_wrap.c
 	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
-	@echo "Exporting eCMD PerlApi to ${OS}/ ..."
-	@cp ${SUBDIR}${TARGET}.so ${OS}/
-	@cp ${SUBDIR}${TARGET}.pm ${OS}/
 ifeq (${OS},AIX)
 	@slibclean
 endif
@@ -185,6 +182,12 @@ clean:
 objclean:
 	rm -rf ${SUBDIR}
 	rm -f *.o
+
+install:
+	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/perlapi/${OS}/ ..."
+	@mkdir -p ${INSTALL_PATH}/perlapi/${OS}/
+	cp ${SUBDIR}${TARGET}.so ${INSTALL_PATH}/perlapi/${OS}/.
+	cp ${SUBDIR}${TARGET}.pm ${INSTALL_PATH}/perlapi/${OS}/.
 
 dir:
 	@mkdir -p ${SUBDIR}
