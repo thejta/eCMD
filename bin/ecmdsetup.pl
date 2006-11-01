@@ -151,7 +151,7 @@ if ($shortcut) {
 if ($release ne "auto") {
   $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
   if (!(-d $temp)) {
-    printf("echo The eCMD release you specified is not known\\!;");
+    printf("echo The eCMD release '$release' you specified is not known\\!;");
     exit;
   }
 }
@@ -169,7 +169,7 @@ if ($plugin eq "cro") {
 } elsif ($plugin eq "scand") {
 } elsif ($plugin eq "mbo") {
 } else {
-  printf("echo The eCMD plugin you specified is not known\\!;");
+  printf("echo The eCMD plugin '$plugin' you specified is not known\\!;");
   exit;
 }
 
