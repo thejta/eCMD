@@ -108,14 +108,21 @@ all: dir ${TARGET} ${EXTENSION_NAME}DllCapi.C
 
 clean:
 	rm -rf ${SUBDIR}
+	rm -rf export/
 	rm -f ${EXTENSION_NAME}ClientCapiFunc.C
-ifeq ($(strip $(DISABLE_AUTOGEN)),)
+      ifeq ($(strip $(DISABLE_AUTOGEN)),)
 	rm -f ${EXTENSION_NAME}ClientCapi.C
-endif
+      endif
 	rm -f ${EXTENSION_NAME}ClientEnums.H
 
 objclean:
 	rm -rf ${SUBDIR}
+
+install:
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/ ..."
+	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/
+	cp export/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
+	@cp ${INCLUDES} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
 
 dir:
 	@mkdir -p ${SUBDIR}

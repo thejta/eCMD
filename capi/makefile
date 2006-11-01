@@ -145,6 +145,7 @@ all: dir ${TARGET} ${SLIB}
 
 clean:
 	rm -rf ${SUBDIR} 
+	rm -rf $export/ 
 	rm -f ecmdClientCapiFunc.C
 	rm -f ecmdDllCapi.H
 	rm -f ecmdClientEnums.H
@@ -152,6 +153,14 @@ clean:
 objclean:
 	rm -rf ${SUBDIR} 
 
+install:
+	@echo "Installing eCMD Client Api to ${INSTALL_PATH}/capi/ ..."
+	@mkdir -p ${INSTALL_PATH}/capi/
+	cp ${SUBDIR}${TARGET} ${INSTALL_PATH}/capi/.
+	cp ${EXPORTS} ${INSTALL_PATH}/capi/.
+	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/lib/ ..."
+	@mkdir -p ${INSTALL_PATH}/lib/
+	cp ${SUBDIR}${SLIB} ${INSTALL_PATH}/lib/.
 
 dir:
 	@mkdir -p ${SUBDIR}

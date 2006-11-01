@@ -161,12 +161,13 @@ all: dir ${TARGET} ${VER_TARGET}
 
 clean objclean:
 	rm -rf ${SUBDIR}
+	rm -rf export/
 
 dir:
 	@mkdir -p ${SUBDIR}
 	@mkdir -p export
 
-release:
+install:
 	cp ${SUBDIR}${TARGET} ../bin/
 	cp ${SUBDIR}${VER_TARGET} ../bin/
 
