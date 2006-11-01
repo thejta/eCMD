@@ -92,6 +92,10 @@ install_setup:
 	cp -R `find plugins/* | grep -v CVS` ${INSTALL_PATH}/plugins/.
 	@echo " "
 
+	@echo "Building utils ..."
+	@cd utils;${MAKE} ${GMAKEFLAGS}
+	@echo " "
+
 	@echo "Installing utils ..."
 	@cd utils;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
