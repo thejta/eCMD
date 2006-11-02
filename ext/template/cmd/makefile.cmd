@@ -39,7 +39,7 @@ SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
-  SUBDIR   := linux/
+  SUBDIR   := obj_x86/
   CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
@@ -56,7 +56,7 @@ endif
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR   := linux_PPC/
+  SUBDIR   := obj_ppc/
   CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_ppc.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
@@ -73,7 +73,7 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR  := aix/
+  SUBDIR  := obj_aix/
 # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
   CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
   ifeq (${SITE},apd.pok.ibm.com)
@@ -103,8 +103,12 @@ all: dir ${TARGET}
 	@cp -p  $(foreach file, ${CAPI_INCLUDES}, ../capi/${file}) export/
 
 
-clean objclean:
+clean: objclean exportclean
+
+objclean:
 	rm -rf ${SUBDIR}
+
+exportclean:
 	rm -rf export/
 
 install:

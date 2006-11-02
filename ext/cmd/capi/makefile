@@ -33,13 +33,13 @@ endif
 
 
 ifeq (${OS},Linux_x86)
-  OBJDIR := linux
+  OBJDIR := obj_x86
 endif
 ifeq (${OS},Linux_ppc)
-  OBJDIR := linux_PPC
+  OBJDIR := obj_ppc
 endif
 ifeq (${OS},AIX)
-  OBJDIR := aix
+  OBJDIR := obj_aix
 endif
 
 

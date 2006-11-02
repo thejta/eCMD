@@ -164,16 +164,14 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}.so ${TARGET}.pm test
+all: dir ${TARGET}.so ${TARGET}.pm move test
+
+move:
 	@touch t.o tecmd.so tecmd.pm t_wrap.c
 	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
-ifeq (${OS},AIX)
-	@slibclean
-endif
 
-clean:
-	rm -rf ${SUBDIR}
-	rm -f *.o *wrap*
+clean: objclean exportclean
+	rm -f *wrap*
 	rm -f *ClientPerlapiFunc.*
 	rm -f ecmdClientPerlapiIterators.pl
 	rm -f ecmdClientPerlapiIterators.H
@@ -182,6 +180,11 @@ clean:
 objclean:
 	rm -rf ${SUBDIR}
 	rm -f *.o
+	rm -f ecmd.pm
+	rm -f ecmd.so
+
+exportclean:
+       # Nothing to do
 
 install:
 	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/perlapi/${OS}/ ..."
@@ -193,6 +196,9 @@ dir:
 	@mkdir -p ${SUBDIR}
 
 test: ${TARGET}.pm ${TARGET}.so
+        ifeq (${OS},AIX)
+	@slibclean
+        endif
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
 	@./testBuild.pl
 
