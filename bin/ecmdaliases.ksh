@@ -16,12 +16,7 @@ alias target=_target
 function _target
 {
    export TARGET_VARIABLES="$*"
-   if [[ $ECMD_RELEASE != "" ]]
-   then
-      . $CTEPATH/tools/ecmd/$ECMD_RELEASE/bin/target.ksh
-   else 
-      . $PWD/target.ksh
-   fi
+   . $PWD/target.ksh
    unset TARGET_VARIABLES
 }
 
@@ -32,12 +27,7 @@ alias ecmdsetup=_ecmdsetup
 
 function _ecmdsetup
 {
-   if [[ $ECMD_RELEASE != "" ]]
-   then
-      eval `$CTEPATH/tools/ecmd/$ECMD_RELEASE/bin/ecmdsetup.pl ksh $*`
-   else 
-      eval `$PWD/ecmdsetup.pl ksh $*`
-   fi
+   eval `$PWD/ecmdsetup.pl ksh $*`
 }
 
 ##########################################

@@ -55,7 +55,7 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd/expo
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
-  SUBDIR  := linux/
+  SUBDIR  := obj_x86/
   CC      := g++
   TARGET  := ecmd_x86
   VER_TARGET  := ecmdVersion_x86
@@ -75,7 +75,7 @@ endif
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR  := linux_PPC/
+  SUBDIR  := obj_ppc/
   CC      := g++
   TARGET  := ecmd_ppc
   VER_TARGET  := ecmdVersion_ppc
@@ -95,7 +95,7 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR  := aix/
+  SUBDIR  := obj_aix/
 # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
   CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
   ifeq (${SITE},apd.pok.ibm.com)
@@ -154,13 +154,16 @@ endif
 # *****************************************************************************
 all: dir ${TARGET} ${VER_TARGET}
 	@echo "Exporting eCMD Client to export/ ..."
-	@touch t.o t_x86 t_aix t_ppc
-	@mv *.o  *_x86 *_aix *_ppc  ${SUBDIR}
-	@cp -p ${SUBDIR}${VER_TARGET} export/
+	@mv *.o ${TARGET} ${VER_TARGET} ${SUBDIR}
 	@cp -p ${SUBDIR}${TARGET} export/
+	@cp -p ${SUBDIR}${VER_TARGET} export/
 
-clean objclean:
+clean: objclean exportclean
+
+objclean:
 	rm -rf ${SUBDIR}
+
+exportclean:
 	rm -rf export/
 
 dir:
@@ -168,8 +171,8 @@ dir:
 	@mkdir -p export
 
 install:
-	cp ${SUBDIR}${TARGET} ../bin/
-	cp ${SUBDIR}${VER_TARGET} ../bin/
+	cp export/${TARGET} ${INSTALL_PATH}/bin/
+	cp export/${VER_TARGET} ${INSTALL_PATH}/bin/
 
 
 # Build the extensions

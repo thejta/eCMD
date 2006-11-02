@@ -34,7 +34,7 @@ CFLAGS       := ${CFLAGS} -IsedcScomdef
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
-  SUBDIR   := linux/
+  SUBDIR   := obj_x86/
   CC       := g++
   LD       := ${CC}
   TARGET   := ecmdClientCapi_x86.a
@@ -53,7 +53,7 @@ endif
 # The Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR   := linux_ppc/
+  SUBDIR   := obj_ppc/
   CC       := g++
   LD       := ${CC}
   TARGET   := ecmdClientCapi_ppc.a
@@ -72,7 +72,7 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR  := aix/
+  SUBDIR  := obj_aix/
 
 # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
   CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
@@ -143,9 +143,7 @@ all: dir ${TARGET} ${SLIB}
 	@cp -p ${EXPORTS} export/
 	-@cp -p ecmdDllCapi.H ../dll/
 
-clean:
-	rm -rf ${SUBDIR} 
-	rm -rf export/ 
+clean: objclean exportclean
 	rm -f ecmdClientCapiFunc.C
 	rm -f ecmdDllCapi.H
 	rm -f ecmdClientEnums.H
@@ -153,14 +151,17 @@ clean:
 objclean:
 	rm -rf ${SUBDIR} 
 
+exportclean:
+	rm -rf export/
+
 install:
 	@echo "Installing eCMD Client Api to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
-	cp ${SUBDIR}${TARGET} ${INSTALL_PATH}/capi/.
+	cp export/${TARGET} ${INSTALL_PATH}/capi/.
 	cp ${EXPORTS} ${INSTALL_PATH}/capi/.
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/lib/ ..."
 	@mkdir -p ${INSTALL_PATH}/lib/
-	cp ${SUBDIR}${SLIB} ${INSTALL_PATH}/lib/.
+	cp export/${SLIB} ${INSTALL_PATH}/lib/.
 
 dir:
 	@mkdir -p ${SUBDIR}

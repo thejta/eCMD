@@ -6,10 +6,13 @@ endif
 # Setup the install path if the user didn't specify one
 ifeq ($(strip $(INSTALL_PATH)),)
   INSTALL_PATH := $(shell pwd)
-  INSTALL_PATH := ${INSTALL_PATH}/install/
+  INSTALL_PATH := ${INSTALL_PATH}/install
   # Tack this onto the GMAKEFLAGS so that sub makes get them
   GMAKEFLAGS   := ${GMAKEFLAGS} INSTALL_PATH=${INSTALL_PATH} 
 endif
+# Yes, this looks horrible but it sets up everything properly
+# so that the next sed produces the right output
+CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEPATH/@")
 
 all:
 	@echo "Core Client API ..."
@@ -69,6 +72,8 @@ clean: all
 
 objclean: all
 
+exportclean: all
+
 install: install_setup all
 
 install_setup:
@@ -77,9 +82,13 @@ install_setup:
 	cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
 	cp -R `find ext/*/bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
 	@echo " "
-##############
-# Need PWD stuff for setup aliases
-##############
+
+	@echo "Setting up install scripts ..."
+	@echo ${CTE_INSTALL_PATH}
+	# Using @ as the seperator so that the / in the file names don't mess things up
+	sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
+	sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
+	@echo " "
 
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
