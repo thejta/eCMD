@@ -7,11 +7,14 @@ endif
 ifeq ($(strip $(INSTALL_PATH)),)
   INSTALL_PATH := $(shell pwd)
   INSTALL_PATH := ${INSTALL_PATH}/install
+  export INSTALL_PATH
   # Tack this onto the GMAKEFLAGS so that sub makes get them
-  GMAKEFLAGS   := ${GMAKEFLAGS} INSTALL_PATH=${INSTALL_PATH} 
+  # GMAKEFLAGS   := ${GMAKEFLAGS} INSTALL_PATH=${INSTALL_PATH} 
 endif
+
 # Yes, this looks horrible but it sets up everything properly
-# so that the next sed produces the right output
+# so that the next sed in the install_setup rule produces the right output
+# If an install is being done to a CTE path, replace it with $CTEPATH so it'll work everywhere
 CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEPATH/@")
 
 all:
@@ -80,14 +83,12 @@ install_setup:
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
 	cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
-	cp -R `find ext/*/bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
+	cp -Rf `find ext/*/bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
 	@echo " "
 
 	@echo "Setting up install scripts ..."
-	@echo ${CTE_INSTALL_PATH}
-	# Using @ as the seperator so that the / in the file names don't mess things up
-	sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
-	sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
+	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
+	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
 
 	@echo "Creating help dir ..."
