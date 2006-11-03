@@ -40,12 +40,45 @@ use lib '../plugins/scand';
 use lib '../plugins/gip';
 use lib '../plugins/mbo';
 
-# The setup modules to include
+#########################################
+# Setup the modules to include
+# Base support, always there
 require ecmdsetup;
-require crosetup;
-require scandsetup;
-require gipsetup;
-require mbosetup;
+my $ecmd = new ecmdsetup();
+
+# Create the other setup objects based upon what is available
+my ($cro, $scand, $gip, $mbo);
+# Cronus
+my $croUse = 0;
+if (-d "../plugins/cro") {
+  $croUse = 1;
+  require crosetup;
+  $cro = new crosetup();
+}
+
+# Scand
+my $scandUse = 0;
+if (-d "../plugins/scand") {
+  $scandUse = 1;
+  require scandsetup;
+  $scand = new scandsetup();
+}
+
+# GFW I/P
+my $gipUse = 0;
+if (-d "../plugins/gip") {
+  $gipUse = 1;
+  require gipsetup;
+  $gip = new gipsetup();
+}
+
+# Mambo
+my $mboUse = 0;
+if (-d "../plugins/mbo") {
+  $mboUse = 1;
+  require mbosetup;
+  $mbo = new mbosetup();
+}
 
 ##########################################################################
 #  Variables
@@ -70,14 +103,6 @@ my @ctepaths = ("\/afs\/rchland(|\.ibm\.com)\/rel\/common\/cte",
                 "\/afs\/btv(|\.ibm\.com)\/data\/vlsi\/cte",
                 "\/afs\/raleigh(|\.ibm\.com)\/cadtools\/cte",
                 "\/afs\/watson(|\.ibm\.com)\/projects\/vlsi\/cte");
-
-# Create the setup objects
-my $ecmd = new ecmdsetup();
-my $cro = new crosetup();
-my $scand = new scandsetup();
-my $gip = new gipsetup();
-my $mbo = new mbosetup();
-
 
 #####################################################
 # Look to see if help was requested
@@ -164,10 +189,10 @@ if ($shortcut) {
 } else {
   $plugin = shift(@ARGV);
 }
-if ($plugin eq "cro") {
-} elsif ($plugin eq "gip") {
-} elsif ($plugin eq "scand") {
-} elsif ($plugin eq "mbo") {
+if ($plugin eq "cro" && $croUse) {
+} elsif ($plugin eq "gip" && $gipUse) {
+} elsif ($plugin eq "scand" && $scandUse) {
+} elsif ($plugin eq "mbo" && $mboUse) {
 } else {
   printf("echo The eCMD plugin '$plugin' you specified is not known\\!;");
   exit;
@@ -229,10 +254,10 @@ $modified{"PATH"} = 1;
 
 # Only do this if the plugin has changed from last time
 if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
-  $cro->cleanup(\%modified);
-  $scand->cleanup(\%modified, $release);
-  $gip->cleanup(\%modified);
-  $mbo->cleanup(\%modified);
+  if ($croUse) { $cro->cleanup(\%modified); }
+  if ($scandUse) { $scand->cleanup(\%modified, $release); }
+  if ($gipUse) { $gip->cleanup(\%modified); }
+  if ($mboUse) { $mbo->cleanup(\%modified); }
 }
 
 ##########################################################################
@@ -264,16 +289,16 @@ if ($cleanup) {
 # Call setup on plugin specified
 #
 if (!$cleanup) {
-  if ($plugin eq "cro") {
+  if ($plugin eq "cro" && $croUse) {
     $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
   }
-  if ($plugin eq "scand") {
+  if ($plugin eq "scand" && $scandUse) {
     $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
   }
-  if ($plugin eq "gip") {
+  if ($plugin eq "gip" && $gipUse) {
     $gip->setup(\%modified, $localInstall, $product, @ARGV);
   }
-  if ($plugin eq "mbo") {
+  if ($plugin eq "mbo" && $mboUse) {
     $mbo->setup(\%modified, $localInstall, $product, @ARGV);
   }
 }
