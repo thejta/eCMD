@@ -7,19 +7,6 @@ include makefile.rules
 # Some basic setup before we start trying to build stuff
 # *****************************************************************************
 
-# Let's see if we can use distcc
-ifneq (${DISTCC_HOSTS},)
-  GMAKEFLAGS    := -j8
-endif
-
-# Setup the install path if the user didn't specify one
-ifeq ($(strip $(INSTALL_PATH)),)
-  INSTALL_PATH := $(shell pwd)
-  INSTALL_PATH := ${INSTALL_PATH}/install
-  export INSTALL_PATH
-endif
-
-
 # Yes, this looks horrible but it sets up everything properly
 # so that the next sed in the install_setup rule produces the right output
 # If an install is being done to a CTE path, replace it with $CTEPATH so it'll work everywhere
