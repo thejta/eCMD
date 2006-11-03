@@ -881,8 +881,8 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		tmpData32 = htonl(numProcCores);
-		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+		// no tmpData32 or 'htonl' - this is a uint8_t
+		memcpy(l_ptr, &(numProcCores), sizeof(numProcCores));
 		l_ptr += sizeof(numProcCores);
 		i_len -= sizeof(numProcCores);
 	
@@ -1022,6 +1022,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
+		// no 'nohl' - this is a uint8_t
 		memcpy(&numProcCores, l_ptr, sizeof(numProcCores));
 		l_ptr += sizeof(numProcCores);
 		i_len -= sizeof(numProcCores);
