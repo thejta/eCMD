@@ -31,6 +31,7 @@
 /*********** Start Insert Code ***********/
 // Insert C code into the file swig generates
 %{
+#include "ecmdDefines.H"
 #include "ecmdClientPerlapi.H"
 #include "ecmdClientPerlapiFunc.H"
 #include "ecmdDataBuffer.H"
@@ -153,6 +154,7 @@
 /*********** End Renames ***********/
 
 /*********** Start Files to swigify ***********/
+%include "ecmdDefines.H"
 %include "ecmdClientPerlapi.H"
 %include "ecmdClientPerlapiFunc.H"
 %include "ecmdDataBuffer.H"
