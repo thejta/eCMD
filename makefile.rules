@@ -78,4 +78,11 @@ endif
 # Include the makefile.confg if the config script was run, this will override anything above
 -include ${ECMD_ROOT}/makefile.config
 
+# Setup the install path if the user didn't specify one in the config
+ifeq ($(strip $(INSTALL_PATH)),)
+  INSTALL_PATH := $(shell pwd)
+  INSTALL_PATH := ${INSTALL_PATH}/install
+  export INSTALL_PATH
+endif
+
 endif
