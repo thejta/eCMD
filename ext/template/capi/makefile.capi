@@ -3,8 +3,9 @@
 
 # $Header$
 
+ECMD_ROOT       := ${PWD}/../../../
 # The default build rules
-include ../../../makefile.rules
+include ${ECMD_ROOT}/makefile.rules
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')

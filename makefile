@@ -1,4 +1,6 @@
 # The default build rules
+
+ECMD_ROOT     := ${PWD}/
 include makefile.rules
 
 # *****************************************************************************
@@ -14,12 +16,8 @@ endif
 ifeq ($(strip $(INSTALL_PATH)),)
   INSTALL_PATH := $(shell pwd)
   INSTALL_PATH := ${INSTALL_PATH}/install
-  # Do this so it's picked up by submakes
-  export INSTALL_PATH
 endif
 
-# Include the makefile.confg if the config script was run, this will override anything above
--include makefile.config
 
 # Yes, this looks horrible but it sets up everything properly
 # so that the next sed in the install_setup rule produces the right output
@@ -39,9 +37,8 @@ ifneq ($(findstring perlapi,$(shell /bin/ls -d *)),)
   PERLAPI_BUILD := ecmdperlapi
 endif
 
-# Now create our build order
+# Now create our build targets
 BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} ${PERLAPI_BUILD}
-
 
 # *****************************************************************************
 # The Main Targets
@@ -56,66 +53,66 @@ ecmdcapi:
 	@cd capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdcmd:
+ecmdcmd: ecmdcapi $(subst cmd,,${EXTENSIONS})
 	@echo "eCMD Core Command line Client ..."
 	@cd ecmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
-ecmdperlapi:
+ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
 	@echo "eCMD Perl Module ..."
 	@cd perlapi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # All of the individual extensions
-cip:
+cip: ecmdcapi
 	@echo "Cronus/IP Extension API ..."
 	@cd ext/cip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-cro:
+cro: ecmdcapi
 	@echo "Cronus Extension API ..."
 	@cd ext/cro/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cro/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-scand:
+scand: ecmdcapi
 	@echo "Scand Extension API ..."
 	@cd ext/scand/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-eip:
+eip: ecmdcapi
 	@echo "Eclipz IP Extension API ..."
 	@cd ext/eip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/eip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-gip:
+gip: ecmdcapi
 	@echo "GFW IP Extension API ..."
 	@cd ext/gip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/gip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-zse:
+zse: ecmdcapi
 	@echo "Z Series Extension API ..."
 	@cd ext/zse/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/zse/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-mbo:
+mbo: ecmdcapi
 	@echo "Mambo Extension API ..."
 	@cd ext/mbo/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/mbo/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-bml:
+bml: ecmdcapi
 	@echo "BML Extension API ..."
 	@cd ext/bml/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/bml/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-cmd:
+cmd: ecmdcmd
 	@echo "Command line Extension API ..."
 	@cd ext/cmd/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
@@ -166,5 +163,6 @@ install_setup:
 
 # Just print some vars
 vars:
+	@echo ${ECMD_ROOT}
 	@echo ${BUILD_TARGETS}
-
+	@echo ${EXTENSIONS}
