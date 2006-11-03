@@ -507,7 +507,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   } else if ((strpos = clockspeed.find("cpu")) != std::string::npos) {
     speedType = ECMD_CLOCK_CURRENT_PERCENT_UP;
   } else if ((strpos = clockspeed.find("cpd")) != std::string::npos) {
-    speedType = ECMD_CLOCK_NOMINAL_PERCENT_DOWN;
+    speedType = ECMD_CLOCK_CURRENT_PERCENT_DOWN; // @00
   } else if ((strpos = clockspeed.find("mult")) != std::string::npos) {
 
     // get mult and divider value from cmdline
@@ -742,5 +742,6 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
 //  Flag Reason   Vers Date     Coder    Description                       
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              CENGEL   Initial Creation
+//  @00  D546069       11/03/06 honi     setclockspeed cpu/cpd change
 //
 // End Change Log *****************************************************
