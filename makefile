@@ -16,6 +16,7 @@ endif
 ifeq ($(strip $(INSTALL_PATH)),)
   INSTALL_PATH := $(shell pwd)
   INSTALL_PATH := ${INSTALL_PATH}/install
+  export INSTALL_PATH
 endif
 
 
@@ -137,7 +138,7 @@ install_setup:
 	cp -Rf `find ext/*/bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
 	@echo " "
 
-	@echo "Setting up install scripts ..."
+	@echo "Setting up ecmdaliases files ..."
 	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
 	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
