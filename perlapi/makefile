@@ -3,8 +3,9 @@
 
 # $Header$
 
+ECMD_ROOT    := ${PWD}/../
 # The default build rules
-include ../makefile.rules
+include ${ECMD_ROOT}/makefile.rules
 
 # Strip the scand extension, it doesn't have a perlapi
 EXTENSIONS := $(subst scand,,${EXTENSIONS})

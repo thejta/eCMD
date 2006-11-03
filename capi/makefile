@@ -3,6 +3,7 @@
 
 # $Header$
 
+ECMD_ROOT   := ${PWD}/../
 # The default build rules
 include ../makefile.rules
 

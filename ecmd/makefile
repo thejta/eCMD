@@ -3,8 +3,9 @@
 
 # $Header$
 
+ECMD_ROOT    := ${PWD}/../
 # The default build rules
-include ../makefile.rules
+include ${ECMD_ROOT}makefile.rules
 
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H

@@ -2,11 +2,13 @@
 # The basic rules that apply to a default eCMD build
 # *****************************************************************************
 
-# The default extensions we will build as part of eCMD if a configure isn't done
-export EXTENSIONS := cro cip gip eip scand zse mbo cmd
+ifeq (${MAKEFILE_RULES},)
 
-# Figure out site
-SITE         := $(shell fs wscell | cut -d\' -f2)
+MAKEFILE_RULES   := y
+
+# The default extensions we will build as part of eCMD if a configure isn't done
+EXTENSIONS := cro cip gip eip scand zse mbo cmd
+
 
 # Figure out the OS
 OS           := $(shell uname)
@@ -17,6 +19,9 @@ ifeq (${OS},Linux)
   else
     OS := Linux_x86
   endif
+else
+  # Figure out site
+  SITE         := $(shell fs wscell | cut -d\' -f2)
 endif
 
 
@@ -67,4 +72,10 @@ ifeq (${OS},AIX)
   ifeq (${SITE},apd.pok.ibm.com)
     LD      := /usr/vacpp/bin/makeC++SharedLib
   endif
+endif
+
+
+# Include the makefile.confg if the config script was run, this will override anything above
+-include ${ECMD_ROOT}/makefile.config
+
 endif
