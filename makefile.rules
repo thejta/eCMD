@@ -1,0 +1,70 @@
+# *****************************************************************************
+# The basic rules that apply to a default eCMD build
+# *****************************************************************************
+
+# The default extensions we will build as part of eCMD if a configure isn't done
+export EXTENSIONS := cro cip gip eip scand zse mbo cmd
+
+# Figure out site
+SITE         := $(shell fs wscell | cut -d\' -f2)
+
+# Figure out the OS
+OS           := $(shell uname)
+# We need to do extra for Linux
+ifeq (${OS},Linux)
+  ifneq ($(strip $(shell uname -a |grep ppc)),)
+    OS := Linux_ppc
+  else
+    OS := Linux_x86
+  endif
+endif
+
+
+######## Default things we need setup for every compile ########
+
+
+# *****************************************************************************
+# The x86 Linux Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_x86)
+  SUBDIR   := obj_x86/
+  CC       := g++
+  LD       := ${CC}
+  GPATH    := ${SUBDIR}
+
+endif
+
+# *****************************************************************************
+# The ppc Linux Setup stuff
+# *****************************************************************************
+ifeq (${OS},Linux_ppc)
+  SUBDIR   := obj_ppc/
+  CC       := g++
+  LD       := ${CC}
+  GPATH   := ${SUBDIR}
+endif
+
+# *****************************************************************************
+# The Aix Setup stuff
+# *****************************************************************************
+ifeq (${OS},AIX)
+  SUBDIR  := obj_aix/
+
+  # Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
+  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
+  ifeq (${SITE},apd.pok.ibm.com)
+    CC      := xlC
+  endif
+  ifeq (${SITE},awd.austin.ibm.com)
+    CC      := xlC
+  endif
+
+  # And the Shared Lib linker - same rules as above
+  LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib
+  ifeq (${SITE},awd.austin.ibm.com)
+    LD      := /usr/vacpp/bin/makeC++SharedLib
+  endif
+  ifeq (${SITE},apd.pok.ibm.com)
+    LD      := /usr/vacpp/bin/makeC++SharedLib
+  endif
+endif

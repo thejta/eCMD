@@ -3,18 +3,8 @@
 
 # $Header$
 
-OS           := $(shell uname)
-SITE         := $(shell fs wscell | cut -d\' -f2)
-
-# We need to do extra for Linux
-ifeq (${OS},Linux)
-  ifneq ($(strip $(shell uname -a |grep ppc)),)
-    OS := Linux_ppc
-  else
-    OS := Linux_x86
-  endif
-endif
-
+# The default build rules
+include ../makefile.rules
 
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
@@ -26,12 +16,10 @@ CFLAGS       := ${CFLAGS} -I. -I../capi/export -I../dll -g
 
 VER_SOURCE   := ecmdVersion.C
 
-# Common stuff for all extension interpreters
-ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cro eip gip zse mbo
-endif
 # Don't want to include the cmd extension
 EXTENSIONS   := $(subst cmd,,${EXTENSIONS})
+# Don't want to include the scand extension, there isn't one
+EXTENSIONS   := $(subst scand,,${EXTENSIONS})
 
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
@@ -55,62 +43,35 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd/expo
 
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
-  SUBDIR  := obj_x86/
-  CC      := g++
   TARGET  := ecmd_x86
   VER_TARGET  := ecmdVersion_x86
-  LD      := ${CC}
   LDFLAGS := ${LDFLAGS} -ldl -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
-  GPATH   := ${SUBDIR}
-
-# Let's see if we can use distcc
-  ifneq (${DISTCC_HOSTS},)
-    CC    := distcc ${CC}
-  endif
 endif
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR  := obj_ppc/
-  CC      := g++
   TARGET  := ecmd_ppc
   VER_TARGET  := ecmdVersion_ppc
-  LD      := ${CC}
   LDFLAGS := ${LDFLAGS} -ldl -L../capi/export -lecmd_ppc
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_ppc.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH   := ${SUBDIR}
-
-# Let's see if we can use distcc
-  ifneq (${DISTCC_HOSTS},)
-    CC    := distcc ${CC}
-  endif
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR  := obj_aix/
-# Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
-  ifeq (${SITE},apd.pok.ibm.com)
-    CC      := xlC
-  endif
-  ifeq (${SITE},awd.austin.ibm.com)
-    CC      := xlC
-  endif
-
   TARGET  := ecmd_aix
   VER_TARGET  := ecmdVersion_aix
-  LD      := ${CC}
+  LD      := ${CC}  # This is right, we want to overload the default of makeC++SharedLib
   LDFLAGS := -brtl -bloadmap:PARM -w -L../capi/export
   ifeq (${MPATROL},yes) 
     LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix_mp.a

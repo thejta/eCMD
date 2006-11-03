@@ -3,23 +3,11 @@
 
 # $Header$
 
-
+# The default build rules
+include ../../../makefile.rules
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
-
-OS           := $(shell uname)
-SITE         := $(shell fs wscell | cut -d\' -f2)
-
-# We need to do extra for Linux
-ifeq (${OS},Linux)
-  TEST := $(strip $(shell uname -a |grep ppc))
-  ifneq ($(strip $(shell uname -a |grep ppc)),)
-    OS := Linux_ppc
-  else
-    OS := Linux_x86
-  endif
-endif
 
 INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}Interpreter.H 
 CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
@@ -31,58 +19,26 @@ CFLAGS       := ${CFLAGS} -I. -I../../../capi/export -I../capi/export -I../../..
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
 
-
-
-
-
 # *****************************************************************************
-# The Linux Setup stuff
+# The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
-  SUBDIR   := obj_x86/
-  CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_x86.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
-  GPATH   := ${SUBDIR}
-
-# Let's see if we can use distcc
-  ifneq (${DISTCC_HOSTS},)
-    CC    := distcc ${CC}
-  endif
-
 endif
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR   := obj_ppc/
-  CC := g++
   TARGET = ${EXTENSION_NAME}CmdInterpreter_ppc.a
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
-  GPATH   := ${SUBDIR}
-
-# Let's see if we can use distcc
-  ifneq (${DISTCC_HOSTS},)
-    CC    := distcc ${CC}
-  endif
-
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR  := obj_aix/
-# Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
-  ifeq (${SITE},apd.pok.ibm.com)
-    CC      := xlC
-  endif
-  ifeq (${SITE},awd.austin.ibm.com)
-    CC      := xlC
-  endif
-
   TARGET = ${EXTENSION_NAME}CmdInterpreter_aix.a
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif

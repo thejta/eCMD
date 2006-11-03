@@ -25,13 +25,10 @@ INCLUDES     :=
 
 
 
-# Extensions to grab the interpreters from
-ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cro eip gip zse mbo
-endif
-
 # Strip the cmd extension, can't include ourselves
 EXTENSIONS := $(subst cmd,,${EXTENSIONS})
+# Strip the scand extension, it doesn't have a commandline
+EXTENSIONS := $(subst scand,,${EXTENSIONS})
 
 ifeq (${OS},Linux_x86)
   OBJDIR := obj_x86
