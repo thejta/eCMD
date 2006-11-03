@@ -30,7 +30,8 @@ ifeq ($(strip ${EXTENSIONS}),)
   EXTENSIONS   := cip cro eip gip zse mbo
 endif
 
-
+# Strip the cmd extension, can't include ourselves
+EXTENSIONS := $(subst cmd,,${EXTENSIONS})
 
 ifeq (${OS},Linux_x86)
   OBJDIR := obj_x86

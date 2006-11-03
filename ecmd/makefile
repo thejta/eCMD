@@ -30,6 +30,9 @@ VER_SOURCE   := ecmdVersion.C
 ifeq ($(strip ${EXTENSIONS}),)
   EXTENSIONS   := cip cro eip gip zse mbo
 endif
+# Don't want to include the cmd extension
+EXTENSIONS   := $(subst cmd,,${EXTENSIONS})
+
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
 #These are needed to define a space char for substitutions later on
@@ -154,7 +157,7 @@ endif
 # *****************************************************************************
 all: dir ${TARGET} ${VER_TARGET}
 	@echo "Exporting eCMD Client to export/ ..."
-	@mv *.o ${TARGET} ${VER_TARGET} ${SUBDIR}
+	@-mv *.o ${TARGET} ${VER_TARGET} ${SUBDIR}
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${VER_TARGET} export/
 
