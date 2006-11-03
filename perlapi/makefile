@@ -3,39 +3,11 @@
 
 # $Header$
 
-OS           := $(shell uname)
-SITE         := $(shell fs wscell | cut -d\' -f2)
+# The default build rules
+include ../makefile.rules
 
-# We need to do extra for Linux
-ifeq (${OS},Linux)
-  ifneq ($(strip $(shell uname -a |grep ppc)),)
-    OS := Linux_ppc
-  else
-    OS := Linux
-  endif
-endif
-
-# List the extensions to include in the compile
-ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS   := cip cmd gip cro zse eip mbo
-endif
-
-# Ok, find our CTE path if they don't already have one
-ifeq ($(strip $(CTEPATH)),)
-  CTEPATH      := "UNKNOWN CTE CELL"
-  ifeq (${SITE},rchland.ibm.com)
-    CTEPATH    := /afs/rchland.ibm.com/rel/common/cte
-  endif
-  ifeq (${SITE},awd.austin.ibm.com)
-    CTEPATH    := /afs/awd.austin.ibm.com/projects/cte
-  endif
-  ifeq (${SITE},apd.pok.ibm.com)
-    CTEPATH    := /afs/apd.pok.ibm.com/func/vlsi/cte
-  endif
-  ifeq (${SITE},vlsilab.boeblingen.ibm.com)
-    CTEPATH    := /afs/vlsilab.boeblingen.ibm.com/proj/cte
-  endif
-endif
+# Strip the scand extension, it doesn't have a perlapi
+EXTENSIONS := $(subst scand,,${EXTENSIONS})
 
 VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H ecmdBit64.H
@@ -54,7 +26,7 @@ space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H ${ext}ClientCapi.H )
-ifeq (${OS},Linux)
+ifeq (${OS},Linux_x86)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_x86.a)
 endif
 ifeq (${OS},Linux_ppc)
@@ -70,13 +42,10 @@ MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiF
 MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.H)
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
-  SUBDIR    := obj_x86/
-  CC        := g++
+ifeq (${OS},Linux_x86)
   TARGET    := ecmd
-  LD        := ${CC}
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
@@ -91,17 +60,13 @@ ifeq (${OS},Linux)
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
-  GPATH   := ${SUBDIR}
 endif
 
 # *****************************************************************************
-# The Linux PPC Setup stuff
+# The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR    := obj_ppc/
-  CC        := g++
   TARGET    := ecmd
-  LD        := ${CC}
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_ppc
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_ppc.a 
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
@@ -116,15 +81,13 @@ ifeq (${OS},Linux_ppc)
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
-  GPATH   := ${SUBDIR}
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR    := obj_aix/
-# Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
+  # We have to use the re-entrant version, so override the default setup in makefile.rules
   CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
   ifeq (${SITE},apd.pok.ibm.com)
     CC      := xlC_r
@@ -132,7 +95,7 @@ ifeq (${OS},AIX)
   ifeq (${SITE},awd.austin.ibm.com)
     CC      := xlC_r
   endif
-# And the Shared Lib linker - same rules as above
+  # And the Shared Lib linker - same rules as above
   LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
   ifeq (${SITE},awd.austin.ibm.com)
     LD      := /usr/vacpp/bin/makeC++SharedLib_r
@@ -166,7 +129,7 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 all: dir ${TARGET}.so ${TARGET}.pm move test
 
-move:
+move: ${TARGET}.so ${TARGET}.pm
 	@touch t.o tecmd.so tecmd.pm t_wrap.c
 	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
 
@@ -195,7 +158,7 @@ install:
 dir:
 	@mkdir -p ${SUBDIR}
 
-test: ${TARGET}.pm ${TARGET}.so
+test: move
         ifeq (${OS},AIX)
 	@slibclean
         endif
@@ -236,11 +199,6 @@ ${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o ${LINK_OBJS}
 ${MAKEPM_OUT}: ${INCLUDES} makepm.pl 
 	@echo "==== Auto Generate Perl Wrapper Functions"
 	@chmod 777 makepm.pl
-ifeq (${SITE},awd.austin.ibm.com)
-	/afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ecmd
-	$(foreach ext, ${EXTENSIONS}, ${shell /afs/awd/projects/gr/lab/local/perl5/bin/perl makepm.pl ${ext} })
-else
 	./makepm.pl ecmd
 	$(foreach ext, ${EXTENSIONS}, ${shell ./makepm.pl ${ext} })
-endif
 

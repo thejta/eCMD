@@ -3,17 +3,8 @@
 
 # $Header$
 
-OS           := $(shell uname)
-SITE         := $(shell fs wscell | cut -d\' -f2)
-
-# We need to do extra for Linux
-ifeq (${OS},Linux)
-  ifneq ($(strip $(shell uname -a |grep ppc)),)
-    OS := Linux_ppc
-  else
-    OS := Linux_x86
-  endif
-endif
+# The default build rules
+include ../makefile.rules
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H
 EXPORTS      := ${INCLUDES}
@@ -31,66 +22,29 @@ CFLAGS       := ${CFLAGS} -IsedcScomdef
 
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
-  SUBDIR   := obj_x86/
-  CC       := g++
-  LD       := ${CC}
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   SLIBLDFLAGS := ${SLIBLDFLAGS}  -shared  -e sdll.exp
-  GPATH   := ${SUBDIR}
-
-# Let's see if we can use distcc
-  ifneq (${DISTCC_HOSTS},)
-    CC    := distcc ${CC}
-  endif
 endif
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
-  SUBDIR   := obj_ppc/
-  CC       := g++
-  LD       := ${CC}
   TARGET   := ecmdClientCapi_ppc.a
   SLIB     := libecmd_ppc.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   SLIBLDFLAGS := ${SLIBLDFLAGS} -shared  -e sdll.exp
-  GPATH   := ${SUBDIR}
-
-# Let's see if we can use distcc
-  ifneq (${DISTCC_HOSTS},)
-    CC    := distcc ${CC}
-  endif
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  SUBDIR  := obj_aix/
-
-# Pick the compiler, for Rochester,Austin,Pok you can use a local compiler which is 6.0.0.8, all other sites must run remote from rochester
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
-  ifeq (${SITE},apd.pok.ibm.com)
-    CC      := xlC
-  endif
-  ifeq (${SITE},awd.austin.ibm.com)
-    CC      := xlC
-  endif
-# And the Shared Lib linker - same rules as above
-  LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib
-  ifeq (${SITE},awd.austin.ibm.com)
-    LD      := /usr/vacpp/bin/makeC++SharedLib
-  endif
-  ifeq (${SITE},apd.pok.ibm.com)
-    LD      := /usr/vacpp/bin/makeC++SharedLib
-  endif
-
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
@@ -210,8 +164,4 @@ ${SLIB}: ${SLIB_SOURCE_OBJS}
 ecmdClientCapiFunc.C ecmdDllCapi.H ecmdClientEnums.H: ecmdClientCapi.H makedll.pl 
 	@echo "==== Auto Generate Client Functions"
 	@chmod 777 makedll.pl
-ifeq (${SITE},awd.austin.ibm.com)
-	/afs/awd/projects/gr/lab/local/perl5/bin/perl makedll.pl ecmd
-else
 	./makedll.pl ecmd
-endif

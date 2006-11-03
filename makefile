@@ -1,3 +1,10 @@
+# The default build rules
+include makefile.rules
+
+# *****************************************************************************
+# Some basic setup before we start trying to build stuff
+# *****************************************************************************
+
 # Let's see if we can use distcc
 ifneq (${DISTCC_HOSTS},)
   GMAKEFLAGS    := -j8
@@ -7,100 +14,125 @@ endif
 ifeq ($(strip $(INSTALL_PATH)),)
   INSTALL_PATH := $(shell pwd)
   INSTALL_PATH := ${INSTALL_PATH}/install
+  # Do this so it's picked up by submakes
   export INSTALL_PATH
-  # Tack this onto the GMAKEFLAGS so that sub makes get them
-  # GMAKEFLAGS   := ${GMAKEFLAGS} INSTALL_PATH=${INSTALL_PATH} 
 endif
+
+# Include the makefile.confg if the config script was run, this will override anything above
+-include makefile.config
 
 # Yes, this looks horrible but it sets up everything properly
 # so that the next sed in the install_setup rule produces the right output
 # If an install is being done to a CTE path, replace it with $CTEPATH so it'll work everywhere
 CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEPATH/@")
 
-all:
-	@echo "Core Client API ..."
+# Last thing to be done, setup all of our build targets for use below
+BUILD_TARGETS := ${EXTENSIONS}
+# The cmd extension has to be built after ecmdcmd, so if it's in the extension list pull it out and add after ecmdcmd
+ifneq (,$(findstring cmd,${BUILD_TARGETS}))
+  CMD_EXT_BUILD := cmd
+endif
+BUILD_TARGETS := $(subst cmd,,${BUILD_TARGETS})
+
+# Only do the perlapi if it's checked out
+ifneq ($(findstring perlapi,$(shell /bin/ls -d *)),)
+  PERLAPI_BUILD := ecmdperlapi
+endif
+
+# Now create our build order
+BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} ${PERLAPI_BUILD}
+
+
+# *****************************************************************************
+# The Main Targets
+# *****************************************************************************
+
+# The default
+all: ${BUILD_TARGETS}
+
+# The core eCMD pieces
+ecmdcapi:
+	@echo "eCMD Core Client API ..."
 	@cd capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ifneq ($(findstring cip,${EXTENSIONS}),)
+ecmdcmd:
+	@echo "eCMD Core Command line Client ..."
+	@cd ecmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+
+ecmdperlapi:
+	@echo "eCMD Perl Module ..."
+	@cd perlapi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+# All of the individual extensions
+cip:
 	@echo "Cronus/IP Extension API ..."
 	@cd ext/cip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring cro,${EXTENSIONS}),)
+cro:
 	@echo "Cronus Extension API ..."
 	@cd ext/cro/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cro/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring scand,${EXTENSIONS}),)
+scand:
 	@echo "Scand Extension API ..."
 	@cd ext/scand/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring eip,${EXTENSIONS}),)
+eip:
 	@echo "Eclipz IP Extension API ..."
 	@cd ext/eip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/eip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring gip,${EXTENSIONS}),)
+gip:
 	@echo "GFW IP Extension API ..."
 	@cd ext/gip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/gip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring zse,${EXTENSIONS}),)
+zse:
 	@echo "Z Series Extension API ..."
 	@cd ext/zse/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/zse/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring mbo,${EXTENSIONS}),)
+mbo:
 	@echo "Mambo Extension API ..."
 	@cd ext/mbo/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/mbo/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring bml,${EXTENSIONS}),)
+bml:
 	@echo "BML Extension API ..."
 	@cd ext/bml/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/bml/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-	@echo "Core Command line Client ..."
-	@cd ecmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-ifneq ($(findstring cmd,${EXTENSIONS}),)
+cmd:
 	@echo "Command line Extension API ..."
 	@cd ext/cmd/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
-endif
 
-ifneq ($(findstring perlapi,$(shell /bin/ls -d *)),)
-	@echo "Perl Module ..."
-	@cd perlapi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-endif
+# Runs the objclean and export clean targets in addition to removing generated source
+clean: ${BUILD_TARGETS}
 
-clean: all
+# Remove the obj_* dir for the system type you are building on
+objclean: ${BUILD_TARGETS}
 
-objclean: all
+# Remove the export dir if it exists
+exportclean: ${BUILD_TARGETS}
 
-exportclean: all
+# Runs the install routines for all targets
+install: install_setup ${BUILD_TARGETS}
 
-install: install_setup all
-
+# Copy over the help files, etc.. before installing the executables and libraries
 install_setup:
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
@@ -131,4 +163,8 @@ install_setup:
 	@echo "Installing utils ..."
 	@cd utils;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
+
+# Just print some vars
+vars:
+	@echo ${BUILD_TARGETS}
 
