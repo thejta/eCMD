@@ -135,7 +135,7 @@ install_setup:
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
 	cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
-	cp -Rf `find ext/*/bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
+	cp -Rf `find ext/*/bin/* | grep -v CVS |grep -v ecmdWrapper` ${INSTALL_PATH}/bin/.
 	@echo " "
 
 	@echo "Setting up ecmdaliases files ..."
@@ -149,11 +149,14 @@ install_setup:
 	cp -R `find ext/*/cmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
 	@echo " "
 
+ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo "Creating plugins dir ..."
 	@mkdir -p ${INSTALL_PATH}/plugins
 	cp -R `find plugins/* | grep -v CVS` ${INSTALL_PATH}/plugins/.
 	@echo " "
+endif
 
+ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo "Building utils ..."
 	@cd utils;${MAKE} ${GMAKEFLAGS}
 	@echo " "
@@ -161,6 +164,7 @@ install_setup:
 	@echo "Installing utils ..."
 	@cd utils;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
+endif
 
 # Just print some vars
 vars:
