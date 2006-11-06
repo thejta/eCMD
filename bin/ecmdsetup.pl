@@ -29,6 +29,10 @@ if (substr($0,0,1) ne "/") {
 $" = " "; # Reset
 chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
 
+# installpath points to root of install
+my $installPath = $pwd;
+$installPath =~ s/\/([^\/..]*\/?)$/\//;
+
 # This is a slick bit of trickeration if I may say so myself.
 # We have to change to the directory the script is in for the module requires below
 # This will enable the modules to be found in the local directory in the @INC
@@ -173,7 +177,7 @@ if ($shortcut) {
 }
 
 # We'll see if the release is supported based upon the existence of the bin directory
-if ($release ne "auto") {
+if ($release ne "auto" && !$localInstall) {
   $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
   if (!(-d $temp)) {
     printf("echo The eCMD release '$release' you specified is not known\\!;");
@@ -257,15 +261,20 @@ if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
   if ($croUse) { $cro->cleanup(\%modified); }
   if ($scandUse) { $scand->cleanup(\%modified, $release); }
   if ($gipUse) { $gip->cleanup(\%modified); }
-  if ($mboUse) { $mbo->cleanup(\%modified); }
+  if ($mboUse) { $mbo->cleanup(\%modified, $localInstall, $installPath); }
 }
 
 ##########################################################################
 # Add bin directory to path
 #
 if (!$cleanup) {
-  $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin:" . $ENV{"PATH"};
-  $modified{"PATH"} = 1;
+    if ($localInstall) {
+	$ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
+    } else {
+	$ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin:" 
+	    . $ENV{"PATH"};
+    }
+    $modified{"PATH"} = 1;
 }
 
 ##########################################################################
@@ -299,7 +308,7 @@ if (!$cleanup) {
     $gip->setup(\%modified, $localInstall, $product, @ARGV);
   }
   if ($plugin eq "mbo" && $mboUse) {
-    $mbo->setup(\%modified, $localInstall, $product, @ARGV);
+    $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
   }
 }
 
