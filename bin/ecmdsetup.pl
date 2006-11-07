@@ -103,7 +103,7 @@ my @ctepaths = ("/afs/rchland(|\.ibm\.com)/rel/common/cte",
                 "/afs/austin(|\.ibm\.com)/projects/cte",
                 "/afs/apd(|\.pok\.ibm\.com)/func/vlsi/cte",
                 "/afs/vlsilab(|\.boeblingen\.ibm\.com)/proj/cte",
-                "/afs/bb\/proj\/cte",
+                "/afs/bb/proj/cte",
                 "/afs/btv(|\.ibm\.com)/data/vlsi/cte",
                 "/afs/raleigh(|\.ibm\.com)/cadtools/cte",
                 "/afs/watson(|\.ibm\.com)/projects/vlsi/cte");
@@ -143,8 +143,6 @@ for (my $x = 0; $x <= $#ctepaths && $localInstall != 0; $x++) {
     $localInstall = 0;
   }
 }
-
-printf("$localInstall\n");
 
 ##########################################################################
 # Get the users shell
