@@ -151,10 +151,10 @@ exportclean:
        # Nothing to do
 
 install:
-	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/perlapi/${OS}/ ..."
-	@mkdir -p ${INSTALL_PATH}/perlapi/${OS}/
-	cp ${SUBDIR}${TARGET}.so ${INSTALL_PATH}/perlapi/${OS}/.
-	cp ${SUBDIR}${TARGET}.pm ${INSTALL_PATH}/perlapi/${OS}/.
+	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/perlapi/`uname`/ ..."
+	@mkdir -p ${INSTALL_PATH}/perlapi/`uname`/
+	cp ${SUBDIR}${TARGET}.so ${INSTALL_PATH}/perlapi/`uname`/.
+	cp ${SUBDIR}${TARGET}.pm ${INSTALL_PATH}/perlapi/`uname`/.
 
 dir:
 	@mkdir -p ${SUBDIR}
