@@ -119,7 +119,8 @@ endif
 # *****************************************************************************
 all: dir ${TARGET} ${VER_TARGET}
 	@echo "Exporting eCMD Client to export/ ..."
-	@-mv *.o ${TARGET} ${VER_TARGET} ${SUBDIR}
+	@touch t.o ${TARGET} ${VER_TARGET}
+	@mv *.o *${TARGET} *${VER_TARGET} ${SUBDIR}
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${VER_TARGET} export/
 

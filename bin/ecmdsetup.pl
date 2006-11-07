@@ -98,15 +98,15 @@ my $copyLocal = 0;  # Does the user want ECMD_EXE and ECMD_DLL_FILE copied to /t
 my $cleanup = 0;  # Call only cleanup on the plugins to remove anything they might have put out there.
 # These ctepaths are in regular expression format for the search below.
 # This allows the user to put just rchland or rchland.ibm.com, etc..
-my @ctepaths = ("\/afs\/rchland(|\.ibm\.com)\/rel\/common\/cte",
-                "\/afs\/awd(|\.austin\.ibm\.com)\/projects\/cte",
-                "\/afs\/austin(|\.ibm\.com)\/projects\/cte",
-                "\/afs\/apd(|\.pok\.ibm\.com)\/func\/vlsi\/cte",
-                "\/afs\/vlsilab(|\.boeblingen\.ibm\.com)\/proj\/cte",
-                "\/afs\/bb\/proj\/cte",
-                "\/afs\/btv(|\.ibm\.com)\/data\/vlsi\/cte",
-                "\/afs\/raleigh(|\.ibm\.com)\/cadtools\/cte",
-                "\/afs\/watson(|\.ibm\.com)\/projects\/vlsi\/cte");
+my @ctepaths = ("/afs/rchland(|\.ibm\.com)/rel/common/cte",
+                "/afs/awd(|\.austin\.ibm\.com)/projects/cte",
+                "/afs/austin(|\.ibm\.com)/projects/cte",
+                "/afs/apd(|\.pok\.ibm\.com)/func/vlsi/cte",
+                "/afs/vlsilab(|\.boeblingen\.ibm\.com)/proj/cte",
+                "/afs/bb\/proj\/cte",
+                "/afs/btv(|\.ibm\.com)/data/vlsi/cte",
+                "/afs/raleigh(|\.ibm\.com)/cadtools/cte",
+                "/afs/watson(|\.ibm\.com)/projects/vlsi/cte");
 
 #####################################################
 # Look to see if help was requested
@@ -139,10 +139,12 @@ if ("@ARGV" =~ /-h/) {
 # Figure out if the user is on a local copy of CTE
 #
 for (my $x = 0; $x <= $#ctepaths && $localInstall != 0; $x++) {
-  if ($ENV{"CTEPATH"} =~ /${ctepaths[$x]}/) {
+  if ($ENV{"CTEPATH"} =~ m!${ctepaths[$x]}!) {
     $localInstall = 0;
   }
 }
+
+printf("$localInstall\n");
 
 ##########################################################################
 # Get the users shell
@@ -242,7 +244,11 @@ for (my $x = 0; $x <= $#ARGV;) {
 #
 # Pull out any of the matching cases
 # This expression matches anything after a : up to /tools/ecmd/<anything>/bin and then a : or end of line
-$ENV{"PATH"} =~ s/([^:]*?)\/tools\/ecmd\/([^\/]*?)\/bin(:|$)/:/g;
+if ($localInstall) {
+  $ENV{"PATH"} =~ s!$installPath/bin!:!g;
+} else {
+  $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/bin(:|$)!:!g;
+}
 # We might have left a : on the front, remove it
 $ENV{"PATH"} =~ s/^://g;
 # Same with the back, might have left a :
@@ -262,19 +268,6 @@ if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
   if ($scandUse) { $scand->cleanup(\%modified, $release); }
   if ($gipUse) { $gip->cleanup(\%modified); }
   if ($mboUse) { $mbo->cleanup(\%modified, $localInstall, $installPath); }
-}
-
-##########################################################################
-# Add bin directory to path
-#
-if (!$cleanup) {
-    if ($localInstall) {
-	$ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
-    } else {
-	$ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin:" 
-	    . $ENV{"PATH"};
-    }
-    $modified{"PATH"} = 1;
 }
 
 ##########################################################################
@@ -310,6 +303,18 @@ if (!$cleanup) {
   if ($plugin eq "mbo" && $mboUse) {
     $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
   }
+}
+
+##########################################################################
+# Add bin directory to path
+#
+if (!$cleanup) {
+  if ($localInstall) {
+    $ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
+  } else {
+    $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/bin:" . $ENV{"PATH"};
+  }
+  $modified{"PATH"} = 1;
 }
 
 ####################################################
