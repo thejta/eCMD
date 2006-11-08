@@ -225,14 +225,16 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
 
   // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
   std::string dirStr = argv[1];
-  transform(dirStr.begin(), dirStr.end(), dirStr.begin(), (int(*)(int)) toupper);
+  transform(dirStr.begin(), dirStr.end(), dirStr.begin(), (int(*)(int)) tolower);
   
   ecmdVoltageType_t direction = ECMD_VOLTAGE_UNKNOWN;  // defaulting to remove compiler warnings
-  if (dirStr == "NOM") direction = ECMD_VOLTAGE_NOMINAL;
-  else if (dirStr == "DOWN")  direction = ECMD_VOLTAGE_PERCENT_DOWN;
-  else if (dirStr == "UP")  direction = ECMD_VOLTAGE_PERCENT_UP;
+  if (dirStr == "nom") direction = ECMD_VOLTAGE_NOMINAL;
+  else if (dirStr == "up")  direction = ECMD_VOLTAGE_PERCENT_DOWN;
+  else if (dirStr == "down")  direction = ECMD_VOLTAGE_PERCENT_UP;
+  else if (dirStr == "pspd") direction = ECMD_VOLTAGE_POWERSAVE_PERCENT_DOWN;
+  else if (dirStr == "pspu") direction = ECMD_VOLTAGE_POWERSAVE_PERCENT_UP;
   else {
-    ecmdOutputError("biasvoltage - Invalid value for direction. Valid Values : NOM, UP, DOWN\n");
+    ecmdOutputError("biasvoltage - Invalid value for direction. Valid Values : nom, up, down, pspd, pspu\n");
     return ECMD_INVALID_ARGS;
   }
 

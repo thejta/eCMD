@@ -9,7 +9,7 @@ Syntax: biasvoltage <level> <direction> <biasValue> [imm]
         --------------------------------------------------------------------------------
         level           The voltage level to query on
 
-        direction       Possible values are nom/up/down
+        direction       Possible values are nom/up/down/pspd/pspu
 
         biasValue       Voltage bias value in absolute voltage . If the value parameter 
                         ends with a % sign it is is treated as a 10th of a percent value
@@ -19,5 +19,6 @@ Syntax: biasvoltage <level> <direction> <biasValue> [imm]
 
         --------------------------------------------------------------------------------
 
-        Examples:       > biasvoltage 12 nom 45  -k1 -n0 
+        Examples:       > biasvoltage 12 nom 0  -k1 -n0 
                         > biasvoltage 10 up 21 
+                        > biasvoltage 9 pspu 4 
