@@ -139,7 +139,7 @@ install_setup:
 ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo "Creating plugins dir ..."
 	@mkdir -p ${INSTALL_PATH}/plugins
-	cp -R `find plugins/* | grep -v CVS` ${INSTALL_PATH}/plugins/.
+	cp -R --parents `find plugins/* -not -type d | grep -v CVS` ${INSTALL_PATH}/
 	@echo " "
 endif
 
