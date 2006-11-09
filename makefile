@@ -115,10 +115,17 @@ objclean: ${BUILD_TARGETS}
 exportclean: ${BUILD_TARGETS}
 
 # Runs the install routines for all targets
-install: install_setup ${BUILD_TARGETS}
+install: install_setup ${BUILD_TARGETS} install_finish
 
 # Copy over the help files, etc.. before installing the executables and libraries
 install_setup:
+# Create the install path
+	@mkdir -p ${INSTALL_PATH}
+
+# Only do this if the bin directory isn't there already
+# This check prevents copying everything over twice when install multiple OS's into the same dir
+# Used plugins so the shorter, more generic bin didn't accidently match something else
+ifeq ($(findstring plugins,$(shell /bin/ls -d ${INSTALL_PATH}/*)),)
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
 	cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
@@ -136,11 +143,12 @@ install_setup:
 	cp -R `find ext/*/cmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
 	@echo " "
 
-ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
+  ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo "Creating plugins dir ..."
 	@mkdir -p ${INSTALL_PATH}/plugins
 	cp -R --parents `find plugins/* -not -type d | grep -v CVS` ${INSTALL_PATH}/
 	@echo " "
+  endif
 endif
 
 ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
@@ -152,6 +160,15 @@ ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@cd utils;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 endif
+
+# Do final cleanup things such as fixing permissions
+install_finish:
+	@echo "Fixing bin dir file permissions ..."
+	@chmod 770 ${INSTALL_PATH}/bin/*
+
+	@echo ""
+	@echo "*** Install Done! ***"
+	@echo ""
 
 # Just print some vars
 vars:
