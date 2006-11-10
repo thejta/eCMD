@@ -119,17 +119,14 @@ install: install_setup ${BUILD_TARGETS} install_finish
 
 # Copy over the help files, etc.. before installing the executables and libraries
 install_setup:
-# Create the install path
+
+        # Create the install path
 	@mkdir -p ${INSTALL_PATH}
 
-# Only do this if the bin directory isn't there already
-# This check prevents copying everything over twice when install multiple OS's into the same dir
-# Used plugins so the shorter, more generic bin didn't accidently match something else
-ifeq ($(findstring plugins,$(shell /bin/ls -d ${INSTALL_PATH}/*)),)
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
-	cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
-	cp -Rf `find ext/*/bin/* | grep -v CVS |grep -v ecmdWrapper` ${INSTALL_PATH}/bin/.
+	@cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
+	@cp -R `find $(foreach ext, ${EXTENSIONS},ext/${ext}/bin/*) | grep -v CVS | grep -v ecmdWrapper` ${INSTALL_PATH}/bin/.
 	@echo " "
 
 	@echo "Setting up ecmdaliases files ..."
@@ -139,16 +136,16 @@ ifeq ($(findstring plugins,$(shell /bin/ls -d ${INSTALL_PATH}/*)),)
 
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
-	cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
-	cp -R `find ext/*/cmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
+	@cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
+	@cp -R `find $(foreach ext, ${EXTENSIONS},ext/${ext}/cmd/help/*) | grep -v CVS`  ${INSTALL_PATH}/help/.
 	@echo " "
 
-  ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
+ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo "Creating plugins dir ..."
 	@mkdir -p ${INSTALL_PATH}/plugins
-	cp -R --parents `find plugins/* -not -type d | grep -v CVS` ${INSTALL_PATH}/
+	@cp -R plugins/ ${INSTALL_PATH}/.
+	@rm -r `find ${INSTALL_PATH}/plugins/* -type d -name CVS`
 	@echo " "
-  endif
 endif
 
 ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
@@ -164,7 +161,7 @@ endif
 # Do final cleanup things such as fixing permissions
 install_finish:
 	@echo "Fixing bin dir file permissions ..."
-	@chmod 770 ${INSTALL_PATH}/bin/*
+	@chmod 775 ${INSTALL_PATH}/bin/*
 
 	@echo ""
 	@echo "*** Install Done! ***"
