@@ -253,6 +253,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
+  bool doReadModifyWrite = false;     ///< Do we need to do a get before the put
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -262,6 +263,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
 
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
+    doReadModifyWrite = true;
     dataModifier = formatPtr;
   }
 
@@ -306,6 +308,9 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     
     
     dataPtr = argv[3];
+
+    // Mark for read/modify/write below
+    doReadModifyWrite = true;
 
   } else if (argc == 2) {
 
@@ -361,7 +366,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     while ( ecmdConfigLooperNext(threadTarget, threadLooperData) ) {
 
       /* The user did the r/m/w version, so we need to do a get spr */
-      if (argc == 4) {
+      if (doReadModifyWrite) {
         rc = getSpr(threadTarget, sprName.c_str(), sprBuffer);
         if (rc == ECMD_TARGET_NOT_CONFIGURED) {
           continue;
