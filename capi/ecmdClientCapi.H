@@ -1022,7 +1022,7 @@ uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ec
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : cage<br>
+ TARGET DEPTH  : cage, pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range);

@@ -433,6 +433,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;                    ///< Store internal Looper data
   std::string printed;                          ///< Output data
+  std::string chipType;                         ///< The chiptype the user specified (optional)
   std::string clocktype;                        ///< the clock type to change the speed on
   std::string clockspeed;                       ///< Speed - frequency or cycle time
   ecmdClockSpeedType_t speedType = ECMD_CLOCK_FREQUENCY_SPEC; ///< Clock speed type - frequency or cycle time
@@ -441,6 +442,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
   uint32_t iv_mult=0;                              ///< Multiplier value, if present 
   uint32_t iv_div=0;                           ///< Divider value, if present
+  int32_t endOffet = 0;                         ///< The location where the required args in the arg list end
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -465,12 +467,34 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config 
-  target.cageState =  ECMD_TARGET_FIELD_WILDCARD;
-  target.nodeState = target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  /* We need to figure out if the user gave us a proc chip or not */
+  std::string temp = argv[0];
+  transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
+  if (temp.find_last_of("clock") == std::string::npos) {
+    /* No clock in the very first arg, assume it is a chip */
+    chipType = argv[0];
+    clocktype = argv[1];
+    clockspeed = argv[2];
+    endOffet = 2;
+  } else {
+    /* We had a clock in the very first arg, assume no chip was given */
+    clocktype = argv[0];
+    clockspeed = argv[1];
+    endOffet = 1;
+  }
 
-  //Get the clock type
-  clocktype = argv[0];
+  //Setup the target that will be used to query the system config
+  if (chipType != "") {
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  } else {
+    target.cageState =  ECMD_TARGET_FIELD_WILDCARD;
+    target.nodeState = target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  }
+
+  //Check the clock type
   transform(clocktype.begin(), clocktype.end(), clocktype.begin(), (int(*)(int)) tolower);
   if (clocktype == "pu_refclock") {
     clockType = ECMD_PROC_REFCLOCK;
@@ -493,7 +517,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   
   //get clockspeed
   size_t strpos;
-  clockspeed = argv[1];
   transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
   
   if ((strpos = clockspeed.find("mhz")) != std::string::npos)  {
@@ -507,7 +530,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   } else if ((strpos = clockspeed.find("cpu")) != std::string::npos) {
     speedType = ECMD_CLOCK_CURRENT_PERCENT_UP;
   } else if ((strpos = clockspeed.find("cpd")) != std::string::npos) {
-    speedType = ECMD_CLOCK_CURRENT_PERCENT_DOWN; // @00
+    speedType = ECMD_CLOCK_CURRENT_PERCENT_DOWN;
   } else if ((strpos = clockspeed.find("pspu")) != std::string::npos) {
     speedType = ECMD_CLOCK_POWERSAVE_PERCENT_UP;
   } else if ((strpos = clockspeed.find("pspd")) != std::string::npos) {
@@ -528,7 +551,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     }
     
     // divider is the next parm
-    clockspeed = argv[2];
+    clockspeed = argv[endOffet + 1];
     transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
 
     if ((strpos = clockspeed.find("div")) != std::string::npos) {
@@ -570,7 +593,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   
   uint32_t speed = (uint32_t)atoi(clockspeed.c_str());
 
-  if (((argc > 2) && (iv_mult==0)) || ((argc > 3) && (iv_mult!=0)))  {
+  if (((argc > (endOffet+1)) && (iv_mult==0)) || ((argc > (endOffet+1)) && (iv_mult!=0)))  {
     ecmdOutputError("setclockspeed - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
     return ECMD_INVALID_ARGS;

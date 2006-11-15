@@ -44,32 +44,6 @@ LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ../../${
 # LINK_OBJS - Cmd
 LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ../../${ext}/cmd/${SUBDIR}/*.o) )
 
-# CIP Extension - Capi
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cip/capi/${SUBDIR}/*.o)
-# CIP Extension - Cmd
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cip/cmd/${SUBDIR}/*.o)
-
-# EIP Extension - Capi
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../eip/capi/${SUBDIR}/*.o)
-# EIP Extension - Cmd
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../eip/cmd/${SUBDIR}/*.o)
-
-# CRO Extension - Capi
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/capi/${SUBDIR}/*.o)
-# CRO Extension - Cmd
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../cro/cmd/${SUBDIR}/*.o)
-
-# GIP Extension - Capi
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/capi/${SUBDIR}/*.o)
-# GIP Extension - Cmd
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../gip/cmd/${SUBDIR}/*.o)
-
-# ZSE Extension - Capi
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/capi/${SUBDIR}/*.o)
-# ZSE Extension - Cmd
-#LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../zse/cmd/${SUBDIR}/*.o)
-
-
 # The Core Interpreter
 LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ../../../ecmd/${SUBDIR}/*.o)
 
