@@ -2123,7 +2123,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += variableName[0];
       printed += " = ";
 
-      if(dummy) {
+      if(*dummy) {
         printed += "TRUE";
 
       } else {
