@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CIP_CAPI_VERSION "1.1d"          ///< eCMD CIP Extension version
+#define ECMD_CIP_CAPI_VERSION "1.1"          ///< eCMD CIP Extension version
 
 /**
  @brief Used by setBreakpoint to specify what type of breakpoint to set
