@@ -159,7 +159,9 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       } else if (!strcasecmp(argv[0], "stop")) {
         ecmdOutput("Stopping processor instructions ...\n");
       } else if (!strcasecmp(argv[0], "step")) {
-        ecmdOutput("Stepping processor instructions ...\n");
+	char buf[100];
+        sprintf(buf,"Stepping processor instructions (%d)  ...\n",step+1);
+	ecmdOutput(buf);
       } else {
         ecmdOutputError("cipinstruct - Invalid instruct mode, must be start|stop|step \n");
         return ECMD_INVALID_ARGS;
