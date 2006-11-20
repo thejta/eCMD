@@ -63,12 +63,16 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperdata;            ///< Store internal Looper data
   bool executeAll = false;      ///< Run start/stop on all procs
+  bool verbose    = false;      ///< Display iar after each step
+  ecmdDataBuffer  iarData;      ///< Data read from IAR
   int  steps = 1;               ///< Number of steps to run
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
 
+  if (ecmdParseOption(&argc, &argv, "-v"))
+    verbose = true;
  
   /* We can no longer loop at a thread level, so we need to fish out what the user wants and turn it into a thread parm */
   /* JTA 09/27/06 */
@@ -192,7 +196,18 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
           printed = ecmdWriteTarget(target) + "\n";
           ecmdOutput(printed.c_str());
         }
-
+	if (verbose) {
+	  rc = getSpr(target,"iar", iarData);
+	  if (rc) {
+	    ecmdOutputWarning("cipinstruct - Unable to read 'iar' from chip, verbose mode disabled\n");
+	    verbose = false;
+	  } else {
+	    printed = "iar\t";
+	    printed += ecmdWriteDataFormatted(iarData, "x");
+	    ecmdOutput( printed.c_str() );
+	  }
+	}
+	    
       }
 
       if (!validPosFound) {
