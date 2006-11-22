@@ -159,7 +159,7 @@ ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 endif
 
 # Do final cleanup things such as fixing permissions
-install_finish:
+install_finish: install_setup ${BUILD_TARGETS}
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*
 
