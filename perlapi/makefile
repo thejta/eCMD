@@ -49,7 +49,7 @@ ifeq (${OS},Linux_x86)
   TARGET    := ecmd
   LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
-  CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
+  CFLAGS    := ${CFLAGS} -fPIC -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
