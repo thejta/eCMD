@@ -652,7 +652,7 @@ uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   char outstr[40];
-  sprintf(outstr, "Current cycle count is %llu\n", cycle_count);
+  sprintf(outstr, "Current cycle count is %llu\n", (unsigned long long)cycle_count);
   ecmdOutput(outstr);
 
   return rc;
