@@ -29,7 +29,8 @@ ifeq (${OS},Linux_x86)
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS := ${SLIBLDFLAGS}  -shared  -e sdll.exp
+  SLIBLDFLAGS := ${SLIBLDFLAGS}  -shared -e sdll.exp
+  SLIBCFLAGS := -fPIC
 endif
 
 # *****************************************************************************
@@ -140,7 +141,7 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 $(CAPI_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 $(SLIB_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
+	$(CC) -c $(CFLAGS) $(SLIBCFLAGS) $< -o $@ $(DEFINES)
 
 
 # *****************************************************************************
