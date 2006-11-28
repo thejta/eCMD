@@ -892,22 +892,14 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
       //last word
       if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
         lastBytes = i_data.genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
-#ifdef _LP64
-        sprintf(tempstr,"%016lX: %08X %08X %08X %s", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
-#else
-        sprintf(tempstr,"%016llX: %08X %08X %08X %s", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
-#endif
+        sprintf(tempstr,"%016llX: %08X %08X %08X %s", (unsigned long long)myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
 	i=0;
 	while (i < (4-numLastBytes)) {
 	  strcat(tempstr, "  "); i++;
 	}
       }
       else {
-#ifdef _LP64
-        sprintf(tempstr,"%016lX: %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
-#else
-        sprintf(tempstr,"%016llX: %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
-#endif
+        sprintf(tempstr,"%016llX: %08X %08X %08X %08X", (unsigned long long)myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
       }
       printed += tempstr;
       // Text printing additions
@@ -940,11 +932,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     if ((i_data.getWordLength() - wordsDone) != 0) {
       wordsDonePrev = wordsDone;
       // Print the address
-#ifdef _LP64
-      sprintf(tempstr,"%016lX:", myAddr);
-#else
-      sprintf(tempstr,"%016llX:", myAddr);
-#endif
+      sprintf(tempstr,"%016llX:", (unsigned long long)myAddr);
       printed += tempstr;
       // Now throw on the words
       while ((uint32_t) wordsDone < i_data.getWordLength()) {
@@ -1018,11 +1006,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
       }
       y += 2;
       */
-#ifdef _LP64
-      sprintf(tempstr,"D %016lX %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
-#else
-      sprintf(tempstr,"D %016llX %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
-#endif
+      sprintf(tempstr,"D %016llX %08X%08X\n", (unsigned long long)myAddr, i_data.getWord(y), i_data.getWord(y+1));
       y += 2;
       printed += tempstr;
       myAddr += 8;
@@ -1037,11 +1021,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
       else {
         sprintf(tempstr,"D %016X %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
       }*/
-#ifdef _LP64
-      sprintf(tempstr,"D %016lX %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
-#else
-      sprintf(tempstr,"D %016llX %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
-#endif
+      sprintf(tempstr,"D %016llX %08X00000000\n", (unsigned long long)myAddr, i_data.getWord((i_data.getWordLength() - 1)));
       printed += tempstr;
     }
   }
@@ -2050,11 +2030,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       if(dummy == NULL) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
-#ifdef _LP64
-        sprintf(tempIntStr,"0x%016lX",(uint64_t)(*dummy));
-#else
-        sprintf(tempIntStr,"0x%016llX",(uint64_t)(*dummy));
-#endif
+        sprintf(tempIntStr,"0x%016llX",(unsigned long long)(*dummy));
       }
       printed += tempIntStr;
       printed += "\n";

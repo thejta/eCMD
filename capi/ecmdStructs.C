@@ -4760,7 +4760,7 @@ void  ecmdIndexVectorEntry::printStruct() {
         printf("\tIndex: %d\n", index);
         printf("\trc: 0x%08x\n", rc);
 
-        printf("\tNumber of elements in buffer vector: %d\n", buffer.size());
+        printf("\tNumber of elements in buffer vector: %ld\n", buffer.size());
 
 }
 #endif  // end of REMOVE_SIM
