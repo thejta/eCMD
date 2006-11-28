@@ -636,7 +636,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isCore = 'N';
         }
 
-        sprintf(buf,"%-10d %-10d %-16lld %-5d %c   %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
+        sprintf(buf,"%-10d %-10d %-16lld %-5d %c   %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, (unsigned long long)arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
         printed += (std::string)buf;
 	
 
