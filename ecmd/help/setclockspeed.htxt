@@ -1,12 +1,16 @@
 
-Syntax: setclockspeed <ClockType> <Speed> [-steer]    [-k#] 
+Syntax: setclockspeed <ClockType> <Speed> [-steer] [-k#] 
+        setclockspeed <ChipType> <ClockType> <Speed> [-steer] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
         Function:       Change the speed of a clock in the system.
+	                Can be used by either giving a chip select or not
 
         Parameters:
         --------------------------------------------------------------------------------
+        ChipSelect      Chip to get speed from.  Not necessary in all cases
+
         ClockType       Clock type to program in system:
                          - pu_refclock          <-- Processor reference clock
                          - pu_coreclock         <-- Processor core clock
@@ -35,10 +39,18 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]    [-k#]
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
         --------------------------------------------------------------------------------
 
         Examples:       > setclockspeed pu_refclock 120mhz
                         > setclockspeed memctrl_refclock 10us
                         > setclockspeed pu_refclock 3npd
-                        > setclockspeed pu_refclock 150mult 10div
+                        > setclockspeed pu pu_refclock 150mult 10div
 

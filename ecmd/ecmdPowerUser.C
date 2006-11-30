@@ -195,7 +195,11 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   ecmdChipTarget target;                ///< Current target operating on
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   std::string printed;
-  
+  bool waitState = true;                ///< Wait for the command to finish or return immediately
+  std::string biasString;
+  uint32_t biasValue;
+  uint32_t voltageLevel;
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -206,54 +210,59 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc != 4 && argc != 3) {  
-    ecmdOutputError("biasvoltage - Incorrect arguments specified; you need level, direction and value.\n");
+  if (ecmdParseOption(&argc, &argv, "-immediate")) {
+    waitState = false;
+  }
+
+  if (argc != 2) {  
+    ecmdOutputError("biasvoltage - Incorrect arguments specified; you need voltageLevel and biasLevel.\n");
     ecmdOutputError("biasvoltage - Type 'biasvoltage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-  
-  
-  //Setup the target that will be used to query the system config 
+
+  //Setup the target that will be used to loop 
   target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
   target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  // Get the leve the user specified
+  voltageLevel = (uint32_t)atoi(argv[0]);
 
   if (!ecmdIsAllDecimal(argv[0])) {
     ecmdOutputError("biasvoltage - Non-decimal numbers detected in level field\n");
     return ECMD_INVALID_ARGS;
   }
-  uint32_t level = (uint32_t)atoi(argv[0]);
 
-  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
-  std::string dirStr = argv[1];
-  transform(dirStr.begin(), dirStr.end(), dirStr.begin(), (int(*)(int)) tolower);
+
+  //get clockspeed
+  size_t strpos;
+  biasString = argv[1];
+  transform(biasString.begin(), biasString.end(), biasString.begin(), (int(*)(int)) tolower);
   
-  ecmdVoltageType_t direction = ECMD_VOLTAGE_UNKNOWN;  // defaulting to remove compiler warnings
-  if (dirStr == "nom") direction = ECMD_VOLTAGE_NOMINAL;
-  else if (dirStr == "up")  direction = ECMD_VOLTAGE_PERCENT_DOWN;
-  else if (dirStr == "down")  direction = ECMD_VOLTAGE_PERCENT_UP;
-  else if (dirStr == "pspd") direction = ECMD_VOLTAGE_POWERSAVE_PERCENT_DOWN;
-  else if (dirStr == "pspu") direction = ECMD_VOLTAGE_POWERSAVE_PERCENT_UP;
-  else {
-    ecmdOutputError("biasvoltage - Invalid value for direction. Valid Values : nom, up, down, pspd, pspu\n");
+  ecmdVoltageType_t voltageType = ECMD_VOLTAGE_UNKNOWN;  // defaulting to remove compiler warnings
+  if ((strpos = biasString.find("nom")) != std::string::npos)  {
+    voltageType = ECMD_VOLTAGE_NOMINAL;
+  } else if ((strpos = biasString.find("npu")) != std::string::npos) {
+    voltageType = ECMD_VOLTAGE_PERCENT_UP;
+  } else if ((strpos = biasString.find("npd")) != std::string::npos) {
+    voltageType = ECMD_VOLTAGE_PERCENT_DOWN;
+  } else if ((strpos = biasString.find("pspu")) != std::string::npos) {
+    voltageType = ECMD_VOLTAGE_POWERSAVE_PERCENT_UP;
+  } else if ((strpos = biasString.find("pspd")) != std::string::npos) {
+    voltageType = ECMD_VOLTAGE_POWERSAVE_PERCENT_DOWN;
+  } else {
+    ecmdOutputError("setclockspeed - a valid biasValue Keyword not found biasValue field\n");
+    ecmdOutputError("setclockspeed - Type 'biasvoltage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-
-  if (!ecmdIsAllDecimal(argv[2])) {
-    ecmdOutputError("biasvoltage - Non-decimal numbers detected in value field\n");
+  
+  biasString.erase(strpos, biasString.length()-strpos);
+  
+  if (!ecmdIsAllDecimal(biasString.c_str())) {
+    ecmdOutputError("biasvoltage - Non-Decimal characters detected in biasValue field\n");
     return ECMD_INVALID_ARGS;
-  }
-  uint32_t value = (uint32_t)atoi(argv[2]);
-
-  bool waitState = true;
-  if (argc == 4) {
-    std::string waitStr = argv[3];
-    transform(waitStr.begin(), waitStr.end(), waitStr.begin(), (int(*)(int)) toupper);
-
-    if (waitStr == "IMM") {
-      waitState = false;
-    }
-  }
-
+  } 
+  
+  biasValue = (uint32_t)atoi(biasString.c_str());
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -264,7 +273,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = ecmdBiasVoltage(target, level, direction, value, waitState);
+    rc = ecmdBiasVoltage(target, voltageLevel, voltageType, biasValue, waitState);
     
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
@@ -331,7 +340,7 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
     ecmdOutputError("querybiasstate - Non-decimal numbers detected in level field\n");
     return ECMD_INVALID_ARGS;
   }
-  uint32_t level = (uint32_t)atoi(argv[0]);
+  uint32_t voltageLevel = (uint32_t)atoi(argv[0]);
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -343,7 +352,7 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
 
   while ( ecmdConfigLooperNext(target, looperdata) ) {
 
-    rc = ecmdQueryBiasState(target, level, currentVoltage, targetVoltage, timeLeft);
+    rc = ecmdQueryBiasState(target, voltageLevel, currentVoltage, targetVoltage, timeLeft);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
