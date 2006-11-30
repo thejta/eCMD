@@ -1,5 +1,5 @@
 
-Syntax: biasvoltage <level> <direction> <biasValue> [imm]
+Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#]
 
         ECMD:           Core Common Function
 
@@ -7,18 +7,26 @@ Syntax: biasvoltage <level> <direction> <biasValue> [imm]
 
         Parameters:
         --------------------------------------------------------------------------------
-        level           The voltage level to query on
+        voltageLevel    The voltage level to run against
 
-        direction       Possible values are nom/up/down/pspd/pspu
+        biasValue       New biasValue to program can be specified with any of the
+                        following keyword(s) preceded by decimal numbers:
+                        'npu' for nominal percentage up (1npu)
+                        'npd' for nominal percentage down (3npd)
+                        'pspu' for power save percentage up (4pspu)
+                        'pspd' for power save percentage down (2pspu)
 
-        biasValue       Voltage bias value in absolute voltage . If the value parameter 
-                        ends with a % sign it is is treated as a 10th of a percent value
-
-        imm   [opt]     If "imm" is given on the command line the operation returns 
+        -immediate[opt] If "-immediate" is given on the command line the operation returns 
                         immediately instead of waiting for it to finish.
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
 
         --------------------------------------------------------------------------------
 
-        Examples:       > biasvoltage 12 nom 0  -k1 -n0 
-                        > biasvoltage 10 up 21 
-                        > biasvoltage 9 pspu 4 
+        Examples:       > biasvoltage 12 0npu  -k1 -n0 
+                        > biasvoltage 10 21npd 
+                        > biasvoltage 9 4pspu
