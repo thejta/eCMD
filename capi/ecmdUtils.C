@@ -1427,7 +1427,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
 /**********************************************************************************/
 /**********************************************************************************/
 void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args) {
-/* declare variables */
+  /* declare variables */
   int looper, looper2;
   std::vector<std::string> tokens;
   std::vector<std::string> parmTokens;
@@ -1445,7 +1445,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
 
   look4rc = outputRC = 0;
-/* validate the type of call we are doing, return if invalid */
+  /* validate the type of call we are doing, return if invalid */
   if(inOut == ECMD_FPP_FUNCTIONIN) {
     look4rc =0;
     sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : ",tCount);
@@ -1459,7 +1459,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
   }
 
 
-/* print the original function prototype */
+  /* print the original function prototype */
   printed = frontFPPTxt;
   printed += "Function prototype: ";
   printed += fprototypeStr;
@@ -1469,19 +1469,19 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
 
 
-/* parse the parameters */
+  /* parse the parameters */
   ecmdParseTokens(fprototypeStr, "()", tokens); /* this chops off the leading junk */
-/* example: */
-/* tokens[0] = "void ecmdFunctionParmPrinter"             */
-/* tokens[1] = "enum efppInOut, char *fprototypeStr, ..." */
-/* tokens[2] = " {"                                       */
-/* tokens.size() = 3                                      */
+  /* example: */
+  /* tokens[0] = "void ecmdFunctionParmPrinter"             */
+  /* tokens[1] = "enum efppInOut, char *fprototypeStr, ..." */
+  /* tokens[2] = " {"                                       */
+  /* tokens.size() = 3                                      */
 
   ecmdParseTokens(tokens[0].c_str(), " ", fReturnType); /* this tokenizes the function name and return type */
-/* example: */
-/* fReturnType[0] = "void"             */
-/* fReturnType[1] = "ecmdFunctionParmPrinter" */
-/* fReturnType.size() = 2                                      */
+  /* example: */
+  /* fReturnType[0] = "void"             */
+  /* fReturnType[1] = "ecmdFunctionParmPrinter" */
+  /* fReturnType.size() = 2                                      */
 
   if(look4rc) {
     if((!strcmp(fReturnType[0].c_str(),"void")) && (look4rc)) {
@@ -1495,27 +1495,27 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
   if(tokens.size() >1) {
     ecmdParseTokens(tokens[1].c_str(), ",", parmTokens); /* this tokenizes the meat and potatoes */
   }
-/* example: */
-/* parmTokens[0] = "enum efppInOut"       */
-/* parmTokens[1] = " char *fprototypeStr" */
-/* parmTokens[2] = " ..."                 */
-/* parmTokens.size90 = 3                    */
+  /* example: */
+  /* parmTokens[0] = "enum efppInOut"       */
+  /* parmTokens[1] = " char *fprototypeStr" */
+  /* parmTokens[2] = " ..."                 */
+  /* parmTokens.size90 = 3                    */
 
-/* exit if we are on a functionin and debug level 8 */
+  /* exit if we are on a functionin and debug level 8 */
   if((ecmdClientDebug == 8) && (inOut == ECMD_FPP_FUNCTIONIN)) {
     return;
   }
 
-/* exit if we are on a functionOut, debug level 8 and no return code */
+  /* exit if we are on a functionOut, debug level 8 and no return code */
   if((ecmdClientDebug == 8) && (inOut == ECMD_FPP_FUNCTIONOUT) && (outputRC ==0)) {
     return;
   }
 
 
-/* exit if we are on a functionOut, debug level 8 and no return code */
+  /* exit if we are on a functionOut, debug level 8 and no return code */
   if((ecmdClientDebug == 8) && (inOut == ECMD_FPP_FUNCTIONOUT) && (outputRC ==1)) {
 
-/* go check return code to see if it's zero or not. */
+    /* go check return code to see if it's zero or not. */
     if((!strcmp(fReturnType[0].c_str(),"uint32_t")) && (look4rc)) {
       uint32_t* dummy = (uint32_t*)(args[parmTokens.size()]);
       if (*dummy ==0) {
@@ -1528,8 +1528,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         return;  /* normal return code so just exit */
       }
     } else {
-    /* if return type is something other than uint32_t then we should probably return since it would not */
-    /* match the intended meening of the debug8 exit plan */
+      /* if return type is something other than uint32_t then we should probably return since it would not */
+      /* match the intended meening of the debug8 exit plan */
       /* print the splat line to show it's the end of the exit */
       printed = frontFPPTxt;
       printed += "\t ***************************************\n";
@@ -1541,9 +1541,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
 
 
-/* remember the leading and trailing spaces, they could mess up a compare */
+  /* remember the leading and trailing spaces, they could mess up a compare */
 
-/* we need to handle each one on it's own, and make sure the types match the string provided */
+  /* we need to handle each one on it's own, and make sure the types match the string provided */
 
   printed = frontFPPTxt;
   printed += "\t ***************************************\n";
@@ -1559,7 +1559,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       strcpy(variableType,fReturnType[0].c_str());
       variableName.clear();
       variableName.push_back("RETURN CODE");
-      
+
     } else {
 
       ecmdParseTokens(parmTokens[looper].c_str(), " ", parmEntryTokens);
@@ -1605,13 +1605,13 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       ecmdParseTokens(parmEntryTokens[mysize-1].c_str(), "*&", variableName);
     }
 
-    
-/****************************************/
-/* at this point variableType is somehting like : "enum" or "char*" or "const char*" */
-/* variableName[0] is the variable name */
 
-/* we need to strcmp on variableType and then declare an object of that type. it will go away */
-/* when it falls out of scope */
+    /****************************************/
+    /* at this point variableType is somehting like : "enum" or "char*" or "const char*" */
+    /* variableName[0] is the variable name */
+
+    /* we need to strcmp on variableType and then declare an object of that type. it will go away */
+    /* when it falls out of scope */
 
     if((variableType         == NULL) ||
        (strlen(variableType) == 0   )   ){
@@ -1626,7 +1626,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
 
     if(!strcmp(variableType,"char")) {
-/* char */
+      /* char */
       char * dummy = (char *)(args[looper]);
 
       printed = frontFPPTxt;
@@ -1642,7 +1642,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
     } else if((!strcmp(variableType,"const char *"))||
               (!strcmp(variableType,"const char*"))   ){
-/* const char * */
+      /* const char * */
 
       char ** dummy = (char **)(args[looper]);
 
@@ -1668,7 +1668,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"const std::string &")) ||
               (!strcmp(variableType,"std::string&"))      ||
               (!strcmp(variableType,"std::string &"))       ){
-/* std::string */
+      /* std::string */
 
       std::string* dummy = (std::string*)(args[looper]);
       printed = frontFPPTxt;
@@ -1682,11 +1682,28 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
+
+    } else if((!strcmp(variableType,"std::list< std::string >")) ||
+              (!strcmp(variableType,"std::list<std::string>"))     ) {
+      /* std::list<std::string> */
+
+      std::list<std::string>* dummy = (std::list<std::string>*)(args[looper]);
+
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      dataLooper = 0;
+      for (std::list<std::string>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string  = %s\n",frontFPPTxt, entit->c_str()); ecmdOutput(tempIntStr);
+      }
+      printed = "\n";
+      printed += frontFPPTxt;
+      printed += "\t ***************************************\n";
+      ecmdOutput(printed.c_str());
     } else if((!strcmp(variableType,"std::list<ecmdArrayEntry> &")) ||
               (!strcmp(variableType,"std::list<ecmdNameEntry> &"))  ||
               (!strcmp(variableType,"std::list<ecmdIndexEntry> &"))  ||
               (!strcmp(variableType,"std::list <ecmdNameVectorEntry> &"))   ){
-/* std::list<something> & */
+      /* std::list<something> & */
       printed = frontFPPTxt;
       printed += "\t type : ";
       printed += variableType;
@@ -1975,7 +1992,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
 
     } else if(!strcmp(variableType,"std::vector <ecmdDataBuffer> &")) {
-/* std::vector <ecmdDataBuffer> & */
+      /* std::vector <ecmdDataBuffer> & */
       printed = frontFPPTxt;
       printed += "\t type : ";
       printed += variableType;
@@ -1990,7 +2007,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
     } else if(!strcmp(variableType,"uint32_t") ||
               !strcmp(variableType,"uint32_t &") ||
               !strcmp(variableType,"uint32_t&") ) {
-/* uint32_t */
+      /* uint32_t */
 
       uint32_t* dummy = (uint32_t*)(args[looper]);
       printed = frontFPPTxt;
@@ -2018,7 +2035,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       ecmdOutput(printed.c_str());
 
     } else if(!strcmp(variableType,"uint64_t")) {
-/* uint64_t */
+      /* uint64_t */
       uint64_t* dummy = (uint64_t*)(args[looper]);
 
       printed = frontFPPTxt;
@@ -2053,7 +2070,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"ecmdLatchMode_t"))         ||
               (!strcmp(variableType,"ecmdConfigLoopMode_t"))    ||
               (!strcmp(variableType,"efppInOut_t"))               ){
-/* enums */
+      /* enums */
       int* dummy = (int*)(args[looper]);
 
       printed = frontFPPTxt;
@@ -2069,9 +2086,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
-      
+
     } else if(!strcmp(variableType,"int *")) {
-/* int * */
+      /* int * */
       int *dummy = (int*)(args[looper]);
 
       printed = frontFPPTxt;
@@ -2089,7 +2106,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       ecmdOutput(printed.c_str());
 
     } else if(!strcmp(variableType,"bool")) {
-/* bool */
+      /* bool */
       bool* dummy = (bool*)(args[looper]);
 
       printed = frontFPPTxt;
@@ -2112,7 +2129,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       ecmdOutput(printed.c_str());
 
     } else if(!strcmp(variableType,"char**")) {
-/* char** */
+      /* char** */
       char** dummy = (char**)(args[looper]);
 
       printed = frontFPPTxt;
@@ -2134,9 +2151,10 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"ecmdNameEntry &"))  ||
               (!strcmp(variableType,"ecmdIndexEntry &"))  ||
               (!strcmp(variableType,"ecmdSpyData &"))  ||
-              
+
               (!strcmp(variableType,"ecmdProcRegisterInfo &"))  ||
               (!strcmp(variableType,"ecmdLooperData &"))  ||
+              (!strcmp(variableType,"ecmdLooperData&"))   ||
               (!strcmp(variableType,"ecmdThreadData &"))  ||
               (!strcmp(variableType,"ecmdCoreData &"))  ||
               (!strcmp(variableType,"ecmdSlotData &"))  ||
@@ -2145,7 +2163,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"ecmdRingData &"))  ||
               (!strcmp(variableType,"ecmdCageData &"))
               ) {
-/* default structures not coded yet */
+      /* default structures not coded yet */
       printed = frontFPPTxt;
       printed += "\t type : ";
       printed += variableType;
@@ -2219,42 +2237,43 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
     } else if((!strcmp(variableType,"ecmdDataBuffer &")) ||
               (!strcmp(variableType,"ecmdDataBuffer&"))    ) {
-/***
-private:  //data
-  int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords
-  int iv_NumWords;              ///< Specified buffer size rounded to next word
-  int iv_NumBits;               ///< Specified buffer size in bits
-  uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
-  uint32_t * iv_RealData;       ///< Real buffer - with header and tail
-***/
+      /***
+       private:  //data
+       int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords
+       int iv_NumWords;              ///< Specified buffer size rounded to next word
+       int iv_NumBits;               ///< Specified buffer size in bits
+       uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
+       uint32_t * iv_RealData;       ///< Real buffer - with header and tail
+       ***/
       ecmdDataBuffer* dummy = (ecmdDataBuffer*)(args[looper]);
 
       printEcmdDataBuffer(variableType, variableName[0], *dummy, "");
 
     } else if((!strcmp(variableType,"ecmdChipTarget &")) ||
+              (!strcmp(variableType,"ecmdChipTarget"))   ||
               (!strcmp(variableType,"ecmdChipTarget&"))    ) {
 
       /***
        struct ecmdChipTarget {
 
-         uint32_t    cage;
-         uint32_t    node;
-         uint32_t    slot;
-         std::string chipType;
-         uint32_t    pos;
-         uint8_t     core;
-         uint8_t     thread;
+       uint32_t    cage;
+       uint32_t    node;
+       uint32_t    slot;
+       std::string chipType;
+       uint32_t    pos;
+       uint8_t     core;
+       uint8_t     thread;
 
-         ecmdChipTargetState_t cageState;
-         ecmdChipTargetState_t nodeState;
-         ecmdChipTargetState_t slotState;
-         ecmdChipTargetState_t chipTypeState;
-         ecmdChipTargetState_t posState;
-         ecmdChipTargetState_t coreState;
-         ecmdChipTargetState_t threadState;
+       ecmdChipTargetState_t cageState;
+       ecmdChipTargetState_t nodeState;
+       ecmdChipTargetState_t slotState;
+       ecmdChipTargetState_t chipTypeState;
+       ecmdChipTargetState_t posState;
+       ecmdChipTargetState_t coreState;
+       ecmdChipTargetState_t threadState;
 
-         uint32_t unitId;
-         ecmdChipTargetState_t unitIdState;
+       uint32_t unitId;
+       ecmdChipTargetState_t unitIdState;
        };
        ***/
 
@@ -2279,10 +2298,10 @@ private:  //data
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    node     = ";
       if (dummy->node == ECMD_TARGETDEPTH_NA)
-	printed += "NA";
+        printed += "NA";
       else {
-	sprintf(tempIntStr,"%u",dummy->node);
-	printed += tempIntStr;
+        sprintf(tempIntStr,"%u",dummy->node);
+        printed += tempIntStr;
       }
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->nodeState);
@@ -2291,10 +2310,10 @@ private:  //data
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    slot     = ";
       if (dummy->slot == ECMD_TARGETDEPTH_NA)
-	printed += "NA";
+        printed += "NA";
       else {
-	sprintf(tempIntStr,"%u",dummy->slot);
-	printed += tempIntStr;
+        sprintf(tempIntStr,"%u",dummy->slot);
+        printed += tempIntStr;
       }
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->slotState);
@@ -2347,16 +2366,16 @@ private:  //data
     } else if((!strcmp(variableType,"ecmdDllInfo &")) ||
               (!strcmp(variableType,"ecmdDllInfo&"))    ) {
 
-/***
-struct ecmdDllInfo {
-  ecmdDllType_t         dllType;        ///< Dll instance type running
-  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
-  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
-  std::string           dllBuildDate;   ///< Date the Dll was built
-  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
-  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
-};
-***/
+      /***
+       struct ecmdDllInfo {
+       ecmdDllType_t         dllType;        ///< Dll instance type running
+       ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+       ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
+       std::string           dllBuildDate;   ///< Date the Dll was built
+       std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
+       std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
+       };
+       ***/
 
       ecmdDllInfo* dummy = (ecmdDllInfo*)(args[looper]);
 
@@ -2408,14 +2427,14 @@ struct ecmdDllInfo {
 
       printed = frontFPPTxt;
       printed += "\t \t value : std::string           dllBuildDate = ";
-//      printed += "strings not working yet";
+      //      printed += "strings not working yet";
       printed += dummy->dllBuildDate.c_str();
       printed += "\n";
       ecmdOutput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : std::string           dllCapiVersion = ";
-//      printed += "strings not working yet";
+      //      printed += "strings not working yet";
       printed += dummy->dllCapiVersion.c_str();
       printed += "\n";
       ecmdOutput(printed.c_str());
@@ -2423,7 +2442,7 @@ struct ecmdDllInfo {
       printed = frontFPPTxt;
       printed += "\t \t value : std::string           dllBuildInfo = ";
       printed += dummy->dllBuildInfo.c_str();
-//      printed += "strings not working yet";
+      //      printed += "strings not working yet";
 
       printed += "\n";
       ecmdOutput(printed.c_str());
@@ -2431,7 +2450,7 @@ struct ecmdDllInfo {
       printed = frontFPPTxt;
       printed += "\t ***************************************\n";
       ecmdOutput(printed.c_str());
-/*#endif*/
+      /*#endif*/
 
     } else {
       printed = "WARNING::ecmdFunctionParmPrinter  Unknown variableType = ";
