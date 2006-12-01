@@ -181,7 +181,8 @@ while (<IN>) {
 
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
-		if($#argnames >=0) {
+		#if($#argnames >=-1) {
+		if(1) {
 		    $printout .= "  int myTcount =0;\n";
 		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     std::vector< void * > args;\n";
@@ -338,7 +339,8 @@ while (<IN>) {
 
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
-		if($#argnames >=0) {
+		#if($#argnames >=0) {
+		if(1) {
 		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     std::vector< void * > args;\n";
 

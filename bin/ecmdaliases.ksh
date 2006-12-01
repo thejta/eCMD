@@ -21,7 +21,7 @@ function _target
 }
 
 ##########################################
-# alias for setting ecmd_setup script
+# alias for setting ecmdsetup script
 ##########################################
 alias ecmdsetup=_ecmdsetup
 
