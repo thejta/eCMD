@@ -1,13 +1,14 @@
 #!/usr/bin/perl
 
 
-my $osname = `uname`;
-chomp $osname;
+my $osname = `uname -a`;
 
-if ($osname eq "AIX") {
-	system("ecmdVersion_aix @ARGV");
+if ($osname =~ /AIX/) {
+    system("ecmdVersion_aix @ARGV");
+} elsif ($osname =~ /ppc/) {
+    system("ecmdVersion_ppc @ARGV");
 } else {
-	system("ecmdVersion_x86 @ARGV");
+    system("ecmdVersion_x86 @ARGV");
 }
 
 exit($?/256);  #return code from the system call above
