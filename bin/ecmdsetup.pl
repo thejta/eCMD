@@ -89,6 +89,7 @@ if (-d "../plugins/mbo") {
 #
 my %modified;  # 0 is no change, 1 set needed, -1 unset needed 
 my $release;
+my $prevRelease;
 my $plugin;
 my $product;
 my $temp;
@@ -159,6 +160,10 @@ if ($shell eq "ksh") {
 ##########################################################################
 # Get the release
 #
+
+# Save the previous release the user may have had
+$prevRelease = $ENV{"ECMD_RELEASE"};
+
 $release = shift(@ARGV);
 
 # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
@@ -312,6 +317,21 @@ if (!$cleanup) {
     $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/bin:" . $ENV{"PATH"};
   }
   $modified{"PATH"} = 1;
+}
+
+##########################################################################
+# Updates setup scripts if release changed
+# All we need to do is resource the setup scripts
+#
+if (($prevRelease ne $ENV{"ECMD_RELEASE"}) && !$localInstall) {
+  my $file;
+  if ($shell eq "csh") {
+    $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.csh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
+    printf("source $file;");
+  } else {
+    $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.ksh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
+    printf(". $file;");
+  }
 }
 
 ####################################################
