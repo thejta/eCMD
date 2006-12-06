@@ -221,8 +221,8 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to loop 
-  target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-  target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+  target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   // Get the leve the user specified
   voltageLevel = (uint32_t)atoi(argv[0]);
@@ -332,8 +332,8 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config
-  target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-  target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+  target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get level to fetch
   if (!ecmdIsAllDecimal(argv[0])) {

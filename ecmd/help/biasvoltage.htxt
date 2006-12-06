@@ -1,5 +1,5 @@
 
-Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#]
+Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#] [-s#]
 
         ECMD:           Core Common Function
 
@@ -24,6 +24,9 @@ Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#]
 
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
 
         --------------------------------------------------------------------------------
 
