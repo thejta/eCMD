@@ -3189,11 +3189,18 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(writeAddressLength);
 	    i_len -= sizeof(writeAddressLength);
 
-	    // length
-	    tmpData32 = htonl((uint32_t)length);
+	    // length - uint64_t with eCMD rel v8.0
+	    // first part of uint64_t
+	    tmpData32 = htonl( (uint64_t)( length >>32));  // first part
 	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-	    l_ptr += sizeof(length);
-	    i_len -= sizeof(length);
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
+
+	    // 2nd part of uint64_t
+	    tmpData32 = htonl(length);
+	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
 
 	    // width
 	    tmpData32 = htonl((uint32_t)width);
@@ -3273,11 +3280,23 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(writeAddressLength);
 	    l_left -= sizeof(writeAddressLength);
 
-	    // length
-	    memcpy(&length, l_ptr, sizeof(length));
-	    length = (int) ntohl(length);
-	    l_ptr += sizeof(length);
-	    l_left -= sizeof(length);
+	    // length - uint64_t with eCMD rel v8.0
+	    // first part of uint64_t
+	    uint32_t tmp32_0=0, tmp32_1=0;
+	    memcpy(&tmp32_0, l_ptr, sizeof(tmp32_0));
+	    tmp32_0 = ntohl(tmp32_0); 
+	    l_ptr += sizeof(tmp32_0);
+	    l_left -= sizeof(tmp32_0);
+
+	    // second uint32_t of uint64_t
+	    memcpy(&tmp32_1, l_ptr, sizeof(tmp32_1));
+	    tmp32_1 = ntohl(tmp32_1);
+	    l_ptr += sizeof(tmp32_1);
+	    l_left -= sizeof(tmp32_1);
+
+	    // put parts of length together
+	    length = ( ((uint64_t) tmp32_0) << 32) | ( (uint64_t) tmp32_1);
+
 
 	    // width
 	    memcpy(&width, l_ptr, sizeof(width));
