@@ -534,6 +534,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
   }
 
+  if (argc < 2) {
+    ecmdOutputError("getlatch - Too few arguments passed.\n");
+    ecmdOutputError("getlatch - Type 'getlatch -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -612,7 +618,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   } else {
     ecmdOutputError("getlatch - Unknown arguments passed.\n");
-    ecmdOutputError("getlatch - Type 'getlatch -h' for usage.");
+    ecmdOutputError("getlatch - Type 'getlatch -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
