@@ -20,6 +20,9 @@
 %apply unsigned int { uint32_t };
 %apply unsigned int &REFERENCE { uint32_t & };
 %apply unsigned int *REFERENCE { uint32_t * };
+%apply int { int32_t };
+%apply int &REFERENCE { int32_t & };
+%apply int *REFERENCE { int32_t * };
 %apply ecmdBit64 { uint64_t };
 %apply ecmdBit64 &REFERENCE { uint64_t & };
 %apply ecmdBit64 *REFERENCE { uint64_t * };

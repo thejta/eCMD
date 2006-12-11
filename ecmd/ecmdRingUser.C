@@ -47,8 +47,6 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
-using namespace std;
-
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -2210,7 +2208,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 	foundRing = true;
 	break;
       }
-      insh.seekg (8, ios::cur); //Skip the ringKey-end offset pair
+      insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
 	  
     }
       
