@@ -38,71 +38,71 @@ all: ${BUILD_TARGETS}
 # The core eCMD pieces
 ecmdcapi:
 	@echo "eCMD Core Client API ..."
-	@cd capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdcmd: ecmdcapi $(subst cmd,,${EXTENSIONS})
 	@echo "eCMD Core Command line Client ..."
-	@cd ecmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
 ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
 	@echo "eCMD Perl Module ..."
-	@cd perlapi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # All of the individual extensions
 cip: ecmdcapi
 	@echo "Cronus/IP Extension API ..."
-	@cd ext/cip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/cip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 cro: ecmdcapi
 	@echo "Cronus Extension API ..."
-	@cd ext/cro/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/cro/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cro/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cro/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 scand: ecmdcapi
 	@echo "Scand Extension API ..."
-	@cd ext/scand/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/scand/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 eip: ecmdcapi
 	@echo "Eclipz IP Extension API ..."
-	@cd ext/eip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/eip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/eip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/eip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 gip: ecmdcapi
 	@echo "GFW IP Extension API ..."
-	@cd ext/gip/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/gip/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/gip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/gip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 zse: ecmdcapi
 	@echo "Z Series Extension API ..."
-	@cd ext/zse/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/zse/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/zse/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/zse/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 mbo: ecmdcapi
 	@echo "Mambo Extension API ..."
-	@cd ext/mbo/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/mbo/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/mbo/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/mbo/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 bml: ecmdcapi
 	@echo "BML Extension API ..."
-	@cd ext/bml/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/bml/cmd;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/bml/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/bml/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 cmd: ecmdcmd
 	@echo "Command line Extension API ..."
-	@cd ext/cmd/capi;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/cmd/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # Runs the objclean and export clean targets in addition to removing generated source
@@ -150,11 +150,11 @@ endif
 
 ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo "Building utils ..."
-	@cd utils;${MAKE} ${GMAKEFLAGS}
+	@cd utils && ${MAKE} ${GMAKEFLAGS}
 	@echo " "
 
 	@echo "Installing utils ..."
-	@cd utils;${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd utils && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 endif
 
