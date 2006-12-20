@@ -30,7 +30,7 @@ ifeq (${OS},Linux_x86)
   SLIB     := libecmd_x86.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   SLIBLDFLAGS := ${SLIBLDFLAGS}  -shared -e sdll.exp
-  SLIBCFLAGS := -fPIC
+  #SLIBCFLAGS := -fPIC
 endif
 
 # *****************************************************************************
