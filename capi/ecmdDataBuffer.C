@@ -41,8 +41,6 @@
 #include <fstream>
 #include <iostream>
 
-using namespace std;
-
 #include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
 
@@ -1859,6 +1857,9 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
   } else if ( stop >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: stop %d >= iv_NumBits (%d)\n", stop, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if ( start > stop) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: start %d >= stop (%d)\n", start, stop);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
 
     charOffset = start / 32;
@@ -3122,7 +3123,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   ins.open(i_filename);
     
   if ((!ins.fail()) && (i_mode != ECMD_WRITE_MODE) && (i_format != ECMD_SAVE_FORMAT_BINARY_DATA)) {
-    ins.seekg(0, ios::end);
+    ins.seekg(0, std::ios::end);
     totalFileSz = ins.tellg();
     if (totalFileSz == 0) {
       firstDBWrite = true;
@@ -3152,13 +3153,13 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   //Open file for read/write
   if (i_mode == ECMD_APPEND_MODE) {
    if (!firstDBWrite) {
-    ops.open(i_filename,  ios_base::in|ios_base::out );
+    ops.open(i_filename,  std::ios_base::in|std::ios_base::out );
    }
    else {
-    ops.open(i_filename,  ios_base::out );
+    ops.open(i_filename,  std::ios_base::out );
    }
   } else if(i_mode == ECMD_WRITE_MODE) {
-    ops.open(i_filename, ofstream::out | ofstream::trunc);
+    ops.open(i_filename, std::ofstream::out | std::ofstream::trunc);
   }
   if (ops.fail()) {
     ETRAC1("**** ERROR : Unable to open file : %s for write",i_filename);
@@ -3375,7 +3376,7 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatTyp
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);  
   }
   
-  ins.seekg(0, ios::end);
+  ins.seekg(0, std::ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
     ETRAC1("**** ERROR : File : %s is empty",filename);
@@ -3450,7 +3451,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);
   }
 
-  ins.seekg(0, ios::end);
+  ins.seekg(0, std::ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
     ETRAC1("**** ERROR : File : %s is empty",filename);
@@ -3497,14 +3498,14 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     for (uint32_t i=0; i<numOfDataBuffers; i++) {
       ins.seekg(dataOffsets[i]);
       if (i_format == ECMD_SAVE_FORMAT_BINARY) {
-        ins.seekg(12,ios::cur);
+        ins.seekg(12,std::ios::cur);
         ins.read((char *)&format,4);    format = (ecmdFormatType_t)htonl(format);
         ins.read((char *)&property,4);    property = htonl(property);
         if (property == 0x80000000) {
          ins.read(fac, 200);
          fac[200] = '\0';
          facNameFromFile = fac;
-         if (facNameFromFile.find(prpty, 0, facNameFromFile.length()) != string::npos){
+         if (facNameFromFile.find(prpty, 0, facNameFromFile.length()) != std::string::npos){
            o_dataNumber = i;  
            propertyMatch = true;
            break;
@@ -3519,7 +3520,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
         if (strcmp(hexstr, "80000000") == 0) {
           ins.getline(fac, 200);
           facNameFromFile = fac;
-          if (facNameFromFile.find(i_property.c_str(), 0, facNameFromFile.length()) != string::npos){
+          if (facNameFromFile.find(i_property.c_str(), 0, facNameFromFile.length()) != std::string::npos){
             o_dataNumber = i;
             propertyMatch = true;
             break;
@@ -3564,7 +3565,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);  
   }
  
-  ins.seekg(0, ios::end);
+  ins.seekg(0, std::ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
     ETRAC1("**** ERROR : File : %s is empty",filename);
@@ -3626,7 +3627,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ETRAC0("**** ERROR : Keyword START not found.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH); 
     }
-    ins.seekg(3,ios::cur);
+    ins.seekg(3,std::ios::cur);
     ins.read((char *)&numBits,4);    numBits = htonl(numBits);
     ins.read((char *)&format,4);    format = (ecmdFormatType_t)htonl(format);
     if (format != ECMD_SAVE_FORMAT_BINARY ) {
@@ -3657,11 +3658,11 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     delete[] buffer; buffer = NULL;
     if (rc) return rc;
   } else if ( format == ECMD_SAVE_FORMAT_BINARY_DATA) {
-    ins.seekg(0, ios::end);
+    ins.seekg(0, std::ios::end);
     numBytes = ins.tellg();
     numBits = numBytes * 8;
     this->setBitLength(numBits);
-    ins.seekg(0, ios::beg);
+    ins.seekg(0, std::ios::beg);
     buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
     if (ins.fail()) {
@@ -3705,7 +3706,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
         hexbitlen = 32;
       }
       rc = insertFromHexLeft (hexstr, i*32, hexbitlen); if (rc) return rc;
-      ins.seekg(1,ios::cur);//Space or Newline char
+      ins.seekg(1,std::ios::cur);//Space or Newline char
     }
 #ifndef REMOVE_SIM
   } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
@@ -3737,7 +3738,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       if ((i*64)+64 > numBits) 
         binstr[strlen(binstr)] = '\0'; //strip newline char
       rc = setXstate(i*64, binstr); if (rc) return rc;
-      ins.seekg(1,ios::cur);// New line char
+      ins.seekg(1,std::ios::cur);// New line char
     }
 #endif
   }
