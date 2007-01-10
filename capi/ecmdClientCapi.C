@@ -39,6 +39,7 @@
 #else
 # include <ecmdDllCapi.H>
 #endif
+#include <ecmdPluginExtensionSupport.H>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -115,13 +116,15 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   if (ecmdClientDebug >= 8) {
      fppCallCount++;
      myTcount = fppCallCount;
+
+#ifndef ECMD_ZSE_EXTENSION_SUPPORT
      printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
      if (ecmdClientDebug >= 9) {
        printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : std::string \t varriable name : i_dllName = %s\n",myTcount,i_dllName.c_str());
      }
+#endif //zse extension support
   }
 #endif
-
 
 #ifndef ECMD_STATIC_FUNCTIONS
 #ifdef _AIX
@@ -147,7 +150,6 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   if (ecmdClientDebug > 1) 
     printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
 #endif
-
   dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
   if (!dlHandle) {
@@ -215,11 +217,14 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 
 #ifndef ECMD_STRIP_DEBUG
+#ifndef ECMD_ZSE_EXTENSION_SUPPORT
   if (ecmdClientDebug >= 8) {
     printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
     if((ecmdClientDebug == 8) && (rc != ECMD_SUCCESS)) {
       printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
     }
+
+
     if (ecmdClientDebug >= 9) {
       printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : std::string : varriable name : i_dllName = %s\n",myTcount,i_dllName.c_str());
       printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
@@ -227,6 +232,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
     printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
   }
 #endif
+#endif     // strip debug
 
   return rc;
 }
@@ -244,7 +250,9 @@ uint32_t ecmdUnloadDll() {
     fppCallCount++;
     myTcount = fppCallCount;
 
+#ifndef ECMD_ZSE_EXTENSION_SUPPORT
     printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
+#endif
   }
 #endif
 
@@ -286,6 +294,7 @@ uint32_t ecmdUnloadDll() {
   ecmdResetExtensionInitState();
 
 #ifndef ECMD_STRIP_DEBUG
+#ifndef ECMD_ZSE_EXTENSION_SUPPORT
   if (ecmdClientDebug >= 8) {
     printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
     if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
@@ -296,6 +305,7 @@ uint32_t ecmdUnloadDll() {
     }
     printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
   }
+#endif
 #endif
 
   return rc;
@@ -314,10 +324,23 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
     fppCallCount++;
     myTcount = fppCallCount;
 
-    printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n",myTcount);
+    char printbuffer[256];
+    (void)memset(printbuffer,0x00,sizeof(printbuffer));
+
+    sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n",myTcount);
+    ecmdOutput(printbuffer);
+    (void)memset(printbuffer,0x00,sizeof(printbuffer));
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : int* : variable name : i_argc = %d\n",myTcount,*i_argc);
-      printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : char** : variable name : i_argv = **not implemented yet**\n",myTcount);
+      sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : int* : variable : i_argc = %d\n",myTcount,*i_argc);
+      ecmdOutput(printbuffer);
+      (void)memset(printbuffer,0x00,sizeof(printbuffer));
+      for (int i=0;i<*i_argc;i++)
+      {
+
+         sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : char** : variable : i_argv %u:  . parameter: %s\n",myTcount, i , (*i_argv)[i]);
+         ecmdOutput(printbuffer);
+         (void)memset(printbuffer,0x00,sizeof(printbuffer));   
+      }
     }
   }
 #endif
@@ -364,18 +387,34 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
+
+  char printbuffer[256];
+  (void)memset(printbuffer,0x00,sizeof(printbuffer));
   if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n",myTcount);
+    sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[])\n",myTcount);
+    ecmdOutput(printbuffer);
+    (void)memset(printbuffer,0x00,sizeof(printbuffer));
     if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
+      sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
+      ecmdOutput(printbuffer);
+      (void)memset(printbuffer,0x00,sizeof(printbuffer));
     }
     if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : int* : variable name : i_argc = %d\n",myTcount,*i_argc);
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : char** : variable name : i_argv = **not implemented yet**\n",myTcount);
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
+      sprintf(printbuffer, "ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : int* : variable name : i_argc = %d\n",myTcount,*i_argc);
+      ecmdOutput(printbuffer);
+      (void)memset(printbuffer,0x00,sizeof(printbuffer));
+      sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : char** : variable name : i_argv = **not implemented yet**\n",myTcount);
+      ecmdOutput(printbuffer);
+      (void)memset(printbuffer,0x00,sizeof(printbuffer));
+      sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
+      ecmdOutput(printbuffer);
+      (void)memset(printbuffer,0x00,sizeof(printbuffer));
     }
-    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
+    sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
+    ecmdOutput(printbuffer);
+    (void)memset(printbuffer,0x00,sizeof(printbuffer));
   }
+
 #endif
 
   return rc;
