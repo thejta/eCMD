@@ -160,7 +160,7 @@ while (<IN>) {
 
 	$printout .= "#ifndef ECMD_STATIC_FUNCTIONS\n\n";
 	$printout .= "  if (dlHandle == NULL) {\n";
-        $printout .= "    fprintf(stderr,\"$funcname: eCMD Function called before DLL has been loaded\\n\");\n";
+        $printout .= "    fprintf(stderr,\"$funcname\%s\",ECMD_DLL_NOT_LOADED_ERROR);\n";
         $printout .= "    exit(ECMD_DLL_INVALID);\n";
 	$printout .= "  }\n\n";
 
@@ -313,7 +313,7 @@ while (<IN>) {
 
 	$printout .= "     if (".$DllFnTable."[$enumname] == NULL) {\n";
 
-        $printout .= "       fprintf(stderr,\"$funcname : Unable to find $funcname function, must be an invalid DLL - program aborting\\n\"); \n";
+        $printout .= "       fprintf(stderr,\"$funcname\%s\",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); \n";
         # Defect 20342, display dll info in case of invalid symbol
         $printout .= "       ecmdDisplayDllInfo();\n";
 
@@ -444,6 +444,8 @@ print OUT "#endif\n\n";
 
 print OUT "#include <ecmdUtils.H>\n\n";
 
+print OUT "static const char ECMD_DLL_NOT_LOADED_ERROR[] = \": eCMD Function called before DLL has been loaded\\n\";\n";
+print OUT "static const char ECMD_UNABLE_TO_FIND_FUNCTION_ERROR[] = \": Unable to find function, must be an invalid DLL - program aborting\\n\";\n";
 print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
 print OUT "\n #include <dlfcn.h>\n\n";
 
