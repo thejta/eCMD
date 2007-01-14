@@ -246,14 +246,14 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config
   if (argc > 3) {
-    ecmdOutputError("getconfig - Too many arguments specified; you probably added an unsupported option.\n");
-    ecmdOutputError("getconfig - Type 'getconfig -h' for usage.\n");
+    ecmdOutputError("setconfig - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("setconfig - Type 'setconfig -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if( argc == 3) {
     /* Apply the default depth */
     if (depth == 0) depth = POS;
     if (depth < POS) {
-      ecmdOutputError("getconfig - Invalid Depth parm specified when a chipselect was specified.\n");
+      ecmdOutputError("setconfig - Invalid Depth parm specified when a chipselect was specified.\n");
       return ECMD_INVALID_ARGS;
     }     
     target.chipType = argv[0];

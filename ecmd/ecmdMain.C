@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdMain.C                                   
@@ -12,8 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
-
 // Module Description **************************************************
 //
 // Description: 
@@ -38,9 +37,6 @@
 #include <ecmdReturnCodes.H>
 #include <ecmdCommandUtils.H>
 #include <ecmdSharedUtils.H>
-
-#include <ecmdPluginExtensionSupport.H>
-
 
 
 int main (int argc, char *argv[])
@@ -71,11 +67,6 @@ int main (int argc, char *argv[])
 #endif
 
   if (rc == ECMD_SUCCESS) {
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-     ecmdOutput("ECMD DEBUG ========Processing commandline input:====================================================================");
-     ecmdOutput(cmdsave.c_str());
-     ecmdOutput("ECMD DEBUG ========Processing commandline input:====================================================================");
-#endif
     /* Check to see if we are using stdin to pass in multiple commands */
     if (ecmdParseOption(&argc, &argv, "-stdin")) {
 
@@ -226,25 +217,16 @@ int main (int argc, char *argv[])
     }
 
 
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-    ecmdOutput("ECMD DEBUG ========Commandline processing done :====================================================================");
-    ecmdOutput(cmdsave.c_str());
-    ecmdOutput("ECMD DEBUG ========Commandline processing done :====================================================================");
-#else
     /* Move these outputs into the if !rc to fix BZ#224 - cje */
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       ecmdOutput(cmdsave.c_str());
     }
-#endif
-
 
 
     ecmdUnloadDll();
-
   }
 
   exit((int)rc);
-
 }
 
 

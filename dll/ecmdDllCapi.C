@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdDllCapi.C                                   
@@ -18,8 +19,6 @@
 // Description: 
 //
 // End Module Description **********************************************
-
-/* $Header$ */
 
 // Change Log *********************************************************
 //                                                                      
@@ -268,11 +267,12 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 #ifndef ECMD_STRIP_DEBUG
   ecmdGlobal_DllDebug = debugLevel;
   char printbuffer[128];
-  (void)memset(printbuffer,0x00,sizeof(printbuffer));
 
   if (ecmdGlobal_DllDebug > 0) {
     sprintf(printbuffer, "ECMD DEBUG : Client Version     '%s'\n", i_clientVersion);
+    dllOutput(printbuffer);
     sprintf(printbuffer, "ECMD DEBUG : Plugin Version     '%s'\n", ECMD_CAPI_VERSION);
+    dllOutput(printbuffer);
     sprintf(printbuffer, "ECMD DEBUG : Shared Lib Version '%s'\n", ecmdGetSharedLibVersion().c_str());
     dllOutput(printbuffer);
  
