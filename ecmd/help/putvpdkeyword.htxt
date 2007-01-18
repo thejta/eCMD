@@ -8,13 +8,13 @@ Syntax: putvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <Data> [-i<f
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to write the VPD data into
+        ChipSelect      Chip to write the VPD data into,  "nochip" for targeting by cage, node, slot
 	
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
 	RecordName      VPD Record Name (in quotes) 
 
-        KeyWord         VPD Keyword (in quotes) 
+        Keyword         VPD Keyword (in quotes) 
 
         Data            Data to write into VPD. Not valid with -f option
                         Format specified by -i<format>
@@ -32,7 +32,7 @@ Syntax: putvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <Data> [-i<f
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+        -s#  [optional] Specify which slot to act on (0 is default, decimal value). Specify -sall
                         to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
@@ -42,3 +42,5 @@ Syntax: putvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <Data> [-i<f
 
         Examples:       > putvpdkeyword pu mod "record" "key" deadbeef80000000  -p0,1 
                         > putvpdkeyword l3cache fru "record" "key" -fb datafile
+                        > putvpdkeyword nochip fru "VINI" "SN" -ia -k2 -n0 -s8453
+                        > putvpdkeyword nochip mod "VWML" "DR" "string" -ia -k1 -n0 -s49394
