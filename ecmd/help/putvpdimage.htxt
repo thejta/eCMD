@@ -8,9 +8,11 @@ Syntax: putvpdimage <ChipSelect> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#]
 
         Parameters:
         --------------------------------------------------------------------------------
-	ChipSelect      Chip to write the VPD image into
+	ChipSelect      Chip to write the VPD image into, "nochip" for targeting by cage, node, slot 
 	
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
+
+        NumBytes        Number of bytes 
 
         Data            Data to write into VPD. Not valid with -f option
                         Format specified by -i<format>
@@ -28,7 +30,7 @@ Syntax: putvpdimage <ChipSelect> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#]
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+        -s#  [optional] Specify which slot to act on (0 is default, decimal value). Specify -sall
                         to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
@@ -38,3 +40,4 @@ Syntax: putvpdimage <ChipSelect> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#]
 
         Examples:       > putvpdimage pu mod deadbeef80000000  -p0,1 
                         > putvpdimage l3cache fru -fb datafile
+                        > putvpdimage nochip -fb test1.bin -k1 -n0 -s49394

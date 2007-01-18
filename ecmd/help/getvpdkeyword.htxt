@@ -8,13 +8,15 @@ Syntax: getvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <NumBytes> -
 
         Parameters:
         --------------------------------------------------------------------------------
-	ChipSelect      Chip to get the module VPD record contents from
-	
+	ChipSelect      Chip to get the module VPD record contents from,  "nochip" for targeting by cage, node, slot 
+
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
         RecordName      VPD Record Name (in quotes) 
 
         KeyWord         VPD Keyword (in quotes) 
+
+        NumBytes        Number of bytes 
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.
@@ -33,7 +35,7 @@ Syntax: getvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <NumBytes> -
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+        -s#  [optional] Specify which slot to act on (0 is default, decimal value). Specify -sall
                         to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
@@ -43,3 +45,5 @@ Syntax: getvpdkeyword <ChipSelect> <VpdType> <RecordName> <Keyword> <NumBytes> -
 
         Examples:       > getvpdkeyword pu mod "record" "key" 128 -p0
                         > getvpdkeyword l3cache fru "record" "key" 128 -fb datafile
+                        > getvpdkeyword nochip fru "CARD" "SN" 1280 -oa -k2 -n0 -s4097 
+                        > getvpdkeyword nochip mod "VWML" "DR" 128 -oa -k1 -n0 -s49394

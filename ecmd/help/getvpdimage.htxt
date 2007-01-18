@@ -8,9 +8,11 @@ Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [
 
         Parameters:
         --------------------------------------------------------------------------------
-	ChipSelect      Chip to get the VPD image from
+	ChipSelect      Chip to get the VPD image from, "nochip" for targeting by cage, node, slot 
 	
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
+
+        NumBytes        number of bytes 
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.
@@ -29,7 +31,7 @@ Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [
         -n#  [optional] Specify which node to act on (0 is default). Specify -nall
                         to act on all nodes.
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+        -s#  [optional] Specify which slot to act on (0 is default, decimal value). Specify -sall
                         to act on all slots.
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
@@ -39,3 +41,4 @@ Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [
 
         Examples:       > getvpdimage pu mod 128 -p0
                         > getvpdimage l3cache fru 128 -fb datafile
+                        > getvpdimage nochip mod 66000 -k1 -n0 -s49394
