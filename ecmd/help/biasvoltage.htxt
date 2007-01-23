@@ -31,5 +31,5 @@ Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#] [-s#]
         --------------------------------------------------------------------------------
 
         Examples:       > biasvoltage 12 0npu  -k1 -n0 
-                        > biasvoltage 10 21npd 
+                        > biasvoltage 10 21npd -s1245
                         > biasvoltage 9 4pspu
