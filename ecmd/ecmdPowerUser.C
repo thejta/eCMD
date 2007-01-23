@@ -250,8 +250,8 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   } else if ((strpos = biasString.find("pspd")) != std::string::npos) {
     voltageType = ECMD_VOLTAGE_POWERSAVE_PERCENT_DOWN;
   } else {
-    ecmdOutputError("setclockspeed - a valid biasValue Keyword not found biasValue field\n");
-    ecmdOutputError("setclockspeed - Type 'biasvoltage -h' for usage.\n");
+    ecmdOutputError("biasvoltage - a valid biasValue Keyword not found biasValue field\n");
+    ecmdOutputError("biasvoltage - Type 'biasvoltage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
   
@@ -279,7 +279,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "biasvoltage - Error occurred performing ecmdGpioReadLatch on ";
+        printed = "biasvoltage - Error occurred performing ecmdBiasVoltage on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
