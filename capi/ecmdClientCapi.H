@@ -3020,6 +3020,15 @@ void ecmdPushCommandArgs();
 */
 void ecmdPopCommandArgs();
 
+/**
+ @brief Time the spent inside of a dll call
+ @param i_startTv Time before function called
+ @param i_endTv Time after function called
+ @retval time in milliseconds
+*/
+
+uint32_t ecmdDllFunctionTimer(timeval &i_startTv, timeval &i_endTv);
+
 //@}
 #endif
 
