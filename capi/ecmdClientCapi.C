@@ -459,6 +459,15 @@ uint32_t ecmdSetup(char* i_args) {
 }
 
 
+uint32_t ecmdDllFunctionTimer(timeval &i_startTv, timeval &i_endTv) {
+  uint32_t msTime;
+
+  msTime = (i_endTv.tv_sec - i_startTv.tv_sec) * 1000;
+  msTime += ((i_endTv.tv_usec - i_startTv.tv_usec) / 1000);
+
+  return msTime;
+};
+
 /* ------------------------------------------------------------------------------------ */
 /* Below are the functions that pass straigh through to the Dll                         */
 /* Some have been moved here from ecmdClientCapiFunc.C to add additional debug messages */

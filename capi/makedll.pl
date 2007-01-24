@@ -26,7 +26,7 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdDllFunctionTimer);
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
@@ -349,7 +349,7 @@ while (<IN>) {
 		    $printout .= "     if (ecmdClientDebug >= 15) {\n";
 		    $printout .= "       timeval endTv;\n";
 		    $printout .= "       gettimeofday(&endTv, NULL);\n";
-		    $printout .= "       printf(\"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %d ms spent in $orgfuncname\\n\", myTcount, calcMsTime(startTv, endTv));\n";
+		    $printout .= "       printf(\"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %d ms spent in $orgfuncname\\n\", myTcount, ecmdDllFunctionTimer(startTv, endTv));\n";
 		    $printout .= "     };\n";
 		    $printout .= "     std::vector< void * > args;\n";
 
@@ -484,15 +484,8 @@ if ($ARGV[0] ne "ecmd") {
   print OUT " bool $ARGV[0]Initialized = false;\n";
 }
 
-print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "#include <sys/time.h>\n"; # For timer code
-print OUT "uint32_t calcMsTime(timeval &startTv, timeval &endTv);\n";
-print OUT "uint32_t calcMsTime(timeval &startTv, timeval &endTv) {\n";
-print OUT "  uint32_t msTime;\n\n";
-print OUT "  msTime = (endTv.tv_sec - startTv.tv_sec) * 1000;\n"; # Turn the seconds to milliseconds
-print OUT "  msTime += ((endTv.tv_usec - startTv.tv_usec) / 1000);\n\n"; # Turn the microseconds to milliseconds
-print OUT "  return msTime;\n";
-print OUT "};\n";
+print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "extern int ecmdClientDebug;\n";
 print OUT "extern int fppCallCount;\n";
 print OUT "#endif\n\n\n";
