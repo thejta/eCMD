@@ -217,6 +217,7 @@ std::list<ecmdLatchBufferEntry> latchBuffer;
 //---------------------------------------------------------------------
 
 uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
+  uint32_t rc;
 
   /* First off let's check our version */
   /* Let's found our '.' char because we only fail if the Major number changes */
@@ -262,20 +263,23 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
     exit(999);
   }
 
-
-
+  rc = dllInitDll();
+  
 #ifndef ECMD_STRIP_DEBUG
   ecmdGlobal_DllDebug = debugLevel;
-  char printbuffer[128];
+  char printstr[128];
 
-  if (ecmdGlobal_DllDebug > 0) {
-    printf("ECMD DEBUG : Client Version     '%s'\n", i_clientVersion);
-    printf("ECMD DEBUG : Plugin Version     '%s'\n", ECMD_CAPI_VERSION);
-    printf("ECMD DEBUG : Shared Lib Version '%s'\n", ecmdGetSharedLibVersion().c_str());
+  if (ecmdGlobal_DllDebug != 0) {
+    sprintf(printstr,"ECMD DEBUG : Client Version     '%s'\n", i_clientVersion);
+    dllOutput(printstr);
+    sprintf(printstr,"ECMD DEBUG : Plugin Version     '%s'\n", ECMD_CAPI_VERSION);
+    dllOutput(printstr);
+    sprintf(printstr,"ECMD DEBUG : Shared Lib Version '%s'\n", ecmdGetSharedLibVersion().c_str());
+    dllOutput(printstr);
   }
 #endif
-  return dllInitDll();
 
+  return rc;
 }
 
 uint32_t dllUnloadDll() {
