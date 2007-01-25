@@ -2648,7 +2648,7 @@ void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char
   } else if (i_timerState == ECMD_TMR_LOADDLL) {
     startTv = curTv;
     outsideTv = curTv;
-    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : ONLY (%03d) : Starting timing code in ecmdLoadDll\n", i_myTcount);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : START(%03d) : Starting timing code in ecmdLoadDll\n", i_myTcount);
     debugFunctionOuput(outstr);
   } else if (i_timerState == ECMD_TMR_UNLOADDLL) {
     msTime = (curTv.tv_sec - startTv.tv_sec) * 1000;
@@ -2658,7 +2658,7 @@ void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char
     float outsidePercent = (outsideTime/totalTime)*100;
     float lostTime = totalTime - (dllTime + outsideTime);
     float lostPercent = 100 - (dllPercent + outsidePercent);
-    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %2.3fs (%2.1f%%) in dll, %2.3fs (%2.1f%%) outside dll, %2.3fs (%2.1f%%) lost\n", i_myTcount, dllTime, dllPercent, outsideTime, outsidePercent, lostTime, lostPercent);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : %2.3fs (%2.1f%%) in dll, %2.3fs (%2.1f%%) outside dll, %2.3fs (%2.1f%%) lost\n", i_myTcount, dllTime, dllPercent, outsideTime, outsidePercent, lostTime, lostPercent);
     debugFunctionOuput(outstr);
   }
 };
