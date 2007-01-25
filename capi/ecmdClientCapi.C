@@ -30,6 +30,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
@@ -459,13 +460,30 @@ uint32_t ecmdSetup(char* i_args) {
 }
 
 
-uint32_t ecmdDllFunctionTimer(timeval &i_startTv, timeval &i_endTv) {
+void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char * i_funcName) {
   uint32_t msTime;
+  static timeval prevTv;
+  static timeval curTv;
+  static float otherTime = 0;
+  static float dllTime = 0;
 
-  msTime = (i_endTv.tv_sec - i_startTv.tv_sec) * 1000;
-  msTime += ((i_endTv.tv_usec - i_startTv.tv_usec) / 1000);
+  gettimeofday(&curTv, NULL);
+  /* Gotta set this up the first time through */
+  if (i_myTcount == 1) {
+    prevTv = curTv;
+  }
 
-  return msTime;
+  /* Calculate elapsed time */
+  msTime = (curTv.tv_sec - prevTv.tv_sec) * 1000;
+  msTime += ((curTv.tv_usec - prevTv.tv_usec) / 1000);
+
+  if (i_timerState == ECMD_TMR_FUNCTIONIN) {
+    otherTime += ((float)(msTime/100));
+    printf("ECMD DEBUG (ecmdTMR) : ENTER(%03d) : %d ms since last dll call\n", i_myTcount, msTime);
+  } else {
+    dllTime += ((float)(msTime/100));
+    printf("ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %d ms spent in %s\n", i_myTcount, msTime, i_funcName);
+  }
 };
 
 /* ------------------------------------------------------------------------------------ */

@@ -26,7 +26,7 @@ my $VOID = 1;
 my $STRING = 2;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdDllFunctionTimer);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdFunctionTimer);
 my $ignore_re = join '|', @ignores;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
@@ -183,8 +183,7 @@ while (<IN>) {
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		#if($#argnames >=-1) {
 		if(1) {
-		    $printout .= "  int myTcount =0;\n";
-		    $printout .= "  timeval startTv;\n";
+		    $printout .= "  int myTcount;\n";
 		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     std::vector< void * > args;\n";
 
@@ -219,7 +218,7 @@ while (<IN>) {
 		    $printout .= "     myTcount = fppCallCount;\n";
 		    $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
 		    $printout .= "     if (ecmdClientDebug >= 15) {\n";
-		    $printout .= "       gettimeofday(&startTv, NULL);\n";
+		    $printout .= "       ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,\"$orgfuncname\");\n";
 		    $printout .= "     }\n";
 		    $printout .= "  }\n";
 		} # end if there are no args
@@ -347,9 +346,7 @@ while (<IN>) {
 		if(1) {
 		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
 		    $printout .= "     if (ecmdClientDebug >= 15) {\n";
-		    $printout .= "       timeval endTv;\n";
-		    $printout .= "       gettimeofday(&endTv, NULL);\n";
-		    $printout .= "       printf(\"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %d ms spent in $orgfuncname\\n\", myTcount, ecmdDllFunctionTimer(startTv, endTv));\n";
+		    $printout .= "       ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,\"$orgfuncname\");\n";
 		    $printout .= "     };\n";
 		    $printout .= "     std::vector< void * > args;\n";
 
@@ -484,7 +481,6 @@ if ($ARGV[0] ne "ecmd") {
   print OUT " bool $ARGV[0]Initialized = false;\n";
 }
 
-print OUT "#include <sys/time.h>\n"; # For timer code
 print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "extern int ecmdClientDebug;\n";
 print OUT "extern int fppCallCount;\n";

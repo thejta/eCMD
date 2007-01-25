@@ -3020,14 +3020,22 @@ void ecmdPushCommandArgs();
 */
 void ecmdPopCommandArgs();
 
+#ifndef ECMD_PERLAPI
+
+typedef enum {
+  ECMD_TMR_FUNCTIONIN,                  ///< Designates the call in of the api function
+  ECMD_TMR_FUNCTIONOUT,                 ///< Designates the call out of the api function
+  ECMD_FPP_SUMMARY                      ///< Designates time to print summary timing info
+} etmrInOut_t;
+
 /**
  @brief Time the spent inside of a dll call
- @param i_startTv Time before function called
- @param i_endTv Time after function called
- @retval time in milliseconds
+ @param i_myTcount What step we are on
+ @param i_timerState Going in or out
+ @param i_funcName Name of the function
 */
-
-uint32_t ecmdDllFunctionTimer(timeval &i_startTv, timeval &i_endTv);
+void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char * i_funcName);
+#endif
 
 //@}
 #endif
