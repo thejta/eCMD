@@ -159,10 +159,10 @@ struct ecmdLooperData {
 };
 
 #ifndef DOCUMENTATION
+#if !defined(ECMD_STRIP_DEBUG) && !defined(ECMD_PERLAPI)
 /**
  @brief Used by the eCMD Function parm trace printer
 */
-
 typedef enum {
   ECMD_FPP_RETOUT,                      ///< Designates the failing return code out of the api function
   ECMD_FPP_FUNCTIONIN,                  ///< Designates the call in of the api function
@@ -170,6 +170,17 @@ typedef enum {
   ECMD_FPP_JUSTIN,                      ///< Designatest the call in of the api function in debug 8 mode
   ECMD_FPP_JUSTOUT                      ///< Designatest the call out of the api function in debug 8 mode and rc==0
 } efppInOut_t;
+
+/**
+ @brief Used by the eCMD Function Timer
+*/
+typedef enum {
+  ECMD_TMR_FUNCTIONIN,                  ///< Designates the call in of the api function
+  ECMD_TMR_FUNCTIONOUT,                 ///< Designates the call out of the api function
+  ECMD_TMR_LOADDLL,                     ///< Load of the DLL
+  ECMD_TMR_UNLOADDLL                    ///< Unload of the DLL
+} etmrInOut_t;
+#endif
 #endif
 
 
@@ -319,6 +330,14 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
  @param args function argument vector 
  */
 void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args);
+
+/**
+ @brief Time the spent inside of a dll call
+ @param i_myTcount What step we are on
+ @param i_timerState Going in or out
+ @param i_funcName Name of the function
+*/
+void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char * i_funcName);
 #endif
 
 /**

@@ -184,8 +184,8 @@ while (<IN>) {
 		#if($#argnames >=-1) {
 		if(1) {
 		    $printout .= "  int myTcount;\n";
-		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
-		    $printout .= "     std::vector< void * > args;\n";
+		    $printout .= "  std::vector< void * > args;\n";
+		    $printout .= "  if (ecmdClientDebug != 0) {\n";
 
 
 #		    $printout .= "     ecmdFunctionParmPrinter(ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\"";
@@ -217,9 +217,7 @@ while (<IN>) {
 		    $printout .= "     fppCallCount++;\n";
 		    $printout .= "     myTcount = fppCallCount;\n";
 		    $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
-		    $printout .= "     if (ecmdClientDebug >= 15) {\n";
-		    $printout .= "       ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,\"$orgfuncname\");\n";
-		    $printout .= "     }\n";
+		    $printout .= "     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,\"$orgfuncname\");\n";
 		    $printout .= "  }\n";
 		} # end if there are no args
 	    } # end if its not ecmdFunctionParmPrinter 
@@ -343,51 +341,10 @@ while (<IN>) {
 	    # new debug10 parm tracing stuff
 	    if(!($orgfuncname =~ /ecmdFunctionParmPrinter/)) {
 		#if($#argnames >=0) {
-		if(1) {
-		    $printout .= "  if (ecmdClientDebug >= 8) {\n";
-		    $printout .= "     if (ecmdClientDebug >= 15) {\n";
-		    $printout .= "       ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,\"$orgfuncname\");\n";
-		    $printout .= "     };\n";
-		    $printout .= "     std::vector< void * > args;\n";
-
-		    #
-#		    my $pp_argstring;
-#		    my $pp_typestring;
-
-		    @argnames = split /,/ , $args;
-
-                    #remove the default initializations
-                    foreach my $i (0..$#argnames) {
-                       if ($argnames[$i] =~ /=/) {
-                          $argnames[$i] =~ s/=.*//;
-		       }
-	            }
-	            $" = ",";
-
-		    foreach my $curarg (@argnames) {
-
-			my @pp_argsplit = split /\s+/, $curarg;
-
-			my @pp_typeargs = @pp_argsplit[0..$#pp_argsplit-1];
-			my $tmptypestring = "@pp_typeargs";
-
-			my $tmparg = $pp_argsplit[-1];
-			if ($tmparg =~ /\[\]$/) {
-			    chop $tmparg; chop $tmparg;
-			    $tmptypestring .= "[]";
-			}
-
-#			$pp_typestring .= $tmptypestring . ", ";
-#			$pp_argstring .= $tmparg . ", ";
-			$printout .= "     args.push_back((void*) &" . $tmparg . ");\n";
-		    }
+		if (1) {
+		    $printout .= "  if (ecmdClientDebug != 0) {\n";
 		    $printout .= "     args.push_back((void*) &rc);\n" unless ($type_flag == $VOID);
-
-#		    chop ($pp_typestring, $pp_argstring);
-#		    chop ($pp_typestring, $pp_argstring);
-
-		    $printout .= "\n";
-
+		    $printout .= "     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,\"$orgfuncname\");\n";
 		    $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
 		    #	    
 		    $printout .= "   }\n";
@@ -484,6 +441,7 @@ if ($ARGV[0] ne "ecmd") {
 print OUT "#ifndef ECMD_STRIP_DEBUG\n";
 print OUT "extern int ecmdClientDebug;\n";
 print OUT "extern int fppCallCount;\n";
+print OUT "extern bool ecmdDebugOutput;\n";
 print OUT "#endif\n\n\n";
 
 print OUT $printout;

@@ -30,7 +30,6 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
@@ -69,7 +68,8 @@ extern void * DllFnTable[];
 #ifndef ECMD_STRIP_DEBUG
 /* @brief This is used to output Debug messages on the Client side */
 uint32_t ecmdClientDebug = 0;
-int fppCallCount =0;
+int fppCallCount = 0;
+bool ecmdDebugOutput = false;
 #endif
 
 /* @brief we are going to store a copy of the args list for load/unload operations */
@@ -111,15 +111,16 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
-  int myTcount=0;
-  if (ecmdClientDebug >= 8) {
+  int myTcount = 0;
+  std::vector< void * > args;
+  args.push_back((void*) &i_dllName);
+  if (ecmdClientDebug != 0) {
      fppCallCount++;
      myTcount = fppCallCount;
 
-     printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
-     if (ecmdClientDebug >= 9) {
-       printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : std::string \t varriable name : i_dllName = %s\n",myTcount,i_dllName.c_str());
-     }
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_LOADDLL,"ecmdLoadDll");
+     ecmdDebugOutput = true; /* Dll is being loaded now, can use ecmdOutput */
   }
 #endif
 
@@ -214,18 +215,9 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : uint32_t ecmdLoadDll(std::string i_dllName)\n",myTcount);
-    if((ecmdClientDebug == 8) && (rc != ECMD_SUCCESS)) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
-    }
-
-
-    if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : std::string : varriable name : i_dllName = %s\n",myTcount,i_dllName.c_str());
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : uint32_t : variable name : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
-    }
-    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
+  if (ecmdClientDebug != 0) {
+    args.push_back((void*) &rc);
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdLoadDll(std::string i_dllName)",args);
   }
 #endif     // strip debug
 
@@ -241,11 +233,11 @@ uint32_t ecmdUnloadDll() {
 
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
-  if (ecmdClientDebug >= 8) {
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
     fppCallCount++;
     myTcount = fppCallCount;
-
-    printf("ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdUnloadDll()",args);
   }
 #endif
 
@@ -287,15 +279,11 @@ uint32_t ecmdUnloadDll() {
   ecmdResetExtensionInitState();
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug >= 8) {
-    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t uint32_t ecmdUnloadDll()\n",myTcount);
-    if((ecmdClientDebug == 8) && (rc !=ECMD_SUCCESS)) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
-    }
-    if (ecmdClientDebug >= 9) {
-      printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
-    }
-    printf("ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t ***************************************\n",myTcount);
+  if (ecmdClientDebug != 0) {
+    args.push_back((void*) &rc);
+    ecmdDebugOutput = false;  /* Dll is unloaded, can't use ecmdOutput */
+    ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdUnloadDll()",args);
+    ecmdFunctionTimer(myTcount,ECMD_TMR_UNLOADDLL,"ecmdUnloadDll");
   }
 #endif
 
@@ -458,33 +446,6 @@ uint32_t ecmdSetup(char* i_args) {
 
   return 0;
 }
-
-
-void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char * i_funcName) {
-  uint32_t msTime;
-  static timeval prevTv;
-  static timeval curTv;
-  static float otherTime = 0;
-  static float dllTime = 0;
-
-  gettimeofday(&curTv, NULL);
-  /* Gotta set this up the first time through */
-  if (i_myTcount == 1) {
-    prevTv = curTv;
-  }
-
-  /* Calculate elapsed time */
-  msTime = (curTv.tv_sec - prevTv.tv_sec) * 1000;
-  msTime += ((curTv.tv_usec - prevTv.tv_usec) / 1000);
-
-  if (i_timerState == ECMD_TMR_FUNCTIONIN) {
-    otherTime += ((float)(msTime/100));
-    printf("ECMD DEBUG (ecmdTMR) : ENTER(%03d) : %d ms since last dll call\n", i_myTcount, msTime);
-  } else {
-    dllTime += ((float)(msTime/100));
-    printf("ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %d ms spent in %s\n", i_myTcount, msTime, i_funcName);
-  }
-};
 
 /* ------------------------------------------------------------------------------------ */
 /* Below are the functions that pass straigh through to the Dll                         */
