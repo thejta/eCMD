@@ -145,7 +145,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   }
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug > 1) 
+  if (ecmdClientDebug != 0) 
     printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
 #endif
   dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
@@ -156,7 +156,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
       return ECMD_DLL_LOAD_FAILURE;
     }
 #ifndef ECMD_STRIP_DEBUG
-  } else if (ecmdClientDebug > 1) {
+  } else if (ecmdClientDebug != 0) {
     printf("loadDll: load successful\n");
 #endif
   }
@@ -244,9 +244,7 @@ uint32_t ecmdUnloadDll() {
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllUnloadDll();
-
 #else
-
   if (dlHandle) {
     /* call DLL unload */
     uint32_t (*Function)() =
@@ -271,8 +269,6 @@ uint32_t ecmdUnloadDll() {
     }
   }
   dlHandle = NULL;
-
-
 #endif
 
   /* Go reset all the extensions so they know we have been unloaded */

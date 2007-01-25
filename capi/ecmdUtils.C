@@ -2604,38 +2604,61 @@ void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char
   if (ecmdClientDebug < 5) return;
 
   uint32_t msTime;
-  static timeval prevTv;
-  static timeval curTv;
+
+  timeval curTv, listTv;
+  static std::list<timeval> timeList;
   static timeval startTv;
-  static float otherTime = 0;
+  static timeval outsideTv;
+
+  static float outsideTime = 0;
   static float dllTime = 0;
   char outstr[200];
 
   /* Update the current timer */
   gettimeofday(&curTv, NULL);
 
-  /* Calculate elapsed time */
-  msTime = (curTv.tv_sec - prevTv.tv_sec) * 1000;
-  msTime += ((curTv.tv_usec - prevTv.tv_usec) / 1000);
-
-  /* Save it for next time */
-  prevTv = curTv;
-
   if (i_timerState == ECMD_TMR_FUNCTIONIN) {
-    otherTime += (((float)msTime)/1000);
-    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : ENTER(%03d) : %dms before %s\n", i_myTcount, msTime, i_funcName);
-    debugFunctionOuput(outstr);
+    if (timeList.empty()) {
+      /* Calc time elapsed in outside DLL funtions */
+      msTime = (curTv.tv_sec - outsideTv.tv_sec) * 1000;
+      msTime += ((curTv.tv_usec - outsideTv.tv_usec) / 1000);
+      outsideTime += (((float)msTime)/1000);
+      sprintf(outstr,"ECMD DEBUG (ecmdTMR) : ENTER(%03d) : %dms before %s\n", i_myTcount, msTime, i_funcName);
+      debugFunctionOuput(outstr);
+    } else {
+      sprintf(outstr,"ECMD DEBUG (ecmdTMR) : ENTER(%03d) : nested call to %s\n", i_myTcount, i_funcName);
+      debugFunctionOuput(outstr);
+    }
+    /* Save our time so we can calc time spent in DLL */
+    timeList.push_back(curTv);
   } else if (i_timerState == ECMD_TMR_FUNCTIONOUT) {
-    dllTime += (((float)msTime)/1000);
+    /* Get what we have on the list */
+    listTv = timeList.back();
+    timeList.pop_back();
+    /* Calc time spent */
+    msTime = (curTv.tv_sec - listTv.tv_sec) * 1000;
+    msTime += ((curTv.tv_usec - listTv.tv_usec) / 1000);
     sprintf(outstr,"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %dms spent in %s\n", i_myTcount, msTime, i_funcName);
     debugFunctionOuput(outstr);
+    /* If the list is empty, save the time spent in the DLL and set the outsideTV */
+    if (timeList.empty()) {
+      dllTime += (((float)msTime)/1000);
+      outsideTv = curTv;
+    }
   } else if (i_timerState == ECMD_TMR_LOADDLL) {
     startTv = curTv;
+    outsideTv = curTv;
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : ONLY (%03d) : Starting timing code in ecmdLoadDll\n", i_myTcount);
+    debugFunctionOuput(outstr);
   } else if (i_timerState == ECMD_TMR_UNLOADDLL) {
     msTime = (curTv.tv_sec - startTv.tv_sec) * 1000;
     msTime += ((curTv.tv_usec - startTv.tv_usec) / 1000);
     float totalTime = (((float)msTime)/1000);
-    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %2.3fs (%2.1f%%) in dll, %2.3fs (%2.1f%%) outside dll\n", i_myTcount, dllTime, ((dllTime/(totalTime))*100), otherTime, ((otherTime/(totalTime))*100));
+    float dllPercent = (dllTime/totalTime)*100;
+    float outsidePercent = (outsideTime/totalTime)*100;
+    float lostTime = totalTime - (dllTime + outsideTime);
+    float lostPercent = 100 - (dllPercent + outsidePercent);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %2.3fs (%2.1f%%) in dll, %2.3fs (%2.1f%%) outside dll, %2.3fs (%2.1f%%) lost\n", i_myTcount, dllTime, dllPercent, outsideTime, outsidePercent, lostTime, lostPercent);
     debugFunctionOuput(outstr);
   }
 };
