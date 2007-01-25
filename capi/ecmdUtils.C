@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <fstream>
+#include <sys/time.h>
 
 #include <ecmdUtils.H>
 #include <ecmdSharedUtils.H>
@@ -85,6 +86,8 @@ typedef enum {
 #ifndef ECMD_STRIP_DEBUG
 char frontFPPTxt[40]; //@01c Bumped from 35 to 40 (max str len = 37)
 extern int  fppCallCount;
+extern int ecmdClientDebug;
+extern bool ecmdDebugOutput;
 #endif
 
 
@@ -102,6 +105,8 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
  @param i_tabStop Any additional spacing that should be done in display (ie "  \t")
 */
 void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
+
+void debugFunctionOuput(const char* outbuf);
 #endif
 
 #ifndef FIPSODE
@@ -114,11 +119,6 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
 #ifdef FIPSODE
 tracDesc_t g_ptrc=0; /** Procedure Trace Descriptor **/
 TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-/* This is from ecmdClientCapi.C */
-extern int ecmdClientDebug;
 #endif
 
 //----------------------------------------------------------------------
@@ -1428,6 +1428,10 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
 /**********************************************************************************/
 void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprototypeStr, std::vector < void * > args) {
   /* declare variables */
+
+  /* If it's less than 8, nothing to do */
+  if (ecmdClientDebug < 8) return;
+
   int looper, looper2;
   std::vector<std::string> tokens;
   std::vector<std::string> parmTokens;
@@ -1454,7 +1458,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
     sprintf(frontFPPTxt,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : ",tCount);
   } else {
     printed = "ECMD DEBUG (ecmdFPP) : ERROR::ecmdFunctionParmPrinter  Invalid Enum type on function call.\n";
-    ecmdOutput(printed.c_str());
+    debugFunctionOuput(printed.c_str());
     return;
   }
 
@@ -1464,7 +1468,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
   printed += "Function prototype: ";
   printed += fprototypeStr;
   printed += "\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
 
 
@@ -1523,7 +1527,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         /* print the splat line to show it's the end of the exit */
         printed = frontFPPTxt;
         printed += "\t ***************************************\n";
-        ecmdOutput(printed.c_str());
+        debugFunctionOuput(printed.c_str());
 
         return;  /* normal return code so just exit */
       }
@@ -1533,7 +1537,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       /* print the splat line to show it's the end of the exit */
       printed = frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       return;
     }
@@ -1547,7 +1551,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
   printed = frontFPPTxt;
   printed += "\t ***************************************\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
   mysize = parmTokens.size();
 
@@ -1581,7 +1585,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         sprintf(tempIntStr,"%d",looper);
         printed += tempIntStr;
         printed += "\n";
-        ecmdOutput(printed.c_str());
+        debugFunctionOuput(printed.c_str());
 
         continue;
       }
@@ -1620,7 +1624,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       sprintf(tempIntStr,"%d",looper);
       printed += tempIntStr;
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
       continue;
     }
 
@@ -1638,7 +1642,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       sprintf(tempIntStr,"%c",*dummy);
       printed += tempIntStr;
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"const char *"))||
               (!strcmp(variableType,"const char*"))   ){
@@ -1652,7 +1656,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += " : variable name : ";
       printed += variableName[0];
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : ";
@@ -1661,7 +1665,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"std::string"))       ||
               (!strcmp(variableType,"const std::string")) ||
@@ -1681,7 +1685,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"std::list< std::string >")) ||
               (!strcmp(variableType,"std::list<std::string>"))     ) {
@@ -1689,16 +1693,16 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       std::list<std::string>* dummy = (std::list<std::string>*)(args[looper]);
 
-      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); debugFunctionOuput(tempIntStr);
       dataLooper = 0;
       for (std::list<std::string>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
-        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : std::string  = %s\n",frontFPPTxt, entit->c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string  = %s\n",frontFPPTxt, entit->c_str()); debugFunctionOuput(tempIntStr);
       }
       printed = "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
     } else if((!strcmp(variableType,"std::list<ecmdArrayEntry> &")) ||
               (!strcmp(variableType,"std::list<ecmdNameEntry> &"))  ||
               (!strcmp(variableType,"std::list<ecmdIndexEntry> &"))  ||
@@ -1713,43 +1717,43 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "placeholder for std::list dump\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
 
 
     } else if (!strcmp(variableType,"std::list<ecmdLatchEntry> &")) {
       std::list<ecmdLatchEntry>* dummy = (std::list<ecmdLatchEntry>*)(args[looper]);
 
-      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); debugFunctionOuput(tempIntStr);
       dataLooper = 0;
       for (std::list<ecmdLatchEntry>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
-        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : std::string    latchName  = %s\n",frontFPPTxt, entit->latchName.c_str()); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : std::string    ringName   = %s\n",frontFPPTxt, entit->ringName.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string    latchName  = %s\n",frontFPPTxt, entit->latchName.c_str()); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string    ringName   = %s\n",frontFPPTxt, entit->ringName.c_str()); debugFunctionOuput(tempIntStr);
         printEcmdDataBuffer("ecmdDataBuffer", "buffer", entit->buffer, "\t\t ");
-        sprintf(tempIntStr,"%s\t \t \t value : int        latchStartBit  = %d\n",frontFPPTxt, entit->latchStartBit); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : int          latchEndBit  = %d\n",frontFPPTxt, entit->latchEndBit); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : uint32_t              rc  = %X\n",frontFPPTxt, entit->rc); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : int        latchStartBit  = %d\n",frontFPPTxt, entit->latchStartBit); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : int          latchEndBit  = %d\n",frontFPPTxt, entit->latchEndBit); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : uint32_t              rc  = %X\n",frontFPPTxt, entit->rc); debugFunctionOuput(tempIntStr);
       }
 
       printed = "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if (!strcmp(variableType,"std::list<ecmdLatchData> &")) {
       std::list<ecmdLatchData>* dummy = (std::list<ecmdLatchData>*)(args[looper]);
 
-      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); debugFunctionOuput(tempIntStr);
       dataLooper = 0;
       for (std::list<ecmdLatchData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
-        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string       latchName  = %s\n",frontFPPTxt, entit->latchName.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string       latchName  = %s\n",frontFPPTxt, entit->latchName.c_str()); debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string        ringName  = %s\n",frontFPPTxt, entit->ringName.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string        ringName  = %s\n",frontFPPTxt, entit->ringName.c_str()); debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL          isCoreRelated  = ",frontFPPTxt);
         if(entit->isCoreRelated) {
@@ -1757,9 +1761,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState  = ",frontFPPTxt); 
         if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
@@ -1773,24 +1777,24 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
       }
 
       printed = "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if (!strcmp(variableType,"std::list<ecmdSpyData> &")) {
       std::list<ecmdSpyData>* dummy = (std::list<ecmdSpyData>*)(args[looper]);
 
-      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); debugFunctionOuput(tempIntStr);
       dataLooper = 0;
       for (std::list<ecmdSpyData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
-        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : std::string     spyName  = %s\n",frontFPPTxt, entit->spyName.c_str()); ecmdOutput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : int           bitLength  = %d\n",frontFPPTxt, entit->bitLength); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string     spyName  = %s\n",frontFPPTxt, entit->spyName.c_str()); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : int           bitLength  = %d\n",frontFPPTxt, entit->bitLength); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : ecmdSpyType_t   spyType  = ",frontFPPTxt); 
         if(entit->spyType == ECMD_SPYTYPE_ALIAS) {
@@ -1804,7 +1808,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"ERROR Unkown ecmdSpyType_t value\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL       isEccChecked  = ",frontFPPTxt);
         if(entit->isEccChecked) {
@@ -1812,7 +1816,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL       isEnumerated  = ",frontFPPTxt);
         if(entit->isEnumerated) {
@@ -1820,7 +1824,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL      isCoreRelated  = ",frontFPPTxt);
         if(entit->isCoreRelated) {
@@ -1828,9 +1832,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState  = ",frontFPPTxt); 
         if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
@@ -1844,23 +1848,23 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         std::list<std::string >::iterator enumIt;
-        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> enums = \n",frontFPPTxt); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> enums = \n",frontFPPTxt); debugFunctionOuput(tempIntStr);
         int enumLooper=0;
         for (enumIt = entit->enums.begin(); enumIt != entit->enums.end(); enumIt++) {
           sprintf(tempIntStr,"%s\t \t \t \t entry : %d\t = %s\n",frontFPPTxt, enumLooper++, enumIt->c_str());
-          ecmdOutput(tempIntStr);
+          debugFunctionOuput(tempIntStr);
         }
 
         std::list<std::string >::iterator epCheckersIt;
         sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> epCheckers = \n",frontFPPTxt);
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
         int epcLooper=0;
         for (epCheckersIt = entit->epCheckers.begin(); epCheckersIt != entit->epCheckers.end(); epCheckersIt++) {
           sprintf(tempIntStr,"%s\t \t \t \t entry : %d\t = %s\n",frontFPPTxt, epcLooper++, epCheckersIt->c_str());
-          ecmdOutput(tempIntStr);
+          debugFunctionOuput(tempIntStr);
         }
 
       }
@@ -1868,17 +1872,17 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed = "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if (!strcmp(variableType,"std::list<ecmdScomData> &")) {
       std::list<ecmdScomData>* dummy = (std::list<ecmdScomData>*)(args[looper]);
 
-      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); debugFunctionOuput(tempIntStr);
       dataLooper = 0;
       for (std::list<ecmdScomData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
-        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
         sprintf(tempIntStr,"%s\t \t \t value : uint32_t           address  = 0x%X\n",frontFPPTxt, entit->address);
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL         isCoreRelated  = ",frontFPPTxt);
         if(entit->isCoreRelated) {
@@ -1886,10 +1890,10 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState = ",frontFPPTxt); 
         if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
@@ -1903,34 +1907,34 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
       }
 
       printed = "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if (!strcmp(variableType,"std::list<ecmdRingData> &")) {
       std::list<ecmdRingData>* dummy = (std::list<ecmdRingData>*)(args[looper]);
 
-      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); ecmdOutput(tempIntStr);
+      sprintf(tempIntStr, "%s\t type : %s : variable name : %s\n",frontFPPTxt, variableType, variableName[0].c_str()); debugFunctionOuput(tempIntStr);
       dataLooper = 0;
       for (std::list<ecmdRingData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
-        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
 
         std::list<std::string >::iterator ringNamesIt;
-        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> ringNames = \n",frontFPPTxt); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::list<std::string> ringNames = \n",frontFPPTxt); debugFunctionOuput(tempIntStr);
         int ringNamesLooper=0;
         for (ringNamesIt = entit->ringNames.begin(); ringNamesIt != entit->ringNames.end(); ringNamesIt++) {
           sprintf(tempIntStr,"%s\t \t \t \t entry : %d\t = %s\n",frontFPPTxt, ringNamesLooper++, ringNamesIt->c_str());
-          ecmdOutput(tempIntStr);
+          debugFunctionOuput(tempIntStr);
         }
 
         sprintf(tempIntStr,"%s\t \t \t value : uint32_t            address  = 0x%X\n",frontFPPTxt, entit->address);
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL       hasInversionMask  = ",frontFPPTxt);
         if(entit->hasInversionMask) {
@@ -1938,7 +1942,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL  supportsBroadsideLoad  = ",frontFPPTxt);
         if(entit->supportsBroadsideLoad) {
@@ -1946,7 +1950,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL            isCheckable  = ",frontFPPTxt);
@@ -1955,7 +1959,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL          isCoreRelated  = ",frontFPPTxt);
         if(entit->isCoreRelated) {
@@ -1963,9 +1967,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); ecmdOutput(tempIntStr);
+        sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : ecmdClockState_t clockState  = ",frontFPPTxt); 
         if(entit->clockState == ECMD_CLOCKSTATE_UNKNOWN) {
@@ -1979,14 +1983,14 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         } else {
           strcat(tempIntStr,"ERROR Unkown ecmdClockState_t value\n");
         }
-        ecmdOutput(tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
       }
 
       printed = "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
 
 
@@ -2002,7 +2006,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "placeholder for std::vector dump\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if(!strcmp(variableType,"uint32_t") ||
               !strcmp(variableType,"uint32_t &") ||
@@ -2032,7 +2036,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         return;
       }
 
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if(!strcmp(variableType,"uint64_t")) {
       /* uint64_t */
@@ -2053,7 +2057,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"ecmdDllType_t"))           ||
               (!strcmp(variableType,"ecmdDllProduct_t"))        ||
@@ -2085,7 +2089,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if(!strcmp(variableType,"int *")) {
       /* int * */
@@ -2103,7 +2107,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if(!strcmp(variableType,"bool")) {
       /* bool */
@@ -2126,7 +2130,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if(!strcmp(variableType,"char**")) {
       /* char** */
@@ -2142,7 +2146,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
 
     } else if((!strcmp(variableType,"ecmdGroupData &"))  ||
@@ -2175,7 +2179,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "placeholder for structure dump\n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"ecmdQueryData &")) ||
               (!strcmp(variableType,"ecmdQueryData&"))    ) {
@@ -2189,7 +2193,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += " : variable name : ";
       printed += variableName[0];
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       std::list<ecmdCageData>::iterator ecmdCurCage;
       std::list<ecmdNodeData>::iterator ecmdCurNode;
@@ -2200,25 +2204,25 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       char buf[100];
       if (dummy->cageData.empty()) {
         printed = frontFPPTxt;
-        printed += "\t \t value = EMPTY\n"; ecmdOutput(printed.c_str());
+        printed += "\t \t value = EMPTY\n"; debugFunctionOuput(printed.c_str());
       } else {
 
         for (ecmdCurCage = dummy->cageData.begin(); ecmdCurCage != dummy->cageData.end(); ecmdCurCage ++) {
-          sprintf(buf,"%s\t \t k%d\n",frontFPPTxt, ecmdCurCage->cageId); ecmdOutput(buf);
+          sprintf(buf,"%s\t \t k%d\n",frontFPPTxt, ecmdCurCage->cageId); debugFunctionOuput(buf);
           for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
-            sprintf(buf,"%s\t \t   n%d\n",frontFPPTxt, ecmdCurNode->nodeId); ecmdOutput(buf);
+            sprintf(buf,"%s\t \t   n%d\n",frontFPPTxt, ecmdCurNode->nodeId); debugFunctionOuput(buf);
 
             for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
-              sprintf(buf,"%s\t \t     s%d\n",frontFPPTxt, ecmdCurSlot->slotId); ecmdOutput(buf);
+              sprintf(buf,"%s\t \t     s%d\n",frontFPPTxt, ecmdCurSlot->slotId); debugFunctionOuput(buf);
 
               for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
-                sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); ecmdOutput(buf);
+                sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); debugFunctionOuput(buf);
 
                 for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                  sprintf(buf,"%s\t \t         c%d\n",frontFPPTxt, ecmdCurCore->coreId); ecmdOutput(buf);
+                  sprintf(buf,"%s\t \t         c%d\n",frontFPPTxt, ecmdCurCore->coreId); debugFunctionOuput(buf);
 
                   for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
-                    sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); ecmdOutput(buf);
+                    sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); debugFunctionOuput(buf);
                   } /* curThreadIter */
 
                 } /* curCoreIter */
@@ -2233,7 +2237,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       }
       printed = frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"ecmdDataBuffer &")) ||
               (!strcmp(variableType,"ecmdDataBuffer&"))    ) {
@@ -2285,7 +2289,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += " : variable name : ";
       printed += variableName[0];
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    cage     = ";
@@ -2293,7 +2297,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += tempIntStr;
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->cageState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    node     = ";
@@ -2305,7 +2309,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       }
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->nodeState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    slot     = ";
@@ -2317,14 +2321,14 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       }
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->slotState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : std::string chiptype = ";
       printed += dummy->chipType.c_str();
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->chipTypeState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    pos      = ";
@@ -2332,7 +2336,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += tempIntStr;
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->posState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    core     = ";
@@ -2340,7 +2344,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += tempIntStr;
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->coreState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    thread   = ";
@@ -2348,7 +2352,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += tempIntStr;
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->threadState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    unitId   = ";
@@ -2356,12 +2360,12 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += tempIntStr;
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->unitIdState);
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
 
       printed = frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"ecmdDllInfo &")) ||
               (!strcmp(variableType,"ecmdDllInfo&"))    ) {
@@ -2391,8 +2395,6 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       if (dummy->dllType == ECMD_DLL_STUB)
         printed += "Stub\n";
-      else if (dummy->dllType == ECMD_DLL_STUB)
-        printed += "Stub\n";
       else if (dummy->dllType == ECMD_DLL_CRONUS)
         printed += "Cronus\n";
       else if (dummy->dllType == ECMD_DLL_IPSERIES)
@@ -2404,7 +2406,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       else 
         printed += "Unknown\n";
 
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
 
       printed = frontFPPTxt;
@@ -2414,7 +2416,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         printed += "Eclipz\n";
       else
         printed += "Unknown\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
 
       printed = frontFPPTxt;
@@ -2423,21 +2425,21 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         printed += "Hardware\n";
       else
         printed += "Simulation\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : std::string           dllBuildDate = ";
       //      printed += "strings not working yet";
       printed += dummy->dllBuildDate.c_str();
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : std::string           dllCapiVersion = ";
       //      printed += "strings not working yet";
       printed += dummy->dllCapiVersion.c_str();
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : std::string           dllBuildInfo = ";
@@ -2445,11 +2447,11 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       //      printed += "strings not working yet";
 
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
       /*#endif*/
 
     } else {
@@ -2458,37 +2460,22 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += " \n";
       printed += frontFPPTxt;
       printed += "\t ***************************************\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
     }    
 
   }
   printed = frontFPPTxt;
   printed += "*********************************************************************************\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
   printed = frontFPPTxt;
   printed += "*********************************************************************************\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
 }
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
 std::string printEcmdChipTargetState_t(ecmdChipTargetState_t i_state) {
-
-/***
-typedef enum {
-  ECMD_TARGET_UNKNOWN_STATE,    ///< State field has not been initialized
-
-  ECMD_TARGET_FIELD_VALID,      ///< Associated State Field is valid for this function
-  ECMD_TARGET_FIELD_UNUSED,     ///< Associated State Field is unused for this function
-
-  ECMD_TARGET_QUERY_FIELD_VALID,///< Associated State Field is valid for the query
-  ECMD_TARGET_QUERY_WILDCARD,   ///< Associated State Field should be itterated on and all valid results returned
-  ECMD_TARGET_QUERY_IGNORE,     ///< Query should be limited to data above this field, ignoring data 
-
-  ECMD_TARGET_THREAD_ALIVE      ///< Used when calling thread dependent functions tell the function to check for the thread to be alive before running
-} ecmdChipTargetState_t;
-***/
 
   if (i_state == ECMD_TARGET_UNKNOWN_STATE ) {
     return "ECMD_TARGET_UNKNOWN_STATE\n";
@@ -2519,35 +2506,35 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
   printed += " : variable name : ";
   printed += variableName;
   printed += "\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
   printed = frontFPPTxt;
   printed += "\t \t "+tabStop+"value : int    iv_Capacity = ";
   sprintf(tempIntStr,"%d",i_data.getCapacity());
   printed += tempIntStr;
   printed += "\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
   printed = frontFPPTxt;
   printed += "\t \t "+tabStop+"value : int    iv_NumWords = ";
   sprintf(tempIntStr,"%d",i_data.getWordLength());
   printed += tempIntStr;
   printed += "\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
   printed = frontFPPTxt;
   printed += "\t \t "+tabStop+"value : int    iv_NumBits  = ";
   sprintf(tempIntStr,"%d",i_data.getBitLength());
   printed += tempIntStr;
   printed += "\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
   if(i_data.getBitLength() == 0) {
     printed = frontFPPTxt;
     printed += "\t \t "+tabStop+"value : uint32_t[] iv_Data =\n";
     printed += frontFPPTxt;
     printed += "\t "+tabStop+"***************************************\n";
-    ecmdOutput(printed.c_str());
+    debugFunctionOuput(printed.c_str());
     return;
   }
 
@@ -2558,13 +2545,13 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
       printed += "\t \t "+tabStop+"value : XSTATE iv_DataStr  = ";
       printed += i_data.genXstateStr(0, 64 < i_data.getBitLength() ? 64 : i_data.getBitLength());
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
     } else {
       printed = frontFPPTxt;
       printed += "\t \t "+tabStop+"value : XSTATE iv_DataStr  = ";
       printed += i_data.genXstateStr();
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
     }
   } else {
 #endif /* REMOVE_SIM */
@@ -2573,7 +2560,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
       printed += "\t \t "+tabStop+"value : uint32_t[] iv_Data = ";
       printed += i_data.genHexLeftStr(0, 64 < i_data.getBitLength() ? 64 : i_data.getBitLength());
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
     } else {
 
       char tbuf[10];
@@ -2581,7 +2568,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
       printed += "\t \t "+tabStop+"value : uint32_t[] iv_Data = ";
 
       if (i_data.getWordLength() > 4) {
-        printed += "\n"; ecmdOutput(printed.c_str());
+        printed += "\n"; debugFunctionOuput(printed.c_str());
         printed = frontFPPTxt;
         printed += "\t \t \t\t"+tabStop+"";
       }
@@ -2589,7 +2576,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
       for (dataLooper = 0; (uint32_t) dataLooper < i_data.getWordLength(); dataLooper ++) {
         if (!(dataLooper % 4) && (dataLooper != 0)) {
           printed += "\n";
-          ecmdOutput(printed.c_str());
+          debugFunctionOuput(printed.c_str());
           printed = frontFPPTxt;
           printed += "\t \t \t\t"+tabStop+"";
         }
@@ -2597,7 +2584,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
         printed += tbuf;
       }
       printed += "\n";
-      ecmdOutput(printed.c_str());
+      debugFunctionOuput(printed.c_str());
 
     }
 #ifndef REMOVE_SIM
@@ -2605,14 +2592,64 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
 #endif
   printed = frontFPPTxt;
   printed += "\t "+tabStop+"***************************************\n";
-  ecmdOutput(printed.c_str());
+  debugFunctionOuput(printed.c_str());
 
   return ;
 }
 #endif /* strip_debug */
 
+#ifndef ECMD_STRIP_DEBUG
+void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char * i_funcName) {
 
+  if (ecmdClientDebug < 5) return;
 
+  uint32_t msTime;
+  static timeval prevTv;
+  static timeval curTv;
+  static timeval startTv;
+  static float otherTime = 0;
+  static float dllTime = 0;
+  char outstr[200];
+
+  /* Update the current timer */
+  gettimeofday(&curTv, NULL);
+
+  /* Calculate elapsed time */
+  msTime = (curTv.tv_sec - prevTv.tv_sec) * 1000;
+  msTime += ((curTv.tv_usec - prevTv.tv_usec) / 1000);
+
+  /* Save it for next time */
+  prevTv = curTv;
+
+  if (i_timerState == ECMD_TMR_FUNCTIONIN) {
+    otherTime += (((float)msTime)/1000);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : ENTER(%03d) : %dms before %s\n", i_myTcount, msTime, i_funcName);
+    debugFunctionOuput(outstr);
+  } else if (i_timerState == ECMD_TMR_FUNCTIONOUT) {
+    dllTime += (((float)msTime)/1000);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %dms spent in %s\n", i_myTcount, msTime, i_funcName);
+    debugFunctionOuput(outstr);
+  } else if (i_timerState == ECMD_TMR_LOADDLL) {
+    startTv = curTv;
+  } else if (i_timerState == ECMD_TMR_UNLOADDLL) {
+    msTime = (curTv.tv_sec - startTv.tv_sec) * 1000;
+    msTime += ((curTv.tv_usec - startTv.tv_usec) / 1000);
+    float totalTime = (((float)msTime)/1000);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : EXIT (%03d) : %2.3fs (%2.1f%%) in dll, %2.3fs (%2.1f%%) outside dll\n", i_myTcount, dllTime, ((dllTime/(totalTime))*100), otherTime, ((otherTime/(totalTime))*100));
+    debugFunctionOuput(outstr);
+  }
+};
+#endif /* strip_debug */
+
+#ifndef ECMD_STRIP_DEBUG
+void debugFunctionOuput(const char* outbuf) {
+  if (ecmdDebugOutput) {
+    ecmdOutput(outbuf);
+  } else {
+    printf(outbuf);
+  }
+}
+#endif /* strip_debug */
 
 /**
  @brief Registers an extensions initstate pointer defect #18081
