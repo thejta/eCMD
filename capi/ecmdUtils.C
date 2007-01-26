@@ -2658,7 +2658,15 @@ void ecmdFunctionTimer(int32_t &i_myTcount, etmrInOut_t i_timerState, const char
     float outsidePercent = (outsideTime/totalTime)*100;
     float lostTime = totalTime - (dllTime + outsideTime);
     float lostPercent = 100 - (dllPercent + outsidePercent);
-    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : %2.3fs (%2.1f%%) in dll, %2.3fs (%2.1f%%) outside dll, %2.3fs (%2.1f%%) lost\n", i_myTcount, dllTime, dllPercent, outsideTime, outsidePercent, lostTime, lostPercent);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : ***************************************\n", i_myTcount);
+    debugFunctionOuput(outstr);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : Total time DLL Loaded:  %3.3fs\n", i_myTcount, totalTime);
+    debugFunctionOuput(outstr);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : Time spent in DLL:      %3.3fs (%2.2f%%)\n", i_myTcount, dllTime, dllPercent);
+    debugFunctionOuput(outstr);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : Time spent outside DLL: %3.3fs (%2.2f%%)\n", i_myTcount, outsideTime, outsidePercent);
+    debugFunctionOuput(outstr);
+    sprintf(outstr,"ECMD DEBUG (ecmdTMR) : FINAL(%03d) : Time unaccounted for:   %3.3fs (%2.2f%%)\n", i_myTcount, lostTime, lostPercent);
     debugFunctionOuput(outstr);
   }
 };
