@@ -141,21 +141,22 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
 
 uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t length;
 
-
+  /* We no longer error out on length problems, we just apply for the length of the io_data, with the understanding data past the end is lost */
+  /* STGC00108031 - JTA 01/30/07 */
   if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
-    char buf[200];
-    sprintf(buf,"ecmdApplyDataModifier - startbit + numbits (%d) > data length (%d), buffer overflow!\n",i_startbit + i_newData.getBitLength(), io_data.getBitLength());
-    ecmdOutputError(buf);
-    return ECMD_INVALID_ARGS;
+    length = io_data.getBitLength() - i_startbit;
+  } else {
+    length = i_newData.getBitLength();
   }
 
   if (i_modifier == "insert") {
-    io_data.insert(i_newData, i_startbit, i_newData.getBitLength());
+    io_data.insert(i_newData, i_startbit, length);
   } else if (i_modifier == "and") {
-    io_data.setAnd(i_newData, i_startbit, i_newData.getBitLength());
+    io_data.setAnd(i_newData, i_startbit, length);
   } else if (i_modifier == "or") {
-    io_data.setOr(i_newData, i_startbit, i_newData.getBitLength());
+    io_data.setOr(i_newData, i_startbit, length);
   } else {
     ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier + "\n").c_str());
     return ECMD_INVALID_ARGS;
