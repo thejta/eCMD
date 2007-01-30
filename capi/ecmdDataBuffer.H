@@ -363,6 +363,9 @@ public:
    * @param i_value 32 bits of data to put into word
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_wordoffset is not contained in the size of this buffer
+   *
+   * NOTE : If the buffer length != word boundary, when setting the last word 
+   *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
   uint32_t  setWord(uint32_t i_wordoffset, uint32_t i_value);
 
@@ -379,6 +382,9 @@ public:
    * @param i_value 8 bits of data to put into byte
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_byteoffset is not contained in the size of this buffer
+   *
+   * NOTE : If the buffer length != byte boundary, when setting the last byte 
+   *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
   uint32_t  setByte(uint32_t i_byteoffset, uint8_t i_value);
 
@@ -397,6 +403,9 @@ public:
    * @param i_value 16 bits of data to put into halfword
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_halfwordoffset is not contained in the size of this buffer
+   *
+   * NOTE : If the buffer length != half word boundary, when setting the last half word 
+   *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
   uint32_t  setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value);
 
@@ -413,6 +422,9 @@ public:
    * @param i_value 64 bits of data to put into doubleword
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_doublewordoffset is not contained in the size of this buffer
+   *
+   * NOTE : If the buffer length != double word boundary, when setting the last double word 
+   *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
   uint32_t  setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value);
 
