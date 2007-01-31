@@ -447,7 +447,9 @@ port(0),
 slaveaddress(0),
 byteOffset(0),
 offsetFieldSize(0),
-readByteLength(0)
+readByteLength(0),                           //fix beam error
+busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
+ecmdI2CCmd(ECMD_I2C_UNKNOWN)                 //fix beam error
 {
 }
 
