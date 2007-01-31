@@ -408,7 +408,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   bool allFound;
   bool naFound;
   int match;
-  int num;
+  int num=0;        //fix beam error
 
   /* Tokenize my string on colon */
   ecmdParseTokens(i_targetStr, ":", tokens);
