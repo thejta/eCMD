@@ -143,10 +143,17 @@ uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_new
   uint32_t rc = ECMD_SUCCESS;
   uint32_t length;
 
-  /* We no longer error out on length problems, we just apply for the length of the io_data, with the understanding data past the end is lost */
-  /* STGC00108031 - JTA 01/30/07 */
+  /* We no longer just error out on length problems, let's try and be smart about it */
+  /* STGC00108031 - JTA 01/31/07 */
   if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
     length = io_data.getBitLength() - i_startbit;
+    /* If there are bits on past the length, let's error.  Otherwise, let it through */
+    if (i_newData.isBitSet((i_startbit + length), (i_newData.getBitLength() - (i_startbit+length)))) {
+      char buf[200];	     
+      sprintf(buf,"ecmdApplyDataModifier - There are bits set past on the input data(%d) past the length of the destination data(%d)!\n", i_newData.getBitLength(), io_data.getBitLength());
+      ecmdOutput(buf);
+      return ECMD_INVALID_ARGS;
+    }
   } else {
     length = i_newData.getBitLength();
   }

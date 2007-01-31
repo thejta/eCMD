@@ -268,10 +268,16 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
   if (rc) return rc;
   
   while ( ecmdConfigLooperNext(target, looperdata) ) {
+
+
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+
+      continue;
 
     rc = ecmdBiasVoltage(target, voltageLevel, voltageType, biasValue, waitState);
     
