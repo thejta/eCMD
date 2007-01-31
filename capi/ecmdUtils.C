@@ -1365,8 +1365,8 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
   
   
   std::string curLine;
-  uint32_t beginPtr;
-  uint32_t beginLen;
+  uint32_t beginPtr=0;        //fix beam error
+  uint32_t beginLen=0;        //fix beam error
 
   bool done = false; 
   std::vector<std::string> curArgs(4);
