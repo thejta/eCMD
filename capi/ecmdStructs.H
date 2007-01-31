@@ -442,14 +442,14 @@ struct ecmdI2CCmdEntry {
 #ifndef DOCUMENTATION
 // ecmdI2CCmdEntry Constructor
 inline ecmdI2CCmdEntry::ecmdI2CCmdEntry():
+ecmdI2CCmd(ECMD_I2C_UNKNOWN),                //fix beam error
 engineId(0),
 port(0),
 slaveaddress(0),
+busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
 byteOffset(0),
 offsetFieldSize(0),
-readByteLength(0),                           //fix beam error
-busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
-ecmdI2CCmd(ECMD_I2C_UNKNOWN)                 //fix beam error
+readByteLength(0)                            //fix beam error
 {
 }
 
