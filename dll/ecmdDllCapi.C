@@ -410,22 +410,22 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   if ((i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD) || (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL)) {
     /* If they specified -all, we do the lowest depth, like normal */
     if (!ecmdUserArgs.allTargetSpecified) {
-      if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.thread == "")) {
+      if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (i_target.threadState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.thread == "")) {
         i_target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        if ((i_target.coreState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.core == "")) {
+        if ((i_target.coreState == ECMD_TARGET_FIELD_UNUSED) || (i_target.coreState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.core == "")) {
           i_target.coreState = ECMD_TARGET_FIELD_UNUSED;
 
-          if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.pos == "")) {
+          if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (i_target.posState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.pos == "")) {
             i_target.posState = ECMD_TARGET_FIELD_UNUSED;
 
-            if ((i_target.slotState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.slot == "")) {
+            if ((i_target.slotState == ECMD_TARGET_FIELD_UNUSED) || (i_target.slotState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.slot == "")) {
               i_target.slotState = ECMD_TARGET_FIELD_UNUSED;
 
-              if ((i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.node == "")) {
+              if ((i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) || (i_target.nodeState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.node == "")) {
                 i_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
-                if ((i_target.cageState == ECMD_TARGET_FIELD_UNUSED) || (ecmdUserArgs.cage == "")) {
+                if ((i_target.cageState == ECMD_TARGET_FIELD_UNUSED) || (i_target.cageState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.cage == "")) {
                   i_target.cageState = ECMD_TARGET_FIELD_UNUSED;
 
 
