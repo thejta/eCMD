@@ -95,13 +95,24 @@ if ($ARGV[0] eq "ecmd") {
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
 
-    # Maintain the remove_sim ifdef's
-    if (/REMOVE_SIM/) {
+    # Maintain the remove_sim and other ifdef's
+    if (/REMOVE_SIM/ || 
+        /ECMD_REMOVE_LATCH_FUNCTIONS/ ||
+        /ECMD_REMOVE_SPY_FUNCTIONS/ || 
+        /ECMD_REMOVE_ARRAY_FUNCTIONS/ ||
+        /ECMD_REMOVE_CLOCK_FUNCTIONS/ ||
+        /ECMD_REMOVE_REFCLOCK_FUNCTIONS/ ||
+        /ECMD_REMOVE_TRACEARRAY_FUNCTIONS/ ||
+        /ECMD_REMOVE_MEMORY_FUNCTIONS/ ||
+        /ECMD_REMOVE_VPD_FUNCTIONS/ ||
+        /ECMD_REMOVE_I2C_FUNCTIONS/ ||
+        /ECMD_REMOVE_GPIO_FUNCTIONS/ ||
+        /ECMD_REMOVE_POWER_FUNCTIONS/ ||
+        /ECMD_REMOVE_ADAL_FUNCTIONS/ ) {
       print OUT $_;
       $printout .= $_;
 
     } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
-	
 
 	next if (/$ignore_re/o);
 

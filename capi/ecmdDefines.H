@@ -43,6 +43,43 @@
 //#define DOCUMENTATION
 
 
+/* Removes Latch interfaces from api and cmdline code */
+//#define ECMD_REMOVE_LATCH_FUNCTIONS
+
+/* Removes Spy  interfaces from api and cmdline code */
+//#define ECMD_REMOVE_SPY_FUNCTIONS
+
+/* Removes Array interfaces from api and cmdline code */
+//#define ECMD_REMOVE_ARRAY_FUNCTIONS
+
+/* Removes Clock interfaces from api and cmdline code */
+//#define ECMD_REMOVE_CLOCK_FUNCTIONS
+
+/* Removes RefClock interfaces from api and cmdline code */
+//#define ECMD_REMOVE_REFCLOCK_FUNCTIONS
+
+/* Removes Trace Array interfaces from api and cmdline code */
+//#define ECMD_REMOVE_TRACEARRAY_FUNCTIONS
+
+/* Removes Memory interfaces from api and cmdline code */
+//#define ECMD_REMOVE_MEMORY_FUNCTIONS
+
+/* Removes VPD interfaces from api and cmdline code */
+//#define ECMD_REMOVE_VPD_FUNCTIONS
+
+/* Removes I2C interfaces from api and cmdline code */
+//#define ECMD_REMOVE_I2C_FUNCTIONS
+
+/* Removes GPIO interfaces from api and cmdline code */
+//#define ECMD_REMOVE_GPIO_FUNCTIONS
+
+/* Removes Power interfaces from api and cmdline code */
+//#define ECMD_REMOVE_POWER_FUNCTIONS
+
+/* Removes Adal interfaces from api and cmdline code */
+//#define ECMD_REMOVE_ADAL_FUNCTIONS
+
+
 
 
 
