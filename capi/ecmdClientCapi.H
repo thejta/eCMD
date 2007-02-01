@@ -227,7 +227,7 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
  @brief Query Latch information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -249,7 +249,8 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+#ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
 /**
  @brief Query Array information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -266,7 +267,8 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-
+#endif // ECMD_REMOVE_ARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
 /**
  @brief Query Spy information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -283,6 +285,7 @@ uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+#endif // ECMD_REMOVE_SPY_FUNCTIONS
 
 /**
  @brief Query Scom information from the DLL
@@ -300,6 +303,7 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
+#ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
  @brief Query Trace Array information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -315,6 +319,7 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+#endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
 /**
  @brief Query the location of a specific file type for the selected target
@@ -398,6 +403,7 @@ uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
 */
 uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
  @brief Reads the selected spy into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -447,7 +453,7 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
 
 */
 uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
-
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 /**
  @brief Scans the specified number of bits from the selected chip and ring address into the data buffer
@@ -633,7 +639,7 @@ uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
 
 /** @name Spy Functions */
 //@{
-
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
 /**
  @brief Reads the selected spy into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -759,7 +765,7 @@ uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuff
 
 */
 uint32_t putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
-
+#endif // ECMD_REMOVE_SPY_FUNCTIONS
 //@}
 
 
@@ -827,7 +833,7 @@ bool      ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
 
 /** @name Array Functions */
 //@{
-
+#ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
 /**
  @brief Reads bits from the selected array into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -927,14 +933,14 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
 
 */
 uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
-
+#endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 //@}
 
 
 
 /** @name Clock Functions */
 //@{
-
+#ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 /**
  @brief Query the state of the clocks for a domain
  @retval ECMD_SUCCESS if successful
@@ -994,7 +1000,8 @@ uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, boo
 
 */
 uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
-
+#endif // ECMD_REMOVE_CLOCK_FUNCTIONS
+#ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 /**
  @brief Read a current system clock speed
  @param i_target Struct that contains chip and cage information
@@ -1041,7 +1048,7 @@ uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ui
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
-
+#endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 //@}
 
 
@@ -1490,7 +1497,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 
 /** @name Trace Array Functions */
 //@{
-
+#ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
  @brief Dump all entries of specified trace array
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -1526,14 +1533,14 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
 
 */
 uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
-
+#endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 //@}
 
 
 
 /** @name Memory Functions */
 //@{
-
+#ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
 /**
  @brief Reads System Mainstore through the processor chip using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
@@ -1663,7 +1670,7 @@ uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
-
+#endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 //@}
 /* End Memory Functions */
 
@@ -2465,7 +2472,7 @@ uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_n
 
 /** @name Module VPD Functions */
 //@{
-
+#ifndef ECMD_REMOVE_VPD_FUNCTIONS
 /**
  @brief Read Module VPD Keyword Interface
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -2533,12 +2540,12 @@ uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
 
 */
 uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
-
+#endif // ECMD_REMOVE_VPD_FUNCTIONS
 //@}
 
 /** @name FRU VPD Functions */
 //@{
-
+#ifndef ECMD_REMOVE_VPD_FUNCTIONS
 /**
  @brief Read Fru VPD Keyword Interface
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -2606,12 +2613,14 @@ uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuf
 
 */
 uint32_t putFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
-
+#endif // ECMD_REMOVE_VPD_FUNCTIONS
 //@}
 
 
 /** @name I2C Functions */
 //@{
+#ifndef ECMD_REMOVE_I2C_FUNCTIONS
+
 /**
  @brief Resets the specified engine port
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -2729,11 +2738,12 @@ uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & io_cmdsEntries);
-
+#endif /* ifndef ECMD_REMOVE_I2C_FUNCTIONS (this comment has to be here for makedll.pl to work */
 //@}
 
 /** @name GPIO Functions */
 //@{
+#ifndef ECMD_REMOVE_GPIO_FUNCTIONS
 /**
  @brief Configures mode of pin
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -2883,11 +2893,12 @@ uint32_t ecmdGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engi
 
 */
 uint32_t ecmdGpioWriteConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioWriteMode_t i_mode, uint32_t i_configReg, uint32_t i_value);
-
+#endif // ECMD_REMOVE_GPIO_FUNCTIONS
 //@}
 
 /** @name Power Functions */
 //@{
+#ifndef ECMD_REMOVE_POWER_FUNCTIONS
 /**
  @brief Turns power on to the system
  @retval ECMD_SUCCESS if successful
@@ -2965,11 +2976,12 @@ uint32_t ecmdBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecm
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdQueryBiasState(ecmdChipTarget & i_target, uint32_t i_voltageLevel, uint32_t & o_currentVoltage, uint32_t & o_targetVoltage, uint32_t & o_timeValue);
-
+#endif // ECMD_REMOVE_POWER_FUNCTIONS
 //@}
 
 /** @name Adal Functions */
 //@{
+#ifndef ECMD_REMOVE_ADAL_FUNCTIONS
 /**
  @brief Allow the user to call adal_psi_init
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -3002,7 +3014,7 @@ uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
 
 */
 uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState);
-
+#endif // ECMD_REMOVE_ADAL_FUNCTIONS
 //@}
 
 #ifndef DOCUMENTATION
