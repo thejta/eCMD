@@ -191,8 +191,10 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
 uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
+  ecmdChipTarget vdTarget;                ///< Current target operating on
+  ecmdLooperData vdLooperData;            ///< Store internal Looper data
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   std::string printed;
   bool waitState = true;                ///< Wait for the command to finish or return immediately
@@ -220,9 +222,10 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to loop 
-  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  // Setup the target that will be used to loop 
+  // First we will do a default node level loop, and then try a slot level loop if the user specifed one
+  target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+  target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   // Get the leve the user specified
   voltageLevel = (uint32_t)atoi(argv[0]);
@@ -268,37 +271,40 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdConfigLooperNext(target, looperData) ) {
 
+    // Now try a slot level loop on this node loop
+    // Preserve the valid states from the looperNext, but reset the slot to wildcard
+    vdTarget = target;
+    vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
+    if (rc) return rc;
 
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
+    while ( ecmdConfigLooperNext(vdTarget, vdLooperData) ) {
+      rc = ecmdBiasVoltage(vdTarget, voltageLevel, voltageType, biasValue, waitState);
 
-      continue;
-
-    rc = ecmdBiasVoltage(target, voltageLevel, voltageType, biasValue, waitState);
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        continue;
+      }
+      else if (rc) {
         printed = "biasvoltage - Error occurred performing ecmdBiasVoltage on ";
-	printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(vdTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
-    }
-    else {
-      validPosFound = true;     
-    }
-    
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-    }
+      }
+      else {
+        validPosFound = true;     
+      }
 
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(vdTarget) + "\n";
+        ecmdOutput(printed.c_str());
+      }
+
+    }
   }
 
   if (!validPosFound) {

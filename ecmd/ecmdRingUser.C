@@ -2061,7 +2061,10 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   std::string printed;                          ///< Output data
   ecmdChipTarget target;
   ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdChipTarget vdTarget;
+  ecmdLooperData vdLooperData;            ///< Store internal Looper data
   std::string action;
+  bool posLoop = false;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -2095,51 +2098,53 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   }    
 
   if (argc == 1) {
-    /* First we need to do a query for variable depth specified (i.e. -nall).  */
-    /* If the looper data comes back empty, we then need to create a cageState = WILDCARD target and loop */
-    target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperData);
-    if (rc) return rc;
-
-    if (looperData.ecmdSystemConfigData.cageData.empty()) {
-      /* No valid command lines were given, so force it to loop over cages */
-      target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      target.nodeState = target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-      rc = ecmdConfigLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
-      if (rc) return rc;
-    }
+    /* We're going loop at the cage level by default, then below we'll get all variable */
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    target.nodeState = target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   } else if (argc == 2) {
+    posLoop = true;
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
-    if (rc) return rc;
-
   } else {
     ecmdOutputError("ringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("ringcache - Type 'ringcache -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
+  rc = ecmdConfigLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+
   while (ecmdConfigLooperNext(target, looperData)) {
 
-    if (action == "enable") {
-      ecmdEnableRingCache(target);
-    } else if (action == "disable") {
-      ecmdDisableRingCache(target);
-    } else if (action == "flush") {
-      ecmdFlushRingCache(target);
-    } else if (action == "query") {
-      printed = "eCMD ring cache is ";
-      if (ecmdIsRingCacheEnabled(target)) {
-        printed += "enabled";
-      } else {
-        printed += "disabled";
+    vdTarget = target;
+    // Setup the variable depth looping if not a pos level loop
+    if (!posLoop) {
+      vdTarget.cageState = vdTarget.nodeState = vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+
+    rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
+    if (rc) return rc;
+
+    while (ecmdConfigLooperNext(vdTarget, vdLooperData)) {
+
+      if (action == "enable") {
+        ecmdEnableRingCache(vdTarget);
+      } else if (action == "disable") {
+        ecmdDisableRingCache(vdTarget);
+      } else if (action == "flush") {
+        ecmdFlushRingCache(vdTarget);
+      } else if (action == "query") {
+        printed = "eCMD ring cache is ";
+        if (ecmdIsRingCacheEnabled(vdTarget)) {
+          printed += "enabled";
+        } else {
+          printed += "disabled";
+        }
+        printed += " on " + ecmdWriteTarget(vdTarget) + "\n";
+        ecmdOutput(printed.c_str());
       }
-      printed += " on " + ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
     }
   }
 
