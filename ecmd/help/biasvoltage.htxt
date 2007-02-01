@@ -5,6 +5,13 @@ Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#] [-s#]
 
         Function:       Write the biasValue to the level specified
 
+	NOTE:           biasvoltage supports varying levels of targeting, node and slot.
+                        The default level when no options are given is node (-n) level.
+                        If you specify a slot (-s), then the looping will be done on the
+                        slot level.
+                        Your plugin may not support all levels, consult your plugin.
+
+
         Parameters:
         --------------------------------------------------------------------------------
         voltageLevel    The voltage level to run against

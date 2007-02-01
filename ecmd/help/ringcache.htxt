@@ -10,8 +10,7 @@ Syntax: ringcache enable|disable|flush|query [<ChipSelect>] [-k#] [-n#] [-s#] [-
                         If you don't give a chip, it will operate on the depth you specify.
                         i.e. "ringcache enable -nall", will loop on all nodes in k0.
                         "ringcache enable -n1 -kall", will loop on n1 in all cages.
-                        If no options are given, it will operate on the entire
-                        system.. (-kall -nall -sall)
+                        If no options are given, it will operate on the cage level (-kall)
                         Your plugin may not support all levels, consult your plugin.
 
 
