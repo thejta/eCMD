@@ -54,7 +54,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef CIP_REMOVE_INSTRUCTION_FUNCTIONS
 uint32_t cipInstructUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -223,7 +223,9 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif // CIP_REMOVE_INSTRUCTION_FUNCTIONS
 
+#ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
 uint32_t cipBreakpointUser(int argc, char* argv[]){
   uint32_t rc = ECMD_SUCCESS;
 
@@ -332,7 +334,9 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   }
   return rc;
 }
+#endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
 
+#ifndef CIP_REMOVE_VR_FUNCTIONS
 uint32_t cipGetVrUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -598,7 +602,7 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif // CIP_REMOVE_VR_FUNCTIONS
 
 
 // Change Log *********************************************************

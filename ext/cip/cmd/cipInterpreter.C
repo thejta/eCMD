@@ -76,13 +76,17 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 
     switch (argv[0][3]) {
 
-	/************************/
+        /************************/
         /* The B's              */
         /************************/
       case 'b':
 
-        if (!strcmp(argv[0], "cipbreakpoint")) {
+        if (!strcmp(argv[0], "cipb")) { // stub to get 'if' at the start
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+#ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipbreakpoint")) {
           rc = cipBreakpointUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -96,8 +100,12 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'g':
 
-        if (!strcmp(argv[0], "cipgetvr")) {
+        if (!strcmp(argv[0], "cipg")) { // stub to get 'if' at the start
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+#ifndef CIP_REMOVE_VR_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipgetvr")) {
           rc = cipGetVrUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_VR_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -111,8 +119,12 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'i':
 
-        if (!strcmp(argv[0], "cipinstruct")) {
+        if (!strcmp(argv[0], "cipi")) { // stub to get 'if' at the start
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+#ifndef CIP_REMOVE_INSTRUCTION_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipinstruct")) {
           rc = cipInstructUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_INSTRUCTION_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -121,13 +133,17 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 
 
 
-	/************************/
+        /************************/
         /* The P's              */
         /************************/
       case 'p':
 
-        if (!strcmp(argv[0], "cipputvr")) {
+        if (!strcmp(argv[0], "cipp")) { // stub to get 'if' at the start
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+#ifndef CIP_REMOVE_VR_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipputvr")) {
           rc = cipPutVrUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_VR_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
