@@ -60,7 +60,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_I2C_FUNCTIONS
 uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
@@ -536,7 +536,9 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
   return rc;
 
 }
+#endif // ECMD_REMOVE_I2C_FUNCTIONS
 
+#ifndef ECMD_REMOVE_GPIO_FUNCTIONS
 uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -1286,3 +1288,5 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   }
   return rc;
 }
+#endif //ECMD_REMOVE_GPIO_FUNCTIONS
+

@@ -130,7 +130,7 @@ bool operator!= (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs)
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
@@ -469,7 +469,6 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   return rc;
 }
 
-
 uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -805,6 +804,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
@@ -1247,6 +1247,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   return rc;
 }
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -1560,6 +1561,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
@@ -2361,7 +2363,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   return rc;
 }
 
-
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch) {
   char temp[50];
   std::string printed;
@@ -2391,3 +2393,5 @@ void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStart
  
   ecmdOutput(printed.c_str());
 }
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+

@@ -201,6 +201,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ----------- */
     /* spys        */
     /* ----------- */
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
   } else if (!strcmp(argv[0], "spys")) {
 
     char eccChk = 'N';
@@ -339,12 +340,13 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
+#endif // ECMD_REMOVE_SPY_FUNCTIONS
 
 
     /* ----------- */
     /* tracearrays */
     /* ----------- */
+#ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
   } else if (!strcmp(argv[0], "tracearrays")) {
 
     char isCore='N';
@@ -444,7 +446,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
+#endif // ECMD_REMOVE_TRACE_ARRAY_FUNCTIONS
 
     /* ----------- */
     /* scoms       */
@@ -559,6 +561,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ----------- */
     /* arrays      */
     /* ----------- */
+#ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
   } else if (!strcmp(argv[0], "arrays")) {
 
     char isCore = 'N';
@@ -657,7 +660,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
+#endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 
 
     /* ---------- */
