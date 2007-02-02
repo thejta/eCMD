@@ -93,7 +93,7 @@ uint32_t dllTemplateInitExtension (const char * i_clientVersion) {
 
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdGlobal_DllDebug > 0) {
+  if (ecmdGlobal_DllDebug >= 8) {
     printf("ECMD DEBUG : TEMPLATE Client Version '%s'\n", i_clientVersion);
     printf("ECMD DEBUG : TEMPLATE Plugin Version '%s'\n", DllVersion.c_str());
   }

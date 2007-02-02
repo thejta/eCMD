@@ -136,12 +136,9 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   io_state.ecmdLoopMode = ECMD_LOOP_MODE_UNKNOWN;
 
 #ifndef ECMD_STRIP_DEBUG
-  int myTcount =0;
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
+  int myTcount = 0;
+  std::vector< void * > args;
   if (ecmdClientDebug >= 8) {
-    std::vector< void * > args;
     args.push_back((void*) &io_target);
     args.push_back((void*) &i_looptype);
     args.push_back((void*) &io_state);
@@ -237,13 +234,6 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-    std::vector< void * > args;
-    args.push_back((void*) &io_target);
-    args.push_back((void*) &i_looptype);
-    args.push_back((void*) &io_state);
-    args.push_back((void*) &i_mode);
-    args.push_back((void*) &rc);
-
     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode)",args);
   }
 
@@ -266,12 +256,11 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
 #ifndef ECMD_STRIP_DEBUG
   int myTcount=0;
+  std::vector< void * > args;
   if (ecmdClientDebug >= 8) {
-     std::vector< void * > args;
      args.push_back((void*) &io_target);
      args.push_back((void*) &io_state);
      args.push_back((void*) &rc);
-
      fppCallCount++;
      myTcount = fppCallCount;
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
@@ -292,11 +281,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       if (io_state.curUnitIdTarget == io_state.unitIdTargets.end()) {
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug >= 8) {
-          std::vector< void * > args;
-          args.push_back((void*) &io_target);
-          args.push_back((void*) &io_state);
-          args.push_back((void*) &rc);
-
           ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
         }
 #endif
@@ -325,11 +309,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug >= 8) {
-          std::vector< void * > args;
-          args.push_back((void*) &io_target);
-          args.push_back((void*) &io_state);
-          args.push_back((void*) &rc);
-
           ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
         }
 #endif
@@ -530,7 +509,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   } /* end phys/unitid if */
 
 #ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug > 1) {
+  if (ecmdClientDebug >= 8) {
     std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Found next Target : " + ecmdWriteTarget(io_target); printed += "\n";
     ecmdOutput(printed.c_str());
   }
@@ -546,11 +525,6 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   rc =1;
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug >= 8) {
-    std::vector< void * > args;
-    args.push_back((void*) &io_target);
-    args.push_back((void*) &io_state);
-    args.push_back((void*) &rc);
-
     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state)",args);
   }
 #endif

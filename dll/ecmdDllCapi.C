@@ -46,9 +46,6 @@
 #include <ecmdStructs.H>
 #include <ecmdSharedUtils.H>
 
-using namespace std;
-
-
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -269,7 +266,7 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
   ecmdGlobal_DllDebug = debugLevel;
   char printstr[128];
 
-  if (ecmdGlobal_DllDebug != 0) {
+  if (ecmdGlobal_DllDebug >= 8) {
     sprintf(printstr,"ECMD DEBUG : Client Version     '%s'\n", i_clientVersion);
     dllOutput(printstr);
     sprintf(printstr,"ECMD DEBUG : Plugin Version     '%s'\n", ECMD_CAPI_VERSION);
@@ -1958,8 +1955,8 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	latchKeyToLookFor = ecmdHashString32(latchName.c_str(), 0);
       
 	//Get Offset of the end of file
-	insh.seekg (0, ios::end); 
-	streamoff end = insh.tellg(); 
+        insh.seekg (0, std::ios::end); 
+        std::streamoff end = insh.tellg(); 
       
 	uint32_t curLKey; //LatchKey 
 	uint32_t curLOffset; //LatchOffset
@@ -1967,9 +1964,9 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	//Binary Search through the latches
 	//Index-low,mid,high
 	//Latch Section
-	streamoff low=(streamoff)(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END
-	streamoff mid=0;
-	streamoff high = end/8-1;
+        std::streamoff low=(std::streamoff)(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END
+	std::streamoff mid=0;
+	std::streamoff high = end/8-1;
 	while(low <= high) {
 	  mid = (low + high) / 2;
 	  insh.seekg ( mid*8 );
@@ -1978,12 +1975,12 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	  if(latchKeyToLookFor == curLKey) {
 	    //Goto the first occurence of this latch
 	    while(latchKeyToLookFor == curLKey) {
-	      insh.seekg(-12, ios::cur);
+              insh.seekg(-12, std::ios::cur);
 	      insh.read( (char *)& curLKey, 4);
 	      curLKey = htonl(curLKey); 
 	    }
 	    //Go back to the matching latch
-	    insh.seekg(4, ios::cur);
+            insh.seekg(4, std::ios::cur);
 	    insh.read( (char *)& curLKey, 4);
 	    curLKey = htonl(curLKey); 
 	    while(latchKeyToLookFor == curLKey) {
