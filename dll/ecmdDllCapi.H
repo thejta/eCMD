@@ -43,16 +43,24 @@ uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDat
 
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName , ecmdQueryDetail_t i_detail ); 
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName , ecmdQueryDetail_t i_detail ); 
 
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+#ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
 uint32_t dllQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName , ecmdQueryDetail_t i_detail ); 
 
+#endif // ECMD_REMOVE_ARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName , ecmdQueryDetail_t i_detail ); 
 
+#endif // ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address , ecmdQueryDetail_t i_detail ); 
 
+#ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName , ecmdQueryDetail_t i_detail ); 
 
+#endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
 bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData ); 
@@ -61,10 +69,12 @@ uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
 
 uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
 
 uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode); 
 
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllGetRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
@@ -79,6 +89,7 @@ uint32_t dllGetCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdD
 
 uint32_t dllPutCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
 
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data); 
 
 uint32_t dllGetSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue); 
@@ -91,6 +102,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBu
 
 uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 
 
+#endif // ECMD_REMOVE_SPY_FUNCTIONS
 void dllEnableRingCache(ecmdChipTarget & i_target); 
 
 uint32_t dllDisableRingCache(ecmdChipTarget & i_target); 
@@ -99,6 +111,7 @@ uint32_t dllFlushRingCache(ecmdChipTarget & i_target);
 
 bool dllIsRingCacheEnabled(ecmdChipTarget & i_target); 
 
+#ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
 uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries); 
@@ -107,18 +120,23 @@ uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDa
 
 uint32_t dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
 
+#endif // ECMD_REMOVE_ARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t dllQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState); 
 
 uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
 
 uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState ); 
 
+#endif // ECMD_REMOVE_CLOCK_FUNCTIONS
+#ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t dllGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed); 
 
 uint32_t dllSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range); 
 
 uint32_t dllSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider); 
 
+#endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t dllIStepsByNumber(ecmdDataBuffer & i_steps); 
 
 uint32_t dllIStepsByName(std::string i_stepName); 
@@ -161,10 +179,13 @@ uint32_t dllPutSlb(ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer 
 
 uint32_t dllPutSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
+#ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
 
 uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
 
+#endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
 uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
@@ -179,6 +200,7 @@ uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_
 
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
+#endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 #ifndef REMOVE_SIM
 uint32_t dllSimaet(const char* i_function); 
 
@@ -307,6 +329,7 @@ uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_targ
 
 uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num); 
 
+#ifndef ECMD_REMOVE_VPD_FUNCTIONS
 uint32_t dllGetModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data); 
@@ -315,6 +338,8 @@ uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdD
 
 uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
 
+#endif // ECMD_REMOVE_VPD_FUNCTIONS
+#ifndef ECMD_REMOVE_VPD_FUNCTIONS
 uint32_t dllGetFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data); 
@@ -323,6 +348,8 @@ uint32_t dllGetFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
 
 uint32_t dllPutFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
 
+#endif // ECMD_REMOVE_VPD_FUNCTIONS
+#ifndef ECMD_REMOVE_I2C_FUNCTIONS
 uint32_t dllI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port); 
 
 uint32_t dllI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data); 
@@ -335,6 +362,8 @@ uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
 
 uint32_t dllI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & io_cmdsEntries); 
 
+#endif /* ifndef ECMD_REMOVE_I2C_FUNCTIONS (this comment has to be here for makedll.pl to work */
+#ifndef ECMD_REMOVE_GPIO_FUNCTIONS
 uint32_t dllGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode); 
 
 uint32_t dllGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, uint32_t & o_state); 
@@ -351,6 +380,8 @@ uint32_t dllGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engin
 
 uint32_t dllGpioWriteConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioWriteMode_t i_mode, uint32_t i_configReg, uint32_t i_value); 
 
+#endif // ECMD_REMOVE_GPIO_FUNCTIONS
+#ifndef ECMD_REMOVE_POWER_FUNCTIONS
 uint32_t dllSystemPowerOn(); 
 
 uint32_t dllSystemPowerOff(); 
@@ -363,10 +394,13 @@ uint32_t dllBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmd
 
 uint32_t dllQueryBiasState(ecmdChipTarget & i_target, uint32_t i_voltageLevel, uint32_t & o_currentVoltage, uint32_t & o_targetVoltage, uint32_t & o_timeValue); 
 
+#endif // ECMD_REMOVE_POWER_FUNCTIONS
+#ifndef ECMD_REMOVE_ADAL_FUNCTIONS
 uint32_t dllAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort); 
 
 uint32_t dllAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState); 
 
+#endif // ECMD_REMOVE_ADAL_FUNCTIONS
 void dllPushCommandArgs(); 
 
 void dllPopCommandArgs(); 
