@@ -49,7 +49,7 @@
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to hold info out of the scandef for get/putlatch etc. */
 struct ecmdLatchInfo {
   std::string ringName;                 ///< Name of ring that contains this latch
@@ -79,6 +79,7 @@ struct ecmdLatchHashInfo {
   bool ringFound;
 };
 
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 
 
@@ -128,10 +129,13 @@ char **p_xargv;
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /* @brief Parse out the scandef for the specified latch name */
 uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
 /* @brief Look up the provided latch name in the scandef hash */
 uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+
 /* @brief Return the ecmdChipData structure for a target */
 uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 /* @brief Read the ecmdReturnCodes.H file for the specified return code */
@@ -141,7 +145,7 @@ uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
 bool dllIsValidTargetString(std::string str);
 
-
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 
@@ -181,6 +185,7 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 
   return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
 }
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 
 
@@ -195,7 +200,9 @@ uint32_t ecmdGlobal_DllDebug = 0;
 uint32_t ecmdGlobal_quiet = 0;
 
 /* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 std::list<ecmdLatchBufferEntry> latchBuffer;
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 // Eliminate the follow unavoidable lint message for everywhere 'major' and
 // 'minor' are declared in this file.
@@ -1140,6 +1147,7 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
   return ret;
 }
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName,
 		       const char * i_ringName, ecmdQueryDetail_t i_detail) {
   uint32_t rc = 0;
@@ -2285,6 +2293,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
   } /* end single exit point */
   return rc;
 }
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef REMOVE_SIM
 
