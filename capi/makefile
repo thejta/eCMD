@@ -9,7 +9,7 @@ include ../makefile.rules
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H 
 EXPORTS      := ${INCLUDES}
-INT_INCLUDES := ecmdDllCapi.H ../dll/ecmdPluginExtensionSupport.H
+INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
 #DEFINES      := 
