@@ -25,6 +25,13 @@
  *   used in a closed environment ZSE,FSP, etc
 */
 
+
+
+/*************************************************************************/
+/*  These are the Common Code Standard Compile Flags                     */
+/*************************************************************************/
+
+
 /* Removes simulation interfaces from api and ecmdDataBuffer */
 //#define REMOVE_SIM
 
@@ -42,6 +49,17 @@
    public documentation */
 //#define DOCUMENTATION
 
+/* Used to enable mpatrol memory debugging */
+//#define ENABLE_MPATROL
+
+
+/*************************************************************************/
+/*  These Compile Flags are used to remove functions from Common Code    */
+/*   CAPI & cmdline                                                      */
+/*************************************************************************/
+
+/* Removes simulation interfaces from api and ecmdDataBuffer */
+//#define REMOVE_SIM
 
 /* Removes Latch interfaces from api and cmdline code */
 //#define ECMD_REMOVE_LATCH_FUNCTIONS
@@ -81,6 +99,46 @@
 
 
 
+/*************************************************************************/
+/*  These Compile Flags are used to remove functions from CIP Extension  */
+/*   CAPI & cmdline                                                      */
+/*************************************************************************/
+/* The CIP flags should only be used if ECMD_CIP_EXTENSION SUPPORT it active */
+//#ifdef ECMD_CIP_EXTENSION_SUPPORT
+
+/* Removes Instruction interfaces from CIP api and cmdline code */
+//#define CIP_REMOVE_INSTRUCTION_FUNCTIONS
+
+/* Removes Breakpoint interfaces from CIP api and cmdline code */
+//#define CIP_REMOVE_BREAKPOINT_FUNCTIONS
+
+/* Removes VR interfaces from CIP api and cmdline code */
+//#define CIP_REMOVE_VR_FUNCTIONS
+
+/* Removes Memory interfaces from CIP api and cmdline code */
+//#define CIP_REMOVE_MEMORY_FUNCTIONS
+
+//#endif // ECMD_CIP_EXTENSION_SUPPORT
+
+
+/*************************************************************************/
+/*  These Compile Flags are used to remove functions from GIP Extension  */
+/*   CAPI & cmdline                                                      */
+/*************************************************************************/
+/* The GIP flags should only be used if ECMD_GIP_EXTENSION SUPPORT it active */
+//#ifdef ECMD_GIP_EXTENSION_SUPPORT
+
+/* Removes Memory interfaces from GIP api and cmdline code */
+//#define GIP_REMOVE_MEMORY_FUNCTIONS
+
+/* Removes Breakpoint interfaces from GIP api and cmdline code */
+//#define GIP_REMOVE_BREAKPOINT_FUNCTIONS
+
+//#endif  // ECMD_GIP_EXTENSION_SUPPORT
+
+/*************************************************************************/
+/*  These Compile Flags are used for Specific ECMD Extensions            */
+/*************************************************************************/
 
 
 /* Turned on only in a GIP FSP build environment */
@@ -91,8 +149,5 @@
 
 /* Turned on in a BML Build environment only */
 //#define BML
-
-/* Used to enable mpatrol memory debugging */
-//#define ENABLE_MPATROL
 
 #endif
