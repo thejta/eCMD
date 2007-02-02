@@ -26,14 +26,14 @@
 */
 
 
+/* Incluse this file to determine which extensions are defined */
+/* This WILL NOT be done in the common code */
+//#include <ecmdPluginExtensionSupport.H>
+
 
 /*************************************************************************/
 /*  These are the Common Code Standard Compile Flags                     */
 /*************************************************************************/
-
-
-/* Removes simulation interfaces from api and ecmdDataBuffer */
-//#define REMOVE_SIM
 
 /* Removes extra debug/trace information */
 //#define ECMD_STRIP_DEBUG
