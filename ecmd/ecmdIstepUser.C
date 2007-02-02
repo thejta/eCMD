@@ -193,7 +193,7 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
 
 }
 
-
+#ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -425,7 +425,9 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 
   return rc;
 }  
+#endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 
+#ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   
@@ -763,6 +765,7 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 
 // Change Log *********************************************************
 //                                                                      

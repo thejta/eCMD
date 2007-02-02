@@ -57,6 +57,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
+#ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
 
 uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
@@ -523,8 +524,10 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 
 
+#ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
@@ -734,7 +737,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
 // Change Log *********************************************************
 //                                                                      

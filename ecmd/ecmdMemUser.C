@@ -59,6 +59,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
+#ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
 
 uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   uint32_t rc = ECMD_SUCCESS;
@@ -660,4 +661,5 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   return rc;
 }
 
+#endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 

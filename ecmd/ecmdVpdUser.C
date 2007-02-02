@@ -59,7 +59,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_VPD_FUNCTIONS
 uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
@@ -637,3 +637,5 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   return rc;
 
 }
+#endif // ECMD_REMOVE_VPD_FUNCTIONS
+

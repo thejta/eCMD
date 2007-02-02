@@ -60,7 +60,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_POWER_FUNCTIONS
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
@@ -394,3 +394,4 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_POWER_FUNCTIONS

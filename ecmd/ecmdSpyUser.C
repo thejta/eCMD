@@ -65,7 +65,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, getspyrc = ECMD_SUCCESS;
 
@@ -709,5 +709,5 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif // ECMD_REMOVE_SPY_FUNCTIONS
 
