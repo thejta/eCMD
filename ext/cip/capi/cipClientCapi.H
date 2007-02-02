@@ -13,6 +13,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <ecmdDefines.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdStructs.H>
 #include <ecmdDataBuffer.H>
@@ -53,7 +54,7 @@ uint32_t cipInitExtension();
 
 /** @name Processor Functions */
 //@{
-
+#ifndef CIP_REMOVE_INSTRUCTION_FUNCTIONS
 /**
  @brief Start Instructions
  @param i_target Struct that contains chip and cage/node/slot/position/core information 
@@ -155,7 +156,8 @@ uint32_t cipStopAllInstructions ();
 
 */
 uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_thread);
-
+#endif // CIP_REMOVE_INSTRUCTION_FUNCTIONS
+#ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
 /**
  @brief Set a hardware breakpoint in Processor using a real address
  @param i_target Struct that contains chip and cage/node/slot/position/core information
@@ -191,8 +193,8 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
 
 */
 uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type, uint32_t i_thread);
-
-
+#endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
+#ifndef CIP_REMOVE_VR_FUNCTIONS
 /**
  @brief Reads the selected Processor Architected VMX Register (VR) into the data buffer
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
@@ -276,6 +278,7 @@ uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  TARGET STATES : Unused<br>
 */
 uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+#endif // CIP_REMOVE_VR_FUNCTIONS
 
 
 //@}
@@ -284,7 +287,7 @@ uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
 
 /** @name Memory Functions */
 //@{
-
+#ifndef CIP_REMOVE_MEMORY_FUNCTIONS
 /**
  @brief Reads System Mainstore through the processor chip using a real address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
@@ -386,7 +389,7 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
 
 */
 uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memorySpareBits, ecmdDataBuffer & i_memoryErrorInject);
-
+#endif // CIP_REMOVE_MEMORY_FUNCTIONS
 //@}
 /* End Memory Functions */
 
