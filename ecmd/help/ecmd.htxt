@@ -77,35 +77,35 @@ Syntax: ecmd
         Z Series Extensions:
         --------------------------------------------------------------------------------
 
-        zseactivatefru           zsegetpchids             zsepppcsetbackupblowercontroltempzsewarmstart             
-        zseactivatenetworkfru    zseicbconfig             zsepurgelog              zsewriteerrorlog         
-        zsealternatepath         zseiml                   zsequerycryptostate      zsewriteeventlog         
-        zsececdump               zseinpa                  zsequerylicccfilenames   zsewriteinfolog          
-        zsechecketr              zseitemxfer              zsequeryrefc             zsexcryptorunmode        
-        zsecheckicbwrap          zsenetacdlsystem         zseratestate             
-        zsecheckservicenetwork   zsenetactivatenetwork    zseresetcpusaptracecontrols
-        zsecheckstatus           zsenetcctakeover         zseresetcsscontrols      
-        zsechkpscnnetwork        zsenetcheckservicenetworkzsereseti390tracesettings
-        zsecleari390tracebuffer  zsenetchkpscnnetwork     zseresetiottcontrols     
-        zsecontrolledwarmstart   zsenetdeactivatenetworkfruzsesavei390tracetofile   
-        zsecsaactivatenode       zsenetpscnnetinfo        zsesendsw                
-        zsecsadeactivatenode     zsenetpscnsetccslave     zsesetcecoscdefaultnestspeed
-        zsecsadisable            zsenetpscnversioninfo    zsesetcpusaptracecontrols
-        zsecsaenable             zsenetstartmirroring     zsesetcsstracecontrols   
-        zsecsagetstatedump       zsenetupdateccload       zsesetiottcontrols       
-        zsecsaissueinfolog       zseoscillatorswitchover  zsesetmbastispeed        
-        zsecsasetforcedegrade    zsepchid                 zsesetupi390tracelevels  
-        zsecsasetimlmode         zsepppcchillerreadtemper zsesetw1controls         
-        zsecsasuppresswarninglogszsepppcchillersetbias    zseshfinit               
-        zsecsaunsetforcedegrade  zsepppcextendedbiasmode  zsesimenv                
-        zsecsehactive            zsepppcgenericcommand    zsesimread               
-        zsedeactivatefru         zsepppcgetamdspeedandambienttemperaturezsesimwrite              
-        zsedflogread             zsepppcgetbpastate       zsestartmirroring        
-        zseenablei390trace       zsepppcgetcageinfolog    zsesysstatus             
-        zseetrnowrap             zsepppcgetnodepowerstate zsesystempoweroff        
-        zseetrstatus             zsepppcmcmreadtemperaturezsesystempoweron         
-        zsegetalli390traces      zsepppcreadcurrentdca    zsevoltagebiasfru        
-        zsegetallunits           zsepppcreadvoltagedca    zsewaitforcecsw          
-        zsegetmbastispeed        zsepppcsetamdspeed       zsewaitforwarmstart      
+        zseactivatefru           zsegetpchids             zsepppcsetamdspeed       zsewaitforwarmstart      
+        zseactivatenetworkfru    zseicbconfig             zsepppcsetbackupblowercontroltempzsewarmstart             
+        zsealternatepath         zseiml                   zsepurgelog              zsewriteerrorlog         
+        zsececdump               zseinpa                  zsequerycryptostate      zsewriteeventlog         
+        zsechecketr              zseitemxfer              zsequerylicccfilenames   zsewriteinfolog          
+        zsecheckicbwrap          zsenetacdlsystem         zsequeryrefc             zsexcryptorunmode        
+        zsecheckservicenetwork   zsenetactivatenetworkfru zseratestate             
+        zsecheckstatus           zsenetactivatenetwork    zseresetcpusaptracecontrols
+        zsechkpscnnetwork        zsenetcctakeover         zseresetcsscontrols      
+        zsecleari390tracebuffer  zsenetcheckservicenetworkzsereseti390tracesettings
+        zsecontrolledwarmstart   zsenetchkpscnnetwork     zseresetiottcontrols     
+        zsecsaactivatenode       zsenetdeactivatenetworkfruzsesavei390tracetofile   
+        zsecsadeactivatenode     zsenetpscnnetinfo        zsesendsw                
+        zsecsadisable            zsenetpscnsetccslave     zsesetcecoscdefaultnestspeed
+        zsecsaenable             zsenetpscnversioninfo    zsesetcpusaptracecontrols
+        zsecsagetstatedump       zsenetstartmirroring     zsesetcsstracecontrols   
+        zsecsaissueinfolog       zsenetupdateccload       zsesetiottcontrols       
+        zsecsasetforcedegrade    zseoscillatorswitchover  zsesetmbastispeed        
+        zsecsasetimlmode         zsepchid                 zsesetupi390tracelevels  
+        zsecsasuppresswarninglogszsepppcchillerreadtemper zsesetw1controls         
+        zsecsaunsetforcedegrade  zsepppcchillersetbias    zseshfinit               
+        zsecsehactive            zsepppcextendedbiasmode  zsesimenv                
+        zsedeactivatefru         zsepppcgenericcommand    zsesimread               
+        zsedflogread             zsepppcgetamdspeedandambienttemperaturezsesimwrite              
+        zseenablei390trace       zsepppcgetbpastate       zsestartmirroring        
+        zseetrnowrap             zsepppcgetcageinfolog    zsesysstatus             
+        zseetrstatus             zsepppcgetnodepowerstate zsesystempoweroff        
+        zsegetalli390traces      zsepppcmcmreadtemperaturezsesystempoweron         
+        zsegetallunits           zsepppcreadcurrentdca    zsevoltagebiasfru        
+        zsegetmbastispeed        zsepppcreadvoltagedca    zsewaitforcecsw          
 
 
