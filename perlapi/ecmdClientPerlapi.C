@@ -93,6 +93,7 @@ uint64_t ECMDPERLAPI::simFusionRand64(uint64_t i_min , uint64_t i_max , const ch
 }
 #endif
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /* This is overwritten to handle passing in NULL for ringName */
 uint32_t ECMDPERLAPI::getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) { 
   uint32_t rc = ECMD_SUCCESS;
@@ -112,6 +113,7 @@ uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName
     rc = ::putLatch(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode);
   return rc;
 }
+#endif
 
 bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option){
 
