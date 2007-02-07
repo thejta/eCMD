@@ -119,50 +119,68 @@ print OUT "\n";
 
 #parse file spec'd by $ARGV[0]
 while (<IN>) {
-  # Maintain the remove_sim ifdef's
-    if (/REMOVE_SIM/) {
-      print OUT $_;
+  # Maintain the remove_sim and other ifdef's
+  if (/REMOVE_SIM/ || 
+      /ECMD_REMOVE_LATCH_FUNCTIONS/ ||
+      /ECMD_REMOVE_SPY_FUNCTIONS/ || 
+      /ECMD_REMOVE_ARRAY_FUNCTIONS/ ||
+      /ECMD_REMOVE_CLOCK_FUNCTIONS/ ||
+      /ECMD_REMOVE_REFCLOCK_FUNCTIONS/ ||
+      /ECMD_REMOVE_TRACEARRAY_FUNCTIONS/ ||
+      /ECMD_REMOVE_MEMORY_FUNCTIONS/ ||
+      /ECMD_REMOVE_VPD_FUNCTIONS/ ||
+      /ECMD_REMOVE_I2C_FUNCTIONS/ ||
+      /ECMD_REMOVE_GPIO_FUNCTIONS/ ||
+      /ECMD_REMOVE_POWER_FUNCTIONS/ ||
+      /ECMD_REMOVE_ADAL_FUNCTIONS/ ||
+      /CIP_REMOVE_INSTRUCTION_FUNCTIONS/ ||
+      /CIP_REMOVE_BREAKPOINT_FUNCTIONS/ ||
+      /CIP_REMOVE_VR_FUNCTIONS/ ||
+      /CIP_REMOVE_MEMORY_FUNCTIONS/ ||
+      /GIP_REMOVE_MEMORY_FUNCTIONS/ ||
+      /GIP_REMOVE_BREAKPOINT_FUNCTIONS/ ) {
+        print OUT $_;
 
-    } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
+      } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 
-	next if (/$ignore_re/o);
+        next if (/$ignore_re/o);
 
-	chomp; chop;  
-	my ($func, $args) = split(/\(|\)/, $_);
+        chomp; chop;  
+        my ($func, $args) = split(/\(|\)/, $_);
 
-	my ($type, $funcname) = split(/\s+/, $func);
-	my @argnames = split(/,/,$args);
+        my ($type, $funcname) = split(/\s+/, $func);
+        my @argnames = split(/,/,$args);
 
         #remove the default initializations
         foreach my $i (0..$#argnames) {
-            if ($argnames[$i] =~ /=/) {
-              $argnames[$i] =~ s/=.*//;
-            }
+          if ($argnames[$i] =~ /=/) {
+            $argnames[$i] =~ s/=.*//;
+          }
         }
         $" = ",";
 
-	my $argstring;
-	my $typestring;
+        my $argstring;
+        my $typestring;
         my $tmptypestring;
-	foreach my $curarg (@argnames) {
+        foreach my $curarg (@argnames) {
 
-	    my @argsplit = split /\s+/, $curarg;
+          my @argsplit = split /\s+/, $curarg;
 
-	    my @typeargs = @argsplit[0..$#argsplit-1];
-	    $tmptypestring = "@typeargs";
+          my @typeargs = @argsplit[0..$#argsplit-1];
+          $tmptypestring = "@typeargs";
 
-	    my $tmparg = $argsplit[-1];
-	    if ($tmparg =~ /\[\]$/) {
-		chop $tmparg; chop $tmparg;
-		$tmptypestring .= "[]";
-	    }
+          my $tmparg = $argsplit[-1];
+          if ($tmparg =~ /\[\]$/) {
+            chop $tmparg; chop $tmparg;
+            $tmptypestring .= "[]";
+          }
 
-	    $typestring .= $tmptypestring . ", ";
-	    $argstring .= $tmparg . ", ";
-	}
+          $typestring .= $tmptypestring . ", ";
+          $argstring .= $tmparg . ", ";
+        }
 
-	chop ($typestring, $argstring);
-	chop ($typestring, $argstring);
+        chop ($typestring, $argstring);
+        chop ($typestring, $argstring);
 
 
         my $namespace = uc($ARGV[0]) . "PERLAPI";
@@ -182,7 +200,7 @@ while (<IN>) {
         }
 
 
-    }
+      }
 
 }
 close IN;
