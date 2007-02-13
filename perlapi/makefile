@@ -14,7 +14,7 @@ VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H ecmdBit64.H
 INT_INCLUDES := 
 SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C ecmdBit64.C
-MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H ecmdClientPerlapiIterators.pl ecmdRename.i
+MAKEPM_OUT   := ecmdClientPerlapiFunc.C ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H
 DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -I../capi/export -I../dll
 SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
@@ -55,10 +55,10 @@ ifeq (${OS},Linux_x86)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib/perl5
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
@@ -76,10 +76,10 @@ ifeq (${OS},Linux_ppc)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib/perl5
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
@@ -90,7 +90,7 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   # We have to use the re-entrant version, so override the default setup in makefile.rules
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
+  CC      := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
   ifeq (${SITE},apd.pok.ibm.com)
     CC      := xlC_r
   endif
@@ -98,7 +98,7 @@ ifeq (${OS},AIX)
     CC      := xlC_r
   endif
   # And the Shared Lib linker - same rules as above
-  LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
+  LD      := /afs/rch/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
   ifeq (${SITE},awd.austin.ibm.com)
     LD      := /usr/vacpp/bin/makeC++SharedLib_r
   endif
@@ -107,17 +107,17 @@ ifeq (${OS},AIX)
   endif
 
   TARGET    := ecmd
-  LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
+  LDFLAGS   := -e cronuspm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
-    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
+    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig/bin/swig
+    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig/lib -I${CTEPATH}/tools/ecmd/utils/swig/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib/perl5
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
@@ -138,9 +138,7 @@ move: ${TARGET}.so ${TARGET}.pm
 clean: objclean exportclean
 	rm -f *wrap*
 	rm -f *ClientPerlapiFunc.*
-	rm -f ecmdClientPerlapiIterators.pl
 	rm -f ecmdClientPerlapiIterators.H
-	rm -f ecmdRename.i
 
 objclean:
 	rm -rf ${SUBDIR}

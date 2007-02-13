@@ -109,53 +109,6 @@
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
 /*********** End Templates ***********/
 
-/*********** Start Renames ***********/
-// This has to be done before the files to swigify get pulled in, otherwise they won't be applied
-// This covers a bunch of standard operators
-%rename(operatorIncrement)  operator++(int);
-%rename(operatorDecrement)  operator--(int);
-%rename(operatorLeftShift)  operator<<(int) const;
-%rename(operatorRightShift) operator>>(int) const;
-%rename(operatorNot)        operator!() const;
-%rename(operatorBitNot)     operator~() const;
-
-// ecmdDataBuffer
-%rename(operatorEqualTo)    operator==(const ecmdDataBuffer& other) const;
-%rename(operatorNotEqualTo) operator!=(const ecmdDataBuffer& other) const;
-%rename(operatorAnd)        operator&(const ecmdDataBuffer& other) const;
-%rename(operatorOr)         operator|(const ecmdDataBuffer& other) const;
-%rename(operatorOr)         operator|(const uint32_t) const;
-// ecmdBit64
-%rename(operatorEqualTo)    operator==(const ecmdBit64& other) const;
-%rename(operatorNotEqualTo) operator!=(const ecmdBit64& other) const;
-%rename(operatorLessThan)   operator<(const ecmdBit64& other) const;
-%rename(operatorLessEqualThan)    operator<=(const ecmdBit64& other) const;
-%rename(operatorGreaterThan)      operator>(const ecmdBit64& other) const;
-%rename(operatorGreaterEqualThan) operator>=(const ecmdBit64& other) const;
-%rename(operatorPlus)       operator+(const ecmdBit64& other) const;
-%rename(operatorMinus)      operator-(const ecmdBit64& other) const;
-%rename(operatorMultiply)   operator*(const ecmdBit64& other) const;
-%rename(operatorDivide)     operator/(const ecmdBit64& other) const;
-%rename(operatorMod)        operator%(const ecmdBit64& other) const;
-%rename(operatorAnd)        operator&(const ecmdBit64& other) const;
-%rename(operatorOr)         operator|(const ecmdBit64& other) const;
-%rename(operatorXor)        operator^(const ecmdBit64& other) const;
-%rename(operatorPlus)       operator+(uint32_t) const;
-%rename(operatorMinus)      operator-(uint32_t) const;
-%rename(operatorMultiply)   operator*(uint32_t) const;
-%rename(operatorDivide)     operator/(uint32_t) const;
-%rename(operatorMod)        operator%(uint32_t) const;
-%rename(operatorEqualTo)    operator==(uint32_t) const;
-%rename(operatorNotEqualTo) operator!=(uint32_t) const;
-%rename(operatorLessThan)   operator<(uint32_t) const;
-%rename(operatorLessEqualThan)    operator<=(uint32_t) const;
-%rename(operatorGreaterThan)      operator>(uint32_t) const;
-%rename(operatorGreaterEqualThan) operator>=(uint32_t) const;
-
-// Pull in the auto generated renames
-%include ecmdRename.i
-/*********** End Renames ***********/
-
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
 %include "ecmdClientPerlapi.H"
@@ -210,18 +163,3 @@
   %include "cmdClientPerlapiFunc.H"
 #endif
 /*********** End Files to swigify ***********/
-
-/* Removing this from v6.1 on - JTA 12/08/05
-%exception {
-	$function
-          if ((ECMDPERLAPI::ecmdPerlInterfaceErrorCheck(-1)) &&
-	   (ECMDPERLAPI::ecmdQuerySafeMode() == true)) {
-		croak("ecmdClientPerlapi.i::Error occured in eCMD Perl module - execution halted\n");
-	}
-}
-*/
-
-// This line inserts a straight copy of the file below into the beginning of the swig generated perl module
-%pragma(perl5) include="ecmdClientPerlapi.pl"
-// Pull in the generated operator code
-%pragma(perl5) include="ecmdClientPerlapiIterators.pl"
