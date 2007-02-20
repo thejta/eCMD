@@ -2123,7 +2123,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
     vdTarget = target;
     // Setup the variable depth looping if not a pos level loop
     if (!posLoop) {
-      vdTarget.cageState = vdTarget.nodeState = vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
+      vdTarget.nodeState = vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
     }
 
     rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
