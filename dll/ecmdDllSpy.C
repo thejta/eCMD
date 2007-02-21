@@ -94,6 +94,8 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -193,6 +195,10 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
 	}
     	continue;
       }
+
+      /* Is this a core spy */
+      rc = dllIsCoreSpy(i_target, queryData.spyName, queryData.isCoreRelated);
+      if (rc) return rc;
 
       /* Does it have ECC ? */
       if (spyent.states & SPY_EPCHECKERS) {
@@ -1629,6 +1635,74 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
   return rc;
 
 }
+
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool & o_isCoreRelated) {
+
+  sedcSpyContainer myDC;
+  sedcEplatchesEntry tempECC;
+  uint32_t rc = ECMD_SUCCESS;
+  o_isCoreSpy = false;
+  std::list<sedcLatchLine>::iterator lineit;
+  sedcAEIEntry spyent;
+  uint32_t flags = 0x0;
+  char outstr[200];
+
+  /* Retrieve my spy either from the DB or the spydef file */
+  rc = dllGetSpyInfo(i_target, myDC, flags);
+  if (rc) {
+    sprintf(outstr,"dllIsCoreSpy - Problems reading spy '%s' from file!\n", spyname);
+    dllOutputError("isCoreSpy",outstr);
+    return ECMD_INVALID_SPY;
+  } else if (!myDC.valid) {
+    sprintf(outstr,"dllIsCoreSpy - Read of spy '%s' from file failed!\n", spyname);
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  }
+
+  if (myDC.type == SC_EPLATCHES) {
+    tempECC = myDC.getEplatchesEntry();
+    spyent = tempECC.inSpy;
+  } else if (myDC.type == SC_AEI) {
+    spyent = myDC.getAEIEntry();
+  } else {
+    sprintf(outstr,"dllIsCoreSpy - Invalid spy type found for '%s'!\n", spyname);
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  }
+
+  for (lineit = spyent.aeiLines.begin(); lineit != spyent.aeiLines.end(); lineit ++) {
+
+    if (lineit->state == (SPY_SECTION_START | SPY_RING)) {
+      /* Now we need to query the ring data */
+      std::list<ecmdRingData> ringQueryData;
+      rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str());
+      if (rc) return rc;
+      if (!ringQueryData.empty()) {
+        o_isCoreRelated = ringQueryData.begin()->isCoreRelated;
+      }
+      break;
+    } else if (lineit->state == (SPY_SECTION_START | SPY_SCOM)) {
+      int num;
+      uint32_t addr;
+      std::list<ecmdScomData> scomQueryData
+      num = sscanf(lineit->latchName.c_str(), "%x",&addr);
+      if (num != 1) {
+        sprintf(outstr, "dllIsCoreSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), spyname);
+        dllOutputError(outstr);
+        return ECMD_INVALID_SPY;
+      }
+      rc = dllQueryScom(i_target, scomQueryData, addr);
+      if (rc) return rc;
+      if (!scomQueryData.empty()) {
+        o_isCoreRelated = scomQueryData.begin()->isCoreRelated;
+      }
+      break;
+    }
+  }
+
+  return rc;
+}
+
 
 int dllGetSpyListHash(std::ifstream &hashFile, std::list<sedcHashEntry> &spyKeysList) {
   
