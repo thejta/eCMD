@@ -94,7 +94,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool & o_isCoreRelated);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -1641,11 +1641,13 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
   sedcSpyContainer myDC;
   sedcEplatchesEntry tempECC;
   uint32_t rc = ECMD_SUCCESS;
-  o_isCoreSpy = false;
   std::list<sedcLatchLine>::iterator lineit;
   sedcAEIEntry spyent;
   uint32_t flags = 0x0;
   char outstr[200];
+
+  /* Start out assuming no */
+  o_isCoreRelated = false;
 
   /* Retrieve my spy either from the DB or the spydef file */
   rc = dllGetSpyInfo(i_target, myDC, flags);
