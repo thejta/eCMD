@@ -94,7 +94,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &i_spyName, bool & o_isCoreRelated);
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -1641,18 +1641,17 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
   sedcSpyContainer myDC;
   sedcEplatchesEntry tempECC;
   uint32_t rc = ECMD_SUCCESS;
+  o_isCoreRelated = false;
   std::list<sedcLatchLine>::iterator lineit;
   sedcAEIEntry spyent;
+  uint32_t flags = 0x0;
   char outstr[200];
-
-  /* Start out assuming no */
-  o_isCoreRelated = false;
 
   /* Retrieve my spy either from the DB or the spydef file */
   rc = dllGetSpyInfo(i_target, i_spyName.c_str(), myDC);
   if (rc) {
     sprintf(outstr,"dllIsCoreSpy - Problems reading spy '%s' from file!\n", i_spyName.c_str());
-    dllOutputError("isCoreSpy",outstr);
+    dllOutputError(outstr);
     return ECMD_INVALID_SPY;
   } else if (!myDC.valid) {
     sprintf(outstr,"dllIsCoreSpy - Read of spy '%s' from file failed!\n", i_spyName.c_str());
@@ -1676,7 +1675,8 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
     if (lineit->state == (SPY_SECTION_START | SPY_RING)) {
       /* Now we need to query the ring data */
       std::list<ecmdRingData> ringQueryData;
-      rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str());
+      ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;
+      rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str(), detail);
       if (rc) return rc;
       if (!ringQueryData.empty()) {
         o_isCoreRelated = ringQueryData.begin()->isCoreRelated;
@@ -1692,7 +1692,7 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
         dllOutputError(outstr);
         return ECMD_INVALID_SPY;
       }
-      rc = dllQueryScom(i_target, scomQueryData, addr);
+      rc = dllQueryScom(i_target, scomQueryData, addr, ECMD_QUERY_DETAIL_LOW);
       if (rc) return rc;
       if (!scomQueryData.empty()) {
         o_isCoreRelated = scomQueryData.begin()->isCoreRelated;
