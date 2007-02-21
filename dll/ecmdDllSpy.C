@@ -1643,14 +1643,13 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
   uint32_t rc = ECMD_SUCCESS;
   std::list<sedcLatchLine>::iterator lineit;
   sedcAEIEntry spyent;
-  uint32_t flags = 0x0;
   char outstr[200];
 
   /* Start out assuming no */
   o_isCoreRelated = false;
 
   /* Retrieve my spy either from the DB or the spydef file */
-  rc = dllGetSpyInfo(i_target, myDC, flags);
+  rc = dllGetSpyInfo(i_target, i_spyName.c_str(), myDC);
   if (rc) {
     sprintf(outstr,"dllIsCoreSpy - Problems reading spy '%s' from file!\n", spyname);
     dllOutputError("isCoreSpy",outstr);
@@ -1686,7 +1685,7 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
     } else if (lineit->state == (SPY_SECTION_START | SPY_SCOM)) {
       int num;
       uint32_t addr;
-      std::list<ecmdScomData> scomQueryData
+      std::list<ecmdScomData> scomQueryData;
       num = sscanf(lineit->latchName.c_str(), "%x",&addr);
       if (num != 1) {
         sprintf(outstr, "dllIsCoreSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), spyname);
