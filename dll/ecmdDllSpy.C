@@ -94,7 +94,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool & o_isCoreRelated);
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &i_spyName, bool & o_isCoreRelated);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -1651,11 +1651,11 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
   /* Retrieve my spy either from the DB or the spydef file */
   rc = dllGetSpyInfo(i_target, i_spyName.c_str(), myDC);
   if (rc) {
-    sprintf(outstr,"dllIsCoreSpy - Problems reading spy '%s' from file!\n", spyname);
+    sprintf(outstr,"dllIsCoreSpy - Problems reading spy '%s' from file!\n", i_spyName.c_str());
     dllOutputError("isCoreSpy",outstr);
     return ECMD_INVALID_SPY;
   } else if (!myDC.valid) {
-    sprintf(outstr,"dllIsCoreSpy - Read of spy '%s' from file failed!\n", spyname);
+    sprintf(outstr,"dllIsCoreSpy - Read of spy '%s' from file failed!\n", i_spyName.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
   }
@@ -1666,7 +1666,7 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
   } else if (myDC.type == SC_AEI) {
     spyent = myDC.getAEIEntry();
   } else {
-    sprintf(outstr,"dllIsCoreSpy - Invalid spy type found for '%s'!\n", spyname);
+    sprintf(outstr,"dllIsCoreSpy - Invalid spy type found for '%s'!\n", i_spyName.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
   }
@@ -1688,7 +1688,7 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
       std::list<ecmdScomData> scomQueryData;
       num = sscanf(lineit->latchName.c_str(), "%x",&addr);
       if (num != 1) {
-        sprintf(outstr, "dllIsCoreSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), spyname);
+        sprintf(outstr, "dllIsCoreSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), i_spyName.c_str());
         dllOutputError(outstr);
         return ECMD_INVALID_SPY;
       }
