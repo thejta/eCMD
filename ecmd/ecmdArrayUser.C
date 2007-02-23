@@ -355,23 +355,31 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         else {
 
           if (!printedHeader) {
-            printed = ecmdWriteTarget(target) + " " + arrayName + "\n" + entit->address.genHexRightStr() + "\t";
+            printed = ecmdWriteTarget(coretarget) + " " + arrayName + "\n";
+            ecmdOutput( printed.c_str() );
             printedHeader = true;
-          } else {
-            printed = entit->address.genHexRightStr() + "\t";
           }
 
+          printed = entit->address.genHexRightStr() + "\t";
           printed += ecmdWriteDataFormatted(entit->buffer, outputformat);
-
           ecmdOutput( printed.c_str() );
         }
-      }
 
-      /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
-      entries.clear();
+        // Clear ecmdDataBuffer and rc before next 'get'
+        //  but save address info
+        entit->rc=ECMD_SUCCESS;  // clear rc before next 'get'
+        entit->buffer.clear(); // clear data before next 'get'
+
+      } // end of for loop for output of all entries for a target
+
+      // reset printedHeader for next target
+      printedHeader = false;
 
      if (!isCoreArray) break;
     } /* End CoreLooper */
+
+    /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
+    entries.clear();
 
   } /* End PosLooper */
 
