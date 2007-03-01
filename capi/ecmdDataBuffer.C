@@ -1406,22 +1406,36 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
     ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
-    
-    uint32_t mask = 0x80000000 >> (i_sourceStart % 32);
-    const uint32_t * sourcePtr = i_dataIn;
-    for (uint32_t i = 0; i < i_len; i++) {
-      if (sourcePtr[(i+i_sourceStart)/32] & mask) {
-        rc = this->setBit(i_targetStart+i);
-      }
-      else { 
-        rc = this->clearBit(i_targetStart+i);
-      }
 
-      mask >>= 1;
-      if (mask == 0x00000000) {
-        mask = 0x80000000;
+    /* Can we do this insert with a memcpy ? */
+    /* Data has to be all word aligned for now, should be able to fix this for byte aligned */
+    if ((i_targetStart % 32 == 0) &&
+	(i_sourceStart % 32 == 0) &&
+	(i_len % 32 == 0)
+#ifndef REMOVE_SIM
+	&& !iv_XstateEnabled
+#endif
+	) {
+      memcpy(&(iv_Data[i_targetStart / 32]), 
+			   i_dataIn, i_len / 8);
+
+    } else {    
+      uint32_t mask = 0x80000000 >> (i_sourceStart % 32);
+      const uint32_t * sourcePtr = i_dataIn;
+      for (uint32_t i = 0; i < i_len; i++) {
+	if (sourcePtr[(i+i_sourceStart)/32] & mask) {
+	  rc = this->setBit(i_targetStart+i);
+	}
+	else { 
+	  rc = this->clearBit(i_targetStart+i);
+	}
+
+	mask >>= 1;
+	if (mask == 0x00000000) {
+	  mask = 0x80000000;
+	}
+	if (rc) break;
       }
-      if (rc) break;
     }
   }
   return rc;
