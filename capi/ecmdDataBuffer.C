@@ -1408,16 +1408,22 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
   } else {
 
     /* Can we do this insert with a memcpy ? */
-    /* Data has to be all word aligned for now, should be able to fix this for byte aligned */
+    /* If we aren't dealing with xstates 
+       and our data starts on word boundaries
+       and our length is an even byte multiple, 
+       we can use memcpy which is much faster then bit by bit inserts */
+    /* We should be able to redo this to byte aligned boundaries but that gets
+       into byte swap issues */
     if ((i_targetStart % 32 == 0) &&
 	(i_sourceStart % 32 == 0) &&
-	(i_len % 32 == 0)
+	(i_len % 8 == 0)
 #ifndef REMOVE_SIM
 	&& !iv_XstateEnabled
 #endif
 	) {
-      memcpy(&(iv_Data[i_targetStart / 32]), 
-			   i_dataIn, i_len / 8);
+      ecmdBigEndianMemCopy(&(iv_Data[i_targetStart / 32]), 
+			   &(i_dataIn[i_sourceStart / 32]),
+			   i_len / 8);
 
     } else {    
       uint32_t mask = 0x80000000 >> (i_sourceStart % 32);
