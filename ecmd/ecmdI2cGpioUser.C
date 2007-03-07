@@ -785,7 +785,7 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
       continue;
     }
     else if (rc) {
-        printed = "gpioconfig - Error occurred performing ecmdGpioReadLatch on ";
+        printed = "gpioconfig - Error occurred performing ecmdGpioConfigPin on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
