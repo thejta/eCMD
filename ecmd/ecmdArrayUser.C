@@ -295,7 +295,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       }
       else if (rc) {
         printed = "getarray - Error occured performing getArrayMultiple on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(coretarget) + "\n";
         ecmdOutputError( printed.c_str() );
         // Clean up allocated memory
         if (add_buffer)                                                    //@01a
@@ -321,7 +321,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             //@ make this stuff sprintf'd
 
             if (!printedHeader) {
-              printed = ecmdWriteTarget(target) + " " + arrayName + "\n";
+              printed = ecmdWriteTarget(coretarget) + " " + arrayName + "\n";
               printedHeader = true;
             } 
 
