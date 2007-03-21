@@ -38,12 +38,6 @@ $installPath =~ s/\/([^\/..]*\/?)$/\//;
 # This will enable the modules to be found in the local directory in the @INC
 chdir "$pwd";
 
-# Now add the relative paths the modules reside in
-use lib '../plugins/cro';
-use lib '../plugins/scand';
-use lib '../plugins/gip';
-use lib '../plugins/mbo';
-
 #########################################
 # Setup the modules to include
 # Base support, always there
@@ -54,7 +48,7 @@ my $ecmd = new ecmdsetup();
 my ($cro, $scand, $gip, $mbo);
 # Cronus
 my $croUse = 0;
-if (-d "../plugins/cro") {
+if (-e "crosetup.pm") {
   $croUse = 1;
   require crosetup;
   $cro = new crosetup();
@@ -62,7 +56,7 @@ if (-d "../plugins/cro") {
 
 # Scand
 my $scandUse = 0;
-if (-d "../plugins/scand") {
+if (-e "scandsetup.pm") {
   $scandUse = 1;
   require scandsetup;
   $scand = new scandsetup();
@@ -70,7 +64,7 @@ if (-d "../plugins/scand") {
 
 # GFW I/P
 my $gipUse = 0;
-if (-d "../plugins/gip") {
+if (-e "gipsetup.pm") {
   $gipUse = 1;
   require gipsetup;
   $gip = new gipsetup();
@@ -78,7 +72,7 @@ if (-d "../plugins/gip") {
 
 # Mambo
 my $mboUse = 0;
-if (-d "../plugins/mbo") {
+if (-e "mbosetup.pm") {
   $mboUse = 1;
   require mbosetup;
   $mbo = new mbosetup();

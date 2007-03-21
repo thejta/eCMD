@@ -134,6 +134,11 @@ install_setup:
 	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
 
+	@echo "Copying over setup scripts ..."
+	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
+	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
+	@echo " "
+
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
 	@cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
@@ -148,6 +153,14 @@ ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo " "
 endif
 
+	@echo "Copying over setup perl modules ..."
+	@find plugins/ -type f -name "*setup.pm" -exec cp {} bin/. \;
+	@echo " "
+
+# Do final cleanup things such as fixing permissions
+install_finish: install_setup ${BUILD_TARGETS}
+
+# Build the utils and install them
 ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo "Building utils ..."
 	@cd utils && ${MAKE} ${GMAKEFLAGS}
@@ -158,8 +171,6 @@ ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo " "
 endif
 
-# Do final cleanup things such as fixing permissions
-install_finish: install_setup ${BUILD_TARGETS}
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*
 
