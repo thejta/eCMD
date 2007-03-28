@@ -125,6 +125,11 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
           uint32_t lowerBound = (uint32_t)atoi(curSubstr.substr(0,tmpOffset).c_str());
           uint32_t upperBound = (uint32_t)atoi(curSubstr.substr(tmpOffset+2, curSubstr.length()).c_str());
           
+          if (lowerBound > upperBound) {
+            ecmdOutputError("istep - Lower Bound istep # > Upper Bound istep #\n");
+            return ECMD_INVALID_ARGS;
+          }
+
           if (stepPtr != NULL)
             steps.setBit(lowerBound, upperBound - lowerBound + 1);
           else
