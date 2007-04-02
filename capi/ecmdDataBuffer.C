@@ -21,6 +21,7 @@
 //  Flag Reason   Vers Date     Coder     Description                       
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//  None F592392       04/02/07 wfenlon   Fix genAsciiStr problems
 //   
 // End Change Log *****************************************************
 
@@ -2103,56 +2104,66 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   return ret;
 }
 
-std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const {
+std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const
+{
+   uint32_t rc;
+   int numBytes = (bitLen - 1)/8 + 1;
+   std::string ret;
+   int i;
+   char temp;
+   char tempstr[4];
 
-  int numwords = (bitLen - 1)/32 + 1;
-  int startWord = start/32;
-  std::string ret;
-  int i, j;
-  uint32_t temp;
-  char tempstr[4];
+   if (start+bitLen > iv_NumBits) {
+      ETRAC3("**** ERROR : ecmdDataBuffer::genAsciiStr: start %d + bitLen %d >= NumBits (%d)", start, bitLen, iv_NumBits);
+      SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+      return ret;
+   } else if (start >= iv_NumBits) {
+      ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bit %d >= NumBits (%d)", start, iv_NumBits);
+      SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+      return ret;
+   } else if (bitLen > iv_NumBits) {
+      ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bitLen %d > NumBits (%d)", bitLen, iv_NumBits);
+      SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+      return ret;
+   } else if (bitLen == 0) {
+      ret = "";
+      return ret;
+   }
 
-  if (start+bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::genAsciiStr: start %d + bitLen %d >= NumBits (%d)", start, bitLen, iv_NumBits);
-    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-    return ret;
-  } else if (start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bit %d >= NumBits (%d)", start, iv_NumBits);
-    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-    return ret;
-  } else if (bitLen > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bitLen %d > NumBits (%d)", bitLen, iv_NumBits);
-    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-    return ret;
-  } else if (bitLen == 0) {
-    ret = "\0";
-    return ret;
-  } 
+   // Create temporary buf to align data on start bit
+   char *data = new char[numBytes];
 
-  for (i = 0; i < numwords; i++) { /* word loop */
-    for (j = 0; j < 4; j++) { /* byte loop */
-      temp = (iv_Data[(startWord + i)] >> (24-8*j)) & 0x000000ff;  /* grab 8 bits           */  	  
-      if (temp < 32 || temp > 126) {                /* decimal 32 == space, 127 == DEL */
-        tempstr[0] = '.';                           /* non-printing: use a . */
-        tempstr[1] = '\0';
-      } else {
-        sprintf(tempstr, "%c", temp);               /* convert to ascii      */
-      }  
-      ret.insert(ret.length(),tempstr);
-    } 
-  } 
+   do
+   {
+      rc = extract((uint32_t *)data, start, bitLen);
+      if (rc)
+         break;
+
+      for (i = 0; i < numBytes; ++i) /* byte loop */
+      {
+         temp = data[i];  /* grab 8 bits      */  	  
+         if (temp < 32 || temp > 126) {     /* decimal 32 == space, 127 == DEL */
+            tempstr[0] = '.';               /* non-printing: use a . */
+            tempstr[1] = '\0';
+         } else {
+            sprintf(tempstr, "%c", temp);   /* convert to ascii      */
+         }  
+         ret.insert(ret.length(),tempstr);
+      }
+   } while (0);
+
+   delete [] data;
 
 #ifndef REMOVE_SIM
-  /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
-    ETRAC0("**** WARNING : ecmdDataBuffer::genAsciiStr: Cannot extract when non-binary (X-State) character present");
-    SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-  }
+   /* If we are using this interface and find Xstate data we have a problem */
+   if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
+      ETRAC0("**** WARNING : ecmdDataBuffer::genAsciiStr: Cannot extract when non-binary (X-State) character present");
+      SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
+   }
 #endif
 
-  return ret;
+   return ret;
 }
-
 std::string ecmdDataBuffer::genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen) const {
 
   // Call genAsciiStr to get the string, this will take care of all our error checking
