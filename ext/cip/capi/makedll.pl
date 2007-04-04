@@ -363,6 +363,7 @@ while (<IN>) {
 		    $printout .= "  if (ecmdClientDebug != 0) {\n";
 		    $printout .= "     args.push_back((void*) &rc);\n" unless ($type_flag == $VOID);
 		    $printout .= "     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,\"$orgfuncname\");\n";
+                    $" = ","; # So we put commas between the tokens in argnames
 		    $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
 		    #	    
 		    $printout .= "   }\n";
