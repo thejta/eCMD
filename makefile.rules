@@ -85,4 +85,13 @@ ifeq ($(strip $(INSTALL_PATH)),)
   export INSTALL_PATH
 endif
 
+# Figure out how many gmake threads to run
+ifeq (${OS},AIX)
+  #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
+  GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)
+else
+  #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell cat /proc/cpuinfo | grep -c processor)
+  GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `cat /proc/cpuinfo | grep -c processor` \* 2)
+endif
+
 endif

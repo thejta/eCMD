@@ -183,3 +183,4 @@ vars:
 	@echo ${ECMD_ROOT}
 	@echo ${BUILD_TARGETS}
 	@echo ${EXTENSIONS}
+	@echo ${GMAKEFLAGS}
