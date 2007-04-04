@@ -138,7 +138,7 @@ while (<IN>) {
         #remove the default initializations
         foreach my $i (0..$#argnames) {
             if ($argnames[$i] =~ /=/) {
-              $argnames[$i] =~ s/=.*//;
+              $argnames[$i] =~ s/\s*=.*//;
             }
         }
         $" = ",";
