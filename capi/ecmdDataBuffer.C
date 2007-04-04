@@ -21,7 +21,6 @@
 //  Flag Reason   Vers Date     Coder     Description                       
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-//  None F592392       04/02/07 wfenlon   Fix genAsciiStr problems
 //   
 // End Change Log *****************************************************
 
@@ -76,7 +75,7 @@ char **p_xargv;
 //----------------------------------------------------------------------
 //  Forward declarations
 //----------------------------------------------------------------------
-uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to_extract, uint32_t *out_data_ptr);
+uint32_t ecmdExtract(uint32_t *i_sourceData, uint32_t i_startBit, uint32_t i_numBitsToExtract, uint32_t *o_destData);
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count);
 
 //----------------------------------------------------------------------
@@ -2104,65 +2103,52 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   return ret;
 }
 
-std::string ecmdDataBuffer::genAsciiStr(uint32_t start, uint32_t bitLen) const
-{
-   uint32_t rc;
-   int numBytes = (bitLen - 1)/8 + 1;
-   std::string ret;
-   int i;
-   char temp;
-   char tempstr[4];
+std::string ecmdDataBuffer::genAsciiStr(uint32_t i_start, uint32_t i_bitLen) const {
+  std::string ret;
+  uint8_t tempByte;
 
-   if (start+bitLen > iv_NumBits) {
-      ETRAC3("**** ERROR : ecmdDataBuffer::genAsciiStr: start %d + bitLen %d >= NumBits (%d)", start, bitLen, iv_NumBits);
-      SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-      return ret;
-   } else if (start >= iv_NumBits) {
-      ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bit %d >= NumBits (%d)", start, iv_NumBits);
-      SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-      return ret;
-   } else if (bitLen > iv_NumBits) {
-      ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bitLen %d > NumBits (%d)", bitLen, iv_NumBits);
-      SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-      return ret;
-   } else if (bitLen == 0) {
-      ret = "";
-      return ret;
-   }
+  if ((i_start + i_bitLen) > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::genAsciiStr: start %d + bitLen %d >= NumBits (%d)", i_start, i_bitLen, iv_NumBits);
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return ret;
+  } else if (i_start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bit %d >= NumBits (%d)", i_start, iv_NumBits);
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return ret;
+  } else if (i_bitLen > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::genAsciiStr: bitLen %d > NumBits (%d)", i_bitLen, iv_NumBits);
+    SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    return ret;
+  } else if (i_bitLen == 0) {
+    ret = "";
+    return ret;
+  }
 
-   // Create temporary buf to align data on start bit
-   char *data = new char[numBytes];
+  // Create a temp data buffer, then just loop through it calling getByte
+  // We create this temp buffer so that we can get data the user wanted aligned on a byte boundary
+  // If the user specfied an i_start of 2, it's necessary to get everything aligned
+  ecmdDataBuffer asciiBuffer(i_bitLen);
+  asciiBuffer.insert(*this, 0, i_bitLen, i_start);
 
-   do
-   {
-      rc = extract((uint32_t *)data, start, bitLen);
-      if (rc)
-         break;
-
-      for (i = 0; i < numBytes; ++i) /* byte loop */
-      {
-         temp = data[i];  /* grab 8 bits      */  	  
-         if (temp < 32 || temp > 126) {     /* decimal 32 == space, 127 == DEL */
-            tempstr[0] = '.';               /* non-printing: use a . */
-            tempstr[1] = '\0';
-         } else {
-            sprintf(tempstr, "%c", temp);   /* convert to ascii      */
-         }  
-         ret.insert(ret.length(),tempstr);
-      }
-   } while (0);
-
-   delete [] data;
+  int numBytes = asciiBuffer.getByteLength();
+  for (int i = 0; i < numBytes; i++) { /* byte loop */
+    tempByte = asciiBuffer.getByte(i);  /* grab a byte */  	  
+    if (tempByte < 32 || tempByte > 126) { /* decimal 32 == space, 127 == DEL */
+      ret += ".";  /* non-printing: use a . */
+    } else {
+      ret += tempByte; /* convert to ascii */
+    }  
+  }
 
 #ifndef REMOVE_SIM
-   /* If we are using this interface and find Xstate data we have a problem */
-   if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
-      ETRAC0("**** WARNING : ecmdDataBuffer::genAsciiStr: Cannot extract when non-binary (X-State) character present");
-      SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-   }
+  /* If we are using this interface and find Xstate data we have a problem */
+  if ((iv_XstateEnabled) && hasXstate(i_start, i_bitLen)) {
+    ETRAC0("**** WARNING : ecmdDataBuffer::genAsciiStr: Cannot extract when non-binary (X-State) character present");
+    SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
+  }
 #endif
 
-   return ret;
+  return ret;
 }
 std::string ecmdDataBuffer::genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen) const {
 
@@ -2964,9 +2950,7 @@ uint32_t ecmdDataBuffer::fillDataStr(char fillChar) {
 }
 #endif
 
-uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bits_to_extract, uint32_t *out_iv_Data_ptr)
-{
-  uint32_t i;   
+uint32_t ecmdExtract(uint32_t *i_sourceData, uint32_t i_startBit, uint32_t i_numBitsToExtract, uint32_t *o_destData) {
   uint32_t temp;
   uint32_t len; 
   uint32_t mask1;
@@ -2975,52 +2959,52 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
   uint32_t index; 
   uint32_t count; 
 
-  /*------------------------------------------------------------------*/
-  /* calculate number of fws (32-bit pieces) of the destination buffer*/
-  /* to be processed.                                                 */
-  /*----------------------------line 98--------------------------------*/
-
-  if ((num_bits_to_extract == 0) || (scr_ptr == NULL)){
+  // Error check
+  if ((i_numBitsToExtract == 0) || (i_sourceData == NULL)){
     ETRAC0("**** ERROR : ecmdDataBuffer ecmdExtract: Number of bits to extract = 0");
-    out_iv_Data_ptr = NULL;
+    o_destData = NULL;
     return ECMD_DBUF_INVALID_ARGS;
   } 
 
-  count = (num_bits_to_extract + 31) / 32;
+  count = (i_numBitsToExtract + 31) / 32;
 
-  for /* all 32-bit (or < 32 bits) pieces of the destination buffer */
-    (i = 0; i < count; i++)
-  {
-    len = num_bits_to_extract;
+  /*------------------------------------------------------------------*/
+  /* calculate number of fws (32-bit pieces) of the destination buffer*/
+  /* to be processed.                                                 */
+  /*----------------------------line 98-------------------------------*/
+  /* all 32-bit (or < 32 bits) pieces of the destination buffer */
+  for (uint32_t i = 0; i < count; i++) {
 
-    if /* length of bits to process is > 32 */
-      (len > 32)
-    {
+    len = i_numBitsToExtract;
+    /* length of bits to process is > 32 */
+    if (len > 32) {
       len = 32;
     }
 
     /*******************************************************************/
     /* calculate index for accessing proper fw of the scan ring buffer */
     /*******************************************************************/
-    index = start_bit_num/32;
+    index = i_startBit/32;
 
     /*----------------------------------------------------------------*/
     /* generate the mask to zero out some extra extracted bits (if    */
     /* there are any) in the temporary buffer.                        */
     /*----------------------------------------------------------------*/
-    if (len >= 32)
+    if (len == 32) {
       mask1 = 0xFFFFFFFF;
-    else
-      mask1 = ~(0xffffffff << len);
+    } else {
+      mask1 = ~(0xFFFFFFFF << len);
+    }
 
     /*-------------line 121--------------------------------------------*/
     /* generate the mask to prevent zeroing of unused bits positions  */
     /* in the destination buffer.                                     */
     /*----------------------------------------------------------------*/
-    if (32-len >= 32)
-      mask2 = 0xffffffff;
-    else 
+    if (len == 0) {
+      mask2 = 0xFFFFFFFF;
+    } else {
       mask2 = ~(mask1 << (32-len));
+    }
 
     /******************************************************************/
     /* NOTE:- In this loop a max of 32 bits are extracted at a time.  */
@@ -3028,9 +3012,8 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
     /* buffer depending on the starting bit position & number of bits */
     /* to be extracted.                                               */
     /******************************************************************/
-    if /* only one fw of scan ring buffer required to do extract */
-      (index == ((start_bit_num+(len-1))/32))
-    {
+    /* only one fw of scan ring buffer required to do extract */
+    if (index == ((i_startBit + (len-1))/32)) {
       /*--------------------------------------------------------------*/
       /* Extract required bits from the proper fw of the scan ring    */
       /* buffer as shown below (follow the steps):                    */
@@ -3043,25 +3026,25 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
       /*          (Unused bit positions in the dest buffer will not   */
       /*           be changed.)                                       */
       /*--------------------------------------------------------------*/
-      temp = ((*(scr_ptr+index)) >>   /* step1 */
-              (32-((start_bit_num+len)-(index*32))));
-      if ((32-((start_bit_num+len)-(index*32))) >= 32)
+      /* step1 */
+      temp = ((*(i_sourceData + index)) >> (32-((i_startBit + len) - (index*32))));
+      if ((32-((i_startBit + len) - (index*32))) >= 32)
         temp = 0x0;
 
-      if ((32-len) >= 32)
+      if ((32 - len) >= 32)
         temp = 0x0;
       else
-        temp = (temp & mask1) << (32-len); /* step2 */
+        temp = (temp & mask1) << (32 - len); /* step2 */
 
-      *(out_iv_Data_ptr+i) = (*(out_iv_Data_ptr+i) & mask2) | temp;
-    }
-    else /* two fws of scan ring buffer required to do extract */
-    {
+      *(o_destData + i) = (*(o_destData + i) & mask2) | temp;
+      /* two fws of scan ring buffer required to do extract */
+    } else {
       /*-----------------line 158--------------------------------------*/
       /* calculate number of bits to process in the 1st fw of the     */
       /* scan ring buffer.(fw pointed by index)                       */
       /*--------------------------------------------------------------*/
-      offset = (32 * (index+1)) - start_bit_num;
+      offset = (32 * (index + 1)) - i_startBit;
+
       /*--------------------------------------------------------------*/
       /* Extract required bits from the proper fws of the scan ring   */
       /* buffer as shown below (follow the steps):                    */
@@ -3084,24 +3067,27 @@ uint32_t ecmdExtract(uint32_t *scr_ptr, uint32_t start_bit_num, uint32_t num_bit
       /* step1 */
       uint32_t val1 = 0x0;
       uint32_t val2 = 0x0;
-      if (len-offset < 32)
-        val1 = ((*(scr_ptr+index)) << (len-offset)); /* 1st fw*/
+      if (len-offset < 32) {
+        val1 = ((*(i_sourceData+index)) << (len-offset));  /* 1st fw*/
+      }
 
-      if ((32-(len-offset)) < 32)
-        val2 = ((*(scr_ptr+index+1)) >> (32-(len-offset)));
+      if ((32-(len-offset)) < 32) {
+        val2 = ((*(i_sourceData+index+1)) >> (32-(len-offset)));
+      }
       temp = (val1 | val2);/* 2nd fw */
 
-      if (32-len >= 32)
+      if (32-len >= 32) {
         temp = 0x0;
-      else
+      } else {
         temp = (temp & mask1) << (32-len); /* step2 */
+      }
 
-      *(out_iv_Data_ptr+i) = (*(out_iv_Data_ptr+i) & mask2) | temp;
-
+      *(o_destData+i) = (*(o_destData+i) & mask2) | temp;
     }
-    num_bits_to_extract -= 32; /* decrement length by a fw */
-    start_bit_num += 32; /* increment start by a fw */
+    i_numBitsToExtract -= 32; /* decrement length by a fw */
+    i_startBit += 32; /* increment start by a fw */
   }
+
   return ECMD_DBUF_SUCCESS;
 }
 
