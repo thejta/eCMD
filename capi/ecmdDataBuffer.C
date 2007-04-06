@@ -1595,7 +1595,7 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, 
 uint32_t ecmdDataBuffer::extract(uint32_t *o_dataOut, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-// ecmdExtract can't make good input checks, so we have to do that here
+  // ecmdExtract can't make good input checks, so we have to do that here
   if (i_start + i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::extract: i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1607,31 +1607,65 @@ uint32_t ecmdDataBuffer::extract(uint32_t *o_dataOut, uint32_t i_start, uint32_t
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len == 0) {
     return ECMD_DBUF_SUCCESS;
-  } else {
+  }
 
-    rc = ecmdExtract(this->iv_Data, i_start, i_len, o_dataOut);
-    if (rc) {
-      RETURN_ERROR(rc);
-    }
+  rc = ecmdExtract(this->iv_Data, i_start, i_len, o_dataOut);
+  if (rc) {
+    RETURN_ERROR(rc);
+  }
 
 #ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      /* If we are using this interface and find Xstate data we have a problem */
-      if (hasXstate(i_start, i_len)) {
-        ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character      present\n");
-        RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-      }
+  if (iv_XstateEnabled) {
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(i_start, i_len)) {
+      ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character      present\n");
+      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
     }
-#endif
   }
+#endif
   return rc;
 }
 
-uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
+uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_bitLen) const {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::extract with a * uint8_t ouput has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+  // Error checking
+  if (i_start + i_bitLen > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::extract: i_start %d + i_bitLen %d > iv_NumBits (%d)\n", i_start, i_bitLen, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_bitLen > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_bitLen %d > iv_NumBits (%d)", i_bitLen, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_bitLen == 0) {
+    return ECMD_DBUF_SUCCESS;
+  }
+
+  ecmdDataBuffer extractBuffer(i_bitLen);
+  rc = extractBuffer.insert(*this, 0, i_bitLen, i_start);
+  if (rc) {
+    RETURN_ERROR(rc);
+  }
+
+  // Now do a byte loop, setting the data in o_data
+  int numBytes = extractBuffer.getByteLength();
+  for (int i = 0; i < numBytes; i++) {
+    o_data[i] = extractBuffer.getByte(i);
+  }
+
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(i_start, i_bitLen)) {
+      ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character      present\n");
+      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
+    }
+  }
+#endif
+
+  return rc;
 }
 
 
