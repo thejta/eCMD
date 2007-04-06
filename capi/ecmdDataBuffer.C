@@ -1643,6 +1643,8 @@ uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_
     return ECMD_DBUF_SUCCESS;
   }
 
+  // Put the users data into a temporary buffer, which will align it on byte boundaries.
+  // Then just loop over the extractBuffer, placing it byte by byte into o_data
   ecmdDataBuffer extractBuffer(i_bitLen);
   rc = extractBuffer.insert(*this, 0, i_bitLen, i_start);
   if (rc) {
