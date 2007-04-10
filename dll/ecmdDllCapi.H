@@ -65,20 +65,24 @@ uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileTy
 
 bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
 
 uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode); 
 
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t dllGetRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
 
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
@@ -145,6 +149,7 @@ uint32_t dllIStepsByNameMultiple(std::list< std::string > i_stepNames);
 
 uint32_t dllIStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepNameEnd); 
 
+#ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
 uint32_t dllQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data); 
 
 uint32_t dllGetSpr(ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data); 
@@ -179,6 +184,7 @@ uint32_t dllPutSlb(ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer 
 
 uint32_t dllPutSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
+#endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
 

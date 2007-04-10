@@ -52,6 +52,7 @@
 //----------------------------------------------------------------------
 
 /** @brief Used to hold info out of the scandef for getringdump */
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 struct ecmdLatchDataEntry {
   std::string ringName;                 ///< Name of ring that contains this latch
   std::string latchName;                ///< Full Latch Name (including any parens)
@@ -61,11 +62,14 @@ struct ecmdLatchDataEntry {
   uint32_t latchStartBit;               ///< Start bit in latch (comes from parens in latch name) 
   uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name) 
 };
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 struct ecmdCheckRingData {
   std::string ringName;                 ///< Name of ring
   int core;                             ///< Core value -1 if not a core ring
 };
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
 //----------------------------------------------------------------------
 //  Constants
@@ -808,6 +812,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 }
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
+
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   bool expectFlag = false;
@@ -1248,6 +1254,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif ECMD_REMOVE_RING_FUNCTIONS
+
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
@@ -1565,6 +1573,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 }
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t ret_rc = ECMD_SUCCESS;
@@ -2154,6 +2163,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**

@@ -61,6 +61,9 @@
 /* Removes simulation interfaces from api and ecmdDataBuffer */
 //#define REMOVE_SIM
 
+/* Removes Ring interfaces from api and cmdline code */
+//#define ECMD_REMOVE_RING_FUNCTIONS
+
 /* Removes Latch interfaces from api and cmdline code */
 //#define ECMD_REMOVE_LATCH_FUNCTIONS
 
@@ -72,6 +75,9 @@
 
 /* Removes Clock interfaces from api and cmdline code */
 //#define ECMD_REMOVE_CLOCK_FUNCTIONS
+
+/* Removes Processor interfaces from api and cmdline code */
+//#define ECMD_REMOVE_PROCESSOR_FUNCTIONS
 
 /* Removes RefClock interfaces from api and cmdline code */
 //#define ECMD_REMOVE_REFCLOCK_FUNCTIONS

@@ -58,6 +58,7 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
+#ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
 
 uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
@@ -705,3 +706,5 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 }
 
 
+
+#endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
