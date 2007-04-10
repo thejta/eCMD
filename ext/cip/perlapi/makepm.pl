@@ -121,24 +121,7 @@ print OUT "\n";
 while (<IN>) {
   # Maintain the remove_sim and other ifdef's
   if (/REMOVE_SIM/ || 
-      /ECMD_REMOVE_LATCH_FUNCTIONS/ ||
-      /ECMD_REMOVE_SPY_FUNCTIONS/ || 
-      /ECMD_REMOVE_ARRAY_FUNCTIONS/ ||
-      /ECMD_REMOVE_CLOCK_FUNCTIONS/ ||
-      /ECMD_REMOVE_REFCLOCK_FUNCTIONS/ ||
-      /ECMD_REMOVE_TRACEARRAY_FUNCTIONS/ ||
-      /ECMD_REMOVE_MEMORY_FUNCTIONS/ ||
-      /ECMD_REMOVE_VPD_FUNCTIONS/ ||
-      /ECMD_REMOVE_I2C_FUNCTIONS/ ||
-      /ECMD_REMOVE_GPIO_FUNCTIONS/ ||
-      /ECMD_REMOVE_POWER_FUNCTIONS/ ||
-      /ECMD_REMOVE_ADAL_FUNCTIONS/ ||
-      /CIP_REMOVE_INSTRUCTION_FUNCTIONS/ ||
-      /CIP_REMOVE_BREAKPOINT_FUNCTIONS/ ||
-      /CIP_REMOVE_VR_FUNCTIONS/ ||
-      /CIP_REMOVE_MEMORY_FUNCTIONS/ ||
-      /GIP_REMOVE_MEMORY_FUNCTIONS/ ||
-      /GIP_REMOVE_BREAKPOINT_FUNCTIONS/ ) {
+      /_REMOVE_/ ) {
         print OUT $_;
 
       } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {

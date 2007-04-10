@@ -361,6 +361,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 
 /** @name Scan Functions */
 //@{
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
  @brief Scans the ring from the selected chip into the data buffer
  @retval ECMD_INVALID_RING if ringname is not valid for target
@@ -402,6 +403,7 @@ uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
 
 */
 uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
@@ -455,6 +457,7 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
 uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
  @brief Scans the specified number of bits from the selected chip and ring address into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -506,6 +509,7 @@ uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
 
 */
 uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
 
 
@@ -1120,6 +1124,7 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
 /** @name Processor Functions */
 //@{
 
+#ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
 
 /**
  @brief Query Information about a Processor Register (SPR/GPR/FPR)
@@ -1489,6 +1494,7 @@ uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
 
 */
 uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+#endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
 
 //@}
 /* End Processor Functions */
