@@ -78,6 +78,7 @@ struct ecmdCheckRingData {
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchDataEntry > & o_latchdata);
 void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch);
 
@@ -120,6 +121,7 @@ bool operator!= (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs)
 
   return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
 }
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 
 
@@ -2153,6 +2155,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   return rc;
 }
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
    @brief Parse the scandef for the ringname provided and load all the latches into latchBuffer for later retrieval
    @param target Chip target to operate on
@@ -2363,7 +2366,6 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   return rc;
 }
 
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch) {
   char temp[50];
   std::string printed;
