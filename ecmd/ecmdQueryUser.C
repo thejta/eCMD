@@ -676,7 +676,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
     /* configd    */
     /* ---------- */
-  } else if (!strcmp(argv[0],"configd")) {
+  } else if (!strcmp(argv[0],"configd") || !strcmp(argv[0],"exist")) {
 
     
 
@@ -830,17 +830,32 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
 	      target.core = (uint8_t)(*coreListIter);
 
-	      if (ecmdQueryTargetConfigured(target)) {
-                 printed = "ecmdquery - Target ";
-                 printed += ecmdWriteTarget(target);
-                 printed += " is configured!\n";
-                 ecmdOutput(printed.c_str());
-	      }  else {
-                 printed = "ecmdquery - Target ";
-                 printed += ecmdWriteTarget(target);
-                 printed += " is not configured!\n";
-                 ecmdOutput(printed.c_str());
-                 targetNotFound = true;
+              if (!strcmp(argv[0],"configd")) {
+                if (ecmdQueryTargetConfigured(target)) {
+                  printed = "ecmdquery - Target ";
+                  printed += ecmdWriteTarget(target);
+                  printed += " is configured!\n";
+                  ecmdOutput(printed.c_str());
+                }  else {
+                  printed = "ecmdquery - Target ";
+                  printed += ecmdWriteTarget(target);
+                  printed += " is not configured!\n";
+                  ecmdOutput(printed.c_str());
+                  targetNotFound = true;
+                }
+              } else {
+                if (ecmdQueryTargetExist(target)) {
+                  printed = "ecmdquery - Target ";
+                  printed += ecmdWriteTarget(target);
+                  printed += " does exist!\n";
+                  ecmdOutput(printed.c_str());
+                }  else {
+                  printed = "ecmdquery - Target ";
+                  printed += ecmdWriteTarget(target);
+                  printed += " does not exist!\n";
+                  ecmdOutput(printed.c_str());
+                  targetNotFound = true;
+                }
               }
 	
 	    }//Loop cores
