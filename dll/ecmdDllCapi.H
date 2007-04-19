@@ -65,6 +65,8 @@ uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileTy
 
 bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
 
+bool dllQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
+
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
@@ -207,86 +209,6 @@ uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
-#ifndef REMOVE_SIM
-uint32_t dllSimaet(const char* i_function); 
-
-uint32_t dllSimcheckpoint(const char* i_checkpoint); 
-
-uint32_t dllSimclock(uint32_t i_cycles); 
-
-uint32_t dllSimecho(const char* i_message); 
-
-uint32_t dllSimexit(uint32_t i_rc, const char* i_message); 
-
-uint32_t dllSimEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row); 
-
-uint32_t dllSimgetcurrentcycle(uint64_t & o_cyclecount); 
-
-uint32_t dllSimGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength); 
-
-uint32_t dllSiminit(const char* i_checkpoint); 
-
-uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval); 
-
-uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval); 
-
-uint32_t dllSimPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
-
-uint32_t dllSimrestart(const char* i_checkpoint); 
-
-uint32_t dllSimSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
-
-uint32_t dllSimSUBCMD(const char* i_command); 
-
-uint32_t dllSimtckinterval(uint32_t i_tckinterval); 
-
-uint32_t dllSimUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row, uint32_t i_offset); 
-
-uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
-
-uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
-
-uint32_t dllQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
-
-uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
-
-std::string dllSimCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command); 
-
-uint32_t dllSimFusionRand32(uint32_t i_min, uint32_t i_max, const char* i_fusionRandObject); 
-
-uint64_t dllSimFusionRand64(uint64_t i_min, uint64_t i_max, const char* i_fusionRandObject); 
-
-uint32_t dllSimOutputFusionMessage(const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file, uint32_t i_line); 
-
-void dllSimSetFusionMessageFormat( const char* i_format); 
-
-uint32_t dllSimPutDial(const char* i_dialName, const std::string i_enumValue); 
-
-uint32_t dllSimGetDial(const char* i_dialName, std::string & o_enumValue); 
-
-uint32_t dllSimGetOutFile(const char* i_filename, std::string & o_absFilename); 
-
-uint32_t dllSimGetInFile(const char* i_filename, std::string & o_absFilename); 
-
-uint32_t dllSimGetEnvironment(const char* i_envName, std::string & o_envValue); 
-
-uint32_t dllSimGetModelInfo(ecmdSimModelInfo& o_modelInfo); 
-
-uint32_t dllSimWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut, bool i_passive); 
-
-#endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
 std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
@@ -407,6 +329,86 @@ uint32_t dllAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
 uint32_t dllAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState); 
 
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
+#ifndef REMOVE_SIM
+uint32_t dllSimaet(const char* i_function); 
+
+uint32_t dllSimcheckpoint(const char* i_checkpoint); 
+
+uint32_t dllSimclock(uint32_t i_cycles); 
+
+uint32_t dllSimecho(const char* i_message); 
+
+uint32_t dllSimexit(uint32_t i_rc, const char* i_message); 
+
+uint32_t dllSimEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row); 
+
+uint32_t dllSimgetcurrentcycle(uint64_t & o_cyclecount); 
+
+uint32_t dllSimGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength); 
+
+uint32_t dllSiminit(const char* i_checkpoint); 
+
+uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval); 
+
+uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval); 
+
+uint32_t dllSimPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
+
+uint32_t dllSimrestart(const char* i_checkpoint); 
+
+uint32_t dllSimSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
+
+uint32_t dllSimSUBCMD(const char* i_command); 
+
+uint32_t dllSimtckinterval(uint32_t i_tckinterval); 
+
+uint32_t dllSimUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row, uint32_t i_offset); 
+
+uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
+
+uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
+
+uint32_t dllQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
+
+uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
+
+std::string dllSimCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command); 
+
+uint32_t dllSimFusionRand32(uint32_t i_min, uint32_t i_max, const char* i_fusionRandObject); 
+
+uint64_t dllSimFusionRand64(uint64_t i_min, uint64_t i_max, const char* i_fusionRandObject); 
+
+uint32_t dllSimOutputFusionMessage(const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file, uint32_t i_line); 
+
+void dllSimSetFusionMessageFormat( const char* i_format); 
+
+uint32_t dllSimPutDial(const char* i_dialName, const std::string i_enumValue); 
+
+uint32_t dllSimGetDial(const char* i_dialName, std::string & o_enumValue); 
+
+uint32_t dllSimGetOutFile(const char* i_filename, std::string & o_absFilename); 
+
+uint32_t dllSimGetInFile(const char* i_filename, std::string & o_absFilename); 
+
+uint32_t dllSimGetEnvironment(const char* i_envName, std::string & o_envValue); 
+
+uint32_t dllSimGetModelInfo(ecmdSimModelInfo& o_modelInfo); 
+
+uint32_t dllSimWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut, bool i_passive); 
+
+#endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
 void dllPushCommandArgs(); 
 
 void dllPopCommandArgs(); 

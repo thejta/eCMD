@@ -1254,7 +1254,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   return rc;
 }
-#endif ECMD_REMOVE_RING_FUNCTIONS
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
