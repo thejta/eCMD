@@ -351,6 +351,19 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
 */
 bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
 
+/**
+ @brief Query if a particular target exists in the system
+ @param i_target Target to query in system configuration
+ @param i_queryData If specified this data will be used, otherwise a call to ecmdQueryExist will be made
+ @retval true if Target is configured in system
+ @retval false if Target is not configured in system
+
+ NOTE : This function calls ecmdQueryExist and searchs for the specified target<br>
+ NOTE : The target State fields must be filled in as either VALID or UNUSED<br>
+ TARGET DEPTH  : cage, node, slot, pos, core, thread<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+bool ecmdQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
 
 
 //@}
@@ -1680,479 +1693,6 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
 //@}
 /* End Memory Functions */
 
-
-
-
-/** @name Simulation Functions */
-//@{
-#ifndef REMOVE_SIM
-
-/**
- @brief Enable/Disable Simulation AET Logging
- @param i_function Should be either 'on'/'off'/'flush'
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simaet(const char* i_function);
-
-/**
- @brief Store a checkpoint to specified file
- @param i_checkpoint Name of checkpoint to write to
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simcheckpoint(const char* i_checkpoint);
-
-/**
- @brief Clock the model
- @param i_cycles Number of cycles to clock model
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simclock(uint32_t i_cycles);
-
-/**
- @brief Echo message to stdout and sim log
- @param i_message Message to echo
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simecho(const char* i_message);
-
-/**
- @brief Close down the simulation model
- @param i_rc [Optional] Send a testcase failure return code to the simulation
- @param i_message [Optional[ Send a testcase failure message to the simulation
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
-
-/**
- @brief Perform expect on facility using name
- @param i_facname Facility name
- @param i_expect Value to expect on facility
- @param i_bitlength Length of data to expect
- @param i_row Optional: Array Facility row
- @param i_offset Optional: Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Perform expect on TCFAC facility
- @param i_tcfacname Facility name
- @param i_expect Value to expect on facility
- @param i_bitlength Length of data to expect
- @param i_row Optional: Array Facility row
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
-
-/**
- @brief Fetch current model cycle count
- @param o_cyclecount Current model cycle count
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simgetcurrentcycle(uint64_t & o_cyclecount);
-
-/**
- @brief Retrieve a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to read from facility
- @param o_data Data read from facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Retrieve a Facility using a name - preserving Xstate
- @param i_facname Facility name
- @param i_bitlength Bit length to read from facility
- @param o_data Data read from facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Retrieve a TCFAC facility
- @param i_tcfacname TCFAC name
- @param o_data Value read
- @param i_row Optional: Array Facility row
- @param i_startbit Optional: Startbit to read
- @param i_bitlength Optional: Length of data to read
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
-
-/**
- @brief Initialize the simulation
- @param i_checkpoint Checkpoint to load : 'none' to skip
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t siminit(const char* i_checkpoint);
-
-
-/**
- @brief Poll a facility waiting for expected value
- @param i_facname Facility name
- @param i_bitlength Bit length to expect
- @param i_expect Data to expect in facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @param i_maxcycles Optional : Maximum number of cycles to run 
- @param i_pollinterval Option : Number of clock cycles to run between each poll
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
-
-/**
- @brief Poll a TCFAC facility waiting for expected value
- @param i_tcfacname Facility name
- @param i_bitlength Bit length to expect
- @param i_expect Data to expect in facility
- @param i_row Optional: Array row
- @param i_startbit Optional : Facility startbit
- @param i_maxcycles Optional : Maximum number of cycles to run 
- @param i_pollinterval Option : Number of clock cycles to run between each poll
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
-
-
-
-/**
- @brief Write a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to write to facility
- @param i_data Data to write
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Write a Facility using a name - preserving Xstate
- @param i_facname Facility name
- @param i_bitlength Bit length to write to facility
- @param i_data Data to write
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Write a TCFAC facility
- @param i_tcfacname TCFAC name
- @param i_data Value to write
- @param i_row Optional: Array Facility row
- @param i_numrows Optional: Number of rows to write
- @param i_bitlength Bit length to write to facility
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
-
-/**
- @brief Load a checkpoint into model
- @param i_checkpoint Name of checkpoint
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simrestart(const char* i_checkpoint);
-
-/**
- @brief Stick a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to stick to facility
- @param i_data Data to stick
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Stick a TCFAC facility
- @param i_tcfacname TCFAC name
- @param i_data Value to stick
- @param i_row Optional: Array Facility row
- @param i_numrows Optional: Number of rows to stick
- @param i_bitlength Bit length to write to facility
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
-
-/**
- @brief Run RTX SUBCMD
- @param i_command Command
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simSUBCMD(const char* i_command);
-
-
-/**
- @brief Set TCK Interval setting in the model for JTAG Master
- @param i_tckinterval new setting for tck interval when using JTAG
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simtckinterval(uint32_t i_tckinterval);
-
-
-
-/**
- @brief Unstick a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to unstick to facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Unstick a TCFAC facility
- @param i_tcfacname TCFAC name
- @param i_data Value to unstick to 
- @param i_row Optional: Array Facility row
- @param i_numrows Optional: Number of rows to unstick
- @param i_bitlength Bit length to unstick to facility
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
-
-
-/**
- @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_hierarchy Return the model hierarchy for this target
-
-NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
- TARGET DEPTH : pos, core<br>
- TARGET STATES : Must be Initialized<br>
-
-*/
-uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
-
-/**
- @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_timestamp Timestamp value from simulation model
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-
- TARGET DEPTH : pos<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
-
-/**
- @brief Will retrieve the scandef timestamp from the scandef being used for the specified target
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_timestamp Timestamp value from scandef
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
-
-/**
- @brief Run a command on another Fusion module
- @param i_fusionObject Name of Fusion module to run against
- @param i_replicaID Id of Fusion module
- @param i_command Command to run
- @retval Results of command
-
- NOTE - The fusion module has to provide the appropriate api for this call to be functional<br>
-*/
-std::string simCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command);
-
-
-/**
- @brief Returns a random 32 bit number in the range [min,max] using the Fusion MasterSeed;
- by default each client will have an own instance of Fusion's
- Random32BitNumber object, but the user can specify the object's name
- and reuse the same object across multiple clients;
- if no range is specified 0 and MAXINT32 will be used
- @param i_min lower bound for random number
- @param i_max upper bound for random number
- @param i_fusionRandObject name of Fusion random number object to use; 
-  if not specified, each this client will get a unique instance of the class
- @retval Random number
- */
-uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* i_fusionRandObject = NULL);
-
-/**
- @brief Returns a random 64 bit number in the range [min,max] using the Fusion MasterSeed;
- by default each client will have an own instance of Fusion's
- Random64BitNumber object, but the user can specify the object's name
- and reuse the same object across multiple clients;
- if no range is specified 0 and MAXINT64 will be used
- @param i_min lower bound for random number
- @param i_max upper bound for random number
- @param i_fusionRandObject name of Fusion random number object to use; 
-  if not specified, each this client will get a unique instance of the class
- @retval Random number
- */
-uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
-
-
-/**
- @brief Echo Messages to Fusion logs
- @param i_header Message header
- @param i_message Message text
- @param i_severity Severity
- @param i_type Message type
- @param i_file File where message originated
- @param i_line Line number where message originated
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-*/
-uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file = NULL, uint32_t i_line = 0);
-/**
- @brief Set Fusion Message Format
- @param i_format New Format
-*/
-void simSetFusionMessageFormat ( const char* i_format);
-
-/* Macros to easily use above message functions */
-#ifndef ECMD_PERLAPI
-# define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-# define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-# define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-# define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-#endif
-
-/**
- @brief Write a simulation dial with specified value
- @param i_dialName Fully qualified dial name
- @param i_enumValue Value to set dial to either enum or numeric (ie 0b11 or 0xFE)
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-*/
-uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
-/**
- @brief Read a simulation dial
- @param i_dialName Fully qualified dial name
- @param o_enumValue Value read from model
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-*/
-uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
-
-
-/**
- @brief Obtain absolute filename of a file that will be placed in the SIMOUT directory of the server / Fusion process and add new file to the bom information in the SUM file
- @param i_filename filename (w/o path information) of the file to create / lookup in the SIMOUT directory
- @param o_absFilename will contain the absolute filename upon successful return from the call
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
- */
-uint32_t simGetOutFile(const char* i_filename, std::string & o_absFilename);
-
-/**
- @brief Resolve absolute filename of a file by searching the SIMIN paths and add new file to the bom information in the SUM file
- @param i_filename name (w/o path information) of the file to lookup in the SIMIN directories
- @param o_absFilename will contain the absolute filename upon successful return from the call
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
- */
-uint32_t simGetInFile(const char* i_filename, std::string & o_absFilename);
-
-/**
- @brief Retrieve value of an environment variable on the server side
- @param i_envName name of environment variable to retrieve
- @param o_envValue will contain the envvar's value upon successful return from the call
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-*/
-uint32_t simGetEnvironment(const char* i_envName, std::string & o_envValue);
-
-/**
- @brief Query information about the model from the server
- @param o_modelInfo pointer to a user-provided sd_model_info struct; SDAPI will fill the members of this struct upon successful return from the call
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
- 
- */
-uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
-
-/**
- @brief Set a breakpoint in the simulator based upon a facility
- blocks the caller until a facility has a certain value or the timeout has
- occurred; will make use of HWBreakpoints if enabled (SDGenerator.UseHWBreakpointing=true)
- @param i_facName   name of facility to watch
- @param i_bitNumber which bit of the facility to watch
- @param i_bitValue  the value to wait for
- @param i_timeOut   number of cycles after which to fail and return control to the testcase; disabled by default (if set to 0)
- @param i_passive  set to false to make SimDispatcher clock the simulator while waiting for the event; set to true to passively wait for the event to happen
- (simulator is driven by other Fusion object or other testcase)
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
- */
-uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut = 0, bool i_passive = false); 
-
-#endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
-//@}
-/* End Simulation Functions */
-
-
 /** @name Error Handling Functions */
 //@{
 
@@ -3022,6 +2562,475 @@ uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
 uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState);
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
 //@}
+
+/** @name Simulation Functions */
+//@{
+#ifndef REMOVE_SIM
+
+/**
+ @brief Enable/Disable Simulation AET Logging
+ @param i_function Should be either 'on'/'off'/'flush'
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simaet(const char* i_function);
+
+/**
+ @brief Store a checkpoint to specified file
+ @param i_checkpoint Name of checkpoint to write to
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simcheckpoint(const char* i_checkpoint);
+
+/**
+ @brief Clock the model
+ @param i_cycles Number of cycles to clock model
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simclock(uint32_t i_cycles);
+
+/**
+ @brief Echo message to stdout and sim log
+ @param i_message Message to echo
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simecho(const char* i_message);
+
+/**
+ @brief Close down the simulation model
+ @param i_rc [Optional] Send a testcase failure return code to the simulation
+ @param i_message [Optional[ Send a testcase failure message to the simulation
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
+
+/**
+ @brief Perform expect on facility using name
+ @param i_facname Facility name
+ @param i_expect Value to expect on facility
+ @param i_bitlength Length of data to expect
+ @param i_row Optional: Array Facility row
+ @param i_offset Optional: Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Perform expect on TCFAC facility
+ @param i_tcfacname Facility name
+ @param i_expect Value to expect on facility
+ @param i_bitlength Length of data to expect
+ @param i_row Optional: Array Facility row
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
+
+/**
+ @brief Fetch current model cycle count
+ @param o_cyclecount Current model cycle count
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simgetcurrentcycle(uint64_t & o_cyclecount);
+
+/**
+ @brief Retrieve a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to read from facility
+ @param o_data Data read from facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Retrieve a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to read from facility
+ @param o_data Data read from facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Retrieve a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param o_data Value read
+ @param i_row Optional: Array Facility row
+ @param i_startbit Optional: Startbit to read
+ @param i_bitlength Optional: Length of data to read
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
+
+/**
+ @brief Initialize the simulation
+ @param i_checkpoint Checkpoint to load : 'none' to skip
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t siminit(const char* i_checkpoint);
+
+
+/**
+ @brief Poll a facility waiting for expected value
+ @param i_facname Facility name
+ @param i_bitlength Bit length to expect
+ @param i_expect Data to expect in facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @param i_maxcycles Optional : Maximum number of cycles to run 
+ @param i_pollinterval Option : Number of clock cycles to run between each poll
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+
+/**
+ @brief Poll a TCFAC facility waiting for expected value
+ @param i_tcfacname Facility name
+ @param i_bitlength Bit length to expect
+ @param i_expect Data to expect in facility
+ @param i_row Optional: Array row
+ @param i_startbit Optional : Facility startbit
+ @param i_maxcycles Optional : Maximum number of cycles to run 
+ @param i_pollinterval Option : Number of clock cycles to run between each poll
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+
+
+
+/**
+ @brief Write a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to write to facility
+ @param i_data Data to write
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Write a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to write to facility
+ @param i_data Data to write
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Write a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to write
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to write
+ @param i_bitlength Bit length to write to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
+
+/**
+ @brief Load a checkpoint into model
+ @param i_checkpoint Name of checkpoint
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simrestart(const char* i_checkpoint);
+
+/**
+ @brief Stick a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to stick to facility
+ @param i_data Data to stick
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Stick a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to stick
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to stick
+ @param i_bitlength Bit length to write to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
+
+/**
+ @brief Run RTX SUBCMD
+ @param i_command Command
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simSUBCMD(const char* i_command);
+
+
+/**
+ @brief Set TCK Interval setting in the model for JTAG Master
+ @param i_tckinterval new setting for tck interval when using JTAG
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simtckinterval(uint32_t i_tckinterval);
+
+
+
+/**
+ @brief Unstick a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to unstick to facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
+ @brief Unstick a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to unstick to 
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to unstick
+ @param i_bitlength Bit length to unstick to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
+
+
+/**
+ @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_hierarchy Return the model hierarchy for this target
+
+NOTE - To retrieve the hierarchy of a processor core the core field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
+ TARGET DEPTH : pos, core<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
+
+/**
+ @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_timestamp Timestamp value from simulation model
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+
+ TARGET DEPTH : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+
+/**
+ @brief Will retrieve the scandef timestamp from the scandef being used for the specified target
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_timestamp Timestamp value from scandef
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+
+/**
+ @brief Run a command on another Fusion module
+ @param i_fusionObject Name of Fusion module to run against
+ @param i_replicaID Id of Fusion module
+ @param i_command Command to run
+ @retval Results of command
+
+ NOTE - The fusion module has to provide the appropriate api for this call to be functional<br>
+*/
+std::string simCallFusionCommand(const char* i_fusionObject, const char* i_replicaID, const char* i_command);
+
+
+/**
+ @brief Returns a random 32 bit number in the range [min,max] using the Fusion MasterSeed;
+ by default each client will have an own instance of Fusion's
+ Random32BitNumber object, but the user can specify the object's name
+ and reuse the same object across multiple clients;
+ if no range is specified 0 and MAXINT32 will be used
+ @param i_min lower bound for random number
+ @param i_max upper bound for random number
+ @param i_fusionRandObject name of Fusion random number object to use; 
+  if not specified, each this client will get a unique instance of the class
+ @retval Random number
+ */
+uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* i_fusionRandObject = NULL);
+
+/**
+ @brief Returns a random 64 bit number in the range [min,max] using the Fusion MasterSeed;
+ by default each client will have an own instance of Fusion's
+ Random64BitNumber object, but the user can specify the object's name
+ and reuse the same object across multiple clients;
+ if no range is specified 0 and MAXINT64 will be used
+ @param i_min lower bound for random number
+ @param i_max upper bound for random number
+ @param i_fusionRandObject name of Fusion random number object to use; 
+  if not specified, each this client will get a unique instance of the class
+ @retval Random number
+ */
+uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
+
+
+/**
+ @brief Echo Messages to Fusion logs
+ @param i_header Message header
+ @param i_message Message text
+ @param i_severity Severity
+ @param i_type Message type
+ @param i_file File where message originated
+ @param i_line Line number where message originated
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file = NULL, uint32_t i_line = 0);
+/**
+ @brief Set Fusion Message Format
+ @param i_format New Format
+*/
+void simSetFusionMessageFormat ( const char* i_format);
+
+/* Macros to easily use above message functions */
+#ifndef ECMD_PERLAPI
+# define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+# define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+# define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+# define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#endif
+
+/**
+ @brief Write a simulation dial with specified value
+ @param i_dialName Fully qualified dial name
+ @param i_enumValue Value to set dial to either enum or numeric (ie 0b11 or 0xFE)
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
+/**
+ @brief Read a simulation dial
+ @param i_dialName Fully qualified dial name
+ @param o_enumValue Value read from model
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
+
+
+/**
+ @brief Obtain absolute filename of a file that will be placed in the SIMOUT directory of the server / Fusion process and add new file to the bom information in the SUM file
+ @param i_filename filename (w/o path information) of the file to create / lookup in the SIMOUT directory
+ @param o_absFilename will contain the absolute filename upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simGetOutFile(const char* i_filename, std::string & o_absFilename);
+
+/**
+ @brief Resolve absolute filename of a file by searching the SIMIN paths and add new file to the bom information in the SUM file
+ @param i_filename name (w/o path information) of the file to lookup in the SIMIN directories
+ @param o_absFilename will contain the absolute filename upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simGetInFile(const char* i_filename, std::string & o_absFilename);
+
+/**
+ @brief Retrieve value of an environment variable on the server side
+ @param i_envName name of environment variable to retrieve
+ @param o_envValue will contain the envvar's value upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t simGetEnvironment(const char* i_envName, std::string & o_envValue);
+
+/**
+ @brief Query information about the model from the server
+ @param o_modelInfo pointer to a user-provided sd_model_info struct; SDAPI will fill the members of this struct upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ 
+ */
+uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
+
+/**
+ @brief Set a breakpoint in the simulator based upon a facility
+ blocks the caller until a facility has a certain value or the timeout has
+ occurred; will make use of HWBreakpoints if enabled (SDGenerator.UseHWBreakpointing=true)
+ @param i_facName   name of facility to watch
+ @param i_bitNumber which bit of the facility to watch
+ @param i_bitValue  the value to wait for
+ @param i_timeOut   number of cycles after which to fail and return control to the testcase; disabled by default (if set to 0)
+ @param i_passive  set to false to make SimDispatcher clock the simulator while waiting for the event; set to true to passively wait for the event to happen
+ (simulator is driven by other Fusion object or other testcase)
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut = 0, bool i_passive = false); 
+
+#endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
+//@}
+/* End Simulation Functions */
 
 #ifndef DOCUMENTATION
 /** @name BackDoor Target Arg functions */

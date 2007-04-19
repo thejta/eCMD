@@ -144,6 +144,9 @@ std::string dllParseReturnCode(uint32_t i_returnCode);
 uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
 bool dllIsValidTargetString(std::string str);
+/* @brief used by TargetConfigured/TargetExist functions */
+bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery);
+
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to sort latch entries from the scandef */
@@ -2453,7 +2456,17 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
   return ret;
 }
 
+/* TargetConfiged and TargetExist are the same function, except for having to call a different interface */
+/* Wrapping them this way, to call the internal queryTargetConfiguredExist is the most efficient way */
 bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
+  return queryTargetConfigExist(i_target, i_queryData, false);
+}
+
+bool dllQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
+  return queryTargetConfigExist(i_target, i_queryData, true);
+}
+
+bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery) {
   uint32_t rc = ECMD_SUCCESS;
   bool ret = false;
   bool myQuery = false;
@@ -2489,8 +2502,11 @@ bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryDa
     if (queryTarget.threadState != ECMD_TARGET_FIELD_UNUSED) 
       queryTarget.threadState = ECMD_TARGET_FIELD_VALID;
 
-
-    rc = dllQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
+    if (i_existQuery) {
+      rc = dllQueryExist(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
+    } else {
+      rc = dllQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
+    }
     if (rc) {
       delete i_queryData;
       return ret;
