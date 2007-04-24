@@ -21,6 +21,9 @@ CAPI_SOURCE  := ${CAPI_SOURCE} sedcScomdefParser.C sedcScomdefClasses.C sedcComm
 VPATH        := ${VPATH}sedcScomdef
 CFLAGS       := ${CFLAGS} -IsedcScomdef
 
+# Autogeneration flag
+GENERATED_SOURCE := ecmdClientCapiFunc.C ecmdDllCapi.H ecmdClientEnums.H
+AUTOGEN_FLAG := 0
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -89,6 +92,7 @@ endif
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
+#all: dir autogen ${TARGET} ${SLIB}
 all: dir ${TARGET} ${SLIB}
 	@touch t.o t.a t.so
 	@mv *.o *.a *.so ${SUBDIR}
@@ -100,9 +104,7 @@ all: dir ${TARGET} ${SLIB}
 	-@cp -p ecmdDllCapi.H ../dll/
 
 clean: objclean exportclean
-	rm -f ecmdClientCapiFunc.C
-	rm -f ecmdDllCapi.H
-	rm -f ecmdClientEnums.H
+	rm -f $(GENERATED_SOURCE)
 
 objclean:
 	rm -rf ${SUBDIR} 
@@ -163,7 +165,7 @@ ${SLIB}: ${SLIB_SOURCE_OBJS}
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
-ecmdClientCapiFunc.C ecmdDllCapi.H ecmdClientEnums.H: ecmdClientCapi.H makedll.pl 
-	@echo "==== Auto Generate Client Functions"
+$(GENERATED_SOURCE): ecmdClientCapi.H makedll.pl
+	@echo "==== Auto Generating $@"
 	@chmod 777 makedll.pl
-	./makedll.pl ecmd
+	@./makedll.pl ecmd $@
