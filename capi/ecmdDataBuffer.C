@@ -68,6 +68,11 @@ char **p_xargv;
 #endif
 #endif
 
+// New Constants for improved performance
+#define MIN(x,y)            (((x)<(y))?x:y)
+#define UNIT_SZ             32
+#define LOOP_NR             1000000
+#define NR              32
 
 #define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; } return i_rc;
 #define SET_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; }
@@ -77,6 +82,42 @@ char **p_xargv;
 //----------------------------------------------------------------------
 uint32_t ecmdExtract(uint32_t *i_sourceData, uint32_t i_startBit, uint32_t i_numBitsToExtract, uint32_t *o_destData);
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count);
+
+
+//----------------------------------------------------------------------
+//  Inlined Functions used to improve Performance
+//----------------------------------------------------------------------
+inline /* leave this inlined */
+uint32_t fast_mask32(int32_t i_pos, int32_t i_len) {
+        /* generates an arbitrary 32-bit mask using two
+           operations, not too shabby */
+
+        static const uint32_t l_mask32[] = {
+                0x00000000,
+                0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
+                0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
+                0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
+                0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
+                0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
+                0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
+                0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
+                0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF,
+        };
+        return l_mask32[i_len] >> i_pos;
+}
+
+inline /* leave this inlined */
+uint32_t fast_set32(uint32_t i_trg, int32_t i_pos, int32_t i_len) {
+
+    return fast_mask32(i_pos, i_len) | i_trg;
+}
+
+inline /* leave this inlined */
+uint32_t fast_clear32(uint32_t i_trg, int32_t i_pos, int32_t i_len) {
+
+    return fast_mask32(i_pos, i_len) & ~i_trg;
+}
+
 
 //----------------------------------------------------------------------
 //  Data Storage Header Format - Example has 4 words
@@ -923,10 +964,52 @@ uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   } else {
+
+    static const uint8_t l_num_bits[] = {
+        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+        4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
+    };
+
     uint32_t count = 0;
-    for (uint32_t i = 0; i < i_len; i++) {
-      if (this->isBitSet(i_bit + i)) count++;
-    }
+
+    do {
+        const uint32_t * p_data = iv_Data + i_bit / UNIT_SZ;
+        int32_t slop = i_bit % UNIT_SZ;
+
+        /* "cnt" = largest number of bits to be counted each pass */
+        int32_t cnt = MIN(i_len, UNIT_SZ);
+        cnt = MIN(cnt, UNIT_SZ - slop);
+
+        uint32_t bits = *p_data;
+
+        /* "slop" = unaligned bits */
+        if (slop || cnt < UNIT_SZ)
+            bits &= fast_mask32(slop, cnt);
+
+        /* count the set bits in each byte */
+        count += l_num_bits[(bits & 0x000000FF) >> 0];
+        count += l_num_bits[(bits & 0x0000FF00) >> 8];
+        count += l_num_bits[(bits & 0x00FF0000) >> 16];
+        count += l_num_bits[(bits & 0xFF000000) >> 24];
+
+        i_bit += cnt;
+        i_len -= cnt;
+    } while (0 < i_len);
+
     return count;
   }
 }
@@ -1407,43 +1490,52 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
 
-    /* Can we do this insert with a memcpy ? */
-    /* If we aren't dealing with xstates 
-       and our data starts on word boundaries
-       and our length is an even byte multiple, 
-       we can use memcpy which is much faster then bit by bit inserts */
-    /* We should be able to redo this to byte aligned boundaries but that gets
-       into byte swap issues */
-    if ((i_targetStart % 32 == 0) &&
-	(i_sourceStart % 32 == 0) &&
-	(i_len % 8 == 0)
-#ifndef REMOVE_SIM
-	&& !iv_XstateEnabled
-#endif
-	) {
-      ecmdBigEndianMemCopy(&(iv_Data[i_targetStart / 32]), 
-			   &(i_dataIn[i_sourceStart / 32]),
-			   i_len / 8);
+    do {
+        const uint32_t * p_src = i_dataIn + i_sourceStart / UNIT_SZ;
+        uint32_t * p_trg = iv_Data + i_targetStart / UNIT_SZ;
 
-    } else {    
-      uint32_t mask = 0x80000000 >> (i_sourceStart % 32);
-      const uint32_t * sourcePtr = i_dataIn;
-      for (uint32_t i = 0; i < i_len; i++) {
-	if (sourcePtr[(i+i_sourceStart)/32] & mask) {
-	  rc = this->setBit(i_targetStart+i);
-	}
-	else { 
-	  rc = this->clearBit(i_targetStart+i);
-	}
+        /* "slop" = unaligned bits */
+        int32_t src_slop = i_sourceStart % UNIT_SZ;
+        int32_t trg_slop = i_targetStart % UNIT_SZ;
+        /* "shift" = amount of shifting needed for target alignment */
+        int32_t shift = trg_slop - src_slop;
 
-	mask >>= 1;
-	if (mask == 0x00000000) {
-	  mask = 0x80000000;
-	}
-	if (rc) break;
-      }
-    }
-  }
+        int32_t cnt = i_len;
+
+            /* "cnt" = largest number of bits to be moved each pass */
+            cnt = MIN(cnt, UNIT_SZ);
+            cnt = MIN(cnt, UNIT_SZ - src_slop);
+            cnt = MIN(cnt, UNIT_SZ - trg_slop);
+
+            /* generate the source mask only once */
+            uint32_t mask = fast_mask32(src_slop, cnt);
+            /* read the source bits only once */
+            uint32_t src_bits = *p_src & mask;
+
+            /* ideally (i << -1) would yield (i >> 1), but it
+               doesn't, so we need an extra branch here */
+            if (shift < 0) {
+                shift = -shift;
+                src_bits <<= shift;
+                mask <<= shift;
+            } else {
+                src_bits >>= shift;
+                mask >>= shift;
+            }
+
+            /* clear source '0' bits in the target */
+            *p_trg &= ~mask;
+            /* set source '1' bits in the target */
+            *p_trg |= src_bits;
+
+
+        i_sourceStart += cnt;
+        i_targetStart += cnt;
+
+        i_len -= cnt;
+    } while (0 < i_len);
+
+  } // end of 'else'
   return rc;
 }
 
