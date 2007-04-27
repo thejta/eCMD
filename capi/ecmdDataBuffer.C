@@ -1464,12 +1464,8 @@ uint32_t  ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_ta
       if (i_targetStart+i_len <= iv_NumBits) {
         strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
       }
-    } else if (iv_XstateEnabled) {
-      /* We have xstates, but the incoming buffer didn't, just grab the binary data */
-      if (i_targetStart+i_len <= iv_NumBits) {
-        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genBinStr(i_sourceStart, i_len)).c_str(), i_len);
-      }
-    }      
+    }
+    /* otherwise, Xstate was handled in this->insert() call above */
 #endif
   }
   return rc;
@@ -1534,6 +1530,16 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
 
         i_len -= cnt;
     } while (0 < i_len);
+
+#ifndef REMOVE_SIM   
+    if (iv_XstateEnabled) {
+      /* We have xstates, generate the binary data */
+      if (i_targetStart+i_len <= iv_NumBits) {
+        strncpy(&(iv_DataStr[i_targetStart]), (this->genBinStr(i_sourceStart, i_len)).c_str(), i_len);
+      }
+    }
+#endif
+
 
   } // end of 'else'
   return rc;
