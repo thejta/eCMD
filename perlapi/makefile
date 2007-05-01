@@ -41,6 +41,7 @@ SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perla
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.C)
 MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiFunc.H)
+MAKEPM_OUT   := ${MAKEPM_OUT} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapiIterators.H)
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -198,6 +199,7 @@ ${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o ${LINK_OBJS}
 # *****************************************************************************
 ${MAKEPM_OUT}: ${INCLUDES} makepm.pl 
 	@echo "==== Auto Generate Perl Wrapper Functions"
+	@echo "$@"
 	@chmod 777 makepm.pl
 	./makepm.pl ecmd
 	$(foreach ext, ${EXTENSIONS}, ${shell ./makepm.pl ${ext} })
