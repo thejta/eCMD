@@ -346,32 +346,40 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::list<ecmdError>::iterator cur;
   char tmp[200];
   bool first = true;
+  std::list<std::list<ecmdError>::iterator> deleteIterators;
+
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
       if (first) {
         ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
         first = false;
-      } else {
-        ret  += "------\n";
       }
-      ret += (*cur).message;
+      ret = ret + (*cur).message + "\n";
+      // Store for deletion at the end
+      // It's easier to do just do it at the end instead of when we are in the middle of this loop
+      deleteIterators.push_back(cur);
     }
   }
   if (!first) {
     /* We must have found something */
     if (i_parseReturnCode) {
-      ret  += "------\n";
       sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCode(i_errorCode).c_str());
       ret += tmp;
     }
-    ret += "==============================================================\n";
+    ret += "===================================================\n";
   }
 
   /* We want to parse the return code even if we didn't finded extended error info */
   if ((ret.length() == 0) && (i_parseReturnCode)) {
     sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_errorCode, dllParseReturnCode(i_errorCode).c_str());
     ret = tmp;
+  }
+
+  // If the delete list isn't empty, go through and delete the messages the user retreived
+  while (!deleteIterators.empty()) {
+    ecmdErrorList.erase(deleteIterators.front());
+    deleteIterators.pop_front();
   }
 
   return ret;
