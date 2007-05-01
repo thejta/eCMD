@@ -71,8 +71,6 @@ char **p_xargv;
 // New Constants for improved performance
 #define MIN(x,y)            (((x)<(y))?x:y)
 #define UNIT_SZ             32
-#define LOOP_NR             1000000
-#define NR              32
 
 #define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; } return i_rc;
 #define SET_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; }
@@ -963,55 +961,53 @@ uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
     ETRAC3("**** ERROR : ecmdDataBuffer::getNumBitsSet: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
-  } else {
-
-    static const uint8_t l_num_bits[] = {
-        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
-    };
-
-    uint32_t count = 0;
-
-    do {
-        const uint32_t * p_data = iv_Data + i_bit / UNIT_SZ;
-        int32_t slop = i_bit % UNIT_SZ;
-
-        /* "cnt" = largest number of bits to be counted each pass */
-        int32_t cnt = MIN(i_len, UNIT_SZ);
-        cnt = MIN(cnt, UNIT_SZ - slop);
-
-        uint32_t bits = *p_data;
-
-        /* "slop" = unaligned bits */
-        if (slop || cnt < UNIT_SZ)
-            bits &= fast_mask32(slop, cnt);
-
-        /* count the set bits in each byte */
-        count += l_num_bits[(bits & 0x000000FF) >> 0];
-        count += l_num_bits[(bits & 0x0000FF00) >> 8];
-        count += l_num_bits[(bits & 0x00FF0000) >> 16];
-        count += l_num_bits[(bits & 0xFF000000) >> 24];
-
-        i_bit += cnt;
-        i_len -= cnt;
-    } while (0 < i_len);
-
-    return count;
   }
+  static const uint8_t l_num_bits[] = {
+    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
+  };
+
+  uint32_t count = 0;
+
+  do {
+    const uint32_t * p_data = iv_Data + i_bit / UNIT_SZ;
+    int32_t slop = i_bit % UNIT_SZ;
+
+    /* "cnt" = largest number of bits to be counted each pass */
+    int32_t cnt = MIN(i_len, UNIT_SZ);
+    cnt = MIN(cnt, UNIT_SZ - slop);
+
+    uint32_t bits = *p_data;
+
+    /* "slop" = unaligned bits */
+    if (slop || cnt < UNIT_SZ)
+      bits &= fast_mask32(slop, cnt);
+
+    /* count the set bits in each byte */
+    count += l_num_bits[(bits & 0x000000FF) >> 0];
+    count += l_num_bits[(bits & 0x0000FF00) >> 8];
+    count += l_num_bits[(bits & 0x00FF0000) >> 16];
+    count += l_num_bits[(bits & 0xFF000000) >> 24];
+
+    i_bit += cnt;
+    i_len -= cnt;
+  } while (0 < i_len);
+
+  return count;
 }
 
 uint32_t   ecmdDataBuffer::shiftRight(uint32_t i_shiftNum) {
@@ -1484,64 +1480,61 @@ uint32_t  ecmdDataBuffer::insert(const uint32_t *i_dataIn, uint32_t i_targetStar
   } else if (i_len > iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
+  }
 
-    do {
-        const uint32_t * p_src = i_dataIn + i_sourceStart / UNIT_SZ;
-        uint32_t * p_trg = iv_Data + i_targetStart / UNIT_SZ;
+  do {
+    const uint32_t * p_src = i_dataIn + i_sourceStart / UNIT_SZ;
+    uint32_t * p_trg = iv_Data + i_targetStart / UNIT_SZ;
 
-        /* "slop" = unaligned bits */
-        int32_t src_slop = i_sourceStart % UNIT_SZ;
-        int32_t trg_slop = i_targetStart % UNIT_SZ;
-        /* "shift" = amount of shifting needed for target alignment */
-        int32_t shift = trg_slop - src_slop;
+    /* "slop" = unaligned bits */
+    int32_t src_slop = i_sourceStart % UNIT_SZ;
+    int32_t trg_slop = i_targetStart % UNIT_SZ;
+    /* "shift" = amount of shifting needed for target alignment */
+    int32_t shift = trg_slop - src_slop;
 
-        int32_t cnt = i_len;
+    int32_t cnt = i_len;
 
-            /* "cnt" = largest number of bits to be moved each pass */
-            cnt = MIN(cnt, UNIT_SZ);
-            cnt = MIN(cnt, UNIT_SZ - src_slop);
-            cnt = MIN(cnt, UNIT_SZ - trg_slop);
+    /* "cnt" = largest number of bits to be moved each pass */
+    cnt = MIN(cnt, UNIT_SZ);
+    cnt = MIN(cnt, UNIT_SZ - src_slop);
+    cnt = MIN(cnt, UNIT_SZ - trg_slop);
 
-            /* generate the source mask only once */
-            uint32_t mask = fast_mask32(src_slop, cnt);
-            /* read the source bits only once */
-            uint32_t src_bits = *p_src & mask;
+    /* generate the source mask only once */
+    uint32_t mask = fast_mask32(src_slop, cnt);
+    /* read the source bits only once */
+    uint32_t src_bits = *p_src & mask;
 
-            /* ideally (i << -1) would yield (i >> 1), but it
-               doesn't, so we need an extra branch here */
-            if (shift < 0) {
-                shift = -shift;
-                src_bits <<= shift;
-                mask <<= shift;
-            } else {
-                src_bits >>= shift;
-                mask >>= shift;
-            }
+    /* ideally (i << -1) would yield (i >> 1), but it
+     doesn't, so we need an extra branch here */
+    if (shift < 0) {
+      shift = -shift;
+      src_bits <<= shift;
+      mask <<= shift;
+    } else {
+      src_bits >>= shift;
+      mask >>= shift;
+    }
 
-            /* clear source '0' bits in the target */
-            *p_trg &= ~mask;
-            /* set source '1' bits in the target */
-            *p_trg |= src_bits;
+    /* clear source '0' bits in the target */
+    *p_trg &= ~mask;
+    /* set source '1' bits in the target */
+    *p_trg |= src_bits;
 
 
-        i_sourceStart += cnt;
-        i_targetStart += cnt;
+    i_sourceStart += cnt;
+    i_targetStart += cnt;
 
-        i_len -= cnt;
-    } while (0 < i_len);
+    i_len -= cnt;
+  } while (0 < i_len);
 
 #ifndef REMOVE_SIM   
-    if (iv_XstateEnabled) {
-      /* We have xstates, generate the binary data */
-      if (i_targetStart+i_len <= iv_NumBits) {
-        strncpy(&(iv_DataStr[i_targetStart]), (this->genBinStr(i_sourceStart, i_len)).c_str(), i_len);
-      }
+  if (iv_XstateEnabled) {
+    /* We have xstates, generate the binary data */
+    if (i_targetStart+i_len <= iv_NumBits) {
+      strncpy(&(iv_DataStr[i_targetStart]), (this->genBinStr(i_sourceStart, i_len)).c_str(), i_len);
     }
+  }
 #endif
-
-
-  } // end of 'else'
   return rc;
 }
 
