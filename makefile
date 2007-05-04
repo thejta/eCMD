@@ -37,7 +37,7 @@ all: ${BUILD_TARGETS}
 
 # The core eCMD pieces
 ecmdcapi:
-	@echo "eCMD Core Client API ..."
+	@echo "eCMD Core Client C-API ..."
 	@cd capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -53,56 +53,146 @@ ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
 	@echo " "
 
 # All of the individual extensions
-cip: ecmdcapi
-	@echo "Cronus/IP Extension API ..."
+########################
+# CIP Extension
+########################
+cip: cipcapi cipperlapi
+
+cipcapi: ecmdcapi
+	@echo "Cronus/IP Extension C-API ..."
 	@cd ext/cip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-cro: ecmdcapi
-	@echo "Cronus Extension API ..."
+cipperlapi:
+	@echo "Cronus/IP Extension Perl-API ..."
+	@cd ext/cip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# CRO Extension
+########################
+cro: crocapi croperlapi
+
+crocapi: ecmdcapi
+	@echo "Cronus Extension C-API ..."
 	@cd ext/cro/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cro/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-scand: ecmdcapi
-	@echo "Scand Extension API ..."
+croperlapi:
+	@echo "Cronus Extension Perl-API ..."
+	@cd ext/cro/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# Scand Extension
+########################
+scand: scandcapi scandperlapi
+
+scandcapi: ecmdcapi
+	@echo "Scand Extension C-API ..."
 	@cd ext/scand/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-eip: ecmdcapi
-	@echo "Eclipz IP Extension API ..."
+scandperlapi:
+	@echo "Scand Extension Perl-API ..."
+	@cd ext/scand/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# EIP Extension
+########################
+eip: eipcapi eipperlapi
+
+eipcapi: ecmdcapi
+	@echo "Eclipz IP Extension C-API ..."
 	@cd ext/eip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/eip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-gip: ecmdcapi
-	@echo "GFW IP Extension API ..."
+eipperlapi:
+	@echo "Eclipz IP Extension Perl-API ..."
+	@cd ext/eip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# GIP Extension
+########################
+gip: gipcapi gipperlapi
+
+gipcapi: ecmdcapi
+	@echo "GFW IP Extension C-API ..."
 	@cd ext/gip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/gip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-zse: ecmdcapi
-	@echo "Z Series Extension API ..."
+gipperlapi:
+	@echo "GFW IP Extension Perl-API ..."
+	@cd ext/gip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# ZSE Extension
+########################
+zse: zsecapi zseperlapi
+
+zsecapi: ecmdcapi
+	@echo "Z Series Extension C-API ..."
 	@cd ext/zse/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/zse/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-mbo: ecmdcapi
-	@echo "Mambo Extension API ..."
+zseperlapi:
+	@echo "Z Series Extension Perl-API ..."
+	@cd ext/zse/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# MBO Extension
+########################
+mbo: mbocapi mboperlapi
+
+mbocapi: ecmdcapi
+	@echo "Mambo Extension C-API ..."
 	@cd ext/mbo/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/mbo/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-bml: ecmdcapi
-	@echo "BML Extension API ..."
+mboperlapi:
+	@echo "Mambo Extension Perl-API ..."
+	@cd ext/mbo/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# BML Extension
+########################
+bml: bmlcapi bmlperlapi
+
+bmlcapi: ecmdcapi
+	@echo "BML Extension C-API ..."
 	@cd ext/bml/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/bml/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-cmd: ecmdcmd
-	@echo "Command line Extension API ..."
+bmlperlapi:
+	@echo "BML Extension Perl-API ..."
+	@cd ext/bml/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# CMD Extension
+########################
+cmd: cmdcapi cmdperlapi
+
+cmdcapi: ecmdcmd
+	@echo "Command line Extension C-API ..."
 	@cd ext/cmd/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+cmdperlapi:
+	@echo "Command line Extension Perl-API ..."
+	@cd ext/cmd/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # Runs the objclean and export clean targets in addition to removing generated source
