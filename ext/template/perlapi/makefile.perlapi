@@ -45,6 +45,7 @@ exportclean:
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
+# These have to be two separate targets because the generate include has to be there to build to generated source
 ifeq ($(strip $(DISABLE_AUTOGEN)),)
   ${GENERATED_INCLUDES}: ${EXTENSION_NAME}ClientPerlapi.H makepm.pl
 	@echo "==== Auto Generating $@"

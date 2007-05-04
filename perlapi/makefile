@@ -193,7 +193,13 @@ ${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o ${LINK_OBJS}
 # *****************************************************************************
 # Autogenerate the Perl Wrapper
 # *****************************************************************************
-${GENERATED_SOURCE} ${GENERATED_INCLUDES}: ${INCLUDES} makepm.pl 
+# These have to be two separate targets because the generate include has to be there to build to generated source
+${GENERATED_INCLUDES}: ${INCLUDES} makepm.pl 
+	@echo "==== Auto Generating $@"
+	@chmod 777 makepm.pl
+	@./makepm.pl ecmd $@
+
+${GENERATED_SOURCE}: ${GENERATED_INCLUDES} makepm.pl 
 	@echo "==== Auto Generating $@"
 	@chmod 777 makepm.pl
 	@./makepm.pl ecmd $@
