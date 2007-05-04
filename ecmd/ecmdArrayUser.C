@@ -137,6 +137,10 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     ecmdOutputError("getarray - Cannot specify NumEntries with the ALL option.\n");
     return ECMD_INVALID_ARGS;
   } else if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("getarray - Non-decimal numbers detected in numEntries field\n");
+      return ECMD_INVALID_ARGS;
+    }
     numEntries = (uint32_t)atoi(argv[3]);
   }
 
