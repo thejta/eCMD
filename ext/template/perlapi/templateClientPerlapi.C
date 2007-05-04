@@ -34,14 +34,14 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include <ecmdClientCapi.H>
 #include <ecmdDataBuffer.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdUtils.H>
-#include <ecmdClientPerlapi.H>
-#include <templateClientPerlapi.H>
-#include <templateClientCapi.H>
 #include <ecmdSharedUtils.H>
+#include <ecmdClientCapi.H>
+#include <ecmdClientPerlapi.H>
+#include <templateClientCapi.H>
+#include <templateClientPerlapi.H>
 
 // NOTE:
 // gcc compiler used in zSeries build environment has an include order
