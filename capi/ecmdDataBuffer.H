@@ -658,7 +658,7 @@ public:
   uint32_t  insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len);
 
   /**
-   * @brief Copy part of a uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
+   * @brief Copy part of a uint8_t array into this DataBuffer 
    * @param i_datain uint8_t array to copy into this DataBuffer - data is taken left aligned
    * @param i_targetStart Start bit to insert into
    * @param i_len Length of bits to insert
@@ -710,7 +710,7 @@ public:
   uint32_t  extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
   /**
-   * @brief Copy data from this DataBuffer into a uint8_t buffer - NOT IMPLEMENTED YET
+   * @brief Copy data from this DataBuffer into a uint8_t buffer
    * @param o_data uint8_t buffer to copy into - data is placed left aligned - must be pre-allocated
    * @param i_start Start bit of data in DataBuffer to copy
    * @param i_len Length of consecutive bits to copy
