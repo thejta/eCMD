@@ -5,6 +5,9 @@ and compares the result and performance to the original/old
 implementation.
 Look for 'CHANGE_CODE_HERE' flags below to see where you have
 to update this file
+
+
+
 ************************************************************/
 // Change Log *********************************************************
 //                                                                      
@@ -224,10 +227,11 @@ int main (int argc, char *argv[])
 
 /*******************************************************************************************************************
 CHANGE_CODE_HERE
- Define here the old version of the function that user want to analyze and compare.This function has been 
+1) Define here the old version of the function that user want to analyze and compare.  This function has been 
  copied from the ecmdDataBuffer.C 
+2) For compile reasons, the old function must also be defined in a local copy of ecmdDataBuffer.H.
  
- eg.
+ For Example:
  
  uint32_t ecmdDataBuffer::old_insert(const uint32_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart){
 
