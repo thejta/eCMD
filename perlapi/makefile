@@ -87,7 +87,7 @@ endif
 # *****************************************************************************
 ifeq (${OS},AIX)
   # We have to use the re-entrant version, so override the default setup in makefile.rules
-  CC      := /afs/rchland.ibm.com/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
+  CC      := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
   ifeq (${SITE},apd.pok.ibm.com)
     CC      := xlC_r
   endif
@@ -95,7 +95,7 @@ ifeq (${OS},AIX)
     CC      := xlC_r
   endif
   # And the Shared Lib linker - same rules as above
-  LD      := /afs/rch/rs_aix51/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
+  LD      := /afs/rch/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
   ifeq (${SITE},awd.austin.ibm.com)
     LD      := /usr/vacpp/bin/makeC++SharedLib_r
   endif
@@ -104,11 +104,11 @@ ifeq (${OS},AIX)
   endif
 
   TARGET    := ecmd
-  LDFLAGS   := -e ecmdpm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
+  LDFLAGS   := -e ecmdpm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
-    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix51/CORE
+    PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
   endif
   ifeq ($(strip ${SWIG}),)
     SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
