@@ -1412,46 +1412,47 @@ uint32_t ecmdDataBuffer::invert() {
 
 uint32_t ecmdDataBuffer::reverse() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t l_words=0;
+  uint32_t l_slop =  (iv_NumBits % UNIT_SZ);
 
-  uint32_t l_slop = UNIT_SZ - (iv_NumBits % UNIT_SZ);
-  uint32_t l_words = ((iv_NumBits + l_slop) / UNIT_SZ);
+  if(l_slop)
+        l_words = iv_NumBits/32+1;
+  else
+        l_words = iv_NumBits/32;
     
-   
-    // reverse words
-    for(uint32_t i=0;i< l_words/2;i++){
-        uint32_t l_tmp = fast_reverse32(iv_Data[l_words-1-i]); 
-        iv_Data[l_words-1-i] = fast_reverse32(iv_Data[i]);
-        iv_Data[i] = l_tmp;
-    }
+  // reverse words
+  for(uint32_t i=0;i< l_words/2;i++){
+      uint32_t l_tmp = fast_reverse32(iv_Data[l_words-1-i]); 
+      iv_Data[l_words-1-i] = fast_reverse32(iv_Data[i]);
+      iv_Data[i] = l_tmp;
+  }
 
-    // if odd number of words, reverse middle word
-    if(l_words&1){
- 
-        iv_Data[l_words/2 ] = fast_reverse32(iv_Data[l_words/2]);
-    }
+  // if odd number of words, reverse middle word; if only 1 word, reverse this word
+  if(l_words&1){
+      iv_Data[l_words/2 ] = fast_reverse32(iv_Data[l_words/2]);
+  }
     
-    // now account for slop
-    if (l_slop>0){
-      if(l_words>1){  
-        // we have more than 1 word, so loop through all words
-        for(uint32_t i=0;i<l_words;i++){
-           
-            uint32_t mask = 0xffffffff >> l_slop;
-            uint32_t tmp1 = (iv_Data[i]& mask)<< l_slop;
-           
-            mask =~mask;
-            uint32_t tmp2 = (iv_Data[i+1] & mask)>>(32-l_slop);
-        
-            tmp1 |=tmp2;
-            iv_Data[i]=tmp1;
-        }  // end of for-loop
-      } else {
-        // handle the one word
-        uint32_t mask = 0xffffffff >> l_slop;
-        iv_Data[l_words-1] = (iv_Data[l_words-1]& mask) <<l_slop;
+  // now account for slop
+  if (l_slop != 0){
+
+    for(uint32_t i=0;i<l_words;i++){ // loop through all words
+
+      if((l_words>1)&&(i!=(l_words-1))){ // deal with most words here                
+          uint32_t mask = 0xffffffff >> (32-l_slop);
+          uint32_t tmp1 = (iv_Data[i]& mask)<< (32-l_slop);
+          
+          mask =~mask;
+          uint32_t tmp2 = (iv_Data[i+1] & mask)>>l_slop;
+
+          tmp1 |=tmp2;
+          iv_Data[i]=tmp1;
+
+      } else { //dealing with the last word separately; Also, handle if there is only one word here
+          uint32_t mask = 0xffffffff >> (32-l_slop);
+          iv_Data[l_words-1] = (iv_Data[l_words-1]& mask) <<(32-l_slop); 
       }
-
-    } // end of slop check
+    } // end of for loop through all words
+  } // end of slop check
    
 #ifndef REMOVE_SIM   
   if (iv_XstateEnabled) {
