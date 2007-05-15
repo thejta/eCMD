@@ -27,6 +27,7 @@
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
 //  @02  STG44847      02/08/06 prahl     Fix up Lint messages.  Got most but
 //                                        still a bunch of 713, 732 & 737 left.
+//  @03                05/08/07 hjh       add of the continue on error option -coe
 //   
 // End Change Log *****************************************************
 
@@ -147,7 +148,6 @@ bool dllIsValidTargetString(std::string str);
 /* @brief used by TargetConfigured/TargetExist functions */
 bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 
-
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
@@ -201,6 +201,9 @@ uint32_t ecmdGlobal_DllDebug = 0;
 #endif
 /* @brief This is a global var set by -quiet */
 uint32_t ecmdGlobal_quiet = 0;
+
+/* @brief This is a global var set by -coe */
+uint32_t ecmdGlobal_continueOnError = 0;
 
 /* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
@@ -347,7 +350,6 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   char tmp[200];
   bool first = true;
   std::list<std::list<ecmdError>::iterator> deleteIterators;
-
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
     if ( (*cur).errorCode == i_errorCode ) {
@@ -978,6 +980,11 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   if (ecmdParseOption(io_argc, io_argv, "-all"))
     ecmdUserArgs.allTargetSpecified = true;
     
+  /* Grab the coe mode flag */
+  if (ecmdParseOption(io_argc, io_argv, "-coe")) //hjhcoe
+  {
+    ecmdGlobal_continueOnError = 1;
+  }
 
   //cage - the "-k" was Larry's idea, I just liked it - 
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
@@ -1054,6 +1061,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   /* Grab the quiet mode flag */
   if (ecmdParseOption(io_argc, io_argv, "-quiet"))
     ecmdGlobal_quiet = 1;
+
 
 
 
@@ -1153,6 +1161,9 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
 #endif
   } else if (i_type == ECMD_GLOBALVAR_QUIETMODE) {
     ret = ecmdGlobal_quiet;
+  
+  } else if (i_type == ECMD_GLOBALVAR_COEMODE) {   // hjhcoe
+    ret = ecmdGlobal_continueOnError;
   }
 
   return ret;
