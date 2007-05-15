@@ -24,6 +24,8 @@
 //  @01x CQ32245  11/08/05  prahl     Clean up Beam errors
 //       FW038339 03/30/06  scottw    Change i_len parms to pass by value
 //  @02  FW038451 03/30/06  scottw    Add std methods to ecmdI2CCmdEntry
+
+//  @03                05/08/07 hjh       add of the continue on error option -coe
   
 /**
   @file ecmdStructs.H
@@ -325,7 +327,8 @@ typedef enum {
 typedef enum {
   ECMD_GLOBALVAR_UNKNOWN,    ///< Default for not initialized
   ECMD_GLOBALVAR_DEBUG,         ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
-  ECMD_GLOBALVAR_QUIETMODE      ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
+  ECMD_GLOBALVAR_QUIETMODE,     ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
+  ECMD_GLOBALVAR_COEMODE        //< Retrieve the value of the continueOnError  mode  flag = set by -coe default = 0 (hjhcoe)
 } ecmdGlobalVarType_t;
 
 /**
