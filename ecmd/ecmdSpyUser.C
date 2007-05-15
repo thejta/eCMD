@@ -67,7 +67,7 @@
 //---------------------------------------------------------------------
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS, getspyrc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, getspyrc = ECMD_SUCCESS, functionRc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -122,7 +122,6 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
@@ -135,6 +134,18 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
+
+
+#ifndef ECMD_STRIP_DEBUG
+  char printstr[128];
+
+  if (ecmdGetGlobalVar(ECMD_GLOBALVAR_DEBUG) >= 8) {
+    sprintf(printstr,"ECMD DEBUG : COEMODE flag:    '%u'\n", ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE));
+    ecmdOutput(printstr);
+  }
+#endif
+
+
 
   //Setup the target that will be used to query the system config 
   target.chipType = argv[0];
@@ -150,7 +161,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdConfigLooperNext(target, looperdata) & (!rc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE)) ) {
 
     /* We are going to enable ring caching to speed up performance */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
@@ -162,11 +173,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), detail);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
+
     } else if (rc || spyDataList.empty()) {
       printed = "getspy - Error occured looking up data on spy " + spyName + " on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      continue; //hjhcoe
+      //return rc;
+
     }
     spyData = *(spyDataList.begin());
     isCoreSpy = spyData.isCoreRelated;
@@ -174,7 +188,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     /* Make sure the user didn't request enum output on an ispy */
     if (((outputformat == "enum") || (inputformat == "enum")) && !spyData.isEnumerated) {
       ecmdOutputError("getspy - Spy doesn't support enumerations, can't use -ienum or -oenum\n");
-      return ECMD_INVALID_ARGS;
+      rc = ECMD_INVALID_ARGS;
+      break; //hjhcoe  
+      //return ECMD_INVALID_ARGS;
     }
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
@@ -191,7 +207,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     if ((outputformat == "enum") && (inputformat != "enum")) {
       /* We can't do an expect on non-enumerated when they want a fetch of enumerated */
       ecmdOutputError("getspy - When reading enumerated spy's both input and output format's must be of type 'enum'\n");
-      return ECMD_INVALID_ARGS;
+      rc =  ECMD_INVALID_ARGS;
+      break; //hjhcoe
     }
 
 
@@ -200,7 +217,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       if (argc > 2) {
         if (!ecmdIsAllDecimal(argv[2])) {
           ecmdOutputError("getspy - Non-decimal numbers detected in startbit field\n");
-          return ECMD_INVALID_ARGS;
+          
+          rc =  ECMD_INVALID_ARGS;
+          break; //hjhcoe
         }
         startBit = (uint32_t)atoi(argv[2]);
       }
@@ -211,7 +230,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       if (argc > 3) {
         if (!ecmdIsAllDecimal(argv[3])) {
           ecmdOutputError("getspy - Non-decimal numbers detected in numbits field\n");
-          return ECMD_INVALID_ARGS;
+          
+          rc =  ECMD_INVALID_ARGS;
+          break; //hjhcoe
         }
         numBits = (uint32_t)atoi(argv[3]);
       }
@@ -221,7 +242,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       if (argc > 4) {
         ecmdOutputError("getspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
         ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
-        return ECMD_INVALID_ARGS;
+        
+        rc =  ECMD_INVALID_ARGS;
+        break; //hjhcoe
       }
 
 
@@ -230,14 +253,16 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         char errbuf[100];
         sprintf(errbuf,"getspy - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
         ecmdOutputError(errbuf);
-        return ECMD_DATA_BOUNDS_OVERFLOW;
+        rc = ECMD_DATA_BOUNDS_OVERFLOW;
+        break; //hjhcoe
       }
 
     } else if (argc > 2) {
       ecmdOutputError("getspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
       ecmdOutputError("getspy - It is also possible you specified <start> <numbits> with an enumerated alias or dial\n");
       ecmdOutputError("getspy - Type 'getspy -h' for usage.\n");
-      return ECMD_INVALID_ARGS;
+      rc =  ECMD_INVALID_ARGS;
+      break; //hjhcoe
     }
 
 
@@ -247,7 +272,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       else
         expectedEnum = expectArg;
 
-      if (rc) return rc;
+      if (rc) break; //hjhcoe
     }
 
     /* Setup our Core looper if needed */
@@ -259,22 +284,22 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
       /* Init the core loop */
       rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      if (rc) return rc;
+      if (rc) break; //hjhcoe
     }
-
+     rc = ECMD_SUCCESS; //hjhcoe
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreSpy ||
-           ecmdConfigLooperNext(coretarget, corelooper)) {
-
+    while ((!isCoreSpy ||
+           ecmdConfigLooperNext(coretarget, corelooper))&(!rc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+        
       if (outputformat == "enum") {
         rc = getSpyEnum(coretarget, spyName.c_str(), enumValue);
       }
       else {
         rc = getSpy(coretarget, spyName.c_str(), spyBuffer);
       }
-
+    
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        break;
+        continue;
       } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
         if (spyData.epCheckers.empty()) {
           ecmdOutputError("getspy - Got back the Spy Failed ECC return code, but no epcheckers specified\n");
@@ -298,7 +323,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         ecmdOutputError( printed.c_str() );
         if ( !verbose ) {
           ecmdOutputError("Use -v option to get the detailed failure information\n");
-          return rc;
+          continue;
+          //return rc;  hjhcoe
         } else {
           ecmdOutput("============================================================\n");
           getspyrc = rc;
@@ -309,7 +335,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         ecmdOutputError( printed.c_str() );
         if(!verbose) {
           ecmdOutputError("Use -v option to get the detailed failure information\n"); 
-          return(rc);
+          continue;
+          //return(rc); hjhcoe
+
         } else {
           ecmdOutput("============================================================\n");
           getspyrc = rc;
@@ -318,12 +346,13 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         printed = "getspy - Error occured performing getspy on ";
         printed += ecmdWriteTarget(coretarget) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        continue;
+        //return rc; hjhcoe
       }
       validPosFound = true;     
-
+    
       printed = ecmdWriteTarget(coretarget) + " " + spyName;
-
+    
       if (outputformat == "enum") {
         if (!expectFlag) {
           printed += "\n" + enumValue + "\n";
@@ -336,12 +365,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
             ecmdOutputError( printed.c_str() );
             printed =  "getspy - Expected              : " + expectedEnum + "\n";
             ecmdOutputError( printed.c_str() );
-            return ECMD_EXPECT_FAILURE;
+            rc = ECMD_EXPECT_FAILURE;
+            continue;
+            //return ECMD_EXPECT_FAILURE; hjhcoe
           }
         }
       }
       else {
-
+    
         uint32_t bitsToFetch = 0x0;
         if (numBits == ECMD_UNSET) {
           bitsToFetch = spyBuffer.getBitLength() - startBit;
@@ -349,16 +380,16 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         else {
           bitsToFetch = numBits;
         }
-
+    
         buffer.setBitLength(bitsToFetch);
         spyBuffer.extract(buffer, startBit, bitsToFetch);
-
+    
         char outstr[200];
         if (!expectFlag) {
-
+    
           sprintf(outstr, "(%d:%d)", startBit, startBit + bitsToFetch - 1);
           printed += outstr;
-
+    
           std::string dataStr = ecmdWriteDataFormatted(buffer, outputformat);
           if (dataStr[0] != '\n') {
             printed += "\n";
@@ -367,36 +398,38 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           ecmdOutput( printed.c_str() );
         }
         else {
-
+    
           uint32_t mismatchBit = 0;
           if (!ecmdCheckExpected(buffer, expectedRaw, mismatchBit)) {
             //@ make this stuff sprintf'd
             printed =  "getspy - Mismatch found on spy : " + spyName + "\n";
             ecmdOutputError( printed.c_str() );
-
+    
             if (mismatchBit != ECMD_UNSET) {
               sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
               ecmdOutputError( outstr );
             }
-
+    
             printed =  "getspy - Actual                : ";
             printed += ecmdWriteDataFormatted(buffer, outputformat);
             ecmdOutputError( printed.c_str() );
-
+    
             printed =  "getspy - Expected              : ";
             printed += ecmdWriteDataFormatted(expectedRaw, outputformat);
             ecmdOutputError( printed.c_str() );
-            return ECMD_EXPECT_FAILURE;
+            rc =  ECMD_EXPECT_FAILURE;
+            continue;
+            //return ECMD_EXPECT_FAILURE; hjhcoe
           }
-
+    
         }
-
+    
       }
       /* Check if verbose then print details */
       if (verbose) {
         /* Get Spy Groups */
         getSpyGroups(coretarget, spyName.c_str(), spygroups);
-        if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) return rc;
+        if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) break; //return rc;hjhcoe
         std::list<ecmdSpyGroupData>::iterator groupiter = spygroups.begin();
         ecmdOutput("===== GroupData information for this spy ");
         printed = spyName + ": =====\n";
@@ -421,7 +454,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         ecmdOutput(printed.c_str());
         while (epcheckersIter != spyData.epCheckers.end()) {
           rc = getSpyEpCheckers(coretarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
-          if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK && rc != ECMD_SPY_GROUP_MISMATCH) return rc;
+          if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK && rc != ECMD_SPY_GROUP_MISMATCH) break; //return rc;jhjhcoe
           printed = *epcheckersIter + "\n";
           ecmdOutput(printed.c_str());
           printed = "   In Latches: 0x" + inLatches.genHexLeftStr() + "\n";
@@ -448,38 +481,57 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
             printed += latchDataIter->latchName;
             printed += "\n";
             ecmdOutput(printed.c_str());
-
+    
             // Walk some stuff
             offset += (uint32_t)latchDataIter->length;
             latchDataIter++;
           }
         }
         ecmdOutput("============================================================\n");
-
+    
       }
-      if(getspyrc) 
-        return(getspyrc);     
+      //if(getspyrc) 
+      //  return(getspyrc);     
+      // if (!isCoreSpy) break; hjhcoe
+
+      
+      
       if (!isCoreSpy) break;
+      functionRc |= rc;
     } /* End CoreLooper */
+
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
     if (enabledCache) {
-      rc = ecmdDisableRingCache(target);
-      if (rc) {
+      uint32_t trc = ecmdDisableRingCache(target);
+      if (trc) {
         ecmdOutputError("getspy - Problems disabling the ring cache\n");
-        return rc;
+        
       }
       enabledCache = false;
     }
   } /* End poslooper */
 
 
+  if (enabledCache) {
+    uint32_t trc = ecmdDisableRingCache(target);
+    if (trc) {
+      ecmdOutputError("getspy - Problems disabling the ring cache\n");
+
+    }
+    enabledCache = false;
+  }
   if (!validPosFound) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  if(functionRc)   // hjhcoe
+    return(functionRc);     
+  else if(getspyrc)   // hjhcoe
+    return(getspyrc);     
+  else
+    return (rc);
 }
 
 uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
