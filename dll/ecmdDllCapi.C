@@ -975,15 +975,22 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     }
   }
 
+  /* Grab the quiet mode flag */
+  if (ecmdParseOption(io_argc, io_argv, "-quiet")) {
+    ecmdGlobal_quiet = 1;
+  }
 
-  ecmdUserArgs.allTargetSpecified = false;
-  if (ecmdParseOption(io_argc, io_argv, "-all"))
-    ecmdUserArgs.allTargetSpecified = true;
-    
   /* Grab the coe mode flag */
-  if (ecmdParseOption(io_argc, io_argv, "-coe")) //hjhcoe
-  {
+  if (ecmdParseOption(io_argc, io_argv, "-coe")) {
     ecmdGlobal_continueOnError = 1;
+  }
+
+  /*************************************/
+  /* Parse command line targeting args */
+  /*************************************/
+  ecmdUserArgs.allTargetSpecified = false;
+  if (ecmdParseOption(io_argc, io_argv, "-all")) {
+    ecmdUserArgs.allTargetSpecified = true;
   }
 
   //cage - the "-k" was Larry's idea, I just liked it - 
@@ -1057,13 +1064,6 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   else {
     ecmdUserArgs.thread = "";
   }
-
-  /* Grab the quiet mode flag */
-  if (ecmdParseOption(io_argc, io_argv, "-quiet"))
-    ecmdGlobal_quiet = 1;
-
-
-
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
