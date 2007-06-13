@@ -171,13 +171,24 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
 
 
     /* Ok, we still need to call queryconfig, we will use this to make sure the targets that come back actually exist */
-    queryTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    queryTarget.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-    queryTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
-    queryTarget.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-    queryTarget.posState = ECMD_TARGET_FIELD_WILDCARD;
-    queryTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-    queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    /* Lets look at the first target to see what fields are valid - which tells us which fields we need to set to     */
+    /*  wildcard so that we get all possible targets in the system                                                    */
+
+    if ((*io_state.curUnitIdTarget).cageState != ECMD_TARGET_FIELD_UNUSED) queryTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.cageState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).nodeState != ECMD_TARGET_FIELD_UNUSED) queryTarget.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.nodeState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).slotState != ECMD_TARGET_FIELD_UNUSED) queryTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.slotState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).chipTypeState != ECMD_TARGET_FIELD_UNUSED) queryTarget.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).posState != ECMD_TARGET_FIELD_UNUSED) queryTarget.posState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.posState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).coreState != ECMD_TARGET_FIELD_UNUSED) queryTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.coreState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).threadState != ECMD_TARGET_FIELD_UNUSED) queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
 
     rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
     if (rc) return rc;
