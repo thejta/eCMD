@@ -67,7 +67,7 @@
 //---------------------------------------------------------------------
 
 uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   std::string configName;       ///< Name of config variable to fetch
@@ -150,19 +150,17 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Actually go fetch the data */
     rc = ecmdGetConfiguration(target, configName, validOutput, valueAlpha, valueNumeric);
 
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "getconfig - Error occured performing ecmdGetConfiguration on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;
@@ -196,7 +194,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
 
 
 uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   std::string configName;       ///< Name of config variable to fetch
@@ -299,17 +297,15 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
     /* Actually go fetch the data */
     rc = ecmdSetConfiguration(target, configName, validInput, valueAlpha, valueNumeric);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "setconfig - Error occured performing ecmdSetConfiguration on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;
@@ -329,7 +325,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
 }
 
 uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   bool maskFlag = false;
@@ -435,18 +431,16 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     rc = getCfamRegister(target, address, buffer);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
         printed = "getcfam - Error occured performing getcfam on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
     }
     else {
       validPosFound = true;
@@ -508,7 +502,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
 uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
@@ -621,7 +615,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata)) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -629,22 +623,20 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
       rc = getCfamRegister(target, address, fetchBuffer);
 
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printed = "putcfam - Error occured performing getcfam on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;
       }
 
       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
-      if (rc) return rc;
+      if (rc) break;
 
       rc = putCfamRegister(target, address, fetchBuffer);
       if (rc) {
@@ -652,22 +644,21 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
 
     }
     else {
 
       rc = putCfamRegister(target, address, buffer);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printed = "putcfam - Error occured performing putcfam on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;
@@ -692,7 +683,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 }
 
 uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
@@ -730,14 +721,11 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Actually go fetch the data */
-    rc =  makeSPSystemCall(target, command, standardop);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    rc = makeSPSystemCall(target, command, standardop);
+    if (rc) {
       printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
@@ -746,7 +734,8 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
        ecmdOutput( printed.c_str() );
        ecmdOutput( standardop.c_str() );
       }
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;
@@ -776,7 +765,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
 
 uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
@@ -812,19 +801,17 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Actually go fetch the data */
     rc = ecmdDeconfigureTarget(target);
 
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "deconfig - Error occured performing ecmdDeconfigureTarget on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;
@@ -1065,7 +1052,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
 
 
 uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   bool expectFlag = false;
   bool maskFlag = false;
@@ -1168,18 +1155,16 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     rc = getGpRegister(target, gpRegister, buffer);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
         printed = "getgpreg - Error occured performing getgpreg on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
     }
     else {
       validPosFound = true;
@@ -1220,15 +1205,11 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
 
     }
     else {
-
       printed = ecmdWriteTarget(target);
       printed += ecmdWriteDataFormatted(buffer, outputformat);
       ecmdOutput( printed.c_str() );
-
     }
-
   }
-
 
   if (!validPosFound) {
     //this is an error common across all UI functions
@@ -1241,7 +1222,7 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
 
 uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
@@ -1350,30 +1331,26 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata)) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
 
-
       rc = getGpRegister(target, gpRegister, fetchBuffer);
-
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printed = "putgpreg - Error occured performing putgpreg on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;
       }
 
       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
-      if (rc) return rc;
+      if (rc) break;
 
       rc = putGpRegister(target, gpRegister, fetchBuffer);
       if (rc) {
@@ -1381,22 +1358,21 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
 
     }
     else {
 
       rc = putGpRegister(target, gpRegister, buffer);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printed = "putgpreg - Error occured performing putgpreg on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;
