@@ -59,9 +59,8 @@
 //---------------------------------------------------------------------
 
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
-
 uint32_t ecmdGetSprUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget coreTarget;        ///< Current target
   ecmdLooperData coreLooperData;    ///< Store internal Looper data
@@ -113,7 +112,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(coreTarget, coreLooperData) ) {
+  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Clear my lists out */
     threadEntries.clear();
@@ -139,7 +138,8 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
           printed += " on ";
           printed += ecmdWriteTarget(coreTarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          return rc;
+          coeRc = rc;
+          continue;
         }
       }
 
@@ -158,14 +158,12 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
       /* Actually go fetch the data */
       rc = getSprMultiple(coreTarget, coreEntries);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printed = "getspr - Error occured performing getSprMultiple on ";
         printed += ecmdWriteTarget(coreTarget) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;     
@@ -193,20 +191,18 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
       rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
-      if (rc) return rc;
+      if (rc) break;
 
-      while ( ecmdConfigLooperNext(threadTarget, threadLooperData) ) {
+      while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
         /* Actually go fetch the data */
         rc = getSprMultiple(threadTarget, threadEntries);
-        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          continue;
-        }
-        else if (rc) {
+        if (rc) {
           printed = "getspr - Error occured performing getSprMultiple on ";
           printed += ecmdWriteTarget(threadTarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          return rc;
+          coeRc = rc;
+          continue;
         }
         else {
           validPosFound = true;     
@@ -237,7 +233,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 }
 
 uint32_t ecmdPutSprUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget coreTarget;        ///< Current target
   ecmdLooperData coreLooperData;    ///< Store internal Looper data
@@ -268,14 +264,11 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     dataModifier = formatPtr;
   }
 
-
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
-
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -328,7 +321,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(coreTarget, coreLooperData) ) {
+  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
     rc = ecmdQueryProcRegisterInfo(coreTarget, sprName.c_str(), sprInfo);
@@ -338,7 +331,8 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       printed += " on ";
       printed += ecmdWriteTarget(coreTarget) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
 
     /* Set the buffer length */
@@ -353,7 +347,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
     if (rc) {
       ecmdOutputError("putspr - Problems occurred parsing input data, must be an invalid format\n");
-      return rc;
+      break;
     }
 
     // We've done the core loop and gotten the SPR info, now we need to loop on threads if this SPR has them.
@@ -362,21 +356,19 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     threadTarget.threadState = (sprInfo.threadReplicated ? ECMD_TARGET_FIELD_WILDCARD : ECMD_TARGET_FIELD_UNUSED);
 
     rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
-    if (rc) return rc;
+    if (rc) break;
 
-    while ( ecmdConfigLooperNext(threadTarget, threadLooperData) ) {
+    while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
       /* The user did the r/m/w version, so we need to do a get spr */
       if (doReadModifyWrite) {
         rc = getSpr(threadTarget, sprName.c_str(), sprBuffer);
-        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          continue;
-        }
-        else if (rc) {
+        if (rc) {
           printed = "putspr - Error occured performing getspr on ";
           printed += ecmdWriteTarget(threadTarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          return rc;
+          coeRc = rc;
+          continue;
         }
         else {
           validPosFound = true;     
@@ -384,8 +376,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
 
       rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
-      if (rc) return rc;
-
+      if (rc) break;
 
       rc = putSpr(threadTarget, sprName.c_str(), sprBuffer);
 
@@ -393,7 +384,8 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
         printed = "putspr - Error occured performing putspr on ";
         printed += ecmdWriteTarget(threadTarget) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       } else {
         validPosFound = true;     
       }
@@ -417,7 +409,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
 
 
 uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
@@ -442,18 +434,17 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     format = formatPtr;
   }
 
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
+  // Set commandline name based up on the type
   if (daType == ECMD_GPR)
     function = "getgpr";
   else
     function = "getfpr";
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -485,13 +476,10 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
-
-  
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     /* Restore to our initial list */
     entries_copy = entries;
-
 
     /* Actually go fetch the data */
     if (daType == ECMD_GPR)
@@ -499,14 +487,12 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     else
       rc = getFprMultiple(target, entries_copy);
 
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = function + " - Error occured performing getMultiple on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;     
@@ -538,7 +524,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 }
 
 uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   std::string inputformat = "x";                ///< Default input format
@@ -565,20 +551,17 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     dataModifier = formatPtr;
   }
 
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-
+  // Set commandline name based up on the type
   if (daType == ECMD_GPR)
     function = "putgpr";
   else
     function = "putfpr";
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -633,21 +616,18 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
-
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     if (daType == ECMD_GPR)
       rc = getGpr(target, entry, sprBuffer);
     else
       rc = getFpr(target, entry, sprBuffer);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
         printed = function + " - Error occured performing getgpr/fpr on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
     }
     else {
       validPosFound = true;     
@@ -666,14 +646,15 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       if (rc) {
         printed = function + " - Problems occurred parsing input data, must be an invalid format\n";
         ecmdOutputError(printed.c_str());
-        return rc;
+        coeRc = rc;
+        continue;
       }
 
       dataPtr = NULL;
     }
 
     rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
-    if (rc) return rc;
+    if (rc) break;
 
 
     if (daType == ECMD_GPR)
@@ -685,14 +666,14 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       printed = function + " - Error occured performing command on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
 
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
-
   }
 
   if (!validPosFound) {

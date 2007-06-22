@@ -62,7 +62,7 @@
 #ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
 
 uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string outputformat = "mem";     ///< Output format - default to 'mem'
@@ -256,7 +256,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     if (memMode == ECMD_MEM_DMA) {
       rc = getMemDma(target, address, numBytes, returnData);
@@ -266,14 +266,12 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       rc = getMemProc(target, address, numBytes, returnData);
     }
 
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
       printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
       printLine += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printLine.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;     
@@ -284,34 +282,32 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       uint32_t mismatchBit = 0;
 
       if (maskFlag) {
-	returnData.setAnd(mask, 0, returnData.getBitLength());
+        returnData.setAnd(mask, 0, returnData.getBitLength());
       }
 
       if (!ecmdCheckExpected(returnData, expected, mismatchBit)) {
 
-     	 //@ make this stuff sprintf'd
-     	 char outstr[300];
-     	 printLine = ecmdWriteTarget(target) + "\n";
-     	 ecmdOutputError( printLine.c_str() );
-	 if (mismatchBit != ECMD_UNSET) {
-	   sprintf(outstr, "%s - Data miscompare occured at (address %llX) (bit %d) (byte %d:0x%X bit %d)\n", 
-		   cmdlineName.c_str(), (unsigned long long)address, mismatchBit, mismatchBit/8,
-		   mismatchBit/8, mismatchBit%8);
-	   ecmdOutputError( outstr );
-	 }
-
-     	 return ECMD_EXPECT_FAILURE;
-	
+        //@ make this stuff sprintf'd
+        char outstr[300];
+        printLine = ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printLine.c_str() );
+        if (mismatchBit != ECMD_UNSET) {
+          sprintf(outstr, "%s - Data miscompare occured at (address %llX) (bit %d) (byte %d:0x%X bit %d)\n", 
+                  cmdlineName.c_str(), (unsigned long long)address, mismatchBit, mismatchBit/8,
+                  mismatchBit/8, mismatchBit%8);
+          ecmdOutputError( outstr );
+        }
+        coeRc = ECMD_EXPECT_FAILURE;
+        continue;
       }
-
     } else {
       if (filename != NULL) {
 	rc = returnData.writeFile(filename, ECMD_SAVE_FORMAT_BINARY_DATA);
        
 	if (rc) {
 	  printLine += cmdlineName + " - Problems occurred writing data into file" + filename +"\n";
-	  ecmdOutputError(printLine.c_str()); 
-	  return rc;
+	  ecmdOutputError(printLine.c_str());
+          break;
 	}
 	ecmdOutput( printLine.c_str() );
       } else if (dcardfilename != NULL) {
@@ -354,7 +350,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 }
 
 uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "x";        ///< Output format - default to 'mem'
@@ -500,7 +496,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
 
@@ -508,11 +504,13 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       if (memdataIter->data.getBitLength() != (memdataIter->data.getByteLength() * 8)) {
         printLine = cmdlineName + " - Invalid data, must specify an even byte length of data\n";
         ecmdOutputError(printLine.c_str());
-        return ECMD_INVALID_ARGS;
+        rc = ECMD_INVALID_ARGS;
+        break;
       } else if (memdataIter->data.getByteLength() == 0) {
         printLine = cmdlineName + " - Invalid data, byte length of zero detected on incoming data\n";
         ecmdOutputError(printLine.c_str());
-        return ECMD_INVALID_ARGS;
+        rc = ECMD_INVALID_ARGS;
+        break;
       }        
 
 
@@ -524,14 +522,12 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
         rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       }
 
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
         printLine += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printLine.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;     
@@ -555,7 +551,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 }
 
 uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   
   ecmdChipTarget target;                        ///< Current target being operated on
   bool validPosFound = false;                   ///< Did the looper find anything?
@@ -628,17 +624,15 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
     rc = ecmdCacheFlush(target, cacheType);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
         printed = "cacheflush - Error occured performing cacheflush on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
     }
     else {
       validPosFound = true;     

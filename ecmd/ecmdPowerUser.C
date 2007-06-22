@@ -62,7 +62,6 @@
 //---------------------------------------------------------------------
 #ifndef ECMD_REMOVE_POWER_FUNCTIONS
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
-
   uint32_t rc = ECMD_SUCCESS;
 
   /************************************************************************/
@@ -97,8 +96,8 @@ uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
 }
 
 uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  uint32_t rc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   bool validPosFound = false;           ///< Did the looper find anything to execute on
@@ -155,7 +154,7 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     if (state == "on") {
       printed = "Powering on";
@@ -173,7 +172,8 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
       printed = "frupower - Error occurred performing frupower on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;     
@@ -190,7 +190,7 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
 
 uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdChipTarget vdTarget;                ///< Current target operating on
@@ -274,26 +274,24 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperData) ) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     // Now try a slot level loop on this node loop
     // Preserve the valid states from the looperNext, but reset the slot to wildcard
     vdTarget = target;
     vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
     rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
-    if (rc) return rc;
+    if (rc) break;
 
-    while ( ecmdConfigLooperNext(vdTarget, vdLooperData) ) {
+    while (ecmdConfigLooperNext(vdTarget, vdLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
       rc = ecmdBiasVoltage(vdTarget, voltageLevel, voltageType, biasValue, waitState);
 
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      }
-      else if (rc) {
+      if (rc) {
         printed = "biasvoltage - Error occurred performing ecmdBiasVoltage on ";
         printed += ecmdWriteTarget(vdTarget) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;     
@@ -317,7 +315,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
 
 uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   ecmdChipTarget target;                        ///< Current target being operated on
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -362,18 +360,16 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
 
     rc = ecmdQueryBiasState(target, voltageLevel, currentVoltage, targetVoltage, timeLeft);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "querybiasstate - Error occured performing getcfam on ";
       printed += ecmdWriteTarget(target);
       printed += "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;
