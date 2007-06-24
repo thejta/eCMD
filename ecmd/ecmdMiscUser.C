@@ -103,10 +103,11 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -150,7 +151,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = ecmdGetConfiguration(target, configName, validOutput, valueAlpha, valueNumeric);
@@ -228,10 +229,11 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -297,7 +299,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     /* Actually go fetch the data */
     rc = ecmdSetConfiguration(target, configName, validInput, valueAlpha, valueNumeric);
     if (rc) {
@@ -366,10 +368,11 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -431,7 +434,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = getCfamRegister(target, address, buffer);
     if (rc) {
@@ -534,6 +537,8 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -615,7 +620,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -700,6 +705,9 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   //Pull out the system call
   if(argc == 0) {
       ecmdOutputError("makespsystemcall - Command to run on the SE/SP not specified.\n");
@@ -721,7 +729,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = makeSPSystemCall(target, command, standardop);
@@ -776,10 +784,11 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -801,7 +810,7 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = ecmdDeconfigureTarget(target);
@@ -1093,10 +1102,11 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -1155,7 +1165,7 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = getGpRegister(target, gpRegister, buffer);
     if (rc) {
@@ -1253,6 +1263,8 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -1331,7 +1343,7 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -1410,7 +1422,6 @@ uint32_t ecmdEchoUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 

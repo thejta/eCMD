@@ -149,6 +149,9 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   //Setup the target that will be used to query the system config
   // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
   if (memMode == ECMD_MEM_MEMCTRL) {
@@ -256,7 +259,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (memMode == ECMD_MEM_DMA) {
       rc = getMemDma(target, address, numBytes, returnData);
@@ -407,6 +410,9 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   if ( (argc < 2)&&((filename == NULL) && (dcardfilename == NULL)) ) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and data to write.\n";
     ecmdOutputError(printLine.c_str());
@@ -496,7 +502,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
 
@@ -563,10 +569,11 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -624,7 +631,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     rc = ecmdCacheFlush(target, cacheType);
     if (rc) {
         printed = "cacheflush - Error occured performing cacheflush on ";
