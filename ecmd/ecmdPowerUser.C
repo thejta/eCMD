@@ -117,6 +117,9 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   if (argc < 2) {
     ecmdOutputError("frupower - At least one argument ('on', 'off') is required for frupower.\n");
     return ECMD_INVALID_ARGS;
@@ -154,7 +157,7 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (state == "on") {
       printed = "Powering on";
@@ -208,6 +211,8 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -274,7 +279,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     // Now try a slot level loop on this node loop
     // Preserve the valid states from the looperNext, but reset the slot to wildcard
@@ -283,7 +288,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
     rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
     if (rc) break;
 
-    while (ecmdConfigLooperNext(vdTarget, vdLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+    while (ecmdConfigLooperNext(vdTarget, vdLooperData) && (!coeRc || coeMode)) {
       rc = ecmdBiasVoltage(vdTarget, voltageLevel, voltageType, biasValue, waitState);
 
       if (rc) {
@@ -331,6 +336,8 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -360,7 +367,7 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdQueryBiasState(target, voltageLevel, currentVoltage, targetVoltage, timeLeft);
     if (rc) {

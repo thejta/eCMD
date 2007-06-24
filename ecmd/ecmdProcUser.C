@@ -88,10 +88,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -112,7 +113,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || coeMode)) {
 
     /* Clear my lists out */
     threadEntries.clear();
@@ -193,7 +194,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
       if (rc) break;
 
-      while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+      while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
 
         /* Actually go fetch the data */
         rc = getSprMultiple(threadTarget, threadEntries);
@@ -270,6 +271,9 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -321,7 +325,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
     rc = ecmdQueryProcRegisterInfo(coreTarget, sprName.c_str(), sprInfo);
@@ -358,7 +362,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
     if (rc) break;
 
-    while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+    while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
 
       /* The user did the r/m/w version, so we need to do a get spr */
       if (doReadModifyWrite) {
@@ -446,6 +450,9 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -476,7 +483,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Restore to our initial list */
     entries_copy = entries;
@@ -563,6 +570,9 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -616,7 +626,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE))) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (daType == ECMD_GPR)
       rc = getGpr(target, entry, sprBuffer);
