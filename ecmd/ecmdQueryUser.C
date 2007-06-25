@@ -116,12 +116,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char buf[200];
 
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while (ecmdConfigLooperNext(target, looperdata)) {
 
       rc = ecmdQueryRing(target, ringdata,argv[2]);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      } else if (rc) {
+      if (rc) {
         printed = "ecmdquery - Error occured performing ring query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
@@ -236,12 +234,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char buf[200];
 
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while (ecmdConfigLooperNext(target, looperdata)) {
 
       rc = ecmdQuerySpy(target, spydata,argv[2]);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      } else if (rc) {
+      if (rc) {
         printed = "ecmdquery - Error occured performing spy query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
@@ -379,12 +375,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char buf[200];
 
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while (ecmdConfigLooperNext(target, looperdata)) {
 
       rc = ecmdQueryTraceArray(target, tracearraydata,argv[2]);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      } else if (rc) {
+      if (rc) {
         printed = "ecmdquery - Error occured performing tracearray query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
@@ -487,12 +481,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     if (argv[2] != NULL) {
       address = strtoul(argv[2], NULL, 16);
     }
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while (ecmdConfigLooperNext(target, looperdata)) {
 
       rc = ecmdQueryScom(target, scomdata, address);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      } else if (rc) {
+      if (rc) {
         printed = "ecmdquery - Error occured performing scom query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
@@ -594,12 +586,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char buf[200];
     
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while (ecmdConfigLooperNext(target, looperdata)) {
 
       rc = ecmdQueryArray(target, arraydata, argv[2]);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      } else if (rc) {
+      if (rc) {
         printed = "ecmdquery - Error occured performing array query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
@@ -1358,13 +1348,11 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char buf[200];
 
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while (ecmdConfigLooperNext(target, looperdata)) {
 
       /* Let's look up other info about the chip, namely the ec level */
       rc = ecmdGetChipData (target, chipdata);
-      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-      } else if (rc) {
+      if (rc) {
         printed = "ecmdquery - Error occured performing chipinfo query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
