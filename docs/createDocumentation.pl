@@ -76,6 +76,9 @@ $rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
 
 # Generate the base
+$rc = system("cd $cvsBase/perlapi/;./makepm.pl ecmd ecmdClientPerlapiFunc.H");
+if ($rc) { return $rc; }
+
 $rc = system("cat $cvsBase/perlapi/ecmdClientPerlapi.H $cvsBase/perlapi/ecmdClientPerlapiFunc.H > $outputDirectory/Perlapi/ecmdClientPerlapi.H");
 if ($rc) { return $rc; }
 
