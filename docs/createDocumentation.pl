@@ -79,7 +79,7 @@ if ($rc) { return $rc; }
 $rc = system("cd $cvsBase/perlapi/;./makepm.pl ecmd ecmdClientPerlapiFunc.H");
 if ($rc) { return $rc; }
 
-$rc = system("cat $cvsBase/perlapi/ecmdClientPerlapi.H $cvsBase/perlapi/ecmdClientPerlapiFunc.H > $outputDirectory/Perlapi/ecmdClientPerlapi.H");
+$rc = system("cat $cvsBase/perlapi/ecmdClientPerlapi.H $cvsBase/perlapi/ecmdClientPerlapiFunc.H | grep -v ecmdClientPerlapiFunc.H > $outputDirectory/Perlapi/ecmdClientPerlapi.H");
 if ($rc) { return $rc; }
 
 # Now copy over all of the extension file headers that are available
