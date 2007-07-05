@@ -79,6 +79,8 @@ if ($rc) { return $rc; }
 $rc = system("cd $cvsBase/perlapi/;./makepm.pl ecmd ecmdClientPerlapiFunc.H");
 if ($rc) { return $rc; }
 
+# I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
+# in the comments that is different from the actual file
 $rc = system("cat $cvsBase/perlapi/ecmdClientPerlapi.H $cvsBase/perlapi/ecmdClientPerlapiFunc.H | grep -v ecmdClientPerlapiFunc.H > $outputDirectory/Perlapi/ecmdClientPerlapi.H");
 if ($rc) { return $rc; }
 
@@ -87,6 +89,8 @@ my @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template
 for (my $x = 0; $x <= $#extensions; $x++) {
   $rc = system("cd $cvsBase/ext/$extensions[$x]/perlapi/;./makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
   if ($rc) { return $rc; }
+  # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
+  # in the comments that is different from the actual file
   $rc = system("cat $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapiFunc.H | grep -v $extensions[$x]ClientPerlapiFunc.H > $outputDirectory/Perlapi/$extensions[$x]ClientPerlapi.H");
   if ($rc) { return $rc; }
 }
