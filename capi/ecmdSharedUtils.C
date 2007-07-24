@@ -497,7 +497,7 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
   std::vector<std::string> splitArgs;
   int rc = 0;
   uint32_t databitlength=0, tagbitlength=0, bitlength=0;
-  uint32_t curaddress, nextaddress=0;
+  uint64_t curaddress, nextaddress=0;
   uint32_t tagsBitOffset =0, startOffset =0;
   bool isFirstTimeInLoop = true, setTag = true;
   std::list<ecmdMemoryEntry> memdata;        //ListElements corresponding to every line in file
