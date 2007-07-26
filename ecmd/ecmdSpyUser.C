@@ -25,6 +25,7 @@
 //  Flag Reason   Vers Date     Coder     Description                       
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//  @01  STG4466       07/26/07 hjh       coe
 //   
 // End Change Log *****************************************************
 
@@ -508,7 +509,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 }
 
 uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
+
 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
@@ -543,6 +545,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+
+
+   /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+
+
   if (argc < 3) {  //chip + address
     ecmdOutputError("putspy - Too few arguments specified; you need at least a chip, a spy, and data.\n");
     ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
@@ -565,8 +574,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* We are going to enable ring caching to speed up performance */
     if (!ecmdIsRingCacheEnabled(target)) {
@@ -577,12 +585,16 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
+    coeRc = rc;
+    continue; //hjhcoe
+    
     } else if (rc || spyDataList.empty()) {
       printed = "putspy - Error occured looking up data on spy " + spyName + " on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;
+      continue; //hjhcoe
+      //return rc;
     }
 
     spyData = *(spyDataList.begin());
@@ -599,32 +611,35 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         if (argc != 5) {
           ecmdOutputError("putspy - Too many arguments specified; you probably added an option that wasn't recognized.\n");
           ecmdOutputError("putspy - Type 'putspy -h' for usage.\n");
-          return ECMD_INVALID_ARGS;
+          rc = ECMD_INVALID_ARGS;
+          break;
         }
 
         if (!ecmdIsAllDecimal(argv[2])) {
           ecmdOutputError("putspy - Non-decimal numbers detected in startbit field\n");
-          return ECMD_INVALID_ARGS;
+          rc = ECMD_INVALID_ARGS;
+          break;
         }
         startBit = (uint32_t)atoi(argv[2]);
 
         if (!ecmdIsAllDecimal(argv[3])) {
           ecmdOutputError("putspy - Non-decimal numbers detected in numbits field\n");
-          return ECMD_INVALID_ARGS;
+          rc = ECMD_INVALID_ARGS;
+          break;
         }
         numBits = (uint32_t)atoi(argv[3]);
 
         rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numBits);
         if (rc) {
           ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
-          return rc;
+          break;
         }
 
       } else {
         rc = ecmdReadDataFormatted(buffer, argv[2], inputformat, spyData.bitLength);
         if (rc) {
           ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
-          return rc;
+          break;
         }
       }
     }
@@ -638,13 +653,14 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
       /* Init the core loop */
       rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      if (rc) return rc;
+      if (rc) break;
     }
 
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreSpy ||
-           ecmdConfigLooperNext(coretarget, corelooper)) {
+    while ((!isCoreSpy || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
+
+
 
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
@@ -663,7 +679,11 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           printed += ecmdWriteTarget(coretarget) + "\n";
           ecmdOutputError( printed.c_str() );
           ecmdOutputError("Use getspy with the -v option to get the detailed failure information\n");
-          return rc;
+          coeRc = rc;
+          continue;
+
+          //return rc;
+
 
         } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
           ecmdOutputWarning("putspy - Problems reading spy - ECC check failed - going ahead with write\n");
@@ -672,26 +692,36 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           printed = "putspy - Error occured performing getspy on ";
           printed += ecmdWriteTarget(coretarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          return rc;
+          coeRc = rc;
+          continue;
+
+          //return rc;
         } else {
           validPosFound = true;     
         }
 
         rc = ecmdApplyDataModifier(spyBuffer, buffer, (startBit == ECMD_UNSET ? 0 : startBit), dataModifier);
-        if (rc) return rc;
+        if (rc) { 
+          coeRc = rc;
+          continue;
+          //return rc;
+        }
 
         rc = putSpy(coretarget, spyName.c_str(), spyBuffer);
         if (rc) {
           printed = "putspy - Error occured performing putspy on ";
           printed += ecmdWriteTarget(coretarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          return rc;
+          coeRc = rc;
+          continue;
+          //return rc;
         }
       } else {
 
         if (inputformat == "enum") {
           rc = putSpyEnum(coretarget, spyName.c_str(), argv[argc-1] );
         } else {
+
           rc = putSpy(coretarget, spyName.c_str(), buffer);
         }
 
@@ -699,11 +729,15 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           break;
         }
         else if (rc) {
+
           printed = "putspy - Error occured performing putspy on ";
           printed += ecmdWriteTarget(coretarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          return rc;
+          coeRc = rc;
+          continue;
+          //return rc;
         } else {
+
           validPosFound = true;
         }
       }
@@ -718,21 +752,26 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
     if (enabledCache) {
-      rc = ecmdDisableRingCache(target);
-      if (rc) {
+      uint32_t trc = ecmdDisableRingCache(target);
+      if (trc) {
         ecmdOutputError("putspy - Problems disabling the ring cache\n");
-        return rc;
+        coeRc = trc;
+        continue;
+        //return rc;
       }
       enabledCache = false;
     }
+
   } /* End poslooper */
 
   if (!validPosFound) {
     ecmdOutputError("putspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
 }
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
