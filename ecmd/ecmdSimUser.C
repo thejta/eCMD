@@ -20,6 +20,9 @@
 //
 // End Module Description **********************************************
 
+// changes: HJH		coe
+
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -1266,7 +1269,7 @@ uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
 
 uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   ecmdChipTarget target;                /// Current target being operated on
   std::string  hierarchy;		/// Return the model hierarchy for this target
   ecmdLooperData looperdata;            /// Store internal Looper data
@@ -1277,6 +1280,10 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
 
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
 
   if (argc < 1) {
     ecmdOutputError("simgethierarchy - Too few arguments specified; you need at least a chip name.\n");
@@ -1301,16 +1308,25 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     rc = simGetHierarchy(target,  hierarchy);
-    if (rc) return rc;
+    if (rc) {
+      //return rc;
+      coeRc = rc;
+      continue;
+    }
+
+
     printed = "Model hierarchy for target ";
     printed += ecmdWriteTarget(target);
     printed += "is :\n" + hierarchy + "\n";
     ecmdOutput(printed.c_str());
   }
-  
-  return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
+
 }
 
 uint32_t ecmdSimOutputFusionMessageUser(int argc, char * argv[]) {
