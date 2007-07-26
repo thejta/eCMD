@@ -28,6 +28,7 @@
 //  @02  STG44847      02/08/06 prahl     Fix up Lint messages.  Got most but
 //                                        still a bunch of 713, 732 & 737 left.
 //  @03                05/08/07 hjh       add of the continue on error option -coe
+//  @04                06/18/07 hjh       add warning if latch could not be found in hashfile
 //   
 // End Change Log *****************************************************
 
@@ -1196,12 +1197,26 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
     if( i_mode == ECMD_LATCHMODE_FULL) {
       rc = dllReadScandefHash(target, i_ringName, i_latchName, curEntry);
       if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
-	return rc;
+        return rc;
       }
     }
     if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+      std::string errorParse;
+      if (rc)
+      {
+        errorParse = dllGetErrorMsg(rc, false);
+        errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+
+      }
+
       rc = dllReadScandef(target, i_ringName, i_latchName, i_mode, curEntry);
       if (rc) return rc;
+
+      if (errorParse.length() > 0) {
+
+       dllOutputWarning(errorParse.c_str());
+      }
+
     }
   }
 
@@ -1494,8 +1509,20 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
     }
   }
   if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+    std::string errorParse;
+    if (rc)
+    {
+      errorParse = dllGetErrorMsg(rc, false);
+      errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+
+    }
     rc = dllReadScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
     if (rc) return rc;
+
+    if (errorParse.length() > 0) {
+
+       dllOutputWarning(errorParse.c_str());
+    }
   }
 
   
