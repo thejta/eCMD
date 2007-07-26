@@ -65,7 +65,7 @@
 //---------------------------------------------------------------------
 
 uint32_t ecmdGetScomUser(int argc, char* argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   uint32_t e_rc = ECMD_SUCCESS;                 ///< Expect rc
 
   bool expectFlag = false;
@@ -128,6 +128,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -217,7 +219,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     
     bool isCoreScom;                              ///< Is this a core scom ?
     
@@ -230,11 +232,17 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       printed = "getscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      //return rc;
+      coeRc = rc;
+      continue; //hjhcoe
+
     }
     if (queryScomData.size() != 1) {
       ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
-      return ECMD_DLL_INVALID;
+      //return ECMD_DLL_INVALID;
+      rc = ECMD_DLL_INVALID;
+      continue; //hjhcoe
+
     }
     isCoreScom = queryScomData.begin()->isCoreRelated;
 
@@ -247,12 +255,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
       /* Init the core loop */
       rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      if (rc) return rc;
+      //if (rc) return rc;
+      if (rc) break; //hjhcoe
+
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreScom ||
-           ecmdConfigLooperNext(coretarget, corelooper)) {
+    while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
 	   
      rc = getScom(coretarget, address, scombuf);
      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -263,7 +272,10 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 return rc;
+     	 //return rc;
+         coeRc = rc;
+         continue;
+
      }
      else {
        validPosFound = true;
@@ -338,12 +350,17 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /* If we failed an expect let's return that */
   if (e_rc) return e_rc;
 
-  return rc;
+  //return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
+
 }
 
 uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
@@ -378,6 +395,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -458,7 +477,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata)) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     
     bool isCoreScom;                              ///< Is this a core scom ?
     
@@ -471,11 +490,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       printed = "putscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      //return rc;
+      coeRc = rc;
+      continue; //hjhcoe
     }
     if (queryScomData.size() != 1) {
       ecmdOutputError("putscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
-      return ECMD_DLL_INVALID;
+      //return ECMD_DLL_INVALID;
+      rc = ECMD_DLL_INVALID;
+      continue; // hjhcoe
     }
     isCoreScom = queryScomData.begin()->isCoreRelated;
 
@@ -488,12 +511,13 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
       /* Init the core loop */
       rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      if (rc) return rc;
+      //if (rc) return rc;
+      if (rc) break; // hjhcoe
+
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreScom ||
-           ecmdConfigLooperNext(coretarget, corelooper)) {
+    while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
 	   
      /* Do we need to perform a read/modify/write op ? */
      if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -509,14 +533,20 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 return rc;
+     	 //return rc;
+         coeRc = rc;
+         continue;
        }
        else {
      	 validPosFound = true;
        }
 
        rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
-       if (rc) return rc;
+       //if (rc) return rc;
+       if (rc) {
+         coeRc = rc;
+         continue;
+       }
 
        rc = putScom(coretarget, address, fetchBuffer);
        if (rc) {
@@ -524,7 +554,9 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 return rc;
+     	 //return rc;
+         coeRc = rc;
+         continue;
        }
 
      }
@@ -539,7 +571,9 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 return rc;
+     	 //return rc;
+         coeRc = rc;
+         continue;
        }
        else {
      	 validPosFound = true;
@@ -560,11 +594,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
 }
 
 uint32_t ecmdPollScomUser(int argc, char* argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
+
 
   bool expectFlag = false;
   bool maskFlag = false;
@@ -695,6 +733,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -728,7 +768,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   if (rc) return rc;
   std::string printed;
 
-  while (ecmdConfigLooperNext(target, looperdata)) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     
     bool isCoreScom;                              ///< Is this a core scom ?
     
@@ -741,11 +781,14 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       printed = "getscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      //return rc;
+      coeRc = rc;
+      continue; // hjhcoe
     }
     if (queryScomData.size() != 1) {
       ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
-      return ECMD_DLL_INVALID;
+      rc = ECMD_DLL_INVALID;
+      continue; // hjhcoe
     }
     isCoreScom = queryScomData.begin()->isCoreRelated;
 
@@ -758,12 +801,12 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
       /* Init the core loop */
       rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      if (rc) return rc;
+      //if (rc) return rc;
+      if (rc) break ; // hjhcoe
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreScom ||
-           ecmdConfigLooperNext(coretarget, corelooper)) {
+    while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
 	   
      bool done = false;
      timerStart = time(NULL);
@@ -771,9 +814,10 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      printed = ecmdWriteTarget(coretarget);
      sprintf(outstr, "Polling address %.6X...\n", address);
      printed += outstr;
-     ecmdOutput( printed.c_str() );
+     ecmdOutput( printed.c_str()) ;
 
-     while (!done) {
+     rc = 0;
+     while (!done && rc ==0) {
  
        rc = getScom(coretarget, address, buffer);
        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -784,7 +828,9 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 return rc;
+     	 //return rc;
+         coeRc = rc;
+         continue;
        }
        else {
      	 validPosFound = true;
@@ -928,7 +974,11 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
 }
 
 
@@ -938,5 +988,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 //  Flag Reason   Vers Date     Coder    Description                       
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              CENGEL   Initial Creation
+//                              HJH      coe
 //
 // End Change Log *****************************************************
