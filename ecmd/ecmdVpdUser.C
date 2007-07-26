@@ -20,6 +20,9 @@
 //
 // End Module Description **********************************************
 
+
+// changes: HJH		coe
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -62,7 +65,7 @@
 #ifndef ECMD_REMOVE_VPD_FUNCTIONS
 uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string outputformat = "xl";      ///< Output Format to display
   ecmdChipTarget target;                ///< Current target operating on
@@ -103,7 +106,8 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -161,7 +165,8 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
               
-  while ( ecmdConfigLooperNext(target1, looperdata1) ) {
+
+  while (ecmdConfigLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
 
     if (!strcasecmp(vpdType, "MOD")) {
       rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
@@ -169,6 +174,7 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
       rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
     }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      coeRc = rc;
       continue;
     }
     else if (rc) {
@@ -176,7 +182,10 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
         printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdKeyword" : "getFruVpdKeyword");
         printed += " on " + ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
+        //return rc;
+
     }
     else {
       validPosFound = true;     
@@ -213,13 +222,16 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     ecmdOutputError("getvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
 
 }
 
 uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "xl";       ///< format of input data
   ecmdChipTarget target;                ///< Current target operating on
@@ -251,6 +263,9 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
 
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
 
   /************************************************************************/
@@ -318,7 +333,7 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (!strcasecmp(vpdType, "MOD")) {
       rc = putModuleVpdKeyword(target, recordName, keyWord, data);
@@ -326,6 +341,7 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
       rc = putFruVpdKeyword(target, recordName, keyWord, data);
     }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      coeRc = rc;
       continue;
     }
     else if (rc) {
@@ -333,7 +349,9 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
         printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdKeyword" : "putFruVpdKeyword");
         printed += " on " + ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
+        //return rc;
     }
     else {
       validPosFound = true;     
@@ -350,13 +368,15 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     ecmdOutputError("putvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
-
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
 }
 
 uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "xl";       ///< format of input data
   ecmdChipTarget target;                ///< Current target operating on
@@ -389,6 +409,9 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
 
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
 
   /************************************************************************/
@@ -449,7 +472,7 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (!strcasecmp(vpdType, "MOD")) {
       rc = putModuleVpdImage(target, data);
@@ -457,6 +480,7 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
       rc = putFruVpdImage(target, data);
     }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      coeRc = rc;
       continue;
     }
     else if (rc) {
@@ -464,7 +488,9 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
         printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdImage" : "putFruVpdImage");
         printed += " on " + ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
+        //return rc;
     }
     else {
       validPosFound = true;     
@@ -481,13 +507,17 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
     ecmdOutputError("putvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
+
 
 }
 
 uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
 
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string outputformat = "xl";      ///< Output Format to display
   ecmdChipTarget target;                ///< Current target operating on
@@ -527,7 +557,8 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -582,14 +613,14 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target1, looperdata1) ) {
-
+  while (ecmdConfigLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
     if (!strcasecmp(vpdType, "MOD")) {
       rc = getModuleVpdImage(target1, numBytes, data);
     } else {
       rc = getFruVpdImage(target1, numBytes, data);
     }
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      coeRc = rc;
       continue;
     }
     else if (rc) {
@@ -597,7 +628,10 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
         printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdImage" : "getFruVpdImage");
         printed += " on " + ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;
+        continue;
+        //return rc;
+
     }
     else {
       validPosFound = true;     
@@ -634,7 +668,11 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
     ecmdOutputError("getvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  if (coeRc)   // hjhcoe
+    return(coeRc);     
+  else
+    return (rc);
+
 
 }
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
