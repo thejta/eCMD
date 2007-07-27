@@ -464,11 +464,13 @@ uint32_t ecmdThreadData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(threadId);
 		i_len -= sizeof(threadId);
 
-		memcpy(l_ptr, &unitId, sizeof(unitId));
+		tmpData32 = htonl(unitId);//@0b
+		memcpy(l_ptr, &tmpData32, sizeof(unitId));//@0b
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		memcpy(l_ptr, &threadFlags, sizeof(threadFlags));
+		tmpData32 = htonl(threadFlags);//@0b
+		memcpy(l_ptr, &tmpData32, sizeof(threadFlags));//@0b
 		l_ptr += sizeof(threadFlags);
 		i_len -= sizeof(threadFlags);
 
@@ -521,10 +523,12 @@ uint32_t ecmdThreadData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		memcpy(&unitId, l_ptr, sizeof(unitId));
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
+		unitId = ntohl(unitId); //@0b - for threadId in showconfig
 
 		memcpy(&threadFlags, l_ptr, sizeof(threadFlags));
 		l_ptr += sizeof(threadFlags);
 		i_len -= sizeof(threadFlags);
+		threadFlags =ntohl(threadFlags);//@0b
 
 	} while (0);	// <- single exit.
 
@@ -607,11 +611,13 @@ uint32_t ecmdCoreData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(numProcThreads);
 		i_len -= sizeof(numProcThreads);
 
-		memcpy(l_ptr, &unitId, sizeof(unitId));
+		tmpData32 = htonl(unitId);//@0b
+		memcpy(l_ptr, &tmpData32, sizeof(unitId)); //@0b
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		memcpy(l_ptr, &coreFlags, sizeof(coreFlags));
+		tmpData32 = htonl(coreFlags);//@0b
+		memcpy(l_ptr, &tmpData32, sizeof(coreFlags));//@0b
 		l_ptr += sizeof(coreFlags);
 		i_len -= sizeof(coreFlags);
 
@@ -701,11 +707,12 @@ uint32_t ecmdCoreData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		memcpy(&unitId, l_ptr, sizeof(unitId));
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
+		unitId = ntohl(unitId); //@0b - for coreId in showconfig
 
 		memcpy(&coreFlags, l_ptr, sizeof(coreFlags));
 		l_ptr += sizeof(coreFlags);
 		i_len -= sizeof(coreFlags);
-
+		coreFlags = ntohl(coreFlags);//@0b
 		// Get the number of thredData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
 		listSize = ntohl(listSize);
@@ -4841,11 +4848,13 @@ uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
          l_rc = ECMD_DATA_OVERFLOW;
          break;
       }
-
-      memcpy(l_ptr, &bitLength, sizeof(bitLength));
+      
+      l_temp32 = htonl(bitLength);//@0b
+      memcpy(l_ptr, &l_temp32, sizeof(bitLength));//@0b
       l_ptr += sizeof(bitLength);
 
-      memcpy(l_ptr, &totalEntries, sizeof(totalEntries));
+      l_temp32 = htonl(totalEntries);//@0b
+      memcpy(l_ptr, &l_temp32, sizeof(totalEntries));//@0b
       l_ptr += sizeof(totalEntries);
 
       // Store boolean as uint32_t, just to be careful...
@@ -4884,10 +4893,12 @@ uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t i_len)
 
       memcpy(&bitLength, l_ptr, sizeof(bitLength));
       l_ptr += sizeof(bitLength);
+      bitLength = ntohl(bitLength); //@0b - for putspr error
 
       memcpy(&totalEntries, l_ptr, sizeof(totalEntries));
       l_ptr += sizeof(totalEntries);
-
+      totalEntries = ntohl(totalEntries);//@0b  
+      
       // threadReplicated stored as uint32_t, so convert back to bool here...
       memcpy(&l_temp32, l_ptr, sizeof(l_temp32));
       threadReplicated = (bool)ntohl(l_temp32);
@@ -4983,6 +4994,8 @@ void  ecmdSimModelInfo::printStruct() {
 //                                        and printStruct for ecmdI2CCmdEntry
 //  @08  FW041574      03/31/06 scottw   Store bools as uint32_t
 //  @09  D546092       04/12/06 prahl    Fix unflatten to clear list data
+//  @0b  D608981       07/23/07 honi     Fix endian in flatten/unflatten in core and thread data
+//                                       and ecmdProcRegisterInfo
 // End Change Log *****************************************************
 
 
