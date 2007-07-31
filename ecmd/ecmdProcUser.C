@@ -224,11 +224,13 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("getspr - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -401,11 +403,13 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     }
   }
 
+  //this is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("putspr - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -520,12 +524,14 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     ecmdOutput("\n");
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     printed = function + " - Unable to find a valid chip to execute command on\n";
-    //this is an error common across all UI functions
     ecmdOutputError(printed.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -686,12 +692,14 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     printed = function + " - Unable to find a valid chip to execute command on\n";
     ecmdOutputError(printed.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }

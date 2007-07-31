@@ -173,18 +173,14 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     } else {
       rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
     }
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+    if (rc) {
+      printed = "getvpdkeyword - Error occurred performing ";
+      printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdKeyword" : "getFruVpdKeyword");
+      printed += " on " + ecmdWriteTarget(target1) + "\n";
+      ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
-    }
-    else if (rc) {
-        printed = "getvpdkeyword - Error occurred performing ";
-        printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdKeyword" : "getFruVpdKeyword");
-        printed += " on " + ecmdWriteTarget(target1) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-        //return rc;
+      //return rc;
 
     }
     else {
@@ -218,15 +214,15 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     
   }
   
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
+  return rc;
 }
 
 uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
@@ -340,23 +336,19 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     } else {
       rc = putFruVpdKeyword(target, recordName, keyWord, data);
     }
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+    if (rc) {
+      printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword ";
+      printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdKeyword" : "putFruVpdKeyword");
+      printed += " on " + ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
-    }
-    else if (rc) {
-        printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword ";
-        printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdKeyword" : "putFruVpdKeyword");
-        printed += " on " + ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-        //return rc;
+      //return rc;
     }
     else {
       validPosFound = true;     
     }
-    
+
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
@@ -364,14 +356,15 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
 
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 
 uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
@@ -479,23 +472,19 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
     } else {
       rc = putFruVpdImage(target, data);
     }
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+    if (rc) {
+      printed = "putvpdimage - Error occurred performing putModuleVpdImage ";
+      printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdImage" : "putFruVpdImage");
+      printed += " on " + ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
-    }
-    else if (rc) {
-        printed = "putvpdimage - Error occurred performing putModuleVpdImage ";
-        printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdImage" : "putFruVpdImage");
-        printed += " on " + ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-        //return rc;
+      //return rc;
     }
     else {
       validPosFound = true;     
     }
-    
+
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
@@ -503,16 +492,15 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
 
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
-
+  return rc;
 }
 
 uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
@@ -619,18 +607,14 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
     } else {
       rc = getFruVpdImage(target1, numBytes, data);
     }
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+    if (rc) {
+      printed = "getvpdimage - Error occurred performing getModuleVpdImage on ";
+      printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdImage" : "getFruVpdImage");
+      printed += " on " + ecmdWriteTarget(target1) + "\n";
+      ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
-    }
-    else if (rc) {
-        printed = "getvpdimage - Error occurred performing getModuleVpdImage on ";
-        printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdImage" : "getFruVpdImage");
-        printed += " on " + ecmdWriteTarget(target1) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-        //return rc;
+      //return rc;
 
     }
     else {
@@ -640,22 +624,22 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
 
     printed = ecmdWriteTarget(target1) + "\n";
     if (filename != NULL) {
-      
+
       if (targetCount > 1) {
         sprintf(targetStr, "k%dn%ds%dp%d", target1.cage, target1.node, target1.slot, target1.pos); 
         newFilename = (std::string)filename+"."+(std::string)targetStr;
       }
       else { newFilename = (std::string)filename; }
-      
+
       rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
-     
+
       if (rc) {
-       printed += "getvpdimage - Problems occurred writing data into file " + newFilename + "\n";
-       ecmdOutputError(printed.c_str()); 
-       return rc;
+        printed += "getvpdimage - Problems occurred writing data into file " + newFilename + "\n";
+        ecmdOutputError(printed.c_str()); 
+        return rc;
       }
       ecmdOutput( printed.c_str() );
-      
+
     } 
     else {
       std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
@@ -664,16 +648,15 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
     } 
   }
   
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
-
+  return rc;
 }
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 

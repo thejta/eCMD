@@ -1322,11 +1322,10 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
     printed += "is :\n" + hierarchy + "\n";
     ecmdOutput(printed.c_str());
   }
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
+  return rc;
 }
 
 uint32_t ecmdSimOutputFusionMessageUser(int argc, char * argv[]) {
