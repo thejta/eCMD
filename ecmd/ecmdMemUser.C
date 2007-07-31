@@ -343,11 +343,14 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     printLine = cmdlineName + " - Unable to find a valid chip to execute command on\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -547,11 +550,14 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     printLine = cmdlineName + " - Unable to find a valid chip to execute command on\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -652,12 +658,13 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   }
 
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("cacheflush - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
   
   return rc;
 }

@@ -1397,18 +1397,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
   } else if (!strcmp(argv[0],"formats")) {
     /* We will just print this from the format helpfile */
     return ecmdPrintHelp("format");
-
-
-
   } else {
     /* Invalid Query Mode */
     ecmdOutputError("ecmdquery - Invalid Query Mode.\n");
     ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-    
-
   }
-
 
   return rc;
 }

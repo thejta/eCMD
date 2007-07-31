@@ -225,10 +225,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     
     /* Now we need to find out if this is a core scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "getscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
@@ -341,21 +338,18 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   } /* End PosLooper */
   
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("getscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   /* If we failed an expect let's return that */
   if (e_rc) return e_rc;
 
-  //return rc;
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
-
+  return rc;
 }
 
 uint32_t ecmdPutScomUser(int argc, char* argv[]) {
@@ -483,10 +477,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     
     /* Now we need to find out if this is a core scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "putscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
@@ -525,10 +516,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
        rc = getScom(coretarget, address, fetchBuffer);
 
-       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-     	 break;
-       }
-       else if (rc) {
+       if (rc) {
      	 printed = "putscom - Error occured performing getscom on ";
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
@@ -563,10 +551,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      else {
 
        rc = putScom(coretarget, address, buffer);
-       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-     	 break;
-       }
-       else if (rc) {
+       if (rc) {
      	 printed = "putscom - Error occured performing putscom on ";
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
@@ -589,15 +574,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     } /* End CoreLooper */
   } /* End PosLooper */
   
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  return rc;
 }
 
 uint32_t ecmdPollScomUser(int argc, char* argv[]) {
@@ -774,10 +759,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     
     /* Now we need to find out if this is a core scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        continue;
-    }
-    else if (rc) {
+    if (rc) {
       printed = "getscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
@@ -820,10 +802,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      while (!done && rc ==0) {
  
        rc = getScom(coretarget, address, buffer);
-       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-     	 break;
-       }
-       else if (rc) {
+       if (rc) {
      	 printed = "pollscom - Error occured performing getscom on ";
      	 printed += ecmdWriteTarget(coretarget);
      	 printed += "\n";
@@ -969,16 +948,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   } /* End PosLooper */
 
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("pollscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
-  
-  if (coeRc)   // hjhcoe
-    return(coeRc);     
-  else
-    return (rc);
+  return rc;
 }
 
 

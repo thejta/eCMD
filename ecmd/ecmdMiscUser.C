@@ -183,14 +183,15 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
-
 }
 
 
@@ -316,14 +317,15 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     ecmdOutput( printed.c_str() );
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("setconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
-
 }
 
 uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
@@ -494,11 +496,13 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   }
 
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("getcfam - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -679,10 +683,13 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   }
 
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putcfam - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -760,15 +767,15 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("makespsystemcall - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
-
-
 }
 
 
@@ -830,15 +837,15 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
     ecmdOutput( printed.c_str() );
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
-
-
 }
 
 uint32_t ecmdReconfigUser(int argc, char * argv[]) {
@@ -1056,7 +1063,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
     }// Loop cages
 
   return rc;
-  
 }
 
 
@@ -1221,11 +1227,13 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("getgpreg - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1400,10 +1408,13 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   }
 
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putgpreg - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }

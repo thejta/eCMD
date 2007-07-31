@@ -462,10 +462,13 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
   } /* End Args Loop */
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getringdump - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -796,11 +799,13 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     } /* End CoreLooper */
   } /* End PosLooper */
   
-
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getlatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1046,10 +1051,14 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     } /* End CoreLooper */
   } /* End posLooper */
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getbits - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
   return rc;
 }
 
@@ -1227,10 +1236,13 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     } /* End CoreLooper */
   } /* End posloop */
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putbits - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1549,10 +1561,13 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putlatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -2036,10 +2051,13 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putpattern - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -2146,6 +2164,8 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
       }
     }
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -2225,7 +2245,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       
     break;
   }
-  rc =0;
+  rc = 0;
   /* find scandef file */
   rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
   if (rc) {
@@ -2356,8 +2376,6 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
     ecmdOutputError(printed.c_str());
     return rc;
   }
-
-
 
   return rc;
 }

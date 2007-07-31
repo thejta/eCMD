@@ -183,10 +183,13 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("frupower - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -310,10 +313,13 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
     }
   }
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("biasvoltage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -389,11 +395,13 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
   }
 
 
+  // This is an error common across all UI functions
   if (!validPosFound) {
-    //this is an error common across all UI functions
     ecmdOutputError("querybiasstate - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
 
   return rc;
 }
