@@ -261,17 +261,14 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
 	   
      rc = getScom(coretarget, address, scombuf);
-     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-       break;
-     }
-     else if (rc) {
-     	 printed = "getscom - Error occured performing getscom on ";
-     	 printed += ecmdWriteTarget(coretarget);
-     	 printed += "\n";
-     	 ecmdOutputError( printed.c_str() );
-     	 //return rc;
-         coeRc = rc;
-         continue;
+     if (rc) {
+       printed = "getscom - Error occured performing getscom on ";
+       printed += ecmdWriteTarget(coretarget);
+       printed += "\n";
+       ecmdOutputError( printed.c_str() );
+       //return rc;
+       coeRc = rc;
+       continue;
 
      }
      else {
