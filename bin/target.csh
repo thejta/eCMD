@@ -17,7 +17,7 @@ set numFields = `echo $TARGET_VARIABLES | awk '{print NF}'`
 
 # Very first thing, do the help if nothing is passed in
 if (!($numFields)) then
-   echo "help: target lock|unlock|override|query"
+   echo "help: target lock|unlock|override|query|q"
    exit
 endif
 
