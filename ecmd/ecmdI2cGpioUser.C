@@ -213,20 +213,19 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
 
     if (argc > 5) {
       rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
-    } else 
+    } else {
       rc = ecmdI2cRead(target1, engineId, port, slaveAddr, busspeed, numBytes, data);
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
     }
-    else if (rc) { 
-        if (argc > 5) {
-         printed = "geti2c - Error occurred performing ecmdI2cReadOffset on ";
-	} else printed = "geti2c - Error occurred performing ecmdI2cRead on ";
-        printed += ecmdWriteTarget(target1) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01
-        continue;                                     //@01
+    if (rc) { 
+      if (argc > 5) {
+        printed = "geti2c - Error occurred performing ecmdI2cReadOffset on ";
+      } else {
+        printed = "geti2c - Error occurred performing ecmdI2cRead on ";
+      }
+      printed += ecmdWriteTarget(target1) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -238,24 +237,24 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
         sprintf(targetStr, "k%dn%ds%dp%d", target1.cage, target1.node, target1.slot, target1.pos); 
         newFilename = (std::string)filename+"."+(std::string)targetStr;
       } else newFilename = (std::string)filename; 
-      
+
       rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
-     
+
       if (rc) {
-       printed += "geti2c - Problems occurred writing data into file " + newFilename + "\n";
-       ecmdOutputError(printed.c_str()); 
+        printed += "geti2c - Problems occurred writing data into file " + newFilename + "\n";
+        ecmdOutputError(printed.c_str()); 
         coeRc = rc;                                   //@01
         continue;                                     //@01
       }
       ecmdOutput( printed.c_str() );
-      
+
     } 
     else {
       std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
       printed += dataStr;
       ecmdOutput( printed.c_str() );
     } 
-    
+
   }
   
   if (!validPosFound) {
@@ -429,26 +428,25 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
       rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
-    } else 
+    } else {
       rc = ecmdI2cWrite(target, engineId, port, slaveAddr, busspeed, data);
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
     }
-    else if (rc) {
-        if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
-         printed = "puti2c - Error occurred performing ecmdI2cWriteOffset on ";
-	} else printed = "puti2c - Error occurred performing ecmdI2cWrite on ";
-	
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                                           
-        continue;                                     //@01
+    if (rc) {
+      if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
+        printed = "puti2c - Error occurred performing ecmdI2cWriteOffset on ";
+      } else {
+        printed = "puti2c - Error occurred performing ecmdI2cWrite on ";
+      }
+
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                                           
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
+
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
@@ -533,21 +531,17 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdI2cReset(target, engineId, port);
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "i2creset - Error occurred performing ecmdI2cReset on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                                      
-        continue;                                     //@01
+    if (rc) {
+      printed = "i2creset - Error occurred performing ecmdI2cReset on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                                      
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
+
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
@@ -707,27 +701,27 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     if (maskPtr != NULL) {
-     rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
-    } else 
-     rc = ecmdGpioWriteLatch(target, engineId, pin, mode, value );
-     
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
+      rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
+    } else {
+      rc = ecmdGpioWriteLatch(target, engineId, pin, mode, value );
     }
-    else if (rc) {
-        if (maskPtr != NULL) {
-         printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatches on ";
-        } else printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatch on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                        
-        continue;                                     //@01
+
+    if (rc) {
+      if (maskPtr != NULL) {
+        printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatches on ";
+      } else {
+        printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatch on ";
+      }
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                        
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
-   if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
@@ -825,21 +819,17 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioConfigPin(target, engineId, pin, mode);
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "gpioconfig - Error occurred performing ecmdGpioConfigPin on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-       coeRc = rc;                                   //@01                           
-       continue;                                     //@01
+    if (rc) {
+      printed = "gpioconfig - Error occurred performing ecmdGpioConfigPin on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                           
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
+
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
@@ -960,26 +950,26 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     if (maskPtr != NULL) {
-     rc = ecmdGpioReadPins(target, engineId, mask.getWord(0), state);
-    } else
-     rc = ecmdGpioReadPin(target, engineId, pin,  state);
-     
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
+      rc = ecmdGpioReadPins(target, engineId, mask.getWord(0), state);
+    } else {
+      rc = ecmdGpioReadPin(target, engineId, pin,  state);
     }
-    else if (rc) {
-        if (maskPtr != NULL) {
-         printed = "getgpiopin - Error occurred performing ecmdGpioReadPins on ";
-        } else printed = "getgpiopin - Error occurred performing ecmdGpioReadPin on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                       
-        continue;                                     //@01
+
+    if (rc) {
+      if (maskPtr != NULL) {
+        printed = "getgpiopin - Error occurred performing ecmdGpioReadPins on ";
+      } else {
+        printed = "getgpiopin - Error occurred performing ecmdGpioReadPin on ";
+      }
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                       
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
+
     printed = ecmdWriteTarget(target) + "\n";
 
     data.setBitLength(32);
@@ -1094,21 +1084,17 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioReadLatch(target, engineId, pin, mode, state);
-    
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "getgpiolatch - Error occurred performing ecmdGpioReadLatch on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                                          
-        continue;                                     //@01
+    if (rc) {
+      printed = "getgpiolatch - Error occurred performing ecmdGpioReadLatch on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                                          
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
+
     printed = ecmdWriteTarget(target) + "\n";
 
     data.setBitLength(32);
@@ -1208,21 +1194,17 @@ uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioReadConfigRegister(target, engineId, configReg, value);
-     
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "getgpioreg - Error occurred performing ecmdGpioReadPin on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                                       
-        continue;                                     //@01
+    if (rc) {
+      printed = "getgpioreg - Error occurred performing ecmdGpioReadPin on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                                       
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
+
     printed = ecmdWriteTarget(target) + "\n";
 
     data.setBitLength(32);
@@ -1347,22 +1329,18 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioWriteConfigRegister(target, engineId, mode, configReg, value);
-     
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "putgpioreg - Error occurred performing putgpioreg on ";
-	printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@01                                 
-        continue;                                     //@01
+    if (rc) {
+      printed = "putgpioreg - Error occurred performing putgpioreg on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@01                                 
+      continue;                                     //@01
     }
     else {
       validPosFound = true;     
     }
-    
-   if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
