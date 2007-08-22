@@ -267,45 +267,42 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
 
   ecmdOutput("Starting Clocks on Targets ...\n");
 
-   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     rc = startClocks(target, clockDomain, force);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
-        printed = "startclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02                                      
-        continue;                                     //@02
+    if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
+      printed = "startclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02                                      
+      continue;                                     //@02
     }
     else if (rc == ECMD_CLOCKS_ALREADY_ON) {
-        printed = "startclocks - Clocks in the specified domain are already on for target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        if(force) {
-         ecmdOutput( printed.c_str() );
-	 continue;
-	} 
-	else {
-	 ecmdOutputError( printed.c_str() );
-         coeRc = rc;                                   //@02                                         
-         continue;                                     //@02
-	}
+      printed = "startclocks - Clocks in the specified domain are already on for target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      if(force) {
+        ecmdOutput( printed.c_str() );
+        continue;
+      } 
+      else {
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;                                   //@02                                         
+        continue;                                     //@02
+      }
     }
     else if (rc == ECMD_CLOCKS_IN_INVALID_STATE) {
-        printed = "startclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02                                         
-        continue;                                     //@02
+      printed = "startclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02                                         
+      continue;                                     //@02
     }
     else if (rc == ECMD_RING_CACHE_ENABLED) {
-        printed = "startclocks - Ring Cache enabled - must be disabled to use this function. Target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02                                         
-        continue;                                     //@02
+      printed = "startclocks - Ring Cache enabled - must be disabled to use this function. Target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02                                         
+      continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -395,45 +392,42 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   if (rc) return rc;
   ecmdOutput("Stopping Clocks on Targets ...\n");
 
-   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     rc = stopClocks(target, clockDomain, force);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
-        printed = "stopclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02
-        continue;                                     //@02
+    if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
+      printed = "stopclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02
+      continue;                                     //@02
     }
     else if (rc == ECMD_CLOCKS_ALREADY_OFF) {
-        printed = "stopclocks - Clocks in the specified domain are already off for target ";
-        printed += ecmdWriteTarget(target) + "\n";
-	if(force) {
-         ecmdOutput( printed.c_str() );
-	 continue;
-	} 
-	else {
-	 ecmdOutputError( printed.c_str() );
+      printed = "stopclocks - Clocks in the specified domain are already off for target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      if(force) {
+        ecmdOutput( printed.c_str() );
+        continue;
+      } 
+      else {
+        ecmdOutputError( printed.c_str() );
         coeRc = rc;                                   //@02
         continue;                                     //@02
-	}
+      }
     }
     else if (rc == ECMD_CLOCKS_IN_INVALID_STATE) {
-        printed = "stopclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02
-        continue;                                     //@02
+      printed = "stopclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02
+      continue;                                     //@02
     }
     else if (rc == ECMD_RING_CACHE_ENABLED) {
-        printed = "stopclocks - Ring Cache enabled - must be disabled to use this function. Target ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02
-        continue;                                     //@02
+      printed = "stopclocks - Ring Cache enabled - must be disabled to use this function. Target ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02
+      continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -644,26 +638,25 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
 
 
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
-    if (iv_mult==0)
+
+    if (iv_mult==0) {
       rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
-    else 
+    } else { 
       rc = ecmdSetClockMultDiv(target, clockType, iv_mult, iv_div);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
     }
-    else if (rc) {
-        printed = "setclockspeed - Error occured performing setclockspeed on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02                                       
-        continue;                                     //@02
+    if (rc) {
+      printed = "setclockspeed - Error occured performing setclockspeed on ";
+      printed += ecmdWriteTarget(target);
+      printed += "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02                                       
+      continue;                                     //@02
     }
     else {
       validPosFound = true;     
     }
 
-    
+
     printed = ecmdWriteTarget(target);
     printed += "\n";
     ecmdOutput( printed.c_str() );
@@ -773,17 +766,15 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
 
 
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+
     rc = ecmdGetClockSpeed(target, clockType, speedType, speed);
-    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      continue;
-    }
-    else if (rc) {
-        printed = "getclockspeed - Error occured performing getclockspeed on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;                                   //@02                                     
-        continue;                                     //@02
+    if (rc) {
+      printed = "getclockspeed - Error occured performing getclockspeed on ";
+      printed += ecmdWriteTarget(target);
+      printed += "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                   //@02                                     
+      continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -794,7 +785,6 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     printed += ecmdWriteDataFormatted(buffer, outputformat);
     ecmdOutput( printed.c_str() );
   }
-
 
   if (!validPosFound) {
     //this is an error common across all UI functions
