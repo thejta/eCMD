@@ -59,7 +59,7 @@
 
 uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-
+  uint32_t coeRc = ECMD_SUCCESS;                                    //@01
   /*  bool expectFlag = false; */
   /*  bool xstateFlag = false; */
   ecmdLooperData looperdata;            ///< Store internal Looper data
@@ -91,6 +91,9 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+//@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -143,7 +146,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   /*  char outstr[30]; */
   std::string printed;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {    //@01
 
     rc = sendCmd(target, instruction, modifier, statusBuffer);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -153,7 +156,8 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
       printed = "sendcmd - Error occured performing sendcmd on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;                                   //@01                       
+      continue;                                     //@01 
     }
     else {
       validPosFound = true;     
@@ -196,7 +200,8 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
 	printed = "sendcmd - Error occured performing chipinfo query on ";
 	printed += ecmdWriteTarget(target) + "\n";
 	ecmdOutputError( printed.c_str() );
-	return rc;
+	coeRc = rc;                                   //@01                       
+    continue;                                     //@01
       }
     
     }
@@ -207,5 +212,10 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  //begin -@01
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 }

@@ -201,7 +201,7 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-
+  uint32_t coeRc = ECMD_SUCCESS;            //@02
   char clockDomain[100]; 			///< Store the clock domain user specified
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target being operated on
@@ -225,10 +225,15 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
 
+
+  
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   //Setup the target that will be used to query the system config
   if(argc >= 1) {
    target.chipType = argv[0];
@@ -262,7 +267,7 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
 
   ecmdOutput("Starting Clocks on Targets ...\n");
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     rc = startClocks(target, clockDomain, force);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -272,7 +277,8 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
         printed = "startclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02                                      
+        continue;                                     //@02
     }
     else if (rc == ECMD_CLOCKS_ALREADY_ON) {
         printed = "startclocks - Clocks in the specified domain are already on for target ";
@@ -283,20 +289,23 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
 	} 
 	else {
 	 ecmdOutputError( printed.c_str() );
-         return rc;
+         coeRc = rc;                                   //@02                                         
+         continue;                                     //@02
 	}
     }
     else if (rc == ECMD_CLOCKS_IN_INVALID_STATE) {
         printed = "startclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02                                         
+        continue;                                     //@02
     }
     else if (rc == ECMD_RING_CACHE_ENABLED) {
         printed = "startclocks - Ring Cache enabled - must be disabled to use this function. Target ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02                                         
+        continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -312,12 +321,17 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+ //begin-@02
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end-@02
 }
 
 uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-
+  uint32_t coeRc = ECMD_SUCCESS;            //@02
   char clockDomain[100]; 			///< Store the clock domain user specified
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target being operated on
@@ -345,6 +359,9 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   //Setup the target that will be used to query the system config
   if(argc >= 1) {
@@ -378,7 +395,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   if (rc) return rc;
   ecmdOutput("Stopping Clocks on Targets ...\n");
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     rc = stopClocks(target, clockDomain, force);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
@@ -388,7 +405,8 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
         printed = "stopclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02
+        continue;                                     //@02
     }
     else if (rc == ECMD_CLOCKS_ALREADY_OFF) {
         printed = "stopclocks - Clocks in the specified domain are already off for target ";
@@ -399,20 +417,23 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 	} 
 	else {
 	 ecmdOutputError( printed.c_str() );
-         return rc;
+        coeRc = rc;                                   //@02
+        continue;                                     //@02
 	}
     }
     else if (rc == ECMD_CLOCKS_IN_INVALID_STATE) {
         printed = "stopclocks - The clock in the specified domain are in an unknown state (not all on/off) for target ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02
+        continue;                                     //@02
     }
     else if (rc == ECMD_RING_CACHE_ENABLED) {
         printed = "stopclocks - Ring Cache enabled - must be disabled to use this function. Target ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02
+        continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -428,14 +449,19 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  //begin-@02 
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end-@02
 }  
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-  
+  uint32_t coeRc = ECMD_SUCCESS;            //@02  
   ecmdChipTarget target;                        ///< Current target being operated on
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;                    ///< Store internal Looper data
@@ -464,7 +490,9 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -615,7 +643,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
     if (iv_mult==0)
       rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
     else 
@@ -628,7 +656,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02                                       
+        continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -647,14 +676,17 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  
-
-  return rc;
+  //begin-@02
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end-@02
 }
 
 uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-  
+  uint32_t coeRc = ECMD_SUCCESS;            //@02  
   ecmdChipTarget target;                        ///< Current target being operated on
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;                    ///< Store internal Looper data
@@ -671,7 +703,10 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
 
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
-
+  
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -737,7 +772,7 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
     rc = ecmdGetClockSpeed(target, clockType, speedType, speed);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
@@ -747,7 +782,8 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@02                                     
+        continue;                                     //@02
     }
     else {
       validPosFound = true;     
@@ -766,9 +802,12 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  
-
-  return rc;
+  //begin-@02 
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end-@02
 }
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 
@@ -778,5 +817,5 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
 //  ---- -------- ---- -------- -------- ------------------------------   
 //                              CENGEL   Initial Creation
 //  @00  D546069       11/03/06 honi     setclockspeed cpu/cpd change
-//
+//  @02  F620122       08/22/07 shashank Add support for "continue on error" for the command lines
 // End Change Log *****************************************************

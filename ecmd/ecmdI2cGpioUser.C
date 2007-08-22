@@ -62,7 +62,7 @@
 //---------------------------------------------------------------------
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
 uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
-
+  uint32_t coeRc = ECMD_SUCCESS;     //@01
   uint32_t rc = ECMD_SUCCESS;
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string outputformat = "xl";      ///< Output Format to display
@@ -117,6 +117,9 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -205,7 +208,8 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
               
-  while ( ecmdConfigLooperNext(target1, looperdata1) ) {
+  while ( ecmdConfigLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {     //@01
+
 
     if (argc > 5) {
       rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
@@ -221,7 +225,8 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
 	} else printed = "geti2c - Error occurred performing ecmdI2cRead on ";
         printed += ecmdWriteTarget(target1) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -239,7 +244,8 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
       if (rc) {
        printed += "geti2c - Problems occurred writing data into file " + newFilename + "\n";
        ecmdOutputError(printed.c_str()); 
-       return rc;
+        coeRc = rc;                                   //@01
+        continue;                                     //@01
       }
       ecmdOutput( printed.c_str() );
       
@@ -256,13 +262,19 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
     ecmdOutputError("geti2c - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  //begin- @01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01   
 
 }
 
 uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;            //@01  
   ecmdLooperData looperdata;            ///< Store internal Looper data
   std::string inputformat = "xl";       ///< format of input data
   ecmdChipTarget target;                ///< Current target operating on
@@ -303,7 +315,10 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -410,7 +425,7 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
       rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
@@ -427,7 +442,8 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
 	
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                                           
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -444,13 +460,19 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
     ecmdOutputError("puti2c - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 
 }
 
 uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;                    //@01
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   bool validPosFound = false;           ///< Did the looper find anything to execute on
@@ -463,7 +485,10 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -505,7 +530,7 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdI2cReset(target, engineId, port);
     
@@ -516,7 +541,8 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
         printed = "i2creset - Error occurred performing ecmdI2cReset on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                                      
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -533,7 +559,12 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
     ecmdOutputError("i2creset - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 
 }
 #endif // ECMD_REMOVE_I2C_FUNCTIONS
@@ -541,6 +572,7 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
 #ifndef ECMD_REMOVE_GPIO_FUNCTIONS
 uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;            //@01 
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer buffer;                ///< Container to store write data
@@ -580,7 +612,9 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -670,7 +704,7 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     if (maskPtr != NULL) {
      rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
@@ -686,7 +720,8 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
         } else printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatch on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                        
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -703,11 +738,18 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
     ecmdOutputError("putgpiolatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+    //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
+      
 }
 
 uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;                    //@01
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   bool validPosFound = false;           ///< Did the looper find anything to execute on
@@ -721,7 +763,10 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -777,7 +822,7 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioConfigPin(target, engineId, pin, mode);
     
@@ -788,7 +833,8 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
         printed = "gpioconfig - Error occurred performing ecmdGpioConfigPin on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+       coeRc = rc;                                   //@01                           
+       continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -805,12 +851,18 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
     ecmdOutputError("gpioconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 }
 
 
 uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;                    //@01
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer data;                  ///< DataBuffer to store state into
@@ -857,7 +909,10 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -902,7 +957,7 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     if (maskPtr != NULL) {
      rc = ecmdGpioReadPins(target, engineId, mask.getWord(0), state);
@@ -918,7 +973,8 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
         } else printed = "getgpiopin - Error occurred performing ecmdGpioReadPin on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                       
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -939,12 +995,18 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
   
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 }
 
 uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;                //@01
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer data;                  ///< DataBuffer to stores state into
@@ -970,7 +1032,10 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -1026,7 +1091,7 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioReadLatch(target, engineId, pin, mode, state);
     
@@ -1037,7 +1102,8 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
         printed = "getgpiolatch - Error occurred performing ecmdGpioReadLatch on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                                          
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -1057,12 +1123,19 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
     ecmdOutputError("getgpiolatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
+
 
 }
 
 uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;                   //@01
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer data;                  ///< DataBuffer to store state into
@@ -1089,7 +1162,10 @@ uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -1129,7 +1205,7 @@ uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioReadConfigRegister(target, engineId, configReg, value);
      
@@ -1140,7 +1216,8 @@ uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
         printed = "getgpioreg - Error occurred performing ecmdGpioReadPin on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                                       
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -1161,11 +1238,17 @@ uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
   
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 }
 
 uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;           //@01
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer buffer;                ///< Container to store write data
@@ -1192,7 +1275,10 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@01
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -1258,7 +1344,7 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@01
 
     rc = ecmdGpioWriteConfigRegister(target, engineId, mode, configReg, value);
      
@@ -1269,7 +1355,8 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
         printed = "putgpioreg - Error occurred performing putgpioreg on ";
 	printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                                   //@01                                 
+        continue;                                     //@01
     }
     else {
       validPosFound = true;     
@@ -1286,7 +1373,12 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
     ecmdOutputError("putgpioreg - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  return rc;
+  //begin-@01   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@01
 }
 #endif //ECMD_REMOVE_GPIO_FUNCTIONS
 
