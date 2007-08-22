@@ -61,7 +61,7 @@
 
 uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-
+  uint32_t coeRc = ECMD_SUCCESS;     //@02
   ecmdChipTarget target;        ///< Current target
   ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
   std::string arrayName;        ///< Name of array to access
@@ -114,7 +114,10 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -150,7 +153,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -158,7 +161,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;                                   //@02
+      continue;                                     //@02
     }
     arrayData = *(arrayDataList.begin());
 
@@ -168,14 +172,16 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData.width);
       if (rc) {
         ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
-        return rc;
+        coeRc = rc;                                 //@02        
+        continue;                                   //@02
       }
 
       if (maskFlag) {
         rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData.width);
         if (rc) {
           ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
-          return rc;
+        coeRc = rc;                                 //@02        
+        continue;                                   //@02
         }
 
       }
@@ -190,7 +196,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
       if (rc) {
         ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
-        return rc;
+          coeRc = rc;                                //@02
+          continue;                                  //
+
       }
 
 
@@ -225,12 +233,19 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
               printed += ecmdWriteTarget(target) + "\n";
               ecmdOutputError( printed.c_str() );
               // Clean up allocated memory
-              if (add_buffer)						     //@01a
-              {
-                delete[] add_buffer;
-              }
-              return ECMD_DATA_OVERFLOW;
+              //begin @02
+              if(coeMode)       
+                continue;
+               else{
+                  if (add_buffer)                         
+                  {
+                        delete[] add_buffer;
+                  } 
+                
+                return ECMD_DATA_OVERFLOW;
+               }
             }
+              //end @02
 
             add_buffer[address.getWordLength()-1] = 0;
             for (int word = (int)address.getWordLength()-2; word >= 0; word --) {
@@ -241,12 +256,19 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
                   printed += ecmdWriteTarget(target) + "\n";
                   ecmdOutputError( printed.c_str() );
                   // Clean up allocated memory
-                  if (add_buffer)					     //@01a
-                  {
-                    delete[] add_buffer;
+                  //begin @02
+                  if(coeMode)       
+                    continue;
+                  else{
+                    if (add_buffer)                         
+                    {
+                        delete[] add_buffer;
+                    } 
+                
+                    return ECMD_DATA_OVERFLOW;
                   }
-                  return ECMD_DATA_OVERFLOW;
                 }
+                //end @02
                 add_buffer[word] = 0;
               } else {
                 add_buffer[word] ++;
@@ -287,12 +309,13 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         {
           delete[] add_buffer;
         }
-        return rc;
+        coeRc = rc;                                           //@02
+        continue;                                             //@02
       }
     }
 
     /* Actually go fetch the data */
-    while (!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper)) {
+    while ((!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper))&& (!coeRc || coeMode)) {   //@02
       rc = getArrayMultiple(coretarget, arrayName.c_str(), entries);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
         continue;
@@ -306,7 +329,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         {
           delete[] add_buffer;
         }
-        return rc;
+        coeRc = rc;                                           //@02
+        continue;                                             //@02
       }
       else {
         validPosFound = true;     
@@ -403,12 +427,17 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   {
       delete[] add_buffer;
   }
-  return rc;
+  //begin -@02
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;
+  //end -@02                                           
 }
 
 uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-
+  uint32_t coeRc = ECMD_SUCCESS;                    //@02
   ecmdChipTarget target;        ///< Current target
   ecmdChipTarget coretarget;    ///< Current target being operated on for the cores
   std::string arrayName;        ///< Name of array to access
@@ -438,7 +467,9 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -461,7 +492,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
 
     /* We need to find out info about this array */
@@ -470,7 +501,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       printed = "putarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      return rc;
+      coeRc = rc;                         //@02
+      continue;                           //@02
     }
     arrayData = *(arrayDataList.begin());
     isCoreArray = arrayData.isCoreRelated;
@@ -480,13 +512,15 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     rc = address.insertFromHexRight(argv[2], 0, arrayData.writeAddressLength);
     if (rc) {
       ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
-      return rc;
+      coeRc = rc;                         //@02
+      continue;                           //@02
     }
 
     rc = ecmdReadDataFormatted(buffer, argv[3], format, arrayData.width);
     if (rc) {
       ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
-      return rc;
+      coeRc = rc;                         //@02
+      continue;                           //@02
     }
 
     /* Setup our Core looper if needed */
@@ -502,7 +536,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper)) {
+    while ((!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper))&& (!coeRc || coeMode)){ //@02
 
       rc = putArray(coretarget, arrayName.c_str(), address, buffer);
 
@@ -513,7 +547,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
         printed = "putarray - Error occured performing putarray on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        return rc;
+        coeRc = rc;                         //@02
+        continue;                           //@02
       }
       else {
         validPosFound = true;     
@@ -534,7 +569,12 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  return rc;
+  //begin -@02   
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end - @02
 }
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 
@@ -542,7 +582,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-
+  uint32_t coeRc = ECMD_SUCCESS;        //@02
   ecmdChipTarget target;                ///< Current target
   ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
   bool validPosFound = false;           ///< Did we find something to actually execute on ?
@@ -578,7 +618,10 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-
+  //@02
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -599,7 +642,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
  
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
      
      
      //Get all the valid trace arrays
@@ -612,7 +655,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
        printed += ecmdWriteTarget(target);
        printed += "\n";
        ecmdOutputError( printed.c_str() );
-       return rc;
+       coeRc = rc;                                    //@02
+       continue;                                      //@02
      }
      
      if (queryTraceData.size() < 1) {
@@ -665,7 +709,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   	printed = "gettracearray - Error occured performing getTraceArrayMultiple on ";
   	printed += ecmdWriteTarget(target) + "\n";
   	ecmdOutputError( printed.c_str() );
-  	return rc;
+    coeRc = rc;                                           //@02
+    continue;                                             //@02
        } else {
           validPosFound = true;
        }
@@ -714,7 +759,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   	  printed = "gettracearray - Error occured performing getTraceArray on ";
   	  printed += ecmdWriteTarget(coretarget) + "\n";
   	  ecmdOutputError( printed.c_str() );
-  	  return rc;
+      coeRc = rc;                                           //@02
+      continue;                                             //@02
   	}
   	else {
           validPosFound = true;
@@ -747,7 +793,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   } 
 
-  return rc;
+  //begin-@02
+  if(coeRc) 
+    return coeRc;
+  else
+    return rc;  
+  //end -@02   
 }
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
@@ -758,5 +809,5 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 //                              CENGEL   Initial Creation
 //  none STGC7449      04/18/05 prahl    Clean up Beam messages.
 //  @01  STGC12283     05/25/05 prahl    Fix memory leak of add_buffer
-//
+//  @02  F620122       08/22/07 shashank Add support for "continue on error" for the command lines
 // End Change Log *****************************************************
