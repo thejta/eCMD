@@ -2072,6 +2072,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   ecmdLooperData vdLooperData;            ///< Store internal Looper data
   std::string action;
   bool posLoop = false;
+  bool validPosFound = false;                   ///< Did we find a valid chip in the looper
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -2154,15 +2155,24 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
         }
         printed += " on " + ecmdWriteTarget(vdTarget) + "\n";
         ecmdOutput(printed.c_str());
-      }
+      } // No else case is needed, the actions get error checked above
+
       if (rc) {
         printed = "ringcache - Error occurred performing ringcache on ";
         printed += ecmdWriteTarget(vdTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
+      } else {
+        validPosFound = true;
       }
     }
+  }
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("getlatch - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
   }
   // Now check if our coeRc accumulated anything and return if it has
   if (coeRc) return coeRc;
