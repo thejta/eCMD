@@ -591,15 +591,16 @@ uint32_t  ecmdDataBuffer::setBit(uint32_t i_bit) {
   if (i_bit >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
-    int index = i_bit/32;
-    iv_Data[index] |= 0x00000001 << (31 - (i_bit-(index * 32)));
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      iv_DataStr[i_bit] = '1';
-    }
-#endif
   }
+
+  int index = i_bit/32;
+  iv_Data[index] |= 0x00000001 << (31 - (i_bit-(index * 32)));
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    iv_DataStr[i_bit] = '1';
+  }
+#endif
+
   return rc;
 }
 
@@ -609,9 +610,12 @@ uint32_t  ecmdDataBuffer::setBit(uint32_t i_bit, uint32_t i_len) {
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
-    for (uint32_t idx = 0; idx < i_len; idx ++) rc |= this->setBit(i_bit + idx);    
   }
+
+  for (uint32_t idx = 0; idx < i_len; idx ++) {
+    rc |= this->setBit(i_bit + idx);
+  }    
+
   return rc;
 }
 
@@ -632,38 +636,37 @@ uint32_t  ecmdDataBuffer::setWord(uint32_t i_wordOffset, uint32_t i_value) {
   if (i_wordOffset >= iv_NumWords) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)", i_wordOffset, iv_NumWords);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
+  }
 
-    // Create mask if part of this word is not in the valid part of the ecmdDataBuffer 
-    if (((i_wordOffset + 1) == iv_NumWords) && (iv_NumBits%32)) {
-      /* Create my mask */
-      uint32_t bitMask = 0xFFFFFFFF;
-      /* Shift it left by the amount of unused bits */
-      bitMask <<= ((32 * iv_NumWords) - iv_NumBits);
-      /* Clear the unused bits */
-      i_value &= bitMask;
-    }
+  // Create mask if part of this word is not in the valid part of the ecmdDataBuffer 
+  if (((i_wordOffset + 1) == iv_NumWords) && (iv_NumBits%32)) {
+    /* Create my mask */
+    uint32_t bitMask = 0xFFFFFFFF;
+    /* Shift it left by the amount of unused bits */
+    bitMask <<= ((32 * iv_NumWords) - iv_NumBits);
+    /* Clear the unused bits */
+    i_value &= bitMask;
+  }
 
-    iv_Data[i_wordOffset] = i_value;
-    
+  iv_Data[i_wordOffset] = i_value;
+
 #ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      uint32_t startBit = i_wordOffset * 32;
-      uint32_t mask = 0x80000000;
-      for (int i = 0; i < 32; i++) {
-        if (i_value & mask) {
-          iv_DataStr[startBit+i] = '1';
-        }
-        else {
-          iv_DataStr[startBit+i] = '0';
-        }
-        
-        mask >>= 1;
+  if (iv_XstateEnabled) {
+    uint32_t startBit = i_wordOffset * 32;
+    uint32_t mask = 0x80000000;
+    for (int i = 0; i < 32; i++) {
+      if (i_value & mask) {
+        iv_DataStr[startBit+i] = '1';
       }
+      else {
+        iv_DataStr[startBit+i] = '0';
+      }
+
+      mask >>= 1;
     }
+  }
 #endif
 
-  }
   return rc;
 }
 
@@ -673,42 +676,41 @@ uint32_t  ecmdDataBuffer::setByte(uint32_t i_byteOffset, uint8_t i_value) {
   if (i_byteOffset >= getByteLength()) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setByte: byteOffset %d >= NumBytes (%d)", i_byteOffset, getByteLength());
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
+  }
 
-    // Create mask if part of this byte is not in the valid part of the ecmdDataBuffer 
-    if (((i_byteOffset + 1) == getByteLength()) && (iv_NumBits%8)) {
-      /* Create my mask */
-      uint8_t bitMask = 0xFF;
-      /* Shift it left by the amount of unused bits */
-      bitMask <<= ((8 * getByteLength()) - iv_NumBits);
-      /* Clear the unused bits */
-      i_value &= bitMask;
-    }
+  // Create mask if part of this byte is not in the valid part of the ecmdDataBuffer 
+  if (((i_byteOffset + 1) == getByteLength()) && (iv_NumBits%8)) {
+    /* Create my mask */
+    uint8_t bitMask = 0xFF;
+    /* Shift it left by the amount of unused bits */
+    bitMask <<= ((8 * getByteLength()) - iv_NumBits);
+    /* Clear the unused bits */
+    i_value &= bitMask;
+  }
 
 #if defined (i386)
-    ((uint8_t*)(this->iv_Data))[i_byteOffset^3] = i_value;
+  ((uint8_t*)(this->iv_Data))[i_byteOffset^3] = i_value;
 #else
-    ((uint8_t*)(this->iv_Data))[i_byteOffset] = i_value;
-#endif
-    
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      uint32_t startBit = i_byteOffset * 8;
-      uint8_t mask = 0x80;
-      for (int i = 0; i < 8; i++) {
-        if (i_value & mask) {
-          iv_DataStr[startBit+i] = '1';
-        }
-        else {
-          iv_DataStr[startBit+i] = '0';
-        }
-        
-        mask >>= 1;
-      }
-    }
+  ((uint8_t*)(this->iv_Data))[i_byteOffset] = i_value;
 #endif
 
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    uint32_t startBit = i_byteOffset * 8;
+    uint8_t mask = 0x80;
+    for (int i = 0; i < 8; i++) {
+      if (i_value & mask) {
+        iv_DataStr[startBit+i] = '1';
+      }
+      else {
+        iv_DataStr[startBit+i] = '0';
+      }
+
+      mask >>= 1;
+    }
   }
+#endif
+
   return rc;
 }
 
@@ -872,15 +874,16 @@ uint32_t  ecmdDataBuffer::clearBit(uint32_t i_bit) {
   if (i_bit >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {  
-    int index = i_bit/32;
-    iv_Data[index] &= ~(0x00000001 << (31 - (i_bit-(index * 32))));
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      iv_DataStr[i_bit] = '0';
-    }
-#endif
   }
+
+  int index = i_bit/32;
+  iv_Data[index] &= ~(0x00000001 << (31 - (i_bit-(index * 32))));
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    iv_DataStr[i_bit] = '0';
+  }
+#endif
+
   return rc;
 }
 
@@ -889,9 +892,12 @@ uint32_t  ecmdDataBuffer::clearBit(uint32_t i_bit, uint32_t i_len) {
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::clearBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
-    for (uint32_t idx = 0; idx < i_len; idx ++) rc |= this->clearBit(i_bit + idx);    
   }
+  
+  for (uint32_t idx = 0; idx < i_len; idx ++) {
+    rc |= this->clearBit(i_bit + idx);
+  }   
+  
   return rc;
 }
 
@@ -900,22 +906,20 @@ uint32_t  ecmdDataBuffer::flipBit(uint32_t i_bit) {
   if (i_bit >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
-#ifndef REMOVE_SIM
-    if ((iv_XstateEnabled) && this->hasXstate(i_bit, 1)) {
-      ETRAC1("**** ERROR : ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d", i_bit);
-      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
-    } else {
-#endif
-      if (this->isBitSet(i_bit)) {
-        rc = this->clearBit(i_bit);      
-      } else {
-        rc = this->setBit(i_bit);
-      }
-#ifndef REMOVE_SIM
-    }
-#endif
   }
+#ifndef REMOVE_SIM
+  if ((iv_XstateEnabled) && this->hasXstate(i_bit, 1)) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::flipBit: cannot flip non-binary data at bit %d", i_bit);
+    RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
+  }
+#endif
+
+  if (this->isBitSet(i_bit)) {
+    rc = this->clearBit(i_bit);      
+  } else {
+    rc = this->setBit(i_bit);
+  }
+
   return rc;
 }
 
@@ -924,11 +928,12 @@ uint32_t  ecmdDataBuffer::flipBit(uint32_t i_bit, uint32_t i_len) {
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::flipBit: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
-    for (uint32_t i = 0; i < i_len; i++) {
-      this->flipBit(i_bit+i);
-    }
   }
+
+  for (uint32_t i = 0; i < i_len; i++) {
+    this->flipBit(i_bit+i);
+  }
+
   return rc;
 }
 
@@ -937,19 +942,20 @@ bool   ecmdDataBuffer::isBitSet(uint32_t i_bit) const {
     ETRAC2("**** ERROR : ecmdDataBuffer::isBitSet: i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
-  } else {
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      if (iv_DataStr[i_bit] != '1' && iv_DataStr[i_bit] != '0') {
-        ETRAC1("**** ERROR : ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d", i_bit);
-        SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-        return false;
-      }
-    }
-#endif
-    uint32_t index = i_bit/32;
-    return (iv_Data[index] & 0x00000001 << (31 - (i_bit-(index * 32)))); 
   }
+
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    if (iv_DataStr[i_bit] != '1' && iv_DataStr[i_bit] != '0') {
+      ETRAC1("**** ERROR : ecmdDataBuffer::isBitSet: non-binary character detected in data at bit %d", i_bit);
+      SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
+      return false;
+    }
+  }
+#endif
+
+  uint32_t index = i_bit/32;
+  return (iv_Data[index] & 0x00000001 << (31 - (i_bit-(index * 32)))); 
 }
 
 bool   ecmdDataBuffer::isBitSet(uint32_t i_bit, uint32_t i_len) const {
@@ -957,16 +963,16 @@ bool   ecmdDataBuffer::isBitSet(uint32_t i_bit, uint32_t i_len) const {
     ETRAC3("**** ERROR : ecmdDataBuffer::isBitSet: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
-  } else {
-    bool rc = true;
-    for (uint32_t i = 0; i < i_len; i++) {
-      if (!this->isBitSet(i_bit + i)) {
-        rc = false;
-        break;
-      }
-    }
-    return rc;
   }
+
+  bool rc = true;
+  for (uint32_t i = 0; i < i_len; i++) {
+    if (!this->isBitSet(i_bit + i)) {
+      rc = false;
+      break;
+    }
+  }
+  return rc;
 }
 
 bool   ecmdDataBuffer::isBitClear(uint32_t i_bit) const {
@@ -974,37 +980,39 @@ bool   ecmdDataBuffer::isBitClear(uint32_t i_bit) const {
     ETRAC2("**** ERROR : ecmdDataBuffer::isBitClear: i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
-  } else {
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      if (iv_DataStr[i_bit] != '1' && iv_DataStr[i_bit] != '0') {
-        ETRAC0( "**** ERROR : ecmdDataBuffer::isBitClear: non-binary character detected in data string");
-        SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
-        return false;
-      }
-    }
-#endif
-    uint32_t index = i_bit/32;
-    return (!(iv_Data[index] & 0x00000001 << (31 - (i_bit-(index * 32))))); 
   }
+
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    if (iv_DataStr[i_bit] != '1' && iv_DataStr[i_bit] != '0') {
+      ETRAC0( "**** ERROR : ecmdDataBuffer::isBitClear: non-binary character detected in data string");
+      SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
+      return false;
+    }
+  }
+#endif
+
+  uint32_t index = i_bit/32;
+  return (!(iv_Data[index] & 0x00000001 << (31 - (i_bit-(index * 32))))); 
 }
 
-bool   ecmdDataBuffer::isBitClear(uint32_t i_bit, uint32_t i_len) const
+bool ecmdDataBuffer::isBitClear(uint32_t i_bit, uint32_t i_len) const
 {
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::isBitClear: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
-  } else {
-    bool rc = true;
-    for (uint32_t i = 0; i < i_len; i++) {
-      if (!this->isBitClear(i_bit + i)) {
-        rc = false;
-        break;
-      }
-    }
-    return rc;
   }
+
+  bool rc = true;
+  for (uint32_t i = 0; i < i_len; i++) {
+    if (!this->isBitClear(i_bit + i)) {
+      rc = false;
+      break;
+    }
+  }
+
+  return rc;
 }
 
 uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
@@ -1667,29 +1675,28 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
     offset = 32 - (i_len % 32);
   }  
 
-
   if (i_start+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-// other input checks happen below in setBit and clearBit
-  } else {
-    
-    uint32_t mask = 0x80000000 >> offset;
-    for (uint32_t i = 0; i < i_len; i++) {
-      if (i_datain[(i+offset)/32] & mask) {
-        rc = this->setBit(i_start+i);
-      }
-      else { 
-        rc = this->clearBit(i_start+i);
-      }
-
-      mask >>= 1;
-      if (mask == 0x00000000) {
-        mask = 0x80000000;
-      }
-      if (rc) break;
-    }
   }
+  // other input checks happen below in setBit and clearBit
+    
+  uint32_t mask = 0x80000000 >> offset;
+  for (uint32_t i = 0; i < i_len; i++) {
+    if (i_datain[(i+offset)/32] & mask) {
+      rc = this->setBit(i_start+i);
+    }
+    else { 
+      rc = this->clearBit(i_start+i);
+    }
+
+    mask >>= 1;
+    if (mask == 0x00000000) {
+      mask = 0x80000000;
+    }
+    if (rc) break;
+  }
+
   return rc;
 }
 
