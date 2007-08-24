@@ -2183,12 +2183,10 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
   } else if (start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: start %d >= iv_NumBits (%d)",
-           start, iv_NumBits);
+    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: start %d >= iv_NumBits (%d)", start, iv_NumBits);
     return ret;
   } else if (bitLen > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: bitLen %d > iv_NumBits (%d)",
-           bitLen, iv_NumBits);
+    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: bitLen %d > iv_NumBits (%d)", bitLen, iv_NumBits);
     return ret;
   }
 
