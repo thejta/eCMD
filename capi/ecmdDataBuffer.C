@@ -1983,20 +1983,21 @@ uint32_t ecmdDataBuffer::setOr(const uint32_t * dataIn, uint32_t startBit, uint3
   if (startBit + len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", startBit, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-// other input checks done as part of setBit()
-  } else {
-    uint32_t mask = 0x80000000;
-    for (uint32_t i = 0; i < len; i++) {
-      if (dataIn[i/32] & mask) {
-        rc = this->setBit(startBit + i);
-      }
-      mask >>= 1;
-      if (mask == 0x00000000) {
-        mask = 0x80000000;
-      }
-      if (rc) break;
+  }
+  // other input checks done as part of setBit()
+
+  uint32_t mask = 0x80000000;
+  for (uint32_t i = 0; i < len; i++) {
+    if (dataIn[i/32] & mask) {
+      rc = this->setBit(startBit + i);
     }
-  }  
+    mask >>= 1;
+    if (mask == 0x00000000) {
+      mask = 0x80000000;
+    }
+    if (rc) break;
+  }
+
   return rc;
 }
 
@@ -2023,18 +2024,19 @@ uint32_t ecmdDataBuffer::setXor(const uint32_t * dataIn, uint32_t startBit, uint
   if (startBit + len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", startBit, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-// other input checks done as part of writeBit()
-  } else {
-    uint32_t mask = 0x80000000;
-    for (uint32_t i = 0; i < len; i++) {
-      rc = this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
-      mask >>= 1;
-      if (mask == 0x00000000) {
-        mask = 0x80000000;
-      }
-      if (rc) break;
-    }
   }
+  // other input checks done as part of writeBit()
+
+  uint32_t mask = 0x80000000;
+  for (uint32_t i = 0; i < len; i++) {
+    rc = this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
+    mask >>= 1;
+    if (mask == 0x00000000) {
+      mask = 0x80000000;
+    }
+    if (rc) break;
+  }
+
   return rc;
 }
 
