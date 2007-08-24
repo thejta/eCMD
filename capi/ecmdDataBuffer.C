@@ -1741,7 +1741,7 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_ta
 
 
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, uint32_t i_len) const {
-                                     
+
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   // ecmdExtract can't make good input checks, so we have to do that here
@@ -1754,33 +1754,32 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, 
   } else if (i_len > iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::extract: len %d > iv_NumBits (%d)\n", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else {
-    rc = o_bufferOut.setBitLength(i_len);
-    if (rc) return rc;
-
-    rc = ecmdExtract(this->iv_Data, i_start, i_len, o_bufferOut.iv_Data);
-    
-    if (rc) {
-      RETURN_ERROR(rc);
- }   
- 
-#ifndef REMOVE_SIM   
-    /* We have xstates, force the output buffer to have them as well */
-    if (iv_XstateEnabled) {
-      o_bufferOut.enableXstateBuffer();
-      if (i_start+i_len <= iv_NumBits) {
-        strncpy(o_bufferOut.iv_DataStr, (genXstateStr(i_start, i_len)).c_str(), i_len);
-        o_bufferOut.iv_DataStr[i_len] = '\0';
-      }
-      /* Bufferout has xstates but we don't we still need to apply the binary data to it */
-    } else if (o_bufferOut.iv_XstateEnabled) {
-      if (i_start+i_len <= iv_NumBits) {
-        strncpy(o_bufferOut.iv_DataStr, (genBinStr(i_start, i_len)).c_str(), i_len);
-        o_bufferOut.iv_DataStr[i_len] = '\0';
-      }
-    }      
-#endif
   }
+
+  rc = o_bufferOut.setBitLength(i_len);
+  if (rc) return rc;
+
+  rc = ecmdExtract(this->iv_Data, i_start, i_len, o_bufferOut.iv_Data);
+
+  if (rc) RETURN_ERROR(rc);   
+
+#ifndef REMOVE_SIM   
+  /* We have xstates, force the output buffer to have them as well */
+  if (iv_XstateEnabled) {
+    o_bufferOut.enableXstateBuffer();
+    if (i_start+i_len <= iv_NumBits) {
+      strncpy(o_bufferOut.iv_DataStr, (genXstateStr(i_start, i_len)).c_str(), i_len);
+      o_bufferOut.iv_DataStr[i_len] = '\0';
+    }
+    /* Bufferout has xstates but we don't we still need to apply the binary data to it */
+  } else if (o_bufferOut.iv_XstateEnabled) {
+    if (i_start+i_len <= iv_NumBits) {
+      strncpy(o_bufferOut.iv_DataStr, (genBinStr(i_start, i_len)).c_str(), i_len);
+      o_bufferOut.iv_DataStr[i_len] = '\0';
+    }
+  }      
+#endif
+
   return rc;
 }
 
