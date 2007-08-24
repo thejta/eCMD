@@ -1513,7 +1513,6 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
   return rc;
 }
 
-//@02 -begin
 inline uint32_t ecmdFastInsert(uint32_t *i_target,const uint32_t * i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
 
      uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -1572,36 +1571,36 @@ uint32_t ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_tar
   uint32_t rc = ECMD_DBUF_SUCCESS;    
 
   if (i_targetStart+i_len > iv_NumBits) {
-      ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)",
-          i_targetStart, i_len, iv_NumBits);
-      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)",
+           i_targetStart, i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_targetStart >= iv_NumBits) {
-      ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d >= iv_NumBits (%d)",
-          i_targetStart, iv_NumBits);
-      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d >= iv_NumBits (%d)",
+           i_targetStart, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-      ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > iv_NumBits (%d)",
-          i_len, iv_NumBits);
-      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > iv_NumBits (%d)",
+           i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
-    
+
   rc = ecmdFastInsert(this->iv_Data,i_bufferIn.iv_Data, i_targetStart, i_len, i_sourceStart );
   if (rc) return rc;
 
 #ifndef REMOVE_SIM   
-    // If the input buffer has xstates enabled, we need to enable ours 
-    if (i_bufferIn.iv_XstateEnabled) {
-      enableXstateBuffer();
-      if (i_targetStart+i_len <= iv_NumBits) {
-        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
-      }
-    } else if (iv_XstateEnabled) {
-      // We have xstates, but the incoming buffer didn't, just grab the binary data 
-      if (i_targetStart+i_len <= iv_NumBits) {
-        strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genBinStr(i_sourceStart, i_len)).c_str(), i_len);
-      }
-    }      
+  // If the input buffer has xstates enabled, we need to enable ours 
+  if (i_bufferIn.iv_XstateEnabled) {
+    enableXstateBuffer();
+    if (i_targetStart+i_len <= iv_NumBits) {
+      strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genXstateStr(i_sourceStart, i_len)).c_str(), i_len);
+    }
+  } else if (iv_XstateEnabled) {
+    // We have xstates, but the incoming buffer didn't, just grab the binary data 
+    if (i_targetStart+i_len <= iv_NumBits) {
+      strncpy(&(iv_DataStr[i_targetStart]), (i_bufferIn.genBinStr(i_sourceStart, i_len)).c_str(), i_len);
+    }
+  }      
 #endif  
 
   return rc;      
@@ -1622,7 +1621,7 @@ uint32_t ecmdDataBuffer::insert(const uint32_t * i_dataIn, uint32_t i_targetStar
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
     
-  rc = ecmdFastInsert( this->iv_Data,i_dataIn, i_targetStart, i_len, i_sourceStart );
+  rc = ecmdFastInsert(this->iv_Data,i_dataIn, i_targetStart, i_len, i_sourceStart);
   if (rc) return rc;
 
 #ifndef REMOVE_SIM   
@@ -1635,10 +1634,7 @@ uint32_t ecmdDataBuffer::insert(const uint32_t * i_dataIn, uint32_t i_targetStar
 #endif
 
   return rc;
-
 }
-
-//@02 -end
 
 uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -1652,11 +1648,11 @@ uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint
   } else if (i_len > 32) {
     ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_len %d > sizeof i_dataIn (32)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-// other input checks are perfomred in the insert function called below
-  } else {
-
-    rc = this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
   }
+  // other input checks are perfomred in the insert function called below
+  
+  rc = this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
+
   return rc;
 }
 
@@ -2176,11 +2172,7 @@ uint32_t ecmdDataBuffer::getWord(uint32_t wordOffset) const {
 }
 
 
-//@02-begin
-
-
 std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const {
-
 
   int tempNumWords = (bitLen + 31) / 32;
   std::string ret;
@@ -2191,49 +2183,45 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
   } else if (start >= iv_NumBits) {
-      ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: start %d >= iv_NumBits (%d)",
-          start, iv_NumBits);
-      return ret;
+    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: start %d >= iv_NumBits (%d)",
+           start, iv_NumBits);
+    return ret;
   } else if (bitLen > iv_NumBits) {
-      ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: bitLen %d > iv_NumBits (%d)",
-          bitLen, iv_NumBits);
-      return ret;
+    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: bitLen %d > iv_NumBits (%d)",
+           bitLen, iv_NumBits);
+    return ret;
   }
 
   char cPtr[10];
   // extract iv_Data
-   
+
   if (rc) {
     return ret;
   }    
 
-  if((start==0)&(bitLen==iv_NumBits)){
+  if ((start==0) && (bitLen==iv_NumBits)){
     for (int w = 0; w < tempNumWords; w++) {      
-        sprintf(cPtr, "%X", iv_Data[w]);
-        ret.append(cPtr);
+      sprintf(cPtr, "%X", iv_Data[w]);
+      ret.append(cPtr);
     }
-  }else{
+  } else {
     ecmdDataBuffer tmpBuffer(tempNumWords*32);
     tmpBuffer.flushTo0();
-    
-    rc = ecmdFastInsert(tmpBuffer.iv_Data,this->iv_Data,0,bitLen, start );
-    if (rc) {
-    return ret;
-    }
 
-   
+    rc = ecmdFastInsert(tmpBuffer.iv_Data,this->iv_Data,0,bitLen, start);
+    if (rc) return ret;
 
     for (int w = 0; w < tempNumWords; w++) {
-        sprintf(cPtr, "%X", tmpBuffer.iv_Data[w]);
-        ret.append(cPtr);
+      sprintf(cPtr, "%X", tmpBuffer.iv_Data[w]);
+      ret.append(cPtr);
     }
     int overCount = (int)(32*tempNumWords - bitLen) / 4;
 
     if (overCount > 0) {      
-        ret.erase(ret.length() - overCount, ret.length()-1);
+      ret.erase(ret.length() - overCount, ret.length()-1);
     }
   }
-  
+
 #ifndef REMOVE_SIM
   // If we are using this interface and find Xstate data we have a problem 
   if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
@@ -2241,12 +2229,9 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
 #endif
-   
+
   return ret; 
 }
-
-//@02- end
-
 
 
 std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) const {
