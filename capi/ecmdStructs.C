@@ -47,66 +47,6 @@
 //---------------------------------------------------------------------
 //  Public Member Function Specifications
 //---------------------------------------------------------------------
-
-
-/** @brief Used to sort Cage entries in an ecmdCageData list. */
-bool operator< (const ecmdCageData& lhs, const ecmdCageData& rhs) {
-
-    if (lhs.cageId < rhs.cageId)
-        return 1;
-        
-    return 0;
-}
-
-/** @brief Used to sort Node entries in an ecmdNodeData list. */
-bool operator< (const ecmdNodeData& lhs, const ecmdNodeData& rhs) {
-
-    if (lhs.nodeId < rhs.nodeId)
-        return 1;
-        
-    return 0;
-}
-
-/** @brief Used to sort Slot entries in an ecmdSlotData list. */
-bool operator< (const ecmdSlotData& lhs, const ecmdSlotData& rhs) {
-
-    if (lhs.slotId < rhs.slotId)
-        return 1;
-        
-    return 0;
-}
-
-/** @brief Used to sort Chip entries (based on Pos) in an ecmdChipData list. */
-bool operator< (const ecmdChipData& lhs, const ecmdChipData& rhs) {
-
-    if (lhs.chipType < rhs.chipType)
-      return 1;
-    else if ((lhs.chipType == rhs.chipType) && (lhs.pos < rhs.pos))
-      return 1;
-        
-    return 0;
-}
-
-/** @brief Used to sort Core entries in an ecmdCoreData list. */
-bool operator< (const ecmdCoreData& lhs, const ecmdCoreData& rhs) {
-
-    if (lhs.coreId < rhs.coreId)
-        return 1;
-        
-    return 0;
-
-}
-
-/** @brief Used to sort Thread entries in an ecmdThreadData list. */
-bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs) {
-
-    if (lhs.threadId < rhs.threadId)
-        return 1;
-        
-    return 0;
-
-}
-
 std::string ecmdGetSharedLibVersion() {
   return ECMD_CAPI_VERSION;
 }
@@ -557,6 +497,16 @@ uint32_t ecmdThreadData::flattenSize() {
 	return flatSize;
 }
 
+/** @brief Used to sort Thread entries in an ecmdThreadData list. */
+bool ecmdThreadData::operator< (const ecmdThreadData& rhs) {
+
+  if (threadId < rhs.threadId) {
+    return true;
+  }
+        
+  return false;
+}
+
 #ifndef REMOVE_SIM
 void ecmdThreadData::printStruct() {
 
@@ -799,6 +749,16 @@ uint32_t ecmdCoreData::flattenSize() {
 	} while (0);    // <- single exit.
 
 	return flatSize;
+}
+
+/** @brief Used to sort Core entries in an ecmdCoreData list. */
+bool ecmdCoreData::operator< (const ecmdCoreData& rhs) {
+
+  if (coreId < rhs.coreId) {
+    return true;
+  }
+        
+  return false;
 }
 
 #ifndef REMOVE_SIM
@@ -1152,6 +1112,19 @@ uint32_t ecmdChipData::flattenSize() {
 	return flatSize;
 }
 
+/** @brief Used to sort Chip entries (based on Pos) in an ecmdChipData list. */
+bool ecmdChipData::operator< (const ecmdChipData& rhs) {
+
+  if (chipType < rhs.chipType) {
+    return true;
+  } else if ((chipType == rhs.chipType) && (pos < rhs.pos)) {
+    return true;
+  }
+   
+  return false;
+}
+
+
 #ifndef REMOVE_SIM
 void ecmdChipData::printStruct() {
 
@@ -1408,6 +1381,16 @@ uint32_t ecmdSlotData::flattenSize() {
 	return flatSize;
 }
 
+/** @brief Used to sort Slot entries in an ecmdSlotData list. */
+bool ecmdSlotData::operator< (const ecmdSlotData& rhs) {
+
+  if (slotId < rhs.slotId) {
+    return true;
+  }
+
+  return false;
+}
+
 #ifndef REMOVE_SIM
 void ecmdSlotData::printStruct() {
 
@@ -1661,6 +1644,16 @@ uint32_t ecmdNodeData::flattenSize()  {
 	return flatSize;
 }
 
+/** @brief Used to sort Node entries in an ecmdNodeData list. */
+bool ecmdNodeData::operator< (const ecmdNodeData& rhs) {
+
+  if (nodeId < rhs.nodeId) {
+    return true;
+  }
+
+  return false;
+}
+
 #ifndef REMOVE_SIM
 void ecmdNodeData::printStruct() {
 
@@ -1911,6 +1904,16 @@ uint32_t ecmdCageData::flattenSize() {
 	} while (0);    // <- single exit.
 
 	return flatSize;
+}
+
+/** @brief Used to sort Cage entries in an ecmdCageData list. */
+bool ecmdCageData::operator< (const ecmdCageData& rhs) {
+
+  if (cageId < rhs.cageId) {
+    return true;
+  }
+       
+  return false;
 }
 
 #ifndef REMOVE_SIM
