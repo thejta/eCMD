@@ -573,6 +573,7 @@ struct ecmdThreadData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
+  bool operator< (const ecmdThreadData& rhs); ///< Used to sort Thread entries in an ecmdThreadData list.
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
@@ -617,6 +618,7 @@ struct ecmdCoreData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
+  bool operator< (const ecmdCoreData& rhs);  ///< Used to sort Core entries in an ecmdCoreData list.
 #ifndef REMOVE_SIM
 	void printStruct(void);
 #endif
@@ -680,6 +682,7 @@ struct ecmdChipData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
+  bool operator< (const ecmdChipData& rhs); ///< Used to sort Chip entries (based on Pos) in an ecmdChipData list.
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
@@ -735,6 +738,7 @@ struct ecmdSlotData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
+  bool operator< (const ecmdSlotData& rhs); ///< Used to sort Slot entries in an ecmdSlotData list. 
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
@@ -779,6 +783,7 @@ struct ecmdNodeData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
+  bool operator< (const ecmdNodeData& rhs); ///< Used to sort Node entries in an ecmdNodeData list. 
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
@@ -823,6 +828,7 @@ struct ecmdCageData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
+  bool operator< (const ecmdCageData& rhs);  ///< Used to sort Cage entries in an ecmdCageData list.
 #ifndef REMOVE_SIM
   void printStruct(void);
 #endif
@@ -1511,36 +1517,6 @@ inline ecmdSimModelInfo::ecmdSimModelInfo()
 // ecmdSimModelInfo Destructor
 inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
 #endif
-
-
-
-#ifndef ECMD_PERLAPI
-/* @name Operators */
-//@{
-
-/** @brief Used to sort Cage entries in an ecmdCageData list. */
-bool operator< (const ecmdCageData& lhs, const ecmdCageData& rhs);
-
-/** @brief Used to sort Node entries in an ecmdNodeData list. */
-bool operator< (const ecmdNodeData& lhs, const ecmdNodeData& rhs);
-
-/** @brief Used to sort Slot entries in an ecmdSlotData list. */
-bool operator< (const ecmdSlotData& lhs, const ecmdSlotData& rhs);
-
-/** @brief Used to sort Chip entries (based on Pos) in an ecmdChipData list. */
-bool operator< (const ecmdChipData& lhs, const ecmdChipData& rhs);
-
-/** @brief Used to sort Core entries in an ecmdCoreData list. */
-bool operator< (const ecmdCoreData& lhs, const ecmdCoreData& rhs);
-
-/** @brief Used to sort Thread entries in an ecmdThreadData list. */
-bool operator< (const ecmdThreadData& lhs, const ecmdThreadData& rhs);
-
-
-
-//@}
-#endif
-
 
 /* @name Misc functions */
 //@{
