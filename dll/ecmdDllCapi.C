@@ -345,7 +345,7 @@ bool dllQueryVersionGreater(const char* version) {
 }
 
 
-std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
+std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_deleteMessage) {
   std::string ret;
   std::list<ecmdError>::iterator cur;
   char tmp[200];
@@ -353,12 +353,12 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
   std::list<std::list<ecmdError>::iterator> deleteIterators;
 
   for (cur = ecmdErrorList.begin(); cur != ecmdErrorList.end(); cur++) {
-    if ( (*cur).errorCode == i_errorCode ) {
+    if (cur->errorCode == i_errorCode) {
       if (first) {
         ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
         first = false;
       }
-      ret = ret + (*cur).message + "\n";
+      ret = ret + cur->message + "\n";
       // Store for deletion at the end
       // It's easier to do just do it at the end instead of when we are in the middle of this loop
       deleteIterators.push_back(cur);
@@ -379,10 +379,15 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode) {
     ret = tmp;
   }
 
-  // If the delete list isn't empty, go through and delete the messages the user retreived
-  while (!deleteIterators.empty()) {
-    ecmdErrorList.erase(deleteIterators.front());
-    deleteIterators.pop_front();
+  // Now delete any error messages we retrieved, if the user asked us to
+  if (i_deleteMessage) {
+    uint32_t flushRc;
+    flushRc = dllFlushRegisteredErrorMsgs(i_errorCode);
+    if (flushRc) {
+      // Error occurred, must return empty string
+      ret = "";
+      return ret;
+    }
   }
 
   return ret;
@@ -401,8 +406,24 @@ uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const cha
   return rc;
 }
 
-void dllFlushRegisteredErrorMsgs() {
-  ecmdErrorList.clear();
+uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::list<ecmdError>::iterator errorIter = ecmdErrorList.begin();
+  std::list<ecmdError>::iterator deleteIter;
+  std::list<std::list<ecmdError>::iterator> deleteIterators;
+
+  while (errorIter != ecmdErrorList.end()) {
+    if (errorIter->errorCode == i_errorCode) {
+      deleteIter = errorIter;
+      errorIter++; // Walk our iter forward before we delete were we are
+      ecmdErrorList.erase(deleteIter);
+    } else {
+      // Didn't find a match, so just advance forward
+      errorIter++;
+    }
+  }
+
+  return rc;
 }
 
 
@@ -1204,7 +1225,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
       std::string errorParse;
       if (rc)
       {
-        errorParse = dllGetErrorMsg(rc, false);
+        errorParse = dllGetErrorMsg(rc, false, true);
         errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
 
       }
@@ -1512,7 +1533,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
     std::string errorParse;
     if (rc)
     {
-      errorParse = dllGetErrorMsg(rc, false);
+      errorParse = dllGetErrorMsg(rc, false, true);
       errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
 
     }

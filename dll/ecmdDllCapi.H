@@ -209,11 +209,11 @@ uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
-std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode); 
+std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_deleteMessage); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
 
-void dllFlushRegisteredErrorMsgs(); 
+uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode); 
 
 void dllOutputError(const char* i_message); 
 

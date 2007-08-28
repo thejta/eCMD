@@ -1700,22 +1700,28 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
  @brief Retrieve additional error information for errorcode
  @param i_errorCode Error code to lookup up message for
  @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
- @retval point to NULL terminated string containing error data, NULL if error occurs
-
+ @param i_deleteMessage If true, the message will be deleted when the user retrieves it.  True is the default.
+ @retval String containing the error data, empty of error occurred
 */
-std::string ecmdGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode = true);
+std::string ecmdGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode = true, bool i_deleteMessage = true);
 
 /**
  @brief Register an error message that has occured
-
+ @param i_errorCode The error code to store a message for
+ @param i_whom Who is storing the error message
+ @param i_message The message to be stored
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
 */
 uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message);
 
 /**
- @brief Flush all registered messages, they are no long retrievable
-
+ @brief Flush registered error message for a specific error code
+ @param i_errorCode Error code of the message to erase
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
 */
-void ecmdFlushRegisteredErrorMsgs();
+uint32_t ecmdFlushRegisteredErrorMsgs(uint32_t i_errorCode);
 
 //@}
 

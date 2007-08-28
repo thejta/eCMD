@@ -140,9 +140,6 @@ uint32_t cmdRunCommand(std::string i_command) {
     ecmdOutput((i_command + "\n").c_str());
   }
 
-  /* Flush any registered errors so if the client calls in again we won't concat all their past errors on as well */
-  ecmdFlushRegisteredErrorMsgs();
-
   return rc;
 }
 
