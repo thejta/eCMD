@@ -511,10 +511,14 @@ struct ecmdChipTarget {
   // Members
   uint32_t    cage;             ///< cage that contains node with chip
   uint32_t    node;             ///< node that contains chip
-  uint32_t    slot;             ///< Card Slot/Fru to target
+  uint32_t    slot;             ///< card slot/fru to target
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
-  uint8_t     core;             ///< which core on chip to access, if chip is multi-core
+  std::string chipUnitType;     ///< name of the chip unit to access
+  union {
+    uint8_t     core;           ///< which core on chip to access, if chip is multi-core
+    uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
+  };
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
   uint32_t    unitId;		///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
@@ -522,7 +526,11 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t slotState;            ///< slot field state
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
-  ecmdChipTargetState_t coreState;            ///< core field state
+  ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
+  union {
+    ecmdChipTargetState_t coreState;          ///< core field state
+    ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state
+  };
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
   
@@ -543,6 +551,7 @@ nodeState(ECMD_TARGET_UNKNOWN_STATE),
 slotState(ECMD_TARGET_UNKNOWN_STATE),
 chipTypeState(ECMD_TARGET_UNKNOWN_STATE),
 posState(ECMD_TARGET_UNKNOWN_STATE),
+chipUnitTypeState(ECMD_TARGET_UNKNOWN_STATE),
 coreState(ECMD_TARGET_UNKNOWN_STATE),
 threadState(ECMD_TARGET_UNKNOWN_STATE),
 unitIdState(ECMD_TARGET_UNKNOWN_STATE)
