@@ -2207,7 +2207,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
 
   if ((start==0) && (bitLen==iv_NumBits)){
     for (int w = 0; w < tempNumWords; w++) {      
-      sprintf(cPtr, "%X", iv_Data[w]);
+      sprintf(cPtr, "%.8X", iv_Data[w]);
       ret.append(cPtr);
     }
   } else {
@@ -2218,7 +2218,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     if (rc) return ret;
 
     for (int w = 0; w < tempNumWords; w++) {
-      sprintf(cPtr, "%X", tmpBuffer.iv_Data[w]);
+      sprintf(cPtr, "%.8X", tmpBuffer.iv_Data[w]);
       ret.append(cPtr);
     }
     int overCount = (int)(32*tempNumWords - bitLen) / 4;
