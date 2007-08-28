@@ -801,12 +801,14 @@ uint32_t putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const st
  - Some Dll's may not support all target levels of caching.  If it doesn't support the level you picked
    it will chose the next highest level.  i.e.  If you enable caching on a chip, and your plugin only supports
    it on a cage, caching will be enabled on the cage level.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
 
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 
 */
-void ecmdEnableRingCache(ecmdChipTarget & i_target);
+uint32_t ecmdEnableRingCache(ecmdChipTarget & i_target);
 
 /**
  @brief Disable internal caching of reads/writes of scan rings
