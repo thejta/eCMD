@@ -665,12 +665,12 @@ inline ecmdCoreData::~ecmdCoreData() { }
 #define ECMD_CHIPFLAG_FSI       0x80000000
 #define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used) 
 
-#define ECMD_CHIPFLAG_STATEMASK         0x0000001F
-#define ECMD_CHIPFLAG_CONFIGED_USEABLE  0x00000001
-#define ECMD_CHIPFLAG_DELAYED_FENCED    0x00000002
-#define ECMD_CHIPFLAG_FENCED            0x00000004
-#define ECMD_CHIPFLAG_SPARE             0x00000008
-#define ECMD_CHIPFLAG_DEFECTIVE         0x00000010
+#define ECMD_FLAG_STATEMASK         0x0000001F
+#define ECMD_FLAG_CONFIGED_USEABLE  0x00000001
+#define ECMD_FLAG_DELAYED_FENCED    0x00000002
+#define ECMD_FLAG_FENCED            0x00000004
+#define ECMD_FLAG_SPARE             0x00000008
+#define ECMD_FLAG_DEFECTIVE         0x00000010
 
 /**
  @brief Used for the ecmdQueryConfig function to return chip data

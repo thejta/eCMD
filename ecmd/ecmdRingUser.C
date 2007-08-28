@@ -2140,8 +2140,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
     while (ecmdConfigLooperNext(vdTarget, vdLooperData) && (!coeRc || coeMode)) {
 
       if (action == "enable") {
-        //rc = ecmdEnableRingCache(vdTarget);
-        ecmdEnableRingCache(vdTarget);
+        rc = ecmdEnableRingCache(vdTarget);
       } else if (action == "disable") {
         rc = ecmdDisableRingCache(vdTarget);
       } else if (action == "flush") {

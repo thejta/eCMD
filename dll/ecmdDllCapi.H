@@ -109,7 +109,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBu
 uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
-void dllEnableRingCache(ecmdChipTarget & i_target); 
+uint32_t dllEnableRingCache(ecmdChipTarget & i_target); 
 
 uint32_t dllDisableRingCache(ecmdChipTarget & i_target); 
 
