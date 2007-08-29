@@ -278,47 +278,47 @@ uint32_t ecmdHexToUInt32(const char* str)
 
 uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_depth)
 {
-    uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
 
-    // Set Target Depth based on i_depth input
-    switch (i_depth)
-    {
-	case ECMD_DEPTH_CAGE:
-	    io_target.cageState = ECMD_TARGET_FIELD_VALID;
-	    io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
-	    break;
+  // Set Target Depth based on i_depth input
+  switch (i_depth)
+  {
+    case ECMD_DEPTH_CAGE:
+      io_target.cageState = ECMD_TARGET_FIELD_VALID;
+      io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.chipUnitTypeState = io_target.chipUnitNumState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      break;
 
-	case ECMD_DEPTH_NODE:
-	    io_target.cageState = io_target.nodeState = ECMD_TARGET_FIELD_VALID;
-	    io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
-	    break;
+    case ECMD_DEPTH_NODE:
+      io_target.cageState = io_target.nodeState = ECMD_TARGET_FIELD_VALID;
+      io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.chipUnitTypeState = io_target.chipUnitNumState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      break;
 
-	case ECMD_DEPTH_SLOT:
-	    io_target.cageState = io_target.nodeState = io_target.slotState = ECMD_TARGET_FIELD_VALID;
-	    io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
-	    break;
+    case ECMD_DEPTH_SLOT:
+      io_target.cageState = io_target.nodeState = io_target.slotState = ECMD_TARGET_FIELD_VALID;
+      io_target.chipTypeState = io_target.posState = io_target.chipUnitTypeState = io_target.chipUnitNumState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      break;
 
-	case ECMD_DEPTH_CHIP:
-	    io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = ECMD_TARGET_FIELD_VALID;
-	    io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
-	    break;
+    case ECMD_DEPTH_CHIP:
+      io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = ECMD_TARGET_FIELD_VALID;
+      io_target.chipUnitTypeState = io_target.chipUnitNumState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      break;
 
-	case ECMD_DEPTH_CORE:
-	    io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = ECMD_TARGET_FIELD_VALID;
-	    io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
-	    break;
+    case ECMD_DEPTH_CHIPUNIT:
+      io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.chipUnitTypeState = io_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+      io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      break;
 
-	case ECMD_DEPTH_THREAD:
-	    io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.coreState = io_target.threadState = ECMD_TARGET_FIELD_VALID;
-	    break;
+    case ECMD_DEPTH_THREAD:
+      io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.chipUnitTypeState = io_target.chipUnitNumState = io_target.threadState = ECMD_TARGET_FIELD_VALID;
+      break;
 
 
-        default: // Used an unknown ecmdTargetDepth_t enum value
-	    rc = ECMD_INVALID_ARGS;
-	    break;
-    }
+    default: // Used an unknown ecmdTargetDepth_t enum value
+      rc = ECMD_INVALID_ARGS;
+      break;
+  }
 
-    return rc;
+  return rc;
 
 }
 
@@ -329,7 +329,12 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
   char util[10];
 
   if ((i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
-    printed = i_target.chipType + "\t";
+    printed = i_target.chipType;
+    if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+      printed += ".";
+      printed += i_target.chipUnitType;
+    }
+    printed = "\t";
   }
 
   //always do cage
@@ -359,13 +364,17 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
 	if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED) {
 	  printed += ":";
 	  printed += i_target.chipType;
+          if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+            printed += ".";
+            printed += i_target.chipUnitType;
+          }
 	}
 
 	sprintf(util, ":p%02d", i_target.pos);
         printed += util;
 
-        if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
-          sprintf(util, ":c%d", i_target.core);
+        if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
+          sprintf(util, ":c%d", i_target.chipUnitNum);
           printed += util;
           
           if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
@@ -376,7 +385,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
             printed += "   ";  //adjust spacing
           }
 
-        } //core
+        } //chipUnitNum
         else if (i_displayMode != ECMD_DISPLAY_TARGET_COMPRESSED) {
           printed += "      ";  //adjust spacing
         }
@@ -469,10 +478,10 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
         } 
       } else if (tokens[x].substr(0, 1) == "c") {
         if (allFound) {
-          o_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+          o_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         } else {
-          o_target.core = num;
-          o_target.coreState = ECMD_TARGET_FIELD_VALID;
+          o_target.chipUnitNum = num;
+          o_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
         } 
       } else if (tokens[x].substr(0, 1) == "t") {
         if (allFound) {
