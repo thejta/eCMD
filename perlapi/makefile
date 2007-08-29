@@ -178,7 +178,14 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES} ${GENERATED_INCLUDES}
 	$(CC) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
 ${TARGET}.pm ecmdClientPerlapi_wrap.c: ${INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
-	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap.c ecmdClientPerlapi.i	
+	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap.c ecmdClientPerlapi.i
+	# This was not necessary after all.  The ecmdChipTarget is a union on the C side of the inteface.
+	# This means they share memory and we don't have to update the variables.  Special handling is only
+	# required in ecmdStructs.H to expose the core and chipUnitNum on the interface
+	# since union isn't supported there
+	#${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap_prefix.c ecmdClientPerlapi.i
+	#@echo "==== Fixing wrap file so that a core access sets chipUnitNum as well"
+	#@sed "s/if (arg1) (arg1)->core = arg2/if (arg1) { (arg1)->core = arg2; (arg1)->chipUnitNum = arg2; }/g" ecmdClientPerlapi_wrap_prefix.c > ecmdClientPerlapi_wrap.c
 
 ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
 	${CC} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}

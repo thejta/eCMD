@@ -515,10 +515,18 @@ struct ecmdChipTarget {
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
+  // In the perl module, the union construct isn't supported
+  // We need to define these variables separately so that the perl module interface is generated correctly
+  // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
+#ifdef ECMD_PERLAPI
+  uint8_t     core;           ///< which core on chip to access, if chip is multi-core
+  uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
+#else
   union {
     uint8_t     core;           ///< which core on chip to access, if chip is multi-core
     uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
   };
+#endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
   uint32_t    unitId;		///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
@@ -527,14 +535,20 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
+#ifdef ECMD_PERLAPI
+  ecmdChipTargetState_t coreState;          ///< core field state
+  ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state
+#else
   union {
     ecmdChipTargetState_t coreState;          ///< core field state
     ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state
   };
+#endif
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
   
 };
+
 
 #ifndef DOCUMENTATION
 // ecmdChipTarget Constructor
