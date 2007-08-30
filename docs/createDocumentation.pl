@@ -52,7 +52,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!VERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Capi; /usr/local/bin/doxygen ecmdDoxygen.config");
+$rc = system("cd $outputDirectory/Capi; /usr/bin/doxygen ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 printf("Creating C-API Documentation (pdf)...\n\n");
@@ -100,7 +100,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!VERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPm.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Perlapi!g\" > $outputDirectory/Perlapi/ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Perlapi; /usr/local/bin/doxygen ecmdDoxygenPm.config");
+$rc = system("cd $outputDirectory/Perlapi; /usr/bin/doxygen ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 printf("Creating Perl-API Documentation (pdf)...\n\n");
