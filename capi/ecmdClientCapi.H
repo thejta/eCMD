@@ -370,8 +370,6 @@ bool ecmdQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData =
 
 
 
-
-
 /** @name Scan Functions */
 //@{
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
@@ -2821,7 +2819,6 @@ uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuff
 */
 uint32_t simSUBCMD(const char* i_command);
 
-
 /**
  @brief Set TCK Interval setting in the model for JTAG Master
  @param i_tckinterval new setting for tck interval when using JTAG
@@ -2830,8 +2827,6 @@ uint32_t simSUBCMD(const char* i_command);
  @retval nonzero on failure
 */
 uint32_t simtckinterval(uint32_t i_tckinterval);
-
-
 
 /**
  @brief Unstick a Facility using a name
@@ -2857,7 +2852,6 @@ uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row 
  @retval nonzero on failure
 */
 uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
-
 
 /**
  @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
@@ -2940,7 +2934,6 @@ uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* 
  */
 uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char* i_fusionRandObject = NULL);
 
-
 /**
  @brief Echo Messages to Fusion logs
  @param i_header Message header
@@ -2953,6 +2946,7 @@ uint64_t simFusionRand64(uint64_t i_min = 0, uint64_t i_max = ~0ULL, const char*
  @retval non-zero on failure
 */
 uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, ecmdFusionSeverity_t i_severity,  ecmdFusionMessageType_t i_type, const char* i_file = NULL, uint32_t i_line = 0);
+
 /**
  @brief Set Fusion Message Format
  @param i_format New Format
@@ -2961,10 +2955,10 @@ void simSetFusionMessageFormat ( const char* i_format);
 
 /* Macros to easily use above message functions */
 #ifndef ECMD_PERLAPI
-# define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-# define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-# define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-# define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
 #endif
 
 /**
@@ -2975,6 +2969,7 @@ void simSetFusionMessageFormat ( const char* i_format);
  @retval non-zero on failure
 */
 uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
+
 /**
  @brief Read a simulation dial
  @param i_dialName Fully qualified dial name
@@ -2983,7 +2978,6 @@ uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
  @retval non-zero on failure
 */
 uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
-
 
 /**
  @brief Obtain absolute filename of a file that will be placed in the SIMOUT directory of the server / Fusion process and add new file to the bom information in the SUM file
