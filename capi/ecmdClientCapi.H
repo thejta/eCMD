@@ -95,6 +95,9 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]);
 */
 
 uint32_t ecmdSetup(char* i_args);
+
+#define CRAP(x) (x);
+
 //@}
 #endif // ifndef ECMD_PERLAPI
 
@@ -2953,6 +2956,12 @@ uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, 
 */
 void simSetFusionMessageFormat ( const char* i_format);
 
+#ifndef ECMD_PERLAPI
+#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#endif
 
 /**
  @brief Write a simulation dial with specified value
