@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 
+#define CRAP2(x) (x);
+
 #ifndef ECMD_PERLAPI
 /** @name Load/Unload Functions */
 //@{
