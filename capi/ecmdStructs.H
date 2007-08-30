@@ -408,60 +408,6 @@ typedef enum {
 //  Structures                                    
 //--------------------------------------------------------------------
 
-// @02 start
-/**
- @brief Used by ecmdI2CMultipleCmds API
-*/
-struct ecmdI2CCmdEntry {
-
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdI2CCmdEntry();
-
-  // Destructor
-  ~ecmdI2CCmdEntry();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void) const;
-#ifndef REMOVE_SIM
-  void printStruct(void) const;
-#endif
-#endif
-
-  // Members
-  ecmdI2CCmds_t ecmdI2CCmd;     ///< The eCMD API to target with this command
-  uint32_t engineId;            ///< The i2c engine to use
-  uint32_t port;                ///< The i2c port to use
-  uint32_t slaveaddress;        ///< The i2c slave device address to use
-  ecmdI2cBusSpeed_t busSpeed;   ///< The i2c bus speed to use
-  uint32_t byteOffset;          ///< Byte offset in the device (needed for offset commands only)
-  uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
-  uint32_t readByteLength;      ///< Byte length to read (only needed on reads)
-  ecmdDataBuffer data;          ///< The data returned from the i2c operation
-};
-
-#ifndef DOCUMENTATION
-// ecmdI2CCmdEntry Constructor
-inline ecmdI2CCmdEntry::ecmdI2CCmdEntry():
-ecmdI2CCmd(ECMD_I2C_UNKNOWN),                //fix beam error
-engineId(0),
-port(0),
-slaveaddress(0),
-busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
-byteOffset(0),
-offsetFieldSize(0),
-readByteLength(0)                            //fix beam error
-{
-}
-
-// ecmdI2CCmdEntry Destructor
-inline ecmdI2CCmdEntry::~ecmdI2CCmdEntry() { }
-#endif
-// @02
-
-
 /**
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
@@ -474,10 +420,6 @@ struct ecmdDllInfo {
   std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
   std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
 };
-
-
-
-
 
 /**
  @brief Structure used to designate which cec object/chip you would like the function to operate on
@@ -1501,6 +1443,57 @@ struct ecmdMemoryEntry {
   ecmdDataBuffer data;
   ecmdDataBuffer tags;
 };
+
+/**
+ @brief Used by ecmdI2CMultipleCmds API
+*/
+struct ecmdI2CCmdEntry {
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdI2CCmdEntry();
+
+  // Destructor
+  ~ecmdI2CCmdEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void) const;
+#ifndef REMOVE_SIM
+  void printStruct(void) const;
+#endif
+#endif
+
+  // Members
+  ecmdI2CCmds_t ecmdI2CCmd;     ///< The eCMD API to target with this command
+  uint32_t engineId;            ///< The i2c engine to use
+  uint32_t port;                ///< The i2c port to use
+  uint32_t slaveaddress;        ///< The i2c slave device address to use
+  ecmdI2cBusSpeed_t busSpeed;   ///< The i2c bus speed to use
+  uint32_t byteOffset;          ///< Byte offset in the device (needed for offset commands only)
+  uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
+  uint32_t readByteLength;      ///< Byte length to read (only needed on reads)
+  ecmdDataBuffer data;          ///< The data returned from the i2c operation
+};
+
+#ifndef DOCUMENTATION
+// ecmdI2CCmdEntry Constructor
+inline ecmdI2CCmdEntry::ecmdI2CCmdEntry():
+ecmdI2CCmd(ECMD_I2C_UNKNOWN),                //fix beam error
+engineId(0),
+port(0),
+slaveaddress(0),
+busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
+byteOffset(0),
+offsetFieldSize(0),
+readByteLength(0)                            //fix beam error
+{
+}
+
+// ecmdI2CCmdEntry Destructor
+inline ecmdI2CCmdEntry::~ecmdI2CCmdEntry() { }
+#endif
 
 /**
  @brief Used by simGetModelInfo
