@@ -462,7 +462,7 @@ struct ecmdChipTarget {
   // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
 #ifndef ECMD_PERLAPI
   /**
-   @union Test, let's see what happens
+   @brief Test, let's see what happens
    */
   union {
 #endif
