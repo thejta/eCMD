@@ -2953,12 +2953,11 @@ uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, 
 */
 void simSetFusionMessageFormat ( const char* i_format);
 
-/* Macros to easily use above message functions */
 #ifndef ECMD_PERLAPI
-#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
-#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__)
+#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
 #endif
 
 /**
