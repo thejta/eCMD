@@ -97,9 +97,6 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]);
 */
 
 uint32_t ecmdSetup(char* i_args);
-
-#define CRAP(x) (x);
-
 //@}
 #endif // ifndef ECMD_PERLAPI
 
@@ -2574,9 +2571,9 @@ uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, ui
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
 //@}
 
-/** @name Simulation Functions */
-//@{
 #ifndef REMOVE_SIM
+/** @defgroup simfunction Simulation Functions */
+//@{
 
 /**
  @brief Enable/Disable Simulation AET Logging
@@ -2958,12 +2955,6 @@ uint32_t simOutputFusionMessage (const char* i_header,  const char * i_message, 
 */
 void simSetFusionMessageFormat ( const char* i_format);
 
-#ifndef ECMD_PERLAPI
-#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
-#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
-#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
-#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
-#endif
 
 /**
  @brief Write a simulation dial with specified value
@@ -3033,9 +3024,19 @@ uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
  @retval non-zero on failure
  */
 uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut = 0, bool i_passive = false); 
+//@}
+
+/** @ingroup simfunction Simulation Functions */
+//@{
+#ifndef ECMD_PERLAPI
+#define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionInfo(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_INFO, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionWarning(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_WARNING, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#define simFusionError(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_ERROR, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
+#endif
+//@}
 
 #endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
-//@}
 /* End Simulation Functions */
 
 #ifndef DOCUMENTATION
