@@ -2570,7 +2570,7 @@ uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, ui
 //@}
 
 #ifndef REMOVE_SIM
-/** @defgroup simfunctions Simulation Functions */
+/** @name Simulation Functions */
 //@{
 
 /**
@@ -3024,7 +3024,7 @@ uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
 uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut = 0, bool i_passive = false); 
 //@}
 
-/** @ingroup simfunctions Simulation Functions */
+/** @name Simulation Functions */
 //@{
 #ifndef ECMD_PERLAPI
 #define simFusionOut(header,msg) simOutputFusionMessage (header,msg, ECMD_SIM_PLAIN, ECMD_SIM_MSG_TESTCASE, __FILE__, __LINE__) ///< Helper macros for the message functions
