@@ -516,15 +516,14 @@ struct ecmdChipTarget {
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
   // In the perl module, the union construct isn't supported
-  // We need to define these variables separately so that the perl module interface is generated correctly
+  // We need to define these variables without the union so that the perl module interface is generated correctly
   // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
-#ifdef ECMD_PERLAPI
-  uint8_t     core;           ///< which core on chip to access, if chip is multi-core
-  uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
-#else
+#ifndef ECMD_PERLAPI
   union {
+#endif
     uint8_t     core;           ///< which core on chip to access, if chip is multi-core
     uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
+#ifndef ECMD_PERLAPI
   };
 #endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
@@ -535,13 +534,12 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-#ifdef ECMD_PERLAPI
-  ecmdChipTargetState_t coreState;          ///< core field state
-  ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state
-#else
+#ifndef ECMD_PERLAPI
   union {
+#endif
     ecmdChipTargetState_t coreState;          ///< core field state
     ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state
+#ifndef ECMD_PERLAPI
   };
 #endif
   ecmdChipTargetState_t threadState;          ///< thread field state
