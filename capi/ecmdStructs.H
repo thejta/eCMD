@@ -564,7 +564,6 @@ threadFlags(0x0)
 inline ecmdThreadData::~ecmdThreadData() { }
 #endif
 
-
 /**
  @brief Used for the ecmdQueryConfig function to return core data
 
@@ -610,6 +609,58 @@ coreFlags(0x0)
 
 // ecmdCoreData Destructor
 inline ecmdCoreData::~ecmdCoreData() { }
+#endif
+
+/**
+ @brief Used for the ecmdQueryConfig function to return chipUnit data
+
+ Operators Supported : <
+
+*/
+struct ecmdChipUnitData {
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdChipUnitData();
+
+  // Destructor
+  ~ecmdChipUnitData();
+
+  // Methods
+#if 0
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+  uint32_t flattenSize(void);
+#endif
+  bool operator< (const ecmdChipUnitData& rhs);  ///< Used to sort Core entries in an ecmdChipUnitData list.
+#ifndef REMOVE_SIM
+#if 0
+  void printStruct(void);
+#endif
+#endif
+#endif
+
+  // Members
+  std::string                   chipUnitType;   ///< (Detail: Low)  Full name of chipUnit.. i.e. core, mc, etc..
+  uint8_t                       chipUnitNum;    ///< (Detail: Low) core number of this entry
+  uint8_t                       numThreads;     ///< (Detail: Low) Number of threads this entry supports
+  uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
+  uint32_t                      chipUnitFlags;  ///< (Detail: High) Various additional info about the core - bitmask of defines
+  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
+};
+
+#ifndef DOCUMENTATION
+// ecmdChipUnitData Constructor
+inline ecmdChipUnitData::ecmdChipUnitData():
+chipUnitNum(0),
+numThreads(0),
+unitId(0),
+chipUnitFlags(0x0)
+{
+}
+
+// ecmdChipUnitData Destructor
+inline ecmdChipUnitData::~ecmdChipUnitData() { }
 #endif
 
 /**
@@ -665,7 +716,8 @@ struct ecmdChipData {
   uint32_t                      simModelEc;         ///< (Detail: High) Model EC level of this chip
   ecmdChipInterfaceType_t       interfaceType;      ///< (Detail: High) Interface Macro used by the chip
   uint32_t                      chipFlags;          ///< (Detail: High) Various additional info about the chip - bitmask of defines
-  std::list<ecmdCoreData>       coreData;           ///< (Detail: Low)  List of all cores requested in this chip - only valid for Processor compute cores - in numerical order by coreId
+  std::list<ecmdChipUnitData>   chipUnitData;       ///< (Detail: Low)  List of all chipUnits requested in this chip - sorted by chipUnitType and chipUnitNum
+  std::list<ecmdCoreData>       coreData;          ///< (Detail: Low)  List of all cores requested in this chip - sorted by coreId
 };
 
 #ifndef DOCUMENTATION

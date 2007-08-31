@@ -319,6 +319,12 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode) {
   return ret;
 }
 
+uint32_t ecmdParseChipField(ecmdChipTarget &io_target, std::string i_chipField) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  return rc;
+}
+
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands) {
   std::string buffer;
 

@@ -184,8 +184,10 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     else queryTarget.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     if ((*io_state.curUnitIdTarget).posState != ECMD_TARGET_FIELD_UNUSED) queryTarget.posState = ECMD_TARGET_FIELD_WILDCARD;
     else queryTarget.posState = ECMD_TARGET_FIELD_UNUSED;
-    if ((*io_state.curUnitIdTarget).coreState != ECMD_TARGET_FIELD_UNUSED) queryTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-    else queryTarget.coreState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) queryTarget.chipUnitTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) queryTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
     if ((*io_state.curUnitIdTarget).threadState != ECMD_TARGET_FIELD_UNUSED) queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
     else queryTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
@@ -196,19 +198,19 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     /* Standard physical targets */
   } else {
 
-
     io_state.ecmdUseUnitid = false;
 
     queryTarget = io_target;
 
     /* Initialize defaults into the incoming target */
-    if (io_target.cageState == ECMD_TARGET_FIELD_WILDCARD)     io_target.cage = 0;
-    if (io_target.nodeState == ECMD_TARGET_FIELD_WILDCARD)     io_target.node = 0;
-    if (io_target.slotState == ECMD_TARGET_FIELD_WILDCARD)     io_target.slot = 0;
-    if (io_target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD) io_target.chipType = "na";
-    if (io_target.posState == ECMD_TARGET_FIELD_WILDCARD)      io_target.pos = 0;
-    if (io_target.coreState == ECMD_TARGET_FIELD_WILDCARD)     io_target.core = 0;
-    if (io_target.threadState == ECMD_TARGET_FIELD_WILDCARD)   io_target.thread = 0;
+    if (io_target.cageState == ECMD_TARGET_FIELD_WILDCARD)         io_target.cage = 0;
+    if (io_target.nodeState == ECMD_TARGET_FIELD_WILDCARD)         io_target.node = 0;
+    if (io_target.slotState == ECMD_TARGET_FIELD_WILDCARD)         io_target.slot = 0;
+    if (io_target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD)     io_target.chipType = "";
+    if (io_target.posState == ECMD_TARGET_FIELD_WILDCARD)          io_target.pos = 0;
+    if (io_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD) io_target.chipUnitType = "";
+    if (io_target.chipUnitNumState == ECMD_TARGET_FIELD_WILDCARD)  io_target.chipUnitNum = 0;
+    if (io_target.threadState == ECMD_TARGET_FIELD_WILDCARD)       io_target.thread = 0;
 
     /* Set all the states to valid, unless they are unused */
     if (io_target.cageState != ECMD_TARGET_FIELD_UNUSED)          io_target.cageState = ECMD_TARGET_FIELD_VALID;
@@ -216,22 +218,24 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     if (io_target.slotState != ECMD_TARGET_FIELD_UNUSED)          io_target.slotState = ECMD_TARGET_FIELD_VALID;
     if (io_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)      io_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     if (io_target.posState != ECMD_TARGET_FIELD_UNUSED)           io_target.posState = ECMD_TARGET_FIELD_VALID;
-    if (io_target.coreState != ECMD_TARGET_FIELD_UNUSED)          io_target.coreState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED)  io_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED)   io_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
     if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED)        io_target.threadState = ECMD_TARGET_FIELD_VALID;
 
-    if (i_looptype == ECMD_ALL_TARGETS_LOOP) 
+    if (i_looptype == ECMD_ALL_TARGETS_LOOP) {
       rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
-    else {
+    } else {
       rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
 
       /* Selected queries can change our states, so let's update them */
-      if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)      io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)      io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)      io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)  io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)       io_target.posState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.coreState == ECMD_TARGET_FIELD_UNUSED)      io_target.coreState = ECMD_TARGET_FIELD_UNUSED;
-      if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)    io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)          io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)          io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)          io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)      io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)           io_target.posState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipUnitTypeState == ECMD_TARGET_FIELD_UNUSED)  io_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED)   io_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)        io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
     }
     if (rc) return rc;
 
@@ -442,14 +446,14 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         /* Data is valid, let's setup this part of the target */
         io_target.chipType = (*io_state.ecmdCurChip).chipType;
         io_target.pos = (*io_state.ecmdCurChip).pos;
-        io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
+        io_state.ecmdCurChipUnit = (*io_state.ecmdCurChip).chipUnitData.begin();
         valid = 0;
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED)) {
+        if (io_state.prevTarget.chipUnitTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) {
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end())) {
+        } else if ((io_state.prevTarget.chipUnitTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChipUnit == (*io_state.ecmdCurChip).chipUnitData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -470,11 +474,13 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       /* last Core != current Core */
       if (level == CORE &&
           (!valid ||
-           io_target.core != (*io_state.ecmdCurCore).coreId )) {
+           io_target.chipUnitType != (*io_state.ecmdCurChipUnit).chipUnitType ||
+           io_target.chipUnitNum != (*io_state.ecmdCurChipUnit).chipUnitNum  )) {
 
         /* Data is valid, let's setup this part of the target */
-        io_target.core = (*io_state.ecmdCurCore).coreId;
-        io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
+        io_target.chipUnitType = (*io_state.ecmdCurChipUnit).chipUnitType;
+        io_target.chipUnitNum = (*io_state.ecmdCurChipUnit).chipUnitNum;
+        io_state.ecmdCurThread = (*io_state.ecmdCurChipUnit).threadData.begin();
         valid = 0;
 
 
@@ -482,7 +488,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         if (io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end())) {
+        } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurChipUnit).threadData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -561,14 +567,14 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
     case THREAD:  //thread
       io_state.ecmdCurThread++;
       /* Did we find another thread, if not we will try core */
-      if (io_state.ecmdCurThread != (*io_state.ecmdCurCore).threadData.end()) {
+      if (io_state.ecmdCurThread != (*io_state.ecmdCurChipUnit).threadData.end()) {
         break;
       }
       /*fall through*/
     case CORE:  //core
-      io_state.ecmdCurCore++;
+      io_state.ecmdCurChipUnit++;
       /* Did we find another core, if not we will try chip */
-      if (io_state.ecmdCurCore != (*io_state.ecmdCurChip).coreData.end()) {
+      if (io_state.ecmdCurChipUnit != (*io_state.ecmdCurChip).chipUnitData.end()) {
         break;
       }
       /*fall through*/
@@ -2184,7 +2190,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       std::list<ecmdNodeData>::iterator ecmdCurNode;
       std::list<ecmdSlotData>::iterator ecmdCurSlot;
       std::list<ecmdChipData>::iterator ecmdCurChip;
-      std::list<ecmdCoreData>::iterator ecmdCurCore;
+      std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;
       std::list<ecmdThreadData>::iterator ecmdCurThread;
       char buf[100];
       if (dummy->cageData.empty()) {
@@ -2203,14 +2209,14 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
                 sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); debugFunctionOuput(buf);
 
-                for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                  sprintf(buf,"%s\t \t         c%d\n",frontFPPTxt, ecmdCurCore->coreId); debugFunctionOuput(buf);
+                for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
+                  sprintf(buf,"%s\t \t         %s:c%d\n",frontFPPTxt, ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); debugFunctionOuput(buf);
 
-                  for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                  for (ecmdCurThread = ecmdCurChipUnit->threadData.begin(); ecmdCurThread != ecmdCurChipUnit->threadData.end(); ecmdCurThread ++) {
                     sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); debugFunctionOuput(buf);
                   } /* curThreadIter */
 
-                } /* curCoreIter */
+                } /* curChipDataIter */
 
               } /* curChipIter */
 
@@ -2309,7 +2315,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : std::string chiptype = ";
+      printed += "\t \t value : std::string chipType = ";
       printed += dummy->chipType.c_str();
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->chipTypeState);
@@ -2324,11 +2330,18 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    core     = ";
-      sprintf(tempIntStr,"%u",dummy->core);
+      printed += "\t \t value : std::string chipUnitType = ";
+      printed += dummy->chipUnitType.c_str();
+      printed += "\tState = ";
+      printed += printEcmdChipTargetState_t(dummy->chipUnitTypeState);
+      debugFunctionOuput(printed.c_str());
+
+      printed = frontFPPTxt;
+      printed += "\t \t value : uint32_t    chipUnitNum = ";
+      sprintf(tempIntStr,"%u",dummy->chipUnitNum);
       printed += tempIntStr;
       printed += "\tState = ";
-      printed += printEcmdChipTargetState_t(dummy->coreState);
+      printed += printEcmdChipTargetState_t(dummy->chipUnitNumState);
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;

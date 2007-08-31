@@ -95,6 +95,14 @@ bool ecmdIsAllHex(const char* str);
 */
 std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
+/**
+ @brief Parse the chip field and look for the chipUnit
+ @param io_target Target to be updated based on the chipField value
+ @param i_chipField The chip field from the command line to be parsed
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if failure
+*/
+uint32_t ecmdParseChipField(ecmdChipTarget &io_target, std::string i_chipField);
 
 /**
  @brief Returns a list of commands that were read from stdin
