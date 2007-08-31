@@ -84,6 +84,7 @@
 // Templates for vector support - one of these have to be created for every type needed
 // From ecmdStructs.H
 %template(listEcmdThreadData)        std::list<ecmdThreadData>;
+%template(listEcmdCoreData)          std::list<ecmdCoreData>;
 %template(listEcmdChipUnitData)      std::list<ecmdChipUnitData>;
 %template(listEcmdChipData)          std::list<ecmdChipData>;
 %template(listEcmdSlotData)          std::list<ecmdSlotData>;
