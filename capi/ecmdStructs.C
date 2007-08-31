@@ -517,7 +517,6 @@ void ecmdThreadData::printStruct() {
 }
 #endif
 
-
 /*
  * The following methods for the ecmdChipData struct will flatten, unflatten &
  * get the flattened size of the struct.
@@ -786,6 +785,19 @@ void ecmdCoreData::printStruct() {
 }
 #endif
 
+
+
+/** @brief Used to sort chipUnit entries in an ecmdChipUnitData list. */
+bool ecmdChipUnitData::operator< (const ecmdChipUnitData& rhs) {
+
+  if (chipUnitType < rhs.chipUnitType) {
+    return true;
+  } else if ((chipUnitType == rhs.chipUnitType) && (chipUnitNum < rhs.chipUnitNum)) {
+    return true;
+  }
+
+  return false;
+}
 
 /*
  * The following methods for the ecmdChipData struct will flatten, unflatten &
@@ -1155,7 +1167,6 @@ void ecmdChipData::printStruct() {
 }
 #endif
 
-
 /*
  * The following methods for the ecmdSlotData struct will flatten, unflatten &
  * get the flattened size of the struct.
@@ -1228,7 +1239,6 @@ uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		// Copy list data.
 		while (chipitor != chipData.end()) {
 			rc = chipitor->flatten(l_ptr, i_len);
-
 			if (rc) break;  // stop on fail and exit
 			l_ptr += chipitor->flattenSize();
 			chipitor++;
@@ -1321,7 +1331,6 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		// Unflatten list data.
 		while (chipitor != chipData.end()) {
 			rc = chipitor->unflatten(l_ptr, i_len);
-
 			if (rc) break; // stop on fail and exit
 			/*
 			 * l_ptr is not passed by reference so now that we 

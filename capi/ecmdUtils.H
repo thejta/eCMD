@@ -140,18 +140,18 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
  @brief Used internally by ecmdConfigLooper to store looping state information
 */
 struct ecmdLooperData {
-  bool             ecmdLooperInitFlag;                  ///< Is fresh ?
-  bool             ecmdUseUnitid;                       ///< This looper is looping on unitid targets not config data
-  ecmdConfigLoopMode_t ecmdLoopMode;                    ///< Is this a variable depth or static loop?
+  bool             ecmdLooperInitFlag;                    ///< Is fresh ?
+  bool             ecmdUseUnitid;                         ///< This looper is looping on unitid targets not config data
+  ecmdConfigLoopMode_t ecmdLoopMode;                      ///< Is this a variable depth or static loop?
 
-  ecmdQueryData    ecmdSystemConfigData;                ///< Config data queried from the system
-  std::list<ecmdCageData>::iterator ecmdCurCage;        ///< Pointer to current Cage
-  std::list<ecmdNodeData>::iterator ecmdCurNode;        ///< Pointer to current Node
-  std::list<ecmdSlotData>::iterator ecmdCurSlot;        ///< Pointer to current Slot
-  std::list<ecmdChipData>::iterator ecmdCurChip;        ///< Pointer to current Chip
-  std::list<ecmdCoreData>::iterator ecmdCurCore;        ///< Pointer to current Core
-  std::list<ecmdThreadData>::iterator ecmdCurThread;    ///< Pointer to current Thread
-  ecmdChipTarget prevTarget;                            ///< Pointer to previous target
+  ecmdQueryData    ecmdSystemConfigData;                  ///< Config data queried from the system
+  std::list<ecmdCageData>::iterator ecmdCurCage;          ///< Pointer to current Cage
+  std::list<ecmdNodeData>::iterator ecmdCurNode;          ///< Pointer to current Node
+  std::list<ecmdSlotData>::iterator ecmdCurSlot;          ///< Pointer to current Slot
+  std::list<ecmdChipData>::iterator ecmdCurChip;          ///< Pointer to current Chip
+  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;  ///< Pointer to current ChipUnit
+  std::list<ecmdThreadData>::iterator ecmdCurThread;      ///< Pointer to current Thread
+  ecmdChipTarget prevTarget;                              ///< Pointer to previous target
 
 
   std::list<ecmdChipTarget>     unitIdTargets;          ///< List of targets if looping on a unitid
