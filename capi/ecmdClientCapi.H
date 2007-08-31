@@ -1,6 +1,5 @@
 #ifndef ecmdClientCapi_H 
 #define ecmdClientCapi_H
-
 /* $Header$ */
 
 /**

@@ -97,12 +97,13 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
 /**
  @brief Parse the chip field and look for the chipUnit
- @param io_target Target to be updated based on the chipField value
  @param i_chipField The chip field from the command line to be parsed
+ @param o_chipType The chip type from the field
+ @param o_chipUnitType The chipUnit type from the field (if one was found)
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
-uint32_t ecmdParseChipField(ecmdChipTarget &io_target, std::string i_chipField);
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
 
 /**
  @brief Returns a list of commands that were read from stdin
