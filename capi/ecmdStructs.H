@@ -1,5 +1,6 @@
 #ifndef ecmdStructs_H
 #define ecmdStructs_H
+/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdStructs.H                                               
@@ -14,9 +15,6 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-
-/* $Header$ */
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Date      Coder     Description                       

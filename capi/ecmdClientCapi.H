@@ -364,9 +364,17 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 */
 bool ecmdQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
 
+/**
+ @brief Fetch the detailed chip data structure for the selected target
+ @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
+ @param i_target ecmdChipTarget that information is requested for
+ @param o_data ecmdChipData struct that contains detailed info on chip ec level, etc.
 
+ TARGET DEPTH  : Pos
+ TARGET STATES : Unused
+ */
+uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
 //@}
-
 
 
 /** @name Scan Functions */
