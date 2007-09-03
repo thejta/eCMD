@@ -67,6 +67,8 @@ bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryDa
 
 bool dllQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
 
+uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data); 
+
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
