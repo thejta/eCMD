@@ -155,8 +155,13 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     /* We are going to enable ring caching to speed up performance */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
     if (!ecmdIsRingCacheEnabled(target)) {
+      rc = ecmdEnableRingCache(target);
+      if (rc) {
+        ecmdOutputError("getspy - ecmdEnableRingCache call failed!\n");
+        coeRc = rc;
+        continue;
+      }
       enabledCache = true;
-      ecmdEnableRingCache(target);
     }
 
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), detail);
@@ -578,8 +583,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
     /* We are going to enable ring caching to speed up performance */
     if (!ecmdIsRingCacheEnabled(target)) {
+      rc = ecmdEnableRingCache(target);
+      if (rc) {
+        ecmdOutputError("putspy - ecmdEnableRingCache call failed!\n");
+        coeRc = rc;
+        continue;
+      }
       enabledCache = true;
-      ecmdEnableRingCache(target);
     }
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */

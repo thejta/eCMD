@@ -1383,8 +1383,13 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     /* We are going to enable the ring cache to get performance out of this beast */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
     if (!ecmdIsRingCacheEnabled(target)) {
+      rc = ecmdEnableRingCache(target);
+      if (rc) {
+        ecmdOutputError("getlatch - ecmdEnableRingCache call failed!\n");
+        coeRc = rc;
+        continue;
+      }
       enabledCache = true;
-      ecmdEnableRingCache(target);
     }
 
     bool isCoreLatch;                         ///< Is this a core latch ?
