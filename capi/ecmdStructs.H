@@ -948,6 +948,7 @@ bitLength(0),
 hasInversionMask(false),
 supportsBroadsideLoad(false),
 isCheckable(false),
+isCoreRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -984,7 +985,7 @@ struct ecmdArrayData {
   uint32_t    writeAddressLength;       ///< (Detail: Low)  Bit length of write address
   uint64_t    length;                   ///< (Detail: Low)  Length of array (number of entries)
   uint32_t    width;                    ///< (Detail: Low)  Bit width of array entry
-  bool             isCoreRelated;       ///< (Detail: Low)  This array is related to the core level of a chip
+  bool        isCoreRelated;            ///< (Detail: Low)  This array is related to the core level of a chip
   std::string           clockDomain;    ///< (Detail: High) Clock domain this array belongs to
   ecmdClockState_t       clockState;    ///< (Detail: High) Required clock state to access this array
 };
@@ -997,6 +998,7 @@ readAddressLength(0),
 writeAddressLength(0),
 length(0),
 width(0),
+isCoreRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
