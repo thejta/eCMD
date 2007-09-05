@@ -131,7 +131,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
 
       /* Let's look up other info about the chip, namely the ec level */
-      rc = ecmdGetChipData (target, chipdata);
+      rc = ecmdGetChipData(target, chipdata);
       if (rc) {
         printed = "ecmdquery - Unable to lookup ec information for chip ";
         printed += ecmdWriteTarget(target);
@@ -165,7 +165,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           chkable = 'Y';
         } else chkable = 'N';
 
-        if (ringit->isCoreRelated) {
+        if (ringit->isChipUnitRelated) {
           isCore = 'Y';
         } else isCore = 'N';
 
@@ -293,7 +293,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isEnum = 'Y';
         } else isEnum = 'N';
 
-        if (spyit->isCoreRelated) {
+        if (spyit->isChipUnitRelated) {
           isCore = 'Y';
         } else isCore = 'N';
 
@@ -413,7 +413,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         }
 
         
-        if(traceit->isCoreRelated) {
+        if(traceit->isChipUnitRelated) {
           isCore = 'Y';
         } else {
           isCore = 'N';
@@ -520,7 +520,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           printed += " ";
         }
 
-        if(scomit->isCoreRelated) {
+        if(scomit->isChipUnitRelated) {
           isCore = 'Y';
         } else {
           isCore = 'N';
@@ -623,7 +623,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           printed += " ";
         }
 
-        if(arrayit->isCoreRelated) {
+        if(arrayit->isChipUnitRelated) {
           isCore = 'Y';
         } else {
           isCore = 'N';
