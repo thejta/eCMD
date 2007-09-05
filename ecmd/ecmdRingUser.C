@@ -265,7 +265,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
           break;
         }
         /* If we have a chipUnit, set the state fields properly */
-        if (!chipUnitType.empty()) {
+        if (chipUnitType != "") {
           cuTarget.chipUnitType = chipUnitType;
           cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
@@ -1004,7 +1004,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
@@ -1243,7 +1243,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
@@ -1742,7 +1742,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           break;
         }
         /* If we have a chipUnit, set the state fields properly */
-        if (!chipUnitType.empty()) {
+        if (chipUnitType != "") {
           cuTarget.chipUnitType = chipUnitType;
           cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
@@ -2108,7 +2108,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }

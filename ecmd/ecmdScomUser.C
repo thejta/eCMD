@@ -247,7 +247,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
@@ -502,7 +502,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
@@ -793,7 +793,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
