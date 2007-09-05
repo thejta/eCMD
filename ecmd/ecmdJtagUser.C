@@ -105,10 +105,16 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("sendcmd - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   // we need the instruction and modifier
 
