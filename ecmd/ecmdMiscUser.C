@@ -387,13 +387,18 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("getcfam - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
-
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("getcfam - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
@@ -556,10 +561,16 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("putcfam - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("putcfam - Non-hex characters detected in address field\n");
@@ -731,7 +742,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   }
 
   target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-  target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.slotState = target.chipTypeState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
@@ -1125,13 +1136,18 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("getgpreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
-
   if (!ecmdIsAllDecimal(argv[1])) {
     ecmdOutputError("getgpreg - Non-decimal characters detected in reg num field\n");
     return ECMD_INVALID_ARGS;
@@ -1286,10 +1302,16 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("putgpreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllDecimal(argv[1])) {
     ecmdOutputError("putgpreg - Non-decimal characters detected in reg num field\n");

@@ -157,14 +157,13 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (memMode == ECMD_MEM_MEMCTRL) {
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = 
-      target.posState = target.threadState = 
-      target.coreState = ECMD_TARGET_FIELD_UNUSED;
+      target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = 
       target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   }
 
   // Read in the expect data
@@ -440,12 +439,12 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
   if (memMode == ECMD_MEM_MEMCTRL) {
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    target.nodeState = target.chipTypeState = target.slotState = target.posState = target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.nodeState = target.chipTypeState = target.slotState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState =   ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   }
 
 
@@ -598,10 +597,16 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("cacheflush - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
   //get the cachetype
   cacheTypeStr = argv[1];
