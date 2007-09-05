@@ -1711,13 +1711,15 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
         sprintf(tempIntStr,"%s\t \t \t value : int               bitLength  = %d\n",frontFPPTxt, entit->bitLength); debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : BOOL          isCoreRelated  = ",frontFPPTxt);
-        if(entit->isCoreRelated) {
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL      isChipUnitRelated  = ",frontFPPTxt);
+        if(entit->isChipUnitRelated) {
           strcat(tempIntStr,"TRUE\n");
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
         debugFunctionOuput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string relatedChipUnit  = %s\n",frontFPPTxt, entit->relatedChipUnit.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); debugFunctionOuput(tempIntStr);
 
@@ -1782,13 +1784,15 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         }
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : BOOL      isCoreRelated  = ",frontFPPTxt);
-        if(entit->isCoreRelated) {
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL      isChipUnitRelated  = ",frontFPPTxt);
+        if(entit->isChipUnitRelated) {
           strcat(tempIntStr,"TRUE\n");
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
         debugFunctionOuput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string relatedChipUnit  = %s\n",frontFPPTxt, entit->relatedChipUnit.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); debugFunctionOuput(tempIntStr);
 
@@ -1840,13 +1844,15 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         sprintf(tempIntStr,"%s\t \t \t value : uint32_t           address  = 0x%X\n",frontFPPTxt, entit->address);
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : BOOL         isCoreRelated  = ",frontFPPTxt);
-        if(entit->isCoreRelated) {
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL      isChipUnitRelated  = ",frontFPPTxt);
+        if(entit->isChipUnitRelated) {
           strcat(tempIntStr,"TRUE\n");
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
         debugFunctionOuput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string relatedChipUnit  = %s\n",frontFPPTxt, entit->relatedChipUnit.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
         debugFunctionOuput(tempIntStr);
@@ -1917,13 +1923,15 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         }
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : BOOL          isCoreRelated  = ",frontFPPTxt);
-        if(entit->isCoreRelated) {
+        sprintf(tempIntStr,"%s\t \t \t value : BOOL      isChipUnitRelated  = ",frontFPPTxt);
+        if(entit->isChipUnitRelated) {
           strcat(tempIntStr,"TRUE\n");
         } else {
           strcat(tempIntStr,"FALSE\n");
         }
         debugFunctionOuput(tempIntStr);
+
+        sprintf(tempIntStr,"%s\t \t \t value : std::string relatedChipUnit  = %s\n",frontFPPTxt, entit->relatedChipUnit.c_str()); debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string     clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str()); debugFunctionOuput(tempIntStr);
 
