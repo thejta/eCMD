@@ -61,31 +61,32 @@
 
 uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;     //@02
-  ecmdChipTarget target;        ///< Current target
-  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
-  std::string arrayName;        ///< Name of array to access
-  ecmdDataBuffer address;       ///< Buffer to store address
-  ecmdDataBuffer address_copy;  ///< Copy of address to modify in entry loop
-  uint32_t  numEntries = 1;     ///< Number of consecutive entries to fetch
-  bool validPosFound = false;   ///< Did we find something to actually execute on ?
-  std::string printed;          ///< Print Buffer
-  bool printedHeader;           ///< Have we printed the array name and pos
+  uint32_t coeRc = ECMD_SUCCESS;
+  ecmdChipTarget target;                ///< Current target
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the cores
+  std::string arrayName;                ///< Name of array to access
+  ecmdDataBuffer address;               ///< Buffer to store address
+  ecmdDataBuffer address_copy;          ///< Copy of address to modify in entry loop
+  uint32_t  numEntries = 1;             ///< Number of consecutive entries to fetch
+  bool validPosFound = false;           ///< Did we find something to actually execute on ?
+  std::string printed;                  ///< Print Buffer
+  bool printedHeader;                   ///< Have we printed the array name and pos
   std::list<ecmdArrayEntry> entries;    ///< List of arrays to fetch, to use getArrayMultiple
-  ecmdArrayEntry entry;         ///< Array entry to fetch
-  uint32_t* add_buffer = NULL;  ///< Buffer to do temp work with the address for incrementing
-  ecmdArrayData arrayData;      ///< Query data about array
+  ecmdArrayEntry entry;                 ///< Array entry to fetch
+  uint32_t* add_buffer = NULL;          ///< Buffer to do temp work with the address for incrementing
+  ecmdArrayData arrayData;              ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
-  std::string outputformat = "x";  ///< Output Format to display
-  std::string inputformat = "x";   ///< Input format of data
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the core loop
+  std::string outputformat = "x";       ///< Output Format to display
+  std::string inputformat = "x";        ///< Input format of data
   bool expectFlag = false;
   bool maskFlag = false;
-  char* expectPtr = NULL;          ///< Pointer to expected data in arg list
-  char* maskPtr = NULL;            ///< Pointer to mask data in arg list
-  ecmdDataBuffer expected;         ///< Buffer to store expected data
-  ecmdDataBuffer mask;             ///< Buffer for mask of expected data
+  char* expectPtr = NULL;               ///< Pointer to expected data in arg list
+  char* maskPtr = NULL;                 ///< Pointer to mask data in arg list
+  ecmdDataBuffer expected;              ///< Buffer to store expected data
+  ecmdDataBuffer mask;                  ///< Buffer for mask of expected data
+  bool isChipUnitArray;                     ///< Is this a core array ?
   
   //expect and mask flags check
   if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
@@ -114,7 +115,6 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  //@02
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   
@@ -128,10 +128,12 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   arrayName = argv[1];
 
@@ -147,13 +149,10 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     numEntries = (uint32_t)atoi(argv[3]);
   }
 
- 
-  bool isCoreArray;   ///< Is this a core array ?
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+   while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {     //@02
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -233,19 +232,16 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
               printed += ecmdWriteTarget(target) + "\n";
               ecmdOutputError( printed.c_str() );
               // Clean up allocated memory
-              //begin @02
-              if(coeMode)       
+              if (coeMode) {
                 continue;
-               else{
-                  if (add_buffer)                         
-                  {
-                        delete[] add_buffer;
-                  } 
-                
+              } else {
+                if (add_buffer) {
+                  delete[] add_buffer;
+                } 
+
                 return ECMD_DATA_OVERFLOW;
-               }
+              }
             }
-              //end @02
 
             add_buffer[address.getWordLength()-1] = 0;
             for (int word = (int)address.getWordLength()-2; word >= 0; word --) {
@@ -256,19 +252,16 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
                   printed += ecmdWriteTarget(target) + "\n";
                   ecmdOutputError( printed.c_str() );
                   // Clean up allocated memory
-                  //begin @02
-                  if(coeMode)       
+                  if (coeMode) {       
                     continue;
-                  else{
-                    if (add_buffer)                         
-                    {
-                        delete[] add_buffer;
+                  } else {
+                    if (add_buffer) {
+                      delete[] add_buffer;
                     } 
-                
+
                     return ECMD_DATA_OVERFLOW;
                   }
                 }
-                //end @02
                 add_buffer[word] = 0;
               } else {
                 add_buffer[word] ++;
@@ -289,45 +282,59 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
     printedHeader = false;
 
-    isCoreArray = arrayData.isCoreRelated;
+    isChipUnitArray = arrayData.isChipUnitRelated;
 
     /* Setup our Core looper if needed */
-    coretarget = target;
-    if (isCoreArray) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+    cuTarget = target;
+    if (isChipUnitArray) {
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      /* Error check the chipUnit returned */
+      if (arrayData.relatedChipUnit != chipUnitType) {
+        printed = "getarray - Provided chipUnit: \"";
+        printed += chipUnitType;
+        printed += "\"doesn't match chipUnit returned by queryArray: \"";
+        printed += arrayData.relatedChipUnit + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (!chipUnitType.empty()) {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) {
         printed = "getarray - Error returned from ecmdConfigLooperInit on Core Looper ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         // Clean up allocated memory
-        if (add_buffer)                                                    //@01a
+        if (add_buffer)
         {
           delete[] add_buffer;
         }
-        coeRc = rc;                                           //@02
-        continue;                                             //@02
+        coeRc = rc;
+        continue;
       }
     }
 
     /* Actually go fetch the data */
-    while ((!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper))&& (!coeRc || coeMode)) {   //@02
-      rc = getArrayMultiple(coretarget, arrayName.c_str(), entries);
+    while ((!isChipUnitArray || ecmdConfigLooperNext(cuTarget, cuLooper))&& (!coeRc || coeMode)) {
+      rc = getArrayMultiple(cuTarget, arrayName.c_str(), entries);
       if (rc) {
         printed = "getarray - Error occured performing getArrayMultiple on ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         // Clean up allocated memory
-        if (add_buffer)                                                    //@01a
-        {
+        if (add_buffer) {
           delete[] add_buffer;
         }
-        coeRc = rc;                                           //@02
-        continue;                                             //@02
+        coeRc = rc;
+        continue;
       }
       else {
         validPosFound = true;     
@@ -346,7 +353,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             //@ make this stuff sprintf'd
 
             if (!printedHeader) {
-              printed = ecmdWriteTarget(coretarget) + " " + arrayName + "\n";
+              printed = ecmdWriteTarget(cuTarget) + " " + arrayName + "\n";
               printedHeader = true;
             } 
 
@@ -380,7 +387,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         else {
 
           if (!printedHeader) {
-            printed = ecmdWriteTarget(coretarget) + " " + arrayName + "\n";
+            printed = ecmdWriteTarget(cuTarget) + " " + arrayName + "\n";
             ecmdOutput( printed.c_str() );
             printedHeader = true;
           }
@@ -400,8 +407,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       // reset printedHeader for next target
       printedHeader = false;
 
-      if (!isCoreArray) break;
-    } /* End CoreLooper */
+      if (!isChipUnitArray) break;
+    } /* End cuLooper */
 
     /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
     entries.clear();
@@ -424,28 +431,28 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   {
       delete[] add_buffer;
   }
-  //begin -@02
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;
-  //end -@02                                           
+
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 
 uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t coeRc = ECMD_SUCCESS;                    //@02
   ecmdChipTarget target;        ///< Current target
-  ecmdChipTarget coretarget;    ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;      ///< Current target being operated on for the cores
   std::string arrayName;        ///< Name of array to access
   ecmdDataBuffer address;       ///< Buffer to store address
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;                    ///< Store internal Looper data for the core loop
   ecmdArrayData arrayData;      ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
+  bool isChipUnitArray;             ///< Is this a core array ?
 
   /* get format flag, if it's there */
   std::string format;
@@ -477,19 +484,19 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   arrayName = argv[1];
 
-  bool isCoreArray;   ///< Is this a core array ?
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {     //@02
 
 
     /* We need to find out info about this array */
@@ -502,7 +509,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       continue;                           //@02
     }
     arrayData = *(arrayDataList.begin());
-    isCoreArray = arrayData.isCoreRelated;
+    isChipUnitArray = arrayData.isChipUnitRelated;
 
     /* Set the length  */
     address.setBitLength(arrayData.writeAddressLength);
@@ -521,21 +528,36 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     }
 
     /* Setup our Core looper if needed */
-    coretarget = target;
-    if (isCoreArray) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+    cuTarget = target;
+    if (isChipUnitArray) {
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      /* Error check the chipUnit returned */
+      if (arrayData.relatedChipUnit != chipUnitType) {
+        printed = "putarray - Provided chipUnit: \"";
+        printed += chipUnitType;
+        printed += "\"doesn't match chipUnit returned by queryArray: \"";
+        printed += arrayData.relatedChipUnit + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (!chipUnitType.empty()) {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) return rc;
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isCoreArray || ecmdConfigLooperNext(coretarget, corelooper))&& (!coeRc || coeMode)){ //@02
+    while ((!isChipUnitArray || ecmdConfigLooperNext(cuTarget, cuLooper))&& (!coeRc || coeMode)){ //@02
 
-      rc = putArray(coretarget, arrayName.c_str(), address, buffer);
+      rc = putArray(cuTarget, arrayName.c_str(), address, buffer);
       if (rc) {
         printed = "putarray - Error occured performing putarray on ";
         printed += ecmdWriteTarget(target) + "\n";
@@ -552,8 +574,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
         ecmdOutput(printed.c_str());
       }
 
-      if (!isCoreArray) break;
-    } /* End CoreLooper */
+      if (!isChipUnitArray) break;
+    } /* End cuLooper */
   } /* End PosLooper */
 
   if (!validPosFound) {
@@ -562,12 +584,10 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  //begin -@02   
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end - @02
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 
@@ -577,12 +597,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t coeRc = ECMD_SUCCESS;        //@02
   ecmdChipTarget target;                ///< Current target
-  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the cores
   bool validPosFound = false;           ///< Did we find something to actually execute on ?
   std::string printed;                  ///< Print Buffer
   bool printedHeader;                   ///< Have we printed the array name and pos
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;            ///< Store internal Looper data for the core loop
   uint32_t loop; 			///<loop around the array data
   bool doStopStart = true;              ///< Do we StopStart trace arrays ?
   std::list<ecmdTraceArrayData> queryTraceData; ///< Trace Data
@@ -607,11 +627,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  //@02
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   
@@ -626,16 +644,17 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   
   
   //Setup the looper to do gettracearray
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {     //@02
 
 
     //Get all the valid trace arrays
@@ -717,29 +736,29 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
       }
     }
     /* Setup our Core looper if needed */
-    coretarget = target;
+    cuTarget = target;
     if (coreArrayList.size() > 0) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) return rc;
 
 
       /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (ecmdConfigLooperNext(coretarget, corelooper)) {
+      while (ecmdConfigLooperNext(cuTarget, cuLooper)) {
 
         //Clear the core List
         for (std::list<ecmdNameVectorEntry>::iterator lit = coreArrayList.begin(); lit != coreArrayList.end(); lit++ ) {
           lit->buffer.clear();
         }
 
-        rc = getTraceArrayMultiple(coretarget,  doStopStart, coreArrayList);
+        rc = getTraceArrayMultiple(cuTarget,  doStopStart, coreArrayList);
         if (rc) {
           printed = "gettracearray - Error occured performing getTraceArray on ";
-          printed += ecmdWriteTarget(coretarget) + "\n";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;                                           //@02
           continue;                                             //@02
@@ -752,7 +771,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
           printedHeader = false;
           for(loop =0; loop < lit->buffer.size() ; loop++) {
             if (!printedHeader) {
-              printed = ecmdWriteTarget(coretarget) + " " + lit->name + "\n";
+              printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "\n";
               ecmdOutput( printed.c_str() );
               printedHeader = true;
             }
@@ -763,7 +782,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
           }
         }
 
-      }/* End CoreLooper */
+      }/* End cuLooper */
 
     } /* If core trace */
 
@@ -775,12 +794,10 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   } 
 
-  //begin-@02
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end -@02   
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
