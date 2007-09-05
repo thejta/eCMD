@@ -24,7 +24,7 @@
 //                                                                      
 //  Flag Reason   Vers Date     Coder     Description                       
 //  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+//   @01  STG4466       03/10/05 Prahl     Fix up Beam errors
 //       FW038109      03/30/06 Heuser    Fix up Lint errors
 //   
 // End Change Log *****************************************************
@@ -140,11 +140,11 @@ bool operator!= (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs)
 uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
-  bool isCoreRing;                      ///< Is this a core ring ?
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
+  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   bool validPosFound = false;           ///< Did the looper find something ?
   std::string format = "default";       ///< Output format
   ecmdChipData chipData;                ///< Chip data to find out bus info
@@ -157,9 +157,10 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
   ecmdDataBuffer buffertemp(500 /* bits */);   ///< Temp space for extracted latch data
 
-
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
   unsort = ecmdParseOption(&argc, &argv, "-unsorted");
-  
   
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
@@ -189,19 +190,20 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
 	
     //Setup the target that will be used to query the system config
-    target.chipType = argv[0];
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff						     */
     /************************************************************************/
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
-    while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+    while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
       /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
       /* Do this on a side copy so we don't mess up the looper states */
@@ -250,25 +252,25 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       isCoreRing = queryRingData.begin()->isCoreRelated;
 
       /* Setup our Core looper if needed */
-      coretarget = target;
+      cuTarget = target;
       if (isCoreRing) {
-        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-        coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-        coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+        cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+        cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+        cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        /* Init the core loop */
-        rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+        /* Init the chipUnit loop */
+        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
       }
 
 
       /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (!isCoreRing || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+      while (!isCoreRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
 
-        rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+        rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
         if (rc) {
           printed = "getringdump - Error occurred performing getring on ";
-          printed += ecmdWriteTarget(coretarget);
+          printed += ecmdWriteTarget(cuTarget);
           printed += "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
@@ -285,16 +287,16 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         if (rc) break;
 
         //print ring header stuff
-        printed = ecmdWriteTarget(coretarget);
+        printed = ecmdWriteTarget(cuTarget);
         printed += "\n*************************************************\n* ECMD Dump scan ring contents, ";
         printed += ctime(&curTime);
-        if (coretarget.coreState == ECMD_TARGET_FIELD_UNUSED) {       
-          sprintf(outstr, "* Position k%d:n%d:s%d:p%d, ", coretarget.cage, coretarget.node, coretarget.slot, coretarget.pos);
+        if (cuTarget.coreState == ECMD_TARGET_FIELD_UNUSED) {       
+          sprintf(outstr, "* Position k%d:n%d:s%d:p%d, ", cuTarget.cage, cuTarget.node, cuTarget.slot, cuTarget.pos);
         } else {
-          sprintf(outstr, "* Position k%d:n%d:s%d:p%d:c%d, ", coretarget.cage, coretarget.node, coretarget.slot, coretarget.pos, coretarget.core);
+          sprintf(outstr, "* Position k%d:n%d:s%d:p%d:c%d, ", cuTarget.cage, cuTarget.node, cuTarget.slot, cuTarget.pos, cuTarget.core);
         }
         printed += outstr;
-        printed += coretarget.chipType + " " + ringName + " Ring\n";
+        printed += cuTarget.chipType + " " + ringName + " Ring\n";
 
         sprintf(outstr, "* Chip EC %X\n", chipData.chipEc);
         printed += outstr;
@@ -457,7 +459,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
         }/* Case-Sort */
         if (!isCoreRing) break;
-      } /* End CoreLooper */
+      } /* End cuLooper */
     }/* End ChipLooper */
 
   } /* End Args Loop */
@@ -479,14 +481,14 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   bool expectFlag = false;
   ecmdLatchMode_t latchMode = ECMD_LATCHMODE_FULL;   ///< Default to full match on latch name
   char* expectDataPtr = NULL;
-  ecmdLooperData looperdata;                    ///< Store internal Looper data
-  ecmdLooperData corelooper;	                ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;                    ///< Store internal Looper data
+  ecmdLooperData cuLooper;	                ///< Store internal Looper data for the chipUnit loop
   std::string outputformat = "default";         ///< Output Format to display
   std::string inputformat = "x";                ///< Input format of data
   std::string curOutputFormat;                  ///< Current output format to use for current latch
   ecmdDataBuffer expected;                      ///< Buffer to store output data
   ecmdChipTarget target;                        ///< Target we are operating on
-  ecmdChipTarget coretarget;	                ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
   std::string printed;
   std::list<ecmdLatchEntry> latchdata;          ///< Data returned from getLatch
@@ -498,6 +500,9 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
 
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
   if ((expectDataPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
   }
@@ -543,10 +548,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState =  ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t startBit = ECMD_UNSET, curStartBit, numBits = ECMD_UNSET, curNumBits;
 
@@ -626,10 +633,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     bool isCoreLatch;		                ///< Is this a core latch ?
   
@@ -663,35 +670,35 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     isCoreLatch = queryLatchData.begin()->isCoreRelated;//We expect all latches to belong to one ring
 
     /* Setup our Core looper if needed */
-    coretarget = target;
+    cuTarget = target;
     if (isCoreLatch) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      /* Init the chipUnit loop */
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreLatch || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+    while (!isCoreLatch || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
 	   
       /* Let's go grab our data */
       if (ringName.length() != 0)
-	rc = getLatch(coretarget, ringName.c_str(), latchName.c_str(), latchdata, latchMode);
+	rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchdata, latchMode);
       else
-	rc = getLatch(coretarget, NULL, latchName.c_str(), latchdata, latchMode);
+	rc = getLatch(cuTarget, NULL, latchName.c_str(), latchdata, latchMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
 	printed = "getlatch - Error occurred performing getlatch on ";
-	printed += ecmdWriteTarget(coretarget) + "\n";
+	printed += ecmdWriteTarget(cuTarget) + "\n";
 	ecmdOutputError( printed.c_str() );
 	ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
 	coeRc = rc;
         continue;
       } else if (rc) {
 	printed = "getlatch - Error occurred performing getlatch on ";
-	printed += ecmdWriteTarget(coretarget) + "\n";
+	printed += ecmdWriteTarget(cuTarget) + "\n";
 	ecmdOutputError( printed.c_str() );
 	coeRc = rc;
         continue;
@@ -700,7 +707,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	validPosFound = true;
       }
 
-      printed = ecmdWriteTarget(coretarget) + "\n";
+      printed = ecmdWriteTarget(cuTarget) + "\n";
       ecmdOutput(printed.c_str());
 
       /* We need to loop over the data we got */
@@ -796,7 +803,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       }
 
       if (!isCoreLatch) break;
-    } /* End CoreLooper */
+    } /* End cuLooper */
   } /* End PosLooper */
   
   // This is an error common across all UI functions
@@ -817,13 +824,13 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   bool expectFlag = false;
   char* expectDataPtr = NULL;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   std::string outputformat = "b";       ///< Output Format to display
   std::string inputformat = "b";        ///< Input format of data
   ecmdChipTarget target;                ///< Current target operating on
-  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
-  bool isCoreRing;                      ///< Is this a core ring ?
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
+  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   std::list<ecmdRingData> queryRingData;///< Ring data 
   std::string ringName;                 ///< Ring to fetch
   uint32_t startBit;                    ///< Start bit to fetch
@@ -834,6 +841,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   bool inputformatflag = false; 
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -885,10 +893,12 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   ringName = argv[1];
 
@@ -945,11 +955,11 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   char outstr[300];
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Now we need to find out if this is a core ring or not */
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -967,24 +977,24 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     isCoreRing = queryRingData.begin()->isCoreRelated;
 
     /* Setup our Core looper if needed */
-    coretarget = target;
+    cuTarget = target;
     if (isCoreRing) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      /* Init the chipUnit loop */
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreRing || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+    while (!isCoreRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
 
-      rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+      rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
         printed = "getbits - Error occurred performing getring on ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -1004,7 +1014,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
         if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
           //@ make this stuff sprintf'd
-          printed = ecmdWriteTarget(coretarget) + "  " + ringName;
+          printed = ecmdWriteTarget(cuTarget) + "  " + ringName;
           sprintf(outstr, "(%d:%d)\n", startBit, startBit + numBits - 1);
           printed += outstr;
           ecmdOutputError( printed.c_str() );
@@ -1024,7 +1034,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
       }
       else {
-        printed = ecmdWriteTarget(coretarget) + "  " + ringName;
+        printed = ecmdWriteTarget(cuTarget) + "  " + ringName;
         sprintf(outstr, "(%d:%d)", startBit, startBit + numBits - 1);
         printed += outstr;
         if (filename != NULL) {
@@ -1048,7 +1058,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
       } /* End !expectFlag */
       if (!isCoreRing) break;
-    } /* End CoreLooper */
+    } /* End cuLooper */
   } /* End posLooper */
 
   // This is an error common across all UI functions
@@ -1065,13 +1075,13 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   std::string format = "b";             ///< Input format
-  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  std::string dataModifier = "insert";  ///< Default data Modifier (And/Or/insert)
   ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
-  bool isCoreRing;                      ///< Is this a core ring ?
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
+  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   std::list<ecmdRingData> queryRingData;///< Ring data 
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
@@ -1132,10 +1142,12 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get ring name and starting position
   std::string ringName = argv[1];
@@ -1168,10 +1180,10 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Now we need to find out if this is a core ring or not */
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -1189,25 +1201,25 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     isCoreRing = queryRingData.begin()->isCoreRelated;
 
     /* Setup our Core looper if needed */
-    coretarget = target;
+    cuTarget = target;
     if (isCoreRing) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      /* Init the chipUnit loop */
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     }
 
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreRing || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+    while (!isCoreRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
 
-      rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+      rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
 	printed = "putbits - Error occurred performing getring on ";
-	printed += ecmdWriteTarget(coretarget) + "\n";
+	printed += ecmdWriteTarget(cuTarget) + "\n";
 	ecmdOutputError( printed.c_str() );
 	coeRc = rc;
         continue;
@@ -1219,21 +1231,21 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
       if (rc) break;
 
-      rc = putRing(coretarget, ringName.c_str(), ringBuffer);
+      rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
 	printed = "putbits - Error occurred performing putring on ";
-	printed += ecmdWriteTarget(coretarget) + "\n";
+	printed += ecmdWriteTarget(cuTarget) + "\n";
 	ecmdOutputError( printed.c_str() );
 	coeRc = rc;
         continue;
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-	printed = ecmdWriteTarget(coretarget) + "\n";
+	printed = ecmdWriteTarget(cuTarget) + "\n";
 	ecmdOutput(printed.c_str());
       }
       if (!isCoreRing) break;
-    } /* End CoreLooper */
+    } /* End cuLooper */
   } /* End posloop */
 
   // This is an error common across all UI functions
@@ -1253,15 +1265,15 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   std::string format = "x";             ///< Output format
-  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  std::string dataModifier = "insert";  ///< Default data Modifier (And/Or/insert)
   ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget coretarget;	        ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
   std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
   bool validPosFound = false;           ///< Did the looper find anything ?
-  bool validLatchFound = false;                 ///< Did we find a valid latch
+  bool validLatchFound = false;         ///< Did we find a valid latch
   std::string printed;
   std::list<ecmdLatchEntry> latchs;     ///< Latchs retrieved from getLatch
   std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latchs
@@ -1301,10 +1313,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t startBit = ECMD_UNSET, curStartBit, numBits = 0, curNumBits;
   std::string ringName;                 ///< Ring name selected ("" if none)
@@ -1375,10 +1389,10 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We are going to enable the ring cache to get performance out of this beast */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
@@ -1430,34 +1444,34 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     isCoreLatch = queryLatchData.begin()->isCoreRelated;//We expect all latches to belong to one ring
 
     /* Setup our Core looper if needed */
-    coretarget = target;
+    cuTarget = target;
     if (isCoreLatch) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      /* Init the chipUnit loop */
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreLatch || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+    while (!isCoreLatch || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
 
       if (ringName.length() != 0)
-        rc = getLatch(coretarget, ringName.c_str(), latchName.c_str(), latchs, latchMode);
+        rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchs, latchMode);
       else
-        rc = getLatch(coretarget, NULL, latchName.c_str(), latchs, latchMode);
+        rc = getLatch(cuTarget, NULL, latchName.c_str(), latchs, latchMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
         printed = "putlatch - Error occurred performing getlatch on ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
         coeRc = rc;
         continue;
       } else if (rc) {
         printed = "putlatch - Error occurred performing getlatch on ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -1504,7 +1518,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         rc = (uint32_t)ecmdApplyDataModifier(latchit->buffer, buffer_copy,(int) ((int)curStartBit - (int)latchit->latchStartBit), dataModifier);
         if (rc) {
           printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
-          printed += ecmdWriteTarget(coretarget) + "\n";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
@@ -1512,18 +1526,18 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
         /* We can do a full latch compare here now to make sure we don't cause matching problems */
         if (ringName.length() != 0) {
-          rc = putLatch(coretarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(uint32_t) (latchit->latchStartBit), (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
+          rc = putLatch(cuTarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(uint32_t) (latchit->latchStartBit), (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
         } else {
-          rc = putLatch(coretarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL);
+          rc = putLatch(cuTarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL);
         }
         if (rc) {
           printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
-          printed += ecmdWriteTarget(coretarget) + "\n";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
         } else if (matchs > 1) {
-          printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(coretarget) + "\n";
+          printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = ECMD_FAILURE;
           continue;
@@ -1532,7 +1546,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-        printed = ecmdWriteTarget(coretarget) + "\n";
+        printed = ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutput(printed.c_str());
       }
 
@@ -1543,7 +1557,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       }
 
       if (!isCoreLatch) break;
-    } /* End CoreLooper */
+    } /* End cuLooper */
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
     if (enabledCache) {
@@ -1584,23 +1598,26 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t ret_rc = ECMD_SUCCESS;
 
   bool allRingsFlag = false;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
   ecmdDataBuffer ringOrgBuffer;         ///< Original Ring Buffer to be restored after the pattern test
   ecmdDataBuffer ringBuffer;            ///< Buffer to store ring
   ecmdDataBuffer readRingBuffer;          ///< Read out the data to test the pattern
   std::list<ecmdRingData> queryRingData;///< Ring data 
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool foundProblem;                    ///< Did we find a mismatch ?
-  bool isCoreRing;                      ///< Is this a core ring ?
+  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   ecmdCheckRingData ringlog;            ///< Used to push new entries
   std::list<ecmdCheckRingData> failedRings;   ///< Names of rings that failed
   std::list<ecmdCheckRingData> passedRings;   ///< Names of rings that failed
   bool verbose = false;                 ///< Verbose error display
 
 
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
   verbose = ecmdParseOption(&argc, &argv, "-v");
 
   /************************************************************************/
@@ -1625,10 +1642,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 
@@ -1643,11 +1662,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t pattern = 0x0;
   std::string repPattern;
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
     if (allRingsFlag) {
       rc = ecmdQueryRing(target, queryRingData, NULL, ECMD_QUERY_DETAIL_LOW);
@@ -1666,19 +1685,19 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     while (curRingData != queryRingData.end()) {
 
       isCoreRing = curRingData->isCoreRelated;
-      coretarget = target;
+      cuTarget = target;
       if (isCoreRing) {
-        coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-        coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-        coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+        cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+        cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+        cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the core loop */
-        rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
       }
 
       /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (!isCoreRing || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+      while (!isCoreRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
 
         ringName = (*curRingData).ringNames.front();
 
@@ -1687,19 +1706,19 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         }
 
         ringlog.ringName = ringName;
-        if (isCoreRing) ringlog.core = coretarget.core;
+        if (isCoreRing) ringlog.core = cuTarget.core;
         else ringlog.core = -1;
 
         /* Print out the current target */
-        printed = ecmdWriteTarget(coretarget) + "\n"; ecmdOutput(printed.c_str());
+        printed = ecmdWriteTarget(cuTarget) + "\n"; ecmdOutput(printed.c_str());
 
         //Save the Ring state 
         printed = "Saving the ring state before performing pattern testing.\n";
         ecmdOutput(printed.c_str());   
-        rc = getRing (coretarget, ringName.c_str(), ringOrgBuffer);
+        rc = getRing (cuTarget, ringName.c_str(), ringOrgBuffer);
         if (rc) {
           printed = "checkrings - Error occurred performing getring on ";
-          printed += ecmdWriteTarget(coretarget) + "\n";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
 
           /* Go onto the next one */
           failedRings.push_back(ringlog);
@@ -1751,10 +1770,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           }
 
 
-          rc = putRing(coretarget, ringName.c_str(), ringBuffer);
+          rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
-            printed += ecmdWriteTarget(coretarget) + "\n";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputError( printed.c_str() );
             coeRc = rc;
             continue;
@@ -1766,27 +1785,27 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           if (i == 0) {
             printed = "Performing 0's test on " + ringName + " ...\n";
             ecmdOutput(printed.c_str());
-            rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+            rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
           }
           else if (i == 1) {
             printed = "Performing 1's test on " + ringName + " ...\n";
             ecmdOutput(printed.c_str());
-            rc = getRing(coretarget, ringName.c_str(), ringBuffer);
+            rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
           }
           else if (i == 2) {
             printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
             ecmdOutput(printed.c_str());
-            rc = getRing(coretarget, ringName.c_str(), readRingBuffer);
+            rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
           }
           else if (i == 3) {
             printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
             ecmdOutput(printed.c_str());
-            rc = getRing(coretarget, ringName.c_str(), readRingBuffer);
+            rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
           }
 
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
-            printed += ecmdWriteTarget(coretarget) + "\n";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputError( printed.c_str() );
             coeRc = rc;
             continue;
@@ -1795,7 +1814,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             if (ringBuffer.getWord(0) != pattern) {
               sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
               ecmdOutputWarning( outstr );
-              printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
+              printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(cuTarget) + "\n";
               ecmdOutputWarning( printed.c_str() );
               foundProblem = true;
             }
@@ -1822,7 +1841,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
                 }
               }
               if (foundProblem) {
-                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(coretarget) + "\n";
+                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(cuTarget) + "\n";
                 ecmdOutputWarning( printed.c_str() );
               }
 
@@ -1850,7 +1869,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
                   y += 64;
                   ecmdOutput( printed.c_str() );
                 }
-                printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(coretarget) + "\n";
+                printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(cuTarget) + "\n";
                 ecmdOutputWarning( printed.c_str() );
               }
               foundProblem = true;
@@ -1861,10 +1880,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         //Restore ring state
         printed = "Restoring the ring state.\n\n";
         ecmdOutput( printed.c_str() );
-        rc = putRing (coretarget, ringName.c_str(), ringOrgBuffer);
+        rc = putRing (cuTarget, ringName.c_str(), ringOrgBuffer);
         if (rc) {
           printed = "checkrings - Error occurred performing putring on ";
-          printed += ecmdWriteTarget(coretarget) + "\n";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
@@ -1878,7 +1897,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
         /* If this wasn't a core ring we don't want to loop again */
         if (!isCoreRing) break;
-      } /* end core looper */
+      } /* end chipUnit looper */
       curRingData++;
     }
     
@@ -1938,17 +1957,20 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   std::list<ecmdRingData> queryRingData;///< Ring query data
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdLooperData corelooper;            ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget coretarget;            ///< Current target being operated on for the cores
-  bool isCoreRing;                      ///< Is this a core ring ?
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
+  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   std::string printed;                  ///< Output print data
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdDataBuffer buffer;                ///< Buffer to store pattern
   std::string format = "xr";            ///< Default input format
 
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -1977,10 +1999,12 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 
@@ -1990,10 +2014,10 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     return rc;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc) {
@@ -2011,20 +2035,20 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     isCoreRing = queryRingData.begin()->isCoreRelated;
 
     /* Setup our Core looper if needed */
-    coretarget = target;
+    cuTarget = target;
     if (isCoreRing) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
+      /* Init the chipUnit loop */
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     }
 
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreRing || (ecmdConfigLooperNext(coretarget, corelooper) && (!coeRc || coeMode))) {
+    while (!isCoreRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
       uint32_t curOffset = 0;
       uint32_t numBitsToInsert = 0;
       uint32_t numBitsInRing = (uint32_t)queryRingData.front().bitLength;
@@ -2036,10 +2060,10 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         curOffset += numBitsToInsert;
       }
 
-      rc = putRing(coretarget, ringName.c_str(), ringBuffer);
+      rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
         printed = "putpattern - Error occurred performing putring on ";
-        printed += ecmdWriteTarget(coretarget) + "\n";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -2048,11 +2072,11 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-        printed = ecmdWriteTarget(coretarget) + "\n";
+        printed = ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutput(printed.c_str());
       }
       if (!isCoreRing) break;
-    } /* End CoreLooper */
+    } /* End cuLooper */
 
   }
 
