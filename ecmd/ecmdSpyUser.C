@@ -274,7 +274,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
@@ -672,7 +672,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         break;
       }
       /* If we have a chipUnit, set the state fields properly */
-      if (!chipUnitType.empty()) {
+      if (chipUnitType != "") {
         cuTarget.chipUnitType = chipUnitType;
         cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
