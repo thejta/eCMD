@@ -654,7 +654,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
  
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
 
     //Get all the valid trace arrays
@@ -664,8 +664,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
       printed += ecmdWriteTarget(target);
       printed += "\n";
       ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                    //@02
-      continue;                                      //@02
+      coeRc = rc;
+      continue;
     }
 
     if (queryTraceData.size() < 1) {
@@ -683,14 +683,14 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
       transform(traceArrayName.begin(), traceArrayName.end(), traceArrayName.begin(), (int(*)(int)) toupper);
 
 
-      for (queryIt = queryTraceData.begin(); queryIt != queryTraceData.end(); queryIt++) { 
+      for (queryIt = queryTraceData.begin(); queryIt != queryTraceData.end(); queryIt++) {
         std::string qTrace = queryIt->traceArrayName;
         transform(qTrace.begin(), qTrace.end(), qTrace.begin(), (int(*)(int)) toupper);
         if (qTrace == traceArrayName) {
           tracearrayfound = true;
           entry.name = traceArrayName;
 
-          if (queryIt->isCoreRelated)	{
+          if (queryIt->isChipUnitRelated) {
             coreArrayList.push_back(entry);
           } else {
             nestArrayList.push_back(entry);
@@ -739,7 +739,25 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     cuTarget = target;
     if (coreArrayList.size() > 0) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
-      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      /* Error check the chipUnit returned */
+      /* THIS CODE HAS TO BE UPDATED SO THAT YOU HAVE THE RETURNED CHIPUNIT QUERY INFORMATION.  STGC00315950 was opened about the fix
+       JTA 09/05/2007
+      if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
+        printed = "gettracearray - Provided chipUnit: \"";
+        printed += chipUnitType;
+        printed += "\"doesn't match chipUnit returned by queryTraceArray: \"";
+        printed += queryRingData.begin()->relatedChipUnit + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_INVALID_ARGS;
+        break;
+      } */
+      /* If we have a chipUnit, set the state fields properly */
+      if (!chipUnitType.empty()) {
+        ecmdOutputError("gettracearray - UPDATES NEEDED!!!! This code won't work for chipUnit\n");
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
