@@ -935,7 +935,8 @@ struct ecmdRingData {
   bool                   hasInversionMask;              ///< (Detail: High) Ring has an inversion mask applied before scanning
   bool                   supportsBroadsideLoad;         ///< (Detail: High) This ring supports broadside load in simulation
   bool                   isCheckable;                   ///< (Detail: High) This ring can be run through the check_rings command
-  bool                   isCoreRelated;                 ///< (Detail: Low)  This ring is related to the core level of a chip
+  bool                   isChipUnitRelated;             ///< (Detail: Low)  This ring is related to the chipUnit level of a chip
+  std::string            relatedChipUnit;               ///< (Detail: Low)  If the ring is chipUnit related, this is the name of the chipUnit
   std::string            clockDomain;                   ///< (Detail: High) Clock domain this ring belongs to
   ecmdClockState_t       clockState;                    ///< (Detail: High) Required clock state to access this ring
 };
@@ -948,7 +949,7 @@ bitLength(0),
 hasInversionMask(false),
 supportsBroadsideLoad(false),
 isCheckable(false),
-isCoreRelated(false),
+isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -979,15 +980,16 @@ struct ecmdArrayData {
 #endif
 
   // Members
-  std::string arrayName;                ///< (Detail: Low)  Names used to reference this array
-  uint32_t    arrayId;                  ///< (Detail: Low)  Hashed array ID
-  uint32_t    readAddressLength;        ///< (Detail: Low)  Bit length of read address
-  uint32_t    writeAddressLength;       ///< (Detail: Low)  Bit length of write address
-  uint64_t    length;                   ///< (Detail: Low)  Length of array (number of entries)
-  uint32_t    width;                    ///< (Detail: Low)  Bit width of array entry
-  bool        isCoreRelated;            ///< (Detail: Low)  This array is related to the core level of a chip
-  std::string           clockDomain;    ///< (Detail: High) Clock domain this array belongs to
-  ecmdClockState_t       clockState;    ///< (Detail: High) Required clock state to access this array
+  std::string           arrayName;              ///< (Detail: Low)  Names used to reference this array
+  uint32_t              arrayId;                ///< (Detail: Low)  Hashed array ID
+  uint32_t              readAddressLength;      ///< (Detail: Low)  Bit length of read address
+  uint32_t              writeAddressLength;     ///< (Detail: Low)  Bit length of write address
+  uint64_t              length;                 ///< (Detail: Low)  Length of array (number of entries)
+  uint32_t              width;                  ///< (Detail: Low)  Bit width of array entry
+  bool                  isChipUnitRelated;      ///< (Detail: Low)  This array is related to the chipUnit level of a chip
+  std::string           relatedChipUnit;        ///< (Detail: Low)  If the array is chipUnit related, this is the name of the chipUnit
+  std::string           clockDomain;            ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t      clockState;             ///< (Detail: High) Required clock state to access this array
 };
 
 #ifndef DOCUMENTATION
@@ -998,7 +1000,7 @@ readAddressLength(0),
 writeAddressLength(0),
 length(0),
 width(0),
-isCoreRelated(false),
+isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -1033,7 +1035,8 @@ struct ecmdTraceArrayData {
   uint32_t         traceArrayId;        ///< (Detail: Low)  Hashed trace array ID
   int              length;              ///< (Detail: Low)  Length of trace array (number of entries)
   int              width;               ///< (Detail: Low)  Bit width of trace array entry
-  bool             isCoreRelated;       ///< (Detail: Low)  This tracearray is related to the core level of a chip
+  bool             isChipUnitRelated;   ///< (Detail: Low)  This trace array is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;     ///< (Detail: Low)  If the trace array is chipUnit related, this is the name of the chipUnit
   std::string      clockDomain;         ///< (Detail: High) Clock domain this array belongs to
   ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this array
 };
@@ -1044,7 +1047,7 @@ inline ecmdTraceArrayData::ecmdTraceArrayData():
 traceArrayId(0),
 length(0),
 width(0),
-isCoreRelated(false),
+isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -1075,7 +1078,8 @@ struct ecmdScomData {
 
   // Members
   uint32_t         address;             ///< (Detail: Low)  Scom Address
-  bool             isCoreRelated;       ///< (Detail: Low)  This scom is related to the core level of a chip
+  bool             isChipUnitRelated;   ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;     ///< (Detail: Low)  If the scom is chipUnit related, this is the name of the chipUnit
   std::string      clockDomain;         ///< (Detail: High) Clock domain this scom belongs to
   ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this scom
 };
@@ -1084,7 +1088,7 @@ struct ecmdScomData {
 // ecmdScomData Constructor
 inline ecmdScomData::ecmdScomData():
 address(0),
-isCoreRelated(false),
+isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -1122,7 +1126,8 @@ struct ecmdLatchData {
   uint32_t         latchId;             ///< (Detail: Low)  Hashed latch ID
   uint32_t         ringId;              ///< (Detail: Low)  Hashed ring ID
   int              bitLength;           ///< (Detail: Low)  length of latch, sum of all the parts
-  bool             isCoreRelated;       ///< (Detail: Low)  This latch is related to the core level of a chip
+  bool             isChipUnitRelated;   ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;     ///< (Detail: Low)  If the latch is chipUnit related, this is the name of the chipUnit
   std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
   ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this latch
 };
@@ -1133,7 +1138,7 @@ inline ecmdLatchData::ecmdLatchData():
 latchId(0),
 ringId(0),
 bitLength(0),
-isCoreRelated(false),
+isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -1464,7 +1469,8 @@ struct ecmdSpyData {
   ecmdSpyType_t spyType;                   ///< Type of spy
   bool          isEccChecked;              ///< This spy affects some ECC groupings
   bool          isEnumerated;              ///< This spy has enumerated values
-  bool          isCoreRelated;             ///< This spy is related to the core level of a chip
+  bool          isChipUnitRelated;         ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
+  std::string   relatedChipUnit;           ///< (Detail: Low)  If the spy is chipUnit related, this is the name of the chipUnit
 
   std::string           clockDomain;       ///< Clock domain this spy belongs to
   ecmdClockState_t       clockState;       ///< Required clock state to access this spy
@@ -1482,7 +1488,7 @@ spyId(0),
 bitLength(0),
 isEccChecked(false),
 isEnumerated(false),
-isCoreRelated(false)
+isChipUnitRelated(false)
 {
 }
 

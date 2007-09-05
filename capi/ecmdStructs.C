@@ -2266,10 +2266,11 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    i_len -= sizeof(tmpData32);
 
             // "isCoreRelated" (bool, store in uint32_t)
-            tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
-	    l_ptr += sizeof(tmpData32);
-	    i_len -= sizeof(tmpData32);  // @08 end
+            ETRAC0("isCoreRelated!  Update Me!\n");
+            //tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    //memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
+	    //l_ptr += sizeof(tmpData32);
+	    //i_len -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -2401,10 +2402,11 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_left -= sizeof(tmpData32);
 
 	    // isCoreRelated (bool, stored as uint32_t)
-	    memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
-            isCoreRelated = (bool)ntohl( tmpData32 );
-	    l_ptr += sizeof(tmpData32);
-	    l_left -= sizeof(tmpData32);  // @08 end
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+            //isCoreRelated = (bool)ntohl( tmpData32 );
+	    //l_ptr += sizeof(tmpData32);
+	    //l_left -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -2565,7 +2567,8 @@ void  ecmdSpyData::printStruct() {
         printf("\tSpy Type: 0x%08x\n", (uint32_t) spyType);
         printf("\tisEccChecked: 0x%08x\n", (uint32_t) isEccChecked);
         printf("\tisEnumerated: 0x%08x\n", (uint32_t) isEnumerated);
-        printf("\tisCoreRelated: 0x%08x\n", (uint32_t) isCoreRelated);
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tSpy Name:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -2843,10 +2846,11 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    i_len -= sizeof(tmpData32);
 
             // isCoreRelated (bool, store in uint32_t)
-	    tmpData32 = htonl((uint32_t)isCoreRelated);
-	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-	    l_ptr += sizeof(tmpData32);
-	    i_len -= sizeof(tmpData32);  // @08 end
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //tmpData32 = htonl((uint32_t)isCoreRelated);
+	    //memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    //l_ptr += sizeof(tmpData32);
+	    //i_len -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -2967,10 +2971,11 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_left -= sizeof(tmpData32);
 
             // isCoreRelated (bool stored in uint32_t)
-	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
-	    isCoreRelated = (bool)ntohl(tmpData32);
-	    l_ptr += sizeof(tmpData32);
-	    l_left -= sizeof(tmpData32);  // @08 end
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    //isCoreRelated = (bool)ntohl(tmpData32);
+	    //l_ptr += sizeof(tmpData32);
+	    //l_left -= sizeof(tmpData32);  // @08 end
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -3127,7 +3132,8 @@ void  ecmdRingData::printStruct() {
         printf("\thasInversionMask: 0x%08x\n", (uint32_t) hasInversionMask);
         printf("\tsupportsBroadsideLoad: 0x%08x\n", (uint32_t) supportsBroadsideLoad);
         printf("\tisCheckable: 0x%08x\n", (uint32_t) isCheckable);
-        printf("\tisCoreRelated: %s\n", isCoreRelated ? "true" : "false"); //@08
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tClock Domain:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -3227,10 +3233,11 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    i_len -= sizeof(width);
 
 	    // @04a isCoreRelated (bool is stored as uint32_t)
-	    tmpData32 = htonl((uint32_t)isCoreRelated);
-	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-	    l_ptr += sizeof(tmpData32);
-	    i_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //tmpData32 = htonl((uint32_t)isCoreRelated);
+	    //memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    //l_ptr += sizeof(tmpData32);
+	    //i_len -= sizeof(tmpData32);
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -3323,10 +3330,11 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_left -= sizeof(width);
 
 	    // @04a isCoreRelated (bool stored as uint32_t)
-	    memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
-	    isCoreRelated = (bool)ntohl(tmpData32);
-	    l_ptr += sizeof(tmpData32);
-	    l_left -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+	    //isCoreRelated = (bool)ntohl(tmpData32);
+	    //l_ptr += sizeof(tmpData32);
+	    //l_left -= sizeof(tmpData32);
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -3408,7 +3416,8 @@ void  ecmdArrayData::printStruct() {
         printf("\tWrite Address Length:  0x%08x\n", (uint32_t) writeAddressLength);
         printf("\tLength: 0x%08x\n", (uint32_t) length);
         printf("\tWidth: 0x%08x\n", (uint32_t) width);
-        printf("\tIsCoreRelated: 0x%08x\n", (uint32_t) isCoreRelated); //@04a
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tClock Domain:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -3653,10 +3662,11 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_len -= sizeof(width);
 
             // "isCoreRelated" (bool, store in uint32_t) @08
-            tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+            //tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    //memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
+	    //l_ptr8 += sizeof(tmpData32);
+	    //l_len -= sizeof(tmpData32);
 
             // clockDomain
             strLen = clockDomain.size();
@@ -3736,10 +3746,11 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 	    l_len -= sizeof(width);
 
             // "isCoreRelated" (bool, stored as uint32_t) @08
-	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            isCoreRelated = (bool)ntohl( tmpData32 );
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+            //memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            //isCoreRelated = (bool)ntohl( tmpData32 );
+	    //l_ptr8 += sizeof(tmpData32);
+	    //l_len -= sizeof(tmpData32);
 
 	    // clockDomain
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -3806,13 +3817,8 @@ void  ecmdTraceArrayData::printStruct() {
         printf("\tTrace Array ID: 0x%08x\n", traceArrayId );
         printf("\tLength: %d\n", length );
         printf("\tWidth: %d\n", width );
-
-        if (isCoreRelated == true) {
-           printf("\tisCoreRelated: TRUE\n");
-        } else {
-           printf("\tisCoreRelated: FALSE\n");
-        }
-
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
 
@@ -3857,10 +3863,11 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_len -= sizeof(address);
 
             // "isCoreRelated" (bool, store in uint32_t)
-            tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+            //tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    //memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
+	    //l_ptr8 += sizeof(tmpData32);
+	    //l_len -= sizeof(tmpData32);
 
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
@@ -3922,10 +3929,11 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_len -= sizeof(address);
  
             // "isCoreRelated" (bool, stored as uint32_t)
-	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            isCoreRelated = (bool)ntohl( tmpData32 );
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            //isCoreRelated = (bool)ntohl( tmpData32 );
+	    //l_ptr8 += sizeof(tmpData32);
+	    //l_len -= sizeof(tmpData32);
 
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -3989,7 +3997,8 @@ void  ecmdScomData::printStruct()
         printf("\n\t--- Scom Data Structure ---\n");
 
         printf("\tAddress: 0x%08x\n", address );
-        printf("\tisCoreRelated: %s\n", isCoreRelated ? "true" : "false");
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
         
@@ -4059,10 +4068,11 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_len -= sizeof(bitLength);
 
             // "isCoreRelated" (bool, store in uint32_t)
-            tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+            //tmpData32 = htonl( (uint32_t)isCoreRelated );
+	    //memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
+	    //l_ptr8 += sizeof(tmpData32);
+	    //l_len -= sizeof(tmpData32);
 
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
@@ -4147,10 +4157,11 @@ uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 	    l_len -= sizeof(bitLength);
 
             // "isCoreRelated" (bool, stored as uint32_t)
-	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            isCoreRelated = (bool)ntohl( tmpData32 );
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
+            ETRAC0("isCoreRelated!  Update Me!\n");
+	    //memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            //isCoreRelated = (bool)ntohl( tmpData32 );
+	    //l_ptr8 += sizeof(tmpData32);
+	    //l_len -= sizeof(tmpData32);
 
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -4220,8 +4231,8 @@ void  ecmdLatchData::printStruct() const
         printf("\tLatch ID: 0x%08x\n", latchId );
         printf("\tRing ID: 0x%08x\n", ringId );
         printf("\tBit Length: %d\n", bitLength );
-
-        printf("\tisCoreRelated: %s\n", isCoreRelated ? "true" : "false");
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
 

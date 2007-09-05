@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdDaScomUser.C                                   
@@ -12,7 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
 
 // Module Description **************************************************
 //
@@ -34,10 +34,6 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
-
-
-
-
 
 //----------------------------------------------------------------------
 //  User Types
@@ -78,13 +74,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string outputformat = "x";               ///< Output Format to display
   std::string inputformat = "x";                ///< Input format of data
   ecmdChipTarget target;                        ///< Current target being operated on
-  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
   ecmdDataBuffer buffer;                        ///< Data requested by the user
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;                    ///< Store internal Looper data
-  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;                    ///< Store internal Looper data
+  ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
   std::string printed;                          ///< Output data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit in the scom data
   uint32_t numbits = 0;                         ///< Number of bits to diplay
@@ -140,14 +136,15 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  //Setup the target that will be used to query the system config
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
-  
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("getscom - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
@@ -159,7 +156,6 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
 
   if (expectFlag) {
-
     rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
     if (rc) {
       ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
@@ -172,10 +168,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         ecmdOutputError("getscom - Problems occurred parsing mask data, must be an invalid format\n");
         return rc;
       }
-
     }
-
-
   }
   
   if (argc > 2) {
@@ -215,58 +208,67 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
-    bool isCoreScom;                              ///< Is this a core scom ?
+    bool isChipUnitScom;                              ///< Is this a chipUnit scom ?
     
-    /* Now we need to find out if this is a core scom or not */
+    /* Now we need to find out if this is a cu scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "getscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      //return rc;
       coeRc = rc;
-      continue; //hjhcoe
-
+      continue;
     }
+
     if (queryScomData.size() != 1) {
-      ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
-      //return ECMD_DLL_INVALID;
-      rc = ECMD_DLL_INVALID;
-      continue; //hjhcoe
-
+      ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a chipUnit scom\n");
+      coeRc = ECMD_DLL_INVALID;
+      continue;
     }
-    isCoreScom = queryScomData.begin()->isCoreRelated;
+    isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
 
-    /* Setup our Core looper if needed */
-    coretarget = target;
-    if (isCoreScom) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+    /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+    if (isChipUnitScom) {
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      /* Error check the chipUnit returned */
+      if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
+        printed = "getscom - Provided chipUnit: \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryScom: \"";
+        printed += queryScomData.begin()->relatedChipUnit + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (!chipUnitType.empty()) {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      //if (rc) return rc;
-      if (rc) break; //hjhcoe
-
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      if (rc) break;
     }
 
-    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
+    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((!isChipUnitScom || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
 	   
-     rc = getScom(coretarget, address, scombuf);
+     rc = getScom(cuTarget, address, scombuf);
      if (rc) {
        printed = "getscom - Error occured performing getscom on ";
-       printed += ecmdWriteTarget(coretarget);
+       printed += ecmdWriteTarget(cuTarget);
        printed += "\n";
        ecmdOutputError( printed.c_str() );
-       //return rc;
        coeRc = rc;
        continue;
 
@@ -292,7 +294,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
      	 //@ make this stuff sprintf'd
      	 char outstr[50];
-     	 printed = ecmdWriteTarget(coretarget);
+     	 printed = ecmdWriteTarget(cuTarget);
      	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
      	 printed += outstr;
      	 ecmdOutputError( printed.c_str() );
@@ -317,20 +319,20 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      }
      else {
 
-       printed = ecmdWriteTarget(coretarget);
+       printed = ecmdWriteTarget(cuTarget);
        printed += ecmdWriteDataFormatted(buffer, outputformat);
        ecmdOutput( printed.c_str() );
  
        if ((verbosePtr != NULL) && !expectFlag) {
      	 //even if rc returned is non-zero we want to continue to the next chip
 #ifndef FIPSODE
-        ecmdDisplayScomData(coretarget, address, buffer, verbosePtr);
+        ecmdDisplayScomData(cuTarget, address, buffer, verbosePtr);
 #else
 	ecmdOutputWarning("ecmdDisplayScomData not supported on FSP\n");
 #endif
        }
      }
-     if (!isCoreScom) break;
+     if (!isChipUnitScom) break;
     } /* End CoreLooper */
 
   } /* End PosLooper */
@@ -355,10 +357,10 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
-  ecmdLooperData looperdata;                    ///< Store internal Looper data
-  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;                    ///< Store internal Looper data
+  ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                        ///< Chip target being operated on
-  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   uint32_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store write data
@@ -400,10 +402,12 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("putscom - Non-hex characters detected in address field\n");
@@ -449,11 +453,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     if (rc) {
       ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
-    }
-    
-    
+    }  
   } else {  
-
     rc = ecmdReadDataFormatted(buffer, argv[2], inputformat);
     if (rc) {
       ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
@@ -465,12 +466,12 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
-    bool isCoreScom;                              ///< Is this a core scom ?
+    bool isChipUnitScom;                              ///< Is this a chipUnit scom ?
     
     /* Now we need to find out if this is a core scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
@@ -478,47 +479,57 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       printed = "putscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      //return rc;
       coeRc = rc;
-      continue; //hjhcoe
+      continue;
     }
     if (queryScomData.size() != 1) {
       ecmdOutputError("putscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
-      //return ECMD_DLL_INVALID;
       rc = ECMD_DLL_INVALID;
-      continue; // hjhcoe
+      continue;
     }
-    isCoreScom = queryScomData.begin()->isCoreRelated;
+    isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
 
-    /* Setup our Core looper if needed */
-    coretarget = target;
-    if (isCoreScom) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+    /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+    if (isChipUnitScom) {
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      /* Error check the chipUnit returned */
+      if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
+        printed = "putscom - Provided chipUnit: \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryScom: \"";
+        printed += queryScomData.begin()->relatedChipUnit + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (!chipUnitType.empty()) {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      //if (rc) return rc;
-      if (rc) break; // hjhcoe
-
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      if (rc) break;
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
+    while ((!isChipUnitScom || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
 	   
      /* Do we need to perform a read/modify/write op ? */
      if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
 
 
-       rc = getScom(coretarget, address, fetchBuffer);
+       rc = getScom(cuTarget, address, fetchBuffer);
 
        if (rc) {
      	 printed = "putscom - Error occured performing getscom on ";
-     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += ecmdWriteTarget(cuTarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 //return rc;
          coeRc = rc;
          continue;
        }
@@ -527,16 +538,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
        }
 
        rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
-       //if (rc) return rc;
        if (rc) {
          coeRc = rc;
          continue;
        }
 
-       rc = putScom(coretarget, address, fetchBuffer);
+       rc = putScom(cuTarget, address, fetchBuffer);
        if (rc) {
      	 printed = "putscom - Error occured performing putscom on ";
-     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += ecmdWriteTarget(cuTarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
      	 //return rc;
@@ -547,10 +557,10 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      }
      else {
 
-       rc = putScom(coretarget, address, buffer);
+       rc = putScom(cuTarget, address, buffer);
        if (rc) {
      	 printed = "putscom - Error occured performing putscom on ";
-     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += ecmdWriteTarget(cuTarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
      	 //return rc;
@@ -564,11 +574,11 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
      }
 
      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-       printed = ecmdWriteTarget(coretarget) + "\n";
+       printed = ecmdWriteTarget(cuTarget) + "\n";
        ecmdOutput(printed.c_str());
      }
-     if (!isCoreScom) break;
-    } /* End CoreLooper */
+     if (!isChipUnitScom) break;
+    } /* End cuLooper */
   } /* End PosLooper */
   
   // This is an error common across all UI functions
@@ -593,11 +603,11 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   std::string outputformat = "x";               ///< Output format
   std::string inputformat = "x";                ///< Input format
   ecmdChipTarget target;                        ///< Target we are operating on
-  ecmdChipTarget coretarget;                    ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;                    ///< Current target being operated on for the cores
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;                    ///< Store internal Looper data
-  ecmdLooperData corelooper;                    ///< Store internal Looper data for the core loop
+  ecmdLooperData looperData;                    ///< Store internal Looper data
+  ecmdLooperData cuLooper;                    ///< Store internal Looper data for the core loop
   ecmdDataBuffer buffer;                        ///< Store current scom data
   ecmdDataBuffer expected;                      ///< Store expected data
   ecmdDataBuffer mask;                          ///< Store mask data
@@ -727,10 +737,12 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get address to fetch
   if (!ecmdIsAllHex(argv[1])) {
@@ -746,51 +758,64 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   std::string printed;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
-    bool isCoreScom;                              ///< Is this a core scom ?
+    bool isChipUnitScom;                              ///< Is this a core scom ?
     
     /* Now we need to find out if this is a core scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
-      printed = "getscom - Error occurred performing queryscom on ";
+      printed = "pollscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      //return rc;
       coeRc = rc;
-      continue; // hjhcoe
+      continue;
     }
     if (queryScomData.size() != 1) {
-      ecmdOutputError("getscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
+      ecmdOutputError("pollscom - Too much/little scom information returned from the dll, unable to determine if it is a core scom\n");
       rc = ECMD_DLL_INVALID;
-      continue; // hjhcoe
+      continue;
     }
-    isCoreScom = queryScomData.begin()->isCoreRelated;
+    isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
 
-    /* Setup our Core looper if needed */
-    coretarget = target;
-    if (isCoreScom) {
-      coretarget.chipTypeState = coretarget.cageState = coretarget.nodeState = coretarget.slotState = coretarget.posState = ECMD_TARGET_FIELD_VALID;
-      coretarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coretarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+    /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+    if (isChipUnitScom) {
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      /* Error check the chipUnit returned */
+      if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
+        printed = "pollscom - Provided chipUnit: \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryScom: \"";
+        printed += queryScomData.begin()->relatedChipUnit + "\n";
+        ecmdOutputError( printed.c_str() );
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (!chipUnitType.empty()) {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the core loop */
-      rc = ecmdConfigLooperInit(coretarget, ECMD_SELECTED_TARGETS_LOOP, corelooper);
-      //if (rc) return rc;
-      if (rc) break ; // hjhcoe
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      if (rc) break;
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isCoreScom || ecmdConfigLooperNext(coretarget, corelooper)) && (!coeRc || coeMode)) {
+    while ((!isChipUnitScom || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
 	   
      bool done = false;
      timerStart = time(NULL);
 
-     printed = ecmdWriteTarget(coretarget);
+     printed = ecmdWriteTarget(cuTarget);
      sprintf(outstr, "Polling address %.6X...\n", address);
      printed += outstr;
      ecmdOutput( printed.c_str()) ;
@@ -798,10 +823,10 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      rc = 0;
      while (!done && rc ==0) {
  
-       rc = getScom(coretarget, address, buffer);
+       rc = getScom(cuTarget, address, buffer);
        if (rc) {
      	 printed = "pollscom - Error occured performing getscom on ";
-     	 printed += ecmdWriteTarget(coretarget);
+     	 printed += ecmdWriteTarget(cuTarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
      	 //return rc;
@@ -896,7 +921,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteDataFormatted(buffer, outputformat);
 
      	 if (done) {
-     	   printed += ecmdWriteTarget(coretarget);
+     	   printed += ecmdWriteTarget(cuTarget);
      	   printed += "\tPolling Complete\n";
      	 }
 
@@ -939,8 +964,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       
      }  //while (!done)
      
-     if (!isCoreScom) break;
-    } /* End CoreLooper */
+     if (!isChipUnitScom) break;
+    } /* End cuLooper */
     
   } /* End PosLooper */
 

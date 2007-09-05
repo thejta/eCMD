@@ -1,5 +1,6 @@
 #ifndef ecmdCommandUtils_h
 #define ecmdCommandUtils_h
+/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdCommandUtils.H                                               
@@ -14,7 +15,6 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-/* $Header$ */
 
 // Class Description *************************************************
 //                                                                      
