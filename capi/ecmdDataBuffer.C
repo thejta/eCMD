@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdDataBuffer.C                                   
@@ -12,9 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-
-/* $Header$ */
-
                                
 // Change Log *********************************************************
 //                                                                      
@@ -3064,13 +3062,16 @@ uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) {
     ETRAC0("**** ERROR : ecmdDataBuffer::memCopyInXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
+  if (strlen(i_buf) < i_bits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::memCopyInXstate: supplied buffer(%d) shorter than i_bits(%d)", strlen(i_buf), i_bits);
+    RETURN_ERROR(ECMD_DBUF_INVALID_DATA_FORMAT);
+  }
 
   /* Put the data into the Xstate array */
   strncpy(iv_DataStr, i_buf, cbytes);
   iv_DataStr[cbytes] = '\0';
 
   /* Now slide it over to the raw buffer */
-
   for (uint32_t bit = 0; bit < cbytes; bit++) {
     index = bit/32;
     if (i_buf[bit] == '1') {
