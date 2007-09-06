@@ -562,6 +562,7 @@ threadFlags(0x0)
 inline ecmdThreadData::~ecmdThreadData() { }
 #endif
 
+#if 0
 /**
  @brief Used for the ecmdQueryConfig function to return core data
 
@@ -607,6 +608,7 @@ coreFlags(0x0)
 
 // ecmdCoreData Destructor
 inline ecmdCoreData::~ecmdCoreData() { }
+#endif
 #endif
 
 /**
@@ -709,7 +711,6 @@ struct ecmdChipData {
   std::string                   chipCommonType;     ///< (Detail: Low)  common name of chip, ie. pu, iohub, l3cache
   uint32_t                      pos;                ///< (Detail: Low)  Position of this entry
   uint32_t                      unitId;             ///< (Detail: High) Unit Id of this entry
-  uint8_t                       numProcCores;       ///< (Detail: Low)  Number of cores this entry supports - only valid for Processor compute cores
   uint32_t                      chipEc;             ///< (Detail: High) EC level of this chip, (ec read from 'jtag' chip id or CFAM id)
   uint32_t                      simModelEc;         ///< (Detail: High) Model EC level of this chip
   ecmdChipInterfaceType_t       interfaceType;      ///< (Detail: High) Interface Macro used by the chip
@@ -722,7 +723,6 @@ struct ecmdChipData {
 inline ecmdChipData::ecmdChipData():
 pos(0),
 unitId(0),
-numProcCores(0),
 chipEc(0),
 simModelEc(0),
 interfaceType(ECMD_INTERFACE_UNKNOWN),
