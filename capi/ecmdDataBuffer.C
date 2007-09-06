@@ -2181,10 +2181,11 @@ uint32_t ecmdDataBuffer::getWord(uint32_t wordOffset) const {
 
 
 std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
   int tempNumWords = (bitLen + 31) / 32;
   std::string ret;
-  uint32_t rc = ECMD_DBUF_SUCCESS;
+  char cPtr[10];
 
   if (start+bitLen > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::genHexLeftStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
@@ -2197,13 +2198,6 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: bitLen %d > iv_NumBits (%d)", bitLen, iv_NumBits);
     return ret;
   }
-
-  char cPtr[10];
-  // extract iv_Data
-
-  if (rc) {
-    return ret;
-  }    
 
   if ((start==0) && (bitLen==iv_NumBits)){
     for (int w = 0; w < tempNumWords; w++) {      
@@ -2221,11 +2215,12 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
       sprintf(cPtr, "%.8X", tmpBuffer.iv_Data[w]);
       ret.append(cPtr);
     }
-    int overCount = (int)(32*tempNumWords - bitLen) / 4;
+  }
 
-    if (overCount > 0) {      
-      ret.erase(ret.length() - overCount, ret.length()-1);
-    }
+  int overCount = (int)(32*tempNumWords - bitLen) / 4;
+
+  if (overCount > 0) {      
+    ret.erase(ret.length() - overCount, ret.length()-1);
   }
 
 #ifndef REMOVE_SIM
