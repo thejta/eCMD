@@ -516,6 +516,7 @@ void ecmdThreadData::printStruct() {
 }
 #endif
 
+#if 0
 /*
  * The following methods for the ecmdChipData struct will flatten, unflatten &
  * get the flattened size of the struct.
@@ -783,7 +784,7 @@ void ecmdCoreData::printStruct() {
 	}
 }
 #endif
-
+#endif
 
 
 /** @brief Used to sort chipUnit entries in an ecmdChipUnitData list. */
@@ -803,10 +804,12 @@ bool ecmdChipUnitData::operator< (const ecmdChipUnitData& rhs) {
  * get the flattened size of the struct.
  */
 uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+	uint32_t rc	   = ECMD_SUCCESS;
 
+        ETRAC0("ecmdChpData flatten is hosed!  Update Me!\n");
+#if 0
 	uint32_t tmpData32 = 0;
 	uint32_t listSize  = 0;
-	uint32_t rc	   = ECMD_SUCCESS;
 
 	uint8_t *l_ptr = o_buf;
 
@@ -918,17 +921,20 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		
 
 	} while (0);	// <- single exit.
+#endif
 
 	return rc;
 }
 
 uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+	uint32_t rc       = ECMD_SUCCESS;
 
+        ETRAC0("ecmdChpData unflatten is hosed!  Update Me!\n");
+#if 0
 	uint8_t *l_ptr = (uint8_t *)i_buf;
 
 	uint32_t hdrCheck = 0;
 	uint32_t listSize = 0;
-	uint32_t rc       = ECMD_SUCCESS;
 
 	do {	// Single entry ->
 		/*
@@ -1066,13 +1072,16 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
+#endif
 
 	return rc;
 }
 
 uint32_t ecmdChipData::flattenSize() {
-	
 	uint32_t flatSize = 0;
+	
+        ETRAC0("ecmdChpData flattenSize is hosed!  Update Me!\n");
+#if 0
 	std::list<ecmdCoreData>::iterator coreitor = coreData.begin();
 
 	do {	// Single entry ->
@@ -1120,6 +1129,7 @@ uint32_t ecmdChipData::flattenSize() {
 
 	} while (0);	// <- single exit.
 
+#endif
 	return flatSize;
 }
 
@@ -1139,6 +1149,8 @@ bool ecmdChipData::operator< (const ecmdChipData& rhs) {
 #ifndef REMOVE_SIM
 void ecmdChipData::printStruct() {
 
+        ETRAC0("ecmdChipData::printStruct is hosed!  Update Me!\n");
+#if 0
 	std::list<ecmdCoreData>::iterator coreitor = coreData.begin();
 
 	printf("\n\t\t\t\t\tChip Data:\n");
@@ -1163,6 +1175,7 @@ void ecmdChipData::printStruct() {
 		coreitor->printStruct();
 		coreitor++;
 	}
+#endif
 }
 #endif
 
@@ -3271,11 +3284,11 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
 
 uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
+        uint32_t rc       = ECMD_SUCCESS;
 
         uint8_t *l_ptr = (uint8_t *) i_buf;
-        uint32_t rc       = ECMD_SUCCESS;
 	int l_left = (int) i_len;
-        uint32_t tmpData32 = 0;
+        //uint32_t tmpData32 = 0;
 
 
         do {    // Single entry ->

@@ -258,7 +258,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
   const uint8_t NODE = 1;
   const uint8_t SLOT = 2;
   const uint8_t CHIP = 3;
-  const uint8_t CORE = 4;
+  const uint8_t CHIPUNIT = 4;
   const uint8_t THREAD = 5;
   bool done = false;
   uint8_t level = 0;;
@@ -441,39 +441,42 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         /* Data is valid, let's setup this part of the target */
         io_target.chipType = (*io_state.ecmdCurChip).chipType;
         io_target.pos = (*io_state.ecmdCurChip).pos;
-        io_state.ecmdCurCore = (*io_state.ecmdCurChip).coreData.begin();
+        io_state.ecmdCurChipUnit = (*io_state.ecmdCurChip).chipUnitData.begin();
         valid = 0;
 
         /* If next level is unused we default to 0 */
-        if ((io_state.prevTarget.coreState == ECMD_TARGET_FIELD_UNUSED)) {
+        if ((io_state.prevTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED)) {
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.prevTarget.coreState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurCore == (*io_state.ecmdCurChip).coreData.end())) {
+        } else if ((io_state.prevTarget.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChipUnit == (*io_state.ecmdCurChip).chipUnitData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
 
           /* Everything is grand, let's continue to the next level */
         } else {
-          level = CORE;
+          level = CHIPUNIT;
         }
 
       }
       else if (valid) {
-        level = CORE;
+        level = CHIPUNIT;
       }
 
       /* Enter if : */
-      /* Level == Core (the user is looping with Cores  */
-      /* !valid - current Core iterator isn't valid */
-      /* last Core != current Core */
-      if (level == CORE &&
+      /* Level == ChipUnit (the user is looping with ChipUnits  */
+      /* !valid - current ChipUnit iterator isn't valid */
+      /* last ChipUnitType != current ChipUnitType */
+      /* last ChipUnitNum != current ChipUnitNum */
+      if (level == CHIPUNIT &&
           (!valid ||
-           io_target.core != (*io_state.ecmdCurCore).coreId )) {
+           io_target.chipUnitType != (*io_state.ecmdCurChipUnit).chipUnitType ||
+           io_target.chipUnitNum != (*io_state.ecmdCurChipUnit).chipUnitNum)) {
 
         /* Data is valid, let's setup this part of the target */
-        io_target.core = (*io_state.ecmdCurCore).coreId;
-        io_state.ecmdCurThread = (*io_state.ecmdCurCore).threadData.begin();
+        io_target.chipUnitType = (*io_state.ecmdCurChipUnit).chipUnitType;
+        io_target.chipUnitNum = (*io_state.ecmdCurChipUnit).chipUnitNum;
+        io_state.ecmdCurThread = (*io_state.ecmdCurChipUnit).threadData.begin();
         valid = 0;
 
 
@@ -481,7 +484,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
         if (io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
 
           /* If the next level is required but empty, this position isn't valid we need to restart */
-        } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurCore).threadData.end())) {
+        } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurChipUnit).threadData.end())) {
           /* Increment the iterators to point to the next target (at the level above us) */
           ecmdIncrementLooperIterators(level - 1, io_state);
           continue;
@@ -549,7 +552,7 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
   const uint8_t NODE = 1;
   const uint8_t SLOT = 2;
   const uint8_t CHIP = 3;
-  const uint8_t CORE = 4;
+  const uint8_t CHIPUNIT = 4;
   const uint8_t THREAD = 5;
 
   // The following switch statement makes deliberate use of falling through from
@@ -560,14 +563,14 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
     case THREAD:  //thread
       io_state.ecmdCurThread++;
       /* Did we find another thread, if not we will try core */
-      if (io_state.ecmdCurThread != (*io_state.ecmdCurCore).threadData.end()) {
+      if (io_state.ecmdCurThread != (*io_state.ecmdCurChipUnit).threadData.end()) {
         break;
       }
       /*fall through*/
-    case CORE:  //core
-      io_state.ecmdCurCore++;
+    case CHIPUNIT:  //core
+      io_state.ecmdCurChipUnit++;
       /* Did we find another core, if not we will try chip */
-      if (io_state.ecmdCurCore != (*io_state.ecmdCurChip).coreData.end()) {
+      if (io_state.ecmdCurChipUnit != (*io_state.ecmdCurChip).chipUnitData.end()) {
         break;
       }
       /*fall through*/
@@ -2163,7 +2166,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       std::list<ecmdNodeData>::iterator ecmdCurNode;
       std::list<ecmdSlotData>::iterator ecmdCurSlot;
       std::list<ecmdChipData>::iterator ecmdCurChip;
-      std::list<ecmdCoreData>::iterator ecmdCurCore;
+      std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;
       std::list<ecmdThreadData>::iterator ecmdCurThread;
       char buf[100];
       if (dummy->cageData.empty()) {
@@ -2182,10 +2185,10 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
                 sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); debugFunctionOuput(buf);
 
-                for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                  sprintf(buf,"%s\t \t         c%d\n",frontFPPTxt, ecmdCurCore->coreId); debugFunctionOuput(buf);
+                for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
+                  sprintf(buf,"%s\t \t         %s:c%d\n",frontFPPTxt, ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); debugFunctionOuput(buf);
 
-                  for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                  for (ecmdCurThread = ecmdCurChipUnit->threadData.begin(); ecmdCurThread != ecmdCurChipUnit->threadData.end(); ecmdCurThread ++) {
                     sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); debugFunctionOuput(buf);
                   } /* curThreadIter */
 

@@ -103,7 +103,7 @@ struct ecmdUserInfo {
   std::string node;
   std::string slot;
   std::string pos;
-  std::string core;
+  std::string chipUnitNum;
   std::string thread;
 
   bool allTargetSpecified;
@@ -437,7 +437,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   uint8_t nodeType = 1;
   uint8_t slotType = 1;
   uint8_t posType  = 1;
-  uint8_t coreType = 1;
+  uint8_t chipUnitNumType = 1;
   uint8_t threadType = 1;
 
   std::string allFlag = "all";
@@ -450,8 +450,8 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
       if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (i_target.threadState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.thread == "")) {
         i_target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        if ((i_target.coreState == ECMD_TARGET_FIELD_UNUSED) || (i_target.coreState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.core == "")) {
-          i_target.coreState = ECMD_TARGET_FIELD_UNUSED;
+        if ((i_target.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) || (i_target.chipUnitNumState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.chipUnitNumState == "")) {
+          i_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
 
           if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (i_target.posState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.pos == "")) {
             i_target.posState = ECMD_TARGET_FIELD_UNUSED;
@@ -470,7 +470,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
               } /* node */
             } /* slot */
           } /* pos */
-        } /* core */
+        } /* chipUnitNum */
       } /* thread */
     }
     /* Go back to a standard loop now that states are set */
@@ -676,47 +676,47 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
     }
   }
 
-  //core
+  //chipUnitNum
   /* If the state is already valid we just continue on */
-  if (i_target.coreState == ECMD_TARGET_FIELD_VALID) {
-    coreType = SINGLE;
+  if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+    chipUnitNumType = SINGLE;
 
-  } else if (i_target.coreState != ECMD_TARGET_FIELD_UNUSED) {
-    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.core == allFlag)) {
-      i_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coreType = ALL;
+  } else if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
+    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.chipUnitNum == allFlag)) {
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = ALL;
     }
-    else if (ecmdUserArgs.core.find_first_of(patterns) < ecmdUserArgs.core.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.core)) {
-        dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
+    else if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
+      if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+        dllOutputError("dllQuerySelected - ChipUnit/Core (-c#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      coreType = MULTI;
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = MULTI;
     }
     else {
 
-      if (ecmdUserArgs.core.length() != 0) {
-        if (!dllIsValidTargetString(ecmdUserArgs.core)) {
-          dllOutputError("dllQuerySelected - Core (-c#) argument contained invalid characters\n");
+      if (ecmdUserArgs.chipUnitNum.length() != 0) {
+        if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+          dllOutputError("dllQuerySelected - ChipUnit/Core (-c#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
-	if (ecmdUserArgs.core == "-") {
+	if (ecmdUserArgs.chipUnitNum == "-") {
           dllOutputError("dllQuerySelected - Position (-c-) not supported\n");
           return ECMD_INVALID_ARGS;
 	}
-        i_target.core = (uint8_t)atoi(ecmdUserArgs.core.c_str());
-        coreType = SINGLE;
-        i_target.coreState = ECMD_TARGET_FIELD_VALID;
+        i_target.chipUnitNum = (uint8_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
+        chipUnitNumType = SINGLE;
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
       } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
         /* Default to all */
-        i_target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-        coreType = ALL;
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = ALL;
       }
       else {
-        i_target.core = 0x0;
-        coreType = SINGLE;
-        i_target.coreState = ECMD_TARGET_FIELD_VALID;
+        i_target.chipUnitNum = 0x0;
+        chipUnitNumType = SINGLE;
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
       }
 
     }
@@ -784,7 +784,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
     std::list<ecmdNodeData>::iterator ecmdCurNode;
     std::list<ecmdSlotData>::iterator ecmdCurSlot;
     std::list<ecmdChipData>::iterator ecmdCurChip;
-    std::list<ecmdCoreData>::iterator ecmdCurCore;
+    std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;
     std::list<ecmdThreadData>::iterator ecmdCurThread;
     char buf[100];
     if (o_queryData.cageData.empty()) {
@@ -803,14 +803,14 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
             for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
               sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); dllOutput(buf);
 
-              for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                sprintf(buf,"%s\t \t         c%d\n",frontFPPTxt, ecmdCurCore->coreId); dllOutput(buf);
+              for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
+                sprintf(buf,"%s\t \t         %s:c%d\n",frontFPPTxt, ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); dllOutput(buf);
 
-                for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                for (ecmdCurThread = ecmdCurChipUnit->threadData.begin(); ecmdCurThread != ecmdCurChipUnit->threadData.end(); ecmdCurThread ++) {
                   sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); dllOutput(buf);
                 } /* curThreadIter */
 
-              } /* curCoreIter */
+              } /* curChipUnitIter */
 
             } /* curChipIter */
 
@@ -886,30 +886,30 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
             }
           }
 
-          /* Walk through all the cores */
-          std::list<ecmdCoreData>::iterator curCore = (*curChip).coreData.begin();
+          /* Walk through all the chipUnits */
+          std::list<ecmdChipUnitData>::iterator curChipUnit = (*curChip).chipUnitData.begin();
 
-          while (curCore != (*curChip).coreData.end()) {
+          while (curChipUnit != (*curChip).chipUnitData.end()) {
 
             /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-            if (coreType == MULTI) {
+            if (chipUnitType == MULTI) {
               /* Is the current element in the list of numbers the user provided, if not remove it */
-              if (dllRemoveCurrentElement((*curCore).coreId, ecmdUserArgs.core)) {
-                curCore = (*curChip).coreData.erase(curCore);
+              if (dllRemoveCurrentElement((*curChipUnit).chipUnitNum, ecmdUserArgs.chipUnitNum)) {
+                curChipUnit = (*curChip).chipUnitData.erase(curChipUnit);
                 continue;
               }
             }
 
             /* Walk through the threads */
-            std::list<ecmdThreadData>::iterator curThread = (*curCore).threadData.begin();
+            std::list<ecmdThreadData>::iterator curThread = (*curChipUnit).threadData.begin();
 
-            while (curThread != (*curCore).threadData.end()) {
+            while (curThread != (*curChipUnit).threadData.end()) {
 
               /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
               if (threadType == MULTI) {
                 /* Is the current element in the list of numbers the user provided, if not remove it */
                 if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
-                  curThread = (*curCore).threadData.erase(curThread);
+                  curThread = (*curChipUnit).threadData.erase(curThread);
                   continue;
                 }
               }
@@ -917,15 +917,15 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
               curThread++;
             }  /* while curThread */
 	    if ((i_target.threadState != ECMD_TARGET_FIELD_UNUSED) &&
-		curCore->threadData.empty()) {
-	      curCore = curChip->coreData.erase(curCore);
+		curChipUnit->threadData.empty()) {
+	      curChipUnit = curChip->chipUnitData.erase(curChipUnit);
 	    } else {
-	      curCore++;
+	      curChipUnit++;
 	    }
-          }  /* while curCore */
+          }  /* while curChipUnit */
 
-	  if ((i_target.coreState != ECMD_TARGET_FIELD_UNUSED) &&
-	      curChip->coreData.empty()) {
+	  if ((i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) &&
+	      curChip->chipUnitData.empty()) {
 	    curChip = curSlot->chipData.erase(curChip);
 	  } else {
 	    curChip++;
@@ -1061,16 +1061,16 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdUserArgs.pos = "";
   }
 
-  //core
+  //chipUnit
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-c");
   if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
     dllOutputError("dllCommonCommandArgs - Cannot specify -all and -c# at the same time\n");
     return ECMD_INVALID_ARGS;
   } else if (curArg != NULL) {
-    ecmdUserArgs.core = curArg;
+    ecmdUserArgs.chipUnitNum = curArg;
   }
   else {
-    ecmdUserArgs.core = "";
+    ecmdUserArgs.chipUnitNum = "";
   }
 
   //thread
@@ -1093,7 +1093,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
 
 void dllPushCommandArgs() {
   ecmdArgsStack.push_back(ecmdUserArgs);
-  ecmdUserArgs.cage = ecmdUserArgs.node = ecmdUserArgs.slot = ecmdUserArgs.pos = ecmdUserArgs.core = ecmdUserArgs.thread = "";
+  ecmdUserArgs.cage = ecmdUserArgs.node = ecmdUserArgs.slot = ecmdUserArgs.pos = ecmdUserArgs.chipUnitNum = ecmdUserArgs.thread = "";
 }
 
 void dllPopCommandArgs() {
@@ -2514,7 +2514,7 @@ bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData
   std::list<ecmdNodeData>::iterator ecmdCurNode;
   std::list<ecmdSlotData>::iterator ecmdCurSlot;
   std::list<ecmdChipData>::iterator ecmdCurChip;
-  std::list<ecmdCoreData>::iterator ecmdCurCore;
+  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;
   std::list<ecmdThreadData>::iterator ecmdCurThread;
 
 
@@ -2535,8 +2535,10 @@ bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData
       queryTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
     if (queryTarget.posState != ECMD_TARGET_FIELD_UNUSED) 
       queryTarget.posState = ECMD_TARGET_FIELD_VALID;
-    if (queryTarget.coreState != ECMD_TARGET_FIELD_UNUSED) 
-      queryTarget.coreState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    if (queryTarget.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) 
+      queryTarget.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
     if (queryTarget.threadState != ECMD_TARGET_FIELD_UNUSED) 
       queryTarget.threadState = ECMD_TARGET_FIELD_VALID;
 
@@ -2578,19 +2580,19 @@ bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData
               for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
                 if (((ecmdCurChip->chipType == i_target.chipType) || (ecmdCurChip->chipCommonType == i_target.chipType) || (ecmdCurChip->chipShortType == i_target.chipType)) &&
                     (ecmdCurChip->pos == i_target.pos)) {
-                  if (i_target.coreState == ECMD_TARGET_FIELD_UNUSED) {
+                  if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) {
                     ret = true;
                     break;
                   }
                   
-                  for (ecmdCurCore = ecmdCurChip->coreData.begin(); ecmdCurCore != ecmdCurChip->coreData.end(); ecmdCurCore ++) {
-                    if (ecmdCurCore->coreId == i_target.core) {
+                  for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
+                    if (ecmdCurChipUnit->chipUnitNum == i_target.chipUnitNum) {
                       if (i_target.threadState == ECMD_TARGET_FIELD_UNUSED) {
                         ret = true;
                         break;
                       }
 
-                      for (ecmdCurThread = ecmdCurCore->threadData.begin(); ecmdCurThread != ecmdCurCore->threadData.end(); ecmdCurThread ++) {
+                      for (ecmdCurThread = ecmdCurChipUnit->threadData.begin(); ecmdCurThread != ecmdCurChipUnit->threadData.end(); ecmdCurThread ++) {
                         if (ecmdCurThread->threadId == i_target.thread) {
                           ret = true;
                           break;
@@ -2598,8 +2600,8 @@ bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData
                       } /* for ecmdCurThread */
                         
                       if (ret) break;
-                    } /* curCoreId == tarCoreId */
-                  } /* for ecmdCurCore */
+                    } /* curChipUnitNum == tarChipUnitId */
+                  } /* for ecmdCurChipUnit */
 
                   if (ret) break;
                 } /* curChipType == tarChipType && curChipPos == tarChipPos */
