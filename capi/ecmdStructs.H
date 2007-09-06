@@ -400,6 +400,17 @@ typedef enum {
   ECMD_I2C_WRITEOFFSET     ///< Call should go ecmdI2cWriteOffset
 } ecmdI2CCmds_t;
 
+/**
+ @brief Used for the ecmdQueryArray function to specify which type of array we have @see ecmdArrayData
+*/
+typedef enum {
+  ECMD_ARRAYTYPE_UNKNOWN,               ///< Default for not initialized
+  ECMD_ARRAYTYPE_DIRECT_ACCESS,         ///< Array is a direct access array
+  ECMD_ARRAYTYPE_SIMPLE,                ///< Array is a simple array
+  ECMD_ARRAYTYPE_HARDWARE_ASSIST,       ///< Array is a hardware assist array
+  ECMD_ARRAYTYPE_HARDWARE_ASSIST_2,     ///< Array is a hardware assist array
+} ecmdArrayType_t;
+
 
 
 //--------------------------------------------------------------------
@@ -981,6 +992,7 @@ struct ecmdArrayData {
   // Members
   std::string           arrayName;              ///< (Detail: Low)  Names used to reference this array
   uint32_t              arrayId;                ///< (Detail: Low)  Hashed array ID
+  ecmdArrayType_t       arrayType;              ///< (Detail: Low)  The type of array this is
   uint32_t              readAddressLength;      ///< (Detail: Low)  Bit length of read address
   uint32_t              writeAddressLength;     ///< (Detail: Low)  Bit length of write address
   uint64_t              length;                 ///< (Detail: Low)  Length of array (number of entries)
@@ -995,6 +1007,7 @@ struct ecmdArrayData {
 // ecmdArrayData Constructor
 inline ecmdArrayData::ecmdArrayData():
 arrayId(0),
+arrayType(ECMD_ARRAYTYPE_UNKNOWN),
 readAddressLength(0),
 writeAddressLength(0),
 length(0),
