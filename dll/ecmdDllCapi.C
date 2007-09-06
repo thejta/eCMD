@@ -450,7 +450,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
       if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (i_target.threadState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.thread == "")) {
         i_target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        if ((i_target.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) || (i_target.chipUnitNumState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.chipUnitNumState == "")) {
+        if ((i_target.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) || (i_target.chipUnitNumState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.chipUnitNum == "")) {
           i_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
 
           if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (i_target.posState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.pos == "")) {
@@ -892,7 +892,7 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
           while (curChipUnit != (*curChip).chipUnitData.end()) {
 
             /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-            if (chipUnitType == MULTI) {
+            if (chipUnitNumType == MULTI) {
               /* Is the current element in the list of numbers the user provided, if not remove it */
               if (dllRemoveCurrentElement((*curChipUnit).chipUnitNum, ecmdUserArgs.chipUnitNum)) {
                 curChipUnit = (*curChip).chipUnitData.erase(curChipUnit);
