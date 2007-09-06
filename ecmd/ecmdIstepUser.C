@@ -462,7 +462,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;            //@02  
+  uint32_t coeRc = ECMD_SUCCESS;
   ecmdChipTarget target;                        ///< Current target being operated on
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperdata;                    ///< Store internal Looper data
@@ -492,7 +492,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
-  //@02
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   /************************************************************************/
@@ -562,7 +561,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   
   if ((strpos = clockspeed.find("mhz")) != std::string::npos)  {
     speedType = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
-  if ((strpos = clockspeed.find("khz")) != std::string::npos)  {
+  } else if ((strpos = clockspeed.find("khz")) != std::string::npos)  {
     speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
   } else if ((strpos = clockspeed.find("us")) != std::string::npos) {
     speedType = ECMD_CLOCK_CYCLETIME_US_SPEC;
