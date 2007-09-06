@@ -23,7 +23,9 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer] [-k#]
         Speed           New speed value to program can be specified with any of the
                         following keyword(s) preceded by decimal numbers:
                         'mhz' for megahertz (100mhz)
+                        'khz' for kilohertz (80khz)
                         'us' for microseconds (10us)
+                        'ps' for picoseconds (32ps)
                         'npu' for nominal percentage up (1npu)
                         'npd' for nominal percentage down (3npd)
                         'cpu' for current percentage up (4npu)
