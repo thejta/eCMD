@@ -323,12 +323,10 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
- //begin-@02
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end-@02
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 
 uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
@@ -454,12 +452,10 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  //begin-@02 
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end-@02
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }  
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 
@@ -565,9 +561,13 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
   
   if ((strpos = clockspeed.find("mhz")) != std::string::npos)  {
-    speedType = ECMD_CLOCK_FREQUENCY_SPEC;
+    speedType = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
+  if ((strpos = clockspeed.find("khz")) != std::string::npos)  {
+    speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
   } else if ((strpos = clockspeed.find("us")) != std::string::npos) {
-    speedType = ECMD_CLOCK_CYCLETIME_SPEC;
+    speedType = ECMD_CLOCK_CYCLETIME_US_SPEC;
+  } else if ((strpos = clockspeed.find("ps")) != std::string::npos) {
+    speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
   } else if ((strpos = clockspeed.find("npu")) != std::string::npos) {
     speedType = ECMD_CLOCK_NOMINAL_PERCENT_UP;
   } else if ((strpos = clockspeed.find("npd")) != std::string::npos) {
@@ -653,7 +653,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (iv_mult==0) {
       rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
@@ -665,8 +665,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       printed += ecmdWriteTarget(target);
       printed += "\n";
       ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                   //@02                                       
-      continue;                                     //@02
+      coeRc = rc;
+      continue;
     }
     else {
       validPosFound = true;     
@@ -685,12 +685,10 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  //begin-@02
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end-@02
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 
 uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
@@ -764,11 +762,15 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
   
   if (clockspeed == "mhz")  {
-    speedType = ECMD_CLOCK_FREQUENCY_SPEC;
+    speedType = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
+  } else if (clockspeed == "khz")  {
+    speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
   } else if (clockspeed == "us") {
-    speedType = ECMD_CLOCK_CYCLETIME_SPEC;
+    speedType = ECMD_CLOCK_CYCLETIME_US_SPEC;
+  } else if (clockspeed == "ps") {
+    speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
   } else {
-    ecmdOutputError("getclockspeed - keyword \"mhz\" or \"us\" not found in clock speed field\n");
+    ecmdOutputError("getclockspeed - keyword \"mhz\", \"khz\", \"ps\" or \"us\" not found in clock speed field\n");
     return ECMD_INVALID_ARGS;
   }
   
@@ -781,7 +783,7 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdGetClockSpeed(target, clockType, speedType, speed);
     if (rc) {
@@ -789,10 +791,9 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
       printed += ecmdWriteTarget(target);
       printed += "\n";
       ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                   //@02                                     
-      continue;                                     //@02
-    }
-    else {
+      coeRc = rc;                   
+      continue;
+    } else {
       validPosFound = true;     
     }
 
@@ -808,12 +809,10 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  //begin-@02 
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end-@02
+  // Now check if our coeRc accumulated anything and return if it has
+  if (coeRc) return coeRc;
+
+  return rc;
 }
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 

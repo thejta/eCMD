@@ -16,8 +16,8 @@ Syntax: getclockspeed <ClockType> mhz|us   [-k#] [-n#] [-s#] [-p#]
                          - io_refclock          <-- IO chip reference clock
                          - io_clock             <-- IO chip clock
 
-        mhz|us           Speed Type that read value will be formatted in:  either mhz or
-                         microseconds (us)
+        mhz|khz|us|ps    Speed Type that read value will be formatted in:  either mhz,
+                         khz, microseconds (us) or picosecnds (ps)
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
