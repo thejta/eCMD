@@ -238,11 +238,11 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "getscom - Provided chipUnit: \"";
+        printed = "getscom - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryScom: \"";
-        printed += queryScomData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\" doesn't match chipUnit returned by queryScom \"";
+        printed += queryScomData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -257,6 +257,15 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitScom
+      if (chipUnitType != "") {
+        printed = "getscom - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit scom address.\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -493,11 +502,11 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "putscom - Provided chipUnit: \"";
+        printed = "putscom - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryScom: \"";
-        printed += queryScomData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\" doesn't match chipUnit returned by queryScom \"";
+        printed += queryScomData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -512,6 +521,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitScom
+      if (chipUnitType != "") {
+        printed = "putscom - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit scom address.\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -784,11 +802,11 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "pollscom - Provided chipUnit: \"";
+        printed = "pollscom - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryScom: \"";
-        printed += queryScomData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\" doesn't match chipUnit returned by queryScom \"";
+        printed += queryScomData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -803,6 +821,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitScom
+      if (chipUnitType != "") {
+        printed = "pollscom - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit scom address.\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
