@@ -265,11 +265,11 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (spyData.relatedChipUnit != chipUnitType) {
-        printed = "getspy - Provided chipUnit: \"";
+        printed = "getspy - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\"doesn't match chipUnit returned by querySpy: \"";
-        printed += spyData.relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\"doesn't match chipUnit returned by querySpy \"";
+        printed += spyData.relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -284,6 +284,15 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitSpy
+      if (chipUnitType != "") {
+        printed = "getspy - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit spy\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -663,11 +672,11 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (spyData.relatedChipUnit != chipUnitType) {
-        printed = "putspy - Provided chipUnit: \"";
+        printed = "putspy - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\"doesn't match chipUnit returned by querySpy: \"";
+        printed += "\"doesn't match chipUnit returned by querySpy \"";
         printed += spyData.relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -682,6 +691,15 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitSpy
+      if (chipUnitType != "") {
+        printed = "putspy - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit spy\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */

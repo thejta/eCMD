@@ -139,7 +139,13 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used 
-  target.chipType = argv[1];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[1], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("getvpdkeyword - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
   if (target.chipType == "nochip") {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.posState = ECMD_TARGET_FIELD_UNUSED;
@@ -148,7 +154,7 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
     target.posState = ECMD_TARGET_FIELD_WILDCARD;
   }
   target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 
   /************************************************************************/
@@ -233,7 +239,7 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   // Setup the target that will be used to loop 
   // First we will do a default node level loop, and then try a slot level loop if the user specifed one
   target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-  target.slotState = target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.slotState = target.posState = target.chipTypeState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   // Get the leve the user specified
   voltageLevel = (uint32_t)atoi(argv[0]);
@@ -356,7 +362,7 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config
   target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.posState = target.chipTypeState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.posState = target.chipTypeState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   //get level to fetch
   if (!ecmdIsAllDecimal(argv[0])) {

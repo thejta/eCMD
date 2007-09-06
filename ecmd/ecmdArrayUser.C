@@ -290,10 +290,10 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (arrayData.relatedChipUnit != chipUnitType) {
-        printed = "getarray - Provided chipUnit: \"";
+        printed = "getarray - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\"doesn't match chipUnit returned by queryArray: \"";
-        printed += arrayData.relatedChipUnit + "\n";
+        printed += "\"doesn't match chipUnit returned by queryArray \"";
+        printed += arrayData.relatedChipUnit + "\"\n";
         ecmdOutputError( printed.c_str() );
         rc = ECMD_INVALID_ARGS;
         break;
@@ -319,6 +319,15 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         }
         coeRc = rc;
         continue;
+      }
+    } else { // !isChipUnitArray
+      if (chipUnitType != "") {
+        printed = "getarray - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit array\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
       }
     }
 
@@ -533,10 +542,10 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (arrayData.relatedChipUnit != chipUnitType) {
-        printed = "putarray - Provided chipUnit: \"";
+        printed = "putarray - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\"doesn't match chipUnit returned by queryArray: \"";
-        printed += arrayData.relatedChipUnit + "\n";
+        printed += "\"doesn't match chipUnit returned by queryArray \"";
+        printed += arrayData.relatedChipUnit + "\"\n";
         ecmdOutputError( printed.c_str() );
         rc = ECMD_INVALID_ARGS;
         break;
@@ -552,6 +561,15 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) return rc;
+    } else { // !isChipUnitArray
+      if (chipUnitType != "") {
+        printed = "putarray - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit array\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */

@@ -1254,7 +1254,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
 	  curLatchData.clockDomain = o_ringData.begin()->clockDomain;
 	  curLatchData.clockState = o_ringData.begin()->clockState;
 	}
-        curLatchData.isCoreRelated = o_ringData.begin()->isCoreRelated;
+        curLatchData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
       } else 
 	o_queryData.push_back(curLatchData);
 

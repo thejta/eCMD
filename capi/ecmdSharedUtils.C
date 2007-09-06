@@ -323,7 +323,7 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
 }
 
 
-std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
   std::string printed;
   char util[10];
@@ -334,7 +334,7 @@ std::string ecmdWriteTarget (ecmdChipTarget & i_target, ecmdTargetDisplayMode_t 
       printed += ".";
       printed += i_target.chipUnitType;
     }
-    printed = "\t";
+    printed += "\t";
   }
 
   //always do cage

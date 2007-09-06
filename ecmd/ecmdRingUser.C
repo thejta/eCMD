@@ -256,11 +256,11 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
         /* Error check the chipUnit returned */
         if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
-          printed = "getringdump - Provided chipUnit: \"";
+          printed = "getringdump - Provided chipUnit \"";
           printed += chipUnitType;
-          printed += "\"doesn't match chipUnit returned by queryRing: \"";
-          printed += queryRingData.begin()->relatedChipUnit + "\n";
-          ecmdOutputError( printed.c_str() );
+          printed += "\"doesn't match chipUnit returned by queryRing \"";
+          printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+          ecmdOutputError(printed.c_str());
           rc = ECMD_INVALID_ARGS;
           break;
         }
@@ -275,6 +275,15 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         /* Init the chipUnit loop */
         rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
+      } else { // !isChipUnitRing
+        if (chipUnitType != "") {
+          printed = "getringdump - A chipUnit \"";
+          printed += chipUnitType;
+          printed += "\" was given on a non chipUnit ring\n";
+          ecmdOutputError(printed.c_str());
+          rc = ECMD_INVALID_ARGS;
+          break;
+        }
       }
 
       /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -995,11 +1004,11 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "getbits - Provided chipUnit: \"";
+        printed = "getbits - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryRing: \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\" doesn't match chipUnit returned by queryRing \"";
+        printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -1014,6 +1023,15 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitRing
+      if (chipUnitType != "") {
+        printed = "getbits - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit ring\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -1234,11 +1252,11 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "putbits - Provided chipUnit: \"";
+        printed = "putbits - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryRing: \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\" doesn't match chipUnit returned by queryRing \"";
+        printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -1253,6 +1271,15 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitRing
+      if (chipUnitType != "") {
+        printed = "putbits - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit ring\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -1733,10 +1760,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
         /* Error check the chipUnit returned */
         if (curRingData->relatedChipUnit != chipUnitType) {
-          printed = "checkrings - Provided chipUnit: \"";
+          printed = "checkrings - Provided chipUnit \"";
           printed += chipUnitType;
-          printed += "\" doesn't match chipUnit returned by queryRing: \"";
-          printed += curRingData->relatedChipUnit + "\n";
+          printed += "\" doesn't match chipUnit returned by queryRing \"";
+          printed += curRingData->relatedChipUnit + "\"\n";
           ecmdOutputError( printed.c_str() );
           rc = ECMD_INVALID_ARGS;
           break;
@@ -1752,6 +1779,15 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         /* Init the chipUnit loop */
         rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
+      } else { // !isChipUnitRing
+        if (chipUnitType != "") {
+          printed = "checkrings - A chipUnit \"";
+          printed += chipUnitType;
+          printed += "\" was given on a non chipUnit ring\n";
+          ecmdOutputError(printed.c_str());
+          rc = ECMD_INVALID_ARGS;
+          break;
+        }
       }
 
       /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -2099,11 +2135,11 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
       if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "putpattern - Provided chipUnit: \"";
+        printed = "putpattern - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryRing: \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
+        printed += "\" doesn't match chipUnit returned by queryRing \"";
+        printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
       }
@@ -2118,6 +2154,15 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitRing
+      if (chipUnitType != "") {
+        printed = "putpattern - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit ring\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
     }
 
     /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
