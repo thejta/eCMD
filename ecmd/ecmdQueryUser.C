@@ -612,8 +612,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         
       sprintf(buf,"\nAvailable arrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       
-      printed = "Array Names                    RdAddrLen  WrtAddrLen           Length Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------------------------ ---------- ---------- ---------------- ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Array Names                    ArrayType          RdAddrLen  WrtAddrLen Length           Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------------ ------------------ ---------- ---------- ---------------- ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
       for (arrayit = arraydata.begin(); arrayit != arraydata.end(); arrayit ++) {
 
@@ -623,13 +623,27 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           printed += " ";
         }
 
+        if (arrayit->arrayType == ECMD_ARRAYTYPE_UNKNOWN)
+          printed += "UNKNOWN            ";
+        else if (arrayit->arrayType == ECMD_ARRAYTYPE_DIRECT_ACCESS)
+          printed += "DIRECT_ACCESS      ";
+        else if (arrayit->arrayType == ECMD_ARRAYTYPE_SIMPLE)
+          printed += "SIMPLE             ";
+        else if (arrayit->arrayType == ECMD_ARRAYTYPE_HARDWARE_ASSIST)
+          printed += "HARDWARE_ASSIST    ";
+        else if (arrayit->arrayType == ECMD_ARRAYTYPE_HARDWARE_ASSIST_2)
+          printed += "HARDWARE_ASSIST_2  ";
+        else 
+          printed += "** ERROR **        ";
+
+
         if(arrayit->isChipUnitRelated) {
           isCore = 'Y';
         } else {
           isCore = 'N';
         }
 
-        sprintf(buf,"%-10d %-10d %-16lld %-5d %c   %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, (unsigned long long)arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
+        sprintf(buf,"%-10d %-10d %-16lld %-5d %c     %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, (unsigned long long)arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
         printed += (std::string)buf;
 	
 
