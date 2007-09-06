@@ -715,7 +715,6 @@ struct ecmdChipData {
   ecmdChipInterfaceType_t       interfaceType;      ///< (Detail: High) Interface Macro used by the chip
   uint32_t                      chipFlags;          ///< (Detail: High) Various additional info about the chip - bitmask of defines
   std::list<ecmdChipUnitData>   chipUnitData;       ///< (Detail: Low)  List of all chipUnits requested in this chip - sorted by chipUnitType and chipUnitNum
-  std::list<ecmdCoreData>       coreData;          ///< (Detail: Low)  List of all cores requested in this chip - sorted by coreId
 };
 
 #ifndef DOCUMENTATION
