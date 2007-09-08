@@ -1094,6 +1094,7 @@ struct ecmdScomData {
 
   // Members
   uint32_t         address;             ///< (Detail: Low)  Scom Address
+  uint32_t         length;              ///< (Detail: Low)  The length of the scom in bits
   bool             isChipUnitRelated;   ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
   std::string      relatedChipUnit;     ///< (Detail: Low)  If the scom is chipUnit related, this is the name of the chipUnit
   std::string      clockDomain;         ///< (Detail: High) Clock domain this scom belongs to
@@ -1104,6 +1105,7 @@ struct ecmdScomData {
 // ecmdScomData Constructor
 inline ecmdScomData::ecmdScomData():
 address(0),
+length(0),
 isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
