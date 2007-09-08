@@ -364,7 +364,6 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
-  ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
   ecmdLooperData looperData;                    ///< Store internal Looper data
   ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
   bool isChipUnitScom;                          ///< Is this a chipUnit scom ?
@@ -372,11 +371,13 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   uint32_t address;                             ///< Scom address
-  ecmdDataBuffer buffer;                        ///< Container to store write data
+  ecmdDataBuffer buffer;                        ///< Container to store read/write data
+  ecmdDataBuffer insertBuffer;                  ///< Buffer to store data to be inserted
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
   std::string printed;                          ///< String for printed data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
   uint32_t numbits = 0;                         ///< Number of bits to insert data
+  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -458,7 +459,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
-    rc = ecmdReadDataFormatted(buffer, argv[4], inputformat, numbits);
+    rc = ecmdReadDataFormatted(insertBuffer, argv[4], inputformat, numbits);
     if (rc) {
       ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
@@ -530,70 +531,65 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isChipUnitScom || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
-	   
-     /* Do we need to perform a read/modify/write op ? */
-     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
+    while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
+      /* Do we need to perform a read/modify/write op ? */
+      if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
 
-       rc = getScom(cuTarget, address, fetchBuffer);
+        rc = getScom(cuTarget, address, buffer);
+        if (rc) {
+          printed = "putscom - Error occured performing getscom on ";
+          printed += ecmdWriteTarget(cuTarget);
+          printed += "\n";
+          ecmdOutputError( printed.c_str() );
+          coeRc = rc;
+          continue;
+        } else {
+          validPosFound = true;
+        }
 
-       if (rc) {
-     	 printed = "putscom - Error occured performing getscom on ";
-     	 printed += ecmdWriteTarget(cuTarget);
-     	 printed += "\n";
-     	 ecmdOutputError( printed.c_str() );
-         coeRc = rc;
-         continue;
-       }
-       else {
-     	 validPosFound = true;
-       }
+        rc = ecmdApplyDataModifier(buffer, insertBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
+        if (rc) {
+          coeRc = rc;
+          continue;
+        }
+      }
 
-       rc = ecmdApplyDataModifier(fetchBuffer, buffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
-       if (rc) {
-         coeRc = rc;
-         continue;
-       }
+      /* This does the padding of zeros as mentioned in the putscom help text */
+      if (buffer.getBitLength() < queryScomData.begin()->length) {
+        buffer.growBitLength(queryScomData.begin()->length);
+      } else if (buffer.getBitLength() > queryScomData.begin()->length) {
+        char errbuf[100];
+        sprintf(errbuf,"putscom - Too much write data provided at %d bits.\n", buffer.getBitLength());
+        ecmdOutputError(errbuf);
+        sprintf(errbuf,"putscom - The scom you are writing only supports data of %d bits.\n", queryScomData.begin()->length);
+        ecmdOutputError(errbuf);
+        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
+        continue;
+      }
 
-       rc = putScom(cuTarget, address, fetchBuffer);
-       if (rc) {
-     	 printed = "putscom - Error occured performing putscom on ";
-     	 printed += ecmdWriteTarget(cuTarget);
-     	 printed += "\n";
-     	 ecmdOutputError( printed.c_str() );
-     	 //return rc;
-         coeRc = rc;
-         continue;
-       }
+      /* My data is all setup, now write it */
+      rc = putScom(cuTarget, address, buffer);
+      if (rc) {
+        printed = "putscom - Error occured performing putscom on ";
+        printed += ecmdWriteTarget(cuTarget);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      } else {
+        validPosFound = true;
+      }
 
-     }
-     else {
-
-       rc = putScom(cuTarget, address, buffer);
-       if (rc) {
-     	 printed = "putscom - Error occured performing putscom on ";
-     	 printed += ecmdWriteTarget(cuTarget);
-     	 printed += "\n";
-     	 ecmdOutputError( printed.c_str() );
-     	 //return rc;
-         coeRc = rc;
-         continue;
-       }
-       else {
-     	 validPosFound = true;
-       }
-
-     }
-
-     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-       printed = ecmdWriteTarget(cuTarget) + "\n";
-       ecmdOutput(printed.c_str());
-     }
-     if (!isChipUnitScom) break;
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(cuTarget) + "\n";
+        ecmdOutput(printed.c_str());
+      }
     } /* End cuLooper */
   } /* End PosLooper */
   
