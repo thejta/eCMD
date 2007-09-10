@@ -91,6 +91,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
   bool enabledCache = false;            ///< Did we enable the cache ?
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -293,10 +294,12 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isChipUnitSpy || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
+    while ((isChipUnitSpy ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (outputformat == "enum") {
         rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue);
@@ -492,8 +495,6 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         }
         ecmdOutput("============================================================\n");
       }
-
-      if (!isChipUnitSpy) break;
     } /* End cuLooper */
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
@@ -548,6 +549,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   bool enabledCache = false;            ///< Did we enable the cache ?
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -700,18 +702,18 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isChipUnitSpy || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
+    while ((isChipUnitSpy ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
 
         rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
 
-        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          break;
-        } else if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == (uint32_t) spyData.bitLength)) {
+        if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == (uint32_t) spyData.bitLength)) {
           /* We will go on if the user was going to write the whole spy anyway */
           ecmdOutputWarning("putspy - Problems reading group spy - found a mismatch - going ahead with write\n");
           rc = 0;
@@ -723,10 +725,6 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           ecmdOutputError("Use getspy with the -v option to get the detailed failure information\n");
           coeRc = rc;
           continue;
-
-          //return rc;
-
-
         } else if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
           ecmdOutputWarning("putspy - Problems reading spy - ECC check failed - going ahead with write\n");
           rc = 0;
@@ -736,8 +734,6 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
-
-          //return rc;
         } else {
           validPosFound = true;     
         }
@@ -746,7 +742,6 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         if (rc) { 
           coeRc = rc;
           continue;
-          //return rc;
         }
 
         rc = putSpy(cuTarget, spyName.c_str(), spyBuffer);
@@ -756,30 +751,22 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
-          //return rc;
         }
       } else {
 
         if (inputformat == "enum") {
           rc = putSpyEnum(cuTarget, spyName.c_str(), argv[argc-1] );
         } else {
-
           rc = putSpy(cuTarget, spyName.c_str(), buffer);
         }
 
-        if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-          break;
-        }
-        else if (rc) {
-
+        if (rc) {
           printed = "putspy - Error occured performing putspy on ";
           printed += ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
-          //return rc;
         } else {
-
           validPosFound = true;
         }
       }
@@ -788,8 +775,6 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         printed = ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutput(printed.c_str());
       }
-
-      if (!isChipUnitSpy) break;
     } /* End cuLooper */
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
@@ -799,7 +784,6 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         ecmdOutputError("putspy - Problems disabling the ring cache\n");
         coeRc = trc;
         continue;
-        //return rc;
       }
       enabledCache = false;
     }

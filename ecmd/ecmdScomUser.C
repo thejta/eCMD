@@ -85,7 +85,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string printed;                          ///< Output data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit in the scom data
   uint32_t numbits = 0;                         ///< Number of bits to diplay
-  
+  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -266,10 +267,12 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isChipUnitScom || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
+    /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      rc = getScom(cuTarget, address, scombuf);
      if (rc) {
@@ -340,9 +343,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 #endif
        }
      }
-     if (!isChipUnitScom) break;
     } /* End cuLooper */
-
   } /* End PosLooper */
   
   // This is an error common across all UI functions
@@ -535,7 +536,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       oneLoop = 1;
     }
 
-    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
@@ -623,6 +624,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   ecmdDataBuffer buffer;                        ///< Store current scom data
   ecmdDataBuffer expected;                      ///< Store expected data
   ecmdDataBuffer mask;                          ///< Store mask data
+  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   uint8_t NONE_T = 0;
   uint8_t SECONDS_T = 1;
@@ -826,10 +828,12 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isChipUnitScom || ecmdConfigLooperNext(cuTarget, cuLooper)) && (!coeRc || coeMode)) {
+    /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      bool done = false;
      timerStart = time(NULL);
@@ -982,10 +986,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
         
       
      }  //while (!done)
-     
-     if (!isChipUnitScom) break;
     } /* End cuLooper */
-    
   } /* End PosLooper */
 
 

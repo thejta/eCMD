@@ -156,6 +156,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
   ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
   ecmdDataBuffer buffertemp(500 /* bits */);   ///< Temp space for extracted latch data
+  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -284,10 +285,12 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
           rc = ECMD_INVALID_ARGS;
           break;
         }
-      }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
+    }
 
-      /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (!isChipUnitRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
         rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
         if (rc) {
@@ -480,7 +483,6 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
           }/* End for-latches-loop */
 
         }/* Case-Sort */
-        if (!isChipUnitRing) break;
       } /* End cuLooper */
     }/* End ChipLooper */
 
@@ -863,6 +865,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   bool inputformatflag = false; 
+  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1032,10 +1035,12 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isChipUnitRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
@@ -1103,7 +1108,6 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
         } 
 
       } /* End !expectFlag */
-      if (!isChipUnitRing) break;
     } /* End cuLooper */
   } /* End posLooper */
 
@@ -1133,6 +1137,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
   bool validPosFound = false;           ///< Did the looper find something ?
   bool formatflag = false;
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1280,10 +1285,12 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isChipUnitRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
@@ -1313,7 +1320,6 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 	printed = ecmdWriteTarget(cuTarget) + "\n";
 	ecmdOutput(printed.c_str());
       }
-      if (!isChipUnitRing) break;
     } /* End cuLooper */
   } /* End posloop */
 
@@ -1682,6 +1688,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   std::list<ecmdCheckRingData> failedRings;   ///< Names of rings that failed
   std::list<ecmdCheckRingData> passedRings;   ///< Names of rings that failed
   bool verbose = false;                 ///< Verbose error display
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
 
   /************************************************************************/
@@ -1788,10 +1795,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           rc = ECMD_INVALID_ARGS;
           break;
         }
+        // Setup the variable oneLoop variable for this non-chipUnit case
+        oneLoop = 1;
       }
 
-      /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (!isChipUnitRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+      /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+      while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
         ringName = (*curRingData).ringNames.front();
 
@@ -1988,9 +1997,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         } else {
           passedRings.push_back(ringlog);
         }
-
-        /* If this wasn't a core ring we don't want to loop again */
-        if (!isChipUnitRing) break;
       } /* end chipUnit looper */
       curRingData++;
     }
@@ -2061,6 +2067,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdDataBuffer buffer;                ///< Buffer to store pattern
   std::string format = "xr";            ///< Default input format
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -2163,10 +2170,12 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isChipUnitRing || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
       uint32_t curOffset = 0;
       uint32_t numBitsToInsert = 0;
       uint32_t numBitsInRing = (uint32_t)queryRingData.front().bitLength;
@@ -2193,9 +2202,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         printed = ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutput(printed.c_str());
       }
-      if (!isChipUnitRing) break;
     } /* End cuLooper */
-
   }
 
   // This is an error common across all UI functions
