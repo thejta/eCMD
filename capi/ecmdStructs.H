@@ -776,6 +776,7 @@ struct ecmdSlotData {
 
   // Members
   uint32_t slotId;                      ///< (Detail: Low) Slot number of this entry
+  std::string slotName;                 ///< (Detail: High) The name assigned to this slot
   uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   uint32_t slotFlags;                   ///< (Detail: High) Various additional info about the slot - bitmask of defines
   std::list<ecmdChipData> chipData;     ///< (Detail: Low) List of all chips requested in this slot - in order by chipType and pos
@@ -821,6 +822,7 @@ struct ecmdNodeData {
 
   // Members
   uint32_t nodeId;                      ///< (Detail: Low) Node number of this entry
+  std::string nodeName;                 ///< (Detail: High) The name assigned to this node
   uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   uint32_t nodeFlags;                   ///< (Detail: High) Various additional info about the node - bitmask of defines
   std::list<ecmdSlotData> slotData;     ///< (Detail: Low) List of all slots requested in this node - in numerical order by slotId
@@ -866,6 +868,7 @@ struct ecmdCageData {
 
   // Members
   uint32_t cageId;                      ///< (Detail: Low) Cage number of this entry
+  std::string cageName;                 ///< (Detail: High) The name assigned to this cage
   uint32_t unitId;                      ///< (Detail: High) Unit Id of this entry
   uint32_t cageFlags;                   ///< (Detail: High) Various additional info about the cage - bitmask of defines
   std::list<ecmdNodeData> nodeData;     ///< (Detail: Low) List of all nodes requested in this cage - in numerical order by nodeId
