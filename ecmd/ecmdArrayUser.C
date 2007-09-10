@@ -86,8 +86,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   char* maskPtr = NULL;                 ///< Pointer to mask data in arg list
   ecmdDataBuffer expected;              ///< Buffer to store expected data
   ecmdDataBuffer mask;                  ///< Buffer for mask of expected data
-  bool isChipUnitArray;                     ///< Is this a chipUnit array ?
-  
+  bool isChipUnitArray;                 ///< Is this a chipUnit array ?
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+
   //expect and mask flags check
   if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -329,10 +330,13 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* Actually go fetch the data */
-    while ((!isChipUnitArray || ecmdConfigLooperNext(cuTarget, cuLooper))&& (!coeRc || coeMode)) {
+    /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitArray ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+
       rc = getArrayMultiple(cuTarget, arrayName.c_str(), entries);
       if (rc) {
         printed = "getarray - Error occured performing getArrayMultiple on ";
@@ -415,29 +419,24 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
       // reset printedHeader for next target
       printedHeader = false;
-
-      if (!isChipUnitArray) break;
     } /* End cuLooper */
 
     /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
     entries.clear();
-
   } /* End PosLooper */
 
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("getarray - Unable to find a valid chip to execute command on\n");
     // Clean up allocated memory
-    if (add_buffer)                                                      //@01a
-    {
+    if (add_buffer) {
         delete[] add_buffer;
     }
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
   // Clean up allocated memory
-  if (add_buffer)                                                        //@01a
-  {
+  if (add_buffer) {
       delete[] add_buffer;
   }
 
@@ -457,11 +456,12 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  ecmdLooperData looperData;            ///< Store internal Looper data
-  ecmdLooperData cuLooper;                    ///< Store internal Looper data for the chipUnit loop
+  ecmdLooperData looperData;    ///< Store internal Looper data
+  ecmdLooperData cuLooper;      ///< Store internal Looper data for the chipUnit loop
   ecmdArrayData arrayData;      ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
   bool isChipUnitArray;             ///< Is this a chipUnit array ?
+  uint8_t oneLoop;              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -506,7 +506,6 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
-
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -570,10 +569,12 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_ARGS;
         break;
       }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
-    /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((!isChipUnitArray || ecmdConfigLooperNext(cuTarget, cuLooper))&& (!coeRc || coeMode)){ //@02
+    /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitArray ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = putArray(cuTarget, arrayName.c_str(), address, buffer);
       if (rc) {
@@ -591,8 +592,6 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
         printed = ecmdWriteTarget(target) + "\n";
         ecmdOutput(printed.c_str());
       }
-
-      if (!isChipUnitArray) break;
     } /* End cuLooper */
   } /* End PosLooper */
 
