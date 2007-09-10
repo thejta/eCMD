@@ -613,22 +613,13 @@ uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr,
   uint32_t bitlength;
 
   if (localFormat == "x" || localFormat == "xl") {
-    bitlength = strlen(i_dataStr) * 4;
-    if (i_expectedLength != 0) bitlength = i_expectedLength;
-    o_data.setBitLength(bitlength);
-    rc = o_data.insertFromHexLeft(i_dataStr, 0, bitlength);
+    rc = o_data.insertFromHexLeftAndResize(i_dataStr, 0, i_expectedLength);
   }
   else if (localFormat == "xr") {
-    bitlength = strlen(i_dataStr) * 4;
-    if (i_expectedLength != 0) bitlength = i_expectedLength;
-    o_data.setBitLength(bitlength);
-    rc = o_data.insertFromHexRight(i_dataStr, 0, bitlength);
+    rc = o_data.insertFromHexRightAndResize(i_dataStr, 0, i_expectedLength);
   }     
   else if (localFormat == "b") {
-    bitlength = strlen(i_dataStr);
-    if (i_expectedLength != 0) bitlength = i_expectedLength;
-    o_data.setBitLength(bitlength);
-    rc = o_data.insertFromBin(i_dataStr);
+    rc = o_data.insertFromBinAndResize(i_dataStr, 0, i_expectedLength);
   }
 #ifndef REMOVE_SIM
   else if (localFormat == "bX") {
