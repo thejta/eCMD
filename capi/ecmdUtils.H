@@ -257,6 +257,26 @@ std::string ecmdBitsHeader (int i_initCharOffset, int i_blockSize, int i_numCols
 */
 uint32_t ecmdDisplayDllInfo();
 
+/**
+ @brief Returns a formatted string containing the data in the given ecmdChipTarget
+ @return String with formatted target data
+ @param i_target ecmdChipTarget containing data to format into string
+ @param i_displayMode Mode to format data
+
+ TARGET DEPTH  : cage, node, slot, pos, core, thread
+ TARGET STATES : Must be Initialized
+ */
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_QUERY_PLUGIN);
+
+
+/**
+ @brief Reads in a target string, returns a filled in target
+ @return String with formatted target data
+ @param i_targetStr String in a "k0:nall:s0:pu:p0" format to be turned into a target
+ @param o_target ecmdChipTarget initialized based upon i_targetStr
+ */
+uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
+
 #ifndef FIPSODE      
 /**
  @brief Display the Scom data with the bit descriptions.
@@ -271,36 +291,6 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
 #endif
 
 //@}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /***** INTERNAL eCMD UTILITY FUNCTIONS NOT FOR CLIENT USE ******/
 

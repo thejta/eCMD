@@ -143,7 +143,7 @@ std::string dllParseReturnCode(uint32_t i_returnCode);
 /* @brief Returns true if curPos is not in userArgs */
 uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string str);
+bool dllIsValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
 bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 
@@ -1147,9 +1147,33 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
 }
 
 /* Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string str) {
+bool dllIsValidTargetString(std::string &str) {
 
   bool ret = true;
+
+  /* This is the code that allows hex input positions on the command line */
+  /* Since all of the cmdline target args are checked via this function, it's the easies place */
+  /* to conver any hex numbers to decimal.  This will allow all the rest of the code after this */
+  /* point to behave as it currently does with decimal numbers - JTA 09/11/07 */
+  size_t startPos = str.find("0x");
+  size_t endPos;
+  char decimalString[10];
+  size_t matches, decimalNum;
+
+  while (startPos != std::string::npos) {
+    endPos = str.find_first_of(",.", startPos);  // These are the special seperators
+    matches = sscanf(str.substr((startPos+2),endPos).c_str(),"%x",&decimalNum);
+    if (!matches) { // sscanf didn't find anything
+      return false;
+    }
+    /* Turn our number into a string and stick it back into the target string */
+    sprintf(decimalString,"%d",decimalNum);
+    str.replace(startPos, (endPos - startPos), decimalString);
+
+    /* Find the next one, starting at the end of our replace */
+    startPos = str.find("0x", (startPos+strlen(decimalString)));
+  }
+
   for (uint32_t x = 0; x < str.length(); x ++) {
     if (isdigit(str[x])) {
     } else if (str[x] == '-') {

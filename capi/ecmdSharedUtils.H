@@ -50,19 +50,6 @@ typedef enum {
   ECMD_DEPTH_THREAD
 } ecmdTargetDepth_t;
 
-/**
- @brief Used by ecmdWriteTarget to specify displayMode
-*/
-typedef enum {
-  ECMD_DISPLAY_TARGET_UNKNOWN,    ///< The unknown state for this enum, not a valid output type
-  ECMD_DISPLAY_TARGET_DEFAULT,    ///< Default mode : 'pu k0:n0:s0:p01:c1' or 'k0:n0'
-  ECMD_DISPLAY_TARGET_COMPRESSED, ///< Compressed : 'k0:n0:s0:pu:p01:c1' or 'k0:n0'
-  ECMD_DISPLAY_TARGET_HEX_DEFAULT,    ///< Default mode : '0x[pu k0:n0:s0:p01:c1]' or '0x[k0:n0]'
-  ECMD_DISPLAY_TARGET_HEX_COMPRESSED  ///< Compressed : '0x[k0:n0:s0:pu:p01:c1]' or '0x[k0:n0]'
-} ecmdTargetDisplayMode_t;
-
-
-
 //--------------------------------------------------------------------
 //  Forward References
 //--------------------------------------------------------------------
@@ -196,27 +183,6 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
  *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching depth
  */
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data);
-
-/**
- @brief Returns a formatted string containing the data in the given ecmdChipTarget
- @return String with formatted target data
- @param i_target ecmdChipTarget containing data to format into string
- @param i_displayMode Mode to format data
-
- TARGET DEPTH  : cage, node, slot, pos, core, thread
- TARGET STATES : Must be Initialized
- */
-std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_DEFAULT);
-
-
-/**
- @brief Reads in a target string, returns a filled in target
- @return String with formatted target data
- @param i_targetStr String in a "k0:nall:s0:pu:p0" format to be turned into a target
- @param o_target ecmdChipTarget initialized based upon i_targetStr
- */
-uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
-
 
 #endif /* ecmdSharedUtils_h */
 
