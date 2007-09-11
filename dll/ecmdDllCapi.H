@@ -330,6 +330,10 @@ uint32_t dllAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
 
 uint32_t dllAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState); 
 
+uint32_t dllAdalPsiLinkVerify(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t & o_enableState); 
+
+uint32_t dllAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_speed, uint32_t i_mode); 
+
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
 #ifndef REMOVE_SIM
 uint32_t dllSimaet(const char* i_function); 

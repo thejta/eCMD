@@ -649,7 +649,6 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
       i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
     }
     else {
-
       if (ecmdUserArgs.pos.length() != 0) {
         if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
           dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
@@ -672,7 +671,6 @@ uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
         posType = SINGLE;
         i_target.posState = ECMD_TARGET_FIELD_VALID;
       }
-
     }
   }
 

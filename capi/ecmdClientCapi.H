@@ -2573,6 +2573,47 @@ uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
 
 */
 uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState);
+
+/**
+ @brief Allow the user to call adal_psi_link_verify
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_psiPort     PSI Port to enable
+ @param o_enableState The state returned by the call, possible values are:
+ 0x00 PSI link state is invalid
+ 0x01 PSI link is disabled and in an unconfigured state
+ 0x02 PSI link is in standby
+ 0x04 PSI link is active
+ 0x08 PSI link is disabled and in a failure state
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support PSI
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t ecmdAdalPsiLinkVerify(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t & o_enableState);
+
+/**
+ @brief Allow the user to call adal_psi_set_speed
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_psiPort     PSI Port to enable
+ @param i_speed The speed to pass to the adal.  Not all values are valid.  83 and 167 are known good.
+ @param i_mode The mode to set it to.  0 = slow, !0 = fast
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support PSI
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t ecmdAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_speed, uint32_t i_mode);
+
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
 //@}
 
