@@ -48,6 +48,7 @@
 
 #include <ecmdUtils.H>
 #include <ecmdSharedUtils.H>
+#include <ecmdStructs.H>
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
 
@@ -1350,8 +1351,224 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
 }
 #endif
 
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
+  std::string printed;
+  char util[10];
+  bool hexMode = false;
+  std::string subPrinted;
+  // This is static so we don't have to look it up more than once
+  static ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_UNKNOWN;
 
+  if (i_displayMode == ECMD_DISPLAY_TARGET_QUERY_PLUGIN) {
+    if (pluginDisplayMode == ECMD_DISPLAY_TARGET_UNKNOWN) {
+      ecmdQueryTargetDisplayMode(pluginDisplayMode);
+    }
+    i_displayMode = pluginDisplayMode;
+  }
+
+  if (i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED) {
+    hexMode = true;
+  }
+
+  if ((i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
+    printed += i_target.chipType;
+    if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+      printed += ".";
+      printed += i_target.chipUnitType;
+    }
+    printed += "\t";
+  }
+
+  /* Put the hex prefix onto the output */
+  if (hexMode) {
+    subPrinted += "0x[";
+  }
+
+  //always do cage
+  if (hexMode) {
+    sprintf(util, "k%X", i_target.cage);
+  } else {
+    sprintf(util, "k%d", i_target.cage);
+  }
+  subPrinted += util;
+
+  if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
+    if (i_target.node == ECMD_TARGETDEPTH_NA) {
+      sprintf(util, ":n-");
+      subPrinted += util;
+    } else {
+      if (hexMode) {
+        sprintf(util, ":n%X", i_target.node);
+      } else {
+        sprintf(util, ":n%d", i_target.node);
+      }
+      subPrinted += util;
+    }
+
+    if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
+      if (i_target.slot == ECMD_TARGETDEPTH_NA) {
+        sprintf(util, ":s-");
+        subPrinted += util;
+      } else {
+        if (hexMode) {
+          sprintf(util, ":s%X", i_target.slot);
+        } else {
+          sprintf(util, ":s%d", i_target.slot);
+        }
+        subPrinted += util;
+      }
+
+      if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
+
+        if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED) {
+          subPrinted += ":";
+          subPrinted += i_target.chipType;
+          if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+            subPrinted += ".";
+            subPrinted += i_target.chipUnitType;
+          }
+        }
+
+        if (hexMode) {
+          sprintf(util, ":p%X", i_target.pos);
+        } else {
+          sprintf(util, ":p%02d", i_target.pos);
+        }
+        subPrinted += util;
+
+        if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
+          if (hexMode) {
+            sprintf(util, ":c%X", i_target.chipUnitNum);
+          } else {
+            sprintf(util, ":c%d", i_target.chipUnitNum);
+          }
+          subPrinted += util;
+
+          if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+            if (hexMode) {
+              sprintf(util, ":t%X", i_target.thread);
+            } else {
+              sprintf(util, ":t%d", i_target.thread);
+            }
+            subPrinted += util;
+          }
+        } //chipUnitNum
+      } //pos
+    } //slot
+  } //node
+
+  /* The closing bracket for hex mode */
+  if (hexMode) {
+    subPrinted += "]";
+  }
+
+  /* Now put the subPrinted stuff onto the printed string so we've got the full thing */
+  printed += subPrinted;
+
+  /* For the default display modes, there are a couple extra things we want to do */
+  if (i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT) {
+    /* If the generated string is was shorter than 18 characters, pad output with whitespace */
+    if (subPrinted.length() < 18) {
+      sprintf(util, "%*s", (18 - subPrinted.length()) , "");
+      printed += util;
+    }
+
+    //ensure there is a space between the target info and the data
+    printed += " "; 
+  }
+
+  return printed;
+}
+
+uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  std::vector<std::string> tokens;
+  bool allFound;
+  bool naFound;
+  int match;
+  int num=0;        //fix beam error
+
+  /* Tokenize my string on colon */
+  ecmdParseTokens(i_targetStr, ":", tokens);
+
+  for (uint32_t x = 0; x < tokens.size(); x++) {
+    allFound = false;
+    naFound = false;
+    match = 0;
+    if (tokens[x].substr(1,tokens[x].length()) == "all") {
+      allFound = true;
+    } else if (tokens[x].substr(1,tokens[x].length()) == "-") {
+      naFound = true;
+    } else {
+      match = sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
+    }
+    /* I didn't get a number, - or all, must be a chip */
+    if (!match && !allFound && !naFound) {
+      o_target.chipType = tokens[x];
+      o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    } else {    
+      if (tokens[x].substr(0, 1) == "k") {
+        if (allFound) {
+          o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.cage = num;
+          o_target.cageState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "n") {
+        if (allFound) {
+          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        } else if (naFound) {
+          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          if (naFound) {
+            o_target.node = ECMD_TARGETDEPTH_NA;
+          } else {
+            o_target.node = num;
+          }
+          o_target.nodeState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "s") {
+        if (allFound) {
+          o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          if (naFound) {
+            o_target.slot = ECMD_TARGETDEPTH_NA;
+          } else {
+            o_target.slot = num;
+          }
+          o_target.slotState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "p") {
+        if (allFound) {
+          o_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.pos = num;
+          o_target.posState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "c") {
+        if (allFound) {
+          o_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.chipUnitNum = num;
+          o_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else if (tokens[x].substr(0, 1) == "t") {
+        if (allFound) {
+          o_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.thread = num;
+          o_target.threadState = ECMD_TARGET_FIELD_VALID;
+        } 
+      } else {
+        return ECMD_INVALID_ARGS;
+      }
+    }
+  }
+
+  return rc;
+}
 
 #ifndef ECMD_STRIP_DEBUG
 /**********************************************************************************/
