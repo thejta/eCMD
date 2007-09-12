@@ -1304,7 +1304,6 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
-  ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
   std::string printed;
 
@@ -1319,24 +1318,17 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   o_data.clear();       // Flush out current list
 
   /* Let's find out if we are JTAG of FSI here */
-  rc = dllGetChipData(i_target, chipData);
+  rc = dllGetScandefOrder(i_target, bustype);
   if (rc) {
     printed = "Problems retrieving chip information on target\n";
     dllRegisterErrorMsg(rc, "dllGetLatch", printed.c_str() );
     return rc;
   }
   /* Now make sure the plugin gave us some bus info */
-  if (!(chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK)) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatch", "eCMD plugin did not implement ecmdChipData.chipFlags unable to determine if FSI or JTAG attached chip\n");
-    return ECMD_DLL_INVALID;
-  } else if (((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_JTAG) &&
-             ((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_FSI) ) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatch", "eCMD plugin returned an invalid bustype in ecmdChipData.chipFlags\n");
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
     return ECMD_DLL_INVALID;
   }
-  /* Store our type */
-  bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
-
   
   if( i_mode == ECMD_LATCHMODE_FULL) {
     rc = dllReadScandefHash(i_target, i_ringName, i_latchName, curEntry);
@@ -1499,7 +1491,6 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
   std::string curRing;                  ///< Current ring being operated on
   std::string curLatchName;             ///< Current latch name being operated on
-  ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
   std::string printed;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
@@ -1526,22 +1517,16 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   }
 
   /* Let's find out if we are JTAG of FSI here */
-  rc = dllGetChipData(i_target, chipData);
+  rc = dllGetScandefOrder(i_target, bustype);
   if (rc) {
     dllRegisterErrorMsg(rc, "dllPutLatch", "Problems retrieving chip information on target\n");
     return rc;
   }
   /* Now make sure the plugin gave us some bus info */
-  if (!(chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK)) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatch", "eCMD plugin did not implement ecmdChipData.chipFlags unable to determine if FSI or JTAG attached chip\n");
-    return ECMD_DLL_INVALID;
-  } else if (((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_JTAG) &&
-             ((chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK) != ECMD_CHIPFLAG_FSI) ) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatch", "eCMD plugin returned an invalid bustype in ecmdChipData.chipFlags\n");
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI)) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
     return ECMD_DLL_INVALID;
   }
-  /* Store our type */
-  bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
 
   if( i_mode == ECMD_LATCHMODE_FULL) {
     rc = dllReadScandefHash(i_target, i_ringName, i_latchName, curEntry);

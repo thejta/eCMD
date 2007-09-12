@@ -421,6 +421,8 @@ void dllPushCommandArgs();
 
 void dllPopCommandArgs(); 
 
+uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode); 
+
 } //extern C
 
 #endif

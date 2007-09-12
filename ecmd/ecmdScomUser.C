@@ -282,9 +282,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
        ecmdOutputError( printed.c_str() );
        coeRc = rc;
        continue;
-
-     }
-     else {
+     } else {
        validPosFound = true;
      }
  
