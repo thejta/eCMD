@@ -3108,6 +3108,19 @@ void ecmdPushCommandArgs();
 */
 void ecmdPopCommandArgs();
 //@}
+
+/** @name Other BackDoor Functions */
+//@{
+/**
+ @brief Find out if the JTAG or FSI column if the scandef should be used
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_mode Returns either ECMD_CHIPFLAG_JTAG or ECMD_CHIPFLAG_FSI
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t ecmdGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode);
+
+//@}
 #endif
 
 #ifndef DOCUMENTATION
