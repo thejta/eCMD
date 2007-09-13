@@ -217,6 +217,12 @@ uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const cha
 
 uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode); 
 
+uint32_t dllGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget); 
+
+uint32_t dllRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & o_errorTarget); 
+
+uint32_t dllFlushRegisteredErrorTargets(uint32_t i_errorCode); 
+
 void dllOutputError(const char* i_message); 
 
 void dllOutputWarning(const char* i_message); 
