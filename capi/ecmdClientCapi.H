@@ -1730,6 +1730,33 @@ uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const ch
 */
 uint32_t ecmdFlushRegisteredErrorMsgs(uint32_t i_errorCode);
 
+/**
+ @brief Retrieve the target associated with the errorcode, if there is one
+ @param i_errorCode Error code to lookup up message for
+ @param o_errorTargets A list of the target associated with the error code, if it exists
+ @param i_deleteTarget If true, the target will be deleted when the user retrieves it.  True is the default.
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+*/
+uint32_t ecmdGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget = true);
+
+/**
+ @brief Register a target with an error code
+ @param i_errorCode The error code to store a message for
+ @param o_errorTarget The target associated with the error code
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+*/
+uint32_t ecmdRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & o_errorTarget);
+
+/**
+ @brief Flush registered error targets for a specific error code
+ @param i_errorCode Error code of the message to erase
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+*/
+uint32_t ecmdFlushRegisteredErrorTargets(uint32_t i_errorCode);
+
 //@}
 
 
