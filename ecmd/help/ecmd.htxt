@@ -71,41 +71,42 @@ Syntax: ecmd
         croputl2                 
         croputl2data             
         croputl2dir              
+        croruninitfile           
         crosetconfig             
 
 
         Z Series Extensions:
         --------------------------------------------------------------------------------
 
-        zseactivatefru           zsegetpchids             zsepppcmcmreadtemperaturezsesystempoweron         
-        zseactivatenetworkfru    zsegetsysstatus          zsepppcreadcurrentdca    zsevoltagebiasfru        
-        zsealternatepath         zseicbconfig             zsepppcreadvoltagedca    zsewaitforcecsw          
-        zsececdump               zseiml                   zsepppcsetamdspeed       zsewaitforwarmstart      
-        zsechecketr              zseinpa                  zsepppcsetbackupblowercontroltempzsewarmstart             
-        zsecheckicbwrap          zseitemxfer              zsepurgelog              zsewriteerrorlog         
-        zsecheckservicenetwork   zsenetacdlsystem         zsequerycryptostate      zsewriteeventlog         
-        zsecheckstatus           zsenetactivatenetwork    zsequerylicccfilenames   zsewriteinfolog          
-        zsechkpscnnetwork        zsenetactivatenetworkfru zsequeryrefc             zsexcryptorunmode        
-        zsecleari390tracebuffer  zsenetcctakeover         zseratestate             
-        zsecontrolledwarmstart   zsenetcheckservicenetworkzseresetcpusaptracecontrols
-        zsecsaactivatenode       zsenetchkpscnnetwork     zseresetcsscontrols      
-        zsecsadeactivatenode     zsenetdeactivatenetworkfruzsereseti390tracesettings
-        zsecsadisable            zsenetpscnnetinfo        zseresetiottcontrols     
-        zsecsaenable             zsenetpscnsetccslave     zsesavei390tracetofile   
-        zsecsagetstatedump       zsenetpscnversioninfo    zsesendsw                
-        zsecsaissueinfolog       zsenetstartmirroring     zsesetcecoscdefaultnestspeed
-        zsecsasetforcedegrade    zsenetupdateccload       zsesetcpusaptracecontrols
-        zsecsasetimlmode         zseoscillatorswitchover  zsesetcsstracecontrols   
-        zsecsasuppresswarninglogszsepchid                 zsesetiottcontrols       
-        zsecsaunsetforcedegrade  zsepppcchillerreadtemper zsesetmbastispeed        
-        zsecsehactive            zsepppcchillersetbias    zsesetupi390tracelevels  
-        zsedeactivatefru         zsepppcextendedbiasmode  zsesetw1controls         
-        zsedflogread             zsepppcgenericcommand    zseshfinit               
-        zseenablei390trace       zsepppcgetambienttemperaturezsesimenv                
-        zseetrnowrap             zsepppcgetamdspeed       zsesimread               
-        zseetrstatus             zsepppcgetamdspeedandambienttemperaturezsesimwrite              
-        zsegetalli390traces      zsepppcgetbpastate       zsestartmirroring        
-        zsegetallunits           zsepppcgetcageinfolog    zsesysstatus             
-        zsegetmbastispeed        zsepppcgetnodepowerstate zsesystempoweroff        
+        zseactivatefru           zsegetpchids             zsepppcgetnodepowerstate zsesystempoweroff        
+        zseactivatenetworkfru    zsegetsysstatus          zsepppcmcmreadtemperaturezsesystempoweron         
+        zsealternatepath         zseicbconfig             zsepppcreadcurrentdca    zsevoltagebiasfru        
+        zsececdump               zseiml                   zsepppcreadvoltagedca    zsewaitforcecsw          
+        zsechecketr              zseinpa                  zsepppcsetamdspeed       zsewaitforwarmstart      
+        zsecheckicbwrap          zseitemxfer              zsepppcsetbackupblowercontroltempzsewarmstart             
+        zsecheckservicenetwork   zsenbbiml                zsepurgelog              zsewriteerrorlog         
+        zsecheckstatus           zsenetacdlsystem         zsequerycryptostate      zsewriteeventlog         
+        zsechkpscnnetwork        zsenetactivatenetwork    zsequerylicccfilenames   zsewriteinfolog          
+        zsecleari390tracebuffer  zsenetactivatenetworkfru zsequeryrefc             zsexcryptorunmode        
+        zsecontrolledwarmstart   zsenetcctakeover         zseratestate             
+        zsecsaactivatenode       zsenetcheckservicenetworkzseresetcpusaptracecontrols
+        zsecsadeactivatenode     zsenetchkpscnnetwork     zseresetcsscontrols      
+        zsecsadisable            zsenetdeactivatenetworkfruzsereseti390tracesettings
+        zsecsaenable             zsenetpscnnetinfo        zseresetiottcontrols     
+        zsecsagetstatedump       zsenetpscnsetccslave     zsesavei390tracetofile   
+        zsecsaissueinfolog       zsenetpscnversioninfo    zsesendsw                
+        zsecsasetforcedegrade    zsenetstartmirroring     zsesetcecoscdefaultnestspeed
+        zsecsasetimlmode         zsenetupdateccload       zsesetcpusaptracecontrols
+        zsecsasuppresswarninglogszseoscillatorswitchover  zsesetcsstracecontrols   
+        zsecsaunsetforcedegrade  zsepchid                 zsesetiottcontrols       
+        zsecsehactive            zsepppcchillerreadtemper zsesetmbastispeed        
+        zsedeactivatefru         zsepppcchillersetbias    zsesetupi390tracelevels  
+        zsedflogread             zsepppcextendedbiasmode  zsesetw1controls         
+        zseenablei390trace       zsepppcgenericcommand    zseshfinit               
+        zseetrnowrap             zsepppcgetambienttemperaturezsesimenv                
+        zseetrstatus             zsepppcgetamdspeed       zsesimread               
+        zsegetalli390traces      zsepppcgetamdspeedandambienttemperaturezsesimwrite              
+        zsegetallunits           zsepppcgetbpastate       zsestartmirroring        
+        zsegetmbastispeed        zsepppcgetcageinfolog    zsesysstatus             
 
 
