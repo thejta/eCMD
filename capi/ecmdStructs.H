@@ -362,6 +362,17 @@ typedef enum {
   ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
 } ecmdLatchMode_t;
 
+/**
+ @brief Used by readScandef functions to specify what type of latch was found in the scandef
+*/
+typedef enum {
+  ECMD_LATCHTYPE_UNKNOWN,       ///< Default for not initialized
+  ECMD_LATCHTYPE_NOBIT,         ///< Latch was specified with out a position, 0 is implied
+  ECMD_LATCHTYPE_SINGLEBIT,     ///< Latch was a single bit entry (4)
+  ECMD_LATCHTYPE_MULTIBIT,      ///< Latch was multiple bits (3:5)
+  ECMD_LATCHTYPE_ARRAY          ///< Latch was an Array Latch (8,28)
+} ecmdLatchType_t;
+
 
 /**
  @brief Used by ecmdQueryConfig to specify detail level of query
@@ -483,12 +494,15 @@ struct ecmdChipTarget {
   // In the perl module, the union construct isn't supported
   // We need to define these variables without the union so that the perl module interface is generated correctly
   // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
-#ifndef ECMD_PERLAPI
+/**
+ These here are a union
+*/
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   union {
 #endif
     uint8_t     core;           ///< which core on chip to access, if chip is multi-core
     uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
-#ifndef ECMD_PERLAPI
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   };
 #endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
@@ -1394,17 +1408,19 @@ struct ecmdLatchEntry {
 #endif
 
   // Members
-  std::string    latchName;             ///< Latch name of entry
-  std::string    ringName;              ///< Ring that latch came from
-  ecmdDataBuffer buffer;                ///< Latch data
-  int            latchStartBit;         ///< Start bit of data inside latch
-  int            latchEndBit;           ///< End bit of data inside latch
-  uint32_t       rc;                    ///< Error code in retrieving this entry
+  std::string      latchName;           ///< Latch name of entry
+  std::string      ringName;            ///< Ring that latch came from
+  ecmdDataBuffer   buffer;              ///< Latch data
+  ecmdLatchType_t  latchType;           ///< Specifies what type of latch this is (single bit, multibit, etc..)
+  int              latchStartBit;       ///< Start bit of data inside latch
+  int              latchEndBit;         ///< End bit of data inside latch
+  uint32_t         rc;                  ///< Error code in retrieving this entry
 };
 
 #ifndef DOCUMENTATION
 // ecmdLatchEntry Constructor
 inline ecmdLatchEntry::ecmdLatchEntry():
+latchType(ECMD_LATCHTYPE_UNKNOWN),
 latchStartBit(0),
 latchEndBit(0),
 rc(0)
