@@ -500,10 +500,19 @@ struct ecmdChipTarget {
     /**
      @brief which core on the chip to access, union'd with chipUnitNum.
 
-     Now I put in my big long explanation here
-  */
-    uint8_t     core;           ///< xxxxwhich core on chip to access, if chip is multi-core @subpage union
-    uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units @subpage union
+     The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
+     and vice versa.  If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
+     you want to use chipUnitNum.  If you are using chipUnitNum, you also want to set the chipUnitType.
+     */
+    uint8_t     core;
+    /**
+     @brief which chip unit on a chip to access, union'd with core
+
+     The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
+     and vice versa.  If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
+     you want to use chipUnitNum.  If you are using chipUnitNum, you also want to set the chipUnitType.
+     */
+    uint8_t     chipUnitNum;
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   };
 #endif
@@ -527,11 +536,6 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
   
 };
-
-/**
- @paragraph union ecmdChipTarget Union
- Explain union stuff here
-*/
 
 #ifndef DOCUMENTATION
 // ecmdChipTarget Constructor
