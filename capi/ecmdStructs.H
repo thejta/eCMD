@@ -497,8 +497,8 @@ struct ecmdChipTarget {
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   union {
 #endif
-    uint8_t     core;           ///< which core on chip to access, if chip is multi-core @see ecmdChipTypeUnion
-    uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units @see ecmdChipTypeUnion
+    uint8_t     core;           ///< which core on chip to access, if chip is multi-core @subpage union
+    uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units @subpage union
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   };
 #endif
@@ -523,15 +523,10 @@ struct ecmdChipTarget {
   
 };
 
-/* @name ecmdChipTypeUnion */
-//@{
-
 /**
- explain union stuff
- */
-
-//@}
-
+ @page union ecmdChipTarget Union
+ Explain union stuff here
+*/
 
 #ifndef DOCUMENTATION
 // ecmdChipTarget Constructor
