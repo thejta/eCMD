@@ -504,14 +504,14 @@ struct ecmdChipTarget {
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
      and vice versa.  Example:
 
-     <b>Code Snippet<\b>
+     <b>Code Snippet</b>
      target.core = 0;
      target.chipUnitNum = 1;
      printf("%d\n", target.core);
      target.core = 2;
      printf("%d\n", target.chipUnitNum);
 
-     <b>Program Output<\b>
+     <b>Program Output</b>
      1
      2
 
