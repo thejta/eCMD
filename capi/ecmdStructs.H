@@ -499,7 +499,7 @@ struct ecmdChipTarget {
   union {
 #endif
     /**
-     @brief which core on the chip to access.  <b>NOTE</b>: union'd with chipUnitNum.
+     @brief which core on the chip to access.  <b>NOTE</b>: union'd with chipUnitNum.  Details below.
 
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
      and vice versa.  Example:
@@ -520,7 +520,7 @@ struct ecmdChipTarget {
      */
     uint8_t     core;
     /**
-     @brief which chip unit on a chip to access. <b>NOTE</b>: union'd with core
+     @brief which chip unit on a chip to access. <b>NOTE</b>: union'd with core.  Details below.
 
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
      and vice versa.  If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
