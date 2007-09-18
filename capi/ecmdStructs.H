@@ -458,7 +458,7 @@ struct ecmdDllInfo {
 /**
  @brief Structure used to designate which cec object/chip you would like the function to operate on
 
-  - The state bits are not required on all hardware access functions.  Every hardware access function should have a "TARGET STATES" block telling if the state field has to be set or not
+  - The state bits are not required on all hardware access functions.  Every hardware access function should have a "TARGET STATES" block telling if the state fields have to be set or not
   - The state bits are used slightly differently for the queryFunctions they are used there to signify
      what data coming in is valid to refine a query
 */
