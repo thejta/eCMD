@@ -458,11 +458,7 @@ struct ecmdDllInfo {
 /**
  @brief Structure used to designate which cec object/chip you would like the function to operate on
 
-  - The state bits are used by D/A functions to tell the calling function what level of granularity the function operates on
-    Ex.  putmem/getmem display memory through the processor, they are only dependent on cage/node/pos because they do not use
-          the cores to perform their function
-         However put/getspr display architected registers from the processor, they will signify that cage/node/pos/core and depending
-          on the particular spr referenced threads may be valid
+  - The state bits are not required on all functions.  Every function should have a "TARGET STATES" block telling if the state field has to be set or not
   - The state bits are used slightly differently for the queryFunctions they are used there to signify
      what data coming in is valid to refine a query
 */
@@ -508,24 +504,40 @@ struct ecmdChipTarget {
      <b>Code Snippet</b>
      target.core = 0;
      target.chipUnitNum = 1;
-     printf("%d\n", target.core);
+     printf("target.core = %d\n", target.core);
      target.core = 2;
-     printf("%d\n", target.chipUnitNum);
+     printf("target.chipUnitNum = %d\n", target.chipUnitNum);
 
      <b>Program Output</b>
-     1
-     2
+     target.core = 1
+     target.chipUnitNum = 2
      </pre>
 
-     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
+     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7 and later)
      you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
      */
     uint8_t     core;
+
     /**
      @brief which chip unit on a chip to access. <b>NOTE</b>: union'd with core.  Details below.
 
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
-     and vice versa.  If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.core = 0;
+     target.chipUnitNum = 1;
+     printf("target.core = %d\n", target.core);
+     target.core = 2;
+     printf("target.chipUnitNum = %d\n", target.chipUnitNum);
+
+     <b>Program Output</b>
+     target.core = 1
+     target.chipUnitNum = 2
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7 and later)
      you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
 
      @see chipUnitType
@@ -542,12 +554,59 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-#ifndef ECMD_PERLAPI
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   union {
 #endif
-    ecmdChipTargetState_t coreState;          ///< core field state
-    ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state
-#ifndef ECMD_PERLAPI
+    /**
+     @brief core field state.  <b>NOTE</b>: union'd with chipUnitNumState.  Details below.
+
+     The coreState and chipUnitNumState variables are joined together with a C union.  This means if you set coreState, you are setting chipUnitNumState
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.core = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNum = ECMD_TARGET_FIELD_UNKNOWN;
+     printf("target.coreState = %s\n", target.coreState);
+     target.core = ECMD_TARGET_FIELD_WILDCARD;
+     printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
+
+     <b>Program Output</b>
+     target.coreState = ECMD_TARGET_FIELD_UNKNOWN
+     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use coreState.  If you are writing code for chips that support chipUnits (p7/z7 and later)
+     you want to use chipUnitNumState.  If you are using chipUnitNumState, you also need to set the chipUnitTypeState.
+     */
+    ecmdChipTargetState_t coreState;
+
+    /**
+     @brief chipUnitNum field state.  <b>NOTE</b>: union'd with coreState.  Details below.
+
+     The coreState and chipUnitNumState variables are joined together with a C union.  This means if you set coreState, you are setting chipUnitNumState
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.core = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNum = ECMD_TARGET_FIELD_UNKNOWN;
+     printf("target.coreState = %s\n", target.coreState);
+     target.core = ECMD_TARGET_FIELD_WILDCARD;
+     printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
+
+     <b>Program Output</b>
+     target.coreState = ECMD_TARGET_FIELD_UNKNOWN
+     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use coreState.  If you are writing code for chips that support chipUnits (p7/z7 and later)
+     you want to use chipUnitNumState.  If you are using chipUnitNumState, you also need to set the chipUnitTypeState.
+
+     @see chipUnitTypeState
+     */
+    ecmdChipTargetState_t chipUnitNumState;
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   };
 #endif
   ecmdChipTargetState_t threadState;          ///< thread field state
