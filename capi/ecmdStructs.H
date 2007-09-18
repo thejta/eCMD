@@ -504,6 +504,7 @@ struct ecmdChipTarget {
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
      and vice versa.  Example:
 
+     <pre>
      <b>Code Snippet</b>
      target.core = 0;
      target.chipUnitNum = 1;
@@ -514,6 +515,7 @@ struct ecmdChipTarget {
      <b>Program Output</b>
      1
      2
+     </pre>
 
      If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
      you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
