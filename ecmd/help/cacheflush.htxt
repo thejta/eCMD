@@ -1,5 +1,5 @@
 
-Syntax: cacheflush <ChipSelect> <CacheType> [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-k#] [-n#] [-s#] [-p#] [-c#]
         
         ECMD:           Core Common Function
 
@@ -7,7 +7,10 @@ Syntax: cacheflush <ChipSelect> <CacheType> [-k#] [-n#] [-s#] [-p#] [-c#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to flush the cache on. 
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         CacheType       One of L1I / L1D / L2 / L3 / L4
 	
@@ -23,9 +26,8 @@ Syntax: cacheflush <ChipSelect> <CacheType> [-k#] [-n#] [-s#] [-p#] [-c#]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
 	
-	-c#  [optional] Specify which core to act on (0 is default). Specify 
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
       --------------------------------------------------------------------------------
 
       Example:        cacheflush pu L1I -p0,1 -call

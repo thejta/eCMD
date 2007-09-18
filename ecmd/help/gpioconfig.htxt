@@ -1,5 +1,5 @@
 
-Syntax: gpioconfig <ChipSelect> <EngineId> <Pin> <Mode> [-k#] [-n#] [-s#] [-p#]
+Syntax: gpioconfig <Chip> <EngineId> <Pin> <Mode> [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -7,7 +7,7 @@ Syntax: gpioconfig <ChipSelect> <EngineId> <Pin> <Mode> [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         EngineId        Engine number to operate on in decimal
 

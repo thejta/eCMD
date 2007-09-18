@@ -1,5 +1,5 @@
 
-Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>] 
+Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-exp <value>] 
                           [-o<format>] [-i<format>] [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
@@ -10,7 +10,10 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get data from.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         SpyName         Desired spy name. (case insensitive)  
 
@@ -50,9 +53,8 @@ Syntax: getspy <ChipSelect> <SpyName> [<Start> <Numbits>] [-exp <value>]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         

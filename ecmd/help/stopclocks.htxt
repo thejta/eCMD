@@ -1,7 +1,7 @@
 
 Syntax: stopclocks                                   [-force] [-k#] [-n#] [-s#] 
         stopclocks -domain <ConvenienceClockDomain>] [-force] [-k#] [-n#] [-s#]
-        stopclocks <ChipSelect> [<ClockDomain>]      [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
+        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -9,9 +9,12 @@ Syntax: stopclocks                                   [-force] [-k#] [-n#] [-s#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip name to stop clocks on
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
-        ClockDomain     Clock domain to stop on chip target. Must specify with ChipSelect
+        ClockDomain     Clock domain to stop on chip target. Must specify with Chip
                         Names are documented in the scandef for the targetted chip.
 
         -domain         Specifies we are using a convenience clock domain.
@@ -34,9 +37,8 @@ Syntax: stopclocks                                   [-force] [-k#] [-n#] [-s#]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Examples:       > stopclocks pu -k0 -n1 -p3

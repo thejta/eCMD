@@ -1,5 +1,5 @@
 
-Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
+Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
               [-exact | -partial]  [-i<format>] [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -17,7 +17,10 @@ Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data
 
         Parmeters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to put data to.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         RingName        Specifies chip ring to operate on.  For a list of available
                         rings, use the ecmdquery command.
@@ -57,8 +60,8 @@ Syntax: putlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] <Data
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
  
         --------------------------------------------------------------------------------
         

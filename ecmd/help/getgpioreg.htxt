@@ -1,5 +1,5 @@
 
-Syntax: getgpioreg <ChipSelect> <EngineId> <Config Reg>
+Syntax: getgpioreg <Chip> <EngineId> <Config Reg>
                         [-k#] [-n#] [-s#] [-p#] [-o<format>]
 
         ECMD:           Core Common Function
@@ -8,7 +8,7 @@ Syntax: getgpioreg <ChipSelect> <EngineId> <Config Reg>
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         EngineId        Engine number to operate on in decimal
 

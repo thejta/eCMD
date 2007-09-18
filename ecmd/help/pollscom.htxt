@@ -1,5 +1,5 @@
 
-Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-mismatch <data>]
+Syntax: pollscom <Chip[.ChipUnit]> <ScanCommAddr> [-exp <data> [-mask <data>]] [-mismatch <data>]
 			      [-o<format>] [-i<format>] [-limit #[s|c]] [-interval #[s|c]] 
 			      [-verbose] [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -10,7 +10,10 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-mism
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get scancom data from.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         ScanCommAddr    Address in hex.
 
@@ -53,8 +56,8 @@ Syntax: pollscom <ChipSelect> <ScanCommAddr> [-exp <data> [-mask <data>]] [-mism
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Examples:       pollscom pu 800009 -exp feed000000000001 -limit 30s -interval 10s -verbose -p1

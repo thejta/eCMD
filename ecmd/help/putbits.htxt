@@ -1,8 +1,8 @@
 
-Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>]
+Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>]
                                  [-k#] [-n#] [-s#] [-p#] [-c#]
 
-        putbits <ChipSelect> <RingName>  -f<filename>       [-k#] [-n#] [-s#] [-p#] [-c#]
+        putbits <Chip[.ChipUnit]> <RingName>  -f<filename>       [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -11,7 +11,10 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
 
         Paramaters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on. 
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         RingName        Specifies chip ring to operate on.  For a list of available
                         rings, use the ecmdquery command.
@@ -45,9 +48,8 @@ Syntax: putbits <ChipSelect> <RingName> <StartPos> <Data> [-i<format>] [-b<modif
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Example:        > putbits pu int 567 ABAB -ix -p0,1 -c1

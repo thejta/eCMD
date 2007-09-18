@@ -1,5 +1,5 @@
 
-Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact | -partial] 
+Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact | -partial] 
                               [-exp <value>] [-o<format>] 
                               [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -21,7 +21,10 @@ Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exa
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get data from.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
         
         RingName  [opt] Specifies chip ring to operate on.  For a list of available
                         rings, use the ecmdquery command.
@@ -66,9 +69,8 @@ Sytnax: getlatch <ChipSelect> [<RingName>] <LatchName> [<Start> <Numbits>] [-exa
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Examples:       getlatch pu cp_abist LATCH0

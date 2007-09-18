@@ -1,6 +1,6 @@
 
-Syntax: putvpdimage <ChipSelect> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
-        putvpdimage <ChipSelect> <VpdType> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
+Syntax: putvpdimage <Chip> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
+        putvpdimage <Chip> <VpdType> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -8,7 +8,7 @@ Syntax: putvpdimage <ChipSelect> <VpdType> <Data> [-i<format>] [-k#] [-n#] [-s#]
 
         Parameters:
         --------------------------------------------------------------------------------
-	ChipSelect      Chip to write the VPD image into, "nochip" for targeting by cage, node, slot 
+	Chip            Chip to write the VPD image into, "nochip" for targeting by cage, node, slot 
 	
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
