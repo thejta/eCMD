@@ -1,5 +1,5 @@
 
-Syntax: getconfig [<ChipSelect>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
                                  [-dk | -dn | -ds | -dp | -dc]
 
         ECMD:           Core Common Function
@@ -8,7 +8,10 @@ Syntax: getconfig [<ChipSelect>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#] [-p
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect[opt] Chip to read data from.
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         ConfigName      Name of configuration variable to fetch
 
@@ -27,17 +30,17 @@ Syntax: getconfig [<ChipSelect>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#] [-p
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
 
-        -dk  [optional] Specify cage depth to loop on. When no ChipSelect specified
+        -dk  [optional] Specify cage depth to loop on. When no Chip specified
                         -dk is default
 
         -dn  [optional] Specify node depth to loop on. 
 
         -ds  [optional] Specify slot depth to loop on. 
 
-        -dp  [optional] Specify pos depth to loop on. When ChipSelect specified
+        -dp  [optional] Specify pos depth to loop on. When Chip specified
                         -dp is default
 
         -dc  [optional] Specify core depth to loop on. 

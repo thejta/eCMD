@@ -1,5 +1,5 @@
 
-Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-unsorted]
+Syntax: getringdump <Chip[.ChipUnit]> <RingName1> [<RingName2> ...] [-unsorted]
                                              [-k#] [-n#] [-s#] [-p#] [-c#] 
                                          
         ECMD:           Core Common Function
@@ -13,7 +13,10 @@ Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-unsorted]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get data from.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         RingName        Specifies one or multiple chip rings to operate on.  For a list
                         of available rings, use the ecmdquery command.
@@ -35,9 +38,8 @@ Syntax: getringdump <ChipSelect> <RingName1> [<RingName2> ...] [-unsorted]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Notes:          Output is binary for latches <= 8 bits in length and xl for > 8.

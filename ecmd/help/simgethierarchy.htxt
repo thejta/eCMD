@@ -1,5 +1,5 @@
 
-Syntax: simgethierarchy <ChipSelect> [-k#] [-n#] [-s#] [-p#]
+Syntax: simgethierarchy <Chip> [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -7,7 +7,7 @@ Syntax: simgethierarchy <ChipSelect> [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

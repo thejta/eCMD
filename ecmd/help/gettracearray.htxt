@@ -1,5 +1,5 @@
 
-Syntax: gettracearray <ChipSelect> <ArrayName> [<ArrayName2> ...] [-o<format>] 
+Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<format>] 
                                   [-nostopstart] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -8,7 +8,10 @@ Syntax: gettracearray <ChipSelect> <ArrayName> [<ArrayName2> ...] [-o<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to read array data from.
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         ArrayName       Name of array to read from.
 
@@ -29,9 +32,8 @@ Syntax: gettracearray <ChipSelect> <ArrayName> [<ArrayName2> ...] [-o<format>]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Examples:       > gettracearray pu fbc -p0,1 

@@ -1,5 +1,5 @@
 
-Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>  [-i<format>] 
+Syntax: putspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] <Data>  [-i<format>] 
                                   [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
@@ -8,7 +8,10 @@ Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>  [-i<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to write data to.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         SpyName         Desired spy name, (case insensitive)  
 
@@ -43,8 +46,8 @@ Syntax: putspy <ChipSelect> <SpyName> [<Start> <Numbits>] <Data>  [-i<format>]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
 
         --------------------------------------------------------------------------------
 

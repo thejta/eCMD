@@ -1,6 +1,6 @@
 
-Syntax: getgpiopin <ChipSelect> <EngineId> <Pin> [-o<format>] [-k#] [-n#] [-s#] [-p#]
-        getgpiopin <ChipSelect> <EngineId> -mask <MaskValue> [-o<format>] [-i<format>] 
+Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>] [-k#] [-n#] [-s#] [-p#]
+        getgpiopin <Chip> <EngineId> -mask <MaskValue> [-o<format>] [-i<format>] 
                                                          [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -9,7 +9,7 @@ Syntax: getgpiopin <ChipSelect> <EngineId> <Pin> [-o<format>] [-k#] [-n#] [-s#] 
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         EngineId        Engine number to operate on in decimal
 

@@ -1,5 +1,5 @@
 
-Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s#] [-p#]
+Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -8,7 +8,7 @@ Syntax: sendcmd <ChipSelect> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to send ScanInstrCode to. 
+        Chip            Chip to send ScanInstrCode to. 
 
         ScanInstrCode   Scan instruction code to be sent (in hex).
 

@@ -10,19 +10,19 @@ Syntax: ecmdquery <Mode> [Mode Options]
         Mode            Query type to perform
 
         Mode Values     
-                        rings ChipSelect [ringname] [-k#] [-n#] [-s#] [-p#]
+                        rings Chip [ringname] [-k#] [-n#] [-s#] [-p#]
                             - Display all rings available (or the selected ring) for chip
 
-                        scoms ChipSelect [scomaddr] [-k#] [-n#] [-s#] [-p#]
+                        scoms Chip [scomaddr] [-k#] [-n#] [-s#] [-p#]
                             - Display all scoms available (or the selected scom) for chip
 
-                        arrays ChipSelect [arrayname] [-k#] [-n#] [-s#] [-p#]
+                        arrays Chip [arrayname] [-k#] [-n#] [-s#] [-p#]
                             - Display all arrays available (or the selected array) for chip
 
-                        tracearrays ChipSelect [tracearrayname] [-k#] [-n#] [-s#] [-p#]
+                        tracearrays Chip [tracearrayname] [-k#] [-n#] [-s#] [-p#]
                             - Display all tr arrays available (or the selected tr array) for chip
 
-                        spys ChipSelect [spyname] [-k#] [-n#] [-s#] [-p#]
+                        spys Chip [spyname] [-k#] [-n#] [-s#] [-p#]
                             - Display all spys available (or the selected spy) for chip
 
                         formats
@@ -37,13 +37,13 @@ Syntax: ecmdquery <Mode> [Mode Options]
                             - Use -dall to display all depths from position thru thread
                             - Use -k# -n# -s# -p# -c# -t# to limit query to that target
 
-                        chipinfo ChipSelect [-k#] [-n#] [-s#] [-p#]
+                        chipinfo Chip [-k#] [-n#] [-s#] [-p#]
                             - Display info about a particular chip (ex. EC level)
 
-                        configd ChipSelect [-k#] [-n#] [-s#] [-p#] [-c#]
+                        configd Chip [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target is configured or not.
 
-                        exist ChipSelect [-k#] [-n#] [-s#] [-p#] [-c#]
+                        exist Chip [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target exists or not.
 
                         showconfig

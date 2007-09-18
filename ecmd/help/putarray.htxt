@@ -1,5 +1,5 @@
 
-Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
+Syntax: putarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
                                  [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -8,7 +8,10 @@ Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to put array data to.
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         ArrayName       Name of array to write to.
 
@@ -32,9 +35,8 @@ Syntax: putarray <ChipSelect> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
-
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Examples:       > putarray pu xgpr 0 deadbeef80000000 -p0,1 -c1

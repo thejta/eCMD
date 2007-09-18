@@ -1,5 +1,5 @@
 
-Syntax: frupower on|off <ChipSelect> [-smart] [-k#] [-n#] [-s#] [-p#]
+Syntax: frupower on|off <Chip> [-smart] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -7,7 +7,7 @@ Syntax: frupower on|off <ChipSelect> [-smart] [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip name to power on/off.  If acting at slot level, use "nochip"
+        Chip            Chip name to power on/off.  If acting at slot level, use "nochip"
 
 	-smart    [opt] If -smart is given, all fru's below given fru will be affected
                         as well

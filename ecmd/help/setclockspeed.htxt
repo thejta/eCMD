@@ -1,6 +1,6 @@
 
 Syntax: setclockspeed <ClockType> <Speed> [-steer] [-k#] 
-        setclockspeed <ChipType> <ClockType> <Speed> [-steer] [-k#] [-n#] [-s#] [-p#]
+        setclockspeed <Chip> <ClockType> <Speed> [-steer] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -9,7 +9,7 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer] [-k#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get speed from.  Not necessary in all cases
+        Chip            Chip to get speed from.  Not necessary in all cases
 
         ClockType       Clock type to program in system:
                          - pu_refclock          <-- Processor reference clock

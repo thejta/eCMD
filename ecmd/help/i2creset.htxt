@@ -1,5 +1,5 @@
 
-Syntax: i2creset <ChipSelect> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
+Syntax: i2creset <Chip> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -7,7 +7,7 @@ Syntax: i2creset <ChipSelect> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         EngineId        Engine number to operate on in decimal
 

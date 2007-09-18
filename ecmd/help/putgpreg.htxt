@@ -1,5 +1,5 @@
 
-Syntax: putgpreg <ChipSelect> <GPNum> [<Start> <Numbits>] <Data> [-i<format>]  
+Syntax: putgpreg <Chip> <GPNum> [<Start> <Numbits>] <Data> [-i<format>]  
                              [-b<modifier>] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -8,7 +8,7 @@ Syntax: putgpreg <ChipSelect> <GPNum> [<Start> <Numbits>] <Data> [-i<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to put GP Registers to.
+        Chip            Chip to put GP Registers to.
 
         GPNum           Decimal GP Number.
   

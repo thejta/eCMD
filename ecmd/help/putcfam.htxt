@@ -1,5 +1,5 @@
 
-Syntax: putcfam <ChipSelect> <CFAMAddr> [<Start> <Numbits>] <Data> [-i<format>]  
+Syntax: putcfam <Chip> <CFAMAddr> [<Start> <Numbits>] <Data> [-i<format>]  
                              [-b<modifier>] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -8,7 +8,7 @@ Syntax: putcfam <ChipSelect> <CFAMAddr> [<Start> <Numbits>] <Data> [-i<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to put CFAM data to.
+        Chip            Chip to put CFAM data to.
 
         CFAMAddr        Address in right aligned hex.
 

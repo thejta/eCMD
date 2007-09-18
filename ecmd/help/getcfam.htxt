@@ -1,5 +1,5 @@
 
-Syntax: getcfam <ChipSelect> <CFAMAddr> [-k#] [-n#] [-s#] [-p#]
+Syntax: getcfam <Chip> <CFAMAddr> [-k#] [-n#] [-s#] [-p#]
                                  [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
 
         ECMD:           Core Common Function
@@ -8,7 +8,7 @@ Syntax: getcfam <ChipSelect> <CFAMAddr> [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get CFAM data from.
+        Chip            Chip to get CFAM data from.
 
         CFAMAddr        Address in hex.
 

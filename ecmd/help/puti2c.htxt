@@ -1,15 +1,15 @@
 
 Syntax: 
         WITHOUT OFFSET:
-        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Data>
+        puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data>
                         [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
-        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> -f<filename>
+        puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename>
                         [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         WITH OFFSET:
-        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize>
+        puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize>
                         [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
-        puti2c <ChipSelect> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize>
+        puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize>
                         [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         ECMD:           Core Common Function
@@ -18,7 +18,7 @@ Syntax:
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         EngineId        Engine number to operate on in decimal
 

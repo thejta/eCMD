@@ -1,5 +1,5 @@
 
-Syntax: checkrings <ChipSelect> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -8,7 +8,10 @@ Syntax: checkrings <ChipSelect> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         RingSelect      Specifies chip ring to operate on.  Use "all" for all rings.
                         For a list of available rings, use the query command.
@@ -30,8 +33,8 @@ Syntax: checkrings <ChipSelect> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
         --------------------------------------------------------------------------------
 
         Example:        checkrings pu all -p0,1 -c0

@@ -38,8 +38,8 @@ Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>]
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
 
         -t#  [optional] Specify which processor thread to act on (0 is default). Specify
                         -tall to act on all threads, -talive to act on all alive threads.

@@ -1,7 +1,7 @@
 
-Syntax: putgpiolatch <ChipSelect> <EngineId> <Pin> <Mode> <Data>
+Syntax: putgpiolatch <Chip> <EngineId> <Pin> <Mode> <Data>
                         [-k#] [-n#] [-s#] [-p#] [-i<format>]
-        putgpiolatch <ChipSelect> <EngineId> -mask <MaskValue> <Mode> <Data>
+        putgpiolatch <Chip> <EngineId> -mask <MaskValue> <Mode> <Data>
                         [-k#] [-n#] [-s#] [-p#] [-i<format>]
 
         ECMD:           Core Common Function
@@ -10,7 +10,7 @@ Syntax: putgpiolatch <ChipSelect> <EngineId> <Pin> <Mode> <Data>
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.  
 
         EngineId        Engine number to operate on in decimal
 

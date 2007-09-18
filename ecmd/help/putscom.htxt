@@ -1,5 +1,5 @@
 
-Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>]  
+Syntax: putscom <Chip[.ChipUnit]> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>]  
                              [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -8,7 +8,10 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<forma
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to put scancom data to.
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         ScanCommAddr    Address in right aligned hex.
 
@@ -39,8 +42,8 @@ Syntax: putscom <ChipSelect> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<forma
         -p#  [optional] Specify which chip position to act on (0 is default). Specify
                         -pall to act on all chips.
 
-        -c#  [optional] Specify which processor core to act on (0 is default). Specify
-                        -call to act on all cores.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
+                        -call to act on all cores/chipUnits.
 
         --------------------------------------------------------------------------------
 

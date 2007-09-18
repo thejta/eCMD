@@ -1,5 +1,5 @@
 
-Syntax: getgpreg <ChipSelect> <GPNum> [-k#] [-n#] [-s#] [-p#]
+Syntax: getgpreg <Chip> <GPNum> [-k#] [-n#] [-s#] [-p#]
                                  [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
 
         ECMD:           Core Common Function
@@ -8,7 +8,7 @@ Syntax: getgpreg <ChipSelect> <GPNum> [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        ChipSelect      Chip to get GP Registers from.
+        Chip            Chip to get GP Registers from.
 
         GPNum           Decimal GP Number.
 

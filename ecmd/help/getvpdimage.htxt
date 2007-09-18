@@ -1,6 +1,6 @@
 
-Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#] 
-        getvpdimage <ChipSelect> <VpdType> <NumBytes> -fb<filename>      [-k#] [-n#] [-s#] [-p#] 
+Syntax: getvpdimage <Chip> <VpdType> <NumBytes> -o<format>         [-k#] [-n#] [-s#] [-p#] 
+        getvpdimage <Chip> <VpdType> <NumBytes> -fb<filename>      [-k#] [-n#] [-s#] [-p#] 
 
         ECMD:           Core Common Function
 
@@ -8,7 +8,7 @@ Syntax: getvpdimage <ChipSelect> <VpdType> <NumBytes> -o<format>         [-k#] [
 
         Parameters:
         --------------------------------------------------------------------------------
-	ChipSelect      Chip to get the VPD image from, "nochip" for targeting by cage, node, slot 
+	Chip            Chip to get the VPD image from, "nochip" for targeting by cage, node, slot 
 	
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
