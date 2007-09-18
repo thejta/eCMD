@@ -494,23 +494,24 @@ struct ecmdChipTarget {
   // In the perl module, the union construct isn't supported
   // We need to define these variables without the union so that the perl module interface is generated correctly
   // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
+  // This also now pulled from doxygen because it can't represent unions properly
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   union {
 #endif
     /**
-     @brief which core on the chip to access, union'd with chipUnitNum.
+     @brief which core on the chip to access.  NOTE: union'd with chipUnitNum.
 
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
      and vice versa.  If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
-     you want to use chipUnitNum.  If you are using chipUnitNum, you also want to set the chipUnitType.
+     you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
      */
     uint8_t     core;
     /**
-     @brief which chip unit on a chip to access, union'd with core
+     @brief which chip unit on a chip to access. NOTE: union'd with core
 
      The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
      and vice versa.  If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7)
-     you want to use chipUnitNum.  If you are using chipUnitNum, you also want to set the chipUnitType.
+     you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
      */
     uint8_t     chipUnitNum;
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
