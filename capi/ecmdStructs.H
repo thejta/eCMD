@@ -494,14 +494,11 @@ struct ecmdChipTarget {
   // In the perl module, the union construct isn't supported
   // We need to define these variables without the union so that the perl module interface is generated correctly
   // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
-/**
- These here are a union
-*/
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   union {
 #endif
-    uint8_t     core;           ///< which core on chip to access, if chip is multi-core
-    uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units
+    uint8_t     core;           ///< which core on chip to access, if chip is multi-core @see ecmdChipTypeUnion
+    uint8_t     chipUnitNum;    ///< which chip unit on a chip to acces, if the chip has muliple units @see ecmdChipTypeUnion
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
   };
 #endif
@@ -525,6 +522,15 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
   
 };
+
+/* @name ecmdChipTypeUnion */
+//@{
+
+/**
+ explain union stuff
+ */
+
+//@}
 
 
 #ifndef DOCUMENTATION
