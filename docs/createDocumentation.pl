@@ -49,7 +49,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 
 # Update the version strings
 #system("sed \"s/VERSION/$version/g\" ecmdDoxygen.config | sed \"s/RELEASE/$release/g\" > $outputDirectory/ecmdDoxygen.config");
-$rc = system("sed \"s!VERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
+$rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 $rc = system("cd $outputDirectory/Capi; /usr/local/bin/doxygen ecmdDoxygen.config");
