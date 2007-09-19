@@ -278,7 +278,7 @@ Here is an example usage of the ecmdDataBuffer:
   # What is in the first word
   printf("Data : %.08X",$data->getWord(0));
 
-  #Change the value
+  # Change the value
   $data->setWord(0,0xAAAA5555);
   printf("Data : %.08X",$data->getWord(0));
 
