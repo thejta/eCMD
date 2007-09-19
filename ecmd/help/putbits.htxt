@@ -1,6 +1,6 @@
 
 Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>]
-                                 [-k#] [-n#] [-s#] [-p#] [-c#]
+                                  [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         putbits <Chip[.ChipUnit]> <RingName>  -f<filename>       [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -35,6 +35,9 @@ Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<
 
         -f<filename>[o] Specifies the filename that the ring data should be read from
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_ASCII format
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

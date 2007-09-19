@@ -1,6 +1,6 @@
 
 Syntax: putscom <Chip[.ChipUnit]> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>]  
-                             [-b<modifier>] [-k#] [-n#] [-s#] [-p#] [-c#]
+                             [-b<modifier>] [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -29,6 +29,9 @@ Syntax: putscom <Chip[.ChipUnit]> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<
 
         -b<mod>[opt]    Bit modifier to apply to current ring data.
                         Run 'ecmdquery formats' to view available modifiers
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

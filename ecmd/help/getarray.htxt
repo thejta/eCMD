@@ -1,6 +1,7 @@
 
 Syntax: getarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> [NumEntries] [-o<format>] 
-                     [-exp <data> [-i<format>] [-mask <data>]] [-k#] [-n#] [-s#] [-p#] [-c#]
+                     [-exp <data> [-i<format>] [-mask <data>]]
+                     [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -31,6 +32,8 @@ Syntax: getarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> [NumEntries] [-o<for
 
         -mask     [opt] Array data is AND'ed with the mask bits. Only for use with -exp.
 
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

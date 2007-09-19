@@ -1,5 +1,6 @@
 
-Syntax: setconfig [<Chip[.ChipUnit]>] <ConfigName> <Value> [-i<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: setconfig [<Chip[.ChipUnit]>] <ConfigName> <Value> [-i<format>]
+                                  [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
                                   [-dk | -dn | -ds | -dp | -dc]
 
         ECMD:           Core Common Function
@@ -19,6 +20,9 @@ Syntax: setconfig [<Chip[.ChipUnit]>] <ConfigName> <Value> [-i<format>] [-k#] [-
 
         -i<format>[opt] Output Format : default is ascii. 
                         Run 'ecmdquery formats' to view available formats
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

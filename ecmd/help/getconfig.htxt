@@ -1,5 +1,6 @@
 
-Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>]
+                                 [-k#] [-n#] [-s#] [-p#] [-c#]
                                  [-dk | -dn | -ds | -dp | -dc]
 
         ECMD:           Core Common Function
@@ -17,7 +18,7 @@ Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>] [-k#] [-n#] [-s#
 
         -o<format>[opt] Output Format : default 'xl'. Only valid with numeric data
                         Run 'ecmdquery formats' to view available formats
-
+	
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 

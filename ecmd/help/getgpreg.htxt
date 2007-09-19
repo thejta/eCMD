@@ -1,5 +1,5 @@
 
-Syntax: getgpreg <Chip> <GPNum> [-k#] [-n#] [-s#] [-p#]
+Syntax: getgpreg <Chip> <GPNum> [-coe] [-k#] [-n#] [-s#] [-p#]
                                  [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
 
         ECMD:           Core Common Function
@@ -24,6 +24,9 @@ Syntax: getgpreg <Chip> <GPNum> [-k#] [-n#] [-s#] [-p#]
         -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
                         Run 'ecmdquery formats' to view available formats
         
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
+
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 

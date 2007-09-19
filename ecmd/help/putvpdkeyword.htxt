@@ -1,6 +1,8 @@
 
-Syntax: putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <Data> [-i<format>] [-k#] [-n#] [-s#] [-p#]
-        putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> -fb<filename>       [-k#] [-n#] [-s#] [-p#]
+Syntax: putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <Data> [-i<format>]
+                                                   [-coe] [-k#] [-n#] [-s#] [-p#]
+        putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> -fb<filename> 
+                                                   [-coe] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 

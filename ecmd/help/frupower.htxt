@@ -1,5 +1,5 @@
 
-Syntax: frupower on|off <Chip> [-smart] [-k#] [-n#] [-s#] [-p#]
+Syntax: frupower on|off <Chip> [-smart] [-coe] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -11,6 +11,9 @@ Syntax: frupower on|off <Chip> [-smart] [-k#] [-n#] [-s#] [-p#]
 
 	-smart    [opt] If -smart is given, all fru's below given fru will be affected
                         as well
+	
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

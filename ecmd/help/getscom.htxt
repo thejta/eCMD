@@ -1,5 +1,5 @@
 
-Syntax: getscom <Chip[.ChipUnit]> <ScanCommAddr> [-v] [-k#] [-n#] [-s#] [-p#] [-c#] 
+Syntax: getscom <Chip[.ChipUnit]> <ScanCommAddr> [-v] [-coe] [-k#] [-n#] [-s#] [-p#] [-c#] 
                                  [-o<format>] [-exp <data> [-i<format>] [-mask <data>]]
 
         ECMD:           Core Common Function
@@ -31,6 +31,9 @@ Syntax: getscom <Chip[.ChipUnit]> <ScanCommAddr> [-v] [-k#] [-n#] [-s#] [-p#] [-
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Run 'ecmdquery formats' to view available formats
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -v   [optional] Print out Scan Comm bit meaning if available
 

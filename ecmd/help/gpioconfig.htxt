@@ -1,5 +1,5 @@
 
-Syntax: gpioconfig <Chip> <EngineId> <Pin> <Mode> [-k#] [-n#] [-s#] [-p#]
+Syntax: gpioconfig <Chip> <EngineId> <Pin> <Mode> [-coe] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -15,6 +15,9 @@ Syntax: gpioconfig <Chip> <EngineId> <Pin> <Mode> [-k#] [-n#] [-s#] [-p#]
 
         Mode            Mode to set on pin.
                         Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

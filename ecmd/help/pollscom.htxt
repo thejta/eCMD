@@ -1,7 +1,7 @@
 
 Syntax: pollscom <Chip[.ChipUnit]> <ScanCommAddr> [-exp <data> [-mask <data>]] [-mismatch <data>]
 			      [-o<format>] [-i<format>] [-limit #[s|c]] [-interval #[s|c]] 
-			      [-verbose] [-k#] [-n#] [-s#] [-p#] [-c#]
+			      [-verbose] [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -43,6 +43,9 @@ Syntax: pollscom <Chip[.ChipUnit]> <ScanCommAddr> [-exp <data> [-mask <data>]] [
 	-mismatch [opt] Provide expected data. If expected == actual keeps polling OR
 			returns error if limit is specified and reached.  No data/error 
 			returned if expected != actual (i.e., mismatch occurred)..
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
