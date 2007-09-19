@@ -1,5 +1,5 @@
 
-Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
         
         ECMD:           Core Common Function
 
@@ -14,6 +14,9 @@ Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-k#] [-n#] [-s#] [-p#] [-c#]
 
         CacheType       One of L1I / L1D / L2 / L3 / L4
 	
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
+
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 

@@ -1,5 +1,5 @@
 
-Syntax: i2creset <Chip> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
+Syntax: i2creset <Chip> <EngineId> <Port> [-coe] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -12,6 +12,9 @@ Syntax: i2creset <Chip> <EngineId> <Port> [-k#] [-n#] [-s#] [-p#]
         EngineId        Engine number to operate on in decimal
 
         Port            Engine port number to operate on in decimal
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

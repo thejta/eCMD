@@ -1,6 +1,8 @@
 
-Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<format>    [-k#] [-n#] [-s#] [-p#] 
-        getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -fb<filename> [-k#] [-n#] [-s#] [-p#] 
+Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<format>    
+                                                     [-coe] [-k#] [-n#] [-s#] [-p#] 
+        getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -fb<filename>
+                                                     [-coe] [-k#] [-n#] [-s#] [-p#] 
 
         ECMD:           Core Common Function
 
@@ -28,6 +30,9 @@ Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<form
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
                         Incase multiple chip positions are specified the target string will
                         be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

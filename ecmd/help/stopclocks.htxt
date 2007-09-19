@@ -1,7 +1,7 @@
 
 Syntax: stopclocks                                   [-force] [-k#] [-n#] [-s#] 
         stopclocks -domain <ConvenienceClockDomain>] [-force] [-k#] [-n#] [-s#]
-        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
+        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-coe] [-force] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 

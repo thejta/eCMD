@@ -1,6 +1,6 @@
 
 Syntax: getringdump <Chip[.ChipUnit]> <RingName1> [<RingName2> ...] [-unsorted]
-                                             [-k#] [-n#] [-s#] [-p#] [-c#] 
+                                              [-coe] [-k#] [-n#] [-s#] [-p#] [-c#] 
                                          
         ECMD:           Core Common Function
         
@@ -25,6 +25,9 @@ Syntax: getringdump <Chip[.ChipUnit]> <RingName1> [<RingName2> ...] [-unsorted]
                              ecmdquery rings pu
 
 	-unsorted [opt] Don't sort ring dump, display in scandef order
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

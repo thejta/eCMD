@@ -1,5 +1,5 @@
 
-Syntax: ringcache enable|disable|flush|query [<Chip>] [-k#] [-n#] [-s#] [-p#]
+Syntax: ringcache enable|disable|flush|query [<Chip>] [-coe] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -27,6 +27,9 @@ Syntax: ringcache enable|disable|flush|query [<Chip>] [-k#] [-n#] [-s#] [-p#]
 
         Chip      [opt] Chip to flush the cache on, if your plugin supports chip level
                         cache
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

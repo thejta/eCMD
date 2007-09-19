@@ -1,5 +1,5 @@
 
-Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s#] [-p#]
+Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v] [-coe] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -16,6 +16,9 @@ Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v] [-k#] [-n#] [-s#] [-p
 
         -v   [optional] Verbose mode.  Displays the instruction
                         status in an easy-to-read format.
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

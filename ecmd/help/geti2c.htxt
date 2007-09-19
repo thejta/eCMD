@@ -1,10 +1,10 @@
 
 Syntax: 
         WITHOUT OFFSET:
-        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes>
+        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> [-coe]
                  [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed <speed>]
         WITH OFFSET:
-        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize>
+        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize> [-coe]
                  [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed <speed>]
 
         ECMD:           Core Common Function

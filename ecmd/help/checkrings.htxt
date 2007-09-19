@@ -1,5 +1,5 @@
 
-Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-coe] [-v] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -18,6 +18,9 @@ Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-k#] [-n#] [-s#] [-p#] [
 
                         Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu                     
+	
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -v   [optional] Display detailed ring failure data
 

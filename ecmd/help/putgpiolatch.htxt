@@ -1,8 +1,8 @@
 
 Syntax: putgpiolatch <Chip> <EngineId> <Pin> <Mode> <Data>
-                        [-k#] [-n#] [-s#] [-p#] [-i<format>]
+                         [-coe] [-k#] [-n#] [-s#] [-p#] [-i<format>]
         putgpiolatch <Chip> <EngineId> -mask <MaskValue> <Mode> <Data>
-                        [-k#] [-n#] [-s#] [-p#] [-i<format>]
+                         [-coe] [-k#] [-n#] [-s#] [-p#] [-i<format>]
 
         ECMD:           Core Common Function
 
@@ -26,6 +26,9 @@ Syntax: putgpiolatch <Chip> <EngineId> <Pin> <Mode> <Data>
 
         -i<format>[opt] Specifies the format type of the input : default 'b'
                         Run 'ecmdquery formats' to view available formats
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

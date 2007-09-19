@@ -1,7 +1,7 @@
 
-Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>] [-k#] [-n#] [-s#] [-p#]
+Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>] [-coe] [-k#] [-n#] [-s#] [-p#]
         getgpiopin <Chip> <EngineId> -mask <MaskValue> [-o<format>] [-i<format>] 
-                                                         [-k#] [-n#] [-s#] [-p#]
+                                                        [-coe] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -17,12 +17,15 @@ Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>] [-k#] [-n#] [-s#] [-p#]
 
         -mask     [opt] To read from multiple pins specify a mask value of pins to read
 	                Binary input will be treated left-alligned
-
+	
         -o<format>[opt] Specifies the format type of the output : default 'b'
                         Run 'ecmdquery formats' to view available formats
 
         -i<format>[opt] Specifies the format type of the input : default 'xl'
                         Run 'ecmdquery formats' to view available formats
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
 
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.

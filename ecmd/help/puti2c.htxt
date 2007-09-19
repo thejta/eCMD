@@ -2,9 +2,9 @@
 Syntax: 
         WITHOUT OFFSET:
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data>
-                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
+                         [-coe] [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename>
-                        [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
+                         [-coe] [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         WITH OFFSET:
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize>
@@ -41,6 +41,9 @@ Syntax:
         -f<filename>[o] Specifies the filename that the data should be read from
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
         
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
+
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 
