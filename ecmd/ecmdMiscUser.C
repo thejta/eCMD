@@ -1481,6 +1481,265 @@ uint32_t ecmdEchoUser(int argc, char * argv[]) {
 
 }
 
+//Adding the ecmdUnitIdUser function
+
+uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
+    
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdLooperData looperdata; 
+  std::string output;
+  char buf[1000]; 
+  ecmdChipTarget target;
+  
+  if (argc < 1) {
+    ecmdOutputError("unitid - Too few arguments specified,Type 'unitid -h' for help.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  
+  //Parsing the CmdLine for uid2tgt
+  if (!strcmp(argv[0], "uid2tgt")){
+  
+    if(argv[0] != NULL) {
+        rc = ecmdCommandArgs(&argc, &argv);
+        if (rc) return rc;
+    }
+  
+    if (argc < 2) {
+        ecmdOutputError("unitid - Too few arguments specified for 'uid2tgt' CmdLine,you need at least a 'unitid' in 'hex' or 'string' format\n");
+        ecmdOutputError("unitid - Type 'unitid -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    
+    if (argc > 2) {
+        ecmdOutputError("unitid - Too many arguments specified,you probably added an unsupported option.\n");
+        ecmdOutputError("unitid - Type 'unitid -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    
+  //define the target list,which will be obtained when the unitid will get processed
+      
+    std::list<ecmdChipTarget> target_list;
+    std::list<ecmdChipTarget>::iterator target_list_iterator;
+    
+    rc = ecmdUnitIdStringToTarget(argv[1], target_list);
+    if (rc){
+        sprintf(buf,"ecmdUnitIdStringToTarget Failed with rc = 0x%x and unitId = %s\n",rc,argv[1]);
+        output = (std::string)buf;
+        ecmdOutputError(output.c_str());
+        return rc;
+    }  
+    if(target_list.size()==1){
+        
+        target_list_iterator = target_list.begin();
+        sprintf(buf,"For Inputs Id = %s, Target is '%s' \n", argv[1],(ecmdWriteTarget(*target_list_iterator)).c_str());
+        output = (std::string)buf;    
+        ecmdOutput(output.c_str());          
+    }else{
+        
+        output="This is a Group Id Input ..... Multiple Targets will Return For Input Id: ";
+        output+=argv[1];
+        output+="\n";
+        ecmdOutput(output.c_str());
+        for(target_list_iterator = target_list.begin();target_list_iterator != target_list.end();target_list_iterator++){
+            sprintf(buf,"'%s' \t",(ecmdWriteTarget(*target_list_iterator)).c_str());
+            output = (std::string)buf;    
+            ecmdOutput(output.c_str());  
+        }
+    }
+  //Parsing the CmdLine for tgt2uid 
+  }else if(!strcmp(argv[0], "tgt2uid")){
+    
+  /*This code is based on 'ecmdquery configd' such that we loop through all the
+    possible tgts that the user asked for and determine the unitid.*/
+     
+    uint8_t ONE = 0;
+    uint8_t MANY = 1;
+
+    std::string cage;   
+    std::string node;   
+    std::string slot;   
+    std::string pos;    
+    std::string core;
+    std::string thread;   
+    
+    uint8_t cageType;
+    uint8_t nodeType;
+    uint8_t slotType;
+    uint8_t posType;
+    uint8_t coreType;
+    uint8_t threadType;
+  
+    std::list<uint32_t>          cageList;
+    std::list<uint32_t>::iterator    cageListIter;
+    std::list<uint32_t>          nodeList;
+    std::list<uint32_t>::iterator    nodeListIter;
+    std::list<uint32_t>          slotList;
+    std::list<uint32_t>::iterator    slotListIter;
+    std::list<uint32_t>          posList;
+    std::list<uint32_t>::iterator    posListIter;
+    std::list<uint32_t>          coreList;
+    std::list<uint32_t>::iterator    coreListIter;
+    std::list<uint32_t>          threadList;
+    std::list<uint32_t>::iterator    threadListIter;
+   
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+
+    //Set all the states Unused to begin with. Then set them to valid based on the args
+    target.cageState     = ECMD_TARGET_FIELD_UNUSED;
+    target.nodeState     = ECMD_TARGET_FIELD_UNUSED;
+    target.slotState     = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState      = ECMD_TARGET_FIELD_UNUSED;
+    target.coreState     = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState   = ECMD_TARGET_FIELD_UNUSED;
+    
+    rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "pos", target, posType, pos);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "core", target, coreType, core);
+    if(rc) return rc;
+    rc = ecmdParseTargetFields(&argc, &argv, "thread", target, threadType, thread);
+    if(rc) return rc;
+    
+    //checking the Target for unitid to obtain
+    if (argc < 2) {
+        ecmdOutputError("unitid - Too few arguments specified for 'tgt2uid' CmdLine,you need at least a 'targetName'.\n");
+        ecmdOutputError("unitid - Type 'unitId -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    else {
+        target.chipType = argv[1];
+        target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+        target.cageState = target.nodeState = target.slotState = target.posState =target.coreState= target.threadState= ECMD_TARGET_FIELD_VALID;     
+    }
+       
+    //Go through each of the targets and check if they are configured  
+    if (cageType == ONE) {
+      cageList.push_back(target.cage);
+    }
+    else if (cageType == MANY) {
+      getTargetList(cage, cageList);
+    }
+    if (cageList.empty()) { 
+      ecmdOutputError("unitid - no cage input found.\n");
+      return ECMD_INVALID_CONFIG;
+    }
+    // Start walking the cages 
+    for (cageListIter = cageList.begin(); cageListIter != cageList.end(); cageListIter++) {
+       
+       target.cage = *cageListIter;
+       nodeList.clear();
+
+       if (nodeType == ONE) {
+            nodeList.push_back(target.node);
+       }
+       else if (nodeType == MANY) {
+            getTargetList(node, nodeList);
+       }
+    
+       for (nodeListIter = nodeList.begin(); nodeListIter != nodeList.end(); nodeListIter ++) {
+        
+          target.node = *nodeListIter;
+          slotList.clear();
+        
+          if (slotType == ONE) {
+             slotList.push_back(target.slot);
+          }
+          else if (slotType == MANY) {
+             getTargetList(slot, slotList);
+          }
+
+          /* Walk the slots */
+          for (slotListIter = slotList.begin(); slotListIter != slotList.end(); slotListIter ++) {
+      
+             target.slot = *slotListIter;
+           
+             /* Walk the slots */
+             if (target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
+           
+                posList.clear();
+                //ChipType has been previously set
+                if (posType == ONE) {
+                    posList.push_back(target.pos);
+                }
+                else if (posType == MANY) {
+                    getTargetList(pos, posList);
+                }
+
+                /* Now start walking chip pos's */
+                for (posListIter = posList.begin(); posListIter != posList.end(); posListIter ++) {
+        
+                    target.pos = *posListIter;
+                    coreList.clear();
+
+                    if (coreType == ONE) {
+                        coreList.push_back(target.core);
+                    }
+                    else if (coreType == MANY) {
+                        getTargetList(core, coreList);
+                    }
+        
+                    /* Ok, walk the cores */
+                    for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
+          
+                        target.core = (uint8_t)(*coreListIter);
+                        threadList.clear();
+
+                        if (threadType == ONE) {
+                            threadList.push_back(target.thread);
+                        }
+                        else if (threadType == MANY) {
+                            getTargetList(thread, threadList);
+                        }
+        
+                        // Ok, walk the threads 
+                        for (threadListIter = threadList.begin(); threadListIter != threadList.end(); threadListIter ++) {
+                        
+                            target.thread = (uint8_t)(*threadListIter); 
+                        
+                            rc = ecmdTargetToUnitId(target);
+                            if (rc){ 
+                                return rc;
+                            }
+                            
+                            sprintf(buf,"For target = %s, unitId is '0x%X' \n",(ecmdWriteTarget(target)).c_str(),target.unitId);
+        
+                            output = (std::string)buf;
+                            ecmdOutput(output.c_str());
+               
+                        }//Loop threads
+               
+                    }//Loop cores
+           
+                }//Loop pos 
+
+             }// end if chiptype Used
+     
+          }// Loop slots 
+        
+       }//Loop nodes 
+      
+    }// Loop cages  
+  }else{
+    ecmdOutputError("unitid- Invalid arguments-Type 'unitid -h' for correct arguments\n");
+    return ECMD_INVALID_ARGS;
+  }
+  return rc; 
+
+}
+    
 
 // Change Log *********************************************************
 //                                                                      

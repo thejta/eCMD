@@ -357,7 +357,6 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands) {
 
 uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecmdChipTarget &target, uint8_t &targetFieldType, std::string &targetFieldList) {
   uint32_t rc = ECMD_SUCCESS;
-  
   uint8_t ONE = 0;
   uint8_t MANY = 1;
   
@@ -370,7 +369,8 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
   bool isSlot = false;
   bool isPos = false;
   bool isCore = false;
-  char arg[5] = ""; //@01a add init 
+  bool isThread =false;
+  char arg[6] = ""; //@01a add init 
   
   if (strcmp(targetField, "cage")==0) {
     isCage = true;
@@ -392,9 +392,11 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
     isCore = true;
     strcpy(arg, "-c");
   }
-  
+  else if (strcmp(targetField, "thread")==0) {
+    isThread = true;
+    strcpy(arg, "-t");
+  }  
   targetPtr = ecmdParseOptionWithArgs(argc, argv, arg);
-  
   
   if(targetPtr != NULL) {
    targetFieldList = targetPtr;
@@ -415,8 +417,8 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
      if (targetFieldList.length() != 0) {
        if (!isTargetStringValid(targetFieldList)) {
          printed = (std::string)arg + " argument contained invalid characters\n";
-   	 ecmdOutputError(printed.c_str());
-   	 return ECMD_INVALID_ARGS;
+     ecmdOutputError(printed.c_str());
+     return ECMD_INVALID_ARGS;
        }
        if(isCage) {
          target.cage = (uint32_t)atoi(targetFieldList.c_str());
@@ -432,6 +434,9 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
        }
        else if(isCore) {
          target.core = (uint8_t)atoi(targetFieldList.c_str());
+       }
+       else if(isThread) {
+         target.thread = (uint8_t)atoi(targetFieldList.c_str());
        }
      }
      else {
@@ -450,6 +455,10 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
        else if(isCore) {
          target.core = 0x0;
        }
+       else if(isThread) {
+         target.thread = 0x0;
+       }
+
      }
      targetFieldType = ONE;
    }
@@ -477,7 +486,16 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
     target.slotState = ECMD_TARGET_FIELD_VALID;
     target.posState = ECMD_TARGET_FIELD_VALID;
     target.coreState = ECMD_TARGET_FIELD_VALID;
-   }    
+   } 
+   else if(isThread) {
+    target.cageState = ECMD_TARGET_FIELD_VALID;
+    target.nodeState = ECMD_TARGET_FIELD_VALID;
+    target.slotState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_VALID;
+    target.coreState = ECMD_TARGET_FIELD_VALID;
+    target.threadState = ECMD_TARGET_FIELD_VALID;
+   }
+   
   }
   else {
     if(isCage) {
@@ -495,6 +513,10 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
     else if(isCore) {
      target.core = 0x0;
     }
+    else if(isThread) {
+     target.thread = 0x0;
+    }
+
     targetFieldType = ONE;
   }
   return rc;
