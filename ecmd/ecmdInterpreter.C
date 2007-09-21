@@ -596,9 +596,17 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         break;
 
         /************************/
+        /* case : u             */
+        /************************/
+        case 'u':
+        if (!strcmp(argv[0], "unitid")) {            
+          rc = ecmdUnitIdUser(argc - 1, argv + 1);
+        }
+        break;
+        
+        /************************/
         /* The Unknown          */
         /************************/
-
       default:
         /* We don't understand this function, let's let the caller know */
         rc = ECMD_INT_UNKNOWN_COMMAND;

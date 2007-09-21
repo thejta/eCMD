@@ -158,6 +158,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]);
 uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]);
 uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]);
 uint32_t ecmdEchoUser(int argc, char* argv[]);
+uint32_t ecmdUnitIdUser(int argc, char* argv[]);  
 
 /* ecmdVpdUser.C */
 uint32_t ecmdPutVpdKeywordUser(int argc, char* argv[]);
