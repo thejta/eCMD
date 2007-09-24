@@ -485,7 +485,8 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         }/* Case-Sort */
       } /* End cuLooper */
     }/* End ChipLooper */
-
+    // coeRc will be the return code from in the loop, coe mode or not.
+    if (coeRc) return coeRc;
   } /* End Args Loop */
 
   // This is an error common across all UI functions
@@ -493,8 +494,6 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     ecmdOutputError("getringdump - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -829,14 +828,14 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       if (!isCoreLatch) break;
     } /* End cuLooper */
   } /* End PosLooper */
-  
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getlatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1110,14 +1109,14 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       } /* End !expectFlag */
     } /* End cuLooper */
   } /* End posLooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getbits - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1322,14 +1321,14 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       }
     } /* End cuLooper */
   } /* End posloop */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putbits - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1644,6 +1643,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       enabledCache = false;
     }
   } /* End PosLooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   /* This catches if a loop above was exited prematurely */
   /* Otherwise it wouldn't be necessary because the same check at the end of the posloop would work */
@@ -1660,8 +1661,6 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     ecmdOutputError("putlatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -2043,7 +2042,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       }
     } 
   }
-  
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
   if (!validPosFound) {
     ecmdOutputError("checkrings - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
@@ -2204,14 +2205,14 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       }
     } /* End cuLooper */
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putpattern - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -2321,14 +2322,14 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
       }
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getlatch - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }

@@ -209,16 +209,13 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
 
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     ecmdOutputError("Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  //begin -@01
-  if(coeRc) 
-    return coeRc;
-  else
-    return rc;  
-  //end -@01
+  return rc;
 }

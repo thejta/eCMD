@@ -317,14 +317,13 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
     printed = ecmdWriteTarget(target) + "\n";
     ecmdOutput( printed.c_str() ); 
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -442,18 +441,16 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-
     printed = ecmdWriteTarget(target) + "\n";
     ecmdOutput( printed.c_str() ); 
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     ecmdOutputError("Unable to find a valid target to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }  
@@ -671,21 +668,18 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       validPosFound = true;     
     }
 
-
     printed = ecmdWriteTarget(target);
     printed += "\n";
     ecmdOutput( printed.c_str() );
   }
-
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("setclockspeed - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -801,15 +795,14 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     printed += ecmdWriteDataFormatted(buffer, outputformat);
     ecmdOutput( printed.c_str() );
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("getclockspeed - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }

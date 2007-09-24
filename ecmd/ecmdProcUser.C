@@ -223,14 +223,14 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       }
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getspr - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -402,14 +402,14 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   //this is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putspr - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -523,6 +523,8 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
     ecmdOutput("\n");
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
@@ -530,8 +532,6 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     ecmdOutputError(printed.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -691,6 +691,8 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       ecmdOutput(printed.c_str());
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
@@ -698,8 +700,6 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     ecmdOutputError(printed.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }

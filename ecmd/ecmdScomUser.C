@@ -343,14 +343,14 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      }
     } /* End cuLooper */
   } /* End PosLooper */
-  
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   /* If we failed an expect let's return that */
   if (e_rc) return e_rc;
@@ -591,14 +591,14 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       }
     } /* End cuLooper */
   } /* End PosLooper */
-  
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -986,15 +986,14 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      }  //while (!done)
     } /* End cuLooper */
   } /* End PosLooper */
-
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("pollscom - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }

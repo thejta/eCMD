@@ -216,14 +216,14 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     } 
     
   }
-  
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -362,16 +362,15 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
-
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putvpdkeyword - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -504,16 +503,15 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
-
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -668,14 +666,14 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
       ecmdOutput( printed.c_str() );
     } 
   }
-  
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getvpdimage - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }

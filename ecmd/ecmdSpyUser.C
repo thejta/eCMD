@@ -509,6 +509,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       }
     }
   } /* End poslooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
@@ -523,9 +525,6 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       coeRc = trc;
     }
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -790,14 +789,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
 
   } /* End poslooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     ecmdOutputError("putspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
