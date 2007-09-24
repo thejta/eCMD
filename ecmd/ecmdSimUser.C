@@ -1316,18 +1316,16 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     rc = simGetHierarchy(target,  hierarchy);
     if (rc) {
-      //return rc;
       coeRc = rc;
       continue;
     }
-
 
     printed = "Model hierarchy for target ";
     printed += ecmdWriteTarget(target);
     printed += "is :\n" + hierarchy + "\n";
     ecmdOutput(printed.c_str());
   }
-  // Now check if our coeRc accumulated anything and return if it has
+  // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
 
   return rc;

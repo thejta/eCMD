@@ -153,7 +153,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-   while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {     //@02
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -161,8 +161,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       printed = "getarray - Problems retrieving data about array '" + arrayName + "' on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                   //@02
-      continue;                                     //@02
+      coeRc = rc;
+      continue;
     }
     arrayData = *(arrayDataList.begin());
 
@@ -172,18 +172,17 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData.width);
       if (rc) {
         ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
-        coeRc = rc;                                 //@02        
-        continue;                                   //@02
+        coeRc = rc;
+        continue;
       }
 
       if (maskFlag) {
         rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData.width);
         if (rc) {
           ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
-        coeRc = rc;                                 //@02        
-        continue;                                   //@02
+          coeRc = rc;
+          continue;
         }
-
       }
     }
 
@@ -196,11 +195,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
       if (rc) {
         ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
-          coeRc = rc;                                //@02
-          continue;                                  //
-
+        coeRc = rc;
+        continue;
       }
-
 
       add_buffer = new uint32_t[address.getWordLength()];
       uint32_t idx;
@@ -424,6 +421,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     /* Now that we are done, clear the list for the next iteration - fixes BZ#49 */
     entries.clear();
   } /* End PosLooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     //this is an error common across all UI functions
@@ -439,9 +438,6 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   if (add_buffer) {
       delete[] add_buffer;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -594,15 +590,14 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       }
     } /* End cuLooper */
   } /* End PosLooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("putarray - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -672,7 +667,6 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   if (rc) return rc;
  
   while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
-
 
     //Get all the valid trace arrays
     rc = ecmdQueryTraceArray(target, queryTraceData, NULL, ECMD_QUERY_DETAIL_LOW);
@@ -783,7 +777,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
 
       /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (ecmdConfigLooperNext(cuTarget, cuLooper)) {
+      while (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
 
         //Clear the core List
         for (std::list<ecmdNameVectorEntry>::iterator lit = coreArrayList.begin(); lit != coreArrayList.end(); lit++ ) {
@@ -795,10 +789,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
           printed = "gettracearray - Error occured performing getTraceArray on ";
           printed += ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutputError( printed.c_str() );
-          coeRc = rc;                                           //@02
-          continue;                                             //@02
-        }
-        else {
+          coeRc = rc;
+          continue;
+        } else {
           validPosFound = true;
         }
 
@@ -818,19 +811,16 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         }
 
       }/* End cuLooper */
-
     } /* If core trace */
-
   }/* End ChipLooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   if (!validPosFound) {
     //this is an error common across all UI functions
     ecmdOutputError("gettracearray - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   } 
-
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }

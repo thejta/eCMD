@@ -183,14 +183,14 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
      ecmdOutput(printed.c_str()); 
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -317,14 +317,14 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     printed = ecmdWriteTarget(target) + "\n";
     ecmdOutput( printed.c_str() );
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("setconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -498,17 +498,15 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
       ecmdOutput( printed.c_str() );
 
     }
-
   }
-
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getcfam - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -691,17 +689,15 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
-
   }
-
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putcfam - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -778,14 +774,14 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
      ecmdOutput( "No Output received from makeSPSystemCall\n");
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("makespsystemcall - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -848,14 +844,14 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
     printed = ecmdWriteTarget(target) + "deconfigured.\n";
     ecmdOutput( printed.c_str() );
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1243,14 +1239,14 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
       ecmdOutput( printed.c_str() );
     }
   }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("getgpreg - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
@@ -1427,17 +1423,15 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
       printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput(printed.c_str());
     }
-
   }
-
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
   if (!validPosFound) {
     ecmdOutputError("putgpreg - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
-  // Now check if our coeRc accumulated anything and return if it has
-  if (coeRc) return coeRc;
 
   return rc;
 }
