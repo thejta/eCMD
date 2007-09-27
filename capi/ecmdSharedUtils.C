@@ -303,6 +303,11 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
       io_target.chipUnitTypeState = io_target.chipUnitNumState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
       break;
 
+    case ECMD_DEPTH_CORE:
+      io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState =  io_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+      io_target.chipUnitTypeState = io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      break;
+
     case ECMD_DEPTH_CHIPUNIT:
       io_target.cageState = io_target.nodeState = io_target.slotState = io_target.chipTypeState = io_target.posState = io_target.chipUnitTypeState = io_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
       io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
