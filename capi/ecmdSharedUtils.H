@@ -47,7 +47,8 @@ typedef enum {
   ECMD_DEPTH_SLOT,
   ECMD_DEPTH_CHIP,
   ECMD_DEPTH_CHIPUNIT,
-  ECMD_DEPTH_THREAD
+  ECMD_DEPTH_THREAD,
+  ECMD_DEPTH_CORE  // Re-added on 9/27/07 by JTA.  We need both CORE and CHIPUNIT for ecmdSetTargetDepth
 } ecmdTargetDepth_t;
 
 //--------------------------------------------------------------------
