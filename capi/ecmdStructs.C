@@ -1063,7 +1063,7 @@ void ecmdChipUnitData::printStruct() {
     printf("\n\t\t\t\t\t\tChipUnit Data:\n");
 
     // Print non-list data.
-    printf("\t\t\t\t\t\tchipUnitType :%s\n",chipUnitType);
+    printf("\t\t\t\t\t\tchipUnitType :%s\n",chipUnitType.c_str());
     printf("\t\t\t\t\t\tchipUnitNum : %d\n", chipUnitNum);
     printf("\t\t\t\t\t\tNumber of threads: %d\n", numThreads);
     printf("\t\t\t\t\t\tUnit ID: 0x%x\n", unitId);
