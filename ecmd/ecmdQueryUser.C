@@ -682,7 +682,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
   } else if (!strcmp(argv[0],"configd") || !strcmp(argv[0],"exist")) {
 
-    
+    // Note: ecmdConfigLooperInit/Next is not used here because they only return targets in the config, 
+    //  but this cmd requires keeping track of each target the user requests to be checked
 
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
