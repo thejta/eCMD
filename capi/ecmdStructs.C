@@ -798,6 +798,288 @@ bool ecmdChipUnitData::operator< (const ecmdChipUnitData& rhs) {
 
   return false;
 }
+ 
+uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+
+
+    uint32_t tmpData32 = 0;
+    uint32_t listSize  = 0;
+    uint32_t rc        = ECMD_SUCCESS ;
+
+    uint8_t *l_ptr = o_buf;
+
+    std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
+
+
+    
+    do {    // Single entry ->
+        // Check for buffer overflow conditions.
+        if (this->flattenSize() > i_len) {
+            // Generate an error for buffer overflow conditions.
+            ETRAC2("Buffer overflow occured in "
+                               "ecmdChipUnitData::flatten() "
+                               "structure size = %d; "
+                               "input length = %d",
+                               this->flattenSize(), i_len);
+            rc = ECMD_DATA_OVERFLOW;
+            break;
+        }
+
+        // Insert magic header in the buffer.
+        tmpData32 = htonl(CHIPUNIT_HDR_MAGIC);      
+        memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+        l_ptr += sizeof(CHIPUNIT_HDR_MAGIC);
+        i_len -= sizeof(CHIPUNIT_HDR_MAGIC);
+        
+        // Copy non-list data.
+        memcpy(l_ptr, chipUnitType.c_str(), chipUnitType.size() + 1);
+        l_ptr += chipUnitType.size() + 1;
+        i_len -= chipUnitType.size() + 1;
+
+        
+        memcpy(l_ptr, &chipUnitNum, sizeof(chipUnitNum)); 
+        l_ptr += sizeof(chipUnitNum);
+        i_len -= sizeof(chipUnitNum);
+
+        memcpy(l_ptr, &numThreads, sizeof(numThreads)); 
+        l_ptr += sizeof(numThreads);
+        i_len -= sizeof(numThreads);
+
+        tmpData32 = htonl(unitId);
+        memcpy(l_ptr, &tmpData32, sizeof(unitId)); 
+        l_ptr += sizeof(unitId);
+        i_len -= sizeof(unitId);
+
+        tmpData32 = htonl(chipUnitFlags);
+        memcpy(l_ptr, &tmpData32, sizeof(chipUnitFlags));
+        l_ptr += sizeof(chipUnitFlags);
+        i_len -= sizeof(chipUnitFlags);
+
+        
+        // Figure out how many threadData structs are in the list for 
+        // future unflattening.
+         
+        listSize = threadData.size();
+        tmpData32 = htonl(listSize);
+        memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+        l_ptr += sizeof(listSize);
+        i_len -= sizeof(listSize);
+
+        if (0 == listSize) {
+            
+             // There are no threadData structs in this list. Don't 
+             // bother attempting to loop on cageData list.
+             
+            break;
+        }
+
+        // Copy list data.
+        while (threaditor != threadData.end()) {
+            rc = threaditor->flatten(l_ptr, i_len);
+
+            if (rc) break;  // stop on fail and exit
+            
+                         // l_ptr is not passed by reference so now that we 
+                         // have it populated increment by the actual size.
+                         
+            l_ptr += threaditor->flattenSize();
+            threaditor++;
+        }
+        if (rc) break; // make sure we get to single exit with bad rc
+
+    } while (0);    // <- single exit.
+
+    return rc;
+}
+ 
+uint32_t ecmdChipUnitData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
+
+
+    uint8_t *l_ptr = (uint8_t *)i_buf;
+
+    uint32_t hdrCheck = 0;
+    uint32_t listSize = 0;
+    uint32_t rc       = ECMD_SUCCESS;
+    
+
+    do {    // Single entry ->
+        
+        // Check for buffer overflow conditions.
+        if (this->flattenSize() > i_len) {
+            // Generate an error for buffer overflow conditions.
+            ETRAC2("Buffer overflow occured in "
+                               "ecmdChipUnitData::unflatten() "
+                               "structure size = %d; "
+                               "input length = %d",
+                               this->flattenSize(), i_len);
+            rc = ECMD_DATA_OVERFLOW;
+            break;
+        }
+
+        // Get and verify the magic header.
+        memcpy(&hdrCheck, l_ptr, sizeof(hdrCheck));
+        hdrCheck = ntohl(hdrCheck);
+        l_ptr += sizeof(hdrCheck);
+        i_len -= sizeof(hdrCheck);
+
+        if (CHIPUNIT_HDR_MAGIC != hdrCheck) {
+
+            ETRAC2("Buffer header does not match struct header in "
+                               "ecmdChipUnitData::unflatten(): "
+                               "Struct header: 0x%08x; read from buffer as: "
+                               "0x%08x", CHIPUNIT_HDR_MAGIC, hdrCheck);
+            rc = ECMD_INVALID_ARRAY;
+            break;
+        }
+
+        // Unflatten non-list data.
+        
+        std::string l_chipUnitType = (const char *) l_ptr;
+        l_ptr += l_chipUnitType.size() + 1;
+        
+        chipUnitType = l_chipUnitType;
+        i_len -= l_chipUnitType.size() + 1;
+        
+        memcpy(&chipUnitNum, l_ptr, sizeof(chipUnitNum));
+        l_ptr += sizeof(chipUnitNum);
+        i_len -= sizeof(chipUnitNum);
+
+        memcpy(&numThreads, l_ptr, sizeof(numThreads));
+        l_ptr += sizeof(numThreads);
+        i_len -= sizeof(numThreads);
+
+        memcpy(&unitId, l_ptr, sizeof(unitId));
+        l_ptr += sizeof(unitId);
+        i_len -= sizeof(unitId);
+        unitId = ntohl(unitId);
+
+        memcpy(&chipUnitFlags, l_ptr, sizeof(chipUnitFlags));
+        l_ptr += sizeof(chipUnitFlags);
+        i_len -= sizeof(chipUnitFlags);
+        chipUnitFlags = ntohl(chipUnitFlags);
+
+        memcpy(&listSize, l_ptr, sizeof(listSize));
+        listSize = ntohl(listSize);
+        l_ptr += sizeof(listSize);
+        i_len -= sizeof(listSize);
+
+        // Since the return query data structure may be reused from a
+        // previous call make sure the list is cleared.  Make sure this
+        // is done before the if check below that may break us out to
+        // prevent returning old data from previous iteration.     @09a
+        threadData.clear();
+
+        // Check to see if the list is populated.
+        if (0 == listSize) {
+            // Nothing to create, just leave.
+            break;
+        }
+
+        // Create any list entries.
+        for (uint32_t i = 0; i < listSize; i++) {
+            threadData.push_back(ecmdThreadData());
+        }
+
+        std::list<ecmdThreadData>::iterator threaditor = 
+                            threadData.begin();
+        // Unflatten list data.
+        while (threaditor != threadData.end()) {
+            rc = threaditor->unflatten(l_ptr, i_len);
+
+            if (rc) break;  // stop on fail and exit
+            
+                         //l_ptr is not passed by reference so now that we 
+                         //have it populated increment by the actual size.
+                         
+            l_ptr += threaditor->flattenSize();
+            threaditor++;
+        }
+        if (rc) break; // make sure we get to single exit with bad rc
+
+    } while (0);    // <- single exit.
+
+    return rc;
+}
+
+uint32_t ecmdChipUnitData::flattenSize() {
+
+    uint32_t flatSize = 0;
+    std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
+
+    //printf("the size of threadData = %d\n",threadData.size());
+    do {    // Single entry ->
+
+        /*
+         * Every struct entry shall place in the buffer a 32bit value to         * contain a magic header used to identify itself.  This will 
+         * be used to make sure the code is looking at the expected 
+         * struct.  So...
+         * 
+         * Add the size of magic header.
+         */
+        flatSize += sizeof(CHIPUNIT_HDR_MAGIC);
+        //printf("Error FlattenSize_1\n ");
+        // Size of non-list member data.
+        flatSize += (sizeof(chipUnitNum) 
+                 + sizeof(numThreads)
+                 + sizeof(unitId) 
+                 + sizeof(chipUnitFlags) 
+                 + chipUnitType.size() + 1);
+                 
+        //printf("Error FlattenSize_2\n");
+        /* 
+         * Every struct entry which contains a list of other structs is
+         * required to put into the buffer a 32bit value describing the
+         * number of structures in its list.  So...
+         * 
+         * Add one for the coreData list counter.
+         */
+        flatSize += sizeof(uint32_t);
+        //printf("Error FlattenSize_3\n");
+        // If the coreData list does not contain any structs break out.
+
+        if (0 == threadData.size()) {
+        //printf("Error FlattenSize_4\n");
+            break;
+        }       
+        //printf("Error FlattenSize_5\n");
+        // Size of list member data.
+        while (threaditor != threadData.end()) {
+        //printf("Error FlattenSize_6\n");
+            flatSize += threaditor->flattenSize();
+            threaditor++;
+           // printf("Error FlattenSize_7\n");
+        }
+
+    } while (0);    // <- single exit.
+        //printf("Error FlattenSize_8\n");
+    return flatSize;
+}
+
+#ifndef REMOVE_SIM
+void ecmdChipUnitData::printStruct() {
+
+    std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
+
+    printf("\n\t\t\t\t\t\tChipUnit Data:\n");
+
+    // Print non-list data.
+    printf("\t\t\t\t\t\tchipUnitType :%s\n",chipUnitType);
+    printf("\t\t\t\t\t\tchipUnitNum : %d\n", chipUnitNum);
+    printf("\t\t\t\t\t\tNumber of threads: %d\n", numThreads);
+    printf("\t\t\t\t\t\tUnit ID: 0x%x\n", unitId);
+    printf("\t\t\t\t\t\tChipUnit Flags: 0x%x\n", chipUnitFlags);
+
+    // Print list data.
+    if (threadData.size() == 0) {
+        printf("\t\t\t\t\t\tNo thread data.\n");
+    }
+
+    while (threaditor != threadData.end()) {
+        threaditor->printStruct();
+        threaditor++;
+    }
+}
+#endif
 
 /*
  * The following methods for the ecmdChipData struct will flatten, unflatten &

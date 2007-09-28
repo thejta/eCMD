@@ -60,7 +60,7 @@
 #define CHIP_HDR_MAGIC   0xFFF5FFFF
 #define CORE_HDR_MAGIC   0xFF6FFFFF
 #define THREAD_HDR_MAGIC 0xF7FFFFFF
-
+#define CHIPUNIT_HDR_MAGIC 0x8FFFFFFF
 /**
  Predefined common chip names for ecmdChipData.chipCommonType
 */
@@ -750,16 +750,15 @@ struct ecmdChipUnitData {
   ~ecmdChipUnitData();
 
   // Methods
-#if 0
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
-#endif
+
   bool operator< (const ecmdChipUnitData& rhs);  ///< Used to sort Core entries in an ecmdChipUnitData list.
 #ifndef REMOVE_SIM
-#if 0
+
   void printStruct(void);
-#endif
+
 #endif
 #endif
 
