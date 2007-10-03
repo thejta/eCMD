@@ -519,6 +519,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                        ///< Buffer for extracted data
   std::string ringName;                         ///< Ring name to fetch
   std::string latchName;                        ///< Latch name to fetch
+  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
@@ -661,7 +662,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-    bool isCoreLatch;		                ///< Is this a core latch ?
+    bool isChipUnitLatch;		                ///< Is this a core latch ?
   
     /* Now we need to find out if this is a core latch or not */
     if (ringName.length() != 0) 
@@ -690,22 +691,48 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       ecmdOutputError("getlatch - Too much/little latch information returned from the dll, unable to determine if it is a core latch\n");
       return ECMD_DLL_INVALID;
     }  
-    isCoreLatch = queryLatchData.begin()->isChipUnitRelated;//We expect all latches to belong to one ring
+    isChipUnitLatch = queryLatchData.begin()->isChipUnitRelated;//We expect all latches to belong to one ring
 
-    /* Setup our Core looper if needed */
+    /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isCoreLatch) {
+    if (isChipUnitLatch) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
-      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      /* Error check the chipUnit returned */
+      if (queryLatchData.begin()->relatedChipUnit != chipUnitType) {
+        printed = "getlatch - Provided chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryLatch \"";
+        printed += queryLatchData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (chipUnitType != "") {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitRing
+      if (chipUnitType != "") {
+        printed = "getlatch - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit ring\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreLatch || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+    while ((isChipUnitLatch ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
       if (ringName.length() != 0)
@@ -824,8 +851,6 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	ecmdOutputError("getlatch - Unable to find a latch with the given startbit\n");
 	return ECMD_INVALID_LATCHNAME;
       }
-
-      if (!isCoreLatch) break;
     } /* End cuLooper */
   } /* End PosLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -1356,6 +1381,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
   bool enabledCache = false;            ///< Did we enable the cache ?
+  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1480,7 +1506,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       enabledCache = true;
     }
 
-    bool isCoreLatch;                         ///< Is this a core latch ?
+    bool isChipUnitLatch;                         ///< Is this a core latch ?
 
     if (ringName.length() != 0) 
       rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -1515,22 +1541,48 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       break;
     }
 
-    isCoreLatch = queryLatchData.begin()->isChipUnitRelated;//We expect all latches to belong to one ring
+    isChipUnitLatch = queryLatchData.begin()->isChipUnitRelated;//We expect all latches to belong to one ring
 
-    /* Setup our Core looper if needed */
+    /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isCoreLatch) {
+    if (isChipUnitLatch) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
-      cuTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
+      /* Error check the chipUnit returned */
+      if (queryLatchData.begin()->relatedChipUnit != chipUnitType) {
+        printed = "putlatch - Provided chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryLatch \"";
+        printed += queryLatchData.begin()->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (chipUnitType != "") {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
+    } else { // !isChipUnitRing
+      if (chipUnitType != "") {
+        printed = "putlatch - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit ring\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while (!isCoreLatch || (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode))) {
+    while ((isChipUnitLatch ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (ringName.length() != 0)
         rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchs, latchMode);
@@ -1629,8 +1681,6 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         rc = ECMD_INVALID_LATCHNAME;
         break;
       }
-
-      if (!isCoreLatch) break;
     } /* End cuLooper */
 
     /* Now that we are moving onto the next target, let's flush the cache we have */
