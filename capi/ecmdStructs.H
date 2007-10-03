@@ -764,11 +764,11 @@ struct ecmdChipUnitData {
 
   // Members
   std::string                   chipUnitType;   ///< (Detail: Low)  Full name of chipUnit.. i.e. core, mc, etc..
-  uint8_t                       chipUnitNum;    ///< (Detail: Low) core number of this entry
+  uint8_t                       chipUnitNum;    ///< (Detail: Low) chipUnit number of this entry
   uint8_t                       numThreads;     ///< (Detail: Low) Number of threads this entry supports
   uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
-  uint32_t                      chipUnitFlags;  ///< (Detail: High) Various additional info about the core - bitmask of defines
-  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
+  uint32_t                      chipUnitFlags;  ///< (Detail: High) Various additional info about the chipUnit - bitmask of defines
+  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chipUnit - only valid for Processor compute cores - in numerical order
 };
 
 #ifndef DOCUMENTATION
