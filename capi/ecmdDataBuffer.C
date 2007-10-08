@@ -1970,30 +1970,30 @@ uint32_t ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setOr(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setOr(const ecmdDataBuffer& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
 #ifndef REMOVE_SIM
-  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+  if (i_bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
-  if (len > bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::setOr: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
+  if (i_len > i_bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setOr: len %d > NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
-  return this->setOr(bufferIn.iv_Data, startBit, len);
+  return this->setOr(i_bufferIn.iv_Data, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setOr(const uint32_t * dataIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setOr(const uint32_t * i_dataIn, uint32_t i_startBit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (startBit + len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", startBit, len, iv_NumBits);
+  if (i_startBit + i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", i_startBit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks done as part of setBit()
 
   uint32_t mask = 0x80000000;
-  for (uint32_t i = 0; i < len; i++) {
-    if (dataIn[i/32] & mask) {
-      rc = this->setBit(startBit + i);
+  for (uint32_t i = 0; i < i_len; i++) {
+    if (i_dataIn[i/32] & mask) {
+      rc = this->setBit(i_startBit + i);
     }
     mask >>= 1;
     if (mask == 0x00000000) {
@@ -2005,35 +2005,35 @@ uint32_t ecmdDataBuffer::setOr(const uint32_t * dataIn, uint32_t startBit, uint3
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setOr(uint32_t dataIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setOr(uint32_t i_dataIn, uint32_t i_startBit, uint32_t i_len) {
 // input checks done as part of setOr()
-  return this->setOr(&dataIn, startBit, len);
+  return this->setOr(&i_dataIn, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
 #ifndef REMOVE_SIM
-  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+  if (i_bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
-  if (len > bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::setXor: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
+  if (i_len > i_bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setXor: len %d > NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 // other input checks done as part of setXor()
-  return this->setXor(bufferIn.iv_Data, startBit, len);
+  return this->setXor(i_bufferIn.iv_Data, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setXor(const uint32_t * dataIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setXor(const uint32_t * i_dataIn, uint32_t i_startBit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (startBit + len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", startBit, len, iv_NumBits);
+  if (i_startBit + i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::setOr: bit %d + len %d > NumBits (%d)", i_startBit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks done as part of writeBit()
 
   uint32_t mask = 0x80000000;
-  for (uint32_t i = 0; i < len; i++) {
-    rc = this->writeBit(startBit + i, ((dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
+  for (uint32_t i = 0; i < i_len; i++) {
+    rc = this->writeBit(i_startBit + i, ((i_dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
     mask >>= 1;
     if (mask == 0x00000000) {
       mask = 0x80000000;
@@ -2044,46 +2044,46 @@ uint32_t ecmdDataBuffer::setXor(const uint32_t * dataIn, uint32_t startBit, uint
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setXor(uint32_t dataIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setXor(uint32_t i_dataIn, uint32_t i_startBit, uint32_t i_len) {
 // input checks done as part of setXor()
-  return this->setXor(&dataIn, startBit, len);
+  return this->setXor(&i_dataIn, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& bufferIn) {
+uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& i_bufferIn) {
 #ifndef REMOVE_SIM
-  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+  if (i_bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
-  if (iv_NumBits != bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)", bufferIn.iv_NumBits, iv_NumBits);
+  if (iv_NumBits != i_bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::merge: NumBits in (%d) do not match NumBits (%d)", i_bufferIn.iv_NumBits, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
-    return this->setOr(bufferIn, 0, iv_NumBits);
+    return this->setOr(i_bufferIn, 0, iv_NumBits);
   }
 }
 
-uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& bufferIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
 #ifndef REMOVE_SIM
-  if (bufferIn.iv_XstateEnabled) enableXstateBuffer();
+  if (i_bufferIn.iv_XstateEnabled) enableXstateBuffer();
 #endif
-  if (len > bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::setAnd: len %d > NumBits of incoming buffer (%d)", len, bufferIn.iv_NumBits);
+  if (i_len > i_bufferIn.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setAnd: len %d > NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 // other input checks done as part of setAnd()
-  return this->setAnd(bufferIn.iv_Data, startBit, len);
+  return this->setAnd(i_bufferIn.iv_Data, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setAnd(const uint32_t * dataIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setAnd(const uint32_t * i_dataIn, uint32_t i_startBit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  if (startBit + len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::setAnd: bit %d + len %d > iv_NumBits (%d)", startBit, len, iv_NumBits);
+  if (i_startBit + i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::setAnd: i_start %d + i_len %d > iv_NumBits (%d)", i_startBit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
 // other input checks done as part of setClearBit()
   } else {
     uint32_t mask = 0x80000000;
-    for (uint32_t i = 0; i < len; i++) {
-      if (!(dataIn[i/32] & mask)) {
-        this->clearBit(startBit + i);
+    for (uint32_t i = 0; i < i_len; i++) {
+      if (!(i_dataIn[i/32] & mask)) {
+        this->clearBit(i_startBit + i);
       }
       mask >>= 1;
       if (mask == 0x00000000) {
@@ -2095,12 +2095,12 @@ uint32_t ecmdDataBuffer::setAnd(const uint32_t * dataIn, uint32_t startBit, uint
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setAnd(uint32_t dataIn, uint32_t startBit, uint32_t len) {
+uint32_t ecmdDataBuffer::setAnd(uint32_t i_dataIn, uint32_t i_startBit, uint32_t i_len) {
 // input checks done as part of setAnd()
-  return this->setAnd(&dataIn, startBit, len);
+  return this->setAnd(&i_dataIn, i_startBit, i_len);
 }
 
-uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
+uint32_t   ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop) const {
 
   int charOffset;
   int posOffset;
@@ -2108,22 +2108,22 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
   int parity = 1;
   uint32_t mask;
 
-  if (start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: start %d >= iv_NumBits (%d)\n", start, iv_NumBits);
+  if (i_start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: i_start %d >= iv_NumBits (%d)\n", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if ( stop >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: stop %d >= iv_NumBits (%d)\n", stop, iv_NumBits);
+  } else if (i_stop >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: i_stop %d >= iv_NumBits (%d)\n", i_stop, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if ( start > stop) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: start %d >= stop (%d)\n", start, stop);
+  } else if (i_start > i_stop) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::oddParity: i_start %d >= i_stop (%d)\n", i_start, i_stop);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
 
-    charOffset = start / 32;
-    posOffset = start - charOffset * 32;
+    charOffset = i_start / 32;
+    posOffset = i_start - charOffset * 32;
     mask = 0x80000000 >> posOffset;
 
-    for (counter = 0; counter < (stop - start + 1); counter++) {
+    for (counter = 0; counter < (i_stop - i_start + 1); counter++) {
       if (mask & iv_Data[charOffset]) {
         parity ^= 1;
       }
@@ -2142,62 +2142,62 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop) const {
 
 }
 
-uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop) const {
+uint32_t   ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop) const {
 // input checks done as part of oddParity()
-  if (this->oddParity(start, stop))
+  if (this->oddParity(i_start, i_stop))
     return 0;
   else
     return 1;
 }
 
-uint32_t   ecmdDataBuffer::oddParity(uint32_t start, uint32_t stop, uint32_t insertPos) {
+uint32_t   ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertPos) {
 // input checks done as part of oddParity()
-  if (this->oddParity(start,stop))
-    this->setBit(insertPos);
+  if (this->oddParity(i_start,i_stop))
+    this->setBit(i_insertPos);
   else 
-    this->clearBit(insertPos);
+    this->clearBit(i_insertPos);
   return 0;
 }
 
-uint32_t   ecmdDataBuffer::evenParity(uint32_t start, uint32_t stop, uint32_t insertPos) {
+uint32_t   ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertPos) {
 // input checks done as part of evenParity()...which calls oddParity
-  if (this->evenParity(start,stop))
-    this->setBit(insertPos);
+  if (this->evenParity(i_start,i_stop))
+    this->setBit(i_insertPos);
   else
-    this->clearBit(insertPos);
+    this->clearBit(i_insertPos);
   return 0;
 }
 
-uint32_t ecmdDataBuffer::getWord(uint32_t wordOffset) const {
-  if (wordOffset >= iv_NumWords) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::getWord: wordOffset %d >= NumWords (%d)", wordOffset, iv_NumWords);
+uint32_t ecmdDataBuffer::getWord(uint32_t i_wordOffset) const {
+  if (i_wordOffset >= iv_NumWords) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::getWord: i_wordOffset %d >= NumWords (%d)", i_wordOffset, iv_NumWords);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
-  return this->iv_Data[wordOffset];
+  return this->iv_Data[i_wordOffset];
 }
 
 
-std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const {
+std::string ecmdDataBuffer::genHexLeftStr(uint32_t i_start, uint32_t i_bitLen) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  int tempNumWords = (bitLen + 31) / 32;
+  int tempNumWords = (i_bitLen + 31) / 32;
   std::string ret;
   char cPtr[10];
 
-  if (start+bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::genHexLeftStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
+  if (i_start+i_bitLen > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::genHexLeftStr: i_start %d + i_len %d >= NumBits (%d)", i_start, i_bitLen, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
-  } else if (start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: start %d >= iv_NumBits (%d)", start, iv_NumBits);
+  } else if (i_start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
     return ret;
-  } else if (bitLen > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: bitLen %d > iv_NumBits (%d)", bitLen, iv_NumBits);
+  } else if (i_bitLen > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::genHexLeftStr: i_bitLen %d > iv_NumBits (%d)", i_bitLen, iv_NumBits);
     return ret;
   }
 
-  if ((start==0) && (bitLen==iv_NumBits)){
+  if ((i_start==0) && (i_bitLen==iv_NumBits)){
     for (int w = 0; w < tempNumWords; w++) {      
       sprintf(cPtr, "%.8X", iv_Data[w]);
       ret.append(cPtr);
@@ -2206,7 +2206,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     ecmdDataBuffer tmpBuffer(tempNumWords*32);
     tmpBuffer.flushTo0();
 
-    rc = ecmdFastInsert(tmpBuffer.iv_Data,this->iv_Data,0,bitLen, start);
+    rc = ecmdFastInsert(tmpBuffer.iv_Data,this->iv_Data,0,i_bitLen, i_start);
     if (rc) return ret;
 
     for (int w = 0; w < tempNumWords; w++) {
@@ -2215,7 +2215,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
     }
   }
 
-  int overCount = (int)(32*tempNumWords - bitLen) / 4;
+  int overCount = (int)(32*tempNumWords - i_bitLen) / 4;
 
   if (overCount > 0) {      
     ret.erase(ret.length() - overCount, ret.length()-1);
@@ -2223,7 +2223,7 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
 
 #ifndef REMOVE_SIM
   // If we are using this interface and find Xstate data we have a problem 
-  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(i_start, i_bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genHexLeftStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -2233,23 +2233,23 @@ std::string ecmdDataBuffer::genHexLeftStr(uint32_t start, uint32_t bitLen) const
 }
 
 
-std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) const {
+std::string ecmdDataBuffer::genHexRightStr(uint32_t i_start, uint32_t i_bitLen) const {
 
   /* Do gen a hex right string, we just shift the data right to nibble align and then do a genHexLeft - tricky eh */
-  int shiftAmt = bitLen % 4 ? 4 - (bitLen % 4) : 0;
+  int shiftAmt = i_bitLen % 4 ? 4 - (i_bitLen % 4) : 0;
   std::string ret;
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (start+bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::genHexRightStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
+  if (i_start+i_bitLen > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::genHexRightStr: i_start %d + i_len %d >= NumBits (%d)", i_start, i_bitLen, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
   }
 // more input checks done as part of shiftRightAndResize and genHexLeftStr()
 
   ecmdDataBuffer temp;
-  temp.setBitLength(bitLen);
-  extract(temp, start, bitLen);
+  temp.setBitLength(i_bitLen);
+  extract(temp, i_start, i_bitLen);
 
   if (shiftAmt) {
     rc = temp.shiftRightAndResize(shiftAmt);
@@ -2261,7 +2261,7 @@ std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) cons
 
 #ifndef REMOVE_SIM
   /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(i_start, i_bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genHexRightStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -2270,17 +2270,17 @@ std::string ecmdDataBuffer::genHexRightStr(uint32_t start, uint32_t bitLen) cons
   return ret;
 }
 
-std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
+std::string ecmdDataBuffer::genBinStr(uint32_t i_start, uint32_t i_bitLen) const {
 
-  int tempNumWords = (bitLen + 31) / 32;
+  int tempNumWords = (i_bitLen + 31) / 32;
   std::string ret;
-  char* data = new char[bitLen + 1];
+  char* data = new char[i_bitLen + 1];
   bool createdTemp = false;
   uint32_t* tempData = NULL;
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (start+bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::genBinStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
+  if (i_start+i_bitLen > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::genBinStr: i_start %d + i_len %d >= NumBits (%d)", i_start, i_bitLen, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     if (data) // make sure we have the buffer before running delete on it.
     {
@@ -2291,12 +2291,12 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 // more input checks done as part of extract()
 
   /* Let's see if we can get a perf bonus */
-  if ((start == 0) && (bitLen == iv_NumBits))
+  if ((i_start == 0) && (i_bitLen == iv_NumBits))
     tempData = iv_Data;
   else {
     tempData = new uint32_t[tempNumWords];
     /* extract iv_Data */
-    rc = this->extract(&tempData[0], start, bitLen);
+    rc = this->extract(&tempData[0], i_start, i_bitLen);
     if (rc) {
       if (data) // make sure we have the buffer before running delete on it.
       {
@@ -2315,7 +2315,7 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
   uint32_t mask = 0x80000000;
   int curWord = 0;
 
-  for (uint32_t w = 0; w < bitLen; w++) {
+  for (uint32_t w = 0; w < i_bitLen; w++) {
     if (tempData[curWord] & mask) {
       data[w] = '1';
     }
@@ -2332,7 +2332,7 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 
   }
   /* Terminate this puppy */
-  data[bitLen] = '\0';
+  data[i_bitLen] = '\0';
 
   if (createdTemp)
     delete[] tempData;
@@ -2342,7 +2342,7 @@ std::string ecmdDataBuffer::genBinStr(uint32_t start, uint32_t bitLen) const {
 
 #ifndef REMOVE_SIM
   /* If we are using this interface and find Xstate data we have a problem */
-  if ((iv_XstateEnabled) && hasXstate(start, bitLen)) {
+  if ((iv_XstateEnabled) && hasXstate(i_start, i_bitLen)) {
     ETRAC0("**** WARNING : ecmdDataBuffer::genBinStr: Cannot extract when non-binary (X-State) character present");
     SET_ERROR(ECMD_DBUF_XSTATE_ERROR);
   }
@@ -2420,7 +2420,7 @@ std::string ecmdDataBuffer::genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen
 }
 
 #ifndef REMOVE_SIM
-std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const {
+std::string ecmdDataBuffer::genXstateStr(uint32_t i_start, uint32_t i_bitLen) const {
   std::string ret;
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::genXstateStr: Xstate operation called on buffer without xstate's enabled");
@@ -2429,15 +2429,15 @@ std::string ecmdDataBuffer::genXstateStr(uint32_t start, uint32_t bitLen) const 
   }
     
 
-  if (start+bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::genXstateStr: bit %d + len %d >= NumBits (%d)", start, bitLen, iv_NumBits);
+  if (i_start+i_bitLen > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::genXstateStr: i_start %d + i_len %d >= NumBits (%d)", i_start, i_bitLen, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return ret;
   }
 
-  char * copyStr = new char[bitLen + 4];
-  strncpy(copyStr, &iv_DataStr[start], bitLen);
-  copyStr[bitLen] = '\0';
+  char * copyStr = new char[i_bitLen + 4];
+  strncpy(copyStr, &iv_DataStr[i_start], i_bitLen);
+  copyStr[i_bitLen] = '\0';
 
   ret = copyStr;
 
@@ -2455,44 +2455,44 @@ std::string ecmdDataBuffer::genAsciiStr() const { return this->genAsciiStr(0, iv
 std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
 #endif /* REMOVE_SIM */
 
-uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, uint32_t start, uint32_t length) {
-  if (length == 0) {
-    length = strlen(i_hexChars) * 4;
+uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
+  if (i_length == 0) {
+    i_length = strlen(i_hexChars) * 4;
   }
 
   /* If the user left the data identifier on the front, remove it */
-  if (start == 0 && length > 3) {
+  if (i_start == 0 && i_length > 3) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x') {
       if (i_hexChars[2] == 'l') {
         i_hexChars += 3; // Advance the pointer past the special characters
-        length -= 12;    // And shrink the bit length
+        i_length -= 12;    // And shrink the bit length
       } else {
         i_hexChars += 2; // Advance the pointer two characters to bypass it
-        length -= 8;     // And shrink the bit length
+        i_length -= 8;     // And shrink the bit length
       }
     }
   }
 
-  int rc = setBitLength(length);
+  int rc = setBitLength(i_length);
   if (rc) return rc;
-  return insertFromHexLeft(i_hexChars, start, length);
+  return insertFromHexLeft(i_hexChars, i_start, i_length);
 }
 
-uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t start, uint32_t length) {
+uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
   int rc = ECMD_DBUF_SUCCESS;
   int i;
 
-  int bitlength = (length == 0 ? strlen(i_hexChars) * 4 : length);
+  int bitlength = (i_length == 0 ? strlen(i_hexChars) * 4 : i_length);
 
   /* If the user left the data identifier on the front, remove it */
-  if (start == 0 && bitlength > 3) {
+  if (i_start == 0 && bitlength > 3) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x') {
       if (i_hexChars[2] == 'l') {
         i_hexChars += 3; // Advance the pointer past the special characters
-        length -= 12;    // And shrink the bit length
+        bitlength -= 12;    // And shrink the bit length
       } else {
         i_hexChars += 2; // Advance the pointer two characters to bypass it
-        length -= 8;     // And shrink the bit length
+        bitlength -= 8;     // And shrink the bit length
       }
     }
   }
@@ -2526,38 +2526,38 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t st
   }
 
 
-  this->insert(number_ptr, start, bitlength);
+  this->insert(number_ptr, i_start, bitlength);
 
   delete[] number_ptr;
 
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insertFromHexRightAndResize (const char * i_hexChars, uint32_t start, uint32_t length) {
-  if (length == 0) {
-    length = strlen(i_hexChars) * 4;
+uint32_t ecmdDataBuffer::insertFromHexRightAndResize (const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
+  if (i_length == 0) {
+    i_length = strlen(i_hexChars) * 4;
   }
 
   /* If the user left the data identifier on the front, remove it */
-  if (start == 0 && length > 3) {
+  if (i_start == 0 && i_length > 3) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x' && i_hexChars[2] == 'r') {
       i_hexChars += 3; // Advance the pointer past the special characters
-      length -= 12;  // And shrink the bit length
+      i_length -= 12;  // And shrink the bit length
     }
   }
 
-  int rc = setBitLength(length);
+  int rc = setBitLength(i_length);
   if (rc) return rc;
-  return insertFromHexRight(i_hexChars, start, length);
+  return insertFromHexRight(i_hexChars, i_start, i_length);
 }
 
-uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t start, uint32_t expectedLength) {
+uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t i_start, uint32_t i_expectedLength) {
   int rc = ECMD_DBUF_SUCCESS;
   ecmdDataBuffer insertBuffer;
-  int bitlength = (expectedLength == 0 ? strlen(i_hexChars) * 4 : expectedLength);
+  int bitlength = (i_expectedLength == 0 ? strlen(i_hexChars) * 4 : i_expectedLength);
 
   /* If the user left the data identifier on the front, remove it */
-  if (start == 0 && bitlength > 3) {
+  if (i_start == 0 && bitlength > 3) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x' && i_hexChars[2] == 'r') {
       i_hexChars += 3; // Advance the pointer past the special characters
       bitlength -= 12;  // And shrink the bit length
@@ -2598,7 +2598,7 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t s
   }
   /* Now we have our data insert into ourselves */
 
-  this->insert(insertBuffer, start, bitlength);
+  this->insert(insertBuffer, i_start, bitlength);
 
   return rc;
 }
@@ -2665,24 +2665,24 @@ uint32_t ecmdDataBuffer::insertFromAscii(const char * i_asciiChars, uint32_t i_s
   return insert((uint8_t *)i_asciiChars, i_start, bitLength, 0);
 }
 
-uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &newCopy) const {
+uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &o_newCopy) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  rc = newCopy.setBitLength(iv_NumBits);
+  rc = o_newCopy.setBitLength(iv_NumBits);
   
   if (!rc && iv_NumBits != 0) {
     // iv_Data
-    memcpy(newCopy.iv_Data, iv_Data, iv_NumWords * 4);
+    memcpy(o_newCopy.iv_Data, iv_Data, iv_NumWords * 4);
     // Error state
-    newCopy.iv_RealData[2] = iv_RealData[2];
+    o_newCopy.iv_RealData[2] = iv_RealData[2];
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
       /* enable the xstate in the copy */
-      newCopy.enableXstateBuffer();
-      strncpy(newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
-    } else if (newCopy.iv_XstateEnabled) {
+      o_newCopy.enableXstateBuffer();
+      strncpy(o_newCopy.iv_DataStr, iv_DataStr, iv_NumBits);
+    } else if (o_newCopy.iv_XstateEnabled) {
       /* disable the xstate in the copy */
-      newCopy.disableXstateBuffer();
+      o_newCopy.disableXstateBuffer();
     }
 #endif
   }
@@ -2714,16 +2714,16 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
 }
 
 
-uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  uint32_t cbytes = bytes < getByteLength() ? bytes : getByteLength();
+  uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
     ETRAC0("**** ERROR : ecmdDataBuffer: memCopyIn: Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
-  ecmdBigEndianMemCopy(iv_Data, buf, cbytes);
+  ecmdBigEndianMemCopy(iv_Data, i_buf, cbytes);
 
   /* We're worried we might have data on in our last byte copied in that excedes numbits */
   if (cbytes == getByteLength()) {
@@ -2759,14 +2759,14 @@ uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* buf, uint32_t bytes) { /* Do
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::memCopyOut(uint32_t* buf, uint32_t bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+uint32_t  ecmdDataBuffer::memCopyOut(uint32_t* o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  uint32_t cbytes = bytes < getByteLength() ? bytes : getByteLength();
+  uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
     ETRAC0("**** ERROR : ecmdDataBuffer: memCopyOut: Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
-    ecmdBigEndianMemCopy(buf, iv_Data, cbytes);
+    ecmdBigEndianMemCopy(o_buf, iv_Data, cbytes);
   }
   return rc;
 }
@@ -2987,17 +2987,17 @@ bool ecmdDataBuffer::hasXstate() const {
 #endif /* REMOVE_SIM */
 
 #ifndef REMOVE_SIM
-bool   ecmdDataBuffer::hasXstate(uint32_t start, uint32_t length) const {
+bool   ecmdDataBuffer::hasXstate(uint32_t i_start, uint32_t i_length) const {
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::hasXstate: Xstate operation called on buffer without xstate's enabled");
     SET_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
     return false;
   }
 
-  uint32_t stopBit = start + length;
+  uint32_t stopBit = i_start + i_length;
   uint32_t minStop = iv_NumBits < stopBit ? iv_NumBits : stopBit; /* pick the smallest */
 
-  for (uint32_t i = start; i < minStop; i++) {
+  for (uint32_t i = i_start; i < minStop; i++) {
     if (iv_DataStr[i] != '0' && iv_DataStr[i] != '1')
       return true;
   }
@@ -3085,7 +3085,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_leng
  * @param i_datastr Character value to set bit - can be "0", "1", "X"
  */
 #ifndef REMOVE_SIM
-uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
+uint32_t ecmdDataBuffer::setXstate(uint32_t i_bitOffset, const char* i_datastr) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (!iv_XstateEnabled) {
@@ -3096,17 +3096,17 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t bitOffset, const char* i_datastr) {
   uint32_t len = (uint32_t)strlen(i_datastr);
   uint32_t i;
 
-  if (bitOffset+len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::setXstate: bitOffset %d + len %d > NumBits (%d)", bitOffset, len, iv_NumBits);
+  if (i_bitOffset+len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::setXstate: i_bitOffset %d + len %d > NumBits (%d)", i_bitOffset, len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
 
     for (i = 0; i < len; i++) {
-      if (i_datastr[i] == '0') rc = clearBit(bitOffset+i);
-      else if (i_datastr[i] == '1') rc = setBit(bitOffset+i);
+      if (i_datastr[i] == '0') rc = clearBit(i_bitOffset+i);
+      else if (i_datastr[i] == '1') rc = setBit(i_bitOffset+i);
       else if (!isxdigit(i_datastr[i])) {
-        rc = clearBit(bitOffset+i);
-        iv_DataStr[bitOffset+i] = i_datastr[i];
+        rc = clearBit(i_bitOffset+i);
+        iv_DataStr[i_bitOffset+i] = i_datastr[i];
       } 
       else {
         ETRAC1("**** ERROR : ecmdDataBuffer::setXstate: unrecognized Xstate character: %c", i_datastr[i]);
@@ -3174,7 +3174,7 @@ uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const 
 
 
 
-int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
+int ecmdDataBuffer::operator == (const ecmdDataBuffer& i_other) const {
 
   /* Check the length */
   uint32_t maxBits = 32;
@@ -3183,7 +3183,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
   uint32_t myData, otherData;
   uint32_t wordCounter = 0;
 
-  if (getBitLength() != other.getBitLength()) {
+  if (getBitLength() != i_other.getBitLength()) {
     return 0;
   }
 
@@ -3194,7 +3194,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
   while (numToFetch > 0) {
 
     myData = iv_Data[wordCounter];
-    otherData = other.iv_Data[wordCounter];
+    otherData = i_other.iv_Data[wordCounter];
 
     if (numToFetch == maxBits) {
       if (myData != otherData) 
@@ -3217,7 +3217,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
 #ifndef REMOVE_SIM
   /* Check the X-state buffer */
   if (iv_XstateEnabled) {
-    if (strncmp(iv_DataStr, other.iv_DataStr, iv_NumBits)) {
+    if (strncmp(iv_DataStr, i_other.iv_DataStr, iv_NumBits)) {
       return 0;
     }
   }
@@ -3227,29 +3227,29 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& other) const {
   return 1;
 }
 
-int ecmdDataBuffer::operator != (const ecmdDataBuffer& other) const {
-  return !(*this == other);
+int ecmdDataBuffer::operator != (const ecmdDataBuffer& i_other) const {
+  return !(*this == i_other);
 }
 
-ecmdDataBuffer ecmdDataBuffer::operator & (const ecmdDataBuffer& other) const {
+ecmdDataBuffer ecmdDataBuffer::operator & (const ecmdDataBuffer& i_other) const {
 
   ecmdDataBuffer newItem = *this;
 
-  if (iv_NumBits != other.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::operater &: NumBits in (%d) do not match NumBits (%d)", other.iv_NumBits, iv_NumBits);
+  if (iv_NumBits != i_other.iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::operater &: NumBits in (%d) do not match NumBits (%d)", i_other.iv_NumBits, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
-    newItem.setAnd(other.iv_Data, 0, iv_NumBits);
+    newItem.setAnd(i_other.iv_Data, 0, iv_NumBits);
   }
 
   return newItem;
 }
 
-ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& other) const {
+ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& i_other) const {
 
   ecmdDataBuffer newItem = *this;
 
-  newItem.setOr(other.iv_Data, 0, iv_NumBits);
+  newItem.setOr(i_other.iv_Data, 0, iv_NumBits);
 
   return newItem;
 }
@@ -3259,13 +3259,13 @@ ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& other) const {
 //  Private Member Function Specifications
 //---------------------------------------------------------------------
 #ifndef REMOVE_SIM
-uint32_t ecmdDataBuffer::fillDataStr(char fillChar) {
+uint32_t ecmdDataBuffer::fillDataStr(char i_fillChar) {
   if (!iv_XstateEnabled) {
     ETRAC0("**** ERROR : ecmdDataBuffer::fillDataStr: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
   if (iv_NumWords > 0) {
-    memset(iv_DataStr, fillChar, iv_NumBits);
+    memset(iv_DataStr, i_fillChar, iv_NumBits);
     iv_DataStr[iv_NumBits] = '\0';  
   }
   return ECMD_DBUF_SUCCESS;
@@ -3701,24 +3701,24 @@ uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatType_t format, uint32_t &o_num) {
+uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * i_filename, ecmdFormatType_t i_format, uint32_t &o_num) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
   uint32_t endOffset = 0, totalFileSz=0;
   bool endFound = false;
   char endKeyword[4];
   
-  ins.open(filename);
+  ins.open(i_filename);
     
   if (ins.fail()) {
-    ETRAC1("**** ERROR : Unable to open file : %s for reading",filename);
+    ETRAC1("**** ERROR : Unable to open file : %s for reading",i_filename);
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);  
   }
   
   ins.seekg(0, std::ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
-    ETRAC1("**** ERROR : File : %s is empty",filename);
+    ETRAC1("**** ERROR : File : %s is empty",i_filename);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   } else {
     ins.seekg(0); // Goto the beginning of the file 
@@ -3726,7 +3726,7 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatTyp
   
   ecmdFormatType_t existingFmt;
   uint32_t begOffset=0;
-  if (format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+  if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
     o_num = 1; // Can have only 1 databuffer with this format
     return rc; 
   }
@@ -3734,7 +3734,7 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatTyp
   ins.seekg(totalFileSz-8); //get the Begin offset of the offset table
   ins.read((char *)&begOffset,4); begOffset = htonl(begOffset);
   ins.read((char *)&existingFmt,4); existingFmt = (ecmdFormatType_t)htonl(existingFmt);
-  if (existingFmt != format) {
+  if (existingFmt != i_format) {
     ETRAC0("**** ERROR : Format requested does not match up with the file Format.");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   }
@@ -3759,7 +3759,7 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * filename, ecmdFormatTyp
   
 }
 
-uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t i_format, const char * prpty, uint32_t &o_dataNumber ) {
+uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, const char * i_prpty, uint32_t &o_dataNumber) {
   uint32_t *dataOffsets;
   bool propertyMatch = false;
   std::string facNameFromFile; 
@@ -3771,11 +3771,11 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
   char key[6], hexstr[8], endKeyword[4], fac[201];
   ecmdFormatType_t format;
 
-  if (prpty == NULL) {
+  if (i_prpty == NULL) {
     ETRAC0("**** ERROR : property field NULL.");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   } else { 
-    i_property = prpty; 
+    i_property = i_prpty; 
   }
 
   if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
@@ -3783,17 +3783,17 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   }
 
-  ins.open(filename);
+  ins.open(i_filename);
 
   if (ins.fail()) {
-    ETRAC1("**** ERROR : Unable to open file : %s for reading",filename);
+    ETRAC1("**** ERROR : Unable to open file : %s for reading",i_filename);
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);
   }
 
   ins.seekg(0, std::ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
-    ETRAC1("**** ERROR : File : %s is empty",filename);
+    ETRAC1("**** ERROR : File : %s is empty",i_filename);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   } else {
     ins.seekg(0); // Goto the beginning of the file
@@ -3844,7 +3844,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
          ins.read(fac, 200);
          fac[200] = '\0';
          facNameFromFile = fac;
-         if (facNameFromFile.find(prpty, 0, facNameFromFile.length()) != std::string::npos){
+         if (facNameFromFile.find(i_prpty, 0, facNameFromFile.length()) != std::string::npos){
            o_dataNumber = i;  
            propertyMatch = true;
            break;
@@ -3873,11 +3873,11 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
        RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
     } else {
       std::string ofac;
-      return this->readFileMultiple(filename, i_format, o_dataNumber, &ofac);
+      return this->readFileMultiple(i_filename, i_format, o_dataNumber, &ofac);
     }
 }
 
-uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType_t format, uint32_t i_dataNumber, std::string *o_facName) {
+uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber, std::string *o_facName) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
   uint32_t numBits = 0, numBytes = 0, hexbitlen = 0, property = 0, *buffer;
@@ -3891,23 +3891,23 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
 #endif 
 
 #ifdef REMOVE_SIM
-  if (format == ECMD_SAVE_FORMAT_XSTATE) {
+  if (i_format == ECMD_SAVE_FORMAT_XSTATE) {
     ETRAC0( "**** ERROR : ecmdDataBuffer: readFileMultiple: FORMAT_XSTATE not supported in this configuration");
     return(ECMD_DBUF_XSTATE_ERROR);
   }    
 #endif
   
-  ins.open(filename);
+  ins.open(i_filename);
     
   if (ins.fail()) {
-    ETRAC1("**** ERROR : Unable to open file : %s for reading",filename);
+    ETRAC1("**** ERROR : Unable to open file : %s for reading",i_filename);
     RETURN_ERROR(ECMD_DBUF_FOPEN_FAIL);  
   }
  
   ins.seekg(0, std::ios::end);
   totalFileSz = ins.tellg();
   if (totalFileSz == 0) {
-    ETRAC1("**** ERROR : File : %s is empty",filename);
+    ETRAC1("**** ERROR : File : %s is empty",i_filename);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   } else {
     ins.seekg(0); // Goto the beginning of the file 
@@ -3916,7 +3916,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
   if (i_dataNumber != 0) {
     ecmdFormatType_t existingFmt;
     uint32_t begOffset=0, dataOffset;
-    if (format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+    if (i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
       ETRAC0("**** ERROR : File Format ECMD_SAVE_FORMAT_BINARY_DATA not supported when file contains multiple DataBuffers.");
       RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
     }
@@ -3924,7 +3924,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.seekg(totalFileSz-8);//get the Begin offset of the offset table
     ins.read((char *)&begOffset,4); begOffset = htonl(begOffset);
     ins.read((char *)&existingFmt,4); existingFmt = (ecmdFormatType_t)htonl(existingFmt);
-    if (existingFmt != format) {
+    if (existingFmt != i_format) {
       ETRAC0("**** ERROR : Format requested does not match up with the file Format.");
       RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
     }
@@ -3949,7 +3949,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.seekg(begOffset+8+(4*i_dataNumber));//seek to the right databuffer header
     ins.read((char *)&dataOffset,4);  dataOffset = htonl(dataOffset);
     if (ins.fail()) {
-     ETRAC1("**** ERROR : Read of the dataOffset failed on file : %s",filename);
+     ETRAC1("**** ERROR : Read of the dataOffset failed on file : %s",i_filename);
      RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
     }
     ins.seekg(dataOffset);
@@ -3959,7 +3959,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     }
   }
  
-  if ( format == ECMD_SAVE_FORMAT_BINARY) {
+  if ( i_format == ECMD_SAVE_FORMAT_BINARY) {
     // Read Hdr
     ins.read(key,5); key[5]='\0';
     if(strcmp(key,"START")!=0) {
@@ -3968,8 +3968,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     }
     ins.seekg(3,std::ios::cur);
     ins.read((char *)&numBits,4);    numBits = htonl(numBits);
-    ins.read((char *)&format,4);    format = (ecmdFormatType_t)htonl(format);
-    if (format != ECMD_SAVE_FORMAT_BINARY ) {
+    ins.read((char *)&i_format,4);    i_format = (ecmdFormatType_t)htonl(i_format);
+    if (i_format != ECMD_SAVE_FORMAT_BINARY ) {
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_BINARY.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);  
     }
@@ -3986,7 +3986,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
     if (ins.fail()) {
-      ETRAC1("**** ERROR : Read operation in format ECMD_SAVE_FORMAT_BINARY failed on file : %s",filename);
+      ETRAC1("**** ERROR : Read operation in format ECMD_SAVE_FORMAT_BINARY failed on file : %s",i_filename);
       delete[] buffer;
       RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
     }
@@ -3996,7 +3996,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     rc = memCopyIn(buffer, numBytes); 
     delete[] buffer; buffer = NULL;
     if (rc) return rc;
-  } else if ( format == ECMD_SAVE_FORMAT_BINARY_DATA) {
+  } else if ( i_format == ECMD_SAVE_FORMAT_BINARY_DATA) {
     ins.seekg(0, std::ios::end);
     numBytes = ins.tellg();
     numBits = numBytes * 8;
@@ -4005,7 +4005,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     buffer = new uint32_t[getWordLength()];
     ins.read((char *)buffer,numBytes);
     if (ins.fail()) {
-      ETRAC1("**** ERROR : Read operation in format ECMD_SAVE_FORMAT_BINARY_DATA failed on file : %s",filename);
+      ETRAC1("**** ERROR : Read operation in format ECMD_SAVE_FORMAT_BINARY_DATA failed on file : %s",i_filename);
       delete[] buffer;
       RETURN_ERROR(ECMD_DBUF_FILE_OPERATION_FAIL); 
     }
@@ -4015,7 +4015,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     rc = memCopyIn(buffer, numBytes); 
     delete[] buffer; buffer = NULL;
     if (rc) return rc;
-  } else if(format ==  ECMD_SAVE_FORMAT_ASCII) {
+  } else if(i_format ==  ECMD_SAVE_FORMAT_ASCII) {
     ins.width(6); ins >> key; 
     if(strcmp(key,"START")!=0) {
       ETRAC0("**** ERROR : Keyword START not found.");
@@ -4024,8 +4024,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.width(9);  ins >> hexstr; 
     numBits = strtoul(hexstr, NULL, 16); 
     ins.width(9); ins >> hexstr;  
-    format = (ecmdFormatType_t) strtoul(hexstr, NULL, 16);
-    if (format != ECMD_SAVE_FORMAT_ASCII ) {
+    i_format = (ecmdFormatType_t) strtoul(hexstr, NULL, 16);
+    if (i_format != ECMD_SAVE_FORMAT_ASCII ) {
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_ASCII.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);  
     }
@@ -4048,7 +4048,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
       ins.seekg(1,std::ios::cur);//Space or Newline char
     }
 #ifndef REMOVE_SIM
-  } else if( format == ECMD_SAVE_FORMAT_XSTATE) {
+  } else if( i_format == ECMD_SAVE_FORMAT_XSTATE) {
       /// cje need to enable xstate
     ins.width(6); ins >> key; 
     if(strcmp(key,"START")!=0) {
@@ -4058,8 +4058,8 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * filename, ecmdFormatType
     ins.width(9);  ins >> hexstr;
     numBits = strtoul(hexstr, NULL, 16);
     ins.width(9); ins >> hexstr;
-    format = (ecmdFormatType_t) strtoul(hexstr, NULL, 16);
-    if (format != ECMD_SAVE_FORMAT_XSTATE ) {
+    i_format = (ecmdFormatType_t) strtoul(hexstr, NULL, 16);
+    if (i_format != ECMD_SAVE_FORMAT_XSTATE ) {
       ETRAC0("**** ERROR : Format mismatch. Expected ECMD_SAVE_FORMAT_XSTATE.");
       RETURN_ERROR(ECMD_DBUF_FILE_FORMAT_MISMATCH);
     }
@@ -4220,7 +4220,7 @@ ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer()
 /**
  * @brief Constructor with bit length specified
  */
-ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer(uint32_t numBits)
- : ecmdDataBuffer(numBits) {
+ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer(uint32_t i_numBits)
+ : ecmdDataBuffer(i_numBits) {
        iv_BufferOptimizable = true;     
 }

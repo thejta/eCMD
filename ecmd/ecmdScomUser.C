@@ -371,7 +371,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   uint32_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store read/write data
-  ecmdDataBuffer insertBuffer;                  ///< Buffer to store data to be inserted
+  ecmdDataBuffer cmdlineBuffer;                 ///< Buffer to store data to be inserted
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
   std::string printed;                          ///< String for printed data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
@@ -458,13 +458,13 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
-    rc = ecmdReadDataFormatted(insertBuffer, argv[4], inputformat, numbits);
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[4], inputformat, numbits);
     if (rc) {
       ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
     }  
   } else {  
-    rc = ecmdReadDataFormatted(buffer, argv[2], inputformat);
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[2], inputformat);
     if (rc) {
       ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
@@ -552,11 +552,14 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
           validPosFound = true;
         }
 
-        rc = ecmdApplyDataModifier(buffer, insertBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
+        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
         if (rc) {
           coeRc = rc;
           continue;
         }
+      } else {
+        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
+        buffer = cmdlineBuffer;
       }
 
       /* This does the padding of zeros as mentioned in the putscom help text */
