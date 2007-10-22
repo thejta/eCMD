@@ -565,10 +565,10 @@ struct ecmdChipTarget {
 
      <pre>
      <b>Code Snippet</b>
-     target.core = ECMD_TARGET_FIELD_VALID;
-     target.chipUnitNum = ECMD_TARGET_FIELD_UNKNOWN;
+     target.coreState = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNumState = ECMD_TARGET_FIELD_UNKNOWN;
      printf("target.coreState = %s\n", target.coreState);
-     target.core = ECMD_TARGET_FIELD_WILDCARD;
+     target.coreState = ECMD_TARGET_FIELD_WILDCARD;
      printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
 
      <b>Program Output</b>
@@ -589,10 +589,10 @@ struct ecmdChipTarget {
 
      <pre>
      <b>Code Snippet</b>
-     target.core = ECMD_TARGET_FIELD_VALID;
-     target.chipUnitNum = ECMD_TARGET_FIELD_UNKNOWN;
+     target.coreState = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNumState = ECMD_TARGET_FIELD_UNKNOWN;
      printf("target.coreState = %s\n", target.coreState);
-     target.core = ECMD_TARGET_FIELD_WILDCARD;
+     target.coreState = ECMD_TARGET_FIELD_WILDCARD;
      printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
 
      <b>Program Output</b>
