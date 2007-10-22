@@ -56,21 +56,21 @@ extern tracDesc_t g_etrc; /** Trace Descriptor **/
 //----------------------------------------------------------------------
 /* Define these if for some reason we are building without ecmdReturnCodes.H */
 #ifndef ECMD_DBUF_SUCCESS
- /* dataBuffer specific return codes */
- #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
- #define ECMD_DBUF_INIT_FAIL                     (0x01000000 | 0x2000) ///< Initialization of the DataBuffer failed
- #define ECMD_DBUF_BUFFER_OVERFLOW               (0x01000000 | 0x2010) ///< Attempt to read/write data beyond the length of the DataBuffer
- #define ECMD_DBUF_XSTATE_ERROR                  (0x01000000 | 0x2020) ///< An 'X' character occured where it was not expected
- #define ECMD_DBUF_UNDEFINED_FUNCTION            (0x01000000 | 0x2030) ///< Function not included in this version of DataBuffer
- #define ECMD_DBUF_INVALID_ARGS                  (0x01000000 | 0x2040) ///< Args provided to dataBuffer were invalid
- #define ECMD_DBUF_INVALID_DATA_FORMAT           (0x01000000 | 0x2041) ///< String data didn't match expected input format
- #define ECMD_DBUF_FOPEN_FAIL                    (0x01000000 | 0x2050) ///< File open on file for reading or writing the data buffer failed 
- #define ECMD_DBUF_FILE_FORMAT_MISMATCH          (0x01000000 | 0x2051) ///< In readFile specified format not found in the data file
- #define ECMD_DBUF_DATANUMBER_NOT_FOUND          (0x01000000 | 0x2052) ///< In readFileMultiple specified data number  not found in file
- #define ECMD_DBUF_FILE_OPERATION_FAIL           (0x01000000 | 0x2053) ///< File operation failed
- #define ECMD_DBUF_NOT_OWNER                     (0x01000000 | 0x2060) ///< Don't own this buffer so can't do this operation
-# define ECMD_DBUF_XSTATE_NOT_ENABLED            (0x01000000 | 0x2062) ///< Xstate function called on a buffer that doesn't have xstates enabled
+ #define ECMD_ERR_ECMD                           0x01000000 ///< Error came from eCMD
 
+ #define ECMD_DBUF_SUCCESS                       0x0    ///< DataBuffer returned successfully
+ #define ECMD_DBUF_INIT_FAIL                     (ECMD_ERR_ECMD | 0x2001) ///< Initialization of the DataBuffer failed
+ #define ECMD_DBUF_BUFFER_OVERFLOW               (ECMD_ERR_ECMD | 0x2011) ///< Attempt to read/write data beyond the length of the DataBuffer
+ #define ECMD_DBUF_XSTATE_ERROR                  (ECMD_ERR_ECMD | 0x2021) ///< An 'X' character occured where it was not expected
+ #define ECMD_DBUF_UNDEFINED_FUNCTION            (ECMD_ERR_ECMD | 0x2031) ///< Function not included in this version of DataBuffer
+ #define ECMD_DBUF_INVALID_ARGS                  (ECMD_ERR_ECMD | 0x2041) ///< Args provided to dataBuffer were invalid
+ #define ECMD_DBUF_INVALID_DATA_FORMAT           (ECMD_ERR_ECMD | 0x2043) ///< String data didn't match expected input format
+ #define ECMD_DBUF_FOPEN_FAIL                    (ECMD_ERR_ECMD | 0x2051) ///< File open on file for reading or writing the data buffer failed 
+ #define ECMD_DBUF_FILE_FORMAT_MISMATCH          (ECMD_ERR_ECMD | 0x2053) ///< In readFile specified format not found in the data file
+ #define ECMD_DBUF_DATANUMBER_NOT_FOUND          (ECMD_ERR_ECMD | 0x2055) ///< In readFileMultiple specified data number  not found in file
+ #define ECMD_DBUF_FILE_OPERATION_FAIL           (ECMD_ERR_ECMD | 0x2057) ///< File operation failed
+ #define ECMD_DBUF_NOT_OWNER                     (ECMD_ERR_ECMD | 0x2061) ///< Don't own this buffer so can't do this operation
+ #define ECMD_DBUF_XSTATE_NOT_ENABLED            (ECMD_ERR_ECMD | 0x2063) ///< Xstate function called on a buffer that doesn't have xstates enabled
 #endif
 
 //--------------------------------------------------------------------
