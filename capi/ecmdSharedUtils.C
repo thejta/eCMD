@@ -326,6 +326,171 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
   return rc;
 }
 
+std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
+
+  std::string printed;
+  char util[10];
+  bool hexMode = false;
+  std::string subPrinted;
+
+  if (i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID) {
+    hexMode = true;
+  }
+
+  if ((i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT ||
+       i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT ||
+       i_displayMode == ECMD_DISPLAY_TARGET_HYBRID ||
+       i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID ||
+       i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
+    printed += i_target.chipType;
+    if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+      printed += ".";
+      printed += i_target.chipUnitType;
+    }
+    if (i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT) {
+      printed += "\t";
+    } else if (i_displayMode == ECMD_DISPLAY_TARGET_HYBRID || i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID) {
+      printed += ":";
+    }
+  }
+
+  /* Put the hex prefix onto the output */
+  if (hexMode) {
+    subPrinted += "0x[";
+  }
+
+  if (i_target.cageState != ECMD_TARGET_FIELD_UNUSED) {
+    if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
+      subPrinted += " -";
+    } else {
+      /* Nothing for cage */
+    }
+    if (hexMode) {
+      sprintf(util, "k%X", i_target.cage);
+    } else {
+      sprintf(util, "k%d", i_target.cage);
+    }
+    subPrinted += util;
+
+    if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
+      if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
+        subPrinted += " -";
+      } else {
+        subPrinted += ":";
+      }
+
+      if (i_target.node == ECMD_TARGETDEPTH_NA) {
+        sprintf(util, "n-");
+        subPrinted += util;
+      } else {
+        if (hexMode) {
+          sprintf(util, "n%X", i_target.node);
+        } else {
+          sprintf(util, "n%d", i_target.node);
+        }
+        subPrinted += util;
+      }
+
+      if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
+        if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
+          subPrinted += " -";
+        } else {
+          subPrinted += ":";
+        }
+
+        if (i_target.slot == ECMD_TARGETDEPTH_NA) {
+          sprintf(util, "s-");
+          subPrinted += util;
+        } else {
+          if (hexMode) {
+            sprintf(util, "s%X", i_target.slot);
+          } else {
+            sprintf(util, "s%d", i_target.slot);
+          }
+          subPrinted += util;
+        }
+
+        if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
+
+          if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED) {
+            subPrinted += ":";
+            subPrinted += i_target.chipType;
+            if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+              subPrinted += ".";
+              subPrinted += i_target.chipUnitType;
+            }
+          }
+
+          if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
+            subPrinted += " -";
+          } else {
+            subPrinted += ":";
+          }
+
+          if (hexMode) {
+            sprintf(util, "p%X", i_target.pos);
+          } else {
+            sprintf(util, "p%02d", i_target.pos);
+          }
+          subPrinted += util;
+
+          if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
+            if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
+              subPrinted += " -";
+            } else {
+              subPrinted += ":";
+            }
+
+            if (hexMode) {
+              sprintf(util, "c%X", i_target.chipUnitNum);
+            } else {
+              sprintf(util, "c%d", i_target.chipUnitNum);
+            }
+            subPrinted += util;
+
+            if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+              if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
+                subPrinted += " -";
+              } else {
+                subPrinted += ":";
+              }
+
+              if (hexMode) {
+                sprintf(util, "t%X", i_target.thread);
+              } else {
+                sprintf(util, "t%d", i_target.thread);
+              }
+              subPrinted += util;
+            }
+          } //chipUnitNum
+        } //pos
+      } //slot
+    } //node
+  } //cage
+
+  /* The closing bracket for hex mode */
+  if (hexMode) {
+    subPrinted += "]";
+  }
+
+  /* Now put the subPrinted stuff onto the printed string so we've got the full thing */
+  printed += subPrinted;
+
+  /* For the default display modes, there are a couple extra things we want to do */
+  if (i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT) {
+    /* If the generated string is was shorter than 18 characters, pad output with whitespace */
+    if (subPrinted.length() < 18) {
+      sprintf(util, "%*s", (18 - subPrinted.length()) , "");
+      printed += util;
+    }
+
+    //ensure there is a space between the target info and the data
+    printed += " "; 
+  }
+
+  return printed;
+}
+
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data) {
   std::ifstream ins;
   std::string line;

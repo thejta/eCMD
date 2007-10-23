@@ -185,6 +185,14 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
  */
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data);
 
+#ifndef DOCUMENTATION
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/* THIS IS IN HERE TEMPORARILY UNTIL 10.0 when a real fix or the ecmdWriteTarget code can be found */
+/* THIS IS NOT FOR USER USE, THIS FUNCTION WILL DISAPPEAR WITH 10.0                                */
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode);
+#endif
+
 #endif /* ecmdSharedUtils_h */
 
 // Change Log *********************************************************
