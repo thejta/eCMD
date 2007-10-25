@@ -341,9 +341,9 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
        i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT ||
        i_displayMode == ECMD_DISPLAY_TARGET_HYBRID ||
        i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID ||
-       i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
+       i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) && (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID)) {
     printed += i_target.chipType;
-    if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
       printed += ".";
       printed += i_target.chipUnitType;
     }
@@ -359,7 +359,7 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
     subPrinted += "0x[";
   }
 
-  if (i_target.cageState != ECMD_TARGET_FIELD_UNUSED) {
+  if (i_target.cageState == ECMD_TARGET_FIELD_VALID) {
     if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
       subPrinted += " -";
     } else {
@@ -372,7 +372,7 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
     }
     subPrinted += util;
 
-    if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
+    if (i_target.nodeState == ECMD_TARGET_FIELD_VALID) {
       if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
         subPrinted += " -";
       } else {
@@ -391,7 +391,7 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
         subPrinted += util;
       }
 
-      if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
+      if (i_target.slotState == ECMD_TARGET_FIELD_VALID) {
         if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
           subPrinted += " -";
         } else {
@@ -410,12 +410,12 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
           subPrinted += util;
         }
 
-        if ((i_target.posState != ECMD_TARGET_FIELD_UNUSED) && (i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)) {
+        if ((i_target.posState == ECMD_TARGET_FIELD_VALID) && (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID)) {
 
           if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED) {
             subPrinted += ":";
             subPrinted += i_target.chipType;
-            if (i_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) {
+            if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
               subPrinted += ".";
               subPrinted += i_target.chipUnitType;
             }
@@ -434,7 +434,7 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
           }
           subPrinted += util;
 
-          if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
+          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
             if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
               subPrinted += " -";
             } else {
@@ -448,7 +448,7 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
             }
             subPrinted += util;
 
-            if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+            if (i_target.threadState == ECMD_TARGET_FIELD_VALID) {
               if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
                 subPrinted += " -";
               } else {
