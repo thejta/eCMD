@@ -40,49 +40,49 @@
 #define ECMD_DLL_LOAD_FAILURE                   (ECMD_ERR_ECMD | 0x1005) ///< Error occured on call to dlopen
 #define ECMD_DLL_UNLOAD_FAILURE                 (ECMD_ERR_ECMD | 0x1007) ///< Error occurred on call to dlclose
 #define ECMD_DLL_UNINITIALIZED                  (ECMD_ERR_ECMD | 0x1009) ///< A function was called before ecmdLoadDll was called
-#define ECMD_DLL_INVALID                        (ECMD_ERR_ECMD | 0x100A) ///< If we are unable to lookup a function in the Dll
-#define ECMD_FAILURE                            (ECMD_ERR_ECMD | 0x100C) ///< General Failure occurred in eCMD
-#define ECMD_TARGET_NOT_CONFIGURED              (ECMD_ERR_ECMD | 0x100E) ///< Chip target provided was not configured in the system
+#define ECMD_DLL_INVALID                        (ECMD_ERR_ECMD | 0x100B) ///< If we are unable to lookup a function in the Dll
+#define ECMD_FAILURE                            (ECMD_ERR_ECMD | 0x100D) ///< General Failure occurred in eCMD
+#define ECMD_TARGET_NOT_CONFIGURED              (ECMD_ERR_ECMD | 0x100F) ///< Chip target provided was not configured in the system
 #define ECMD_FUNCTION_NOT_SUPPORTED             (ECMD_ERR_ECMD | 0x1011) ///< Returned if a specific Dll instance doesn't support the function you called
 #define ECMD_UNKNOWN_FILE                       (ECMD_ERR_ECMD | 0x1013) ///< ecmdQueryFileLocation was unable to find the file you requested
 #define ECMD_INVALID_ARGS                       (ECMD_ERR_ECMD | 0x1015) ///< Not enough arguments provided to the function
 #define ECMD_INVALID_SPY_ENUM                   (ECMD_ERR_ECMD | 0x1017) ///< getSpyEnum or putSpyEnum used an invalid enum
 #define ECMD_SPY_FAILED_ECC_CHECK               (ECMD_ERR_ECMD | 0x1019) ///< getSpy or getSpyEnum failed with invalid ECC detected in the hardware
-#define ECMD_SPY_NOT_ENUMERATED                 (ECMD_ERR_ECMD | 0x101A) ///< getSpyEnum or putSpyEnum was called on a non-enumerated spy
-#define ECMD_SPY_IS_EDIAL                       (ECMD_ERR_ECMD | 0x101C) ///< getSpy or Putspy was called on an edial
-#define ECMD_INVALID_SPY                        (ECMD_ERR_ECMD | 0x101E) ///< Spy functions found an invalid Spy name or type
+#define ECMD_SPY_NOT_ENUMERATED                 (ECMD_ERR_ECMD | 0x101B) ///< getSpyEnum or putSpyEnum was called on a non-enumerated spy
+#define ECMD_SPY_IS_EDIAL                       (ECMD_ERR_ECMD | 0x101D) ///< getSpy or Putspy was called on an edial
+#define ECMD_INVALID_SPY                        (ECMD_ERR_ECMD | 0x101F) ///< Spy functions found an invalid Spy name or type
 #define ECMD_DATA_OVERFLOW                      (ECMD_ERR_ECMD | 0x1021) ///< Too much data was provided to a write function
 #define ECMD_DATA_UNDERFLOW                     (ECMD_ERR_ECMD | 0x1023) ///< Too little data was provided to a write function
 #define ECMD_INVALID_RING                       (ECMD_ERR_ECMD | 0x1025) ///< Invalid ring name was provided
 #define ECMD_INVALID_ARRAY                      (ECMD_ERR_ECMD | 0x1027) ///< Invalid array name was provided
 #define ECMD_INVALID_CONFIG                     (ECMD_ERR_ECMD | 0x1029) ///< There was an error processing the configuration information
-#define ECMD_CLOCKS_IN_INVALID_STATE            (ECMD_ERR_ECMD | 0x102A) ///< Chip Clocks were in an invalid state to perform the operation
-#define ECMD_NON_JTAG_CHIP                      (ECMD_ERR_ECMD | 0x102C) ///< JTag function called  on non-jtag attached chip
-#define ECMD_NON_FSI_CHIP                       (ECMD_ERR_ECMD | 0x102E) ///< Fsi function called on non-fsi attached chip
+#define ECMD_CLOCKS_IN_INVALID_STATE            (ECMD_ERR_ECMD | 0x102B) ///< Chip Clocks were in an invalid state to perform the operation
+#define ECMD_NON_JTAG_CHIP                      (ECMD_ERR_ECMD | 0x102D) ///< JTag function called  on non-jtag attached chip
+#define ECMD_NON_FSI_CHIP                       (ECMD_ERR_ECMD | 0x102F) ///< Fsi function called on non-fsi attached chip
 #define ECMD_INVALID_SPR                        (ECMD_ERR_ECMD | 0x1031) ///< Invalid SPR was specified to get/put spr functions
 #define ECMD_INVALID_GPR                        (ECMD_ERR_ECMD | 0x1033) ///< Invalid GPR number was specified to get/put gpr functions
 #define ECMD_INVALID_FPR                        (ECMD_ERR_ECMD | 0x1035) ///< Invalid FPR number was specified to get/put fpr functions
 #define ECMD_RING_CACHE_ENABLED                 (ECMD_ERR_ECMD | 0x1037) ///< Ring Cache enabled during call non-cache enabled function
 #define ECMD_INVALID_CONFIG_NAME                (ECMD_ERR_ECMD | 0x1039) ///< An Invalid name was used to set/get a configuation setting
-#define ECMD_INVALID_CONFIG_DATA                (ECMD_ERR_ECMD | 0x103A) ///< An Invalid data type was used to set/get a configuation setting
-#define ECMD_SPY_GROUP_MISMATCH                 (ECMD_ERR_ECMD | 0x103C) ///< A mismatch was found reading a group spy not all groups set the same
-#define ECMD_INVALID_CLOCK_DOMAIN               (ECMD_ERR_ECMD | 0x103E) ///< An invalid clock domain name was specified
+#define ECMD_INVALID_CONFIG_DATA                (ECMD_ERR_ECMD | 0x103B) ///< An Invalid data type was used to set/get a configuation setting
+#define ECMD_SPY_GROUP_MISMATCH                 (ECMD_ERR_ECMD | 0x103D) ///< A mismatch was found reading a group spy not all groups set the same
+#define ECMD_INVALID_CLOCK_DOMAIN               (ECMD_ERR_ECMD | 0x103F) ///< An invalid clock domain name was specified
 #define ECMD_CLOCKS_ALREADY_OFF                 (ECMD_ERR_ECMD | 0x1041) ///< A stopclocks was requested when clocks are already off
 #define ECMD_CLOCKS_ALREADY_ON                  (ECMD_ERR_ECMD | 0x1043) ///< A startclocks was requested when clocks are already on
 #define ECMD_UNABLE_TO_OPEN_SCANDEF             (ECMD_ERR_ECMD | 0x1045) ///< eCMD was unable to open the scandef
 #define ECMD_INVALID_LATCHNAME                  (ECMD_ERR_ECMD | 0x1047) ///< eCMD was unable to find the specified latch in the scandef
 #define ECMD_POLLING_FAILURE                    (ECMD_ERR_ECMD | 0x1049) ///< eCMD failed waiting for a poll to match expected value
-#define ECMD_TARGET_INVALID_TYPE                (ECMD_ERR_ECMD | 0x104A) ///< Target specified an object that was inappropriate for the function
-#define ECMD_EXTENSION_NOT_SUPPORTED            (ECMD_ERR_ECMD | 0x104C) ///< The current plugin does not supported the requested extension
-#define ECMD_ISTEPS_INVALID_STEP                (ECMD_ERR_ECMD | 0x104E) ///< An invalid step name was provided
+#define ECMD_TARGET_INVALID_TYPE                (ECMD_ERR_ECMD | 0x104B) ///< Target specified an object that was inappropriate for the function
+#define ECMD_EXTENSION_NOT_SUPPORTED            (ECMD_ERR_ECMD | 0x104D) ///< The current plugin does not supported the requested extension
+#define ECMD_ISTEPS_INVALID_STEP                (ECMD_ERR_ECMD | 0x104F) ///< An invalid step name was provided
 #define ECMD_UNABLE_TO_OPEN_SCANDEFHASH         (ECMD_ERR_ECMD | 0x1051) ///< eCMD was unable to open the scandefhash
 #define ECMD_SCANDEFHASH_MULT_RINGS             (ECMD_ERR_ECMD | 0x1053) ///< Multiple ring keys matching the same latchname found
 #define ECMD_UNABLE_TO_OPEN_SCOMDEF             (ECMD_ERR_ECMD | 0x1055) ///< eCMD was unable to open scomdef file
 #define ECMD_SCOMADDRESS_NOT_FOUND              (ECMD_ERR_ECMD | 0x1057) ///< Scom Address not found in the ScomDef file
 #define ECMD_INVALID_ENTRY_REQUESTED            (ECMD_ERR_ECMD | 0x1059) ///< An invalid entry was requested
-#define ECMD_INSTRUCTIONS_IN_INVALID_STATE      (ECMD_ERR_ECMD | 0x105A) ///< Instructions were in an invalid state for operation
-#define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x105C) ///< Memory Address was not on a 8-byte boundary
-#define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_IP   | 0x105E) ///< Requests that the user retries operation with returned Virtual Address
+#define ECMD_INSTRUCTIONS_IN_INVALID_STATE      (ECMD_ERR_ECMD | 0x105B) ///< Instructions were in an invalid state for operation
+#define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x105D) ///< Memory Address was not on a 8-byte boundary
+#define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_IP   | 0x105F) ///< Requests that the user retries operation with returned Virtual Address
 #define ECMD_UNABLE_TO_MAP_HASHID		(ECMD_ERR_IP   | 0x1061) ///< Mapping function was unable to match the hashid given by the user
 #define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1053) ///< eCMD was unable to open arraydef file
 #define ECMD_INVALID_RETURN_DATA                (ECMD_ERR_ECMD | 0x1065) ///< Data returned (if any) is incomplete or invalid... caller beware
