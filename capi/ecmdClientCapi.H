@@ -1743,11 +1743,11 @@ uint32_t ecmdGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_
 /**
  @brief Register a target with an error code
  @param i_errorCode The error code to store a message for
- @param o_errorTarget The target associated with the error code
+ @param i_errorTarget The target associated with the error code
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & o_errorTarget);
+uint32_t ecmdRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & i_errorTarget);
 
 /**
  @brief Flush registered error targets for a specific error code
