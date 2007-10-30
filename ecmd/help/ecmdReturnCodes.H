@@ -88,6 +88,7 @@
 #define ECMD_INVALID_RETURN_DATA                (ECMD_ERR_ECMD | 0x1065) ///< Data returned (if any) is incomplete or invalid... caller beware
 #define ECMD_CHIP_UNKNOWN_FOR_MAPPING           (ECMD_ERR_ECMD | 0x1067) ///< Chip type did not map to a known EDC table
 #define ECMD_INVALID_GP_REGISTER                (ECMD_ERR_ECMD | 0x1069) ///< Invalid GP Register was provided
+#define ECMD_INVALID_SCOM                       (ECMD_ERR_ECMD | 0x106B) ///< Invalid GP Register was provided
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1901)  ///< Command interpreter didn't understand command
