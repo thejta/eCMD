@@ -50,6 +50,82 @@ std::string ecmdGetSharedLibVersion() {
   return ECMD_CAPI_VERSION;
 }
 
+/** @brief Used to compare ecmdChipTarget targeting variables that have their state
+ field set to valid.  If the state field is not set to valid on both sides, a comparision is not done
+ */
+bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
+  bool equal = true; // Assume a match to start
+
+  /* Use a breakout loop so we can bail on the comparisions once we find an invalid case */
+  do {
+    /* CAGE */
+    if (lhs.cageState == ECMD_TARGET_FIELD_VALID && rhs.cageState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.cage != rhs.cage) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* NODE */
+    if (lhs.nodeState == ECMD_TARGET_FIELD_VALID && rhs.nodeState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.node != rhs.node) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* SLOT */
+    if (lhs.slotState == ECMD_TARGET_FIELD_VALID && rhs.slotState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.slot != rhs.slot) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* CHIPTYPE */
+    if (lhs.chipTypeState == ECMD_TARGET_FIELD_VALID && rhs.chipTypeState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.chipType != rhs.chipType) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* POS */
+    if (lhs.posState == ECMD_TARGET_FIELD_VALID && rhs.posState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.pos != rhs.pos) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* CHIPUNIT TYPE */
+    if (lhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID && rhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.chipUnitType != rhs.chipUnitType) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* CHIPUNIT NUM */
+    if (lhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID && rhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.chipUnitNum != rhs.chipUnitNum) {
+        equal = false;
+        break;
+      }
+    }
+
+    /* THREAD */
+    if (lhs.threadState == ECMD_TARGET_FIELD_VALID && rhs.threadState == ECMD_TARGET_FIELD_VALID) {
+      if (lhs.thread != rhs.thread) {
+        equal = false;
+        break;
+      }
+    }
+  } while (0);
+        
+  return equal;
+}
+
 
 /*
  * This function will flatten the ecmdChipTarget struct for transport accross
