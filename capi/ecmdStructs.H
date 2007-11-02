@@ -643,6 +643,10 @@ unitIdState(ECMD_TARGET_UNKNOWN_STATE)
 inline ecmdChipTarget::~ecmdChipTarget() { }
 #endif
 
+/** @brief Used to compare ecmdChipTarget targeting variables that have their state
+ field set to valid.  If the state field is not set to valid on both sides, a comparision is not done
+ */
+bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs);
 
 /**
  @brief Used for the ecmdQueryConfig function to return thread data
