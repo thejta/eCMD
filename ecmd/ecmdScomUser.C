@@ -150,9 +150,6 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("getscom - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
-  } else if (strlen(argv[1]) > 6) {
-    ecmdOutputError("getscom - Scom addresses must be <= 24 bits in length\n");
-    return ECMD_INVALID_ARGS;
   }
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
 
@@ -420,9 +417,6 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("putscom - Non-hex characters detected in address field\n");
-    return ECMD_INVALID_ARGS;
-  } else if (strlen(argv[1]) > 6) {
-    ecmdOutputError("putscom - Scom addresses must be <= 24 bits in length\n");
     return ECMD_INVALID_ARGS;
   }
   address = ecmdGenB32FromHexRight(&address, argv[1]);
@@ -762,9 +756,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   //get address to fetch
   if (!ecmdIsAllHex(argv[1])) {
     ecmdOutputError("pollscom - Non-hex characters detected in address field\n");
-    return ECMD_INVALID_ARGS;
-  } else if (strlen(argv[1]) > 6) {
-    ecmdOutputError("pollscom - Scom addresses must be <= 24 bits in length\n");
     return ECMD_INVALID_ARGS;
   }
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
