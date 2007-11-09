@@ -1294,7 +1294,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             ecmdEndChipUnit = chipUnitQueryData.cageData.begin()->nodeData.begin()->slotData.begin()->chipData.begin()->chipUnitData.end();
 
             for (ecmdCurChipUnit = ecmdBeginChipUnit; ecmdCurChipUnit != ecmdEndChipUnit; ecmdCurChipUnit++) {
-              sprintf(buf, "        %s %d\n", ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum ); ecmdOutput(buf); 
+              sprintf(buf, "        %s %d\n", (ecmdCurChipUnit->chipUnitType == "" ? "core" : ecmdCurChipUnit->chipUnitType.c_str()), ecmdCurChipUnit->chipUnitNum ); ecmdOutput(buf); 
               sprintf(buf, "          Details: ChipUnitUid=%8.8X, Flags=0x%.08X\n", ecmdCurChipUnit->unitId, ecmdCurChipUnit->chipUnitFlags); ecmdOutput(buf);
 
               /* Now get our thread level info */
