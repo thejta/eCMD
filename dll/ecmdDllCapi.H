@@ -219,7 +219,7 @@ uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode);
 
 uint32_t dllGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget); 
 
-uint32_t dllRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & o_errorTarget); 
+uint32_t dllRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & i_errorTarget); 
 
 uint32_t dllFlushRegisteredErrorTargets(uint32_t i_errorCode); 
 
