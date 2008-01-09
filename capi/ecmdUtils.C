@@ -1164,10 +1164,13 @@ uint32_t ecmdDisplayDllInfo() {
   ecmdOutput(printed.c_str());
 
   printed = "Dll Product      : ";
-  if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
+  if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ) {
     printed += "Eclipz\n";
-  else
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_APOLLO) {
+    printed += "Apollo\n";
+  } else {
     printed += "Unknown\n";
+  }
   ecmdOutput(printed.c_str());
 
   printed = "Dll Product Type : ";
