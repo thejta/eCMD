@@ -262,7 +262,8 @@ typedef enum {
 */
 typedef enum {
   ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
-  ECMD_DLL_PRODUCT_ECLIPZ       ///< Eclipz
+  ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
+  ECMD_DLL_PRODUCT_APOLLO       ///< IP Apollo Project
 } ecmdDllProduct_t;
 
 /**
