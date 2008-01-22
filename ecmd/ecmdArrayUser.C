@@ -87,7 +87,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   ecmdDataBuffer expected;              ///< Buffer to store expected data
   ecmdDataBuffer mask;                  ///< Buffer for mask of expected data
   bool isChipUnitArray;                 ///< Is this a chipUnit array ?
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   //expect and mask flags check
   if ((expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
@@ -457,7 +457,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   ecmdArrayData arrayData;      ///< Query data about array
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
   bool isChipUnitArray;             ///< Is this a chipUnit array ?
-  uint8_t oneLoop;              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
