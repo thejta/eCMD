@@ -506,8 +506,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable scoms for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Scom Address  Core    ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Scom Address  Core    Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------  ------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
 
       for (scomit = scomdata.begin(); scomit != scomdata.end(); scomit ++) {
 
@@ -526,10 +526,9 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isCore = 'N';
         }
 
-        sprintf(buf," %c     %-21s", isCore,scomit->clockDomain.c_str());
+        sprintf(buf," %c     %-7d %-21s", isCore,scomit->length, scomit->clockDomain.c_str());
         printed += (std::string)buf;
 	
-
         if (scomit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
           printed += "UNKNOWN\n";
         else if (scomit->clockState == ECMD_CLOCKSTATE_ON)
