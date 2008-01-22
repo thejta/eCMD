@@ -85,7 +85,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string printed;                          ///< Output data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit in the scom data
   uint32_t numbits = 0;                         ///< Number of bits to diplay
-  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -373,7 +373,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::string printed;                          ///< String for printed data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
   uint32_t numbits = 0;                         ///< Number of bits to insert data
-  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -619,7 +619,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   ecmdDataBuffer buffer;                        ///< Store current scom data
   ecmdDataBuffer expected;                      ///< Store expected data
   ecmdDataBuffer mask;                          ///< Store mask data
-  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   uint8_t NONE_T = 0;
   uint8_t SECONDS_T = 1;

@@ -156,7 +156,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
   ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
   ecmdDataBuffer buffertemp(500 /* bits */);   ///< Temp space for extracted latch data
-  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                         ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -519,7 +519,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                        ///< Buffer for extracted data
   std::string ringName;                         ///< Ring name to fetch
   std::string latchName;                        ///< Latch name to fetch
-  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                          ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
@@ -889,7 +889,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   bool inputformatflag = false; 
-  uint8_t oneLoop;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1161,7 +1161,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
   bool validPosFound = false;           ///< Did the looper find something ?
   bool formatflag = false;
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1381,7 +1381,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
   bool enabledCache = false;            ///< Did we enable the cache ?
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1737,7 +1737,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   std::list<ecmdCheckRingData> failedRings;   ///< Names of rings that failed
   std::list<ecmdCheckRingData> passedRings;   ///< Names of rings that failed
   bool verbose = false;                 ///< Verbose error display
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
 
   /************************************************************************/
@@ -2118,7 +2118,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdDataBuffer buffer;                ///< Buffer to store pattern
   std::string format = "xr";            ///< Default input format
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */

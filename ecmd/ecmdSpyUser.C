@@ -91,7 +91,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
   bool enabledCache = false;            ///< Did we enable the cache ?
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -549,7 +549,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   bool enabledCache = false;            ///< Did we enable the cache ?
-  uint8_t oneLoop;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
