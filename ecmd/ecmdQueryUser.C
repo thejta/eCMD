@@ -1023,7 +1023,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 cbuf += buf;
               }
 
-              prevChipUnit = "jta"; // Can't be initialized to "" because that is valid for P6/Z6
+              prevChipUnit = "jta"; // Can't be initialized to "" because that is valid for P6/Z6, use my initials
               for (ecmdCurChipUnit = ecmdBeginChipUnit; ecmdCurChipUnit != ecmdEndChipUnit; ecmdCurChipUnit++) {
 
                 if (!easyParse) {
