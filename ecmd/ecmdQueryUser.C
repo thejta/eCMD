@@ -899,11 +899,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;
     std::list<ecmdThreadData>::iterator ecmdCurThread;
     bool doAll = false;
-    bool decode = true;
 
     /* Do they want to run in easy parse mode ? */
     bool easyParse = ecmdParseOption (&argc, &argv, "-ep");
-    
+
     /* Figure out the depth they want */
     target.cageState = target.nodeState = target.slotState = target.chipTypeState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     /* Default is -dp, so set to unknown */
@@ -920,60 +919,65 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     rc = ecmdQuerySelected(target, queryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
 
+    /* Use as many STL buffers as possible so we don't keep blowing char buffers and core dumping */
     char buf[300];
-    char buf2[20];
-    std::string curchip, kbuf, nbuf, sbuf;
+    std::string kbuf, nbuf, sbuf, cbuf;
+    bool chipSwitch = true;
+    bool chipUnitSwitch = true;
+    bool didThreadDepth = false;
+    std::string prevChip, prevChipUnit;
 
     for (ecmdCurCage = queryData.cageData.begin(); ecmdCurCage != queryData.cageData.end(); ecmdCurCage ++) {
       if (!easyParse) {
-        sprintf(buf,"Cage %d\n",ecmdCurCage->cageId); ecmdOutput(buf);
+        sprintf(buf,"cage %d\n",ecmdCurCage->cageId); ecmdOutput(buf);
       } else {
         sprintf(buf,"-k%d ",ecmdCurCage->cageId); kbuf = buf;
       }        
       for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
         if (!easyParse) {
-	  if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
-	    sprintf(buf,"  Node NA\n"); ecmdOutput(buf);
-	  } else {
-	    sprintf(buf,"  Node %d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
-	  }
+          if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
+            sprintf(buf,"  node NA\n"); ecmdOutput(buf);
+          } else {
+            sprintf(buf,"  node %d\n",ecmdCurNode->nodeId); ecmdOutput(buf);
+          }
         } else {
-	  if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
-	    sprintf(buf,"-n- "); nbuf = kbuf + buf;
-	  } else {
-	    sprintf(buf,"-n%d ",ecmdCurNode->nodeId); nbuf = kbuf + buf;
-	  }
+          if (ecmdCurNode->nodeId == ECMD_TARGETDEPTH_NA) {
+            sprintf(buf,"-n- "); nbuf = kbuf + buf;
+          } else {
+            sprintf(buf,"-n%d ",ecmdCurNode->nodeId); nbuf = kbuf + buf;
+          }
         }
 
         for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
           if (!easyParse) {
-	    if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
-	      sprintf(buf,"    Slot NA\n"); ecmdOutput(buf); buf[0] = '\0';
-	    } else {
-	      sprintf(buf,"    Slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf); buf[0] = '\0';
-	    }
+            if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+              sprintf(buf,"    slot NA\n"); ecmdOutput(buf);
+            } else {
+              sprintf(buf,"    slot %d\n",ecmdCurSlot->slotId); ecmdOutput(buf);
+            }
           } else {
-	    if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
-	      sprintf(buf,"-s%-4s ", "-"); sbuf = nbuf + buf;
-	    } else {
-	      sprintf(buf,"-s%-4d ",ecmdCurSlot->slotId); sbuf = nbuf + buf;
-	    }
+            if (ecmdCurSlot->slotId == ECMD_TARGETDEPTH_NA) {
+              sprintf(buf,"-s%-4s ", "-"); sbuf = nbuf + buf;
+            } else {
+              sprintf(buf,"-s%-4d ",ecmdCurSlot->slotId); sbuf = nbuf + buf;
+            }
           }
 
-          curchip = "";
-          for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
+          prevChip = "";
+          for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip++) {
             if (!easyParse) {
-              if (curchip != ecmdCurChip->chipType) {
-                /* Setup some basic stuff the first time through on a new chip */
-                if (curchip != "") {
-                  strcat(buf, "\n"); ecmdOutput(buf);
+              /* Print out the chip name if we are switching chips */
+              if (prevChip != ecmdCurChip->chipType) {
+                chipSwitch = true;
+                if (prevChip != "") {
+                  cbuf.erase((cbuf.length() - 1), 1);
+                  cbuf += "]\n"; ecmdOutput(cbuf.c_str());  cbuf.clear();
                 }
-                curchip = ecmdCurChip->chipType;
-                decode = true;
-                sprintf(buf,"      %s ",ecmdCurChip->chipType.c_str());
+                prevChip = ecmdCurChip->chipType;
+                sprintf(buf,"      %s\n",ecmdCurChip->chipType.c_str());
+                ecmdOutput(buf);
               } else {
-                /* Only print the decode on the first time through */
-                decode = false;
+                chipSwitch = false;
               }
             }
             if (doAll || !ecmdCurChip->chipUnitData.empty()) {
@@ -991,14 +995,14 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 target.posState = ECMD_TARGET_FIELD_VALID;
                 target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
                 target.threadState = ECMD_TARGET_FIELD_UNUSED;
-                
+
                 rc = ecmdQuerySelected(target, chipUnitQueryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
                 /* If it's empty list, we don't have chipUnits and need to return back */
                 if (chipUnitQueryData.cageData.empty()) {
                   /* For non-chipUnit chips OR For chipUnit-chips If chipUnit list is empty */
                   if (!easyParse) {
-                    sprintf(buf2,"%s %d,", (decode ? "[p]" : ""), ecmdCurChip->pos);
-                    strcat(buf, buf2);
+                    sprintf(buf,"%s%d,", (chipSwitch ? "        p[" : ""), ecmdCurChip->pos);
+                    cbuf += buf;
                   } else {
                     sprintf(buf,"%-15s -p%02d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
                     printed = sbuf + buf;
@@ -1013,7 +1017,30 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 ecmdBeginChipUnit = ecmdCurChip->chipUnitData.begin();
                 ecmdEndChipUnit = ecmdCurChip->chipUnitData.end();
               }
+
+              if (!easyParse && (ecmdBeginChipUnit != ecmdEndChipUnit)) {
+                sprintf(buf,"        p[%d]\n", ecmdCurChip->pos);
+                cbuf += buf;
+              }
+
+              prevChipUnit = "";
               for (ecmdCurChipUnit = ecmdBeginChipUnit; ecmdCurChipUnit != ecmdEndChipUnit; ecmdCurChipUnit++) {
+
+                if (!easyParse) {
+                  if (prevChipUnit != ecmdCurChipUnit->chipUnitType || didThreadDepth) {
+                    chipUnitSwitch = true;
+                    didThreadDepth = false;
+                    if (prevChipUnit != "") {
+                      cbuf.erase((cbuf.length() - 1), 1);
+                      cbuf += "]\n"; ecmdOutput(cbuf.c_str()); cbuf.clear();
+                    }
+                    prevChipUnit = ecmdCurChipUnit->chipUnitType;
+                    sprintf(buf,"          %s[",((ecmdCurChipUnit->chipUnitType == "") ? "c" : ecmdCurChipUnit->chipUnitType.c_str()));
+                    cbuf += buf;
+                  } else {
+                    chipUnitSwitch = false;
+                  }
+                }
 
                 if (doAll || !ecmdCurChipUnit->threadData.empty()) {
                   /* In doAll mode, we are attempting to tunnel all the way down so we need to re-run the query at the thread level to see if we have threads */
@@ -1043,10 +1070,15 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                     if (threadQueryData.cageData.empty()) {
                       /* For non-threaded chips */
                       if (!easyParse) {
-                        sprintf(buf2, "%s %d:%d,", (decode ? "[p:c]" : ""),ecmdCurChip->pos,ecmdCurChipUnit->chipUnitNum);
-                        strcat(buf, buf2);
+                        sprintf(buf, "%d,", ecmdCurChipUnit->chipUnitNum);
+                        cbuf += buf;
                       } else {
-                        sprintf(buf,"%-15s -p%02d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurChipUnit->chipUnitNum);
+                        /* We need to figure out if we should add on a chipUnit */
+                        std::string fullChipType = ecmdCurChip->chipType.c_str();
+                        if (ecmdCurChipUnit->chipUnitType != "") {
+                          fullChipType += "." + ecmdCurChipUnit->chipUnitType;
+                        }
+                        sprintf(buf,"%-15s -p%02d -c%d\n", fullChipType.c_str(), ecmdCurChip->pos, ecmdCurChipUnit->chipUnitNum);
                         printed = sbuf + buf;
                         ecmdOutput(printed.c_str());
                       }
@@ -1060,43 +1092,58 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                     ecmdEndThread = ecmdCurChipUnit->threadData.end();
                   }
 
+                  if (ecmdBeginThread != ecmdEndThread) {
+                    sprintf(buf,"%d]->t[", ecmdCurChipUnit->chipUnitNum);
+                    cbuf += buf;
+                  }
+
                   for (ecmdCurThread = ecmdBeginThread; ecmdCurThread != ecmdEndThread; ecmdCurThread++) {
+
                     if (!easyParse) {
-                      sprintf(buf2, "%s %d:%d:%d,", (decode ? "[p:c:t]" : ""),ecmdCurChip->pos,ecmdCurChipUnit->chipUnitNum,ecmdCurThread->threadId);
-                      strcat(buf, buf2);
-                      /* We need to reset decode to false so we don't print it multiple times */
-                      if (decode) {
-                        decode = false;
-                      }
+                      didThreadDepth = true;
+                      sprintf(buf, "%d,", ecmdCurThread->threadId);
+                      cbuf += buf;
                     } else {
-                      sprintf(buf,"%-15s -p%02d -c%d -t%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurChipUnit->chipUnitNum, ecmdCurThread->threadId);
+                      /* We need to figure out if we should add on a chipUnit */
+                      std::string fullChipType = ecmdCurChip->chipType.c_str();
+                      if (ecmdCurChipUnit->chipUnitType != "") {
+                        fullChipType += "." + ecmdCurChipUnit->chipUnitType;
+                      }
+                      sprintf(buf,"%-15s -p%02d -c%d -t%d\n", fullChipType.c_str(), ecmdCurChip->pos, ecmdCurChipUnit->chipUnitNum, ecmdCurThread->threadId);
                       printed = sbuf + buf;
                       ecmdOutput(printed.c_str());
                     }
                   } /* threadCoreIter */
+
                 } else {
                   /* For non-threaded chips */
                   if (!easyParse) {
-                    sprintf(buf2, "%s %d:%d,", (decode ? "[p:c]" : ""),ecmdCurChip->pos,ecmdCurChipUnit->chipUnitNum);
-                    strcat(buf, buf2);
-                    /* We need to reset decode to false so we don't print it multiple times */
-                    if (decode) {
-                      decode = false;
-                    }
+                    sprintf(buf, "%d,", ecmdCurChipUnit->chipUnitNum);
+                    cbuf += buf;
                   } else {
-                    sprintf(buf,"%-15s -p%02d -c%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos, ecmdCurChipUnit->chipUnitNum);
+                    /* We need to figure out if we should add on a chipUnit */
+                    std::string fullChipType = ecmdCurChip->chipType.c_str();
+                    if (ecmdCurChipUnit->chipUnitType != "") {
+                      fullChipType += "." + ecmdCurChipUnit->chipUnitType;
+                    }
+                    sprintf(buf,"%-15s -p%02d -c%d\n", fullChipType.c_str(), ecmdCurChip->pos, ecmdCurChipUnit->chipUnitNum);
                     printed = sbuf + buf;
                     ecmdOutput(printed.c_str());
                   }
                 }
 
               } /* curChipUnitIter */
+              /* We have to print our buffer after our last loop is done */
+              if (!easyParse) {
+                cbuf.erase((cbuf.length() - 1), 1);
+                cbuf += "]\n";
+              }
             }
-	    else {
+            else {
               /* For non-core chips OR For core-chips If core list is empty */
               if (!easyParse) {
-                sprintf(buf2,"%s %d,", (decode ? "[p]" : ""), ecmdCurChip->pos);
-                strcat(buf, buf2);
+                sprintf(buf,"%s%d,", (chipSwitch ? "        p[" : ""), ecmdCurChip->pos);
+                cbuf += buf;
               } else {
                 sprintf(buf,"%-15s -p%02d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
                 printed = sbuf + buf;
@@ -1105,8 +1152,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             } 
           } /* curChipIter */
           /* We have to print our buffer after our last loop is done */
-          if (!easyParse && strlen(buf) > 0) {
-            strcat(buf, "\n"); ecmdOutput(buf);
+          if (!easyParse) {
+            cbuf.erase((cbuf.length() - 1), 1);
+            cbuf += "]\n";
+            ecmdOutput(cbuf.c_str()); cbuf.clear();
           }
         } /* curSlotIter */
       } /* curNodeIter */
