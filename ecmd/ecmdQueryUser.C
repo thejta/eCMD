@@ -1023,14 +1023,14 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 cbuf += buf;
               }
 
-              prevChipUnit = "";
+              prevChipUnit = "jta"; // Can't be initialized to "" because that is valid for P6/Z6
               for (ecmdCurChipUnit = ecmdBeginChipUnit; ecmdCurChipUnit != ecmdEndChipUnit; ecmdCurChipUnit++) {
 
                 if (!easyParse) {
                   if (prevChipUnit != ecmdCurChipUnit->chipUnitType || didThreadDepth) {
                     chipUnitSwitch = true;
                     didThreadDepth = false;
-                    if (prevChipUnit != "") {
+                    if (prevChipUnit != "jta") {
                       cbuf.erase((cbuf.length() - 1), 1);
                       cbuf += "]\n"; ecmdOutput(cbuf.c_str()); cbuf.clear();
                     }
