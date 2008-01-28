@@ -86,7 +86,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     char invmask = 'N';
     char chkable  = 'N';
     char broadmode = 'N';
-    char isCore = 'N';
+    std::string isChipUnit = "N";
     std::list<ecmdRingData> ringdata;
     std::list<ecmdRingData>::iterator ringit;
     std::list<std::string>::iterator strit;
@@ -141,8 +141,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable rings for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Ring Names                           Address    Length Core Mask Chkable BroadSide ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "-----------------------------------  --------   ------ ---- ---- ------- --------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Ring Names                           Address    Length ChipUnit Mask Chkable BroadSide ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "-----------------------------------  --------   ------ -------- ---- ------- --------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
       for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
 
         printed = "";
@@ -166,14 +166,20 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         } else chkable = 'N';
 
         if (ringit->isChipUnitRelated) {
-          isCore = 'Y';
-        } else isCore = 'N';
+          if (ringit->relatedChipUnit != "") {
+            isChipUnit = ringit->relatedChipUnit;
+          } else {
+            isChipUnit = "Y";
+          }
+        } else {
+          isChipUnit = "N";
+        }
 
         if (ringit->supportsBroadsideLoad) {
           broadmode = 'Y';
         } else broadmode = 'N';
 
-        sprintf(buf,"0x%.6X\t%d\t %c   %c     %c         %c     %-20s", ringit->address, ringit->bitLength, isCore, invmask, chkable, broadmode,ringit->clockDomain.c_str());
+        sprintf(buf,"0x%.6X   %6d %8s %4c %7c %9c %-20s", ringit->address, ringit->bitLength, isChipUnit.c_str(), invmask, chkable, broadmode,ringit->clockDomain.c_str());
         printed += buf;
 
         if (ringit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
@@ -204,7 +210,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char eccChk = 'N';
     char isEnum  = 'N';
-    char isCore = 'N';
+    std::string isChipUnit = "N";
     std::list<ecmdSpyData> spydata;
     std::list<ecmdSpyData>::iterator spyit;
     std::list<std::string>::iterator strit;
@@ -259,8 +265,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable spys for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "SpyType   BitLength EccChked	Enum  Core ClockDomain	      ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "-------   --------- ---------   ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "SpyType   BitLength EccChked Enum ChipUnit ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "-------   --------- -------- ---- -------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
       for (spyit = spydata.begin(); spyit != spydata.end(); spyit ++) {
 
@@ -279,7 +285,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         } else if(spyit->spyType == ECMD_SPYTYPE_ECCGROUP) {
           printed = "ECCGROUP";
         } 
-        for (size_t i = printed.length(); i <= 10; i++) { 
+        for (size_t i = printed.length(); i <= 9; i++) { 
           printed += " ";
         }
 
@@ -294,10 +300,16 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         } else isEnum = 'N';
 
         if (spyit->isChipUnitRelated) {
-          isCore = 'Y';
-        } else isCore = 'N';
+          if (spyit->relatedChipUnit != "") {
+            isChipUnit = spyit->relatedChipUnit;
+          } else {
+            isChipUnit = "Y";
+          }
+        } else {
+          isChipUnit = "N";
+        }
 
-        sprintf(buf,"%-10d  %c          %c    %c   %-20s", spyit->bitLength, eccChk, isEnum, isCore,spyit->clockDomain.c_str());
+        sprintf(buf,"%-9d %8c %4c %8s %-20s", spyit->bitLength, eccChk, isEnum, isChipUnit.c_str(),spyit->clockDomain.c_str());
         printed += buf;
 
         if (spyit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
@@ -345,7 +357,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
   } else if (!strcmp(argv[0], "tracearrays")) {
 
-    char isCore='N';
+    std::string isChipUnit = "N";
     
     std::list<ecmdTraceArrayData> tracearraydata;
     std::list<ecmdTraceArrayData>::iterator traceit;
@@ -400,26 +412,30 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable tracearrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "TraceArray Names          Length     Width   Core    ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------------------  --------   ------  ------  ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "TraceArray Names         Length   Width ChipUnit ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------ -------- ----- -------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
       for (traceit = tracearraydata.begin(); traceit != tracearraydata.end(); traceit ++) {
 
         printed = "";
         printed += traceit->traceArrayName;
         
-	for (size_t i = printed.length(); i <= 25; i++) { 
+	for (size_t i = printed.length(); i <= 24; i++) { 
           printed += " ";
         }
 
         
-        if(traceit->isChipUnitRelated) {
-          isCore = 'Y';
+        if (traceit->isChipUnitRelated) {
+          if (traceit->relatedChipUnit != "") {
+            isChipUnit = traceit->relatedChipUnit;
+          } else {
+            isChipUnit = "Y";
+          }
         } else {
-          isCore = 'N';
+          isChipUnit = "N";
         }
 
-        sprintf(buf,"%-11d%-8d  %c     %-20s", traceit->length, traceit->width, isCore, traceit->clockDomain.c_str());
+        sprintf(buf,"%-8d %-5d %8s %-20s", traceit->length, traceit->width, isChipUnit.c_str(), traceit->clockDomain.c_str());
         printed += buf;
 	
 
@@ -447,7 +463,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ----------- */
   } else if (!strcmp(argv[0], "scoms")) {
 
-    char isCore = 'N';
+    std::string isChipUnit = "N";
     uint32_t address =0xFFFFFFFF;
     char addrStr[20];
     
@@ -506,8 +522,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable scoms for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Scom Address  Core    Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------  ------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Scom Address  ChipUnit  Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------  --------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
 
       for (scomit = scomdata.begin(); scomit != scomdata.end(); scomit ++) {
 
@@ -516,17 +532,21 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         sprintf(addrStr, "%8.8X", scomit->address);
 	printed += addrStr;
 	
-	for (size_t i = printed.length(); i <= 14; i++) { 
+	for (size_t i = printed.length(); i <= 13; i++) { 
           printed += " ";
         }
 
-        if(scomit->isChipUnitRelated) {
-          isCore = 'Y';
+        if (scomit->isChipUnitRelated) {
+          if (scomit->relatedChipUnit != "") {
+            isChipUnit = scomit->relatedChipUnit;
+          } else {
+            isChipUnit = "Y";
+          }
         } else {
-          isCore = 'N';
+          isChipUnit = "N";
         }
 
-        sprintf(buf," %c     %-7d %-21s", isCore,scomit->length, scomit->clockDomain.c_str());
+        sprintf(buf,"%8s  %-7d %-21s", isChipUnit.c_str() ,scomit->length, scomit->clockDomain.c_str());
         printed += (std::string)buf;
 	
         if (scomit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
