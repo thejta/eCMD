@@ -14,18 +14,13 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
 
 #include <ctype.h>
 #include <algorithm>
+#include <map>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -619,7 +614,8 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   bool doStopStart = true;              ///< Do we StopStart trace arrays ?
   std::list<ecmdTraceArrayData> queryTraceData; ///< Trace Data
   std::list<ecmdTraceArrayData>::iterator queryIt; ///< Trace Data Ietrator
-  std::list<ecmdNameVectorEntry> coreArrayList;        ///< Array data fetched
+  std::map< std::string, std::list<ecmdNameVectorEntry> > cuArrayMap;        ///< Array data fetched
+  std::map< std::string, std::list<ecmdNameVectorEntry> >::iterator cuArrayMapIter;        ///< Array data fetched
   std::list<ecmdNameVectorEntry> nestArrayList;        ///< Array data fetched
   ecmdNameVectorEntry entry;                       ///< Entry to populate the list
   
@@ -685,7 +681,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     }
 
     nestArrayList.clear();
-    coreArrayList.clear();
+    cuArrayMap.clear();
 
     for (int i = 1; i < argc; i++) {//Loop for the trace array names from the user
 
@@ -702,10 +698,11 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
           entry.name = traceArrayName;
 
           if (queryIt->isChipUnitRelated) {
-            coreArrayList.push_back(entry);
+            cuArrayMap[queryIt->relatedChipUnit].push_back(entry);
           } else {
             nestArrayList.push_back(entry);
           }
+          break;
         }
       }
 
@@ -746,71 +743,59 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         }
       }
     }
-    /* Setup our Core looper if needed */
-    cuTarget = target;
-    if (coreArrayList.size() > 0) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
-      /* Error check the chipUnit returned */
-      /* THIS CODE HAS TO BE UPDATED SO THAT YOU HAVE THE RETURNED CHIPUNIT QUERY INFORMATION.  STGC00315950 was opened about the fix
-       JTA 09/05/2007
-      if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
-        printed = "gettracearray - Provided chipUnit: \"";
-        printed += chipUnitType;
-        printed += "\"doesn't match chipUnit returned by queryTraceArray: \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\n";
-        ecmdOutputError( printed.c_str() );
-        rc = ECMD_INVALID_ARGS;
-        break;
-      } */
-      /* If we have a chipUnit, set the state fields properly */
-      if (chipUnitType != "") {
-        ecmdOutputError("gettracearray - UPDATES NEEDED!!!! This code won't work for chipUnit\n");
-        cuTarget.chipUnitType = chipUnitType;
-        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-      }
-      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the core loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
-      if (rc) return rc;
+    if (!cuArrayMap.empty()) {
 
-
-      /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
-
-        //Clear the core List
-        for (std::list<ecmdNameVectorEntry>::iterator lit = coreArrayList.begin(); lit != coreArrayList.end(); lit++ ) {
-          lit->buffer.clear();
+      for (cuArrayMapIter = cuArrayMap.begin(); cuArrayMapIter != cuArrayMap.end(); cuArrayMapIter++) {
+        /* Setup our target */
+        cuTarget = target;
+        if (cuArrayMapIter->first != "") {
+          cuTarget.chipUnitType = cuArrayMapIter->first;
+          cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
+        cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        rc = getTraceArrayMultiple(cuTarget,  doStopStart, coreArrayList);
-        if (rc) {
-          printed = "gettracearray - Error occured performing getTraceArray on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
-        } else {
-          validPosFound = true;
-        }
+        /* Init the core loop */
+        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+        if (rc) return rc;
 
-        for (std::list<ecmdNameVectorEntry>::iterator lit = coreArrayList.begin(); lit != coreArrayList.end(); lit++ ) {
-          printedHeader = false;
-          for(loop =0; loop < lit->buffer.size() ; loop++) {
-            if (!printedHeader) {
-              printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "\n";
-              ecmdOutput( printed.c_str() );
-              printedHeader = true;
-            }
+        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+        while (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
 
-            printed = ecmdWriteDataFormatted(lit->buffer[loop], format);
-
-            ecmdOutput( printed.c_str() );
+          //Clear the core List
+          for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
+            lit->buffer.clear();
           }
-        }
 
-      }/* End cuLooper */
+          rc = getTraceArrayMultiple(cuTarget,  doStopStart, cuArrayMapIter->second);
+          if (rc) {
+            printed = "gettracearray - Error occured performing getTraceArray on ";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+          } else {
+            validPosFound = true;
+          }
+
+          for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
+            printedHeader = false;
+            for(loop =0; loop < lit->buffer.size() ; loop++) {
+              if (!printedHeader) {
+                printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "\n";
+                ecmdOutput( printed.c_str() );
+                printedHeader = true;
+              }
+
+              printed = ecmdWriteDataFormatted(lit->buffer[loop], format);
+
+              ecmdOutput( printed.c_str() );
+            }
+          }
+
+        }/* End cuLooper */
+      } /* End map loop */
     } /* If core trace */
   }/* End ChipLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
