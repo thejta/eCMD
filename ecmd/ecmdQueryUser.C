@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -575,7 +569,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
   } else if (!strcmp(argv[0], "arrays")) {
 
-    char isCore = 'N';
+    std::string isChipUnit = "N";
     
     std::list<ecmdArrayData> arraydata;
     std::list<ecmdArrayData>::iterator arrayit;
@@ -631,8 +625,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         
       sprintf(buf,"\nAvailable arrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
       
-      printed = "Array Names                    ArrayType          RdAddrLen  WrtAddrLen Length           Width Core ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------------------------ ------------------ ---------- ---------- ---------------- ----- ---- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Array Names                    ArrayType          RdAddrLen  WrtAddrLen Length           Width ChipUnit ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------------ ------------------ ---------- ---------- ---------------- ----- -------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
 
       for (arrayit = arraydata.begin(); arrayit != arraydata.end(); arrayit ++) {
 
@@ -657,12 +651,16 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
 
         if(arrayit->isChipUnitRelated) {
-          isCore = 'Y';
+          if (arrayit->relatedChipUnit != "") {
+            isChipUnit = arrayit->relatedChipUnit;
+          } else {
+            isChipUnit = "Y";
+          }
         } else {
-          isCore = 'N';
+          isChipUnit = "N";
         }
 
-        sprintf(buf,"%-10d %-10d %-16lld %-5d %c     %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, (unsigned long long)arrayit->length, arrayit->width, isCore,arrayit->clockDomain.c_str());
+        sprintf(buf,"%-10d %-10d %-16lld %-5d %-8s %-20s", arrayit->readAddressLength, arrayit->writeAddressLength, (unsigned long long)arrayit->length, arrayit->width, isChipUnit.c_str(),arrayit->clockDomain.c_str());
         printed += (std::string)buf;
 	
 
@@ -732,8 +730,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::list<uint32_t>::iterator    slotListIter;
     std::list<uint32_t> 	     posList;
     std::list<uint32_t>::iterator    posListIter;
-    std::list<uint32_t> 	     coreList;
-    std::list<uint32_t>::iterator    coreListIter;
+    std::list<uint32_t>              chipUnitList;
+    std::list<uint32_t>::iterator    chipUnitListIter;
   
     /************************************************************************/
     /* Parse Common Cmdline Args                                            */
@@ -747,13 +745,14 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
 
     //Set all the states Unused to begin with. Then set them to valid based on the args
-    target.cageState	 = ECMD_TARGET_FIELD_UNUSED;
-    target.nodeState	 = ECMD_TARGET_FIELD_UNUSED;
-    target.slotState	 = ECMD_TARGET_FIELD_UNUSED;
-    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-    target.posState	 = ECMD_TARGET_FIELD_UNUSED;
-    target.coreState	 = ECMD_TARGET_FIELD_UNUSED;
-    target.threadState   = ECMD_TARGET_FIELD_UNUSED;
+    target.cageState            = ECMD_TARGET_FIELD_UNUSED;
+    target.nodeState            = ECMD_TARGET_FIELD_UNUSED;
+    target.slotState            = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState        = ECMD_TARGET_FIELD_UNUSED;
+    target.posState             = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState	= ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState	= ECMD_TARGET_FIELD_UNUSED;
+    target.threadState          = ECMD_TARGET_FIELD_UNUSED;
   
     rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
     if(rc) return rc;
@@ -780,9 +779,16 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       return ECMD_INVALID_ARGS;
     }
     else {
-     target.chipType = argv[1];
-     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_VALID;
+      std::string chipType, chipUnitType;
+      ecmdParseChipField(argv[1], chipType, chipUnitType);
+      target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_VALID;
+      target.chipType = chipType;
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+      if (chipUnitType != "") {
+        target.chipUnitType = chipUnitType;
+        target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+      }
     }
     
     //Go through each of the targets and check if they are configured  
@@ -841,18 +847,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 	  for (posListIter = posList.begin(); posListIter != posList.end(); posListIter ++) {
 	    target.pos = *posListIter;
 	   
-	    coreList.clear();
+	    chipUnitList.clear();
 
 	    if (coreType == ONE) {
-              coreList.push_back(target.core);
+              chipUnitList.push_back(target.chipUnitNum);
             }
             else if (coreType == MANY) {
-              getTargetList(core, coreList);
+              getTargetList(core, chipUnitList);
             }
 	    
 	    /* Ok, walk the cores */
-            for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
-	      target.core = (uint8_t)(*coreListIter);
+            for (chipUnitListIter = chipUnitList.begin(); chipUnitListIter != chipUnitList.end(); chipUnitListIter ++) {
+	      target.chipUnitNum = ((uint8_t)*chipUnitListIter);
 
               if (!strcmp(argv[0],"configd")) {
                 if (ecmdQueryTargetConfigured(target)) {
@@ -1432,7 +1438,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     bool validPosFound = false;
     rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
