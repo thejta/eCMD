@@ -81,7 +81,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperdata;     ///< Store internal Looper data
 
-  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CORE = 5;
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
 
   /* get format flag, if it's there */
@@ -99,7 +99,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
   else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
   else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
-  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CORE;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -126,14 +126,33 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     ecmdOutputError("getconfig - Type 'getconfig -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if( argc == 2) {
-    /* Apply the default depth */
-    if (depth == 0) depth = POS;
-    if (depth < POS) {
-      ecmdOutputError("getconfig - Invalid Depth parm specified when a chipselect was specified.\n");
-      return ECMD_INVALID_ARGS;
-    }     
-    target.chipType = argv[0];
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+
+    /* Error check */
+    if (depth) {
+      if (chipUnitType == "" && depth < POS) {
+        ecmdOutputError("getconfig - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
+        return ECMD_INVALID_ARGS;
+      }
+
+      if (chipUnitType != "" && depth < CHIPUNIT) {
+        ecmdOutputError("getconfig - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
+        return ECMD_INVALID_ARGS;
+      }
+    } else { /* No depth, set on for the code below */
+      if (chipUnitType == "") {
+        depth = POS;
+      } else {
+        depth = CHIPUNIT;
+      }
+    }
+    target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
     configName = argv[1];
   } else {
     if (depth == 0) depth = CAGE;
@@ -141,9 +160,9 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   
   }
   /* Now set our states based on depth */
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  if (depth == POS)             target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  if (depth == POS)             target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
   else if (depth == SLOT)       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   else if (depth == NODE)       target.slotState = ECMD_TARGET_FIELD_UNUSED;
   else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
@@ -210,7 +229,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperdata;     ///< Store internal Looper data
 
-  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CORE = 5;
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
 
   /* get format flag, if it's there */
@@ -226,7 +245,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
   else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
   else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
-  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CORE;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -252,14 +271,33 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     ecmdOutputError("setconfig - Type 'setconfig -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if( argc == 3) {
-    /* Apply the default depth */
-    if (depth == 0) depth = POS;
-    if (depth < POS) {
-      ecmdOutputError("setconfig - Invalid Depth parm specified when a chipselect was specified.\n");
-      return ECMD_INVALID_ARGS;
-    }     
-    target.chipType = argv[0];
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+
+    /* Error check */
+    if (depth) {
+      if (chipUnitType == "" && depth < POS) {
+        ecmdOutputError("setconfig - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
+        return ECMD_INVALID_ARGS;
+      }
+
+      if (chipUnitType != "" && depth < CHIPUNIT) {
+        ecmdOutputError("setconfig - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
+        return ECMD_INVALID_ARGS;
+      }
+    } else { /* No depth, set on for the code below */
+      if (chipUnitType == "") {
+        depth = POS;
+      } else {
+        depth = CHIPUNIT;
+      }
+    }
+    target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
     configName = argv[1];
     strcpy(inputVal, argv[2]);
   }
@@ -811,14 +849,23 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config
   if( argc == 1) {
-   target.chipType = argv[0];
-   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+    } else {
+      target.coreState = ECMD_TARGET_FIELD_WILDCARD
+    }
+  } else {
    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
