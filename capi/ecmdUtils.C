@@ -2149,6 +2149,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"ecmdLatchMode_t"))         ||
               (!strcmp(variableType,"ecmdConfigLoopMode_t"))    ||
               (!strcmp(variableType,"ecmdTargetDisplayMode_t")) ||
+              (!strcmp(variableType,"ecmdTargetDisplayMode_t &")) ||
               (!strcmp(variableType,"efppInOut_t"))               ){
       /* enums */
       int* dummy = (int*)(args[looper]);
@@ -2368,7 +2369,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    cage     = ";
+      printed += "\t \t value : uint32_t    cage         = ";
       sprintf(tempIntStr,"%u",dummy->cage);
       printed += tempIntStr;
       printed += "\tState = ";
@@ -2376,7 +2377,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    node     = ";
+      printed += "\t \t value : uint32_t    node         = ";
       if (dummy->node == ECMD_TARGETDEPTH_NA)
         printed += "NA";
       else {
@@ -2388,7 +2389,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    slot     = ";
+      printed += "\t \t value : uint32_t    slot         = ";
       if (dummy->slot == ECMD_TARGETDEPTH_NA)
         printed += "NA";
       else {
@@ -2400,14 +2401,14 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : std::string chiptype = ";
+      printed += "\t \t value : std::string chipType     = ";
       printed += dummy->chipType.c_str();
       printed += "\tState = ";
       printed += printEcmdChipTargetState_t(dummy->chipTypeState);
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    pos      = ";
+      printed += "\t \t value : uint32_t    pos          = ";
       sprintf(tempIntStr,"%u",dummy->pos);
       printed += tempIntStr;
       printed += "\tState = ";
@@ -2415,7 +2416,14 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    core     = ";
+      printed += "\t \t value : std::string chipUnitType = ";
+      printed += dummy->chipUnitType.c_str();
+      printed += "\tState = ";
+      printed += printEcmdChipTargetState_t(dummy->chipTypeState);
+      debugFunctionOuput(printed.c_str());
+
+      printed = frontFPPTxt;
+      printed += "\t \t value : uint32_t    chipUnitNum  = ";
       sprintf(tempIntStr,"%u",dummy->core);
       printed += tempIntStr;
       printed += "\tState = ";
@@ -2423,7 +2431,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    thread   = ";
+      printed += "\t \t value : uint32_t    thread       = ";
       sprintf(tempIntStr,"%d",dummy->thread);
       printed += tempIntStr;
       printed += "\tState = ";
@@ -2431,7 +2439,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
-      printed += "\t \t value : uint32_t    unitId   = ";
+      printed += "\t \t value : uint32_t    unitId       = ";
       sprintf(tempIntStr,"0x%.08X",dummy->unitId);
       printed += tempIntStr;
       printed += "\tState = ";
