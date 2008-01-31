@@ -1,0 +1,24 @@
+
+Syntax: simSTKFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
+        
+        ECMD:           Core Common Function
+
+        Function:       Stick a simulation facility using name
+                        Write with Xstate data: format 'bX'
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        facname         Must be a facility name
+
+        data            Data for operation
+                        Format specified by -i<format>
+
+        length          Bit length of data
+
+        row  [optional] Facility row
+ 
+        offset    [opt] Facility offset
+
+        --------------------------------------------------------------------------------
+
+        Example:        simSTKFAC TITAN.TCKFREQ 11XX01
