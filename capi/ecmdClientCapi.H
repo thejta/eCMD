@@ -2880,6 +2880,19 @@ uint32_t simrestart(const char* i_checkpoint);
 uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Stick a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to stick to facility
+ @param i_data Data to stick
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Stick a TCFAC facility
  @param i_tcfacname TCFAC name
  @param i_data Value to stick

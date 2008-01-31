@@ -382,6 +382,8 @@ uint32_t dllSimrestart(const char* i_checkpoint);
 
 uint32_t dllSimSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
 
 uint32_t dllSimSUBCMD(const char* i_command); 

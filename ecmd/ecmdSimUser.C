@@ -994,6 +994,76 @@ uint32_t ecmdSimSTKFACUser(int argc, char * argv[]) {
 
 }
 
+uint32_t ecmdSimSTKFACXUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr == NULL) {
+    format = "bX";
+  }
+  else {
+    format = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  if (argc < 3) {
+    ecmdOutputError("simSTKFACX - Too few arguments to simSTKFACX, you need at least a symbol , data, and a length.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  char * facname = argv[0];
+
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("simSTKFACX - Non-decimal numbers detected in bitLength field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  uint32_t bitLength = (uint32_t)atoi(argv[2]);
+
+  ecmdDataBuffer buffer;
+  rc = ecmdReadDataFormatted(buffer, argv[1], format, (int)bitLength);
+  if (rc) {
+    ecmdOutputError("simSTKFACX - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }
+
+
+  uint32_t row = 0, offset = 0;
+  if (argc > 3) {
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("simSTKFACX - Non-decimal numbers detected in row field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    row = (uint32_t)atoi(argv[3]);
+  }
+  if (argc > 4) {
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("simSTKFACX - Non-decimal numbers detected in offset field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    offset = (uint32_t)atoi(argv[4]);
+  }
+
+  if (argc > 5) {
+    ecmdOutputError("simSTKFACX - Too many arguments to simSTKFACS, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  rc = simSTKFACX(facname, bitLength, buffer, row, offset);
+
+  return rc;
+
+}
+
 uint32_t ecmdSimstktcfacUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
