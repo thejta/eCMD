@@ -2148,6 +2148,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"ecmdTraceType_t"))         ||
               (!strcmp(variableType,"ecmdLatchMode_t"))         ||
               (!strcmp(variableType,"ecmdConfigLoopMode_t"))    ||
+              (!strcmp(variableType,"ecmdTargetDisplayMode_t")) ||
               (!strcmp(variableType,"efppInOut_t"))               ){
       /* enums */
       int* dummy = (int*)(args[looper]);

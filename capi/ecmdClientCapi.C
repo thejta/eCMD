@@ -306,11 +306,9 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
     if (ecmdClientDebug >= 9) {
       sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : int* : variable : i_argc = %d\n",myTcount,*i_argc);
       ecmdOutput(printbuffer);
-      for (int i=0;i<*i_argc;i++)
-      {
-
-         sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : char** : variable : i_argv %u:  . parameter: %s\n",myTcount, i , (*i_argv)[i]);
-         ecmdOutput(printbuffer);
+      for (int i=0;i<*i_argc;i++) {
+        sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : ENTER(%03d) : \t type : char** : variable : i_argv %u:  . parameter: %s\n",myTcount, i , (*i_argv)[i]);
+        ecmdOutput(printbuffer);
       }
     }
   }
@@ -368,10 +366,12 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
       ecmdOutput(printbuffer);
     }
     if (ecmdClientDebug >= 9) {
-      sprintf(printbuffer, "ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : int* : variable name : i_argc = %d\n",myTcount,*i_argc);
+      sprintf(printbuffer, "ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : int* : variable : i_argc = %d\n",myTcount,*i_argc);
       ecmdOutput(printbuffer);
-      sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : char** : variable name : i_argv = **not implemented yet**\n",myTcount);
-      ecmdOutput(printbuffer);
+      for (int i=0;i<*i_argc;i++) {
+        sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : char** : variable : i_argv %u:  . parameter: %s\n",myTcount, i , (*i_argv)[i]);
+        ecmdOutput(printbuffer);
+      }
       sprintf(printbuffer,"ECMD DEBUG (ecmdFPP) : EXIT (%03d) : \t type : RETURN CODE = d=%u 0x%.08X\n",myTcount,rc,rc);
       ecmdOutput(printbuffer);
     }
