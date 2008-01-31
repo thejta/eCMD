@@ -125,6 +125,7 @@ uint32_t ecmdSimPUTFACXUser(int argc, char * argv[]);
 uint32_t ecmdSimputtcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimrestartUser(int argc, char * argv[]);
 uint32_t ecmdSimSTKFACUser(int argc, char * argv[]);
+uint32_t ecmdSimSTKFACXUser(int argc, char * argv[]);
 uint32_t ecmdSimstktcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]);
 uint32_t ecmdSimTckIntervalUser(int argc, char * argv[]);

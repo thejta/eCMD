@@ -566,6 +566,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimrestartUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simSTKFAC")) {
           rc = ecmdSimSTKFACUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simSTKFACX")) {
+          rc = ecmdSimSTKFACXUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simstktcfac")) {
           rc = ecmdSimstktcfacUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simSUBCMD")) {
