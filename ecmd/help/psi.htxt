@@ -1,0 +1,46 @@
+Syntax: psi <op> [op options]
+
+        ECMD:           Core Common Function
+
+        Function:       Perform PSI operations
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        op              Operations to perform
+
+        op Values     
+                        init ChipSelect port
+                            - Initialise the specified port
+
+                        enable ChipSelect port state 
+                            - Set the enable state of the specified port to the given state. 
+			    - state value 0 disables the link and 1 enables it.
+
+                        verify ChipSelect port
+                            - Display the state of the specified port
+
+                        setspeed ChipSelect port speed mode
+                            - Set the speed of the port to given speed in mhz and in specified mode. 
+			    - mode value 0 sets in slow mode and 1 in fast mode.
+
+        Addendum Options
+
+                        -k#  [optional] Specify which cage to act on (0 is default !). Specify -kall
+                                        to act on all cages (-kall is default for mode value 'chips').
+
+                        -n#  [optional] Specify which node to act on (0 is default !). Specify -nall
+                                        to act on all nodes (-nall is default for mode value 'chips').
+
+                        -s#  [optional] Specify which slot to act on (0 is default !). Specify -sall
+                                        to act on all slots (-sall is default for mode value 'chips').
+
+                        -p#  [optional] Specify which chip position to act on (0 is default !). Specify
+                                        -pall to act on all chips (-pall is default for mode value 'chips').
+
+                        -all [optional] Shortcut for -kall -nall -sall -pall . e.g. -all -p0 is not allowed.
+        --------------------------------------------------------------------------------
+
+        Example:        psi init pu 0
+	                psi enable pu 1 2
+			psi verify pu 2
+			psi setspeed pu 3 167 0
