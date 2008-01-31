@@ -859,7 +859,7 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
       target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
     } else {
-      target.coreState = ECMD_TARGET_FIELD_WILDCARD
+      target.coreState = ECMD_TARGET_FIELD_WILDCARD;
     }
   } else {
    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
