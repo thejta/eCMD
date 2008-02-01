@@ -2419,15 +2419,15 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\t \t value : std::string chipUnitType = ";
       printed += dummy->chipUnitType.c_str();
       printed += "\tState = ";
-      printed += printEcmdChipTargetState_t(dummy->chipTypeState);
+      printed += printEcmdChipTargetState_t(dummy->chipUnitTypeState);
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
       printed += "\t \t value : uint32_t    chipUnitNum  = ";
-      sprintf(tempIntStr,"%u",dummy->core);
+      sprintf(tempIntStr,"%u",dummy->chipUnitNum);
       printed += tempIntStr;
       printed += "\tState = ";
-      printed += printEcmdChipTargetState_t(dummy->coreState);
+      printed += printEcmdChipTargetState_t(dummy->chipUnitNumState);
       debugFunctionOuput(printed.c_str());
 
       printed = frontFPPTxt;
