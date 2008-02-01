@@ -1,5 +1,5 @@
 
-Syntax: putfpr <FprNum> <Data> [-i<format>] [-b<modifier>] 
+Syntax: putfpr <FprNum> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>] 
                                [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
@@ -11,6 +11,12 @@ Syntax: putfpr <FprNum> <Data> [-i<format>] [-b<modifier>]
         --------------------------------------------------------------------------------
 
         FprNum          Fpr Entry to write (Decimal)
+
+        Start     [opt] Starting bit position within the scom.  Specify with numbits.
+
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits
+                        are not specified, start = 0 and numbits is calculated from
+                        length of data string, rest of Scom register is padded with zeros.
 
         Data            Data to insert into FPR.
                         Format specified by -i<format>

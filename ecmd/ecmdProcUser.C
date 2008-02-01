@@ -14,16 +14,11 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
 #include <stdio.h>
+#include <map>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
@@ -62,17 +57,23 @@
 uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdChipTarget coreTarget;        ///< Current target
-  ecmdLooperData coreLooperData;    ///< Store internal Looper data
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  std::list<ecmdNameEntry> threadEntries;    ///< List of thread spr's to fetch, to use getSprMultiple
-  std::list<ecmdNameEntry> coreEntries;      ///< List of core spr's to fetch, to use getSprMultiple
+  std::list<ecmdNameEntry> posEntries;       ///< List of thread spr's to fetch, to use getSprMultiple
+  std::map< std::string, std::list<ecmdNameEntry> > cuEntries;       ///< List of core spr's to fetch, to use getSprMultiple
+  std::map< std::string, std::list<ecmdNameEntry> >::iterator cuEntryIter;
+  std::map< std::string, std::list<ecmdNameEntry> > threadEntries;       ///< List of thread spr's to fetch, to use getSprMultiple
+  std::map< std::string, std::list<ecmdNameEntry> >::iterator threadEntryIter;
+  std::list<ecmdNameEntry>::iterator nameIter;
   ecmdNameEntry  entry;               ///< Spr entry to fetch
-  ecmdChipTarget threadTarget;        ///< Current thread target
-  ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
+  ecmdChipTarget target;                ///< Current target
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdChipTarget cuTarget;              ///< Current target
+  ecmdLooperData cuLooperData;          ///< Store internal Looper data
+  ecmdChipTarget threadTarget;          ///< Current thread target
+  ecmdLooperData threadLooperData;      ///< Store internal thread Looper data
   int idx;
-  ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not
+  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not
   std::string sprName;
 
   /* get format flag, if it's there */
@@ -104,64 +105,61 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  coreTarget.chipType = ECMD_CHIPT_PROCESSOR;
-  coreTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  coreTarget.cageState = coreTarget.nodeState = coreTarget.slotState = coreTarget.posState = coreTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-  coreTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 
-  rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Clear my lists out */
+    posEntries.clear();
+    cuEntries.clear();
     threadEntries.clear();
-    coreEntries.clear();
 
     /* Walk through the arguments and create our list of sprs */
     /* We have to re-establish this list on each position because one position may be dd2.0 and another 3.0 and the spr state changed */
     for (idx = 0; idx < argc; idx ++) {
       sprName = argv[idx];
 
-      /* If it's the two special keywords, handle those before calling ecmdQueryProcRegisterInfo */
-      if (sprName == "ALL_SHARED") {
-        sprInfo.threadReplicated = 0;
-      } else if (sprName == "ALL_THREADED") {
-        sprInfo.threadReplicated = 1;
-      } else {
-
-        /* First thing we need to do is find out for this particular target if the SPR is threaded */
-        rc = ecmdQueryProcRegisterInfo(coreTarget, sprName.c_str(), sprInfo);
-        if (rc) {
-          printed = "getspr - Error occured getting spr info for ";
-          printed += sprName;
-          printed += " on ";
-          printed += ecmdWriteTarget(coreTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
-        }
+      /* First thing we need to do is find out for this particular target if the SPR is threaded */
+      rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
+      if (rc) {
+        printed = "getspr - Error occured getting spr info for ";
+        printed += sprName;
+        printed += " on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
       }
 
       /* If it's thread, push onto one list.  Otherwise, push onto another */
       entry.name = sprName;
-      if (sprInfo.threadReplicated) {
-        threadEntries.push_back(entry);
+      if (procInfo.isChipUnitRelated) {
+        if (procInfo.threadReplicated) {
+          threadEntries[procInfo.relatedChipUnit].push_back(entry);
+        } else {
+          cuEntries[procInfo.relatedChipUnit].push_back(entry);
+        }
       } else {
-        coreEntries.push_back(entry);
+        posEntries.push_back(entry);
       }
     }
 
 
-    /* Now go through and get all of our core spr's */
-    if (coreEntries.size()) {
+    /* Now go through and get all of our pos spr's */
+    if (posEntries.size()) {
 
       /* Actually go fetch the data */
-      rc = getSprMultiple(coreTarget, coreEntries);
+      rc = getSprMultiple(target, posEntries);
       if (rc) {
         printed = "getspr - Error occured performing getSprMultiple on ";
-        printed += ecmdWriteTarget(coreTarget) + "\n";
+        printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -170,58 +168,115 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         validPosFound = true;     
       }
 
-      printed = ecmdWriteTarget(coreTarget) + "\n";
+      printed = ecmdWriteTarget(target) + "\n";
       ecmdOutput( printed.c_str() );
-      for (std::list<ecmdNameEntry>::iterator entit = coreEntries.begin(); entit != coreEntries.end(); entit ++) {
+      for (nameIter = posEntries.begin(); nameIter != posEntries.end(); nameIter ++) {
 
-        printed = entit->name + "\t";
+        printed = nameIter->name + "\t";
 
-        printed += ecmdWriteDataFormatted(entit->buffer, format);
+        printed += ecmdWriteDataFormatted(nameIter->buffer, format);
 
         ecmdOutput( printed.c_str() );
       }
       ecmdOutput("\n");
     }
 
-    /* Now go through and get all of our thread spr's */
-    if (threadEntries.size()) {
+    /* Now go through and get all of our chipUnit spr's */
+    if (!cuEntries.empty()) {
 
-      //Setup the target that will be used to query the system config 
-      // Copy everything over, just change the threadState
-      threadTarget = coreTarget;
-      threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
-
-      rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
-      if (rc) break;
-
-      while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
-
-        /* Actually go fetch the data */
-        rc = getSprMultiple(threadTarget, threadEntries);
-        if (rc) {
-          printed = "getspr - Error occured performing getSprMultiple on ";
-          printed += ecmdWriteTarget(threadTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
+      for (cuEntryIter = cuEntries.begin(); cuEntryIter != cuEntries.end(); cuEntryIter++) {
+        /* Setup our target */
+        cuTarget = target;
+        if (cuEntryIter->first != "") {
+          cuTarget.chipUnitType = cuEntryIter->first;
+          cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
-        else {
-          validPosFound = true;     
-        }
+        cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        printed = ecmdWriteTarget(threadTarget) + "\n";
-        ecmdOutput( printed.c_str() );
-        for (std::list<ecmdNameEntry>::iterator entit = threadEntries.begin(); entit != threadEntries.end(); entit ++) {
+        /* Init the core loop */
+        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
+        if (rc) return rc;
 
-          printed = entit->name + "\t";
+        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+        while (ecmdConfigLooperNext(cuTarget, cuLooperData) && (!coeRc || coeMode)) {
 
-          printed += ecmdWriteDataFormatted(entit->buffer, format);
+          /* Actually go fetch the data */
+          rc = getSprMultiple(cuTarget, cuEntryIter->second);
+          if (rc) {
+            printed = "getspr - Error occured performing getSprMultiple on ";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+          }
+          else {
+            validPosFound = true;     
+          }
 
+          printed = ecmdWriteTarget(cuTarget) + "\n";
           ecmdOutput( printed.c_str() );
+          for (nameIter = cuEntryIter->second.begin(); nameIter != cuEntryIter->second.end(); nameIter++) {
+
+            printed = nameIter->name + "\t";
+
+            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+
+            ecmdOutput( printed.c_str() );
+          }
+          ecmdOutput("\n");
         }
-        ecmdOutput("\n");
       }
     }
+
+    /* Now go through and get all of our chipUnit spr's */
+    if (!threadEntries.empty()) {
+
+      for (threadEntryIter = threadEntries.begin(); threadEntryIter != threadEntries.end(); threadEntryIter++) {
+        /* Setup our target */
+        threadTarget = target;
+        if (threadEntryIter->first != "") {
+          threadTarget.chipUnitType = cuEntryIter->first;
+          threadTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        }
+        threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+        /* Init the core loop */
+        rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
+        if (rc) return rc;
+
+        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+        while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
+
+          /* Actually go fetch the data */
+          rc = getSprMultiple(threadTarget, threadEntryIter->second);
+          if (rc) {
+            printed = "getspr - Error occured performing getSprMultiple on ";
+            printed += ecmdWriteTarget(threadTarget) + "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+          }
+          else {
+            validPosFound = true;     
+          }
+
+          printed = ecmdWriteTarget(threadTarget) + "\n";
+          ecmdOutput( printed.c_str() );
+          for (nameIter = threadEntryIter->second.begin(); nameIter != threadEntryIter->second.end(); nameIter++) {
+
+            printed = nameIter->name + "\t";
+
+            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+
+            ecmdOutput( printed.c_str() );
+          }
+          ecmdOutput("\n");
+        }
+      }
+    }
+
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -238,22 +293,22 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdChipTarget coreTarget;        ///< Current target
-  ecmdLooperData coreLooperData;    ///< Store internal Looper data
+  ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperData;    ///< Store internal Looper data
+  ecmdChipTarget subTarget;        ///< Current target
+  ecmdLooperData subLooperData;    ///< Store internal Looper data
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
-  ecmdDataBuffer buffer;        ///< Buffer to store data to write with
-  ecmdDataBuffer sprBuffer;     ///< Buffer to store data from the spr
+  ecmdDataBuffer cmdlineBuffer;        ///< Buffer to store data to write with
+  ecmdDataBuffer buffer;     ///< Buffer to store data from the spr
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::string sprName;          ///< Name of spr to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
-  char* dataPtr = NULL;         ///< Pointer to spr data in argv array
-  ecmdProcRegisterInfo sprInfo; ///< Used to figure out if an SPR is threaded or not 
+  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
-  bool doReadModifyWrite = false;     ///< Do we need to do a get before the put
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -263,7 +318,6 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
 
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
-    doReadModifyWrite = true;
     dataModifier = formatPtr;
   }
 
@@ -286,10 +340,10 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used to query the system config 
-  coreTarget.chipType = ECMD_CHIPT_PROCESSOR;
-  coreTarget.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  coreTarget.cageState = coreTarget.nodeState = coreTarget.slotState = coreTarget.posState = coreTarget.coreState = ECMD_TARGET_FIELD_WILDCARD;
-  coreTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   sprName = argv[0];
 
@@ -305,90 +359,105 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
     numBits = (uint32_t)atoi(argv[2]);
-    
-    
-    dataPtr = argv[3];
 
-    // Mark for read/modify/write below
-    doReadModifyWrite = true;
 
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
+    if (rc) {
+      printed = "putspr - Problems occurred parsing input data, must be an invalid format\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
+    }
   } else if (argc == 2) {
 
-    dataPtr = argv[1];
-
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[1], inputformat);
+    if (rc) {
+      printed = "putspr - Problems occurred parsing input data, must be an invalid format\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
+    }
   } else {
     ecmdOutputError("putspr - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("putspr - Type 'putspr -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-    
+
   }
 
 
-  rc = ecmdConfigLooperInit(coreTarget, ECMD_SELECTED_TARGETS_LOOP, coreLooperData);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(coreTarget, coreLooperData) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
-    rc = ecmdQueryProcRegisterInfo(coreTarget, sprName.c_str(), sprInfo);
+    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
     if (rc) {
       printed = "putspr - Error occured getting spr info for ";
       printed += sprName;
       printed += " on ";
-      printed += ecmdWriteTarget(coreTarget) + "\n";
+      printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
     }
 
-    /* Set the buffer length */
-    sprBuffer.setBitLength(sprInfo.bitLength);
-    
-    /* We now have the length of the SPR, read the data in */
-    /* They didn't specify a range */
-    if (startBit == ECMD_UNSET ) {
-      startBit = 0;
-      numBits = sprInfo.bitLength;
-    }
-    rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
-    if (rc) {
-      ecmdOutputError("putspr - Problems occurred parsing input data, must be an invalid format\n");
-      break;
+    // We've done the core loop and gotten the SPR info, now figure out how to loop.
+    subTarget = target;
+    if (procInfo.isChipUnitRelated) {
+      if (procInfo.relatedChipUnit != "") {
+        subTarget.chipUnitType = procInfo.relatedChipUnit;
+        subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      if (procInfo.threadReplicated) {
+        subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      }
     }
 
-    // We've done the core loop and gotten the SPR info, now we need to loop on threads if this SPR has them.
-    // Copy everything over, just change the threadState
-    threadTarget = coreTarget;
-    threadTarget.threadState = (sprInfo.threadReplicated ? ECMD_TARGET_FIELD_WILDCARD : ECMD_TARGET_FIELD_UNUSED);
-
-    rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
+    rc = ecmdConfigLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData);
     if (rc) break;
 
-    while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
+    while (ecmdConfigLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
 
       /* The user did the r/m/w version, so we need to do a get spr */
-      if (doReadModifyWrite) {
-        rc = getSpr(threadTarget, sprName.c_str(), sprBuffer);
+      /* Do we need to perform a read/modify/write op ? */
+      if ((dataModifier != "insert") || (startBit != ECMD_UNSET)) {
+        rc = getSpr(subTarget, sprName.c_str(), buffer);
         if (rc) {
-          printed = "putspr - Error occured performing getspr on ";
-          printed += ecmdWriteTarget(threadTarget) + "\n";
+          printed = "putspr - Error occurred performing getspr on ";
+          printed += ecmdWriteTarget(subTarget) + "\n";
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
         }
-        else {
-          validPosFound = true;     
+        
+        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startBit == ECMD_UNSET ? 0 : startBit), dataModifier);
+        if (rc) {
+          coeRc = rc;
+          continue;
         }
+      } else {
+        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
+        buffer = cmdlineBuffer;
       }
 
-      rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
-      if (rc) break;
+      /* Make sure the input data is of the right length */
+      if (buffer.getBitLength() < (uint32_t)procInfo.bitLength) {
+        buffer.growBitLength((uint32_t)procInfo.bitLength);
+      } else if (buffer.getBitLength() > (uint32_t)procInfo.bitLength) {
+        char errbuf[100];
+        sprintf(errbuf,"putspr - Too much write data provided at %d bits.\n", buffer.getBitLength());
+        ecmdOutputError(errbuf);
+        sprintf(errbuf,"putspr - The spr you are writing only supports data of %d bits.\n", procInfo.bitLength);
+        ecmdOutputError(errbuf);
+        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
+        continue;
+      }
 
-      rc = putSpr(threadTarget, sprName.c_str(), sprBuffer);
+      rc = putSpr(subTarget, sprName.c_str(), buffer);
 
       if (rc) {
         printed = "putspr - Error occured performing putspr on ";
-        printed += ecmdWriteTarget(threadTarget) + "\n";
+        printed += ecmdWriteTarget(subTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -397,7 +466,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-        printed = ecmdWriteTarget(threadTarget) + "\n";
+        printed = ecmdWriteTarget(subTarget) + "\n";
         ecmdOutput(printed.c_str());
       }
     }
@@ -420,17 +489,21 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget subTarget;        ///< Current target
+  ecmdLooperData subLooperdata;            ///< Store internal Looper data
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::list<ecmdIndexEntry> entries;    ///< List of gpr's to fetch, to use getGprMultiple
   std::list<ecmdIndexEntry> entries_copy;    ///< List of gpr's to fetch, to use getGprMultiple
   ecmdIndexEntry  entry;         ///< Gpr entry to fetch
-  ecmdLooperData looperdata;            ///< Store internal Looper data
   int idx;
   std::string function;         ///< What function are we running (based on type)
   int numEntries = 1;           ///< Number of consecutive entries to retrieve
   int startEntry = 0;           ///< Entry to start on
   char buf[100];                ///< Temporary string buffer
+  std::string sprName;
+  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not 
 
   /* get format flag, if it's there */
   std::string format;
@@ -443,11 +516,13 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   }
 
   // Set commandline name based up on the type
-  if (daType == ECMD_GPR)
+  if (daType == ECMD_GPR) {
     function = "getgpr";
-  else
+    sprName = "gpr";
+  } else {
     function = "getfpr";
-
+    sprName = "fpr";
+  }
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -471,17 +546,13 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   /* Walk through the arguments and create our list of gprs */
   startEntry = atoi(argv[0]);
   if (argc > 1) {
     numEntries = atoi(argv[1]);
-  }
-  for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
-    entry.index = idx;
-    entries.push_back(entry);
   }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
@@ -489,39 +560,89 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
-    /* Restore to our initial list */
-    entries_copy = entries;
+    /* Clear out our list */
+    entries.clear();
 
-    /* Actually go fetch the data */
-    if (daType == ECMD_GPR)
-      rc = getGprMultiple(target, entries_copy);
-    else
-      rc = getFprMultiple(target, entries_copy);
-
+    /* First thing we need to do is find out for this particular target if the SPR is threaded */
+    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
     if (rc) {
-      printed = function + " - Error occured performing getMultiple on ";
+      printed = function + " - Error occured getting info for ";
+      printed += sprName;
+      printed += " on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
     }
-    else {
-      validPosFound = true;     
+
+    if ((startEntry + numEntries) > procInfo.totalEntries) {
+      printed = function + " - Num Entries requested exceeds maximum number available on: ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = ECMD_INVALID_ARGS;
+      continue;
     }
 
-    printed = ecmdWriteTarget(target) + "\n";
-    ecmdOutput( printed.c_str() );
-    for (std::list<ecmdIndexEntry>::iterator entit = entries_copy.begin(); entit != entries_copy.end(); entit ++) {
+    for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
+      entry.index = idx;
+      entries.push_back(entry);
+    }
 
-      sprintf(buf,"%02d\t", entit->index);
-      printed = buf;
+    /* Now setup our chipUnit/thread loop */
+    subTarget = target;
+    if (procInfo.isChipUnitRelated) {
+      if (procInfo.relatedChipUnit != "") {
+        subTarget.chipUnitType = procInfo.relatedChipUnit;
+        subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      if (procInfo.threadReplicated) {
+        subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      }
+    }
 
-      printed += ecmdWriteDataFormatted(entit->buffer, format);
+    rc = ecmdConfigLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    if (rc) {
+      coeRc = rc;
+      continue;
+    }
 
+    while (ecmdConfigLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+
+      /* Restore to our initial list */
+      entries_copy = entries;
+
+      /* Actually go fetch the data */
+      if (daType == ECMD_GPR)
+        rc = getGprMultiple(subTarget, entries_copy);
+      else
+        rc = getFprMultiple(subTarget, entries_copy);
+
+      if (rc) {
+        printed = function + " - Error occured performing getMultiple on ";
+        printed += ecmdWriteTarget(subTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      printed = ecmdWriteTarget(subTarget) + "\n";
       ecmdOutput( printed.c_str() );
-    }
+      for (std::list<ecmdIndexEntry>::iterator nameIter = entries_copy.begin(); nameIter != entries_copy.end(); nameIter ++) {
 
-    ecmdOutput("\n");
+        sprintf(buf,"%02d\t", nameIter->index);
+        printed = buf;
+
+        printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+
+        ecmdOutput( printed.c_str() );
+      }
+
+      ecmdOutput("\n");
+    }
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -540,18 +661,21 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperdata;    ///< Store internal Looper data
+  ecmdChipTarget subTarget;        ///< Current target
+  ecmdLooperData subLooperdata;            ///< Store internal Looper data
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
-  ecmdDataBuffer buffer;        ///< Buffer to store data to write with
-  ecmdDataBuffer sprBuffer;     ///< Buffer to store data from the spr
+  ecmdDataBuffer cmdlineBuffer; ///< Buffer to store data to write with
+  ecmdDataBuffer buffer;        ///< Buffer to store data from the read
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
-  ecmdLooperData looperdata;    ///< Store internal Looper data
   uint32_t entry;               ///< Index entry to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
-  char* dataPtr = NULL;         ///< Pointer to spr data in argv array
   std::string function;         ///< Current function being run based on daType
+  std::string sprName;
+  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -565,10 +689,13 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   }
 
   // Set commandline name based up on the type
-  if (daType == ECMD_GPR)
-    function = "putgpr";
-  else
-    function = "putfpr";
+  if (daType == ECMD_GPR) {
+    function = "getgpr";
+    sprName = "gpr";
+  } else {
+    function = "getfpr";
+    sprName = "fpr";
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -593,11 +720,13 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   entry = (uint32_t)atoi(argv[0]);
 
   if (argc == 4) {
+
     if (!ecmdIsAllDecimal(argv[1])) {
       printed = function + " - Non-decimal numbers detected in startbit field\n";
       ecmdOutputError(printed.c_str());
@@ -612,13 +741,19 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     }
     numBits = (uint32_t)atoi(argv[2]);
     
-    
-    dataPtr = argv[3];
-
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
+    if (rc) {
+      printed = function + "Problems occurred parsing input data, must be an invalid format\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
+    }
   } else if (argc == 2) {
-
-    dataPtr = argv[1];
-
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[1], inputformat);
+    if (rc) {
+      printed = function + "Problems occurred parsing input data, must be an invalid format\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
+    }
   } else {
     printed = function + " - Too many arguments specified; you probably added an option that wasn't recognized.\n";
     ecmdOutputError(printed.c_str());
@@ -628,67 +763,102 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     
   }
 
-
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
-    if (daType == ECMD_GPR)
-      rc = getGpr(target, entry, sprBuffer);
-    else
-      rc = getFpr(target, entry, sprBuffer);
+    /* First thing we need to do is find out for this particular target if the SPR is threaded */
+    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
     if (rc) {
-        printed = function + " - Error occured performing getgpr/fpr on ";
-        printed += ecmdWriteTarget(target) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    /* Only do this once */
-    if (dataPtr != NULL) {
-
-      /* They didn't specify a range */
-      if (startBit == ECMD_UNSET ) {
-        startBit = 0;
-        numBits = sprBuffer.getBitLength();
-      }
-
-      rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
-      if (rc) {
-        printed = function + " - Problems occurred parsing input data, must be an invalid format\n";
-        ecmdOutputError(printed.c_str());
-        coeRc = rc;
-        continue;
-      }
-
-      dataPtr = NULL;
-    }
-
-    rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
-    if (rc) break;
-
-
-    if (daType == ECMD_GPR)
-      rc = putGpr(target, entry, sprBuffer);
-    else
-      rc = putFpr(target, entry, sprBuffer);
-
-    if (rc) {
-      printed = function + " - Error occured performing command on ";
+      printed = function + " - Error occured getting info for ";
+      printed += sprName;
+      printed += " on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
     }
 
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
+    /* Now setup our chipUnit/thread loop */
+    subTarget = target;
+    if (procInfo.isChipUnitRelated) {
+      if (procInfo.relatedChipUnit != "") {
+        subTarget.chipUnitType = procInfo.relatedChipUnit;
+        subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      if (procInfo.threadReplicated) {
+        subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      }
+    }
+
+    rc = ecmdConfigLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    if (rc) {
+      coeRc = rc;
+      continue;
+    }
+
+    while (ecmdConfigLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+
+      /* Do we need to perform a read/modify/write op ? */
+      if ((dataModifier != "insert") || (startBit != ECMD_UNSET)) {
+        if (daType == ECMD_GPR) {
+          rc = getGpr(subTarget, entry, buffer);
+        } else {
+          rc = getFpr(subTarget, entry, buffer);
+        }
+        if (rc) {
+          printed = function + " - Error occured performing getgpr/fpr on ";
+          printed += ecmdWriteTarget(subTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          coeRc = rc;
+          continue;
+        }
+
+        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startBit == ECMD_UNSET ? 0 : startBit), dataModifier);
+        if (rc) {
+          coeRc = rc;
+          continue;
+        }
+      } else {
+        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
+        buffer = cmdlineBuffer;
+      }
+
+      /* Make sure the input data is of the right length */
+      if (buffer.getBitLength() < (uint32_t)procInfo.bitLength) {
+        buffer.growBitLength((uint32_t)procInfo.bitLength);
+      } else if (buffer.getBitLength() > (uint32_t)procInfo.bitLength) {
+        char errbuf[100];
+        sprintf(errbuf,"%s - Too much write data provided at %d bits.\n", function.c_str(), buffer.getBitLength());
+        ecmdOutputError(errbuf);
+        sprintf(errbuf,"%s - The spr you are writing only supports data of %d bits.\n", function.c_str(), procInfo.bitLength);
+        ecmdOutputError(errbuf);
+        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
+        continue;
+      }
+
+      if (daType == ECMD_GPR) {
+        rc = putGpr(subTarget, entry, buffer);
+      } else {
+        rc = putFpr(subTarget, entry, buffer);
+      }
+
+      if (rc) {
+        printed = function + " - Error occured performing command on ";
+        printed += ecmdWriteTarget(subTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      } else {
+        validPosFound = true;
+      }
+
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(subTarget) + "\n";
+        ecmdOutput(printed.c_str());
+      }
     }
   }
   // coeRc will be the return code from in the loop, coe mode or not.
