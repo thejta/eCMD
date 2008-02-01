@@ -1564,6 +1564,54 @@ threadReplicated(false)
 inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 #endif
 
+#ifndef DOCUMENTATION
+/* This structure will replace the above ecmdProcRegisterInfo for the 10.0 release
+ We have to do it like this for now because we need to add variables to the ecmdProcRegisterInfo data type but can
+ only do that on a major release.
+ JTA 2/1/08 */
+
+/**
+ @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
+*/
+struct ecmdProcRegisterInfoHidden {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdProcRegisterInfoHidden();
+
+  // Destructor
+  ~ecmdProcRegisterInfoHidden();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
+  int           bitLength;                 ///< Bit length of each entry
+  int           totalEntries;              ///< Total number of entries available
+  bool          isChipUnitRelated;         ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
+  std::string   relatedChipUnit;           ///< (Detail: Low)  If the spy is chipUnit related, this is the name of the chipUnit
+  bool          threadReplicated;          ///< Register is replicated for each thread
+};      
+
+#ifndef DOCUMENTATION
+// ecmdProcRegisterInfo Constructor
+inline ecmdProcRegisterInfoHidden::ecmdProcRegisterInfoHidden():
+bitLength(0),
+totalEntries(0),
+threadReplicated(false)
+{
+}
+
+// ecmdProcRegisterInfo Destructor
+inline ecmdProcRegisterInfoHidden::~ecmdProcRegisterInfoHidden() { }
+#endif
+#endif
+
 
 /**
  @brief Used by ecmdSpyData when returning the latches that are part of a spy

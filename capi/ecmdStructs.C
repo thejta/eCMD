@@ -5333,6 +5333,135 @@ void  ecmdProcRegisterInfo::printStruct()
 }
 #endif  // end of REMOVE_SIM
 
+/*
+ * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+/*
+ * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+
+/* This structure will replace the above ecmdProcRegisterInfo for the 10.0 release
+ We have to do it like this for now because we need to add variables to the ecmdProcRegisterInfo data type but can
+ only do that on a major release.
+ JTA 2/1/08 */
+
+uint32_t ecmdProcRegisterInfoHidden::flatten(uint8_t *o_buf, uint32_t i_len)
+{
+   // @0aa - below
+   uint32_t l_rc = ECMD_SUCCESS ;
+   uint8_t *l_ptr = o_buf;
+   uint32_t l_temp32;
+
+   do
+   {  // Single entry ->
+
+      // Check for buffer overflown conditions.
+      if (this->flattenSize() > i_len)
+      {
+         // Generate an error for buffer overflow conditions.
+         ETRAC2("Buffer overflow occured in "
+                "ecmdProcRegisterInfo::flatten() "
+                "structure size = %d; "
+                "input length = %d",
+                this->flattenSize(), i_len);
+         l_rc = ECMD_DATA_OVERFLOW;
+         break;
+      }
+      
+      l_temp32 = htonl(bitLength);//@0b
+      memcpy(l_ptr, &l_temp32, sizeof(bitLength));//@0b
+      l_ptr += sizeof(bitLength);
+
+      l_temp32 = htonl(totalEntries);//@0b
+      memcpy(l_ptr, &l_temp32, sizeof(totalEntries));//@0b
+      l_ptr += sizeof(totalEntries);
+
+      // Store boolean as uint32_t, just to be careful...
+      l_temp32 = htonl((uint32_t)threadReplicated);
+      memcpy(l_ptr, &l_temp32, sizeof(l_temp32));
+      l_ptr += sizeof(l_temp32);
+
+   } while (0);  // <- single exit
+
+   return l_rc;
+   // @0aa - above
+}
+
+uint32_t ecmdProcRegisterInfoHidden::unflatten(const uint8_t *i_buf, uint32_t i_len)
+{
+   // @0aa - below
+   uint32_t l_rc       = ECMD_SUCCESS;
+
+   uint8_t *l_ptr = (uint8_t *)i_buf;
+   uint32_t l_temp32;
+
+   do
+   {  // Single entry ->
+
+      // Check for buffer overflown conditions. 
+      if (this->flattenSize() > i_len) {                //@01c
+         // Generate an error for buffer overflow conditions.
+         ETRAC2("Buffer overflow occured in "
+                "ecmdProcRegisterInfo::unflatten() "
+                "structure size = %d; "
+                "input length = %d",
+                this->flattenSize(), i_len);
+         l_rc = ECMD_DATA_OVERFLOW;
+         break;
+      }
+
+      memcpy(&bitLength, l_ptr, sizeof(bitLength));
+      l_ptr += sizeof(bitLength);
+      bitLength = ntohl(bitLength); //@0b - for putspr error
+
+      memcpy(&totalEntries, l_ptr, sizeof(totalEntries));
+      l_ptr += sizeof(totalEntries);
+      totalEntries = ntohl(totalEntries);//@0b  
+      
+      // threadReplicated stored as uint32_t, so convert back to bool here...
+      memcpy(&l_temp32, l_ptr, sizeof(l_temp32));
+      threadReplicated = (bool)ntohl(l_temp32);
+      l_ptr += sizeof(l_temp32);
+
+   } while (0);  // <- single exit
+
+   return l_rc;
+   // @0aa - above
+}
+
+uint32_t ecmdProcRegisterInfoHidden::flattenSize()
+{
+   // @0aa - below
+   uint32_t flatSize = 0;
+
+   flatSize += sizeof(bitLength);
+   flatSize += sizeof(totalEntries);
+   // threadReplicated stored as uint32_t...
+   flatSize += sizeof(uint32_t);
+
+   return flatSize;
+   // @0aa - above
+}
+
+#ifndef REMOVE_SIM
+void  ecmdProcRegisterInfoHidden::printStruct()
+{
+
+   printf("\n\t--- Proc Register Info Structure ---\n");
+
+   // Print non-list data.
+   // @0aa - below
+   printf("\t\tbitLength:        %d\n", bitLength);
+   printf("\t\ttotalEntries:     %d\n", totalEntries);
+   printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+   printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+   printf("\t\tthreadReplicated: %d\n", threadReplicated);
+   // @0aa - above
+
+}
+#endif  // end of REMOVE_SIM
 
 /*
  * The following methods for the ecmdSimModelInfo struct will flatten, unflatten &

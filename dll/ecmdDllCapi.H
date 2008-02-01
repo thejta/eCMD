@@ -156,6 +156,8 @@ uint32_t dllIStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepN
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
 uint32_t dllQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data); 
 
+uint32_t dllQueryProcRegisterInfoHidden(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfoHidden & o_data); 
+
 uint32_t dllGetSpr(ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data); 
 
 uint32_t dllGetSprMultiple(ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries); 
