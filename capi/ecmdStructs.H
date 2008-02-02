@@ -1612,6 +1612,13 @@ inline ecmdProcRegisterInfoHidden::~ecmdProcRegisterInfoHidden() { }
 #endif
 #endif
 
+/**
+ @brief Used to return information for cache query information
+*/
+struct ecmdCacheData {
+  bool isChipUnitRelated;       ///< Is the level of cache chipUnit related
+  std::string relatedChipUnit;  ///< If it is, what unit
+};
 
 /**
  @brief Used by ecmdSpyData when returning the latches that are part of a spy
