@@ -210,6 +210,8 @@ uint32_t dllGetMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_
 
 uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
 
+uint32_t dllQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, ecmdCacheData & o_data); 
+
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS

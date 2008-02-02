@@ -563,12 +563,17 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   
-  ecmdChipTarget target;                        ///< Current target being operated on
-  bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  std::string cacheTypeStr;                        ///< User input for the cache to be flushed
-  std::string printed;                          ///< Output data
-  ecmdCacheType_t cacheType;                    ///< cache type to be flushed
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdChipTarget cuTarget;              ///< Current target being operated on
+  ecmdLooperData cuLooperData;          ///< Store internal Looper data
+  bool validPosFound = false;           ///< Did the looper find anything?
+  std::string cacheTypeStr;             ///< User input for the cache to be flushed
+  std::string printed;                  ///< Output data
+  ecmdCacheType_t cacheType;            ///< cache type to be flushed
+  ecmdCacheData queryCacheData;
+  bool isChipUnitCache;
+  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -598,10 +603,6 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
   ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("cacheflush - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -614,10 +615,8 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   
   if (cacheTypeStr == "l1i") {
     cacheType = ECMD_CACHE_LEVEL1I;
-    target.coreState = ECMD_TARGET_FIELD_WILDCARD;      /// adjust looper for cores
   } else if (cacheTypeStr == "l1d") {
     cacheType = ECMD_CACHE_LEVEL1D;
-    target.coreState = ECMD_TARGET_FIELD_WILDCARD;      /// adjust looper for cores
   } else if (cacheTypeStr == "l2") {
     cacheType = ECMD_CACHE_LEVEL2;
   } else if (cacheTypeStr == "l3") {
@@ -631,34 +630,85 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   }
 
 
-
-
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-    rc = ecmdCacheFlush(target, cacheType);
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    /* Query for info about the cache so we can loop properly */
+    rc = ecmdQueryCache(target, cacheType, queryCacheData);
     if (rc) {
+      printed = "cacheflush - Error occurred performing ecmdQueryCache on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+
+    isChipUnitCache = queryCacheData.isChipUnitRelated;
+
+    /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+    if (isChipUnitCache) {
+      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      /* Error check the chipUnit returned */
+      if (queryCacheData.relatedChipUnit != chipUnitType) {
+        printed = "putscom - Provided chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryCache \"";
+        printed += queryCacheData.relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (chipUnitType != "") {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the chipUnit loop */
+      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
+      if (rc) break;
+    } else { // !isChipUnitScom
+      if (chipUnitType != "") {
+        printed = "putscom - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit scom address.\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
+    }
+
+    /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((isChipUnitCache ? ecmdConfigLooperNext(cuTarget, cuLooperData) : (oneLoop--)) && (!coeRc || coeMode)) {
+
+      rc = ecmdCacheFlush(cuTarget, cacheType);
+      if (rc) {
         printed = "cacheflush - Error occured performing cacheflush on ";
-        printed += ecmdWriteTarget(target);
+        printed += ecmdWriteTarget(cuTarget);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
-    }
-    else {
-      validPosFound = true;     
-    }
+      } else {
+        validPosFound = true;     
+      }
 
-    
-    printed = ecmdWriteTarget(target);
-    printed += "\n";
-    ecmdOutput( printed.c_str() );
+      printed = ecmdWriteTarget(cuTarget);
+      printed += "\n";
+      ecmdOutput( printed.c_str() );
+    }
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
