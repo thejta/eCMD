@@ -1,5 +1,5 @@
 
-Syntax: putarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> <ArrayData> [-i<format>]
+Syntax: putarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> [<Start> <Numbits>] <ArrayData> [-i<format>]
                                   [-coe] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -16,6 +16,12 @@ Syntax: putarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> <ArrayData> [-i<form
         ArrayName       Name of array to write to.
 
         ArrayIndex      Array Index in right aligned hex.
+
+        Start     [opt] Starting bit position within the array.  Specify with numbits.
+
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits
+                        are not specified, start = 0 and numbits is calculated from
+                        length of data string, rest of array data is padded with zeros.
 
         ArrayData       Data to write to array: default "x"
                         Format specified by -i<format>
