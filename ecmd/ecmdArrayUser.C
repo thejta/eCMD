@@ -27,6 +27,7 @@
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
 #include <ecmdDataBuffer.H>
+#include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
 //----------------------------------------------------------------------
@@ -445,6 +446,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   std::string arrayName;        ///< Name of array to access
   ecmdDataBuffer address;       ///< Buffer to store address
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
+  ecmdDataBuffer cmdlineBuffer; ///< Buffer to store data to be inserted
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperData;    ///< Store internal Looper data
@@ -453,24 +455,27 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
   bool isChipUnitArray;             ///< Is this a chipUnit array ?
   uint8_t oneLoop = 0;              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  std::string inputformat = "x";                ///< Default input format
+  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
+  uint32_t numbits = 0;                         ///< Number of bits to insert data
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  /* get format flag, if it's there */
-  std::string format;
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr == NULL) {
-    format = "x";
+  char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
   }
-  else {
-    format = formatPtr;
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
   }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
@@ -491,7 +496,55 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
+  /* Get the name */
   arrayName = argv[1];
+
+  /* Get the index into the array */
+  rc = ecmdReadDataFormatted(address, argv[2], "xr");
+
+  /* Did they specify a start/numbits */
+  if (argc > 4) {
+    if (argc != 6) {
+      ecmdOutputError("putarray - Too many arguments specified; you probably added an unsupported option.\n");
+      ecmdOutputError("putarray - Type 'putarray -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    if (!ecmdIsAllDecimal(argv[3])) {
+      ecmdOutputError("putarray - Non-decimal characters detected in startbit field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    startbit = (uint32_t)atoi(argv[3]);
+
+    if (!ecmdIsAllDecimal(argv[4])) {
+      ecmdOutputError("putarray - Non-decimal characters detected in numbits field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    numbits = (uint32_t)atoi(argv[4]);
+
+    /* Bounds check */
+    if ((startbit + numbits) > ECMD_MAX_DATA_BITS) {
+      char errbuf[100];
+      sprintf(errbuf,"putarray - Too much data requested > %d bits\n", ECMD_MAX_DATA_BITS);
+      ecmdOutputError(errbuf);
+      return ECMD_DATA_BOUNDS_OVERFLOW;
+    } else if (numbits == 0) {
+      ecmdOutputError("putarray - Number of bits == 0, operation not performed\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[5], inputformat, numbits);
+    if (rc) {
+      ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }  
+  } else {  
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
+    if (rc) {
+      ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
+    }
+  }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
@@ -510,20 +563,27 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     arrayData = *(arrayDataList.begin());
     isChipUnitArray = arrayData.isChipUnitRelated;
 
-    /* Set the length  */
+    /* Set the length of the address field if it wasn't given properly */
+    if (arrayData.writeAddressLength > address.getBitLength()) {
+      uint32_t difference = (arrayData.writeAddressLength - address.getBitLength());
+      address.shiftRightAndResize(difference);
+    } else if (address.getBitLength() > arrayData.writeAddressLength) {
+      char errbuf[100];
+      sprintf(errbuf,"putarray - Too much address data provided with a length of %d bits.\n", address.getBitLength());
+      ecmdOutputError(errbuf);
+      sprintf(errbuf,"putarray - The array you are writing only supports an address of %d bits.\n", arrayData.writeAddressLength);
+      ecmdOutputError(errbuf);
+      coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
+      continue;
+    }
+    
+
     address.setBitLength(arrayData.writeAddressLength);
     rc = address.insertFromHexRight(argv[2], 0, arrayData.writeAddressLength);
     if (rc) {
       ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
       coeRc = rc;
       continue;
-    }
-
-    rc = ecmdReadDataFormatted(buffer, argv[3], format, arrayData.width);
-    if (rc) {
-      ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
-      coeRc = rc;                         //@02
-      continue;                           //@02
     }
 
     /* Setup our chipUnit looper if needed */
@@ -567,15 +627,53 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((isChipUnitArray ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
+      /* Do we need to perform a read/modify/write op ? */
+      if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
+
+        rc = getArray(cuTarget, arrayName.c_str(), address, buffer);
+        if (rc) {
+          printed = "putarray - Error occured performing getarray on ";
+          printed += ecmdWriteTarget(cuTarget);
+          printed += "\n";
+          ecmdOutputError( printed.c_str() );
+          coeRc = rc;
+          continue;
+        } else {
+          validPosFound = true;
+        }
+
+        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
+        if (rc) {
+          coeRc = rc;
+          continue;
+        }
+      } else {
+        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
+        buffer = cmdlineBuffer;
+      }
+
+      /* This does the padding of zeros as */
+      if (buffer.getBitLength() < arrayData.width) {
+        buffer.growBitLength(arrayData.width);
+      } else if (buffer.getBitLength() > arrayData.width) {
+        char errbuf[100];
+        sprintf(errbuf,"putarray - Too much write data provided at %d bits.\n", buffer.getBitLength());
+        ecmdOutputError(errbuf);
+        sprintf(errbuf,"putarray - The array you are writing only supports data of %d bits.\n", arrayData.width);
+        ecmdOutputError(errbuf);
+        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
+        continue;
+      }
+
+
       rc = putArray(cuTarget, arrayName.c_str(), address, buffer);
       if (rc) {
         printed = "putarray - Error occured performing putarray on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
-        coeRc = rc;                         //@02
-        continue;                           //@02
-      }
-      else {
+        coeRc = rc;
+        continue;
+      } else {
         validPosFound = true;     
       }
 

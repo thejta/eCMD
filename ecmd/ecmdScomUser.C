@@ -397,10 +397,6 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-
   if (argc < 3) {  //chip + address + some data
     ecmdOutputError("putscom - Too few arguments specified; you need at least a chip, an address, and some data.\n");
     ecmdOutputError("putscom - Type 'putscom -h' for usage.\n");
