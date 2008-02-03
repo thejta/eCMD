@@ -592,275 +592,7 @@ void ecmdThreadData::printStruct() {
 }
 #endif
 
-#if 0
-/*
- * The following methods for the ecmdChipData struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-uint32_t ecmdCoreData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
-	uint32_t tmpData32 = 0;
-	uint32_t listSize  = 0;
-	uint32_t rc        = ECMD_SUCCESS ;
-
-	uint8_t *l_ptr = o_buf;
-
-	std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
-
-	do {	// Single entry ->
-
-		// Check for buffer overflow conditions.
-		if (this->flattenSize() > i_len) {
-			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
-                               "ecmdCoreData::flatten() "
-                               "structure size = %d; "
-                               "input length = %d",
-                               this->flattenSize(), i_len);
-			rc = ECMD_DATA_OVERFLOW;
-			break;
-		}
-
-		// Insert magic header in the buffer.
-		tmpData32 = htonl(CORE_HDR_MAGIC);      
-		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-		l_ptr += sizeof(CORE_HDR_MAGIC);
-		i_len -= sizeof(CORE_HDR_MAGIC);
-
-		// Copy non-list data.
-		memcpy(l_ptr, &coreId, sizeof(coreId));
-		l_ptr += sizeof(coreId);
-		i_len -= sizeof(coreId);
-
-		memcpy(l_ptr, &numProcThreads, sizeof(numProcThreads));
-		l_ptr += sizeof(numProcThreads);
-		i_len -= sizeof(numProcThreads);
-
-		tmpData32 = htonl(unitId);//@0b
-		memcpy(l_ptr, &tmpData32, sizeof(unitId)); //@0b
-		l_ptr += sizeof(unitId);
-		i_len -= sizeof(unitId);
-
-		tmpData32 = htonl(coreFlags);//@0b
-		memcpy(l_ptr, &tmpData32, sizeof(coreFlags));//@0b
-		l_ptr += sizeof(coreFlags);
-		i_len -= sizeof(coreFlags);
-
-		/*
-		 * Figure out how many threadData structs are in the list for 
-		 * future unflattening.
-		 */
-		listSize = threadData.size();
-		tmpData32 = htonl(listSize);
-		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-		l_ptr += sizeof(listSize);
-		i_len -= sizeof(listSize);
-
-		if (0 == listSize) {
-			/*
-			 * There are no threadData structs in this list. Don't 
-			 * bother attempting to loop on cageData list.
-			 */
-			break;
-		}
-
-		// Copy list data.
-		while (threaditor != threadData.end()) {
-			rc = threaditor->flatten(l_ptr, i_len);
-
-			if (rc) break;  // stop on fail and exit
-			/*
-                         * l_ptr is not passed by reference so now that we 
-                         * have it populated increment by the actual size.
-                         */
-			l_ptr += threaditor->flattenSize();
-			threaditor++;
-		}
-		if (rc) break; // make sure we get to single exit with bad rc
-
-	} while (0);	// <- single exit.
-
-	return rc;
-}
-
-uint32_t ecmdCoreData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
-
-	uint8_t *l_ptr = (uint8_t *)i_buf;
-
-	uint32_t hdrCheck = 0;
-	uint32_t listSize = 0;
-	uint32_t rc       = ECMD_SUCCESS;
-
-	do {	// Single entry ->
-
-		// Check for buffer overflow conditions.
-		if (this->flattenSize() > i_len) {
-			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
-                               "ecmdCoreData::unflatten() "
-                               "structure size = %d; "
-                               "input length = %d",
-                               this->flattenSize(), i_len);
-			rc = ECMD_DATA_OVERFLOW;
-			break;
-		}
-
-		// Get and verify the magic header.
-		memcpy(&hdrCheck, l_ptr, sizeof(hdrCheck));
-		hdrCheck = ntohl(hdrCheck);
-		l_ptr += sizeof(hdrCheck);
-		i_len -= sizeof(hdrCheck);
-
-		if (CORE_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
-                               "ecmdCoreData::unflatten(): "
-                               "Struct header: 0x%08x; read from buffer as: "
-                               "0x%08x", CORE_HDR_MAGIC, hdrCheck);
-			rc = ECMD_INVALID_ARRAY;
-			break;
-		}
-
-		// Unflatten non-list data.
-		memcpy(&coreId, l_ptr, sizeof(coreId));
-		l_ptr += sizeof(coreId);
-		i_len -= sizeof(coreId);
-
-		memcpy(&numProcThreads, l_ptr, sizeof(numProcThreads));
-		l_ptr += sizeof(numProcThreads);
-		i_len -= sizeof(numProcThreads);
-
-		memcpy(&unitId, l_ptr, sizeof(unitId));
-		l_ptr += sizeof(unitId);
-		i_len -= sizeof(unitId);
-		unitId = ntohl(unitId); //@0b - for coreId in showconfig
-
-		memcpy(&coreFlags, l_ptr, sizeof(coreFlags));
-		l_ptr += sizeof(coreFlags);
-		i_len -= sizeof(coreFlags);
-		coreFlags = ntohl(coreFlags);//@0b
-		// Get the number of thredData structs from the buffer.
-		memcpy(&listSize, l_ptr, sizeof(listSize));
-		listSize = ntohl(listSize);
-		l_ptr += sizeof(listSize);
-		i_len -= sizeof(listSize);
-
-        // Since the return query data structure may be reused from a
-        // previous call make sure the list is cleared.  Make sure this
-        // is done before the if check below that may break us out to
-        // prevent returning old data from previous iteration.     @09a
-        threadData.clear();
-
-		// Check to see if the list is populated.
-		if (0 == listSize) {
-			// Nothing to create, just leave.
-			break;
-		}
-
-		// Create any list entries.
-		for (uint32_t i = 0; i < listSize; i++) {
-			threadData.push_back(ecmdThreadData());
-		}
-
-		std::list<ecmdThreadData>::iterator threaditor = 
-							threadData.begin();
-		// Unflatten list data.
-		while (threaditor != threadData.end()) {
-			rc = threaditor->unflatten(l_ptr, i_len);
-
-			if (rc) break;  // stop on fail and exit
-			/*
-                         * l_ptr is not passed by reference so now that we 
-                         * have it populated increment by the actual size.
-                         */
-			l_ptr += threaditor->flattenSize();
-			threaditor++;
-		}
-		if (rc) break; // make sure we get to single exit with bad rc
-
-	} while (0);	// <- single exit.
-
-	return rc;
-}
-
-uint32_t ecmdCoreData::flattenSize() {
-
-	uint32_t flatSize = 0;
-	std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
-
-	do {    // Single entry ->
-
-		/*
-		 * Every struct entry shall place in the buffer a 32bit value to		 * contain a magic header used to identify itself.  This will 
-		 * be used to make sure the code is looking at the expected 
-		 * struct.  So...
-		 * 
-		 * Add the size of magic header.
-		 */
-		flatSize += sizeof(CORE_HDR_MAGIC);
-
-		// Size of non-list member data.
-		flatSize += sizeof(coreId) + sizeof(numProcThreads) + sizeof(unitId) + sizeof(coreFlags);
-
-		/* 
-		 * Every struct entry which contains a list of other structs is
-		 * required to put into the buffer a 32bit value describing the
-		 * number of structures in its list.  So...
-		 * 
-		 * Add one for the threadData list counter.
-		 */
-		flatSize += sizeof(uint32_t);
-
-		// If threadData list does not contain any structs break out.
-		if (0 == threadData.size()) {
-			break;
-		}
-
-		// Size of list member data.
-		while (threaditor != threadData.end()) {
-			flatSize += threaditor->flattenSize();
-			threaditor++;
-		}
-	
-	} while (0);    // <- single exit.
-
-	return flatSize;
-}
-
-/** @brief Used to sort Core entries in an ecmdCoreData list. */
-bool ecmdCoreData::operator< (const ecmdCoreData& rhs) {
-
-  if (coreId < rhs.coreId) {
-    return true;
-  }
-        
-  return false;
-}
-
-#ifndef REMOVE_SIM
-void ecmdCoreData::printStruct() {
-
-	std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
-
-	printf("\n\t\t\t\t\t\tCore Data:\n");
-
-	// Print non-list data.
-	printf("\t\t\t\t\t\tCore ID: %d\n", coreId);
-	printf("\t\t\t\t\t\tNumber of proc threads: %d\n", numProcThreads);
-	printf("\t\t\t\t\t\tUnit ID: 0x%x\n", unitId);
-	printf("\t\t\t\t\t\tCore Flags: 0x%x\n", coreFlags);
-
-	// Print list data.
-	if (threadData.size() == 0) {
-		printf("\t\t\t\t\t\tNo thread data.\n");
-	}
-
-	while (threaditor != threadData.end()) {
-		threaditor->printStruct();
-		threaditor++;
-	}
-}
-#endif
-#endif
 
 
 /** @brief Used to sort chipUnit entries in an ecmdChipUnitData list. */
@@ -1082,7 +814,6 @@ uint32_t ecmdChipUnitData::flattenSize() {
     uint32_t flatSize = 0;
     std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
 
-    //printf("the size of threadData = %d\n",threadData.size());
     do {    // Single entry ->
 
         /*
@@ -1093,7 +824,6 @@ uint32_t ecmdChipUnitData::flattenSize() {
          * Add the size of magic header.
          */
         flatSize += sizeof(CHIPUNIT_HDR_MAGIC);
-        //printf("Error FlattenSize_1\n ");
         // Size of non-list member data.
         flatSize += (sizeof(chipUnitNum) 
                  + sizeof(numThreads)
@@ -1101,7 +831,6 @@ uint32_t ecmdChipUnitData::flattenSize() {
                  + sizeof(chipUnitFlags) 
                  + chipUnitType.size() + 1);
                  
-        //printf("Error FlattenSize_2\n");
         /* 
          * Every struct entry which contains a list of other structs is
          * required to put into the buffer a 32bit value describing the
@@ -1110,24 +839,18 @@ uint32_t ecmdChipUnitData::flattenSize() {
          * Add one for the coreData list counter.
          */
         flatSize += sizeof(uint32_t);
-        //printf("Error FlattenSize_3\n");
         // If the coreData list does not contain any structs break out.
 
         if (0 == threadData.size()) {
-        //printf("Error FlattenSize_4\n");
             break;
         }       
-        //printf("Error FlattenSize_5\n");
         // Size of list member data.
         while (threaditor != threadData.end()) {
-        //printf("Error FlattenSize_6\n");
             flatSize += threaditor->flattenSize();
             threaditor++;
-           // printf("Error FlattenSize_7\n");
         }
 
     } while (0);    // <- single exit.
-        //printf("Error FlattenSize_8\n");
     return flatSize;
 }
 
@@ -1164,14 +887,12 @@ void ecmdChipUnitData::printStruct() {
 uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 	uint32_t rc	   = ECMD_SUCCESS;
 
-        ETRAC0("ecmdChpData flatten is hosed!  Update Me!\n");
-#if 0
 	uint32_t tmpData32 = 0;
 	uint32_t listSize  = 0;
 
 	uint8_t *l_ptr = o_buf;
 
-	std::list<ecmdCoreData>::iterator coreitor = coreData.begin();
+    std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
 
 	do {	// Single entry ->
 
@@ -1220,11 +941,6 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		// no tmpData32 or 'htonl' - this is a uint8_t
-		memcpy(l_ptr, &(numProcCores), sizeof(numProcCores));
-		l_ptr += sizeof(numProcCores);
-		i_len -= sizeof(numProcCores);
-	
 		tmpData32 = htonl(chipEc);
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(chipEc);
@@ -1246,10 +962,10 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		i_len -= sizeof(chipFlags);
 
 		/*
-		 * Figure out how many coreData structs are in the list for 
+		 * Figure out how many chipUnitData structs are in the list for 
 		 * future unflattening.
 		 */
-		listSize = coreData.size();
+        listSize = chipUnitData.size();
 		tmpData32 = htonl(listSize);
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(listSize);
@@ -1257,29 +973,28 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 		if (0 == listSize) {
 			/*
-			 * There are no coreData structs in this list. Don't 
+			 * There are no chipUnitData structs in this list. Don't 
 			 * bother attempting to loop on cageData list.
 			 */
 			break;
 		}
 
-		// Copy list data.
-		while (coreitor != coreData.end()){
-		        rc = coreitor->flatten(l_ptr, i_len);
+        // Copy list data.
+        while (chipunititor != chipUnitData.end()){
+                rc = chipunititor->flatten(l_ptr, i_len);
 
-			if (rc) break; // stop on fail and exit
-			/*
+            if (rc) break; // stop on fail and exit
+            /*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
                          */
-			l_ptr += coreitor->flattenSize();
-			coreitor++;
-		}
+            l_ptr += chipunititor->flattenSize();
+            chipunititor++;
+        }
 		if (rc) break; // make sure we get to single exit with bad rc
 		
 
 	} while (0);	// <- single exit.
-#endif
 
 	return rc;
 }
@@ -1287,8 +1002,6 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	uint32_t rc       = ECMD_SUCCESS;
 
-        ETRAC0("ecmdChpData unflatten is hosed!  Update Me!\n");
-#if 0
 	uint8_t *l_ptr = (uint8_t *)i_buf;
 
 	uint32_t hdrCheck = 0;
@@ -1324,7 +1037,6 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		uint32_t l_byteCount = sizeof(pos)
 				       + sizeof(unitId)
-				       + sizeof(numProcCores)
 				       + sizeof(chipEc)
 				       + sizeof(simModelEc)
 				       + sizeof(interfaceType)
@@ -1364,11 +1076,6 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(unitId);
 		i_len -= sizeof(unitId);
 
-		// no 'nohl' - this is a uint8_t
-		memcpy(&numProcCores, l_ptr, sizeof(numProcCores));
-		l_ptr += sizeof(numProcCores);
-		i_len -= sizeof(numProcCores);
-
 		memcpy(&chipEc, l_ptr, sizeof(chipEc));
 		chipEc = ntohl(chipEc);
 		l_ptr += sizeof(chipEc);
@@ -1390,7 +1097,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(chipFlags);
 		i_len -= sizeof(chipFlags);
 
-		// Get the number of coreData structs from the buffer.
+		// Get the number of chipUnitData structs from the buffer.
 		memcpy(&listSize, l_ptr, sizeof(listSize));
 		listSize = ntohl(listSize);
 		l_ptr += sizeof(listSize);
@@ -1400,7 +1107,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         // previous call make sure the list is cleared.  Make sure this
         // is done before the if check below that may break us out to
         // prevent returning old data from previous iteration.     @09a
-        coreData.clear();
+        chipUnitData.clear();
 
 		// Check to see if the list is populated.
 		if (0 == listSize) {
@@ -1410,27 +1117,26 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		// Create any list entries.
 		for (uint32_t i = 0; i < listSize; i++) {
-			coreData.push_back(ecmdCoreData());
+			chipUnitData.push_back(ecmdChipUnitData());
 		}
 
-		std::list<ecmdCoreData>::iterator coreitor = coreData.begin();
+        std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
 	
 		// Unflatten list data.
-		while (coreitor != coreData.end()) {
-			rc = coreitor->unflatten(l_ptr, i_len);
+        while (chipunititor != chipUnitData.end()) {
+            rc = chipunititor->unflatten(l_ptr, i_len);
 
-			if (rc) break;  // stop on fail and exit
-			/*
+            if (rc) break;  // stop on fail and exit
+            /*
                          * l_ptr is not passed by reference so now that we 
                          * have it populated increment by the actual size.
                          */
-			l_ptr += coreitor->flattenSize();
-			coreitor++;
-		}
+            l_ptr += chipunititor->flattenSize();
+            chipunititor++;
+        }
 		if (rc) break; // make sure we get to single exit with bad rc
 
 	} while (0);	// <- single exit.
-#endif
 
 	return rc;
 }
@@ -1438,9 +1144,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 uint32_t ecmdChipData::flattenSize() {
 	uint32_t flatSize = 0;
 	
-        ETRAC0("ecmdChpData flattenSize is hosed!  Update Me!\n");
-#if 0
-	std::list<ecmdCoreData>::iterator coreitor = coreData.begin();
+    std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
 
 	do {	// Single entry ->
 
@@ -1456,7 +1160,6 @@ uint32_t ecmdChipData::flattenSize() {
 		// Size of non-list member data.
 		flatSize += (sizeof(pos) 
 			     + sizeof(unitId)
-			     + sizeof(numProcCores) 
 			     + sizeof(chipEc) 
 			     + sizeof(simModelEc) 
 			     + sizeof(interfaceType) 
@@ -1470,24 +1173,23 @@ uint32_t ecmdChipData::flattenSize() {
 		 * required to put into the buffer a 32bit value describing the
 		 * number of structures in its list.  So...
 		 * 
-		 * Add one for the coreData list counter.
+		 * Add one for the chipUnitData list counter.
 		 */
 		flatSize += sizeof(uint32_t);
 
-		// If the coreData list does not contain any structs break out.
-		if (0 == coreData.size()) {
-			break;
-		}
+        // If the coreData list does not contain any structs break out.
+        if (0 == chipUnitData.size()) {
+            break;
+        }
 
-		// Size of list member data.
-		while (coreitor != coreData.end()) {
-			flatSize += coreitor->flattenSize();
-			coreitor++;
-		}
+        // Size of list member data.
+        while (chipunititor != chipUnitData.end()) {
+            flatSize += chipunititor->flattenSize();
+            chipunititor++;
+        }
 
 	} while (0);	// <- single exit.
 
-#endif
 	return flatSize;
 }
 
@@ -1507,9 +1209,7 @@ bool ecmdChipData::operator< (const ecmdChipData& rhs) {
 #ifndef REMOVE_SIM
 void ecmdChipData::printStruct() {
 
-        ETRAC0("ecmdChipData::printStruct is hosed!  Update Me!\n");
-#if 0
-	std::list<ecmdCoreData>::iterator coreitor = coreData.begin();
+    std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
 
 	printf("\n\t\t\t\t\tChip Data:\n");
 
@@ -1519,21 +1219,19 @@ void ecmdChipData::printStruct() {
 	printf("\t\t\t\t\tChip common type: %s\n", chipCommonType.c_str());
 	printf("\t\t\t\t\tPosition: %d\n", pos);
 	printf("\t\t\t\t\tUnitId: 0x%x\n", unitId);
-	printf("\t\t\t\t\tNumber of proc cores: %d\n", numProcCores);
 	printf("\t\t\t\t\tChip EC: %X\n", chipEc);
 	printf("\t\t\t\t\tSim mode EC: %X\n", simModelEc);
 	printf("\t\t\t\t\tInterface: 0x%08x\n", (uint32_t) interfaceType);
 	printf("\t\t\t\t\tChip flags: 0x%08x\n", chipFlags);
 
-	// Print list data.
-	if (coreData.size() == 0) {
-		printf("\t\t\t\t\tNo core data.\n");
-	}
-	while (coreitor != coreData.end()) {
-		coreitor->printStruct();
-		coreitor++;
-	}
-#endif
+    // Print list data.
+    if (chipUnitData.size() == 0) {
+        printf("\t\t\t\t\tNo chipUnit data.\n");
+    }
+    while (chipunititor != chipUnitData.end()) {
+        chipunititor->printStruct();
+        chipunititor++;
+    }
 }
 #endif
 
@@ -1576,6 +1274,10 @@ uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		memcpy(l_ptr, &tmpData32, sizeof(slotId));
 		l_ptr += sizeof(slotId);
 		i_len -= sizeof(slotId);
+
+        memcpy(l_ptr, slotName.c_str(), slotName.size() + 1);   
+        l_ptr += slotName.size() + 1;
+        i_len -= slotName.size() + 1;
 
 		tmpData32 = htonl((uint32_t) unitId);
 		memcpy(l_ptr, &tmpData32, sizeof(unitId));
@@ -1663,6 +1365,11 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(slotId);
 		i_len -= sizeof(slotId);
 
+        std::string l_slotName = (const char *) l_ptr;  
+        l_ptr += l_slotName.size() + 1;
+        l_slotName = l_slotName;
+        i_len -= l_slotName.size() + 1;
+
 		memcpy(&unitId, l_ptr, sizeof(unitId));
 		unitId = ntohl(unitId);
 		l_ptr += sizeof(unitId);
@@ -1733,7 +1440,7 @@ uint32_t ecmdSlotData::flattenSize() {
 		flatSize += sizeof(SLOT_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(slotId) + sizeof(unitId) + sizeof(slotFlags);
+		flatSize += sizeof(slotId) + (slotName.size() + 1) + sizeof(unitId) + sizeof(slotFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -1779,6 +1486,7 @@ void ecmdSlotData::printStruct() {
 
 	// Print non-list data.
 	printf("\t\t\t\tSlot ID: 0x%08x\n", slotId);
+    printf("\t\t\t\tSlot Name: %s\n", slotName.c_str());
 	printf("\t\t\t\tUnit ID: 0x%08x\n", unitId);
 	printf("\t\t\t\tslot Flags: 0x%08x\n", slotFlags);
 
@@ -1834,6 +1542,10 @@ uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(nodeId);
 		i_len -= sizeof(nodeId);
+
+        memcpy(l_ptr, nodeName.c_str(), nodeName.size() + 1);   
+        l_ptr += nodeName.size() + 1;
+        i_len -= nodeName.size() + 1;
 
 		tmpData32 = htonl((uint32_t) unitId);
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
@@ -1925,6 +1637,11 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(nodeId);
 		i_len -= sizeof(nodeId);
 
+        std::string l_nodeName = (const char *) l_ptr; 
+        l_ptr += l_nodeName.size() + 1;
+        l_nodeName = l_nodeName;
+        i_len -= l_nodeName.size() + 1;
+
 		memcpy(&unitId, l_ptr, sizeof(unitId)); //@03 chg dest from nodeId to unitId
 		unitId = ntohl(unitId);                 //@03 chg dest from nodeId to unitId
 		l_ptr += sizeof(unitId);
@@ -1996,7 +1713,7 @@ uint32_t ecmdNodeData::flattenSize()  {
 		flatSize += sizeof(NODE_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(nodeId) + sizeof(unitId) + sizeof(nodeFlags);
+		flatSize += sizeof(nodeId) + (nodeName.size() + 1) + sizeof(unitId) + sizeof(nodeFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -2042,6 +1759,7 @@ void ecmdNodeData::printStruct() {
 
 	// Print non-list data.
 	printf("\t\t\tNode ID: 0x%08x\n", nodeId);
+    printf("\t\t\tNode Name: %s\n", nodeName.c_str());
 	printf("\t\t\tUnit ID: 0x%08x\n", unitId);
 	printf("\t\t\tNode Flags: 0x%08x\n", nodeFlags);
 
@@ -2096,6 +1814,10 @@ uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
 		l_ptr += sizeof(cageId);
 		i_len -= sizeof(cageId);
+
+        memcpy(l_ptr, cageName.c_str(), cageName.size() + 1);   
+        l_ptr += cageName.size() + 1; 
+        i_len -= cageName.size() + 1;
 
 		tmpData32 = htonl((uint32_t) unitId);
 		memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
@@ -2187,6 +1909,11 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		l_ptr += sizeof(cageId);
 		i_len -= sizeof(cageId);
 
+        std::string l_cageName = (const char *) l_ptr;  
+        l_ptr += l_cageName.size() + 1;
+        l_cageName = l_cageName;
+        i_len -= l_cageName.size() + 1;
+
         memcpy(&unitId, l_ptr, sizeof(unitId));
         unitId = ntohl(unitId);
         l_ptr += sizeof(unitId);
@@ -2258,7 +1985,7 @@ uint32_t ecmdCageData::flattenSize() {
 		flatSize += sizeof(CAGE_HDR_MAGIC);
 
 		// Size of non-list member data.
-		flatSize += sizeof(cageId) + sizeof(unitId) + sizeof(cageFlags);
+		flatSize += sizeof(cageId) + (cageName.size() + 1) + sizeof(unitId) + sizeof(cageFlags);
 
 		/* 
 		 * Every struct entry which contains a list of other structs is
@@ -2304,6 +2031,7 @@ void ecmdCageData::printStruct() {
 
 	// Print non-list data.
 	printf("\t\tCage ID: 0x%08x\n", cageId);
+    printf("\t\tCage Name: %s\n", cageName.c_str());
 	printf("\t\tUnit ID: 0x%08x\n", unitId);
 	printf("\t\tCage Flags: 0x%08x\n", cageFlags);
 
@@ -2636,12 +2364,16 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(tmpData32);
 	    i_len -= sizeof(tmpData32);
 
-            // "isCoreRelated" (bool, store in uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-            //tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    //memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
-	    //l_ptr += sizeof(tmpData32);
-	    //i_len -= sizeof(tmpData32);  // @08 end
+        //"isChipUnitRelated" (bool, store in uint32_t)        
+        tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof(tmpData32);
+        i_len -= sizeof(tmpData32);
+        
+        //relatedChipUnit     
+        memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+        l_ptr += relatedChipUnit.size() + 1;
+        i_len -= relatedChipUnit.size() + 1;
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -2772,12 +2504,17 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(tmpData32);
 	    l_left -= sizeof(tmpData32);
 
-	    // isCoreRelated (bool, stored as uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
-            //isCoreRelated = (bool)ntohl( tmpData32 );
-	    //l_ptr += sizeof(tmpData32);
-	    //l_left -= sizeof(tmpData32);  // @08 end
+        //isChipUnitRelated
+        memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+        isChipUnitRelated = (bool)ntohl(tmpData32);
+        l_ptr += sizeof(tmpData32);
+        l_left -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        std::string l_relatedChipUnit = (const char *) l_ptr;  //maybe this can be 1 line?
+        relatedChipUnit = l_relatedChipUnit;
+        l_ptr += l_relatedChipUnit.size() + 1;
+        l_left -= l_relatedChipUnit.size() + 1;
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -2878,7 +2615,8 @@ uint32_t ecmdSpyData::flattenSize() {
                              + sizeof(spyType)
                              + sizeof(uint32_t) // for isEccChecked @08
                              + sizeof(uint32_t) // for isEnumerated
-			     + sizeof(uint32_t) // for isCoreRelated
+                             + sizeof(uint32_t) // for isChipUnitRelated 
+                             + relatedChipUnit.size() + 1               
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -3216,12 +2954,16 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(tmpData32);
 	    i_len -= sizeof(tmpData32);
 
-            // isCoreRelated (bool, store in uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //tmpData32 = htonl((uint32_t)isCoreRelated);
-	    //memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-	    //l_ptr += sizeof(tmpData32);
-	    //i_len -= sizeof(tmpData32);  // @08 end
+        //isChipUnitRelated
+        tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof(tmpData32);
+        i_len -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+        l_ptr += relatedChipUnit.size() + 1;
+        i_len -= relatedChipUnit.size() + 1;
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -3341,12 +3083,17 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(tmpData32);
 	    l_left -= sizeof(tmpData32);
 
-            // isCoreRelated (bool stored in uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
-	    //isCoreRelated = (bool)ntohl(tmpData32);
-	    //l_ptr += sizeof(tmpData32);
-	    //l_left -= sizeof(tmpData32);  // @08 end
+        //isChipUnitRelated
+        memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+        isChipUnitRelated = (bool)ntohl(tmpData32);
+        l_ptr += sizeof(tmpData32);
+        l_left -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        std::string l_relatedChipUnit = (const char *) l_ptr;  //maybe this can be 1 line?
+        relatedChipUnit = l_relatedChipUnit;
+        l_ptr += l_relatedChipUnit.size() + 1;
+        l_left -= l_relatedChipUnit.size() + 1;
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -3451,7 +3198,8 @@ uint32_t ecmdRingData::flattenSize() {
                              + sizeof(uint32_t) // hasInversionMask @08
                              + sizeof(uint32_t) // supportsBroadsideLoad
 			     + sizeof(uint32_t) // isCheckable
-                             + sizeof(uint32_t) // isCoreRelated
+                             + sizeof(uint32_t) // isChipUnitRelated 
+                             + relatedChipUnit.size() + 1           
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -3572,6 +3320,12 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(arrayId);
 	    i_len -= sizeof(arrayId);
 
+        // arrayType
+        tmpData32 = htonl((uint32_t)arrayType);
+        memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+        l_ptr += sizeof(arrayType);
+        i_len -= sizeof(arrayType);
+
 	    // readAddressLength
 	    tmpData32 = htonl((uint32_t)readAddressLength);
 	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
@@ -3603,12 +3357,16 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    l_ptr += sizeof(width);
 	    i_len -= sizeof(width);
 
-	    // @04a isCoreRelated (bool is stored as uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //tmpData32 = htonl((uint32_t)isCoreRelated);
-	    //memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
-	    //l_ptr += sizeof(tmpData32);
-	    //i_len -= sizeof(tmpData32);
+        //isChipUnitRelated        
+        tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof(tmpData32);
+        i_len -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+        l_ptr += relatedChipUnit.size() + 1;
+        i_len -= relatedChipUnit.size() + 1;
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -3646,7 +3404,7 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
         uint8_t *l_ptr = (uint8_t *) i_buf;
 	int l_left = (int) i_len;
-        //uint32_t tmpData32 = 0;
+        uint32_t tmpData32 = 0;
 
 
         do {    // Single entry ->
@@ -3663,6 +3421,12 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    arrayId = ntohl(arrayId);
 	    l_ptr += sizeof(arrayId);
 	    l_left -= sizeof(arrayId);
+
+        // arrayType  
+        memcpy(&arrayType, l_ptr, sizeof(arrayType));
+        arrayType = (ecmdArrayType_t) ntohl((uint32_t)arrayType);
+        l_ptr += sizeof(arrayType);
+        l_left -= sizeof(arrayType);
 
 	    // readAddressLength
 	    memcpy(&readAddressLength, l_ptr, sizeof(readAddressLength));
@@ -3700,12 +3464,17 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    l_ptr += sizeof(width);
 	    l_left -= sizeof(width);
 
-	    // @04a isCoreRelated (bool stored as uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
-	    //isCoreRelated = (bool)ntohl(tmpData32);
-	    //l_ptr += sizeof(tmpData32);
-	    //l_left -= sizeof(tmpData32);
+        //isChipUnitRelated
+        memcpy(&tmpData32, l_ptr, sizeof(tmpData32));
+        isChipUnitRelated = (bool)ntohl(tmpData32);
+        l_ptr += sizeof(tmpData32);
+        l_left -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        std::string l_relatedChipUnit = (const char *) l_ptr;  //maybe this can be 1 line?
+        relatedChipUnit = l_relatedChipUnit;
+        l_ptr += l_relatedChipUnit.size() + 1;
+        l_left -= l_relatedChipUnit.size() + 1;
 
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
@@ -3762,11 +3531,13 @@ uint32_t ecmdArrayData::flattenSize() {
                 // Size of non-list member data.
                 flatSize += (arrayName.size() + 1
                              + sizeof(arrayId)
+                        + sizeof(arrayType)    
 			     + sizeof(readAddressLength)
 			     + sizeof(writeAddressLength)
                              + sizeof(length)
                              + sizeof(width)
-                             + sizeof(uint32_t)  //@04a for isCoreRelated
+                             + sizeof(uint32_t)          //isChipUnitRelated
+                             + relatedChipUnit.size() + 1                    
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -3783,6 +3554,7 @@ void  ecmdArrayData::printStruct() {
         // Print non-list data.
         printf("\tArray Name:  %s\n", arrayName.c_str());
         printf("\tArray ID:  0x%08x\n", arrayId);
+        printf("\tArray Type:  %d\n", arrayType);
         printf("\tRead Address Length:  0x%08x\n", (uint32_t) readAddressLength);
         printf("\tWrite Address Length:  0x%08x\n", (uint32_t) writeAddressLength);
         printf("\tLength: 0x%08x\n", (uint32_t) length);
@@ -4032,12 +3804,16 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += sizeof(width);
             l_len -= sizeof(width);
 
-            // "isCoreRelated" (bool, store in uint32_t) @08
-            ETRAC0("isCoreRelated!  Update Me!\n");
-            //tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    //memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
-	    //l_ptr8 += sizeof(tmpData32);
-	    //l_len -= sizeof(tmpData32);
+            //isChipUnitRelated
+            tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            //relatedChipUnit
+            memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+            l_ptr8 += relatedChipUnit.size() + 1;
+            l_len -= relatedChipUnit.size() + 1;
 
             // clockDomain
             strLen = clockDomain.size();
@@ -4116,12 +3892,17 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 	    l_ptr8 += sizeof(width);
 	    l_len -= sizeof(width);
 
-            // "isCoreRelated" (bool, stored as uint32_t) @08
-            ETRAC0("isCoreRelated!  Update Me!\n");
-            //memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            //isCoreRelated = (bool)ntohl( tmpData32 );
-	    //l_ptr8 += sizeof(tmpData32);
-	    //l_len -= sizeof(tmpData32);
+        //isChipUnitRelated
+        memcpy(&tmpData32, l_ptr8, sizeof(tmpData32));
+        isChipUnitRelated = (bool)ntohl(tmpData32);
+        l_ptr8 += sizeof(tmpData32);
+        l_len -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        std::string l_relatedChipUnit = (const char *) l_ptr8;  //maybe this can be 1 line?
+        relatedChipUnit = l_relatedChipUnit;
+        l_ptr8 += l_relatedChipUnit.size() + 1;
+        l_len -= l_relatedChipUnit.size() + 1;
 
 	    // clockDomain
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -4172,7 +3953,8 @@ uint32_t ecmdTraceArrayData::flattenSize()
                    + sizeof( traceArrayId )
                    + sizeof( length )
                    + sizeof( width )
-                   + sizeof( uint32_t ) // isCoreRelated in uint32_t @08
+                   + sizeof( uint32_t ) // isChipUnitRelated in uint32_t
+                   + relatedChipUnit.size() + 1                          
                    + clockDomain.size() + 1
                    + sizeof( clockState );
 
@@ -4233,12 +4015,22 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += sizeof(address);
             l_len -= sizeof(address);
 
-            // "isCoreRelated" (bool, store in uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-            //tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    //memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
-	    //l_ptr8 += sizeof(tmpData32);
-	    //l_len -= sizeof(tmpData32);
+            //"length"  (uint32_t)
+            tmpData32 = htonl( length );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(length);
+            l_len -= sizeof(length);
+
+            //isChipUnitRelated     
+            tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            //relatedChipUnit
+            memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+            l_ptr8 += relatedChipUnit.size() + 1;
+            l_len -= relatedChipUnit.size() + 1;
 
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
@@ -4299,12 +4091,23 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += sizeof(address);
             l_len -= sizeof(address);
  
-            // "isCoreRelated" (bool, stored as uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            //isCoreRelated = (bool)ntohl( tmpData32 );
-	    //l_ptr8 += sizeof(tmpData32);
-	    //l_len -= sizeof(tmpData32);
+            //"length" (uint32_t)
+            memcpy( &length, l_ptr8, sizeof(length) );
+            length = ntohl( length );
+            l_ptr8 += sizeof(length);
+            l_len -= sizeof(length);
+
+            //isChipUnitRelated
+            memcpy(&tmpData32, l_ptr8, sizeof(tmpData32));
+            isChipUnitRelated = (bool)ntohl(tmpData32);
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            //relatedChipUnit
+            std::string l_relatedChipUnit = (const char *) l_ptr8;  //maybe this can be 1 line?
+            relatedChipUnit = l_relatedChipUnit;
+            l_ptr8 += l_relatedChipUnit.size() + 1;
+            l_len -= l_relatedChipUnit.size() + 1;
 
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -4353,7 +4156,9 @@ uint32_t ecmdScomData::flattenSize()
 
         // Calculate the size needed to store the flattened struct
         flatSize = sizeof(address)
-                   + sizeof(uint32_t)   // isCoreRelated stored as uint32_t
+                   + sizeof(length)                                              
+                   + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t 
+                   + relatedChipUnit.size() + 1                                
                    + clockDomain.size() + 1
                    + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
 
@@ -4368,6 +4173,7 @@ void  ecmdScomData::printStruct()
         printf("\n\t--- Scom Data Structure ---\n");
 
         printf("\tAddress: 0x%08x\n", address );
+        printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
@@ -4438,12 +4244,16 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += sizeof(bitLength);
             l_len -= sizeof(bitLength);
 
-            // "isCoreRelated" (bool, store in uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-            //tmpData32 = htonl( (uint32_t)isCoreRelated );
-	    //memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) ); 
-	    //l_ptr8 += sizeof(tmpData32);
-	    //l_len -= sizeof(tmpData32);
+            //isChipUnitRelated
+            tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            //relatedChipUnit
+            memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+            l_ptr8 += relatedChipUnit.size() + 1;
+            l_len -= relatedChipUnit.size() + 1;
 
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
@@ -4527,12 +4337,17 @@ uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 	    l_ptr8 += sizeof(bitLength);
 	    l_len -= sizeof(bitLength);
 
-            // "isCoreRelated" (bool, stored as uint32_t)
-            ETRAC0("isCoreRelated!  Update Me!\n");
-	    //memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            //isCoreRelated = (bool)ntohl( tmpData32 );
-	    //l_ptr8 += sizeof(tmpData32);
-	    //l_len -= sizeof(tmpData32);
+            //isChipUnitRelated
+            memcpy(&tmpData32, l_ptr8, sizeof(tmpData32));
+            isChipUnitRelated = (bool)ntohl(tmpData32);
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            //relatedChipUnit
+            std::string l_relatedChipUnit = (const char *) l_ptr8;
+            relatedChipUnit = l_relatedChipUnit;
+            l_ptr8 += l_relatedChipUnit.size() + 1;
+            l_len -= l_relatedChipUnit.size() + 1;
 
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
@@ -4584,7 +4399,8 @@ uint32_t ecmdLatchData::flattenSize() const
                    + sizeof(latchId)
                    + sizeof(ringId)
                    + sizeof(bitLength)
-                   + sizeof(uint32_t)   // isCoreRelated stored as uint32_t
+                   + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t   
+                   + relatedChipUnit.size() + 1                                  
                    + clockDomain.size() + 1
                    + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
 
