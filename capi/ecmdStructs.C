@@ -5215,10 +5215,6 @@ void  ecmdLatchEntry::printStruct() {
  * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-/*
- * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
 uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
 {
    // @0aa - below
@@ -5334,14 +5330,9 @@ void  ecmdProcRegisterInfo::printStruct()
 #endif  // end of REMOVE_SIM
 
 /*
- * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
+ * The following methods for the ecmdProcRegisterInfoHidden struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-/*
- * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-
 /* This structure will replace the above ecmdProcRegisterInfo for the 10.0 release
  We have to do it like this for now because we need to add variables to the ecmdProcRegisterInfo data type but can
  only do that on a major release.
@@ -5377,6 +5368,15 @@ uint32_t ecmdProcRegisterInfoHidden::flatten(uint8_t *o_buf, uint32_t i_len)
       l_temp32 = htonl(totalEntries);//@0b
       memcpy(l_ptr, &l_temp32, sizeof(totalEntries));//@0b
       l_ptr += sizeof(totalEntries);
+
+      //"isChipUnitRelated" (bool, store in uint32_t)        
+      l_temp32 = htonl( (uint32_t)isChipUnitRelated );
+      memcpy( l_ptr, &l_temp32, sizeof(l_temp32) );
+      l_ptr += sizeof(l_temp32);
+
+      //relatedChipUnit     
+      memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+      l_ptr += relatedChipUnit.size() + 1;
 
       // Store boolean as uint32_t, just to be careful...
       l_temp32 = htonl((uint32_t)threadReplicated);
@@ -5419,6 +5419,16 @@ uint32_t ecmdProcRegisterInfoHidden::unflatten(const uint8_t *i_buf, uint32_t i_
       memcpy(&totalEntries, l_ptr, sizeof(totalEntries));
       l_ptr += sizeof(totalEntries);
       totalEntries = ntohl(totalEntries);//@0b  
+
+      //isChipUnitRelated (bool, but stored in uint32_t
+      memcpy(&l_temp32, l_ptr, sizeof(l_temp32));
+      isChipUnitRelated = (bool)ntohl(l_temp32);
+      l_ptr += sizeof(l_temp32);
+
+      //relatedChipUnit
+      std::string l_relatedChipUnit = (const char *) l_ptr;  //maybe this can be 1 line?
+      relatedChipUnit = l_relatedChipUnit;
+      l_ptr += l_relatedChipUnit.size() + 1;
       
       // threadReplicated stored as uint32_t, so convert back to bool here...
       memcpy(&l_temp32, l_ptr, sizeof(l_temp32));
@@ -5438,6 +5448,8 @@ uint32_t ecmdProcRegisterInfoHidden::flattenSize()
 
    flatSize += sizeof(bitLength);
    flatSize += sizeof(totalEntries);
+   flatSize += sizeof(uint32_t); // for isChipUnitRelated (bool stored as uint32_t)
+   flatSize += relatedChipUnit.size() + 1;  
    // threadReplicated stored as uint32_t...
    flatSize += sizeof(uint32_t);
 
