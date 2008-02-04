@@ -1,0 +1,30 @@
+
+Syntax: unitid <Mode> <Mode Options>
+
+        ECMD:       Core Common Function
+
+        Function:   Translation between UnitIds and ecmdChipTargets
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Mode        Query type to perform
+
+        Mode Values     
+                    uid2tgt <unitid>
+                     - Displays ecmdChiptarget(s) that the unitId input represents
+                     - unitid is expected in either hex or string format
+
+                    tgt2uid -dk|-dn|-ds|-dp|-dc|-dt [ChipSelect] [-k#] [-n#] [-s#] [-p#]
+                     - Display the unitId that target represents
+                     - Need to state what depth the target for conversion to unitId:
+                     - Use -dk to specify cage depth target
+                     - Use -dn to specify node depth target
+                     - Use -ds to specify slot depth target
+                     - Use -dp to specify position depth target [requires ChipSelect]
+                     - Use -dc to specify chipUnit depth target [requires ChipSelect]
+                     - Use -dt to specify thread depth target [requires ChipSelect]
+                     - ChipSelect needed for position, chipUnit, or thread depth
+                     - Use -k# -n# -s# -p# -c# -t# to set up target.  
+                       - Default value is 0 if not specified. 
+                       - "-all" options not supported.
+
