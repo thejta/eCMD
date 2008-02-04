@@ -1711,6 +1711,7 @@ uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @brief Query information about the cache levels
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_cacheType ecmdCacheType_t struct defines what type of cache gets flushed
+ @param o_data Information about the cache type queried.
  @retval ECMD_TARGET_NOT_CONFIGURED  if target is not available in the system  
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
