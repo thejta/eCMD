@@ -435,6 +435,10 @@ void dllPopCommandArgs();
 
 uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode); 
 
+std::string dllGetCurrentCmdline(); 
+
+void dllSetCurrentCmdline(int argc, char* argv[]); 
+
 } //extern C
 
 #endif

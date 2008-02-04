@@ -148,6 +148,8 @@ int main (int argc, char *argv[])
             // This prevents c_argv[o] being accessed below when still pointing to NULL
             if (c_argc == 0) continue;
 
+            // Before Executing the cmd save it on the Dll side 
+            ecmdSetCurrentCmdline(c_argc, c_argv);
 
             /* We now want to call the command interpreter to handle what the user provided us */
             if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
@@ -188,6 +190,9 @@ int main (int argc, char *argv[])
 
     } else {
       /* Standard command line command */
+
+      // Before Executing the cmd save it on the Dll side 
+      ecmdSetCurrentCmdline(argc-1, argv+1);
 
       /* We now want to call the command interpreter to handle what the user provided us */
       rc = ecmdCallInterpreters(argc - 1, argv + 1);

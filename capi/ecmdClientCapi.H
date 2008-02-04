@@ -3196,6 +3196,19 @@ void ecmdPopCommandArgs();
 */
 uint32_t ecmdGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode);
 
+/**
+ @brief Get Current Cmdline String 
+ @retval String representing current cmdline string being processed
+*/
+std::string ecmdGetCurrentCmdline();
+
+/**
+ @brief Convert list of Cmdline Args to String and Save in Dll 
+ @param argc Command line arguments
+ @param argv Command line arguments
+*/
+void ecmdSetCurrentCmdline(int argc, char* argv[]);
+
 //@}
 #endif
 
