@@ -1716,7 +1716,7 @@ uint32_t putMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, ecmdCacheData & o_data);
