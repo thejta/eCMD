@@ -12,36 +12,36 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        biasvoltage              getringdump              putspr                   siminit                  
-                                 getscom                  putspy                   simoutputfusionmessage   
-        cacheflush               getspr                   putvpdimage              simputtcfac              
-        checkrings               getspy                   putvpdkeyword            simrestart               
-                                 gettracearray                                     simstktcfac              
-        deconfig                 getvpdimage              querybiasstate           simtckinterval           
-                                 getvpdkeyword                                     simunsticktcfac          
-        ecmd                     gpioconfig               reconfig                 startclocks              
-        ecmdecho                                          ringcache                stopclocks               
-        ecmdquery                i2creset                                          systempower              
-                                 istep                    sendcmd                  
-        format                                            setclockspeed            
-        frupower                 makespsystemcall         setconfig                
-                                                          simEXPECTFAC             
-        getarray                 pollscom                 simGETFAC                
-        getbits                  putarray                 simGETFACX               
-        getcfam                  putbits                  simPUTFAC                
-        getclockspeed            putcfam                  simPUTFACX               
-        getconfig                putfpr                   simSTKFAC                
-        getfpr                   putgpiolatch             simSUBCMD                
-        getgpiolatch             putgpioreg               simUNSTICK               
-        getgpiopin               putgpr                   simaet                   
-        getgpioreg               putgpreg                 simcheckpoint            
-        getgpr                   puti2c                   simclock                 
-        getgpreg                 putlatch                 simecho                  
-        geti2c                   putmemdma                simexit                  
-        getlatch                 putmemmemctrl            simexpecttcfac           
-        getmemdma                putmemproc               simgetcurrentcycle       
-        getmemmemctrl            putpattern               simgethierarchy          
-        getmemproc               putscom                  simgettcfac              
+        biasvoltage              getringdump              putscom                  simgethierarchy          
+                                 getscom                  putspr                   simgettcfac              
+        cacheflush               getspr                   putspy                   siminit                  
+        checkrings               getspy                   putvpdimage              simoutputfusionmessage   
+                                 gettracearray            putvpdkeyword            simputtcfac              
+        deconfig                 getvpdimage                                       simrestart               
+                                 getvpdkeyword            querybiasstate           simstktcfac              
+        ecmd                     gpioconfig                                        simtckinterval           
+        ecmdecho                                          reconfig                 simunsticktcfac          
+        ecmdquery                i2creset                 ringcache                startclocks              
+                                 istep                                             stopclocks               
+        format                                            sendcmd                  systempower              
+        frupower                 makespsystemcall         setclockspeed                                     
+                                                          setconfig                unitid                   
+        getarray                 pollscom                 simEXPECTFAC             
+        getbits                  psi                      simGETFAC                
+        getcfam                  putarray                 simGETFACX               
+        getclockspeed            putbits                  simPUTFAC                
+        getconfig                putcfam                  simPUTFACX               
+        getfpr                   putfpr                   simSTKFAC                
+        getgpiolatch             putgpiolatch             simSTKFACX               
+        getgpiopin               putgpioreg               simSUBCMD                
+        getgpioreg               putgpr                   simUNSTICK               
+        getgpr                   putgpreg                 simaet                   
+        getgpreg                 puti2c                   simcheckpoint            
+        geti2c                   putlatch                 simclock                 
+        getlatch                 putmemdma                simecho                  
+        getmemdma                putmemmemctrl            simexit                  
+        getmemmemctrl            putmemproc               simexpecttcfac           
+        getmemproc               putpattern               simgetcurrentcycle       
 
 
         Cronus/IP Extensions:
