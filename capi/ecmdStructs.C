@@ -5291,6 +5291,115 @@ void  ecmdProcRegisterInfoHidden::printStruct()
 }
 #endif  // end of REMOVE_SIM
 
+
+/*
+ * The following methods for the ecmdProcRegisterInfoHidden struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdCacheData::flatten(uint8_t *o_buf, uint32_t i_len)
+{
+   // @0aa - below
+   uint32_t l_rc = ECMD_SUCCESS ;
+   uint8_t *l_ptr = o_buf;
+   uint32_t l_temp32;
+
+   do
+   {  // Single entry -> 
+
+      // Check for buffer overflown conditions.
+      if (this->flattenSize() > i_len)
+      {
+         // Generate an error for buffer overflow conditions.
+         ETRAC2("Buffer overflow occured in "
+                "ecmdCacheData::flatten() "
+                "structure size = %d; "
+                "input length = %d",
+                this->flattenSize(), i_len);
+         l_rc = ECMD_DATA_OVERFLOW;
+         break;
+      }
+
+      //"isChipUnitRelated" (bool, store in uint32_t)        
+      l_temp32 = htonl( (uint32_t)isChipUnitRelated );
+      memcpy( l_ptr, &l_temp32, sizeof(l_temp32) );
+      l_ptr += sizeof(l_temp32);
+
+      //relatedChipUnit     
+      memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+      l_ptr += relatedChipUnit.size() + 1;
+
+   } while (0);  // <- single exit
+
+   return l_rc;
+}
+
+
+
+uint32_t ecmdCacheData::unflatten(const uint8_t *i_buf, uint32_t i_len)
+{
+   // @0aa - below
+   uint32_t l_rc       = ECMD_SUCCESS;
+
+   uint8_t *l_ptr = (uint8_t *)i_buf;
+   uint32_t l_temp32;
+
+   do
+   {  // Single entry ->
+
+      // Check for buffer overflown conditions. 
+      if (this->flattenSize() > i_len) {                //@01c
+         // Generate an error for buffer overflow conditions.
+         ETRAC2("Buffer overflow occured in "
+                "ecmdCacheData::unflatten() "
+                "structure size = %d; "
+                "input length = %d",
+                this->flattenSize(), i_len);
+         l_rc = ECMD_DATA_OVERFLOW;
+         break;
+      }
+
+      //isChipUnitRelated (bool, but stored in uint32_t
+      memcpy(&l_temp32, l_ptr, sizeof(l_temp32));
+      isChipUnitRelated = (bool)ntohl(l_temp32);
+      l_ptr += sizeof(l_temp32);
+
+      //relatedChipUnit
+      std::string l_relatedChipUnit = (const char *) l_ptr;  //maybe this can be 1 line?
+      relatedChipUnit = l_relatedChipUnit;
+      l_ptr += l_relatedChipUnit.size() + 1;
+
+
+   } while (0);  // <- single exit
+
+   return l_rc;
+}
+
+uint32_t ecmdCacheData::flattenSize()
+{
+   // @0aa - below
+   uint32_t flatSize = 0;
+
+   flatSize += sizeof(uint32_t); // for isChipUnitRelated (bool stored as uint32_t)
+   flatSize += relatedChipUnit.size() + 1;
+
+   return flatSize;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdCacheData::printStruct()
+{
+
+   printf("\n\t--- Proc Register Info Structure ---\n");
+
+   // Print non-list data.
+   printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+   printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+
+}
+#endif  // end of REMOVE_SIM
+
+
+
 /*
  * The following methods for the ecmdSimModelInfo struct will flatten, unflatten &
  * get the flattened size of the struct.

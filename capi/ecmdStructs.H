@@ -1616,9 +1616,38 @@ inline ecmdProcRegisterInfoHidden::~ecmdProcRegisterInfoHidden() { }
  @brief Used to return information for cache query information
 */
 struct ecmdCacheData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdCacheData();
+
+  // Destructor
+  ~ecmdCacheData();
+  
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
   bool isChipUnitRelated;       ///< Is the level of cache chipUnit related
   std::string relatedChipUnit;  ///< If it is, what unit
 };
+
+
+#ifndef DOCUMENTATION
+// ecmdCacheData Constructor
+inline ecmdCacheData::ecmdCacheData():
+isChipUnitRelated(false)
+{
+}
+
+// ecmdCacheData Destructor
+inline ecmdCacheData::~ecmdCacheData() { }
+#endif
+
 
 /**
  @brief Used by ecmdSpyData when returning the latches that are part of a spy
