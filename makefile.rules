@@ -6,8 +6,12 @@ ifeq (${MAKEFILE_RULES},)
 
 MAKEFILE_RULES   := y
 
-# The default extensions we will build as part of eCMD if a configure isn't done
-EXTENSIONS := cro cip gip eip scand zse mbo cmd
+# The default extensions we will build as part of eCMD if not otherwise specified
+ifeq ($(strip $(EXTENSIONS)),)
+  EXTENSIONS := cro cip gip eip scand zse mbo cmd
+  export EXTENSIONS
+endif
+
 
 
 # Figure out the OS
