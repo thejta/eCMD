@@ -95,7 +95,7 @@
 %template(listEcmdMemoryEntry)       std::list<ecmdMemoryEntry>;
 // From ecmdClientPerlapi.H
 %template(listEcmdRingData)          std::list<ecmdRingData>;
-%template(listEcmdLatchData)         std::list<ecmdLatchData>
+%template(listEcmdLatchData)         std::list<ecmdLatchData>;
 %template(listEcmdLatchEntry)        std::list<ecmdLatchEntry>;
 %template(listEcmdSpyGroupData)      std::list<ecmdSpyGroupData>;
 %template(listEcmdArrayEntry)        std::list<ecmdArrayEntry>;
