@@ -219,6 +219,10 @@ uint32_t ecmdGlobal_continueOnError = 0;
 std::list<ecmdLatchBufferEntry> latchBuffer;
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
+/* @brief This is a global var set by ecmdSetCurrentCmdline() */
+std::string ecmdGlobal_currentCmdline = "";
+
+
 // Eliminate the follow unavoidable lint message for everywhere 'major' and
 // 'minor' are declared in this file.
 //lint -e123
@@ -2691,6 +2695,35 @@ bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData
   /*lint -e429 i_queryData is deallocated above based on myQuery bool */
   return ret;
 }
+
+
+
+/**
+ @brief Get Current Cmdline String 
+ @retval String representing current cmdline string being processed
+*/
+std::string dllGetCurrentCmdline(){ return ecmdGlobal_currentCmdline; }
+
+
+/**
+ @brief Convert list of Cmdline Args to String and Save in Dll 
+ @param argc Command line arguments
+ @param argv Command line arguments
+*/
+void dllSetCurrentCmdline(int argc, char* argv[])
+{
+  // new string coming in, so erase/clear what was there first
+  ecmdGlobal_currentCmdline="";
+
+  // now create new string from argv[] array of size argc
+  for (int i=0 ; i < argc ; i++ )
+  {
+    ecmdGlobal_currentCmdline += argv[i];
+    ecmdGlobal_currentCmdline += " ";
+  }
+}
+
+
 
 // Change Log *********************************************************
 //                                                                      
