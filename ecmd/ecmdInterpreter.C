@@ -413,7 +413,9 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         if (!strcmp(argv[0], "p")) { // stub to get 'if' at the start
           rc = ECMD_INT_UNKNOWN_COMMAND;
         } else if (!strcmp(argv[0], "psi")) { 
+#ifndef ECMD_REMOVE_ADAL_FUNCTIONS
 	  rc = ecmdAdalPsiUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_ADAL_FUNCTIONS
 #ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
         } else if (!strcmp(argv[0], "putarray")) {
           rc = ecmdPutArrayUser(argc - 1, argv + 1);

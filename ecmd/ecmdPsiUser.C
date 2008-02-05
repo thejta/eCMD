@@ -25,6 +25,7 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
+#ifndef ECMD_REMOVE_ADAL_FUNCTIONS
 uint32_t ecmdAdalPsiUser(int argc, char* argv[]) {
 
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -188,3 +189,5 @@ uint32_t ecmdAdalPsiUser(int argc, char* argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_ADAL_FUNCTIONS
+
