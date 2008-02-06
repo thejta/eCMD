@@ -1339,8 +1339,10 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
 	  curLatchData.clockState = o_ringData.begin()->clockState;
 	}
         curLatchData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
-      } else 
+        curLatchData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
+      } else {
 	o_queryData.push_back(curLatchData);
+      }
 
       curLatch = curLatchData.latchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));  
       curLatchData.bitLength = (int)curLatchInfo->length;
