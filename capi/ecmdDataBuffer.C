@@ -3216,7 +3216,7 @@ int ecmdDataBuffer::operator == (const ecmdDataBuffer& i_other) const {
 
 #ifndef REMOVE_SIM
   /* Check the X-state buffer */
-  if (iv_XstateEnabled) {
+  if (iv_XstateEnabled && i_other.iv_XstateEnabled) {
     if (strncmp(iv_DataStr, i_other.iv_DataStr, iv_NumBits)) {
       return 0;
     }
