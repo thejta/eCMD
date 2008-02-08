@@ -373,7 +373,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::string printed;                          ///< String for printed data
   uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
   uint32_t numbits = 0;                         ///< Number of bits to insert data
-  uint8_t oneLoop = 0;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint8_t oneLoop = 0;                          ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  char* cmdlinePtr = NULL;                      ///< Pointer to data in argv array
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -453,12 +454,10 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
     }  
-  } else {  
-    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[2], inputformat);
-    if (rc) {
-      ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
-      return rc;
-    }
+  } else {
+
+    cmdlinePtr = argv[2];
+
   }
 
   /************************************************************************/
@@ -547,22 +546,11 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
           coeRc = rc;
           continue;
         }
-      } else {
-        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
-        buffer = cmdlineBuffer;
-      }
-
-      /* This does the padding of zeros as mentioned in the putscom help text */
-      if (buffer.getBitLength() < queryScomData.begin()->length) {
-        buffer.growBitLength(queryScomData.begin()->length);
-      } else if (buffer.getBitLength() > queryScomData.begin()->length) {
-        char errbuf[100];
-        sprintf(errbuf,"putscom - Too much write data provided at %d bits.\n", buffer.getBitLength());
-        ecmdOutputError(errbuf);
-        sprintf(errbuf,"putscom - The scom you are writing only supports data of %d bits.\n", queryScomData.begin()->length);
-        ecmdOutputError(errbuf);
-        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
-        continue;
+      } else if (cmdlinePtr != NULL) {
+        /* First time through, take the data from the command line and apply it to the buffer */
+        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, queryScomData.begin()->length);
+        cmdlinePtr = NULL;
       }
 
       /* My data is all setup, now write it */

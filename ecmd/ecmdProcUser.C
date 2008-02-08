@@ -675,6 +675,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   uint32_t numBits = 0;         ///< Number of bits to insert data
   std::string function;         ///< Current function being run based on daType
   std::string sprName;
+  char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
   ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not
 
   /* get format flag, if it's there */
@@ -748,19 +749,15 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       return rc;
     }
   } else if (argc == 2) {
-    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[1], inputformat);
-    if (rc) {
-      printed = function + "Problems occurred parsing input data, must be an invalid format\n";
-      ecmdOutputError(printed.c_str());
-      return rc;
-    }
+
+    cmdlinePtr = argv[1];
+
   } else {
     printed = function + " - Too many arguments specified; you probably added an option that wasn't recognized.\n";
     ecmdOutputError(printed.c_str());
     printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
-    
   }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
@@ -821,22 +818,11 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
           coeRc = rc;
           continue;
         }
-      } else {
-        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
-        buffer = cmdlineBuffer;
-      }
-
-      /* Make sure the input data is of the right length */
-      if (buffer.getBitLength() < (uint32_t)procInfo.bitLength) {
-        buffer.growBitLength((uint32_t)procInfo.bitLength);
-      } else if (buffer.getBitLength() > (uint32_t)procInfo.bitLength) {
-        char errbuf[100];
-        sprintf(errbuf,"%s - Too much write data provided at %d bits.\n", function.c_str(), buffer.getBitLength());
-        ecmdOutputError(errbuf);
-        sprintf(errbuf,"%s - The spr you are writing only supports data of %d bits.\n", function.c_str(), procInfo.bitLength);
-        ecmdOutputError(errbuf);
-        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
-        continue;
+      } else if (cmdlinePtr != NULL) {
+        /* First time through, take the data from the command line and apply it to the buffer */
+        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
+        cmdlinePtr = NULL;
       }
 
       if (daType == ECMD_GPR) {
