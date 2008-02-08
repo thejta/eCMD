@@ -309,6 +309,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
+  char* cmdlinePtr = NULL;            ///< Pointer to data in argv array
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -369,12 +370,8 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
     }
   } else if (argc == 2) {
 
-    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[1], inputformat);
-    if (rc) {
-      printed = "putspr - Problems occurred parsing input data, must be an invalid format\n";
-      ecmdOutputError(printed.c_str());
-      return rc;
-    }
+    cmdlinePtr = argv[1];
+
   } else {
     ecmdOutputError("putspr - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("putspr - Type 'putspr -h' for usage.\n");
@@ -435,26 +432,14 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
           coeRc = rc;
           continue;
         }
-      } else {
-        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
-        buffer = cmdlineBuffer;
-      }
-
-      /* Make sure the input data is of the right length */
-      if (buffer.getBitLength() < (uint32_t)procInfo.bitLength) {
-        buffer.growBitLength((uint32_t)procInfo.bitLength);
-      } else if (buffer.getBitLength() > (uint32_t)procInfo.bitLength) {
-        char errbuf[100];
-        sprintf(errbuf,"putspr - Too much write data provided at %d bits.\n", buffer.getBitLength());
-        ecmdOutputError(errbuf);
-        sprintf(errbuf,"putspr - The spr you are writing only supports data of %d bits.\n", procInfo.bitLength);
-        ecmdOutputError(errbuf);
-        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
-        continue;
+      } else if (cmdlinePtr != NULL) {
+        /* First time through, take the data from the command line and apply it to the buffer */
+        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
+        cmdlinePtr = NULL;
       }
 
       rc = putSpr(subTarget, sprName.c_str(), buffer);
-
       if (rc) {
         printed = "putspr - Error occured performing putspr on ";
         printed += ecmdWriteTarget(subTarget) + "\n";
