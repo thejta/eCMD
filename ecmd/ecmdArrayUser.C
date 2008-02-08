@@ -459,6 +459,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   uint32_t startbit = ECMD_UNSET;               ///< Startbit to insert data
   uint32_t numbits = 0;                         ///< Number of bits to insert data
+  char* cmdlinePtr = NULL;                      ///< Pointer to data in argv array
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -539,11 +540,9 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       return rc;
     }  
   } else {  
-    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
-    if (rc) {
-      ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
-      return rc;
-    }
+
+    cmdlinePtr = argv[3];
+
   }
 
   rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
@@ -647,24 +646,12 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
           coeRc = rc;
           continue;
         }
-      } else {
-        /* We aren't overlaying/inserting any data, take what was read in and assign it to the buffer used for the putscom below */
-        buffer = cmdlineBuffer;
+      } else if (cmdlinePtr != NULL) {
+        /* First time through, take the data from the command line and apply it to the buffer */
+        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, arrayData.width);
+        cmdlinePtr = NULL;
       }
-
-      /* This does the padding of zeros as */
-      if (buffer.getBitLength() < arrayData.width) {
-        buffer.growBitLength(arrayData.width);
-      } else if (buffer.getBitLength() > arrayData.width) {
-        char errbuf[100];
-        sprintf(errbuf,"putarray - Too much write data provided at %d bits.\n", buffer.getBitLength());
-        ecmdOutputError(errbuf);
-        sprintf(errbuf,"putarray - The array you are writing only supports data of %d bits.\n", arrayData.width);
-        ecmdOutputError(errbuf);
-        coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
-        continue;
-      }
-
 
       rc = putArray(cuTarget, arrayName.c_str(), address, buffer);
       if (rc) {
