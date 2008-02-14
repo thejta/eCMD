@@ -88,7 +88,14 @@
 #define ECMD_INVALID_RETURN_DATA                (ECMD_ERR_ECMD | 0x1065) ///< Data returned (if any) is incomplete or invalid... caller beware
 #define ECMD_CHIP_UNKNOWN_FOR_MAPPING           (ECMD_ERR_ECMD | 0x1067) ///< Chip type did not map to a known EDC table
 #define ECMD_INVALID_GP_REGISTER                (ECMD_ERR_ECMD | 0x1069) ///< Invalid GP Register was provided
-#define ECMD_INVALID_SCOM                       (ECMD_ERR_ECMD | 0x106B) ///< Invalid GP Register was provided
+#define ECMD_INVALID_SCOM                       (ECMD_ERR_ECMD | 0x106B) ///< Invalid SCOM Register was provided
+#define ECMD_RING_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106D) ///< Ring provided was not found
+#define ECMD_SCOM_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106F) ///< Scom provided was not found
+#define ECMD_ARRAY_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1071) ///< Array provided was not found
+#define ECMD_TRACEARRAY_NOT_FOUND               (ECMD_ERR_ECMD | 0x1073) ///< Trace Array provided was not found
+#define ECMD_CFAMREG_NOT_FOUND                  (ECMD_ERR_ECMD | 0x1075) ///< Cfam Register provided was not found
+#define ECMD_GPREG_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1077) ///< GP Register provided was not found
+
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1901)  ///< Command interpreter didn't understand command
