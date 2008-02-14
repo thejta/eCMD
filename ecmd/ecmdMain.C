@@ -44,149 +44,154 @@ int main (int argc, char *argv[])
   uint32_t rc = 0;
 
   std::string cmdsave;
-  char buf[200];
+  char errorbuf[200];
   for (int i = 0; i < argc; i++) {
     cmdsave += argv[i];
     cmdsave += " ";
   }
-
   cmdsave += "\n";
 
-
-#ifndef ECMD_STATIC_FUNCTIONS
-// If building the function 'statically', it doesn't need ECMD_DLL_FILE set; it'll automatically load its DLL
-  if (getenv ("ECMD_DLL_FILE") == NULL) {
-    printf("ecmd - You must set ECMD_DLL_FILE in order to run the eCMD command line client\n");
-    rc = ECMD_INVALID_DLL_FILENAME;
-  } else {
-    /* Load the one specified by ECMD_DLL_FILE */
-    rc = ecmdLoadDll("");
-  }
-#else
   rc = ecmdLoadDll("");
-#endif
 
   if (rc == ECMD_SUCCESS) {
     /* Check to see if we are using stdin to pass in multiple commands */
-    if (ecmdParseOption(&argc, &argv, "-stdin")) {
+    bool shellMode = ecmdParseOption(&argc, &argv, "-shell");
+    bool stdinMode = ecmdParseOption(&argc, &argv, "-stdin");
+    if (stdinMode || shellMode) {
 
       /* Grab any other args that may be there */
       rc = ecmdCommandArgs(&argc, &argv);
       if (rc) exit((int)rc);
 
-      /* There shouldn't be any more args when doing a -stdin */
+      /* There shouldn't be any more args when doing a -stdin/-shell */
       if (argc > 1) {
-        ecmdOutputError("ecmd - Invalid args passed to ecmd in -stdin mode\n");
-        rc = ECMD_INVALID_ARGS;
+        ecmdOutputError("ecmd - Invalid args passed to ecmd in -stdin/-shell mode\n");
+        exit(ECMD_INVALID_ARGS);
+      }
 
-      } else {
+      /* Let's get things going */
+      std::vector<std::string> commands;
+      int   c_argc;
+      char* c_argv[ECMD_ARG_LIMIT + 1];       ///< A limit of 20 tokens(args) per command
+      char* buffer = NULL;
+      size_t   bufflen = 0;
+      size_t   commlen;
+      bool shellAlive = true;
 
-        std::vector< std::string > commands;
-        int   c_argc;
-        char* c_argv[ECMD_ARG_LIMIT + 1];       ///< A limit of 20 tokens(args) per command
-        char* buffer = NULL;
-        size_t   bufflen = 0;
-        size_t   commlen;
+      if (shellMode) {
+        ecmdOutput("ecmd> "); fflush(0);
+      }
 
-        /* ecmdParseStdInCommands reads from stdin and returns a vector of strings */
-        /*  each string contains one command (ie 'ecmdquery version')              */
-        /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
-        while ((rc = ecmdParseStdinCommands(commands)) != ECMD_SUCCESS) {
+      /* ecmdParseStdInCommands reads from stdin and returns a vector of strings */
+      /*  each string contains one command (ie 'ecmdquery version')              */
+      /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
+      while (shellAlive && (rc = ecmdParseStdinCommands(commands))) {
 
-          rc = 0;
+        rc = 0;
 
-          /* Walk through individual commands from ecmdParseStdInCommands */
-          for (std::vector< std::string >::iterator commit = commands.begin(); commit != commands.end(); commit ++) {
+        /* Walk through individual commands from ecmdParseStdInCommands */
+        for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
 
-            c_argc = 0;
-	    c_argv[0] = NULL;
+          c_argc = 0;
+          c_argv[0] = NULL;
 
-            /* Check for a comment or empty line, if so delete it */
-            if ((*commit)[0] == '#') continue;
-            else if (commit->length() == 0) continue;
-
-            /* Create a char buffer to hold the whole command, we will use this to create pointers to each token in the command (like argc,argv) */
-            commlen = commit->length();
-            if ( commlen > bufflen) {
-              if (buffer != NULL) delete[] buffer;
-              buffer = new char[commlen + 20];
-              bufflen = commlen + 19;
-            }
-
-            // Beam "error" of possible NULL 'buffer' value requires mutually
-            // exclusive conditions (need an argument present to enter 
-            // "commands" FOR loop but commit->length = 0 ie. no command).  So
-            // tell beam to ignore NULL pointer message for 'buffer' parm via
-            // comment on next line.
-	    //lint -e(668) Ignore passing null, same as above for lint
-            strcpy(buffer, commit->c_str()); /*passing null object*/
-
-            /* Now start carving this thing up */
-            bool lookingForStart = true; /* Are we looking for the start of a word ? */
-            for (size_t c = 0; c < commlen; c++) {
-              if (lookingForStart) {
-                if (buffer[c] != ' ' && buffer[c] != '\t') {
-                  c_argv[c_argc++] = &buffer[c];
-                  lookingForStart = false;
-                }
-              } else {
-                /* Looking for the end */
-                if (buffer[c] == ' ' || buffer[c] == '\t') {
-                  buffer[c] = '\0';
-                  lookingForStart = true;
-                }
-              }
-              if (c_argc > ECMD_ARG_LIMIT) {
-		sprintf(buf,"ecmd - Found a command with greater then %d arguments, not supported\n",ECMD_ARG_LIMIT);
-                ecmdOutputError(buf);
-                rc = ECMD_INVALID_ARGS;
-                break;
-              }
-            }
-
-            // ignore a line if it is only space or tabs - 
-            // This prevents c_argv[o] being accessed below when still pointing to NULL
-            if (c_argc == 0) continue;
-
-            // Before Executing the cmd save it on the Dll side 
-            ecmdSetCurrentCmdline(c_argc, c_argv);
-
-            /* We now want to call the command interpreter to handle what the user provided us */
-            if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
-
-
-            if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-              if (strlen(c_argv[0]) < 200)
-                sprintf(buf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
-              else
-                sprintf(buf,"ecmd -  Unknown Command specified \n");
-              ecmdOutputError(buf);
-            } else if (rc) {
-              std::string parse = ecmdGetErrorMsg(rc, false);
-              if (parse.length() > 0) {
-                /* Display the registered message right away BZ#160 */
-                ecmdOutput(parse.c_str());
-              }
-              parse = ecmdParseReturnCode(rc);
-              if (strlen(c_argv[0]) + parse.length() < 300)
-                sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", c_argv[0], rc, parse.c_str());
-              else
-                sprintf(buf,"ecmd - Command returned with error code %X (%s)\n", rc, parse.c_str());
-              ecmdOutputError(buf);
+          /* Check for a comment or empty line, if so delete it */
+          if ((*commandIter)[0] == '#') {
+            continue;
+          } else if (commandIter->length() == 0) {
+            continue;
+          }
+          if (shellMode) {
+            if ((*commandIter) == "quit" || (*commandIter) == "exit") {
+              ecmdOutput("Leaving ecmd shell at users request... \n");
+              shellAlive = false;
               break;
             }
+          }
 
-            if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-              ecmdOutput((*commit + "\n").c_str());
+          /* Create a char buffer to hold the whole command, we will use this to create pointers to each token in the command (like argc,argv) */
+          commlen = commandIter->length();
+          if ( commlen > bufflen) {
+            if (buffer != NULL) delete[] buffer;
+            buffer = new char[commlen + 20];
+            bufflen = commlen + 19;
+          }
+
+          // Beam "error" of possible NULL 'buffer' value requires mutually
+          // exclusive conditions (need an argument present to enter 
+          // "commands" FOR loop but commandIter->length = 0 ie. no command).  So
+          // tell beam to ignore NULL pointer message for 'buffer' parm via
+          // comment on next line.
+          //lint -e(668) Ignore passing null, same as above for lint
+          strcpy(buffer, commandIter->c_str()); /*passing null object*/
+
+          /* Now start carving this thing up */
+          bool lookingForStart = true; /* Are we looking for the start of a word ? */
+          for (size_t c = 0; c < commlen; c++) {
+            if (lookingForStart) {
+              if (buffer[c] != ' ' && buffer[c] != '\t') {
+                c_argv[c_argc++] = &buffer[c];
+                lookingForStart = false;
+              }
+            } else {
+              /* Looking for the end */
+              if (buffer[c] == ' ' || buffer[c] == '\t') {
+                buffer[c] = '\0';
+                lookingForStart = true;
+              }
             }
+            if (c_argc > ECMD_ARG_LIMIT) {
+              sprintf(errorbuf,"ecmd - Found a command with greater then %d arguments, not supported\n",ECMD_ARG_LIMIT);
+              ecmdOutputError(errorbuf);
+              rc = ECMD_INVALID_ARGS;
+              break;
+            }
+          }
 
-          } /* tokens loop */
-          if (rc) break;
+          // ignore a line if it is only space or tabs - 
+          // This prevents c_argv[o] being accessed below when still pointing to NULL
+          if (c_argc == 0) continue;
 
+          // Before Executing the cmd save it on the Dll side 
+          ecmdSetCurrentCmdline(c_argc, c_argv);
+
+          /* We now want to call the command interpreter to handle what the user provided us */
+          if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
+
+
+          if (rc == ECMD_INT_UNKNOWN_COMMAND) {
+            if (strlen(c_argv[0]) < 200)
+              sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+            else
+              sprintf(errorbuf,"ecmd -  Unknown Command specified \n");
+            ecmdOutputError(errorbuf);
+          } else if (rc) {
+            std::string parse = ecmdGetErrorMsg(rc, false);
+            if (parse.length() > 0) {
+              /* Display the registered message right away BZ#160 */
+              ecmdOutput(parse.c_str());
+            }
+            parse = ecmdParseReturnCode(rc);
+            if (strlen(c_argv[0]) + parse.length() < 300)
+              sprintf(errorbuf,"ecmd - '%s' returned with error code %X (%s)\n", c_argv[0], rc, parse.c_str());
+            else
+              sprintf(errorbuf,"ecmd - Command returned with error code %X (%s)\n", rc, parse.c_str());
+            ecmdOutputError(errorbuf);
+            break;
+          }
+
+          if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+            ecmdOutput((*commandIter + "\n").c_str());
+          }
+        } /* tokens loop */
+        if (rc) break;
+
+        /* Print the prompt again */
+        if (shellMode && shellAlive) {
+          ecmdOutput("ecmd> "); fflush(0);
         }
-        if (buffer != NULL) delete[] buffer;
-
-      } /* invalid args if */
+      }
+      if (buffer != NULL) delete[] buffer;
 
     } else {
       /* Standard command line command */
@@ -200,12 +205,12 @@ int main (int argc, char *argv[])
 
       if (rc == ECMD_INT_UNKNOWN_COMMAND) {
         if (argv[1] == NULL)
-          sprintf(buf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
+          sprintf(errorbuf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
         else if (strlen(argv[1]) < 200)
-          sprintf(buf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
+          sprintf(errorbuf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
         else
-          sprintf(buf,"ecmd - Unknown Command specified \n");
-        ecmdOutputError(buf);
+          sprintf(errorbuf,"ecmd - Unknown Command specified \n");
+        ecmdOutputError(errorbuf);
       } else if (rc) {
         std::string parse = ecmdGetErrorMsg(rc, false);
         if (parse.length() > 0) {
@@ -214,10 +219,10 @@ int main (int argc, char *argv[])
         }
         parse = ecmdParseReturnCode(rc);
         if (strlen(argv[1]) + parse.length() < 300)
-          sprintf(buf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
+          sprintf(errorbuf,"ecmd - '%s' returned with error code %X (%s)\n", argv[1], rc, parse.c_str());
         else
-          sprintf(buf,"ecmd - Command returned with error code %X (%s)\n", rc, parse.c_str());
-        ecmdOutputError(buf);
+          sprintf(errorbuf,"ecmd - Command returned with error code %X (%s)\n", rc, parse.c_str());
+        ecmdOutputError(errorbuf);
       }
     }
 
