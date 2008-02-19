@@ -44,7 +44,7 @@ SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
   TARGET    := ecmd
-  LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_x86
+  LDFLAGS   := -shared -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
   #CFLAGS    := ${CFLAGS} -fPIC -ftemplate-depth-30 -Wall
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
@@ -66,7 +66,7 @@ endif
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
   TARGET    := ecmd
-  LDFLAGS   := -shared -e dll.exp -L../capi/export -lecmd_ppc
+  LDFLAGS   := -shared -L../capi/export -lecmd_ppc
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_ppc.a 
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
@@ -94,17 +94,10 @@ ifeq (${OS},AIX)
   ifeq (${SITE},awd.austin.ibm.com)
     CC      := xlC_r
   endif
-  # And the Shared Lib linker - same rules as above
-  LD      := /afs/rch/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/makeC++SharedLib_r
-  ifeq (${SITE},awd.austin.ibm.com)
-    LD      := /usr/vacpp/bin/makeC++SharedLib_r
-  endif
-  ifeq (${SITE},apd.pok.ibm.com)
-    LD      := /usr/vacpp/bin/makeC++SharedLib_r
-  endif
+  LD       := ${CC}
 
   TARGET    := ecmd
-  LDFLAGS   := -e ecmdpm.export -p 0 -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -brtl -L ../capi/export -l ecmd_aix
+  LDFLAGS   := -qmkshrobj -brtl -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ../capi/export -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
