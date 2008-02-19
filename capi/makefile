@@ -12,7 +12,6 @@ EXPORTS      := ${INCLUDES}
 INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
-#DEFINES      := 
 CFLAGS       := ${CFLAGS} -I. -g
 
 # Tell the SEDC code we import that we just want the scomdef parser
@@ -32,7 +31,7 @@ ifeq (${OS},Linux_x86)
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS := ${SLIBLDFLAGS}  -shared -e sdll.exp
+  SLIBLDFLAGS := -shared -e sdll.exp
   #SLIBCFLAGS := -fPIC
 endif
 
@@ -43,7 +42,7 @@ ifeq (${OS},Linux_ppc)
   TARGET   := ecmdClientCapi_ppc.a
   SLIB     := libecmd_ppc.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS := ${SLIBLDFLAGS} -shared  -e sdll.exp
+  SLIBLDFLAGS := -shared  -e sdll.exp
 endif
 
 # *****************************************************************************
@@ -53,7 +52,7 @@ ifeq (${OS},AIX)
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
-  SLIBLDFLAGS :=  -e libecmd_aix.export -p 0
+  SLIBLDFLAGS := -qmkshrobj -e libecmd_aix.export
 endif
 
 VPATH := ${VPATH}:${SUBDIR}
