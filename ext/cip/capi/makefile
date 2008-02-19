@@ -3,13 +3,18 @@
 
 # $Header$
 
-
+ECMD_ROOT       := ${PWD}/../../../
+# The default build rules
+include ${ECMD_ROOT}/makefile.rules
 
 EXTENSION_NAME   := cip
 
 
-# This is Additional extension for the client api
-SOURCE       :=
+# Additional Source files for the Client API
+CAPI_SOURCE  :=
+
+# Additional Source files for the Shared Lib
+SLIB_SOURCE  :=
 
 # These are additional includes for the client api
 INCLUDES     :=
