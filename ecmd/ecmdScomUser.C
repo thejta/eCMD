@@ -485,6 +485,20 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     }
     isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
 
+    /* If we have a cmdlinePtr, read it in now that we have a length we can use */
+    if (cmdlinePtr != NULL) {
+      if (dataModifier == "insert") {
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, queryScomData.begin()->length);
+      } else {
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, queryScomData.begin()->length);
+      }
+      if (rc) {
+        ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
+        coeRc = rc;
+        continue;
+      }
+    }
+
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (isChipUnitScom) {
@@ -546,11 +560,6 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
           coeRc = rc;
           continue;
         }
-      } else if (cmdlinePtr != NULL) {
-        /* First time through, take the data from the command line and apply it to the buffer */
-        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
-        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, queryScomData.begin()->length);
-        cmdlinePtr = NULL;
       }
 
       /* My data is all setup, now write it */

@@ -397,6 +397,20 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       continue;
     }
 
+    /* If we have a cmdlinePtr, read it in now that we have a length we can use */
+    if (cmdlinePtr != NULL) {
+      if (dataModifier == "insert") {
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
+      } else {
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, procInfo.bitLength);
+      }
+      if (rc) {
+        ecmdOutputError("putspr - Problems occurred parsing input data, must be an invalid format\n");
+        coeRc = rc;
+        continue;
+      }
+    }
+
     // We've done the core loop and gotten the SPR info, now figure out how to loop.
     subTarget = target;
     if (procInfo.isChipUnitRelated) {
@@ -432,11 +446,6 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
           coeRc = rc;
           continue;
         }
-      } else if (cmdlinePtr != NULL) {
-        /* First time through, take the data from the command line and apply it to the buffer */
-        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
-        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
-        cmdlinePtr = NULL;
       }
 
       rc = putSpr(subTarget, sprName.c_str(), buffer);
@@ -762,6 +771,21 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       continue;
     }
 
+    /* If we have a cmdlinePtr, read it in now that we have a length we can use */
+    if (cmdlinePtr != NULL) {
+      if (dataModifier == "insert") {
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
+      } else {
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, procInfo.bitLength);
+      }
+      if (rc) {
+        printed = function + " - Problems occurred parsing input data, must be an invalid format\n";
+        ecmdOutputError(printed.c_str());
+        coeRc = rc;
+        continue;
+      }
+    }
+
     /* Now setup our chipUnit/thread loop */
     subTarget = target;
     if (procInfo.isChipUnitRelated) {
@@ -803,11 +827,6 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
           coeRc = rc;
           continue;
         }
-      } else if (cmdlinePtr != NULL) {
-        /* First time through, take the data from the command line and apply it to the buffer */
-        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
-        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
-        cmdlinePtr = NULL;
       }
 
       if (daType == ECMD_GPR) {
