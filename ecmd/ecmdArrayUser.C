@@ -562,6 +562,20 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     arrayData = *(arrayDataList.begin());
     isChipUnitArray = arrayData.isChipUnitRelated;
 
+    /* If we have a cmdlinePtr, read it in now that we have a length we can use */
+    if (cmdlinePtr != NULL) {
+      if (dataModifier == "insert") {
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, arrayData.width);
+      } else {
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, arrayData.width);
+      }
+      if (rc) {
+        ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
+        coeRc = rc;
+        continue;
+      }
+    }
+
     /* Set the length of the address field if it wasn't given properly */
     if (arrayData.writeAddressLength > address.getBitLength()) {
       uint32_t difference = (arrayData.writeAddressLength - address.getBitLength());
@@ -576,7 +590,6 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       continue;
     }
     
-
     address.setBitLength(arrayData.writeAddressLength);
     rc = address.insertFromHexRight(argv[2], 0, arrayData.writeAddressLength);
     if (rc) {
@@ -646,11 +659,6 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
           coeRc = rc;
           continue;
         }
-      } else if (cmdlinePtr != NULL) {
-        /* First time through, take the data from the command line and apply it to the buffer */
-        /* By setting the ptr to NULL we won't hit this loop again, saving us extra work each loop through */
-        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, arrayData.width);
-        cmdlinePtr = NULL;
       }
 
       rc = putArray(cuTarget, arrayName.c_str(), address, buffer);
