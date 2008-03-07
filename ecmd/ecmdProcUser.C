@@ -236,7 +236,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         /* Setup our target */
         threadTarget = target;
         if (threadEntryIter->first != "") {
-          threadTarget.chipUnitType = cuEntryIter->first;
+          threadTarget.chipUnitType = threadEntryIter->first;  //@SJ-fixed with defect 649018
           threadTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
         threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
