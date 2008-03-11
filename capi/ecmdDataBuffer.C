@@ -54,8 +54,24 @@ TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
-#ifndef DATABUFFER_HEADER
-#define DATABUFFER_HEADER 0xBEEFBEEF
+#ifndef EDB_HEADER
+#define EDB_HEADER 0xBEEFBEEF
+#endif
+
+#ifndef EDB_RANDNUM
+#define EDB_RANDNUM 0x684FA1DC
+#endif
+
+#ifndef EDB_ADMIN_HEADER_SIZE
+#define EDB_ADMIN_HEADER_SIZE 4
+#endif
+
+#ifndef EDB_ADMIN_TAIL_SIZE
+#define EDB_ADMIN_TAIL_SIZE 1
+#endif
+
+#ifndef EDB_ADMIN_TOTAL_SIZE
+#define EDB_ADMIN_TOTAL_SIZE 5
 #endif
 
 #ifdef ENABLE_MPATROL
@@ -169,9 +185,9 @@ uint32_t fast_reverse32(uint32_t data) {
 //----------------------------------------------------------------------
 //  Data Storage Header Format - Example has 4 words
 //   Pointer       offset    data
-//  real_data  ->  000000   BEEFBEEF <numwords> <errcde> 12345678
-//       data  ->  000010   <data>   <data>     <data>   <data>
-//             ->  000020   12345678
+//  real_data  ->  000000   EDB_HEADER  <numwords> <errcde> EDB_RANDNUM
+//       data  ->  000010   <data>      <data>     <data>   <data>
+//             ->  000020   EDB_RANDNUM 
 
 //---------------------------------------------------------------------
 //  Constructors
@@ -179,13 +195,13 @@ uint32_t fast_reverse32(uint32_t data) {
 ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 : iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
+  iv_UserOwned = true;
+  iv_BufferOptimizable = false;
+
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
   iv_XstateEnabled = false;
 #endif
-
-  iv_UserOwned = true;
-  iv_BufferOptimizable = false;
 }
 
 ecmdDataBuffer::ecmdDataBuffer(uint32_t i_numBits)
@@ -198,21 +214,22 @@ ecmdDataBuffer::ecmdDataBuffer(uint32_t i_numBits)
   iv_DataStr = NULL;
   iv_XstateEnabled = false;
 #endif
-  if (i_numBits > 0)
-    setBitLength(i_numBits);
 
+  if (i_numBits > 0) {
+    setBitLength(i_numBits);
+  }
 }
 
 ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& i_other) 
 : iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
+  iv_UserOwned = true;
+  iv_BufferOptimizable = false;
+
 #ifndef REMOVE_SIM
   iv_DataStr = NULL;
   iv_XstateEnabled = false;
 #endif
-
-  iv_UserOwned = true;
-  iv_BufferOptimizable = false;
 
   if (i_other.iv_NumBits != 0) {
 
@@ -264,10 +281,10 @@ uint32_t ecmdDataBuffer::clear() {
 
   if ((iv_RealData != NULL)) {
     /* Let's check our header,tail info */
-    if ((iv_RealData[0] != DATABUFFER_HEADER) || (iv_RealData[1] != iv_NumWords) || (iv_RealData[3] != iv_RealData[iv_NumWords + 4])) {
+    if ((iv_RealData[0] != EDB_HEADER) || (iv_RealData[1] != iv_NumWords) || (iv_RealData[3] != iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE])) {
       /* Ok, something is wrong here */
       ETRAC3("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X",iv_RealData[0],iv_RealData[1],iv_NumWords);
-      ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + 4]: %X",iv_RealData[3],iv_RealData[iv_NumWords + 4]);
+      ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[3],iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]);
       ETRAC0("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/TAIL");
       abort();
     }
@@ -313,55 +330,55 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  if(!iv_UserOwned) {
+    ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
   if ((i_newNumBits == 0) && (iv_NumBits == 0)) {
-      // Do Nothing:  this data doesn't already have iv_RealData,iv_Data defined, and it doesn't want to define it
-      return rc;
+    // Do Nothing:  this data doesn't already have iv_RealData,iv_Data defined, and it doesn't want to define it
+    return rc;
   }
 
   else if ((i_newNumBits == iv_NumBits) && i_newNumBits != 0) {
     /* Just clear the buffer */
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
-    if (iv_XstateEnabled)
+    if (iv_XstateEnabled) {
       this->fillDataStr('0'); /* init to 0 */
+    }
 #endif
     iv_RealData[2] = 0; ///< Reset error code
     return rc;  /* nothing to do */
   }
 
   uint32_t newNumWords = i_newNumBits % 32 ? (i_newNumBits / 32 + 1) : i_newNumBits / 32;
-  uint32_t randNum = 0x12345678;
 
   iv_NumWords = newNumWords;
   iv_NumBits = i_newNumBits;
 
   if (iv_Capacity < newNumWords) {  /* we need to resize iv_Data member */
-    if (iv_RealData != NULL)
+    if (iv_RealData != NULL) {
       delete[] iv_RealData;
-
+    }
     iv_RealData = NULL;
 
     iv_Capacity = newNumWords;
 
-    iv_RealData = new uint32_t[iv_Capacity + 10];
+    iv_RealData = new uint32_t[iv_Capacity + EDB_ADMIN_TOTAL_SIZE];
     if (iv_RealData == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::setBitLength : Unable to allocate memory for new databuffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
     }
 
-    iv_Data = iv_RealData + 4;
+    iv_Data = iv_RealData + EDB_ADMIN_HEADER_SIZE;
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
-      if (iv_DataStr != NULL)
+      if (iv_DataStr != NULL) {
         delete[] iv_DataStr;
+      }
 
       iv_DataStr = new char[iv_NumBits + 42];
 
@@ -374,28 +391,31 @@ uint32_t  ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
     }
 #endif
 
-
   } else if (iv_NumBits != 0) { /* no need to resize */
 
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+    /* Make sure we clear the capacity instead of just numWords - JTA 03/10/08 */
+    //memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+    memset(iv_Data, 0, iv_Capacity * 4); /* init to 0 */
 
 #ifndef REMOVE_SIM
-    if (iv_XstateEnabled)
+    if (iv_XstateEnabled) {
       this->fillDataStr('0'); /* init to 0 */
+    }
 #endif
-
   }
+
 #ifndef REMOVE_SIM
-  else if (iv_XstateEnabled) /* decreasing bit length to zero */
-    iv_DataStr[0] = '\0'; 
+  else if (iv_XstateEnabled) { /* decreasing bit length to zero */
+    iv_DataStr[0] = '\0';
+  }
 #endif
 
   /* Ok, now setup the header, and tail */
-  iv_RealData[0] = DATABUFFER_HEADER;
+  iv_RealData[0] = EDB_HEADER;
   iv_RealData[1] = iv_NumWords;
   iv_RealData[2] = 0; ///< Reset error code
-  iv_RealData[3] = randNum;
-  iv_RealData[iv_NumWords + 4] = randNum;
+  iv_RealData[3] = EDB_RANDNUM;
+  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   return rc;
 }  
@@ -404,38 +424,36 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t i_newCapacity) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  if(!iv_UserOwned) {
+    ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
  /* only resize to make the capacity bigger */
   if (iv_Capacity < i_newCapacity) {
-    uint32_t randNum = 0x12345678;
-
     iv_Capacity = i_newCapacity;
-    if (iv_RealData != NULL)
+    if (iv_RealData != NULL) {
       delete[] iv_RealData;
+    }
 
     iv_RealData = NULL;
 
-    iv_RealData = new uint32_t[iv_Capacity + 10]; 
+    iv_RealData = new uint32_t[iv_Capacity + EDB_ADMIN_TOTAL_SIZE]; 
 
     if (iv_RealData == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::setCapacity : Unable to allocate memory for new databuffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
     }
 
-    iv_Data = iv_RealData + 4;
+    iv_Data = iv_RealData + EDB_ADMIN_HEADER_SIZE;
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
 
     /* Ok, now setup the header, and tail */
-    iv_RealData[0] = DATABUFFER_HEADER;
+    iv_RealData[0] = EDB_HEADER;
     iv_RealData[1] = iv_NumWords;
     iv_RealData[2] = 0; ///< Reset error code
-    iv_RealData[3] = randNum;
-    iv_RealData[iv_NumWords + 4] = randNum;
+    iv_RealData[3] = EDB_RANDNUM;
+    iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
@@ -479,16 +497,13 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
   }
 
   uint32_t newNumWords = i_newNumBits % 32 ? i_newNumBits / 32 + 1 : i_newNumBits / 32;
-  uint32_t randNum = 0x12345678;
 
   iv_NumWords = newNumWords;
   iv_NumBits = i_newNumBits;
 
   /* Ok, now setup the header, and tail */
-  iv_RealData[0] = DATABUFFER_HEADER;
   iv_RealData[1] = iv_NumWords;
-  iv_RealData[3] = randNum;
-  iv_RealData[iv_NumWords + 4] = randNum;
+  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   return rc;
 }
@@ -498,10 +513,9 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
   uint32_t prevwordsize;
   uint32_t prevbitsize;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer::growBitLength) : Attempt to modify non user owned buffer size.");
-      RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  if(!iv_UserOwned) {
+    ETRAC0("**** ERROR (ecmdDataBuffer::growBitLength) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
   /* Maybe we don't need to do anything */
@@ -559,27 +573,26 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
       clearBit(idx);
     }
 
-  } else {
-    /* Didn't need to resize, but need to clear new space added */
-    /* Clear any odd bits in a word */
-    uint32_t idx;
-    for (idx = prevbitsize; (idx < iv_NumBits) && (idx % 32); idx ++) {
-      clearBit(idx);
-    }
-    if (idx < iv_NumBits) {
-      /* memset the rest */
-      memset(&(((uint8_t*)iv_Data)[idx/8]), 0, iv_NumBits % 8 ? (iv_NumBits / 8) + 1 - (idx/8): iv_NumBits / 8 - (idx/8)); /* init to 0 */
+  } else if (prevwordsize < iv_NumWords) {
+    /* We didn't have to grow the buffer capacity, but we did move into a new word(s) so clear that data space out */
+    for (uint32_t idx = prevwordsize; idx < iv_NumWords; idx++) {
+      memset(&iv_Data[idx], 0, 4);  // Clear the word
+
 #ifndef REMOVE_SIM
       if (iv_XstateEnabled) {
-	memset(&(iv_DataStr[idx]), '0', (iv_NumBits - idx) ); /* init to 0 */
+        memset(&(iv_DataStr[(idx * 32)]), '0', 32); /* init to 0 */
       }
 #endif
     }
   }    
 
-  iv_RealData[1] = iv_NumWords;
-  iv_RealData[2] = 0;  // error state
-  iv_RealData[iv_NumWords + 4] = 0x12345678;
+  /* Only reset this stuff if things have changed */
+  if (prevwordsize != iv_NumWords) {
+    iv_RealData[1] = iv_NumWords;
+    iv_RealData[2] = 0;  // error state
+    iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+  }
+
   return rc;
 }
 
@@ -1233,7 +1246,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
   }
 
   iv_RealData[1] = iv_NumWords;
-  iv_RealData[iv_NumWords + 4] = 0x12345678;
+  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   // shift iv_Data array
   if (!(i_shiftNum % 32)) {
@@ -1334,7 +1347,7 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
   iv_NumBits -= i_shiftNum;
   iv_NumWords = (iv_NumBits +31) / 32;
   iv_RealData[1] = iv_NumWords;
-  iv_RealData[iv_NumWords + 4] = 0x12345678;
+  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
 #ifndef REMOVE_SIM
   if (iv_XstateEnabled) {
@@ -2714,7 +2727,7 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
 }
 
 
-uint32_t  ecmdDataBuffer::memCopyIn(const uint32_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+uint32_t ecmdDataBuffer::memCopyIn(const uint32_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
