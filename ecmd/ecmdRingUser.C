@@ -462,8 +462,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                   buffer=buffertemp;
                 }
                 else {
-                  buffer.shiftRightAndResize(bitsToFetch);
-                  buffer.shiftLeft(bitsToFetch);
+                  buffer.growBitLength((buffer.getBitLength() + bitsToFetch));
                   rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch);
                   if (rc) break;
                 }
