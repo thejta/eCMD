@@ -59,19 +59,21 @@ TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 #endif
 
 #ifndef EDB_RANDNUM
-#define EDB_RANDNUM 0x684FA1DC
+#define EDB_RANDNUM 0x12345678
 #endif
 
 #ifndef EDB_ADMIN_HEADER_SIZE
 #define EDB_ADMIN_HEADER_SIZE 4
 #endif
 
-#ifndef EDB_ADMIN_TAIL_SIZE
-#define EDB_ADMIN_TAIL_SIZE 1
+#ifndef EDB_ADMIN_FOOTER_SIZE
+#define EDB_ADMIN_FOOTER_SIZE 1
 #endif
 
+// For 10.0, change this to 5 to match the header+footer size.
+// For 9.x it needs to be left at the old value of 10 to not break anything
 #ifndef EDB_ADMIN_TOTAL_SIZE
-#define EDB_ADMIN_TOTAL_SIZE 5
+#define EDB_ADMIN_TOTAL_SIZE 10
 #endif
 
 #ifdef ENABLE_MPATROL
@@ -280,12 +282,12 @@ uint32_t ecmdDataBuffer::clear() {
   }
 
   if ((iv_RealData != NULL)) {
-    /* Let's check our header,tail info */
+    /* Let's check our header,footer info */
     if ((iv_RealData[0] != EDB_HEADER) || (iv_RealData[1] != iv_NumWords) || (iv_RealData[3] != iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE])) {
       /* Ok, something is wrong here */
       ETRAC3("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X",iv_RealData[0],iv_RealData[1],iv_NumWords);
       ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[3],iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]);
-      ETRAC0("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/TAIL");
+      ETRAC0("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/FOOTER");
       abort();
     }
 
