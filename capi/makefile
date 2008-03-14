@@ -12,7 +12,7 @@ EXPORTS      := ${INCLUDES}
 INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
-CFLAGS       := ${CFLAGS} -g
+CFLAGS       := ${CFLAGS}
 
 # Tell the SEDC code we import that we just want the scomdef parser
 INCLUDES     := ${INCLUDES} sedcScomdefParser.H sedcScomdefClasses.H sedcDefines.H sedcCommonParser.H sedcCommonClasses.H
