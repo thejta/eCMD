@@ -15,7 +15,7 @@ SOURCE       := ecmdClientPerlapi.C ecmdClientPerlapiFunc.C ecmdBit64.C
 GENERATED_SOURCE   := ecmdClientPerlapiFunc.C
 GENERATED_INCLUDES := ecmdClientPerlapiFunc.H ecmdClientPerlapiIterators.H
 DEFINES      := 
-CFLAGS       := ${CFLAGS} -I. -I../capi/export -I../dll
+CFLAGS       := ${CFLAGS} -I../capi/export -I../dll
 SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi/export -I../dll -DECMD_PERLAPI
 
 # Ok, tack on all the extension stuff

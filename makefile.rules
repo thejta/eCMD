@@ -38,6 +38,7 @@ endif
 ifeq (${OS},Linux_x86)
   SUBDIR   := obj_x86/
   CC       := g++
+  CFLAGS   := -I.
   LD       := ${CC}
   GPATH    := ${SUBDIR}
 
