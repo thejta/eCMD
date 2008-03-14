@@ -117,6 +117,22 @@ eipperlapi:
 	@echo " "
 
 ########################
+# AIP Extension
+########################
+aip: aipcapi aipperlapi
+
+aipcapi: ecmdcapi
+	@echo "Apollo IP Extension C-API ..."
+	@cd ext/aip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/aip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+aipperlapi:
+	@echo "Apollo IP Extension Perl-API ..."
+	@cd ext/aip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
 # GIP Extension
 ########################
 gip: gipcapi gipperlapi

@@ -8,10 +8,9 @@ MAKEFILE_RULES   := y
 
 # The default extensions we will build as part of eCMD if not otherwise specified
 ifeq ($(strip $(EXTENSIONS)),)
-  EXTENSIONS := cro cip gip eip scand zse mbo cmd
+  EXTENSIONS := cro cip gip eip scand zse bml mbo cmd
   export EXTENSIONS
 endif
-
 
 
 # Figure out the OS
@@ -37,8 +36,9 @@ endif
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
   SUBDIR   := obj_x86/
-  CC       := g++
-  CFLAGS   := -I.
+  CC       := ${CTEPATH}/tools/ecmd/utils/gcc-3.2.3/bin/g++
+  #CC       := /usr/bin/g++
+  CFLAGS   := -gdwarf-2 -I.
   LD       := ${CC}
   GPATH    := ${SUBDIR}
 
@@ -50,6 +50,7 @@ endif
 ifeq (${OS},Linux_ppc)
   SUBDIR   := obj_ppc/
   CC       := g++
+  CFLAGS   := -g -I.
   LD       := ${CC}
   GPATH   := ${SUBDIR}
 endif
@@ -67,6 +68,7 @@ ifeq (${OS},AIX)
   ifeq (${SITE},awd.austin.ibm.com)
     CC      := xlC
   endif
+  CFLAGS   := -g -I.
   LD       := ${CC}
 endif
 

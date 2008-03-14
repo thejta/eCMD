@@ -12,7 +12,7 @@ INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStruct
 INT_INCLUDES := ecmdInterpreter.H ecmdCommandUtils.H
 SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
 #DEFINES      := 
-CFLAGS       := ${CFLAGS} -I../capi/export -I../dll -g 
+CFLAGS       := ${CFLAGS} -I../capi/export -I../dll 
 
 
 VER_SOURCE   := ecmdVersion.C
