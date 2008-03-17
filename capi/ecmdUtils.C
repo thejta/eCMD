@@ -51,6 +51,7 @@
 #include <ecmdStructs.H>
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
+#include <ecmdCommandUtils.H>
 
 #ifndef FIPSODE
 # include <sedcScomdefParser.H>
@@ -1404,10 +1405,20 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     } else {
       match = sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
     }
-    /* I didn't get a number, - or all, must be a chip */
     if (!match && !allFound && !naFound) {
-      o_target.chipType = tokens[x];
-      o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+      /* I didn't get a number, - or all, must be a chip */
+      ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType);
+      if (o_target.chipType == "chipall"){
+        o_target.chipType = ""; /* Blank it for clarity */
+        o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+      } else {
+        o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+        if (o_target.chipUnitType != "") {
+          o_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        } else {
+          o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+        }
+      }
     } else {    
       if (tokens[x].substr(0, 1) == "k") {
         if (allFound) {
