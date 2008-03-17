@@ -37,11 +37,9 @@ endif
 ifeq (${OS},Linux_x86)
   SUBDIR   := obj_x86/
   CC       := ${CTEPATH}/tools/ecmd/utils/gcc-3.2.3/bin/g++
-  #CC       := /usr/bin/g++
   CFLAGS   := -gdwarf-2 -I.
   LD       := ${CC}
   GPATH    := ${SUBDIR}
-
 endif
 
 # *****************************************************************************
