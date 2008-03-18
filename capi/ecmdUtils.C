@@ -51,7 +51,6 @@
 #include <ecmdStructs.H>
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
-#include <ecmdCommandUtils.H>
 
 #ifndef FIPSODE
 # include <sedcScomdefParser.H>
@@ -1476,6 +1475,24 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
         return ECMD_INVALID_ARGS;
       }
     }
+  }
+
+  return rc;
+}
+
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.
+   if it is not, then just return the chipType */
+  uint32_t linePos = i_chipField.find(".");
+
+  if (linePos == std::string::npos) {
+    o_chipType = i_chipField;
+    o_chipUnitType = "";
+  } else {
+    o_chipType = i_chipField.substr(0, linePos);
+    o_chipUnitType = i_chipField.substr((linePos+1), i_chipField.length());
   }
 
   return rc;
