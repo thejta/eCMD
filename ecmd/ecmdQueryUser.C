@@ -948,9 +948,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* Use as many STL buffers as possible so we don't keep blowing char buffers and core dumping */
     char buf[300];
     std::string kbuf, nbuf, sbuf, cbuf;
-    bool chipSwitch = true;
-    bool chipUnitSwitch = true;
-    bool didThreadDepth = false;
+    uint8_t DEPTH_NONE = 0;
+    uint8_t DEPTH_CHIP = 1;
+    uint8_t DEPTH_POS = 2;
+    uint8_t DEPTH_CUTYPE = 3;
+    uint8_t DEPTH_THREAD = 4;
+    uint8_t curDepth = DEPTH_NONE;
     std::string prevChip, prevChipUnit;
 
     for (ecmdCurCage = queryData.cageData.begin(); ecmdCurCage != queryData.cageData.end(); ecmdCurCage ++) {
@@ -994,16 +997,17 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
             if (!easyParse) {
               /* Print out the chip name if we are switching chips */
               if (prevChip != ecmdCurChip->chipType) {
-                chipSwitch = true;
                 if (prevChip != "") {
+                  // Pull off a comma out there and then close it up
                   cbuf.erase((cbuf.length() - 1), 1);
-                  cbuf += "]\n"; ecmdOutput(cbuf.c_str());  cbuf.clear();
+                  cbuf += "]\n";
+                  ecmdOutput(cbuf.c_str());
+                  cbuf.clear(); // make sure we reset
                 }
                 prevChip = ecmdCurChip->chipType;
                 sprintf(buf,"      %s\n",ecmdCurChip->chipType.c_str());
                 ecmdOutput(buf);
-              } else {
-                chipSwitch = false;
+                curDepth = DEPTH_CHIP;
               }
             }
             if (doAll || !ecmdCurChip->chipUnitData.empty()) {
@@ -1027,8 +1031,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 if (chipUnitQueryData.cageData.empty()) {
                   /* For non-chipUnit chips OR For chipUnit-chips If chipUnit list is empty */
                   if (!easyParse) {
-                    sprintf(buf,"%s%d,", (chipSwitch ? "        p[" : ""), ecmdCurChip->pos);
+                    if (curDepth != DEPTH_POS) {
+                      if (curDepth > DEPTH_POS) {
+                        // Pull off a comma out there and then close it up
+                        cbuf.erase((cbuf.length() - 1), 1);
+                        cbuf += "]\n";
+                      }
+                      /* Start the new line */
+                      cbuf += "        p[";
+                    }
+                    sprintf(buf,"%d,", ecmdCurChip->pos);
                     cbuf += buf;
+                    curDepth = DEPTH_POS;
                   } else {
                     sprintf(buf,"%-15s -p%02d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
                     printed = sbuf + buf;
@@ -1045,26 +1059,28 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
               }
 
               if (!easyParse && (ecmdBeginChipUnit != ecmdEndChipUnit)) {
-                sprintf(buf,"        p[%d]\n", ecmdCurChip->pos);
+                if (curDepth > DEPTH_CHIP) {
+                  // Pull off a comma out there and then close it up
+                  cbuf.erase((cbuf.length() - 1), 1);
+                  cbuf += "]\n";
+                }
+                sprintf(buf,"        p[%d]", ecmdCurChip->pos);
                 cbuf += buf;
+                curDepth = DEPTH_POS;
               }
 
               prevChipUnit = "jta"; // Can't be initialized to "" because that is valid for P6/Z6, use my initials
               for (ecmdCurChipUnit = ecmdBeginChipUnit; ecmdCurChipUnit != ecmdEndChipUnit; ecmdCurChipUnit++) {
 
                 if (!easyParse) {
-                  if (prevChipUnit != ecmdCurChipUnit->chipUnitType || didThreadDepth) {
-                    chipUnitSwitch = true;
-                    didThreadDepth = false;
-                    if (prevChipUnit != "jta") {
-                      cbuf.erase((cbuf.length() - 1), 1);
-                      cbuf += "]\n"; ecmdOutput(cbuf.c_str()); cbuf.clear();
-                    }
+                  if (prevChipUnit != ecmdCurChipUnit->chipUnitType || (curDepth > DEPTH_CUTYPE)) {
+                    // Pull off a comma out there and then close it up
+                    cbuf.erase((cbuf.length() - 1), 1);
+                    cbuf += "]\n";
                     prevChipUnit = ecmdCurChipUnit->chipUnitType;
                     sprintf(buf,"          %s[",((ecmdCurChipUnit->chipUnitType == "") ? "c" : ecmdCurChipUnit->chipUnitType.c_str()));
                     cbuf += buf;
-                  } else {
-                    chipUnitSwitch = false;
+                    curDepth = DEPTH_CUTYPE;
                   }
                 }
 
@@ -1118,7 +1134,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                     ecmdEndThread = ecmdCurChipUnit->threadData.end();
                   }
 
-                  if (ecmdBeginThread != ecmdEndThread) {
+                  if (!easyParse && (ecmdBeginThread != ecmdEndThread)) {
                     sprintf(buf,"%d]->t[", ecmdCurChipUnit->chipUnitNum);
                     cbuf += buf;
                   }
@@ -1126,9 +1142,9 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                   for (ecmdCurThread = ecmdBeginThread; ecmdCurThread != ecmdEndThread; ecmdCurThread++) {
 
                     if (!easyParse) {
-                      didThreadDepth = true;
                       sprintf(buf, "%d,", ecmdCurThread->threadId);
                       cbuf += buf;
+                      curDepth = DEPTH_THREAD;
                     } else {
                       /* We need to figure out if we should add on a chipUnit */
                       std::string fullChipType = ecmdCurChip->chipType.c_str();
@@ -1157,19 +1173,23 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                     ecmdOutput(printed.c_str());
                   }
                 }
-
               } /* curChipUnitIter */
-              /* We have to print our buffer after our last loop is done */
-              if (!easyParse) {
-                cbuf.erase((cbuf.length() - 1), 1);
-                cbuf += "]\n";
-              }
             }
             else {
-              /* For non-core chips OR For core-chips If core list is empty */
+              /* For non-chipunit chips OR For chipunit chips If chipunit list is empty */
               if (!easyParse) {
-                sprintf(buf,"%s%d,", (chipSwitch ? "        p[" : ""), ecmdCurChip->pos);
+                if (curDepth != DEPTH_POS) {
+                  if (curDepth > DEPTH_POS) {
+                    // Pull off a comma out there and then close it up
+                    cbuf.erase((cbuf.length() - 1), 1);
+                    cbuf += "]\n";
+                  }
+                  /* Start the new line */
+                  cbuf += "        p[";
+                }
+                sprintf(buf,"%d,", ecmdCurChip->pos);
                 cbuf += buf;
+                curDepth = DEPTH_POS;
               } else {
                 sprintf(buf,"%-15s -p%02d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos);
                 printed = sbuf + buf;
@@ -1179,9 +1199,11 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           } /* curChipIter */
           /* We have to print our buffer after our last loop is done */
           if (!easyParse) {
+            // Pull off a comma out there and then close it up
             cbuf.erase((cbuf.length() - 1), 1);
             cbuf += "]\n";
-            ecmdOutput(cbuf.c_str()); cbuf.clear();
+            ecmdOutput(cbuf.c_str());
+            cbuf.clear(); // make sure we reset
           }
         } /* curSlotIter */
       } /* curNodeIter */
