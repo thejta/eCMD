@@ -276,6 +276,15 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
  @param o_target ecmdChipTarget initialized based upon i_targetStr
  */
 uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
+/**
+ @brief Parse the chip field and look for the chipUnit
+ @param i_chipField The chip field from the command line to be parsed
+ @param o_chipType The chip type from the field
+ @param o_chipUnitType The chipUnit type from the field (if one was found)
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if failure
+*/
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
 
 #ifndef FIPSODE      
 /**

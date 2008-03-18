@@ -319,24 +319,6 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode) {
   return ret;
 }
 
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
-  uint32_t rc = ECMD_SUCCESS;
-
-  /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.
-   if it is not, then just return the chipType */
-  uint32_t linePos = i_chipField.find(".");
-
-  if (linePos == std::string::npos) {
-    o_chipType = i_chipField;
-    o_chipUnitType = "";
-  } else {
-    o_chipType = i_chipField.substr(0, linePos);
-    o_chipUnitType = i_chipField.substr((linePos+1), i_chipField.length());
-  }
-
-  return rc;
-}
-
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands) {
   std::string buffer;
 
