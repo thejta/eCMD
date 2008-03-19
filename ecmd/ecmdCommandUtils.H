@@ -113,8 +113,7 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands);
  @param o_targetFieldList Update this string with the list of targets specified
  @retval ECMD_SUCCESS or ECMD_INVALID_ARGS
 */
-uint32_t ecmdParseTargetFields(int *io_argc, char ** io_argv[], char *i_targetField, ecmdChipTarget &io_target, uint8_t
-&o_targetFieldType, std::string &o_targetFieldList);
+uint32_t ecmdParseTargetFields(int *io_argc, char ** io_argv[], char *i_targetField, ecmdChipTarget &io_target, uint8_t &o_targetFieldType, std::string &o_targetFieldList);
 
 /**
  @brief Checks if the string is a valid target
@@ -128,7 +127,17 @@ bool isTargetStringValid(std::string i_str);
  @param i_userArgs Input target String to be parsed
  @param o_targetList Output list to be updated with the targets
 */
-void getTargetList (std::string i_userArgs, std::list<uint32_t> &targetList);
+void getTargetList(std::string i_userArgs, std::list<uint32_t> &targetList);
+
+/**
+ @brief Parse the chip field and look for the chipUnit
+ @param i_chipField The chip field from the command line to be parsed
+ @param o_chipType The chip type from the field
+ @param o_chipUnitType The chipUnit type from the field (if one was found)
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if failure
+*/
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
 
 #endif /* ecmdCommandUtils_h */
 

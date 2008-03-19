@@ -558,14 +558,8 @@ void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
     curOffset = nextOffset+1;
 
   }
-
 }
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//                     10/8/04  CENGEL   Added ecmdParseStdinCommands BZ#261
-//
-// End Change Log *****************************************************
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
+  return ecmdParseChipFieldNQ(i_chipField, o_chipType, o_chipUnitType);
+}
