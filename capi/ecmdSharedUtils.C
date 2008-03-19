@@ -1,4 +1,3 @@
-
 /* $Header$ */
 // Copyright ***********************************************************
 //
@@ -14,12 +13,6 @@
 // deposited with the U.S. Copyright Office.
 //
 // End Copyright *******************************************************
-// Module Description **************************************************
-//
-// Description:
-//
-// End Module Description **********************************************
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder     Description                       
@@ -354,7 +347,7 @@ uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target) {
     }
     if (!match && !allFound && !naFound) {
       /* I didn't get a number, - or all, must be a chip */
-      ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType);
+      ecmdParseChipFieldNQ(tokens[x], o_target.chipType, o_target.chipUnitType);
       if (o_target.chipType == "chipall"){
         o_target.chipType = ""; /* Blank it for clarity */
         o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
@@ -593,6 +586,25 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
 
   return printed;
 }
+
+uint32_t ecmdParseChipFieldNQ(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.
+   if it is not, then just return the chipType */
+  uint32_t linePos = i_chipField.find(".");
+
+  if (linePos == std::string::npos) {
+    o_chipType = i_chipField;
+    o_chipUnitType = "";
+  } else {
+    o_chipType = i_chipField.substr(0, linePos);
+    o_chipUnitType = i_chipField.substr((linePos+1), i_chipField.length());
+  }
+
+  return rc;
+}
+
 
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data) {
   std::ifstream ins;

@@ -190,16 +190,14 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
 /* THIS IS IN HERE TEMPORARILY UNTIL 10.0 when a real fix or the ecmdWriteTarget code can be found */
 /* THIS IS NOT FOR USER USE, THIS FUNCTION WILL DISAPPEAR WITH 10.0                                */
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode);
-#endif
-
-
-#ifndef DOCUMENTATION
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-/* THIS IS IN HERE TEMPORARILY UNTIL 10.0 when a real fix or the ecmdWriteTarget code can be found */
-/* THIS IS NOT FOR USER USE, THIS FUNCTION WILL DISAPPEAR WITH 10.0                                */
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/**
+ @brief Reads in a target string, returns a filled in target
+ @return String with formatted target data
+ @param i_targetStr String in a "k0:nall:s0:pu:p0" format to be turned into a target
+ @param o_target ecmdChipTarget initialized based upon i_targetStr
+ */
 uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target);
+
 /**
  @brief Parse the chip field and look for the chipUnit
  @param i_chipField The chip field from the command line to be parsed
@@ -208,6 +206,17 @@ uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target);
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
+std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode);
+
+/**
+ @brief Parse the chip field and look for the chipUnit
+ @param i_chipField The chip field from the command line to be parsed
+ @param o_chipType The chip type from the field
+ @param o_chipUnitType The chipUnit type from the field (if one was found)
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if failure
+*/
+uint32_t ecmdParseChipFieldNQ(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
 #endif
 
 #endif /* ecmdSharedUtils_h */
