@@ -29,14 +29,19 @@ endif
 
 
 ######## Default things we need setup for every compile ########
-
+# SUBDIR = where the objects are moved to after compile
+# CC = the compiler
+# CFLAGS = flags to pass to the compiler
+# LD = the linker
+# LDFLAGS = flags to pass to the linker when linking exe's
+# SLDFLAGS = flags to pass to the linker when linking shared libs
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
   SUBDIR   := obj_x86/
-  CC       := g++
+  CC       := ${CTEPATH}/tools/ecmd/utils/gcc-3.2.3-gnu/bin/g++
   CFLAGS   := -g -I. -fPIC -m32
   LD       := ${CC}
   LDFLAGS  := -fPIC -m32
@@ -52,7 +57,7 @@ ifeq (${OS},Linux_ppc)
   CC       := g++
   CFLAGS   := -g -I.
   LD       := ${CC}
-  LDFLAGS  := -fPIC -m32
+  LDFLAGS  :=
   SLDFLAGS := -shared
   GPATH   := ${SUBDIR}
 endif
