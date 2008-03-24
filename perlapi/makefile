@@ -44,7 +44,7 @@ SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
   TARGET    := ecmd
-  LDFLAGS   := -shared -L../capi/export -lecmd_x86
+  SLDFLAGS  := ${SLDFLAGS} -L../capi/export -lecmd_x86
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_x86.a 
   #CFLAGS    := ${CFLAGS} -fPIC -ftemplate-depth-30 -Wall
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
@@ -66,7 +66,7 @@ endif
 # *****************************************************************************
 ifeq (${OS},Linux_ppc)
   TARGET    := ecmd
-  LDFLAGS   := -shared -L../capi/export -lecmd_ppc
+  SLDFLAGS  := ${SLDFLAGS} -L../capi/export -lecmd_ppc
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_ppc.a 
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
@@ -97,7 +97,7 @@ ifeq (${OS},AIX)
   LD       := ${CC}
 
   TARGET    := ecmd
-  LDFLAGS   := -qmkshrobj -brtl -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ../capi/export -l ecmd_aix
+  SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ../capi/export -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/export/ecmdClientCapi_aix.a
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
@@ -187,7 +187,7 @@ ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
 # Create the Perl Shared Library
 # *****************************************************************************
 ${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o ${LINK_OBJS}
-	${LD} ${LDFLAGS} $^ ${LINK_OBJS} -o $@ 
+	${LD} ${SLDFLAGS} $^ ${LINK_OBJS} -o $@ 
 
 
 # *****************************************************************************

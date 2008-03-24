@@ -31,8 +31,6 @@ ifeq (${OS},Linux_x86)
   TARGET   := ecmdClientCapi_x86.a
   SLIB     := libecmd_x86.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS := -shared
-  #SLIBCFLAGS := -fPIC
 endif
 
 # *****************************************************************************
@@ -42,7 +40,6 @@ ifeq (${OS},Linux_ppc)
   TARGET   := ecmdClientCapi_ppc.a
   SLIB     := libecmd_ppc.so
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  SLIBLDFLAGS := -shared
 endif
 
 # *****************************************************************************
@@ -52,7 +49,6 @@ ifeq (${OS},AIX)
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
-  SLIBLDFLAGS := -qmkshrobj
 endif
 
 VPATH := ${VPATH}:${SUBDIR}
@@ -79,8 +75,7 @@ ifeq (${MPATROL},yes)
   ifeq (${OS},AIX)
     CFLAGS  := ${CFLAGS} -I${MPATROL_HOME}include/
     LDFLAGS := ${LDFLAGS} -lld ${MPATROL_HOME}/aix/libmpatrol.a
-#    SLIBLDFLAGS := ${SLIBLDFLAGS} -lld -bI:/afs/rch/rel/common/bringup.tools/cronus/ecmd/mpatrol/aix/mpatrol.exp
-    SLIBLDFLAGS := ${SLIBLDFLAGS} -lld ${MPATROL_HOME}/aix/libmpatrol.a
+    SLDFLAGS := ${SLDFLAGS} -lld ${MPATROL_HOME}/aix/libmpatrol.a
     TARGET  := ecmdClientCapi_aix_mp.a
     SLIB    := libecmd_aix_mp.so
   endif
@@ -143,7 +138,7 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 $(CAPI_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 $(SLIB_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $(SLIBCFLAGS) $< -o $@ $(DEFINES)
+	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
 # *****************************************************************************
@@ -158,7 +153,7 @@ ${TARGET}: ${CAPI_SOURCE_OBJS}
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
-	$(LD) ${SLIBLDFLAGS} -o $@ $^ 
+	$(LD) ${SLDFLAGS} -o $@ $^ 
 
 
 

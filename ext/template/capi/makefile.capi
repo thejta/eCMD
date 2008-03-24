@@ -38,7 +38,6 @@ ifeq (${OS},Linux_x86)
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifneq (${SLIB_SOURCE},)
     SLIB    := lib${EXTENSION_NAME}_x86.so
-    SLIBLDFLAGS := -shared ${SLIBLDFLAGS}
   endif
 endif
 
@@ -50,7 +49,6 @@ ifeq (${OS},Linux_ppc)
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifneq (${SLIB_SOURCE},)
     SLIB    := lib${EXTENSION_NAME}_ppc.so
-    SLIBLDFLAGS := -shared ${SLIBLDFLAGS}
   endif
 endif
 
@@ -63,7 +61,6 @@ ifeq (${OS},AIX)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
   ifneq (${SLIB_SOURCE},)
     SLIB    := lib${EXTENSION_NAME}_aix.so
-    SLIBLDFLAGS := -qmkshrobj -brtl ${SLIBLDFLAGS}
   endif
 endif
 
@@ -137,7 +134,7 @@ ${TARGET}: ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
-	$(LD) ${SLIBLDFLAGS} -o $@ $^ 
+	$(LD) ${SLDFLAGS} -o $@ $^ 
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
