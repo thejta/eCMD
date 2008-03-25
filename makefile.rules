@@ -35,18 +35,20 @@ endif
 # LD = the linker
 # LDFLAGS = flags to pass to the linker when linking exe's
 # SLDFLAGS = flags to pass to the linker when linking shared libs
+# AR = the archive creator
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},Linux_x86)
   SUBDIR   := obj_x86/
-  CC       := ${CTEPATH}/tools/ecmd/utils/gcc-3.2.3-gnu/bin/g++
+  CC       := g++
   CFLAGS   := -g -I.
   LD       := ${CC}
   LDFLAGS  :=
   SLDFLAGS := -shared
   GPATH    := ${SUBDIR}
+  AR       := ar
 endif
 
 # *****************************************************************************
@@ -59,7 +61,8 @@ ifeq (${OS},Linux_ppc)
   LD       := ${CC}
   LDFLAGS  :=
   SLDFLAGS := -shared
-  GPATH   := ${SUBDIR}
+  GPATH    := ${SUBDIR}
+  AR       := ar
 endif
 
 # *****************************************************************************
@@ -79,6 +82,7 @@ ifeq (${OS},AIX)
   LD       := ${CC}
   LDFLAGS  :=
   SLDFLAGS := -qmkshrobj -brtl
+  AR       := ar
 endif
 
 

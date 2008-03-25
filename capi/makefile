@@ -146,7 +146,7 @@ $(SLIB_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
 	@echo "Creating Static client library ..."
-	ar r $@ $^
+	${AR} r $@ $^
 
 # *****************************************************************************
 # Create the Shared Library
