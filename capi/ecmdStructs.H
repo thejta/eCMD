@@ -1815,6 +1815,69 @@ inline ecmdSimModelInfo::ecmdSimModelInfo()
 inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
 #endif
 
+
+/**
+ @brief This is used to return thermal data from the cec 
+*/
+struct ecmdMcmThermalData {
+
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdMcmThermalData();
+
+  // Destructor
+  ~ecmdMcmThermalData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void) const;
+#ifndef REMOVE_SIM
+  void     printStruct(void) const;
+#endif
+#endif
+    
+  // Members
+  uint32_t    dca1;  ///< temperature of dca1
+  uint32_t    dca2;  ///< temperature of dca2
+  uint32_t    dca3;  ///< temperature of dca3
+  uint32_t    mcu;   ///< temperature of mcu
+  uint32_t    cp0;   ///< temperature of cp 0
+  uint32_t    cp1;   ///< temperature of cp 1
+  uint32_t    cp2;   ///< temperature of cp 2
+  uint32_t    cp3;   ///< temperature of cp 3
+  uint32_t    cp4;   ///< temperature of cp 4
+  uint32_t    sc1;   ///< temperature of sc1
+  uint32_t    airflowDca1; ///< temperature of airflowDca1
+  uint32_t    airflowDca2; ///< temperature of airflowDca2
+  uint32_t    airflowDca3; ///< temperature of airflowDca3
+  
+};
+
+#ifndef DOCUMENTATION
+// ecmdChipTarget Constructor
+inline ecmdMcmThermalData::ecmdMcmThermalData():
+dca1(0),
+dca2(0),
+dca3(0),
+mcu(0),
+cp0(0),
+cp1(0),
+cp2(0),
+cp3(0),
+cp4(0),
+sc1(0),
+airflowDca1(0),
+airflowDca2(0),
+airflowDca3(0)
+{
+}
+
+// ecmdChipTarget Destructor
+inline ecmdMcmThermalData::~ecmdMcmThermalData() { }
+#endif
+
 /* @name Misc functions */
 //@{
 
