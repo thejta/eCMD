@@ -1,4 +1,3 @@
-/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdStructs.C                                   
@@ -619,7 +618,7 @@ uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) {
     std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
 
 
-    
+
     do {    // Single entry ->
         // Check for buffer overflow conditions.
         if (this->flattenSize() > i_len) {
@@ -837,7 +836,7 @@ uint32_t ecmdChipUnitData::flattenSize() {
          * number of structures in its list.  So...
          * 
          * Add one for the coreData list counter.
-         */
+                         */
         flatSize += sizeof(uint32_t);
         // If the coreData list does not contain any structs break out.
 
@@ -2369,7 +2368,7 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
         memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
         l_ptr += sizeof(tmpData32);
         i_len -= sizeof(tmpData32);
-        
+
         //relatedChipUnit     
         memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
         l_ptr += relatedChipUnit.size() + 1;
@@ -5053,7 +5052,7 @@ uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
          l_rc = ECMD_DATA_OVERFLOW;
          break;
       }
-      
+
       l_temp32 = htonl(bitLength);//@0b
       memcpy(l_ptr, &l_temp32, sizeof(bitLength));//@0b
       l_ptr += sizeof(bitLength);
@@ -5429,271 +5428,6 @@ void  ecmdSimModelInfo::printStruct() {
 
 
 
-/*
- * This function will flatten the ecmdMcmThermalData struct for transport accross
- * the user <-> cecserver interface.  
- */
-uint32_t ecmdMcmThermalData::flatten(uint8_t *o_buf, uint32_t i_len) {
-
-	uint32_t rc    = ECMD_SUCCESS;
-	int      l_len = (int) i_len;
-	uint8_t *l_ptr = (uint8_t *) o_buf;
-
-	ecmdMcmThermalData tmpTarget;
-
-	do {	// Single entry, single exit.
-
-		// Check for buffer overflow conditions.
-		if (this->flattenSize() <= i_len) {
-			// Make sure buffer is clear.
-			memset(o_buf, 0, i_len);
-		} else {
-			// Handle the error case for buffer overflow.
-			ETRAC2("Buffer overflow occured in "
-			       "ecmdMcmThermalData::flatten() "
-			       "structure size = %d; input length = %d", 
-			       this->flattenSize(), i_len);
-			rc = ECMD_DATA_OVERFLOW;
-			break;
-		}
-
-		// Copy everything into temporary struct in htonl format.
-		tmpTarget.dca1	  = htonl(dca1);
-		tmpTarget.dca2	  = htonl(dca2);
-		tmpTarget.dca3	  = htonl(dca3);
-		tmpTarget.mcu 	  = htonl(mcu);
-		tmpTarget.cp0 	  = htonl(cp0);
-		tmpTarget.cp1     = htonl(cp1);
-		tmpTarget.cp2     = htonl(cp2);
-		tmpTarget.cp3     = htonl(cp3);
-		tmpTarget.cp4     = htonl(cp4);
-		tmpTarget.sc1     = htonl(sc1);
-		tmpTarget.airflowDca1     = htonl(airflowDca1);
-		tmpTarget.airflowDca2     = htonl(airflowDca2);
-		tmpTarget.airflowDca3     = htonl(airflowDca3);
-
-		// Now copy everything to the output buffer.
-		memcpy(l_ptr, &(tmpTarget.dca1), sizeof(tmpTarget.dca1));
-		l_ptr += sizeof(tmpTarget.dca1);
-		l_len -= sizeof(tmpTarget.dca1);
-
-		memcpy(l_ptr, &(tmpTarget.dca2), sizeof(tmpTarget.dca2));
-		l_ptr += sizeof(tmpTarget.dca2);
-		l_len -= sizeof(tmpTarget.dca2);
-	
-		memcpy(l_ptr, &(tmpTarget.dca3), sizeof(tmpTarget.dca3));
-		l_ptr += sizeof(tmpTarget.dca3);
-		l_len -= sizeof(tmpTarget.dca3);
-
-		memcpy(l_ptr, &(tmpTarget.mcu), sizeof(tmpTarget.mcu));
-		l_ptr += sizeof(tmpTarget.mcu);
-		l_len -= sizeof(tmpTarget.mcu);
-
-		memcpy(l_ptr, &(tmpTarget.cp0), sizeof(tmpTarget.cp0));
-		l_ptr += sizeof(tmpTarget.cp0);
-		l_len -= sizeof(tmpTarget.cp0);
-
-		memcpy(l_ptr, &(tmpTarget.cp1), sizeof(tmpTarget.cp1));
-		l_ptr += sizeof(tmpTarget.cp1);
-		l_len -= sizeof(tmpTarget.cp1);
-
-		memcpy(l_ptr, &(tmpTarget.cp2), sizeof(tmpTarget.cp2));
-		l_ptr += sizeof(tmpTarget.cp2);
-		l_len -= sizeof(tmpTarget.cp2);
-
-		memcpy(l_ptr, &(tmpTarget.cp3), sizeof(tmpTarget.cp3));
-		l_ptr += sizeof(tmpTarget.cp3);
-		l_len -= sizeof(tmpTarget.cp3);
-
-		memcpy(l_ptr, &(tmpTarget.cp4), sizeof(tmpTarget.cp4));
-		l_ptr += sizeof(tmpTarget.cp4);
-		l_len -= sizeof(tmpTarget.cp4);
-
-		memcpy(l_ptr, &(tmpTarget.sc1), sizeof(tmpTarget.sc1));
-		l_ptr += sizeof(tmpTarget.sc1);
-		l_len -= sizeof(tmpTarget.sc1);
-
-		memcpy(l_ptr, &(tmpTarget.airflowDca1), sizeof(tmpTarget.airflowDca1));
-		l_ptr += sizeof(tmpTarget.airflowDca1);
-		l_len -= sizeof(tmpTarget.airflowDca1);
-
-		memcpy(l_ptr, &(tmpTarget.airflowDca2), sizeof(tmpTarget.airflowDca2));
-		l_ptr += sizeof(tmpTarget.airflowDca2);
-		l_len -= sizeof(tmpTarget.airflowDca2);
-
-		memcpy(l_ptr, &(tmpTarget.airflowDca3), sizeof(tmpTarget.airflowDca3));
-		l_ptr += sizeof(tmpTarget.airflowDca3);
-		l_len -= sizeof(tmpTarget.airflowDca3);
-
-
-	} while (0);	// Single exit point.
-
-	return rc; 
-
-}	// End ecmdChipTarget::flatten()
-
-uint32_t ecmdMcmThermalData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
-
-	uint32_t rc    = ECMD_SUCCESS;
-	int      l_len = (int) i_len;
-	uint8_t *l_ptr = (uint8_t *)i_buf;
-
-	// Find offset to chipType string.
-	uint8_t l_byteCount = sizeof(dca1)
-			      + sizeof(dca2)
-			      + sizeof(dca3)
-			      + sizeof(mcu)
-			      + sizeof(cp0)
-			      + sizeof(cp1)
-			      + sizeof(cp2)
-			      + sizeof(cp3)
-			      + sizeof(cp4)
-			      + sizeof(sc1)
-			      + sizeof(airflowDca1)
-			      + sizeof(airflowDca2)
-			      + sizeof(airflowDca3);
-
-	const char *l_chipTypePtr = (char *)(l_ptr += l_byteCount);
-	
-	l_ptr = (uint8_t *)i_buf;
-	// Finish calculating the size of the structure to be built.
-	l_byteCount += (strlen(l_chipTypePtr) + 1);  // +1 for NULL terminator.
-
-	do {	// Single entry ->
-
-		if (l_byteCount > i_len) {
-			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
-                               "ecmdMcmThermalData::unflatten() "
-                               "estimated structure size = %d; "
-			       "input length = %d",
-                               l_byteCount, i_len);
-			rc = ECMD_DATA_OVERFLOW;
-			break;
-		}
-		
-		memcpy(&dca1, l_ptr, sizeof(dca1));
-		dca1 = ntohl(dca1);
-		l_ptr += sizeof(dca1);
-		l_len -= sizeof(dca1);
-
-		memcpy(&dca2, l_ptr, sizeof(dca2));
-		dca2 = ntohl(dca2);
-		l_ptr += sizeof(dca2);
-		l_len -= sizeof(dca2);
-
-		memcpy(&dca3, l_ptr, sizeof(dca3));
-		dca2 = ntohl(dca3);
-		l_ptr += sizeof(dca3);
-		l_len -= sizeof(dca3);
-
-		memcpy(&mcu, l_ptr, sizeof(mcu));
-		mcu = ntohl(mcu);
-		l_ptr += sizeof(mcu);
-		l_len -= sizeof(mcu);
-
-		memcpy(&cp0, l_ptr, sizeof(cp0));
-		cp0 = ntohl(cp0);
-		l_ptr += sizeof(cp0);
-		l_len -= sizeof(cp0);
-
-		memcpy(&cp1, l_ptr, sizeof(cp1));
-		cp1 = ntohl(cp1);
-		l_ptr += sizeof(cp1);
-		l_len -= sizeof(cp1);
-
-		memcpy(&cp2, l_ptr, sizeof(cp2));
-		cp2 = ntohl(cp2);
-		l_ptr += sizeof(cp2);
-		l_len -= sizeof(cp2);
-
-		memcpy(&cp3, l_ptr, sizeof(cp3));
-		cp3 = ntohl(cp3);
-		l_ptr += sizeof(cp3);
-		l_len -= sizeof(cp3);
-
-		memcpy(&cp4, l_ptr, sizeof(cp4));
-		cp4 = ntohl(cp4);
-		l_ptr += sizeof(cp4);
-		l_len -= sizeof(cp4);
-
-		memcpy(&sc1, l_ptr, sizeof(sc1));
-		sc1 = ntohl(sc1);
-		l_ptr += sizeof(sc1);
-		l_len -= sizeof(sc1);
-
-		memcpy(&airflowDca1, l_ptr, sizeof(airflowDca1));
-		airflowDca1 = ntohl(airflowDca1);
-		l_ptr += sizeof(airflowDca1);
-		l_len -= sizeof(airflowDca1);
-
-		memcpy(&airflowDca2, l_ptr, sizeof(airflowDca2));
-		airflowDca2 = ntohl(airflowDca2);
-		l_ptr += sizeof(airflowDca2);
-		l_len -= sizeof(airflowDca2);
-
-		memcpy(&airflowDca3, l_ptr, sizeof(airflowDca3));
-		airflowDca3 = ntohl(airflowDca3);
-		l_ptr += sizeof(airflowDca3);
-		l_len -= sizeof(airflowDca3);
-
-
-
-		// Check for buffer underflow conditions.
-		if (l_len > 0) {
-			ETRAC2("Buffer underflow occured in "
-                               "ecmdMcmThermalData::unflatten() "
-                               "estimated structure size = %d; "
-                               "input length = %d",
-                               l_byteCount, l_len);
-			rc = ECMD_DATA_UNDERFLOW; 
-			break;
-		}
-
-	} while(0);	// <- single exit.
-
-	return rc;
-
-}	// End ecmdThermalData::unflatten()
-
-uint32_t ecmdMcmThermalData::flattenSize() const {
-	
-	return (sizeof(dca1)
-		+ sizeof(dca2)
-		+ sizeof(dca3)
-		+ sizeof(mcu)
-		+ sizeof(cp0)
-		+ sizeof(cp1)
-		+ sizeof(cp2)
-		+ sizeof(cp3)
-		+ sizeof(cp4)
-		+ sizeof(sc1)
-		+ sizeof(airflowDca1)
-		+ sizeof(airflowDca2)
-		+ sizeof(airflowDca3) +1);
-}
-
-#ifndef REMOVE_SIM
-void ecmdMcmThermalData::printStruct() const {
-
-	// Print struct data.
-	printf("\tdca0: %d\n", dca1);
-	printf("\tdca1: %d\n", dca2);
-	printf("\tdca2: %d\n", dca3);
-	printf("\tmcu: %d\n", mcu);
-	printf("\tcp0: %d\n", cp0);
-	printf("\tcp1: %d\n", cp1);
-	printf("\tcp2: %d\n", cp2);
-	printf("\tcp3: %d\n", cp3);
-	printf("\tcp4: %d\n", cp4);
-	printf("\tsc1: %d\n", sc1);
-	printf("\tairflowDca1: %d\n", airflowDca1);
-	printf("\tairflowDca2: %d\n", airflowDca2);
-	printf("\tairflowDca3: %d\n", airflowDca3);
-}
-#endif
-
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
@@ -5718,7 +5452,7 @@ void ecmdMcmThermalData::printStruct() const {
 //                                        and printStruct for ecmdI2CCmdEntry
 //  @08  FW041574      03/31/06 scottw   Store bools as uint32_t
 //  @09  D546092       04/12/06 prahl    Fix unflatten to clear list data
-//  @10  L9285         11/20/07 heuser   ecmdMcmThermalData added      
+//  @10  L9285         11/20/07 heuser   ecmdMcmThermalData added      removed 03/28/08
 //  @0b  D608981       07/23/07 honi     Fix endian in flatten/unflatten in core and thread data
 //                                       and ecmdProcRegisterInfo
 // End Change Log *****************************************************
