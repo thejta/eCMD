@@ -147,19 +147,19 @@ typedef enum {
  @brief Used by SetClockSpeed interfaces to specify what notation the speed is provided in
  */
 typedef enum {
-  ECMD_CLOCK_FREQUENCY_UNKNOWN,         ///< Default for not initialized
+  ECMD_CLOCK_FREQUENCY_UNKNOWN,      ///< Default for not initialized
   ECMD_CLOCK_FREQUENCY_KHZ_SPEC,        ///< Clock speed is specified in Khz
   ECMD_CLOCK_FREQUENCY_MHZ_SPEC,        ///< Clock speed is specified in Mhz
   ECMD_CLOCK_CYCLETIME_US_SPEC,         ///< Clock speed is specified in microseconds cycle time
   ECMD_CLOCK_CYCLETIME_PS_SPEC,         ///< Clock speed is specified in picoseconds cycle time
   ECMD_CLOCK_FREQUENCY_SPEC = ECMD_CLOCK_FREQUENCY_MHZ_SPEC,    ///< Clock speed is specified in Mhz
   ECMD_CLOCK_CYCLETIME_SPEC = ECMD_CLOCK_CYCLETIME_PS_SPEC,     ///< Clock speed is specified in picoseconds cycle time
-  ECMD_CLOCK_NOMINAL_PERCENT_UP,        ///< Clock speed specified in % above nominal
-  ECMD_CLOCK_NOMINAL_PERCENT_DOWN,      ///< Clock speed specified in % below nominal
-  ECMD_CLOCK_CURRENT_PERCENT_UP,        ///< Clock speed specified in % above current value
-  ECMD_CLOCK_CURRENT_PERCENT_DOWN,      ///< Clock speed specified in % below current value
-  ECMD_CLOCK_POWERSAVE_PERCENT_UP,      ///< Clock speed specified in % above powersave value
-  ECMD_CLOCK_POWERSAVE_PERCENT_DOWN     ///< Clock speed specified in % below powersave value
+  ECMD_CLOCK_NOMINAL_PERCENT_UP,     ///< Clock speed specified in % above nominal
+  ECMD_CLOCK_NOMINAL_PERCENT_DOWN,   ///< Clock speed specified in % below nominal
+  ECMD_CLOCK_CURRENT_PERCENT_UP,     ///< Clock speed specified in % above current value
+  ECMD_CLOCK_CURRENT_PERCENT_DOWN,   ///< Clock speed specified in % below current value
+  ECMD_CLOCK_POWERSAVE_PERCENT_UP,   ///< Clock speed specified in % above powersave value
+  ECMD_CLOCK_POWERSAVE_PERCENT_DOWN  ///< Clock speed specified in % below powersave value
 } ecmdClockSpeedType_t;
 
 /**
@@ -1112,17 +1112,17 @@ struct ecmdArrayData {
 #endif
 
   // Members
-  std::string           arrayName;              ///< (Detail: Low)  Names used to reference this array
-  uint32_t              arrayId;                ///< (Detail: Low)  Hashed array ID
+  std::string arrayName;                ///< (Detail: Low)  Names used to reference this array
+  uint32_t    arrayId;                  ///< (Detail: Low)  Hashed array ID
   ecmdArrayType_t       arrayType;              ///< (Detail: Low)  The type of array this is
-  uint32_t              readAddressLength;      ///< (Detail: Low)  Bit length of read address
-  uint32_t              writeAddressLength;     ///< (Detail: Low)  Bit length of write address
-  uint64_t              length;                 ///< (Detail: Low)  Length of array (number of entries)
-  uint32_t              width;                  ///< (Detail: Low)  Bit width of array entry
+  uint32_t    readAddressLength;        ///< (Detail: Low)  Bit length of read address
+  uint32_t    writeAddressLength;       ///< (Detail: Low)  Bit length of write address
+  uint64_t    length;                   ///< (Detail: Low)  Length of array (number of entries)
+  uint32_t    width;                    ///< (Detail: Low)  Bit width of array entry
   bool                  isChipUnitRelated;      ///< (Detail: Low)  This array is related to the chipUnit level of a chip
   std::string           relatedChipUnit;        ///< (Detail: Low)  If the array is chipUnit related, this is the name of the chipUnit
-  std::string           clockDomain;            ///< (Detail: High) Clock domain this array belongs to
-  ecmdClockState_t      clockState;             ///< (Detail: High) Required clock state to access this array
+  std::string           clockDomain;    ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t       clockState;    ///< (Detail: High) Required clock state to access this array
 };
 
 #ifndef DOCUMENTATION
@@ -1502,13 +1502,13 @@ struct ecmdLatchEntry {
 #endif
 
   // Members
-  std::string      latchName;           ///< Latch name of entry
-  std::string      ringName;            ///< Ring that latch came from
-  ecmdDataBuffer   buffer;              ///< Latch data
+  std::string    latchName;             ///< Latch name of entry
+  std::string    ringName;              ///< Ring that latch came from
+  ecmdDataBuffer buffer;                ///< Latch data
   ecmdLatchType_t  latchType;           ///< Specifies what type of latch this is (single bit, multibit, etc..)
-  int              latchStartBit;       ///< Start bit of data inside latch
-  int              latchEndBit;         ///< End bit of data inside latch
-  uint32_t         rc;                  ///< Error code in retrieving this entry
+  int            latchStartBit;         ///< Start bit of data inside latch
+  int            latchEndBit;           ///< End bit of data inside latch
+  uint32_t       rc;                    ///< Error code in retrieving this entry
 };
 
 #ifndef DOCUMENTATION
@@ -1816,67 +1816,8 @@ inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
 #endif
 
 
-/**
- @brief This is used to return thermal data from the cec 
-*/
-struct ecmdMcmThermalData {
 
 
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdMcmThermalData();
-
-  // Destructor
-  ~ecmdMcmThermalData();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void) const;
-#ifndef REMOVE_SIM
-  void     printStruct(void) const;
-#endif
-#endif
-    
-  // Members
-  uint32_t    dca1;  ///< temperature of dca1
-  uint32_t    dca2;  ///< temperature of dca2
-  uint32_t    dca3;  ///< temperature of dca3
-  uint32_t    mcu;   ///< temperature of mcu
-  uint32_t    cp0;   ///< temperature of cp 0
-  uint32_t    cp1;   ///< temperature of cp 1
-  uint32_t    cp2;   ///< temperature of cp 2
-  uint32_t    cp3;   ///< temperature of cp 3
-  uint32_t    cp4;   ///< temperature of cp 4
-  uint32_t    sc1;   ///< temperature of sc1
-  uint32_t    airflowDca1; ///< temperature of airflowDca1
-  uint32_t    airflowDca2; ///< temperature of airflowDca2
-  uint32_t    airflowDca3; ///< temperature of airflowDca3
-  
-};
-
-#ifndef DOCUMENTATION
-// ecmdChipTarget Constructor
-inline ecmdMcmThermalData::ecmdMcmThermalData():
-dca1(0),
-dca2(0),
-dca3(0),
-mcu(0),
-cp0(0),
-cp1(0),
-cp2(0),
-cp3(0),
-cp4(0),
-sc1(0),
-airflowDca1(0),
-airflowDca2(0),
-airflowDca3(0)
-{
-}
-
-// ecmdChipTarget Destructor
-inline ecmdMcmThermalData::~ecmdMcmThermalData() { }
-#endif
 
 /* @name Misc functions */
 //@{
