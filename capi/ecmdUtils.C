@@ -102,10 +102,6 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
 void debugFunctionOuput(const char* outbuf);
 #endif
 
-#ifndef FIPSODE
-uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile);
-#endif
-
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
