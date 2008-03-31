@@ -287,16 +287,6 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
  @param o_strData If passed in, then we load o_strData with what is printed to the screen
  */
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
-
-/**
- @brief Read in the scomdef file and find the start of the specified entry.
- @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
- @param i_address Scom Address which we are looking for 
- @param io_scomdefFile File stream for the data, which is set to the start of the entry upon exit
-
- This function is used by ecmdDisplayScomData and not intended to be called by the regular user
- */
-uint32_t readScomDefFile(uint32_t i_address, std::ifstream &io_scomdefFile);
 #endif
 
 //@}
