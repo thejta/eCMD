@@ -102,6 +102,18 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
 void debugFunctionOuput(const char* outbuf);
 #endif
 
+#ifndef FIPSODE
+/**
+ @brief Read in the scomdef file and find the start of the specified entry.
+ @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
+ @param i_address Scom Address which we are looking for 
+ @param io_scomdefFile File stream for the data, which is set to the start of the entry upon exit
+
+ This function is used by ecmdDisplayScomData and not intended to be called by the regular user
+ */
+uint32_t readScomDefFile(uint32_t i_address, std::ifstream &io_scomdefFile);
+#endif
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
