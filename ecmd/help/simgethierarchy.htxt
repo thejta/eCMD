@@ -1,5 +1,5 @@
 
-Syntax: simgethierarchy <Chip> [-coe] [-k#] [-n#] [-s#] [-p#]
+Syntax: simgethierarchy <Chip> [-coe] [-dc] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -12,6 +12,9 @@ Syntax: simgethierarchy <Chip> [-coe] [-k#] [-n#] [-s#] [-p#]
         -coe [optional] Continue On Error. If an error occurs, continues to the next target
                         instead of exiting.  Any error status is returned at the end.
 
+	-dc  [optional] Specify chipUnit depth to loop on. This is required for chipUnit 
+	                hierarchies.
+
         -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
                         to act on all cages.
 
@@ -23,9 +26,13 @@ Syntax: simgethierarchy <Chip> [-coe] [-k#] [-n#] [-s#] [-p#]
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.
-
+       
         --------------------------------------------------------------------------------
 
         Example:        > simgethierarchy pu -p2
                         Model hierarchy for target pu	k0:n0:s0:p00       is :
                         P0.B.S.LT.EM.
+			
+		        > simgethierarchy pu.mc -c1 -dc
+                        Model hierarchy for target pu.mc	k0:n0:s0:p00:c1    is :
+                        B0.C0.S0.D0.P0.E7.EM1
