@@ -1,5 +1,5 @@
 
-Syntax: simgethierarchy <Chip> [-coe] [-dc] [-k#] [-n#] [-s#] [-p#]
+Syntax: simgethierarchy <Chip[.ChipUnit]> [-coe] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -7,7 +7,10 @@ Syntax: simgethierarchy <Chip> [-coe] [-dc] [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.  
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
 
         -coe [optional] Continue On Error. If an error occurs, continues to the next target
                         instead of exiting.  Any error status is returned at the end.
