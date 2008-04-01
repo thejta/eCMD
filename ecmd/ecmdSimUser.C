@@ -1344,6 +1344,7 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   std::string  hierarchy;		/// Return the model hierarchy for this target
   ecmdLooperData looperdata;            /// Store internal Looper data
   std::string printed;
+  bool validPosFound = false;
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -1359,7 +1360,7 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
     ecmdOutputError("simgethierarchy - Too few arguments specified; you need at least a chip name.\n");
     return ECMD_INVALID_ARGS;
   }
-  else if (argc > 1) {
+  else if (argc > 2) {
     ecmdOutputError("simgethierarchy - Too many arguments to simgethierarchy, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -1367,14 +1368,23 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   //Setup the target  
   std::string chipType, chipUnitType;
   ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("simgethierarchy - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
+
+  int depth = 0;                 ///< depth found from Command line parms
+  int CHIPUNIT = 1;
+  if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
+
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitType = chipUnitType;
+  target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+
+  if (depth != CHIPUNIT){
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  }
+  target.cageState = target.nodeState = target.slotState = target.posState =  ECMD_TARGET_FIELD_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -1384,6 +1394,7 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+    validPosFound = true;
     rc = simGetHierarchy(target,  hierarchy);
     if (rc) {
       coeRc = rc;
@@ -1397,6 +1408,13 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
+
+ 
+  if (!validPosFound) {
+    ecmdOutputError("simgethierarchy - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
 
   return rc;
 }
