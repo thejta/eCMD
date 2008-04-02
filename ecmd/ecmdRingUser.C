@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder     Description                       
@@ -1154,8 +1148,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   std::string dataModifier = "insert";  ///< Default data Modifier (And/Or/insert)
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   std::list<ecmdRingData> queryRingData;///< Ring data 
+  ecmdRingData ringData;                ///< Ring data 
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
   bool validPosFound = false;           ///< Did the looper find something ?
@@ -1272,18 +1266,18 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       ecmdOutputError("putbits - Too much/little ring information returned from the dll, unable to determine if it is a core ring\n");
       return ECMD_DLL_INVALID;
     }
-    isChipUnitRing = queryRingData.begin()->isChipUnitRelated;
+    ringData = *queryRingData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitRing) {
+    if (ringData.isChipUnitRelated) {
       cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
       /* Error check the chipUnit returned */
-      if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
+      if (ringData.relatedChipUnit != chipUnitType) {
         printed = "putbits - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+        printed += ringData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -1299,7 +1293,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitRing
+    } else { // !ringData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putbits - A chipUnit \"";
         printed += chipUnitType;
@@ -1313,18 +1307,21 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((ringData.isChipUnitRelated ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-      if (rc) {
-	printed = "putbits - Error occurred performing getring on ";
-	printed += ecmdWriteTarget(cuTarget) + "\n";
-	ecmdOutputError( printed.c_str() );
-	coeRc = rc;
-        continue;
-      }
-      else {
-	validPosFound = true;     
+      /* If the data the user gave on the command line is as long as the ring, and starts at bit 0
+         we don't need to do the getRing since they gave us an entire ring image */
+      if ((startBit == 0) && (buffer.getBitLength() >= (uint32_t)ringData.bitLength)) {
+        ringBuffer.setBitLength(ringData.bitLength);
+      } else {
+        rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
+        if (rc) {
+          printed = "putbits - Error occurred performing getring on ";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          coeRc = rc;
+          continue;
+        }
       }
 
       rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
@@ -1337,6 +1334,9 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 	ecmdOutputError( printed.c_str() );
 	coeRc = rc;
         continue;
+      }
+      else {
+        validPosFound = true;     
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
