@@ -54,7 +54,8 @@ struct ecmdLatchDataEntry {
   uint32_t jtagRingOffset;              ///< Ring Offset for JTAG
   uint32_t length;                      ///< Length of entry
   uint32_t latchStartBit;               ///< Start bit in latch (comes from parens in latch name) 
-  uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name) 
+  uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name)
+  ecmdLatchType_t  latchType;           ///< Specifies what type of latch this is (single bit, multibit, etc..)
 };
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
@@ -78,7 +79,7 @@ struct ecmdCheckRingData {
 //----------------------------------------------------------------------
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDataBuffer &ringBuffer, std::list< ecmdLatchDataEntry > & o_latchdata);
-void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch);
+void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, uint32_t dataStartBit, uint32_t dataEndBit, std::string format, ecmdLatchType_t isMultiBitLatch);
 
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs) {
@@ -333,7 +334,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
         uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
         std::string latchname = "";
-        bool isMultiBitLatch = false;
+        ecmdLatchType_t isMultiBitLatch = ECMD_LATCHTYPE_SINGLEBIT;
 	
         if(unsort) {
           for (curLatchInfo = curEntry.begin(); curLatchInfo != curEntry.end(); curLatchInfo++) {
@@ -382,95 +383,108 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
           for (curLatchInfo = curEntry.begin(); curLatchInfo != curEntry.end(); curLatchInfo++) {
             if(ringName == curLatchInfo->ringName) {
 
-              if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
-                  ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
-                /* I have some good data here */
-                if (latchname != "") {
-                  printLatchInfo( latchname, buffer,(int) dataStartBit,(int) dataEndBit, format, isMultiBitLatch);             	
-                }
-
-                /* If this is a fresh one we need to reset everything */
-                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
-                  dataStartBit = dataEndBit = ECMD_UNSET;
-                  curBitsToFetch = ECMD_UNSET;
-                  curBufferBit = 0;
-		  isMultiBitLatch = false;
-                  latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
-		  if (curLatchInfo->latchName.rfind('(') != std::string::npos) {
-		    isMultiBitLatch = true ;
-		  }
-		  curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
-
-                } else {
-                  /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
-                  dataStartBit = dataEndBit = ECMD_UNSET;
-                  curBufferBit = 0;
-                  /* Decrement the bits to fetch by the hole in the latch */
-                  curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
-                  curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
-                }
-              }
-
-              /* Do we want anything in here */
-              /* Check if the bits are ordered from:to (0:10) or just (1) */
-              if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
-                  //@01c swapped type casting on curLatchBit and curLatchInfo->latchEndBit 
-                  /* Check if the bits are ordered to:from (10:0) */
-                  ((curLatchInfo->latchStartBit >  curLatchInfo->latchEndBit)  && ((uint32_t) curLatchBit <= curLatchInfo->latchStartBit))) {
-
-
-                bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
-
-                /* Setup the actual data bits displayed */
-                if (dataStartBit == ECMD_UNSET) {
-                  dataStartBit = curLatchBit;
-                  dataEndBit = dataStartBit - 1;
-                }
-                dataEndBit += bitsToFetch;
-
+              if (curLatchInfo->latchType == ECMD_LATCHTYPE_ARRAY) {
                 if (bustype == ECMD_CHIPFLAG_FSI) {
-                  rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch);
+                  rc = ringBuffer.extract(buffer, curLatchInfo->fsiRingOffset, 1);
                   if (rc) break;
-                  /* Extract bits if ordered from:to (0:10) */
-                  if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
-                    curLatchBit = curLatchInfo->latchEndBit + 1;
-                    /* Extract if bits are ordered to:from (10:0) or just (1) */
+                } else { //JTAG 
+                  rc = ringBuffer.extract(buffer, curLatchInfo->jtagRingOffset - 1, 1);
+                  if (rc) break;
+                }
+
+                // Print out the latch
+                printLatchInfo( latchname, buffer, curLatchInfo->latchStartBit, curLatchInfo->latchEndBit, format, ECMD_LATCHTYPE_ARRAY);             	
+              } else {
+
+                if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+                    ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+                  /* I have some good data here */
+                  if (latchname != "") {
+                    printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format, isMultiBitLatch);             	
+                  }
+
+                  /* If this is a fresh one we need to reset everything */
+                  if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBitsToFetch = ECMD_UNSET;
+                    curBufferBit = 0;
+                    isMultiBitLatch = ECMD_LATCHTYPE_SINGLEBIT;
+                    latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                    if (curLatchInfo->latchName.rfind('(') != std::string::npos) {
+                      isMultiBitLatch = ECMD_LATCHTYPE_MULTIBIT;
+                    }
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+
                   } else {
-                    if (bitsToFetch > 1) buffertemp.reverse();
-                    curLatchBit = curLatchInfo->latchStartBit + 1;
+                    /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBufferBit = 0;
+                    /* Decrement the bits to fetch by the hole in the latch */
+                    curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                  }
+                }
+
+                /* Do we want anything in here */
+                /* Check if the bits are ordered from:to (0:10) or just (1) */
+                if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <= curLatchInfo->latchEndBit)) ||
+                    //@01c swapped type casting on curLatchBit and curLatchInfo->latchEndBit 
+                    /* Check if the bits are ordered to:from (10:0) */
+                    ((curLatchInfo->latchStartBit >  curLatchInfo->latchEndBit)  && ((uint32_t) curLatchBit <= curLatchInfo->latchStartBit))) {
+
+
+                  bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+
+                  /* Setup the actual data bits displayed */
+                  if (dataStartBit == ECMD_UNSET) {
+                    dataStartBit = curLatchBit;
+                    dataEndBit = dataStartBit - 1;
+                  }
+                  dataEndBit += bitsToFetch;
+
+                  if (bustype == ECMD_CHIPFLAG_FSI) {
+                    rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch);
+                    if (rc) break;
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                      curLatchBit = curLatchInfo->latchEndBit + 1;
+                      /* Extract if bits are ordered to:from (10:0) or just (1) */
+                    } else {
+                      if (bitsToFetch > 1) buffertemp.reverse();
+                      curLatchBit = curLatchInfo->latchStartBit + 1;
+                    }
+                  } else {
+                    //JTAG 
+                    rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch);
+                    if (rc) break;
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                      buffertemp.reverse();
+                      curLatchBit = curLatchInfo->latchEndBit + 1;
+                    } else {
+                      /* Extract if bits are ordered to:from (10:0) or just (1) */
+                      curLatchBit = curLatchInfo->latchStartBit + 1;
+                    }
+                  }
+                  if(curBufferBit == 0) {
+                    buffer=buffertemp;
+                  }
+                  else {
+                    buffer.growBitLength((buffer.getBitLength() + bitsToFetch));
+                    rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch);
+                    if (rc) break;
+                  }
+                  curBufferBit += bitsToFetch;
+                  //lint -e1058
+                  if(curLatchInfo == --curEntry.end()) {
+                    printLatchInfo( latchname, buffer, dataStartBit, dataEndBit, format, isMultiBitLatch);
                   }
                 } else {
-                  //JTAG 
-                  rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch);
-                  if (rc) break;
-                  /* Extract bits if ordered from:to (0:10) */
-                  if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
-                    buffertemp.reverse();
-                    curLatchBit = curLatchInfo->latchEndBit + 1;
-                  } else {
-                    /* Extract if bits are ordered to:from (10:0) or just (1) */
-                    curLatchBit = curLatchInfo->latchStartBit + 1;
-                  }
-                }
-                if(curBufferBit == 0) {
-                  buffer=buffertemp;
-                }
-                else {
-                  buffer.growBitLength((buffer.getBitLength() + bitsToFetch));
-                  rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch);
-                  if (rc) break;
-                }
-                curBufferBit += bitsToFetch;
-                  //lint -e1058
-                if(curLatchInfo == --curEntry.end()) {
-                  printLatchInfo( latchname, buffer, (int) dataStartBit,(int) dataEndBit, format, isMultiBitLatch);
-                }
-              } else {
-                /* Nothing was there that we needed, let's try the next entry */
-                curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+                  /* Nothing was there that we needed, let's try the next entry */
+                  curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
 
+                }
               }
-
             }/* End If ringname match */ 
 
           }/* End for-latches-loop */
@@ -758,11 +772,11 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 
 	if (startBit == ECMD_UNSET) {
-	  curStartBit = (unsigned int)latchit->latchStartBit;
+	  curStartBit = (uint32_t)latchit->latchStartBit;
 	  curNumBits = latchit->buffer.getBitLength();
 	} else if (numBits == ECMD_UNSET) {
 	  curStartBit = startBit;
-	  curNumBits = (unsigned int)((int)latchit->buffer.getBitLength() - (int)((int)startBit - (int)latchit->latchStartBit));
+	  curNumBits = (uint32_t)((int)latchit->buffer.getBitLength() - (int)((int)startBit - (int)latchit->latchStartBit));
 	} else {
 	  curStartBit = startBit;
 	  curNumBits = numBits;
@@ -799,7 +813,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	  curOutputFormat = outputformat;
 
 	/* Let's extract the piece the user wanted */
-	rc =(unsigned int) ( latchit->buffer.extract(buffer,(unsigned int)((int) curStartBit - (int)latchit->latchStartBit),(unsigned int) curNumBits )); if (rc) return rc;
+	rc =(uint32_t) ( latchit->buffer.extract(buffer,(uint32_t)((int) curStartBit - (int)latchit->latchStartBit),(uint32_t) curNumBits )); if (rc) return rc;
 
 	if (expectFlag) {
 
@@ -1373,8 +1387,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool validLatchFound = false;         ///< Did we find a valid latch
   std::string printed;
-  std::list<ecmdLatchEntry> latchs;     ///< Latchs retrieved from getLatch
-  std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latchs
+  std::list<ecmdLatchEntry> latches;     ///< latches retrieved from getLatch
+  std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latches
   ecmdLatchMode_t latchMode = ECMD_LATCHMODE_FULL;   ///< Default to full match on latch name
   ecmdDataBuffer buffer;                ///< Buffer to store data from user
   ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
@@ -1584,9 +1598,9 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     while ((isChipUnitLatch ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (ringName.length() != 0)
-        rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchs, latchMode);
+        rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode);
       else
-        rc = getLatch(cuTarget, NULL, latchName.c_str(), latchs, latchMode);
+        rc = getLatch(cuTarget, NULL, latchName.c_str(), latches, latchMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
         printed = "putlatch - Error occurred performing getlatch on ";
         printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1605,8 +1619,8 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         validPosFound = true;
       }
 
-      /* Walk through all the latchs recieved */
-      for (latchit = latchs.begin(); latchit != latchs.end(); latchit ++ ) {
+      /* Walk through all the latches recieved */
+      for (latchit = latches.begin(); latchit != latches.end(); latchit ++ ) {
 
         buffer_copy = buffer;
 
@@ -2539,18 +2553,21 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       if (leftParen == std::string::npos) {
 	/* This latch doesn't have any parens */
 	curLatch.latchStartBit = curLatch.latchEndBit = 0;
+        curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
       } else {
 	temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
 	curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
 
 	/* Is this a multibit or single bit */
 	if ((colon = temp.find(':')) != std::string::npos) {
-	  curLatch.latchEndBit = (unsigned int)atoi(temp.substr(colon+1, temp.length()).c_str());
+	  curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+          curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
 	} else if ((colon = temp.find(',')) != std::string::npos) {
-	  ecmdOutputError("readScandefFile - Array's not currently supported with getlatch\n");
-	  return ECMD_FUNCTION_NOT_SUPPORTED;
+	  curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+          curLatch.latchType = ECMD_LATCHTYPE_ARRAY;
 	} else {
 	  curLatch.latchEndBit = curLatch.latchStartBit;
+          curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
 	}
       }
       curLatch.ringName = i_ring;
@@ -2593,20 +2610,23 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   return rc;
 }
 
-void printLatchInfo( std::string latchname, ecmdDataBuffer buffer, int dataStartBit, int dataEndBit, std::string format, bool isMultiBitLatch) {
+void printLatchInfo(std::string latchname, ecmdDataBuffer buffer, uint32_t dataStartBit, uint32_t dataEndBit, std::string format, ecmdLatchType_t latchType) {
   char temp[50];
   std::string printed;
     
   printed = latchname;
-  if(dataEndBit-dataStartBit >= 1) {
+  if (latchType == ECMD_LATCHTYPE_ARRAY) {
+    sprintf(temp,"(%d,%d)", dataStartBit, dataEndBit);
+    printed += temp;
+  } else if (dataEndBit-dataStartBit >= 1) {
     sprintf(temp,"(%d:%d)", dataStartBit, dataEndBit);
     printed += temp;
-  } else if ((dataEndBit == dataStartBit) && isMultiBitLatch) {
+  } else if ((dataEndBit == dataStartBit) && (latchType == ECMD_LATCHTYPE_MULTIBIT)) {
     sprintf(temp,"(%d)", dataStartBit);
     printed += temp;
   }
   if (format == "default") {
-    if ((dataEndBit-dataStartBit) <= 8) {
+    if ((dataEndBit-dataStartBit) <= 8 || (latchType == ECMD_LATCHTYPE_ARRAY)) {
       printed += " 0b" + buffer.genBinStr();
     }
     else {
