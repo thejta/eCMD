@@ -41,6 +41,8 @@ uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, e
 
 uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype); 
 
+uint32_t dllQuerySelectedExist(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype); 
+
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail); 
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS

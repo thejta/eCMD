@@ -123,12 +123,21 @@ TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
 #endif
 
 //----------------------------------------------------------------------
-//  User Types
+//  Forward Declarations
 //----------------------------------------------------------------------
+uint32_t ecmdConfigExistLooperInit(ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode, bool i_existMode);
+uint32_t ecmdConfigExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, bool i_existMode);
 
+// ConfigLooperInit and ExistLooperInit can share the same code with just a switch to call the right function
+uint32_t ecmdConfigLooperInit(ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode) {
+  return ecmdConfigExistLooperInit(io_target, i_looptype, io_state, i_mode, false);
+}
 
+uint32_t ecmdExistLooperInit(ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode) {
+  return ecmdConfigExistLooperInit(io_target, i_looptype, io_state, i_mode, true);
+}
 
-uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode) {
+uint32_t ecmdConfigExistLooperInit(ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode, bool i_existMode) {
 
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipTarget queryTarget;
@@ -190,8 +199,11 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     if ((*io_state.curUnitIdTarget).threadState != ECMD_TARGET_FIELD_UNUSED) queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
     else queryTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-
-    rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
+    if (i_existMode) {
+      rc = ecmdQueryExist(queryTarget, io_state.ecmdSystemConfigData);
+    } else {
+      rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
+    }
     if (rc) return rc;
 
     /* Standard physical targets */
@@ -220,10 +232,18 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
     if (io_target.coreState != ECMD_TARGET_FIELD_UNUSED)          io_target.coreState = ECMD_TARGET_FIELD_VALID;
     if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED)        io_target.threadState = ECMD_TARGET_FIELD_VALID;
 
-    if (i_looptype == ECMD_ALL_TARGETS_LOOP) 
-      rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
-    else {
-      rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+    if (i_looptype == ECMD_ALL_TARGETS_LOOP) {
+      if (i_existMode) {
+        rc = ecmdQueryExist(queryTarget, io_state.ecmdSystemConfigData);
+      } else {
+        rc = ecmdQueryConfig(queryTarget, io_state.ecmdSystemConfigData);
+      }
+    } else {
+      if (i_existMode) {
+        rc = ecmdQuerySelectedExist(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+      } else {
+        rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+      }
 
       /* Selected queries can change our states, so let's update them */
       if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)      io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
@@ -254,7 +274,16 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
   return rc;
 }
 
-uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state) {
+// ConfigLooperNext and ExistLooperNext can share the same code with just a switch to call the right function
+uint32_t ecmdConfigLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) {
+  return ecmdConfigExistLooperNext(io_target, io_state, false);
+}
+
+uint32_t ecmdExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) {
+  return ecmdConfigExistLooperNext(io_target, io_state, true);
+}
+
+uint32_t ecmdConfigExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, bool i_existMode) {
 
   const uint8_t CAGE = 0;
   const uint8_t NODE = 1;
@@ -303,8 +332,14 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
       io_state.curUnitIdTarget ++;
 
       /* Is this target actually configured, if not try the next one */
-      if (ecmdQueryTargetConfigured(io_target, &(io_state.ecmdSystemConfigData))) {
-        done = true;
+      if (i_existMode) {
+        if (ecmdQueryTargetExist(io_target, &(io_state.ecmdSystemConfigData))) {
+          done = true;
+        }
+      } else {
+        if (ecmdQueryTargetConfigured(io_target, &(io_state.ecmdSystemConfigData))) {
+          done = true;
+        }
       }
     } /* while !done */
 

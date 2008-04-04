@@ -194,8 +194,6 @@ typedef enum {
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
 
- 
-
  TARGET DEPTH  : Thread
  TARGET STATES : Must Be Initialized
  */
@@ -213,6 +211,31 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdConfigLoopType_t 
  */
 uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
 
+/**
+ @brief Initializes data structures and code to loop over existing and selected elements of the system
+ @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
+ @param i_looptype Specify type of all, all chips in system or all chips selected by user
+ @param i_mode Specify if you want to allow the plugin to change the depth of your loop or not
+ @param io_state Used internally by ExistLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
+ @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
+ @see ecmdExistLooperNext
+
+  TARGET DEPTH  : Thread
+ TARGET STATES : Must Be Initialized
+ */
+uint32_t ecmdExistLooperInit(ecmdChipTarget & io_target, ecmdConfigLoopType_t i_looptype, ecmdLooperData& io_state, ecmdConfigLoopMode_t i_mode = ECMD_STATIC_DEPTH_LOOP);
+
+/**
+ @brief Loops over configured and selected elements of the system, updating target to point to them
+ @param io_target ecmdChipTarget that contains info about next target to process
+ @param io_state Used internally to keep track of state, must be passed from output of ecmdExistLooperInit
+ @retval 1 if io_target is valid, 0 if it is not
+ @see ecmdExistLooperInit
+
+ TARGET DEPTH  : Thread
+ TARGET STATES : Must be Initialized (from ecmdExistLooperInit)
+ */
+uint32_t ecmdExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state);
 
 /**
  @brief Reads data from data string into data buffer based on a format type
