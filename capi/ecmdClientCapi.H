@@ -190,7 +190,7 @@ uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData,
 uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
- @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#)
+ @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all configured chips
  @param io_target Struct that contains partial information to limit query results - chipType is unused
  @param o_queryData Return data from query
  @param i_looptype (Optional) Used by config looper to specify different query modes
@@ -209,6 +209,27 @@ uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+
+/**
+ @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all existing chips
+ @param io_target Struct that contains partial information to limit query results - chipType is unused
+ @param o_queryData Return data from query
+ @param i_looptype (Optional) Used by config looper to specify different query modes
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ This function acts just like ecmdQueryConfig except it operates on what targets were selected by the
+  user args -n#, -p#, -c#, -t#
+
+ Use of this function is the same as ecmdQueryConfig<br>
+ When -talive is specified all threads configured will be returned in o_queryData and io_target.threadState
+   will be set to ECMD_TARGET_THREAD_ALIVE.<br>
+ NOTE : This function does not affect ring caching<br>
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+uint32_t ecmdQuerySelectedExist(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query Ring information from the DLL
