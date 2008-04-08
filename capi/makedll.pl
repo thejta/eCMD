@@ -28,6 +28,9 @@ my $STRING = 2;
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
 my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdFunctionTimer);
 my $ignore_re = join '|', @ignores;
+# Allow exceptions to be specified so the general match above doesn't match longer file names
+my @ignore_exceptions = qw( ecmdLoadDllRecovery);
+my $ignore_exceptions_re = join '|', @ignore_exceptions;
 
 # These are functions that should not be auto-gened into ecmdClientCapiFunc.C hand created in ecmdClientCapi.C
 # Removed no_gen because it is an empty list now.  If things need to be re-added, uncomment the below two lines
@@ -68,7 +71,7 @@ while (<IN>) {
 
     } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 
-	next if (/$ignore_re/o);
+	next if (/$ignore_re/o && !(/$ignore_exceptions_re/o));
 
 	my $type_flag = $INT;
 	$type_flag = $VOID if (/^void/);
@@ -77,16 +80,16 @@ while (<IN>) {
         $chipTarget = 1 if (/ecmdChipTarget/);
 
 	chomp; chop;  
-	my ($func, $args) = split /\(|\)/ , $_;
+	my ($func, $args) = split(/\(|\)/, $_);
 
-	my ($type, $funcname) = split /\s+/, $func;
-	my @argnames = split /,/ , $args;
+	my ($type, $funcname) = split(/\s+/, $func);
+	my @argnames = split(/,/, $args);
 
         #remove the default initializations
         foreach my $i (0..$#argnames) {
-            if ($argnames[$i] =~ /=/) {
-              $argnames[$i] =~ s/\s*=.*//;
-            }
+          if ($argnames[$i] =~ /=/) {
+            $argnames[$i] =~ s/\s*=.*//;
+          }
         }
         $" = ",";
 

@@ -90,10 +90,21 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
- Even though you have to pass in the eCMD Release, you are not able to actually change it (because eCMD is alread loaded<br>
+ Even though you have to pass in the eCMD Release, you are not able to actually change it (because eCMD is already loaded)<br>
 */
 
 uint32_t ecmdSetup(char* i_args);
+
+#ifndef DOCUMENTATION
+/**
+ @brief Allow the plugin to recover from certain ecmdLoadDll errors that aren't fatal, as determined by the plugin
+ @param i_commandLine The command line for the command being run
+ @param io_rc The rc from the ecmdLoadDll call that can be modified by the plugin if it determines necessary
+ @retval ECMD_SUCCESS if successful load
+ @retval nonzero if unsuccessful
+*/
+void ecmdLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc);
+#endif
 //@}
 #endif // ifndef ECMD_PERLAPI
 
