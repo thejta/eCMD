@@ -1950,6 +1950,17 @@ uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
 */
 uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
 
+// This goes into the mainline with 10.0 - JTA 04/8/08
+// Of course, after removing the ecmdCommandUtils.C/.H implementation and removing the Hidden part of the name
+#ifndef DOCUMENTATION
+/**
+ @brief Returns the string define name for specified returnCode (ie "ECMD_SPY_GROUP_MISMATCH")
+ @param i_returnCode Return code to lookup
+ @retval String name of return code ("UNDEFINED" if unknown)
+*/
+std::string ecmdParseReturnCodeHidden(uint32_t i_returnCode);
+#endif
+
 //@}
 
 
