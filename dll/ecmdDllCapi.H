@@ -31,6 +31,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);
 /* Dll Specific Command Line Args Function*/
 uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);
 
+void dllLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc); 
+
 uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo); 
 
 bool dllQueryVersionGreater(const char* version); 

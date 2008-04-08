@@ -43,15 +43,18 @@ int main (int argc, char *argv[])
 {
   uint32_t rc = 0;
 
-  std::string cmdsave;
+  std::string cmdSave;
   char errorbuf[200];
   for (int i = 0; i < argc; i++) {
-    cmdsave += argv[i];
-    cmdsave += " ";
+    cmdSave += argv[i];
+    cmdSave += " ";
   }
-  cmdsave += "\n";
+  cmdSave += "\n";
 
   rc = ecmdLoadDll("");
+  if (rc) {
+    ecmdLoadDllRecovery(cmdSave, rc);
+  }
 
   if (rc == ECMD_SUCCESS) {
     /* Check to see if we are using stdin to pass in multiple commands */
@@ -229,7 +232,7 @@ int main (int argc, char *argv[])
 
     /* Move these outputs into the if !rc to fix BZ#224 - cje */
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      ecmdOutput(cmdsave.c_str());
+      ecmdOutput(cmdSave.c_str());
     }
 
 
