@@ -142,8 +142,6 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
-/* @brief Read the ecmdReturnCodes.H file for the specified return code */
-std::string dllParseReturnCode(uint32_t i_returnCode);
 /* @brief Returns true if curPos is not in userArgs */
 uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
@@ -371,7 +369,7 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_
   if (!first) {
     /* We must have found something */
     if (i_parseReturnCode) {
-      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCode(i_errorCode).c_str());
+      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCodeHidden(i_errorCode).c_str());
       ret += tmp;
     }
     ret += "===================================================\n";
@@ -379,7 +377,7 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_
 
   /* We want to parse the return code even if we didn't finded extended error info */
   if ((ret.length() == 0) && (i_parseReturnCode)) {
-    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_errorCode, dllParseReturnCode(i_errorCode).c_str());
+    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_errorCode, dllParseReturnCodeHidden(i_errorCode).c_str());
     ret = tmp;
   }
 
@@ -2487,7 +2485,7 @@ uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uin
 }
 #endif /* REMOVE_SIM */
 
-std::string dllParseReturnCode(uint32_t i_returnCode) {
+std::string dllParseReturnCodeHidden(uint32_t i_returnCode) {
   std::string ret = "";
 
   ecmdChipTarget dummy;
@@ -2559,6 +2557,14 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
   }
 
   ins.close();
+
+  /* Couldn't find it in normal eCMD, let the plugin have a shot at it */
+  if (!found) {
+    retdefine = dllSpecificParseReturnCode(i_returnCode);
+    if (retdefine.size()) {
+      found = true;
+    }
+  }
 
   if (!found && source.length() == 0) {
     ret = "UNDEFINED";

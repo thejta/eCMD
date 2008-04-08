@@ -16,20 +16,23 @@ extern "C" {
 
 /* Dll Common load function - verifies version */
 uint32_t dllLoadDll (const char * i_version, uint32_t debugLevel);
-/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/
+/* Dll Specific load function - used by Cronus/GFW to init variables/object models */
 uint32_t dllInitDll ();
 
 /* Dll Common unload function */
 uint32_t dllUnloadDll ();
-/* Dll Specific unload function - deallocates variables/object models*/
+/* Dll Specific unload function - deallocates variables/object models */
 uint32_t dllFreeDll();
 
 /* Dll version check function */
 uint32_t dllCheckDllVersion (const char* options);
-/* Dll Common Command Line Args Function*/
+/* Dll Common Command Line Args Function */
 uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);
-/* Dll Specific Command Line Args Function*/
+/* Dll Specific Command Line Args Function */
 uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);
+
+/* Dll Specific Return Codes */
+std::string dllSpecificParseReturnCode(uint32_t i_returnCode);
 
 void dllLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc); 
 
@@ -252,6 +255,8 @@ uint32_t dllQueryTargetDisplayMode(ecmdTargetDisplayMode_t & o_displayMode);
 uint32_t dllDelay(uint32_t i_simCycles, uint32_t i_msDelay); 
 
 uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout); 
+
+std::string dllParseReturnCodeHidden(uint32_t i_returnCode); 
 
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 

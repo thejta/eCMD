@@ -361,18 +361,20 @@ if ($ARGV[1] =~ /DllCapi.H/ || $genAll) {
 
     print OUT "/* Dll Common load function - verifies version */\n";
     print OUT "uint32_t dllLoadDll (const char * i_version, uint32_t debugLevel);\n";
-    print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models*/\n";
+    print OUT "/* Dll Specific load function - used by Cronus/GFW to init variables/object models */\n";
     print OUT "uint32_t dllInitDll ();\n\n";
     print OUT "/* Dll Common unload function */\n";
     print OUT "uint32_t dllUnloadDll ();\n";
-    print OUT "/* Dll Specific unload function - deallocates variables/object models*/\n";
+    print OUT "/* Dll Specific unload function - deallocates variables/object models */\n";
     print OUT "uint32_t dllFreeDll();\n\n";
     print OUT "/* Dll version check function */\n";
     print OUT "uint32_t dllCheckDllVersion (const char* options);\n";
-    print OUT "/* Dll Common Command Line Args Function*/\n";
+    print OUT "/* Dll Common Command Line Args Function */\n";
     print OUT "uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]);\n";
-    print OUT "/* Dll Specific Command Line Args Function*/\n";
+    print OUT "/* Dll Specific Command Line Args Function */\n";
     print OUT "uint32_t dllSpecificCommandArgs(int*  io_argc, char** io_argv[]);\n\n";
+    print OUT "/* Dll Specific Return Codes */\n";
+    print OUT "std::string dllSpecificParseReturnCode(uint32_t i_returnCode);\n\n";
 
   } else {
     print OUT "/* Extension initialization function - verifies version */\n";
