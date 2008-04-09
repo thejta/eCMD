@@ -240,9 +240,9 @@ uint32_t ecmdConfigExistLooperInit(ecmdChipTarget & io_target, ecmdConfigLoopTyp
       }
     } else {
       if (i_existMode) {
-        rc = ecmdQuerySelectedExist(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+        rc = ecmdQueryExistSelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
       } else {
-        rc = ecmdQuerySelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+        rc = ecmdQueryConfigSelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
       }
 
       /* Selected queries can change our states, so let's update them */

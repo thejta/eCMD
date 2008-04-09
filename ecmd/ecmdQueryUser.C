@@ -943,7 +943,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       target.threadState = ECMD_TARGET_FIELD_UNUSED;
     }
 
-    rc = ecmdQuerySelected(target, queryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
+    rc = ecmdQueryConfigSelected(target, queryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
 
     /* Use as many STL buffers as possible so we don't keep blowing char buffers and core dumping */
     char buf[300];
@@ -1026,7 +1026,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                 target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
                 target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-                rc = ecmdQuerySelected(target, chipUnitQueryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
+                rc = ecmdQueryConfigSelected(target, chipUnitQueryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
                 /* If it's empty list, we don't have chipUnits and need to return back */
                 if (chipUnitQueryData.cageData.empty()) {
                   /* For non-chipUnit chips OR For chipUnit-chips If chipUnit list is empty */
@@ -1107,7 +1107,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                     target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
                     target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
-                    rc = ecmdQuerySelected(target, threadQueryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
+                    rc = ecmdQueryConfigSelected(target, threadQueryData, ECMD_SELECTED_TARGETS_LOOP_DEFALL);
                     /* If it's empty list, we don't have threads and need to return back */
                     if (threadQueryData.cageData.empty()) {
                       /* For non-threaded chips */
