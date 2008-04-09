@@ -135,8 +135,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
         
       sprintf(buf,"\nAvailable rings for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Ring Names                           Address    Length ChipUnit Mask Chkable BroadSide ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "-----------------------------------  --------   ------ -------- ---- ------- --------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Ring Names                          Address     Length ChipUnit Mask Check Broad ClockDomain       ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "----------------------------------- ----------  ------ -------- ---- ----- ----- ----------------- ----------\n"; ecmdOutput(printed.c_str());
       for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
 
         printed = "";
@@ -145,7 +145,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           if (strit != ringit->ringNames.begin()) printed += ", ";
           printed += (*strit);
         }
-        for (size_t i = printed.length(); i <= 36; i++) { 
+        for (size_t i = printed.length(); i <= 35; i++) { 
           printed += " ";
         }
 
@@ -173,7 +173,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           broadmode = 'Y';
         } else broadmode = 'N';
 
-        sprintf(buf,"0x%.6X   %6d %8s %4c %7c %9c %-20s", ringit->address, ringit->bitLength, isChipUnit.c_str(), invmask, chkable, broadmode,ringit->clockDomain.c_str());
+        sprintf(buf,"0x%.8X  %6d %8s %4c %5c %5c %-18s", ringit->address, ringit->bitLength, isChipUnit.c_str(), invmask, chkable, broadmode,ringit->clockDomain.c_str());
         printed += buf;
 
         if (ringit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
