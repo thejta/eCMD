@@ -208,6 +208,18 @@ uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
+ NOTE: This function is going away in 10.0 and being replaced by ecmdQueryConfigSelected.  The functionality is the same, just a function name change
+*/
+uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+
+/**
+ @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all configured chips
+ @param io_target Struct that contains partial information to limit query results - chipType is unused
+ @param o_queryData Return data from query
+ @param i_looptype (Optional) Used by config looper to specify different query modes
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
  This function acts just like ecmdQueryConfig except it operates on what targets were selected by the
   user args -n#, -p#, -c#, -t#
 
@@ -219,7 +231,7 @@ uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all existing chips
@@ -240,7 +252,7 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdQuerySelectedExist(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query Ring information from the DLL

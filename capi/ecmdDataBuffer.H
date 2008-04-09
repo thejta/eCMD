@@ -1129,7 +1129,7 @@ public:
   /**
    * @brief Convert data from a hex left-aligned string and insert it into this data buffer
    * @param i_hexChars Hex Left-aligned string of data to insert 
-   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
+   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from the right if necessary
    * @param i_start Starting position in data buffer to insert to, 0 by default
    * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
    * @retval ECMD_SUCCESS on success
@@ -1140,7 +1140,7 @@ public:
   /**
    * @brief Convert data from a hex left-aligned string and insert it into this data buffer - and set's buffer length to size of data
    * @param i_hexChars Hex Left-aligned string of data to insert 
-   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
+   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from the right if necessary
    * @param i_start Starting position in data buffer to insert to, 0 by default
    * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
    * @retval ECMD_SUCCESS on success
@@ -1152,7 +1152,7 @@ public:
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer
    * @param i_hexChars Hex Right-aligned string of data to insert
    * @param i_start Starting position in data buffer to insert to, 0 by default
-   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
+   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from the left if necessary
    * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
@@ -1163,7 +1163,7 @@ public:
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer - and set's buffer length to size of data
    * @param i_hexChars Hex Right-aligned string of data to insert
    * @param i_start Starting position in data buffer to insert to, 0 by default
-   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from right if necessary
+   * @param i_length Length of data to insert, defaults to length of i_hexChars, zeroes are padded or data dropped from the left if necessary
    * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-hex chars detected in i_hexChars
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
@@ -1175,7 +1175,7 @@ public:
    * @retval 0 on success- non-zero on failure
    * @param i_binChars String of 0's and 1's to insert 
    * @param i_start Starting position in data buffer to insert to, 0 by default
-   * @param i_length Length of data to insert, defaults to length of i_binChars, zeroes are padded or data dropped from right if necessary
+   * @param i_length Length of data to insert, defaults to length of i_binChars, zeroes are padded or data dropped from the right if necessary
    * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-binary chars detected in i_binChars
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
@@ -1188,7 +1188,7 @@ public:
    * @retval 0 on success- non-zero on failure
    * @param i_binChars String of 0's and 1's to insert 
    * @param i_start Starting position in data buffer to insert to, 0 by default
-   * @param i_length Length of data to insert, defaults to length of i_binChars, zeroes are padded or data dropped from right if necessary
+   * @param i_length Length of data to insert, defaults to length of i_binChars, zeroes are padded or data dropped from the right if necessary
    * @retval ECMD_DBUF_INVALID_DATA_FORMAT if non-binary chars detected in i_binChars
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure

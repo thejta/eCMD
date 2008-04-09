@@ -149,7 +149,7 @@ bool dllIsValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
 bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
-uint32_t dllQuerySelectedConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype, bool i_existMode);
+uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype, bool i_existMode);
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to sort latch entries from the scandef */
@@ -482,14 +482,18 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_errorCode) {
 }
 
 uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
-  return dllQuerySelectedConfigExist(i_target, o_queryData, i_looptype, false);
+  return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, false);
 }
 
-uint32_t dllQuerySelectedExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
-  return dllQuerySelectedConfigExist(i_target, o_queryData, i_looptype, true);
+uint32_t dllQueryConfigSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
+  return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, false);
 }
 
-uint32_t dllQuerySelectedConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype, bool i_existMode) {
+uint32_t dllQueryExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
+  return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, true);
+}
+
+uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype, bool i_existMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
