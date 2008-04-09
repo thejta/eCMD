@@ -363,7 +363,7 @@ std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_
         ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
         first = false;
       }
-      ret = ret + cur->message + "\n";
+      ret = ret + cur->message;
     }
   }
   if (!first) {
