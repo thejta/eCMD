@@ -569,7 +569,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
   } else if (!strcmp(argv[0], "arrays")) {
 
-    std::string isChipUnit = "N";
+    std::string isChipUnit;
     
     std::list<ecmdArrayData> arraydata;
     std::list<ecmdArrayData>::iterator arrayit;
@@ -632,20 +632,20 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
         printed = "";
         printed += arrayit->arrayName;
-	for (size_t i = printed.length(); i <= 30; i++) { 
+	for (size_t i = printed.length(); i <= 29; i++) { 
           printed += " ";
         }
 
         if (arrayit->arrayType == ECMD_ARRAYTYPE_UNKNOWN)
-          printed += "UNKNOWN            ";
+          printed += " UNKNOWN            ";
         else if (arrayit->arrayType == ECMD_ARRAYTYPE_DIRECT_ACCESS)
-          printed += "DIRECT_ACCESS      ";
+          printed += " DIRECT_ACCESS      ";
         else if (arrayit->arrayType == ECMD_ARRAYTYPE_SIMPLE)
-          printed += "SIMPLE             ";
+          printed += " SIMPLE             ";
         else if (arrayit->arrayType == ECMD_ARRAYTYPE_HARDWARE_ASSIST)
-          printed += "HARDWARE_ASSIST    ";
+          printed += " HARDWARE_ASSIST    ";
         else if (arrayit->arrayType == ECMD_ARRAYTYPE_HARDWARE_ASSIST_2)
-          printed += "HARDWARE_ASSIST_2  ";
+          printed += " HARDWARE_ASSIST_2  ";
         else 
           printed += "** ERROR **        ";
 
