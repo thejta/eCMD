@@ -132,6 +132,8 @@ uint32_t ecmdSimTckIntervalUser(int argc, char * argv[]);
 uint32_t ecmdSimUNSTICKUser(int argc, char * argv[]);
 uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]);
+uint32_t ecmdSimGetDialUser(int argc, char * argv[]);
+uint32_t ecmdSimPutDialUser(int argc, char * argv[]);
 #endif  //REMOVE_SIM
 
 /* ecmdProcUser.C */

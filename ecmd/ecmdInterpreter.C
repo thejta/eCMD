@@ -584,6 +584,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
 	} else if (!strcmp(argv[0], "simgethierarchy")) {
           rc = ecmdSimGetHierarchyUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "simgetdial")) {
+          rc = ecmdSimGetDialUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "simputdial")) {
+          rc = ecmdSimPutDialUser(argc - 1, argv + 1);
 #endif // REMOVE_SIM
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 	} else if (!strcmp(argv[0], "startclocks")) {

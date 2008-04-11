@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder     Description                       
@@ -71,7 +65,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   bool expectFlag = false;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   std::string outputformat = "default"; ///< Output format - default to 'enum' if enumerated otherwise 'x'
   std::string inputformat = "default";  ///< Expect data input format
@@ -149,10 +143,10 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::string spyName = argv[1];
   uint32_t startBit = 0x0, numBits = 0x0;
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We are going to enable ring caching to speed up performance */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
@@ -533,7 +527,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
 
 
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   std::string inputformat = "default";  ///< Input data format
   std::string dataModifier = "insert";  ///< Default data modifier
@@ -595,10 +589,10 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We are going to enable ring caching to speed up performance */
     if (!ecmdIsRingCacheEnabled(target)) {

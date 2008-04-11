@@ -1,0 +1,37 @@
+
+Syntax: simputdial <Chip> <DialName> <Data> [-coe] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Write data to a simulation dial.
+                        Your model must have a system figtree database with your dials
+
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+
+        DialName        Desired dial name to read from  
+
+        Data            Data to put into the dial. ASCII string only
+                        You can input data either as an enum or binary string, depending
+                        on what your dial requires
+
+        -coe [optional] Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
+
+        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
+                        to act on all cages.
+
+        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
+                        to act on all nodes.
+
+        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
+                        to act on all slots.
+
+        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
+                        -pall to act on all chips.
+        --------------------------------------------------------------------------------
+
+        Examples:       simputdial pu MYALIAS 0b1000
+                        simputdial pu EVERYOTHER enumvalue -pall
