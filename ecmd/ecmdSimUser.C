@@ -1545,8 +1545,9 @@ uint32_t ecmdSimPutDialUser(int argc, char * argv[]) {
       ecmdOutputError(printed.c_str());
       coeRc = rc;
       continue;
+    } else {
+      validPosFound = true;
     }
-    validPosFound = true;
 
     printed = ecmdWriteTarget(target) + "\n";
     ecmdOutputError(printed.c_str());
@@ -1602,8 +1603,9 @@ uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
       ecmdOutputError(printed.c_str());
       coeRc = rc;
       continue;
+    } else {
+      validPosFound = true;
     }
-    validPosFound = true;
 
     printed = ecmdWriteTarget(target) + " " + value.c_str() + "\n";
     ecmdOutputError(printed.c_str());

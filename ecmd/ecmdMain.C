@@ -169,7 +169,7 @@ int main (int argc, char *argv[])
               sprintf(errorbuf,"ecmd -  Unknown Command specified \n");
             ecmdOutputError(errorbuf);
           } else if (rc) {
-            std::string parse = ecmdGetErrorMsg(rc, false);
+            std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
             if (parse.length() > 0) {
               /* Display the registered message right away BZ#160 */
               ecmdOutput(parse.c_str());
@@ -215,7 +215,7 @@ int main (int argc, char *argv[])
           sprintf(errorbuf,"ecmd - Unknown Command specified \n");
         ecmdOutputError(errorbuf);
       } else if (rc) {
-        std::string parse = ecmdGetErrorMsg(rc, false);
+        std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
         if (parse.length() > 0) {
           /* Display the registered message right away BZ#160 */
           ecmdOutput(parse.c_str());
