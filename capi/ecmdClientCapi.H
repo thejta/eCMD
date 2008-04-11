@@ -3144,20 +3144,20 @@ void simSetFusionMessageFormat ( const char* i_format);
 /**
  @brief Write a simulation dial with specified value
  @param i_dialName Fully qualified dial name
- @param i_enumValue Value to set dial to either enum or numeric (ie 0b11 or 0xFE)
+ @param i_value Value to set dial to either enum or numeric (ie 0b11 or 0xFE)
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t simPutDial(const char* i_dialName, const std::string i_enumValue);
+uint32_t simPutDial(const char* i_dialName, const std::string i_value);
 
 /**
  @brief Read a simulation dial
  @param i_dialName Fully qualified dial name
- @param o_enumValue Value read from model
+ @param o_value Value read from model
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t simGetDial(const char* i_dialName, std::string & o_enumValue);
+uint32_t simGetDial(const char* i_dialName, std::string & o_value);
 
 /**
  @brief Obtain absolute filename of a file that will be placed in the SIMOUT directory of the server / Fusion process and add new file to the bom information in the SUM file

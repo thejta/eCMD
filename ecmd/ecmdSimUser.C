@@ -1506,4 +1506,117 @@ uint32_t ecmdSimOutputFusionMessageUser(int argc, char * argv[]) {
 
 }
 
+uint32_t ecmdSimPutDialUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  std::string printed;                  ///< Output string data
+  bool validPosFound = false;           ///< Did the looper find something?
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (argc != 3) {
+    ecmdOutputError("simputdial - Incorrect arguments to simgetdial.  Run simputdial -h for proper syntax.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    rc = simPutDial(argv[1], argv[2]);
+    if (rc) {
+      printed = "simputdial - Error occured performing simputdial on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError(printed.c_str());
+      coeRc = rc;
+      continue;
+    }
+    validPosFound = true;
+
+    printed = ecmdWriteTarget(target) + "\n";
+    ecmdOutputError(printed.c_str());
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  std::string value;                    ///< The return value
+  std::string printed;                  ///< Output string data
+  bool validPosFound = false;           ///< Did the looper find something?
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (argc != 2) {
+    ecmdOutputError("simgetdial - Incorrect arguments to simgetdial.  Run simgetdial -h for proper syntax.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    rc = simGetDial(argv[1], value);
+    if (rc) {
+      printed = "simgetdial - Error occured performing simgetdial on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError(printed.c_str());
+      coeRc = rc;
+      continue;
+    }
+    validPosFound = true;
+
+    printed = ecmdWriteTarget(target) + " " + value.c_str() + "\n";
+    ecmdOutputError(printed.c_str());
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
 #endif
