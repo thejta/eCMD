@@ -328,7 +328,7 @@ while (<IN>) {
       $printout .= "  if (rc) {\n";
       $printout .= "    std::string errorString;\n";
       $printout .= "    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);\n";
-      $printout .= "    ecmdOutput(errorString.c_str());\n";
+      $printout .= "    if (errorString.size()) ecmdOutput(errorString.c_str());\n";
       $printout .= "  }\n\n";
     }
 

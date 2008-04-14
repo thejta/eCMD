@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 // Get rid of lint errors that will just happen
 /*lint -e611 Get rid of suspicious cast warning */
 
@@ -221,6 +215,12 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   }
 #endif     // strip debug
 
+  if (rc) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
+    ecmdOutput(errorString.c_str());
+  }
+
   return rc;
 }
 
@@ -283,9 +283,14 @@ uint32_t ecmdUnloadDll() {
   }
 #endif
 
+  if (rc) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
+    ecmdOutput(errorString.c_str());
+  }
+
   return rc;
 }
-
 
 
 uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
@@ -380,6 +385,12 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   }
 
 #endif
+
+  if (rc) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
+    ecmdOutput(errorString.c_str());
+  }
 
   return rc;
 }
@@ -528,6 +539,11 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
    }
 #endif
 
-  return rc;
+  if (rc) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
+    ecmdOutput(errorString.c_str());
+  }
 
+  return rc;
 }
