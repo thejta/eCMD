@@ -1786,57 +1786,69 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
 
 /**
  @brief Retrieve additional error information for errorcode
- @param i_errorCode Error code to lookup up message for
+ @param i_returnCode Error code to lookup up message for
  @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
  @param i_deleteMessage If true, the message will be deleted when the user retrieves it.  True is the default.
  @retval String containing the error data, empty of error occurred
 */
-std::string ecmdGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode = true, bool i_deleteMessage = true);
+std::string ecmdGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode = true, bool i_deleteMessage = true);
+
+#ifndef DOCUMENTATION
+/**
+ @brief Retrieve additional error information for errorcode
+ @param i_returnCode Error code to lookup up message for
+ @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
+ @param i_deleteMessage If true, the message will be deleted when the user retrieves it.  True is the default.
+ @param i_messageBorder If true, the return mesage will have a top and bottom border.  True is the default.
+ @retval String containing the error data, empty of error occurred
+*/
+std::string ecmdGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode = true, bool i_deleteMessage = true, bool i_messageBorder = true);
+#endif
 
 /**
  @brief Register an error message that has occured
- @param i_errorCode The error code to store a message for
+ @param i_returnCode The error code to store a message for
  @param i_whom Who is storing the error message
  @param i_message The message to be stored
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message);
+uint32_t ecmdRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const char* i_message);
 
 /**
  @brief Flush registered error message for a specific error code
- @param i_errorCode Error code of the message to erase
+ @param i_returnCode Error code of the message to erase
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdFlushRegisteredErrorMsgs(uint32_t i_errorCode);
+uint32_t ecmdFlushRegisteredErrorMsgs(uint32_t i_returnCode);
 
 /**
  @brief Retrieve the target associated with the errorcode, if there is one
- @param i_errorCode Error code to lookup up message for
+ @param i_returnCode Error code to lookup up message for
  @param o_errorTargets A list of the target associated with the error code, if it exists
  @param i_deleteTarget If true, the target will be deleted when the user retrieves it.  True is the default.
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget = true);
+uint32_t ecmdGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget = true);
 
 /**
  @brief Register a target with an error code
- @param i_errorCode The error code to store a message for
+ @param i_returnCode The error code to store a message for
  @param i_errorTarget The target associated with the error code
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & i_errorTarget);
+uint32_t ecmdRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_errorTarget);
 
 /**
  @brief Flush registered error targets for a specific error code
- @param i_errorCode Error code of the message to erase
+ @param i_returnCode Error code of the message to erase
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdFlushRegisteredErrorTargets(uint32_t i_errorCode);
+uint32_t ecmdFlushRegisteredErrorTargets(uint32_t i_returnCode);
 
 //@}
 

@@ -224,17 +224,19 @@ uint32_t dllQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, e
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
-std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_deleteMessage); 
+std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage); 
 
-uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message); 
+std::string dllGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder); 
 
-uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode); 
+uint32_t dllRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const char* i_message); 
 
-uint32_t dllGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget); 
+uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode); 
 
-uint32_t dllRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & i_errorTarget); 
+uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget); 
 
-uint32_t dllFlushRegisteredErrorTargets(uint32_t i_errorCode); 
+uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_errorTarget); 
+
+uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode); 
 
 void dllOutputError(const char* i_message); 
 
@@ -425,9 +427,9 @@ uint32_t dllSimOutputFusionMessage(const char* i_header,  const char * i_message
 
 void dllSimSetFusionMessageFormat( const char* i_format); 
 
-uint32_t dllSimPutDial(const char* i_dialName, const std::string i_enumValue); 
+uint32_t dllSimPutDial(const char* i_dialName, const std::string i_value); 
 
-uint32_t dllSimGetDial(const char* i_dialName, std::string & o_enumValue); 
+uint32_t dllSimGetDial(const char* i_dialName, std::string & o_value); 
 
 uint32_t dllSimGetOutFile(const char* i_filename, std::string & o_absFilename); 
 

@@ -8,7 +8,7 @@ MAKEFILE_RULES   := y
 
 # The default extensions we will build as part of eCMD if not otherwise specified
 ifeq ($(strip $(EXTENSIONS)),)
-  EXTENSIONS := cro cip gip eip scand zse bml mbo cmd
+  EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd
   export EXTENSIONS
 endif
 

@@ -120,6 +120,7 @@
  #define ECMD_DBUF_XSTATE_NOT_ENABLED            (ECMD_ERR_ECMD | 0x2063) ///< Xstate function called on a buffer that doesn't have xstates enabled
 #endif
 
+#define ECMD_GET_ALL_REMAINING_ERRORS            (ECMD_ERR_ECMD | 0xFFFF) ///< Retrieve all errors from getErrorMsg.  Not to be used.
 
 #endif /* ecmdReturnCodes_h */
 

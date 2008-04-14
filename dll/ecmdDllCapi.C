@@ -84,9 +84,10 @@ struct ecmdLatchHashInfo {
  * @brief Used for storing error messages internally to dll
  */
 struct ecmdErrorMsg {
-  uint32_t errorCode;           ///< Numeric error code- see ecmdReturnCodes.H
+  uint32_t returnCode;          ///< Numeric error code- see ecmdReturnCodes.H
   std::string whom;             ///< Function that registered error
   std::string message;          ///< Message about the error
+  bool accessed;                ///< This message has been accessed
 };
 
 std::list<ecmdErrorMsg> ecmdErrorMsgList;
@@ -95,7 +96,7 @@ std::list<ecmdErrorMsg> ecmdErrorMsgList;
  * @brief Used for storing error messages internally to dll
  */
 struct ecmdErrorTarget {
-  uint32_t errorCode;           ///< Numeric error code- see ecmdReturnCodes.H
+  uint32_t returnCode;          ///< Numeric error code- see ecmdReturnCodes.H
   ecmdChipTarget target;        ///< The target with the error
 };
 
@@ -347,74 +348,81 @@ bool dllQueryVersionGreater(const char* version) {
   if (plmajor <  clmajor) return false;
   if (plmajor >  clmajor) return true;
   if (plminor >= clminor) return true;
+
   return false;
 }
 
+std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage) {
+  return dllGetErrorMsgHidden(i_returnCode, i_parseReturnCode, i_deleteMessage, true);
+}
 
-std::string dllGetErrorMsg(uint32_t i_errorCode, bool i_parseReturnCode, bool i_deleteMessage) {
+std::string dllGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder) {
   std::string ret;
   std::list<ecmdErrorMsg>::iterator cur;
   char tmp[200];
   bool first = true;
 
   for (cur = ecmdErrorMsgList.begin(); cur != ecmdErrorMsgList.end(); cur++) {
-    if (cur->errorCode == i_errorCode) {
-      if (first) {
-        ret  = "====== EXTENDED ERROR MSG : " + (*cur).whom + " ===============\n";
+    if ((cur->returnCode == i_returnCode) || ((i_returnCode == ECMD_GET_ALL_REMAINING_ERRORS) && (!cur->accessed))) {
+      if (first && i_messageBorder) {
+        ret  = "====== EXTENDED ERROR MSG : " + cur->whom + " ===============\n";
         first = false;
       }
       ret = ret + cur->message;
+      cur->accessed = true;
     }
   }
   if (!first) {
     /* We must have found something */
     if (i_parseReturnCode) {
-      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_errorCode,dllParseReturnCodeHidden(i_errorCode).c_str());
+      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_returnCode,dllParseReturnCodeHidden(i_returnCode).c_str());
       ret += tmp;
     }
-    ret += "===================================================\n";
+    if (i_messageBorder) {
+      ret += "===================================================\n";
+    }
   }
 
   /* We want to parse the return code even if we didn't finded extended error info */
   if ((ret.length() == 0) && (i_parseReturnCode)) {
-    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_errorCode, dllParseReturnCodeHidden(i_errorCode).c_str());
+    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_returnCode, dllParseReturnCodeHidden(i_returnCode).c_str());
     ret = tmp;
   }
 
   // Now delete any error messages we retrieved, if the user asked us to
   if (i_deleteMessage) {
     uint32_t flushRc;
-    flushRc = dllFlushRegisteredErrorMsgs(i_errorCode);
+    flushRc = dllFlushRegisteredErrorMsgs(i_returnCode);
     if (flushRc) {
       // Error occurred, must return empty string
-      ret = "";
-      return ret;
+      return "";
     }
   }
 
   return ret;
 }
 
-uint32_t dllRegisterErrorMsg(uint32_t i_errorCode, const char* i_whom, const char* i_message) {
+uint32_t dllRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const char* i_message) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdErrorMsg curError;
-  curError.errorCode = i_errorCode;
+  curError.returnCode = i_returnCode;
   curError.whom = i_whom;
   curError.message = i_message;
+  curError.accessed = false;
 
   ecmdErrorMsgList.push_back(curError);
 
   return rc;
 }
 
-uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode) {
+uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdErrorMsg>::iterator errorIter = ecmdErrorMsgList.begin();
   std::list<ecmdErrorMsg>::iterator deleteIter;
 
   while (errorIter != ecmdErrorMsgList.end()) {
-    if (errorIter->errorCode == i_errorCode) {
+    if (errorIter->returnCode == i_returnCode) {
       deleteIter = errorIter;
       errorIter++; // Walk our iter forward before we delete were we are
       ecmdErrorMsgList.erase(deleteIter);
@@ -427,12 +435,12 @@ uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_errorCode) {
   return rc;
 }
 
-uint32_t dllGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget) {
+uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdErrorTarget>::iterator cur;
 
   for (cur = ecmdErrorTargetList.begin(); cur != ecmdErrorTargetList.end(); cur++) {
-    if (cur->errorCode == i_errorCode) {
+    if (cur->returnCode == i_returnCode) {
       /* The error code matches, push it onto the list */
       o_errorTargets.push_back(cur->target);
     }
@@ -441,7 +449,7 @@ uint32_t dllGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_e
   // Now delete any error messages we retrieved, if the user asked us to
   if (i_deleteTarget) {
     uint32_t flushRc;
-    flushRc = dllFlushRegisteredErrorTargets(i_errorCode);
+    flushRc = dllFlushRegisteredErrorTargets(i_returnCode);
     if (flushRc) {
       return flushRc;
     }
@@ -450,11 +458,11 @@ uint32_t dllGetErrorTarget(uint32_t i_errorCode, std::list<ecmdChipTarget> & o_e
   return rc;
 }
 
-uint32_t dllRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & o_errorTarget) {
+uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & o_errorTarget) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdErrorTarget curError;
-  curError.errorCode = i_errorCode;
+  curError.returnCode = i_returnCode;
   curError.target = o_errorTarget;
 
   ecmdErrorTargetList.push_back(curError);
@@ -462,13 +470,13 @@ uint32_t dllRegisterErrorTarget(uint32_t i_errorCode, ecmdChipTarget & o_errorTa
   return rc;
 }
 
-uint32_t dllFlushRegisteredErrorTargets(uint32_t i_errorCode) {
+uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdErrorTarget>::iterator errorIter = ecmdErrorTargetList.begin();
   std::list<ecmdErrorTarget>::iterator deleteIter;
 
   while (errorIter != ecmdErrorTargetList.end()) {
-    if (errorIter->errorCode == i_errorCode) {
+    if (errorIter->returnCode == i_returnCode) {
       deleteIter = errorIter;
       errorIter++; // Walk our iter forward before we delete were we are
       ecmdErrorTargetList.erase(deleteIter);

@@ -73,6 +73,10 @@
   #include "eipClientPerlapi.H"
   #include "eipClientPerlapiFunc.H"
 #endif
+#ifdef ECMD_AIP_EXTENSION_SUPPORT
+  #include "aipClientPerlapi.H"
+  #include "aipClientPerlapiFunc.H"
+#endif
 #ifdef ECMD_CMD_EXTENSION_SUPPORT
   #include "cmdClientPerlapi.H"
   #include "cmdClientPerlapiFunc.H"
@@ -159,6 +163,11 @@
   %include "eipClientPerlapi.H"
   %include "eipClientPerlapiFunc.H"
   %include "eipStructs.H"
+#endif
+#ifdef ECMD_AIP_EXTENSION_SUPPORT
+  %include "aipClientPerlapi.H"
+  %include "aipClientPerlapiFunc.H"
+  %include "aipStructs.H"
 #endif
 #ifdef ECMD_CMD_EXTENSION_SUPPORT
   %include "cmdClientPerlapi.H"
