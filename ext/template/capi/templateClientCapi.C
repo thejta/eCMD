@@ -2,10 +2,6 @@
 /* DO NOT EDIT THISFILE (unless you are editing the temp-late */
 
 
-
-
-
-
 // Copyright ***********************************************************
 //                                                                      
 // File templateClientCapi.C                                   
@@ -114,6 +110,12 @@ uint32_t templateInitExtension() {
 
   /* Now as part of defect 18081 we register to the core client that we have been initialized */
   ecmdRegisterExtensionInitState(&templateInitialized);
+
+  if (rc) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
 
   return rc;
 }
