@@ -218,7 +218,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
   if (rc) {
     std::string errorString;
     errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
-    ecmdOutput(errorString.c_str());
+    if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
   return rc;
@@ -286,7 +286,7 @@ uint32_t ecmdUnloadDll() {
   if (rc) {
     std::string errorString;
     errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
-    ecmdOutput(errorString.c_str());
+    if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
   return rc;
@@ -389,7 +389,7 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   if (rc) {
     std::string errorString;
     errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
-    ecmdOutput(errorString.c_str());
+    if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
   return rc;
@@ -542,7 +542,7 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
   if (rc) {
     std::string errorString;
     errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
-    ecmdOutput(errorString.c_str());
+    if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
   return rc;
