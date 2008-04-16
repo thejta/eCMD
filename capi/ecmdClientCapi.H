@@ -3361,7 +3361,6 @@ Include files :
 <li> Library : gipClientCapi_aix.a / gipClientCapi_x86.a</li>
 </ul>
 
-
 @subsection cronus Cronus Extension
 This extensions provides Cronus only interfaces.<br>
 Include files :
@@ -3378,6 +3377,24 @@ Include files :
 <li> zseClientCapi.H</li>
 <li> zseStructs.H</li>
 <li> Library : zseClientCapi_aix.a / zseClientCapi_x86.a</li>
+</ul>
+
+@subsection eip EIP (Eclipz I/P) Extension
+This extensions provides Eclipz only interfaces.<br>
+Include files :
+<ul>
+<li> eipClientCapi.H</li>
+<li> eipStructs.H</li>
+<li> Library : eipClientCapi_aix.a / eipClientCapi_x86.a</li>
+</ul>
+
+@subsection aip AIP (Apollo I/P) Extension
+This extensions provides Apollo only interfaces.<br>
+Include files :
+<ul>
+<li> aipClientCapi.H</li>
+<li> aipStructs.H</li>
+<li> Library : aipClientCapi_aix.a / aipClientCapi_x86.a</li>
 </ul>
 
 @subsection bml BML Extension
