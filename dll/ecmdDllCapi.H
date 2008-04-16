@@ -250,6 +250,8 @@ uint32_t dllPutGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmd
 
 uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
 
+void dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value); 
+
 void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable); 
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type); 
