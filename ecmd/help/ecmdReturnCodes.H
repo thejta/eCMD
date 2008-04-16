@@ -89,12 +89,14 @@
 #define ECMD_CHIP_UNKNOWN_FOR_MAPPING           (ECMD_ERR_ECMD | 0x1067) ///< Chip type did not map to a known EDC table
 #define ECMD_INVALID_GP_REGISTER                (ECMD_ERR_ECMD | 0x1069) ///< Invalid GP Register was provided
 #define ECMD_INVALID_SCOM                       (ECMD_ERR_ECMD | 0x106B) ///< Invalid SCOM Register was provided
-#define ECMD_RING_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106D) ///< Ring provided was not found
-#define ECMD_SCOM_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106F) ///< Scom provided was not found
-#define ECMD_ARRAY_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1071) ///< Array provided was not found
-#define ECMD_TRACEARRAY_NOT_FOUND               (ECMD_ERR_ECMD | 0x1073) ///< Trace Array provided was not found
-#define ECMD_CFAMREG_NOT_FOUND                  (ECMD_ERR_ECMD | 0x1075) ///< Cfam Register provided was not found
-#define ECMD_GPREG_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1077) ///< GP Register provided was not found
+#define ECMD_RING_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106D) ///< Ring requested was not found
+#define ECMD_SCOM_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106F) ///< Scom requested was not found
+#define ECMD_ARRAY_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1071) ///< Array requested was not found
+#define ECMD_TRACEARRAY_NOT_FOUND               (ECMD_ERR_ECMD | 0x1073) ///< Trace Array requested was not found
+#define ECMD_CFAMREG_NOT_FOUND                  (ECMD_ERR_ECMD | 0x1075) ///< Cfam Register requested was not found
+#define ECMD_GPREG_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1077) ///< GP Register requested was not found
+#define ECMD_SPY_NOT_FOUND                      (ECMD_ERR_ECMD | 0x1079) ///< Spy requested was not found
+#define ECMD_IRSTAT_NOT_FOUND                   (ECMD_ERR_ECMD | 0x107B) ///< IRSTAT requested was not found
 
 
 /* Return codes for command interpreter */
