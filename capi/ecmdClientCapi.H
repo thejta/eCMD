@@ -1930,6 +1930,13 @@ uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDat
 */
 uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
 
+/**
+ @brief Set the value of some ecmdGlobalVars
+ @param i_type Specifies which global var you are looking for
+ @param i_value Value of global var
+
+*/
+void ecmdSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value);
 
 /**
  @brief Enable/Disable a trace mode

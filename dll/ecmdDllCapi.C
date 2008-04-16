@@ -206,6 +206,9 @@ uint32_t ecmdGlobal_DllDebug = 0;
 /* @brief This is a global var set by -quiet */
 uint32_t ecmdGlobal_quiet = 0;
 
+/* @brief This is a global error var set by -quieterror */
+uint32_t ecmdGlobal_quietError = 0;
+
 /* @brief This is a global var set by -coe */
 uint32_t ecmdGlobal_continueOnError = 0;
 
@@ -1079,6 +1082,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdGlobal_quiet = 1;
   }
 
+  if (ecmdParseOption(io_argc, io_argv, "-quieterror")) {
+    ecmdGlobal_quietError = 1;
+  }
+
   /* Grab the coe mode flag */
   if (ecmdParseOption(io_argc, io_argv, "-coe")) {
     ecmdGlobal_continueOnError = 1;
@@ -1282,12 +1289,30 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
 #endif
   } else if (i_type == ECMD_GLOBALVAR_QUIETMODE) {
     ret = ecmdGlobal_quiet;
-  
+  } else if (i_type == ECMD_GLOBALVAR_QUIETERRORMODE) {
+    ret = ecmdGlobal_quietError;
   } else if (i_type == ECMD_GLOBALVAR_COEMODE) {   // hjhcoe
     ret = ecmdGlobal_continueOnError;
   }
 
   return ret;
+}
+
+void dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
+
+  if (i_type == ECMD_GLOBALVAR_DEBUG) {
+#ifndef ECMD_STRIP_DEBUG
+    ecmdGlobal_DllDebug = i_value;
+#endif
+  } else if (i_type == ECMD_GLOBALVAR_QUIETMODE) {
+    ecmdGlobal_quiet = i_value;
+  } else if (i_type == ECMD_GLOBALVAR_QUIETERRORMODE) {
+    ecmdGlobal_quietError = i_value;
+  } else if (i_type == ECMD_GLOBALVAR_COEMODE) {
+    ecmdGlobal_continueOnError = i_value;
+  }
+
+  return;
 }
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
