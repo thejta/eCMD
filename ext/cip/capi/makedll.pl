@@ -36,7 +36,7 @@ my $ignore_exceptions_re = join '|', @ignore_exceptions;
 # Removed no_gen because it is an empty list now.  If things need to be re-added, uncomment the below two lines
 # and the 3rd $no_gen_re line further down in the script - JTA 10/17/06
 # Readded because it was needed - JTA 09/04/2007
-my @no_gen = qw(ecmdDisableRingCache);
+my @no_gen = qw(ecmdDisableRingCache ecmdGetGlobalVar);
 my $no_gen_re = join '|', @no_gen;
 
 # These are functions that we want to check ring cache on.  If not added here, a function won't have ring cache checks
