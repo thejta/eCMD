@@ -1,5 +1,5 @@
 
-Syntax: simSUBCMD <command>
+Syntax: simSUBCMD "<command>"
         
         ECMD:           Core Common Function
 
@@ -8,7 +8,7 @@ Syntax: simSUBCMD <command>
         Parameters:
         --------------------------------------------------------------------------------
         command         rtx command to run
-
+                        Place command in ""'s to avoid it being parsed.
         --------------------------------------------------------------------------------
 
-        Example:        simSUBCMD run left
+        Example:        simSUBCMD "run left"
