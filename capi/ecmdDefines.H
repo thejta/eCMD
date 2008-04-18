@@ -52,6 +52,8 @@
 /* Used to enable mpatrol memory debugging */
 //#define ENABLE_MPATROL
 
+/* Used to enable calling MCP functions directly */
+//#define ECMD_USE_MCP
 
 /*************************************************************************/
 /*  These Compile Flags are used to remove functions from Common Code    */

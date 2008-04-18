@@ -36,6 +36,21 @@
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 
+// For Calling Hashing Algorithm in MCP: static inline u32 jhash(const void *key, u32 length, u32 initval)
+#ifdef ECMD_USE_MCP
+#include <stdio.h>
+
+// Needed for jhash() call
+#include <sys/types.h>
+typedef u_int32_t u32 ;
+typedef u_int8_t u8 ;
+
+#define void u8
+#include <linux/jhash.h>
+#undef void
+#endif // ECMD_USE_MCP
+
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -222,6 +237,11 @@ std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen) {
 
 uint32_t ecmdHashString32(const char *k, uint32_t c)
 {
+#ifdef ECMD_USE_MCP
+// Call MCP's jhash() function directly 
+return jhash((const u8*)k, strlen(k), c);
+#endif // ECMD_USE_MCP
+
     uint32_t length;
     register uint32_t a,b,len;
 
