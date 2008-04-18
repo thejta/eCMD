@@ -8,6 +8,10 @@ use Cwd 'chdir';
 # Figure out where the user is calling this script from
 #
 
+# return value
+my $rc 
+
+
 # Meghna needs me to save away the directory the script was called from, I'll do that here
 my $callingPwd;
 #Commenting this since this seems to be resolving the links in the path
@@ -108,7 +112,7 @@ my @ctepaths = ("/afs/rchland(|\.ibm\.com)/rel/common/cte",
 if ("@ARGV" =~ /-h/) {
   help();
   if ($croUse) { $cro->help(); }
-  exit;
+  exit(1);
 }
 
 ##########################################################################
@@ -148,7 +152,7 @@ if ($shell eq "ksh") {
 } elsif ($shell eq "csh") {
 } else {
   printf("echo Your shell is unsupported\\!;");
-  exit;
+  exit(1);
 }
 
 ##########################################################################
@@ -164,7 +168,7 @@ $release = shift(@ARGV);
 if ($release eq ".") {
   if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
     printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously\\!;");
-    exit;
+    exit(1);
   } else {
     $shortcut = 1;
   }
@@ -179,7 +183,7 @@ if ($release ne "auto" && !$localInstall) {
   $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
   if (!(-d $temp)) {
     printf("echo The eCMD release '$release' you specified is not known\\!;");
-    exit;
+    exit(1);
   }
 }
 
@@ -197,7 +201,7 @@ if ($plugin eq "cro" && $croUse) {
 } elsif ($plugin eq "mbo" && $mboUse) {
 } else {
   printf("echo The eCMD plugin '$plugin' you specified is not known\\!;");
-  exit;
+  exit(1);
 }
 
 
@@ -260,7 +264,7 @@ $modified{"PATH"} = 1;
 
 # Only do this if the plugin has changed from last time
 if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
-  if ($croUse) { $cro->cleanup(\%modified); }
+  if ($croUse) { $cro->cleanup(\%modified);}                 
   if ($scandUse) { $scand->cleanup(\%modified, $release); }
   if ($gipUse) { $gip->cleanup(\%modified); }
   if ($mboUse) { $mbo->cleanup(\%modified, $localInstall, $installPath); }
@@ -288,7 +292,8 @@ if ($cleanup) {
 #
 if (!$cleanup) {
   if ($plugin eq "cro" && $croUse) {
-    $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
+    my $rc = $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
+    if ($rc) exit($rc);
   }
   if ($plugin eq "scand" && $scandUse) {
     $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
