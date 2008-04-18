@@ -1,6 +1,6 @@
 #ifndef ecmdDefines_H 
 #define ecmdDefines_H
-
+/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdDefines.H                                               
@@ -16,8 +16,6 @@
 //                                                                      
 // End Copyright ******************************************************
 
-/* $Header$ */
-
 /**
  * @file ecmdDefines.H
  * @brief Provides a common place for all compiletime defines
@@ -26,7 +24,7 @@
 */
 
 
-/* Incluse this file to determine which extensions are defined */
+/* Include this file to determine which extensions are defined */
 /* This WILL NOT be done in the common code */
 //#include <ecmdPluginExtensionSupport.H>
 
