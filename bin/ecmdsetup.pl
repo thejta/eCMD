@@ -9,7 +9,7 @@ use Cwd 'chdir';
 #
 
 # return value
-my $rc 
+my $rc = 0;
 
 
 # Meghna needs me to save away the directory the script was called from, I'll do that here
@@ -264,10 +264,30 @@ $modified{"PATH"} = 1;
 
 # Only do this if the plugin has changed from last time
 if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
-  if ($croUse) { $cro->cleanup(\%modified);}                 
-  if ($scandUse) { $scand->cleanup(\%modified, $release); }
-  if ($gipUse) { $gip->cleanup(\%modified); }
-  if ($mboUse) { $mbo->cleanup(\%modified, $localInstall, $installPath); }
+  if ($croUse) {
+    $rc =$cro->cleanup(\%modified);
+    if ($rc) {
+      exit($rc);
+    }
+  }                 
+  if ($scandUse) {
+    $rc = $scand->cleanup(\%modified, $release);
+    if ($rc) {
+      exit($rc);
+    }
+  }
+  if ($gipUse) {
+    $rc = $gip->cleanup(\%modified);
+    if ($rc) {
+      exit($rc);
+    }
+  }
+  if ($mboUse) {
+    $rc = $mbo->cleanup(\%modified, $localInstall, $installPath);
+    if ($rc) {
+      exit($rc);
+    }
+  }
 }
 
 ##########################################################################
@@ -292,17 +312,28 @@ if ($cleanup) {
 #
 if (!$cleanup) {
   if ($plugin eq "cro" && $croUse) {
-    my $rc = $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
-    if ($rc) exit($rc);
+    $rc = $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
+    if ($rc) {
+      exit($rc);
+    }
   }
   if ($plugin eq "scand" && $scandUse) {
-    $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
+    $rc = $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
+    if ($rc) {
+      exit($rc);
+    }
   }
   if ($plugin eq "gip" && $gipUse) {
-    $gip->setup(\%modified, $localInstall, $product, @ARGV);
+    $rc = $gip->setup(\%modified, $localInstall, $product, @ARGV);
+    if ($rc) {
+      exit($rc);
+    }
   }
   if ($plugin eq "mbo" && $mboUse) {
-    $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
+    $rc = $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
+    if ($rc) {
+      exit($rc);
+    }
   }
 }
 
