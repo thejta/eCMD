@@ -36,7 +36,7 @@
 
 int main (int argc, char *argv[])
 {
-  uint32_t rc = 0;
+  uint32_t rc = ECMD_SUCCESS;
 
   std::string cmdSave;
   char errorbuf[200];
@@ -51,9 +51,8 @@ int main (int argc, char *argv[])
     ecmdLoadDllRecovery(cmdSave, rc);
   }
 
-  // By default, quieterror mode is on.  This means no errors are printing in the dll wrapper code
-  // For the command line, turn off quiet error mode so those errors will be reported
-  // In the ecmdLoadDll routine above, the plugin could have also set this mode to their preference
+  // By default, quiet error mode is on.  This means no errors are printing in the dll wrapper code
+  // For the command line, turn off quiet error mode so those errors will be reported as the plugin call returns
   rc = ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE, 0);
   if (rc) return rc;
 
@@ -237,7 +236,8 @@ int main (int argc, char *argv[])
     }
 
 
-    ecmdUnloadDll();
+    rc = ecmdUnloadDll();
+    if (rc) return rc;
   }
 
   return rc;
