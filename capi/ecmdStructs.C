@@ -1,3 +1,21 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips340 src/ecmd/import/ecmdStructs.C 1.34.1.13 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// (C) COPYRIGHT International Business Machines Corp. 2004,2008 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdStructs.C                                   
@@ -159,7 +177,7 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		tmpTarget.node	  = htonl(node);
 		tmpTarget.slot	  = htonl(slot);
 		tmpTarget.pos	   = htonl(pos);
-		tmpTarget.core	  = core;
+		tmpTarget.chipUnitNum  = chipUnitNum; // union with core
 		tmpTarget.thread	= thread;
 		tmpTarget.unitId	= htonl(unitId);
 		tmpTarget.cageState     = (ecmdChipTargetState_t) htonl((uint32_t)cageState);
@@ -167,10 +185,12 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		tmpTarget.slotState     = (ecmdChipTargetState_t) htonl((uint32_t)slotState);
 		tmpTarget.chipTypeState = (ecmdChipTargetState_t) htonl((uint32_t)chipTypeState);
 		tmpTarget.posState      = (ecmdChipTargetState_t) htonl((uint32_t)posState);
-		tmpTarget.coreState     = (ecmdChipTargetState_t) htonl((uint32_t)coreState);
-		tmpTarget.threadState   = (ecmdChipTargetState_t) htonl((uint32_t)threadState);
+		tmpTarget.chipUnitNumState = (ecmdChipTargetState_t) htonl((uint32_t)chipUnitNumState); // union with coreState
+        tmpTarget.chipUnitTypeState     = (ecmdChipTargetState_t) htonl((uint32_t)chipUnitTypeState);
+ 		tmpTarget.threadState   = (ecmdChipTargetState_t) htonl((uint32_t)threadState);
 		tmpTarget.unitIdState   = (ecmdChipTargetState_t) htonl((uint32_t)unitIdState);
 		tmpTarget.chipType	= chipType;
+        tmpTarget.chipUnitType  = chipUnitType;
 
 		// Now copy everything to the output buffer.
 		memcpy(l_ptr, &(tmpTarget.cage), sizeof(tmpTarget.cage));
@@ -189,9 +209,9 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		l_ptr += sizeof(tmpTarget.pos);
 		l_len -= sizeof(tmpTarget.pos);
 
-		memcpy(l_ptr, &(tmpTarget.core), sizeof(tmpTarget.core));
-		l_ptr += sizeof(tmpTarget.core);
-		l_len -= sizeof(tmpTarget.core);
+		memcpy(l_ptr, &(tmpTarget.chipUnitNum), sizeof(tmpTarget.chipUnitNum));  // union with core
+		l_ptr += sizeof(tmpTarget.chipUnitNum);
+		l_len -= sizeof(tmpTarget.chipUnitNum);
 
 		memcpy(l_ptr, &(tmpTarget.thread), sizeof(tmpTarget.thread));
 		l_ptr += sizeof(tmpTarget.thread);
@@ -232,10 +252,16 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		l_len -= sizeof(tmpTarget.posState);
 
 		memcpy(l_ptr, 
-		       &(tmpTarget.coreState), 
-		       sizeof(tmpTarget.coreState));
-		l_ptr += sizeof(tmpTarget.coreState);
-		l_len -= sizeof(tmpTarget.coreState);
+		       &(tmpTarget.chipUnitNumState), // union with coreState
+		       sizeof(tmpTarget.chipUnitNumState));
+		l_ptr += sizeof(tmpTarget.chipUnitNumState);
+		l_len -= sizeof(tmpTarget.chipUnitNumState);
+
+        memcpy(l_ptr,
+               &(tmpTarget.chipUnitTypeState),
+               sizeof(tmpTarget.chipUnitTypeState));
+        l_ptr += sizeof(tmpTarget.chipUnitTypeState);
+        l_len -= sizeof(tmpTarget.chipUnitTypeState);
 
 		memcpy(l_ptr, 
 		       &(tmpTarget.threadState), 
@@ -255,6 +281,12 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		l_ptr += tmpTarget.chipType.size() + 1;
 		l_len -= tmpTarget.chipType.size() +1;
 
+       memcpy(l_ptr,
+               tmpTarget.chipUnitType.c_str(),
+               tmpTarget.chipUnitType.size() + 1);  // +1 for sizeof NULL.
+        l_ptr += tmpTarget.chipUnitType.size() + 1;
+        l_len -= tmpTarget.chipUnitType.size() +1;
+
 	} while (0);	// Single exit point.
 
 	return rc; 
@@ -272,7 +304,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 			      + sizeof(node)
 			      + sizeof(slot)
 			      + sizeof(pos)
-			      + sizeof(core)
+			      + sizeof(chipUnitNum) // union with core
 			      + sizeof(thread)
 			      + sizeof(unitId)
 			      + sizeof(cageState)
@@ -280,16 +312,18 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 			      + sizeof(slotState)
 			      + sizeof(chipTypeState)
 			      + sizeof(posState)
-			      + sizeof(coreState)
-			      + sizeof(threadState)
+			      + sizeof(chipUnitNumState) // union with coreState
+                  + sizeof(chipUnitTypeState)
+ 			      + sizeof(threadState)
 			      + sizeof(unitIdState);
 
-	const char *l_chipTypePtr = (char *)(l_ptr += l_byteCount);
+	const char *l_chipTypePtr = (char *)(l_ptr + l_byteCount);
+    const char *l_chipUnitTypePtr = (char*)(l_ptr + (l_byteCount + strlen(l_chipTypePtr) + 1));
 	
 	l_ptr = (uint8_t *)i_buf;
 	// Finish calculating the size of the structure to be built.
 	l_byteCount += (strlen(l_chipTypePtr) + 1);  // +1 for NULL terminator.
-
+    l_byteCount += (strlen(l_chipUnitTypePtr) + 1);  // +1 for NULL terminator.
 	do {	// Single entry ->
 
 		if (l_byteCount > i_len) {
@@ -323,9 +357,9 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 		l_ptr += sizeof(pos);
 		l_len -= sizeof(pos);
 
-		memcpy(&core, l_ptr, sizeof(core));
-		l_ptr += sizeof(core);
-		l_len -= sizeof(core);
+		memcpy(&chipUnitNum, l_ptr, sizeof(chipUnitNum)); // union with core
+		l_ptr += sizeof(chipUnitNum);
+		l_len -= sizeof(chipUnitNum);
 
 		memcpy(&thread, l_ptr, sizeof(thread));
 		l_ptr += sizeof(thread);
@@ -362,10 +396,15 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 		l_ptr += sizeof((uint32_t) posState);
 		l_len -= sizeof((uint32_t) posState);
 
-		memcpy(&coreState, l_ptr, sizeof(coreState));
-		coreState = (ecmdChipTargetState_t) ntohl((uint32_t) coreState);
-		l_ptr += sizeof((uint32_t) coreState);
-		l_len -= sizeof((uint32_t) coreState);
+		memcpy(&chipUnitNumState, l_ptr, sizeof(chipUnitNumState));  // union with coreState
+		chipUnitNumState = (ecmdChipTargetState_t) ntohl((uint32_t) chipUnitNumState);
+		l_ptr += sizeof((uint32_t) chipUnitNumState);
+		l_len -= sizeof((uint32_t) chipUnitNumState);
+
+        memcpy(&chipUnitTypeState, l_ptr, sizeof(chipUnitTypeState));
+        chipUnitTypeState = (ecmdChipTargetState_t) ntohl((uint32_t) chipUnitTypeState);
+        l_ptr += sizeof((uint32_t) chipUnitTypeState);
+        l_len -= sizeof((uint32_t) chipUnitTypeState);
 
 		memcpy(&threadState, l_ptr, sizeof(threadState));
 		threadState = (ecmdChipTargetState_t) ntohl(
@@ -380,7 +419,11 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 		l_len -= sizeof((uint32_t) unitIdState);
 
 		chipType = (char *) l_ptr;
+        l_ptr += (chipType.size() + 1);
 		l_len -= (chipType.size() + 1);
+
+        chipUnitType = (char *) l_ptr;
+        l_len -= (chipUnitType.size() + 1);
 
 		// Check for buffer underflow conditions.
 		if (l_len > 0) {
@@ -405,7 +448,7 @@ uint32_t ecmdChipTarget::flattenSize() const {
 		+ sizeof(node)
 		+ sizeof(slot)
 		+ sizeof(pos)
-		+ sizeof(core)
+		+ sizeof(chipUnitNum) // union with core
 		+ sizeof(thread)
 		+ sizeof(unitId)
 		+ sizeof(cageState)
@@ -413,10 +456,12 @@ uint32_t ecmdChipTarget::flattenSize() const {
 		+ sizeof(slotState)
 		+ sizeof(chipTypeState)
 		+ sizeof(posState)
-		+ sizeof(coreState)
+		+ sizeof(chipUnitNumState) // union with coreState
+        + sizeof(chipUnitTypeState)
 		+ sizeof(threadState)
 		+ sizeof(unitIdState)
-		+ (chipType.size() + 1));
+		+ (chipType.size() + 1)
+        + (chipUnitType.size() + 1));
 }
 
 #ifndef REMOVE_SIM
@@ -427,7 +472,7 @@ void ecmdChipTarget::printStruct() const {
 	printf("\tNode: %d\n", node);
 	printf("\tSlot: %d\n", slot);
 	printf("\tPosition: %d\n", pos);
-	printf("\tCore: %d\n", core);
+	printf("\tChipUnitNum (core): %d\n", chipUnitNum);
 	printf("\tThread: %d\n", thread);
 	printf("\tUnitId: %d\n", unitId);
 	printf("\tCage state: 0x%08x\n", (uint32_t) cageState);
@@ -435,10 +480,12 @@ void ecmdChipTarget::printStruct() const {
 	printf("\tSlot state: 0x%08x\n", (uint32_t) slotState);
 	printf("\tChip Type state: 0x%08x\n", (uint32_t) chipTypeState);
 	printf("\tPosition state: 0x%08x\n", (uint32_t) posState);
-	printf("\tCore state: 0x%08x\n", (uint32_t) coreState);
+	printf("\tChipUnitNum (core) state: 0x%08x\n", (uint32_t) chipUnitNumState);
+    printf("\tChipUnitType state: 0x%08x\n", (uint32_t) chipUnitTypeState);
 	printf("\tThread state: 0x%08x\n", (uint32_t) threadState);
 	printf("\tUnit ID state: 0x%08x\n", (uint32_t) unitIdState);
 	printf("\tChip Type: %s\n", chipType.c_str());
+    printf("\tChipUnit Type: %s\n", chipUnitType.c_str());
 }
 #endif
 
@@ -618,7 +665,7 @@ uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) {
     std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
 
 
-
+    
     do {    // Single entry ->
         // Check for buffer overflow conditions.
         if (this->flattenSize() > i_len) {
@@ -836,7 +883,7 @@ uint32_t ecmdChipUnitData::flattenSize() {
          * number of structures in its list.  So...
          * 
          * Add one for the coreData list counter.
-                         */
+         */
         flatSize += sizeof(uint32_t);
         // If the coreData list does not contain any structs break out.
 
@@ -2368,7 +2415,7 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
         memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
         l_ptr += sizeof(tmpData32);
         i_len -= sizeof(tmpData32);
-
+        
         //relatedChipUnit     
         memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
         l_ptr += relatedChipUnit.size() + 1;
@@ -5052,7 +5099,7 @@ uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
          l_rc = ECMD_DATA_OVERFLOW;
          break;
       }
-
+      
       l_temp32 = htonl(bitLength);//@0b
       memcpy(l_ptr, &l_temp32, sizeof(bitLength));//@0b
       l_ptr += sizeof(bitLength);
