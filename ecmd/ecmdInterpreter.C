@@ -52,6 +52,10 @@
  #include <eipClientCapi.H>
  #include <eipInterpreter.H>
 #endif
+#ifdef ECMD_AIP_EXTENSION_SUPPORT
+ #include <aipClientCapi.H>
+ #include <aipInterpreter.H>
+#endif
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
  #include <gipClientCapi.H>
  #include <gipInterpreter.H>
@@ -132,6 +136,16 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     rc = eipInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = eipCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_AIP_EXTENSION_SUPPORT
+  /* Apollo IP Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("aip",argv[0],3))) {
+    rc = aipInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = aipCommandInterpreter(argc, argv);
     }
   }
 #endif
