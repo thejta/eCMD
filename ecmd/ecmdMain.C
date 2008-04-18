@@ -13,11 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
 /**
  @file ecmdMain.C
  @brief Main Program entry point for ecmdDllClient Application
@@ -56,6 +51,12 @@ int main (int argc, char *argv[])
     ecmdLoadDllRecovery(cmdSave, rc);
   }
 
+  // By default, quieterror mode is on.  This means no errors are printing in the dll wrapper code
+  // For the command line, turn off quiet error mode so those errors will be reported
+  // In the ecmdLoadDll routine above, the plugin could have also set this mode to their preference
+  rc = ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE, 0);
+  if (rc) return rc;
+
   if (rc == ECMD_SUCCESS) {
     /* Check to see if we are using stdin to pass in multiple commands */
     bool shellMode = ecmdParseOption(&argc, &argv, "-shell");
@@ -64,12 +65,12 @@ int main (int argc, char *argv[])
 
       /* Grab any other args that may be there */
       rc = ecmdCommandArgs(&argc, &argv);
-      if (rc) exit((int)rc);
+      if (rc) return rc;
 
       /* There shouldn't be any more args when doing a -stdin/-shell */
       if (argc > 1) {
         ecmdOutputError("ecmd - Invalid args passed to ecmd in -stdin/-shell mode\n");
-        exit(ECMD_INVALID_ARGS);
+        return ECMD_INVALID_ARGS;
       }
 
       /* Let's get things going */
@@ -239,7 +240,7 @@ int main (int argc, char *argv[])
     ecmdUnloadDll();
   }
 
-  exit((int)rc);
+  return rc;
 }
 
 

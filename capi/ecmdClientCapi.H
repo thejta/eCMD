@@ -1934,9 +1934,10 @@ uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type);
  @brief Set the value of some ecmdGlobalVars
  @param i_type Specifies which global var you are looking for
  @param i_value Value of global var
+ @retval non-zero on failure
 
 */
-void ecmdSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value);
+uint32_t ecmdSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value);
 
 /**
  @brief Enable/Disable a trace mode
