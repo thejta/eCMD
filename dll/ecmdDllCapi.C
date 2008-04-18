@@ -207,7 +207,7 @@ uint32_t ecmdGlobal_DllDebug = 0;
 uint32_t ecmdGlobal_quiet = 0;
 
 /* @brief This is a global error var set by -quieterror */
-uint32_t ecmdGlobal_quietError = 0;
+uint32_t ecmdGlobal_quietError = 1;
 
 /* @brief This is a global var set by -coe */
 uint32_t ecmdGlobal_continueOnError = 0;
@@ -1298,7 +1298,9 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
   return ret;
 }
 
-void dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
+uint32_t dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
+
+  uint32_t rc = ECMD_SUCCESS;
 
   if (i_type == ECMD_GLOBALVAR_DEBUG) {
 #ifndef ECMD_STRIP_DEBUG
@@ -1310,9 +1312,11 @@ void dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
     ecmdGlobal_quietError = i_value;
   } else if (i_type == ECMD_GLOBALVAR_COEMODE) {
     ecmdGlobal_continueOnError = i_value;
+  } else {
+    return ECMD_INVALID_ARGS;
   }
 
-  return;
+  return rc;
 }
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
