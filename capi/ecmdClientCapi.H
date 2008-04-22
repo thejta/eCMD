@@ -3342,7 +3342,7 @@ These are extensions to the core eCMD interface, not all eCMD Plugins support th
 To use an eCMD extension you will need to link in the appropriate library, see the example Makefiles under 'Use eCMD' for help.<br>
 
 @subsection cmd CMD Command line Extension
-This extensions provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
+This extension provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
 
 Include files :
 <ul>
@@ -3352,7 +3352,7 @@ Include files :
 </ul>
 
 @subsection cip CIP (Cronus/IP) Extension
-This extensions provides interfaces to start/stop processor instructions and breakpoint handling.<br>
+This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
 Include files :
 <ul>
 <li> cipClientCapi.H</li>
@@ -3361,7 +3361,7 @@ Include files :
 </ul>
 
 @subsection gip GIP GFW IP-Series Extension
-This extensions provides IP Series GFW only interfaces.<br>
+This extension provides IP Series GFW only interfaces.<br>
 Include files :
 <ul>
 <li> gipClientCapi.H</li>
@@ -3370,7 +3370,7 @@ Include files :
 </ul>
 
 @subsection cronus Cronus Extension
-This extensions provides Cronus only interfaces.<br>
+This extension provides Cronus only interfaces.<br>
 Include files :
 <ul>
 <li> croClientCapi.H</li>
@@ -3379,7 +3379,7 @@ Include files :
 </ul>
 
 @subsection zse Z Series Extension
-This extensions provides Z-Series only interfaces.<br>
+This extension provides Z-Series only interfaces.<br>
 Include files :
 <ul>
 <li> zseClientCapi.H</li>
@@ -3388,7 +3388,7 @@ Include files :
 </ul>
 
 @subsection eip EIP (Eclipz I/P) Extension
-This extensions provides Eclipz only interfaces.<br>
+This extension provides Eclipz only interfaces.<br>
 Include files :
 <ul>
 <li> eipClientCapi.H</li>
@@ -3397,7 +3397,7 @@ Include files :
 </ul>
 
 @subsection aip AIP (Apollo I/P) Extension
-This extensions provides Apollo only interfaces.<br>
+This extension provides Apollo only interfaces.<br>
 Include files :
 <ul>
 <li> aipClientCapi.H</li>
@@ -3406,7 +3406,7 @@ Include files :
 </ul>
 
 @subsection bml BML Extension
-This extensions provides BML only interfaces and is only available running eCMD in a BML environment.<br>
+This extension provides BML only interfaces and is only available running eCMD in a BML environment.<br>
 Include files :
 <ul>
 <li> bmlClientCapi.H</li>
@@ -3415,7 +3415,7 @@ Include files :
 </ul>
 
 @subsection mbo MBO (Mambo) Extension
-This extensions provides Mambo Simulator only interfaces.<br>
+This extension provides Mambo Simulator only interfaces.<br>
 Include files :
 <ul>
 <li> mboClientCapi.H</li>
