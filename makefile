@@ -257,11 +257,11 @@ ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@cp -R plugins/ ${INSTALL_PATH}/.
 	@rm -r `find ${INSTALL_PATH}/plugins/* -type d -name CVS`
 	@echo " "
-endif
 
 	@echo "Copying over setup perl modules ..."
-	@find plugins/ -type f -name "*setup.pm" -exec cp {} bin/. \;
+	@find ${INSTALL_PATH}/plugins/ -type f -name "*setup.pm" -exec cp {} ${INSTALL_PATH}/bin/. \;
 	@echo " "
+endif
 
 # Do final cleanup things such as fixing permissions
 install_finish: install_setup ${BUILD_TARGETS}
