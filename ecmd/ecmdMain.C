@@ -51,12 +51,13 @@ int main (int argc, char *argv[])
     ecmdLoadDllRecovery(cmdSave, rc);
   }
 
-  // By default, quiet error mode is on.  This means no errors are printing in the dll wrapper code
-  // For the command line, turn off quiet error mode so those errors will be reported as the plugin call returns
-  rc = ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE, 0);
-  if (rc) return rc;
-
   if (rc == ECMD_SUCCESS) {
+
+    // By default, quiet error mode is on.  This means no errors are printing in the dll wrapper code
+    // For the command line, turn off quiet error mode so those errors will be reported as the plugin call returns
+    rc = ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE, 0);
+    if (rc) return rc;
+
     /* Check to see if we are using stdin to pass in multiple commands */
     bool shellMode = ecmdParseOption(&argc, &argv, "-shell");
     bool stdinMode = ecmdParseOption(&argc, &argv, "-stdin");
