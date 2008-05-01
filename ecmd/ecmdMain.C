@@ -237,8 +237,8 @@ int main (int argc, char *argv[])
     }
 
 
-    rc = ecmdUnloadDll();
-    if (rc) return rc;
+    // If you check the rc, don't use the "rc" variable, it will corrupt the return value
+    ecmdUnloadDll();
   }
 
   return rc;
