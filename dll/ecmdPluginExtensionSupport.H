@@ -1,5 +1,6 @@
 #ifndef ecmdPluginExtensionSupport_h
 #define ecmdPluginExtensionSupport_h
+/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdPluginExtensionSupport.H                                               
@@ -14,7 +15,6 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-/* $Header$ */
 
 //--------------------------------------------------------------------
 // Includes
@@ -25,35 +25,37 @@
 //  Forward References                                                
 //--------------------------------------------------------------------
 
-/* These defines what extensions are supported by this plugin, they can only be disabled when building common code in an plugin specific environment like the FSP or SE */
+/* These defines what extensions are supported by this plugin */
+/* Enable or disable these defines as needed by your plugin */
+/* The eCMD makefiles take care of turning on the appropriate defines for the extentions being built in CVS */
 
 
 /* The Cronus/IP GFW Extension */
-#define ECMD_CIP_EXTENSION_SUPPORT
+//#define ECMD_CIP_EXTENSION_SUPPORT
 
 /* The Cronus Extension */
-#define ECMD_CRO_EXTENSION_SUPPORT
+//#define ECMD_CRO_EXTENSION_SUPPORT
 
 /* The Eclipz IP/Cronus Extension */
-#define ECMD_EIP_EXTENSION_SUPPORT
+//#define ECMD_EIP_EXTENSION_SUPPORT
 
 /* The Apollo IP/Cronus Extension */
-#define ECMD_AIP_EXTENSION_SUPPORT
+//#define ECMD_AIP_EXTENSION_SUPPORT
 
 /* The GFW IP Extension */
-#define ECMD_GIP_EXTENSION_SUPPORT
+//#define ECMD_GIP_EXTENSION_SUPPORT
 
 /* The Z Series Extension */
-#define ECMD_ZSE_EXTENSION_SUPPORT
+//#define ECMD_ZSE_EXTENSION_SUPPORT
 
 /* The BML Extension */
-#define ECMD_BML_EXTENSION_SUPPORT
+//#define ECMD_BML_EXTENSION_SUPPORT
 
 /* The Mambo Extension */
-#define ECMD_MBO_EXTENSION_SUPPORT
+//#define ECMD_MBO_EXTENSION_SUPPORT
 
 /* The CommandLine Extension */
-#define ECMD_CMD_EXTENSION_SUPPORT
+//#define ECMD_CMD_EXTENSION_SUPPORT
 
 #endif /* ecmdPluginExtensionSupport_h */
 

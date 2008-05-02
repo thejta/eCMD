@@ -348,7 +348,7 @@ uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target) {
   std::vector<std::string> tokens;
   bool allFound;
   bool naFound;
-  int match;
+  bool numFound;
   int num=0;        //fix beam error
 
   /* Tokenize my string on colon */
@@ -357,15 +357,20 @@ uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target) {
   for (uint32_t x = 0; x < tokens.size(); x++) {
     allFound = false;
     naFound = false;
-    match = 0;
+    numFound = false;
     if (tokens[x].substr(1,tokens[x].length()) == "all") {
       allFound = true;
     } else if (tokens[x].substr(1,tokens[x].length()) == "-") {
       naFound = true;
-    } else {
-      match = sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
     }
-    if (!match && !allFound && !naFound) {
+    // If it is all numbers after the first letter, assume it is a k/c/s/p/c/t arg and not a chip name
+    // We will have problems with something like p7, but if they use pu we will be okay.
+    // This will fix p5ioc2, which was broke under the previous sscanf only method - JTA 04/28/08
+    else if (tokens[x].find_first_not_of("0123456789",1) == std::string::npos) {
+      sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
+      numFound = true;
+    }
+    if (!numFound && !allFound && !naFound) {
       /* I didn't get a number, - or all, must be a chip */
       ecmdParseChipFieldNQ(tokens[x], o_target.chipType, o_target.chipUnitType);
       if (o_target.chipType == "chipall"){

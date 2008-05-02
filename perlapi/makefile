@@ -35,8 +35,8 @@ endif
 ifeq (${OS},AIX)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/export/${ext}ClientCapi_aix.a)
 endif
-CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/perlapi)
-SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi -I../ext/${ext}/capi/export)
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi/export -I../ext/${ext}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi -I../ext/${ext}/capi/export -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 
 # *****************************************************************************
