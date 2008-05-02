@@ -11,9 +11,8 @@ VPATH        := ../capi/export
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
 INT_INCLUDES := ecmdInterpreter.H ecmdCommandUtils.H
 SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
-#DEFINES      := 
+DEFINES      := 
 CFLAGS       := ${CFLAGS} -I../capi/export -I../dll 
-
 
 VER_SOURCE   := ecmdVersion.C
 
@@ -21,7 +20,6 @@ VER_SOURCE   := ecmdVersion.C
 EXTENSIONS   := $(subst cmd,,${EXTENSIONS})
 # Don't want to include the scand extension, there isn't one
 EXTENSIONS   := $(subst scand,,${EXTENSIONS})
-
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/export::../ext/${ext}/capi/export)
 #These are needed to define a space char for substitutions later on
@@ -39,7 +37,7 @@ endif
 ifeq (${OS},AIX)
   LINK_OBJS  := $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_aix.a ${ext}CmdInterpreter_aix.a)
 endif
-CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd/export)
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd/export -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 
 
 
