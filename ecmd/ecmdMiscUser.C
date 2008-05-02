@@ -527,7 +527,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
         printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
 
-        return ECMD_EXPECT_FAILURE
+        return ECMD_EXPECT_FAILURE;
       }
 
     }
