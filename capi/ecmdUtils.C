@@ -1357,6 +1357,7 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
   std::string curLine;
   uint32_t beginPtr=0;        //fix beam error
   uint32_t beginLen=0;        //fix beam error
+  uint32_t addrFromFile;
 
   bool done = false; 
   std::vector<std::string> curArgs(4);
@@ -1373,7 +1374,6 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
     }
     if((curLine[0] == 'A') && (curLine.substr(0, 10) == "Address = ")) {
       ecmdParseTokens(curLine, " \t\n={},", curArgs);
-      uint32_t addrFromFile;
       sscanf(curArgs[1].c_str(),"%X",&addrFromFile);
       if ((curArgs.size() >= 2) && addrFromFile == address) {
         done = true;
