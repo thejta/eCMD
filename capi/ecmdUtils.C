@@ -1372,8 +1372,9 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
       beginLen = curLine.length();
     }
     if((curLine[0] == 'A') && (curLine.substr(0, 10) == "Address = ")) {
-      ecmdParseTokens(curLine, " \t\n={}", curArgs);
-      uint32_t addrFromFile = ecmdGenB32FromHexRight(&addrFromFile, curArgs[1].c_str());
+      ecmdParseTokens(curLine, " \t\n={},", curArgs);
+      uint32_t addrFromFile;
+      sscanf(curArgs[1].c_str(),"%X",&addrFromFile);
       if ((curArgs.size() >= 2) && addrFromFile == address) {
         done = true;
       }
