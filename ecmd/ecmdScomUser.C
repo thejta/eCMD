@@ -837,7 +837,6 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	 printed += ecmdWriteTarget(cuTarget);
      	 printed += "\n";
      	 ecmdOutputError( printed.c_str() );
-     	 //return rc;
          coeRc = rc;
          continue;
        }
@@ -882,7 +881,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      	       sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
      	       printed = outstr + printed;
      	       ecmdOutputError( printed.c_str() );
-	       return ECMD_EXPECT_FAILURE;
+	       coeRc = ECMD_EXPECT_FAILURE;
+               continue;
      	     }
      	     else {
      	       ecmdOutput( printed.c_str() );
@@ -917,8 +917,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
              sprintf(outstr, "pollscom - Mismatch never occurred at address 0x%.8X\n", address);
              printed = outstr + printed;
              ecmdOutputError( printed.c_str() );
-             return ECMD_EXPECT_FAILURE;
-
+             coeRc = ECMD_EXPECT_FAILURE;
+             continue;
            }
 
          }

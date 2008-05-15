@@ -1111,7 +1111,8 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
           printed = "Expected          : ";
           printed += ecmdWriteDataFormatted(expected, outputformat);
           ecmdOutputError( printed.c_str() );
-          return ECMD_EXPECT_FAILURE;
+          coeRc = ECMD_EXPECT_FAILURE;
+          continue;
         }
 
       }
