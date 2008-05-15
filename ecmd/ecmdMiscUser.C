@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder     Description                       
@@ -526,8 +520,8 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
         printed = "getcfam - Expected          : ";
         printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
-
-        return ECMD_EXPECT_FAILURE;
+        coeRc = ECMD_EXPECT_FAILURE;
+        continue;
       }
 
     }
@@ -1264,7 +1258,6 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
         printed += outstr;
         ecmdOutputError( printed.c_str() );
 
-
         printed = "getgpreg - Actual";
         if (maskFlag) {
           printed += " (with mask): ";
@@ -1279,6 +1272,8 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
         printed = "getgpreg - Expected          : ";
         printed += ecmdWriteDataFormatted(expected, outputformat);
         ecmdOutputError( printed.c_str() );
+        coeRc = ECMD_EXPECT_FAILURE;
+        continue;
       }
 
     }
