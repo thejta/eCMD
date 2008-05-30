@@ -396,6 +396,7 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
 }
 
 uint32_t ecmdSetup(char* i_args) {
+  uint32_t rc = 0;
 
   char command[200];
   std::string retstr;
@@ -449,9 +450,15 @@ uint32_t ecmdSetup(char* i_args) {
       unsetenv(tokens[idx].substr(6, tokens[idx].length()).c_str());
     }
 #endif
+
+    /* If a return value was provided, push that back as an rc */
+    else if (tokens[idx].substr(0, 6) == "return") {
+      sscanf(tokens[idx].substr(7, tokens[idx].length()).c_str(),"%d",&rc);
+      return rc;
+    }
   }
 
-  return 0;
+  return rc;
 }
 
 /* This function has to be here because the ecmdClientCapiFunc.C code generates a call to */
