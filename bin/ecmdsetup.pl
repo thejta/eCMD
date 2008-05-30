@@ -85,7 +85,8 @@ if (-e "mbosetup.pm") {
 ##########################################################################
 #  Variables
 #
-my %modified;  # 0 is no change, 1 set needed, -1 unset needed 
+my %modified;  # 0 is no change, 1 set needed, -1 unset needed
+my $shell;
 my $release;
 my $prevRelease;
 my $plugin;
@@ -110,7 +111,10 @@ my @ctepaths = ("/afs/rchland(|\.ibm\.com)/rel/common/cte",
 # Call the main function, then add the rc from that to the output
 #
 $rc = main();
-printf("return $rc;");
+# Yet again, csh sucks and doesn't have a return value.  They will have to go without
+if ($shell eq "ksh") {
+  printf("return $rc;");
+}
 exit($rc);
 
 sub main {
@@ -153,7 +157,7 @@ sub main {
   ##########################################################################
   # Get the users shell
   #
-  my $shell = shift(@ARGV);
+  $shell = shift(@ARGV);
 
   # If you add a shell here, you need to update the output printing below
   if ($shell eq "ksh") {
