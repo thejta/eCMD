@@ -107,298 +107,306 @@ my @ctepaths = ("/afs/rchland(|\.ibm\.com)/rel/common/cte",
                 "/afs/watson(|\.ibm\.com)/projects/vlsi/cte");
 
 #####################################################
-# Look to see if help was requested
+# Call the main function, then add the rc from that to the output
 #
-if ("@ARGV" =~ /-h/) {
-  help();
-  if ($croUse) { $cro->help(); }
-  exit(1);
-}
+$rc = main();
+printf("return $rc;");
+exit($rc);
 
-##########################################################################
-# If the user isn't setup for CTE, let's do it for them.
-#
-#if ($ENV{"CTEPATH"} eq "") {
-#  @tempArr = split(/\//,$pwd);
-#  # Blow off the first 4 entries that are ecmd dirs
-#  pop(@tempArr); # bin
-#  pop(@tempArr); # release
-#  pop(@tempArr); # ecmd
-#  pop(@tempArr); # tools
-#  $" = "/"; # Make it so the array below seperates on / instead of space
-#  $ENV{"CTEPATH"} = "@tempArr";
-#  $" = " "; # Reset
-#  #Finally, mark it modified
-#  $modified{"CTEPATH"} = 1;
-#  printf("echo CTEPATH unset! Setting to %s;\n",$ENV{"CTEPATH"});
-#}
-
-##########################################################################
-# Figure out if the user is on a local copy of CTE
-#
-for (my $x = 0; $x <= $#ctepaths && $localInstall != 0; $x++) {
-  if ($ENV{"CTEPATH"} =~ m!${ctepaths[$x]}!) {
-    $localInstall = 0;
+sub main {
+  #####################################################
+  # Look to see if help was requested
+  #
+  if ("@ARGV" =~ /-h/) {
+    help();
+    if ($croUse) { $cro->help(); }
+    return 1;
   }
-}
 
-##########################################################################
-# Get the users shell
-#
-my $shell = shift(@ARGV);
+  ##########################################################################
+  # If the user isn't setup for CTE, let's do it for them.
+  #
+  #if ($ENV{"CTEPATH"} eq "") {
+  #  @tempArr = split(/\//,$pwd);
+  #  # Blow off the first 4 entries that are ecmd dirs
+  #  pop(@tempArr); # bin
+  #  pop(@tempArr); # release
+  #  pop(@tempArr); # ecmd
+  #  pop(@tempArr); # tools
+  #  $" = "/"; # Make it so the array below seperates on / instead of space
+  #  $ENV{"CTEPATH"} = "@tempArr";
+  #  $" = " "; # Reset
+  #  #Finally, mark it modified
+  #  $modified{"CTEPATH"} = 1;
+  #  printf("echo CTEPATH unset! Setting to %s;\n",$ENV{"CTEPATH"});
+  #}
 
-# If you add a shell here, you need to update the output printing below
-if ($shell eq "ksh") {
-} elsif ($shell eq "csh") {
-} else {
-  printf("echo Your shell is unsupported\\!;");
-  exit(1);
-}
+  ##########################################################################
+  # Figure out if the user is on a local copy of CTE
+  #
+  for (my $x = 0; $x <= $#ctepaths && $localInstall != 0; $x++) {
+    if ($ENV{"CTEPATH"} =~ m!${ctepaths[$x]}!) {
+      $localInstall = 0;
+    }
+  }
 
-##########################################################################
-# Get the release
-#
+  ##########################################################################
+  # Get the users shell
+  #
+  my $shell = shift(@ARGV);
 
-# Save the previous release the user may have had
-$prevRelease = $ENV{"ECMD_RELEASE"};
-
-$release = shift(@ARGV);
-
-# Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
-if ($release eq ".") {
-  if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
-    printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously\\!;");
-    exit(1);
+  # If you add a shell here, you need to update the output printing below
+  if ($shell eq "ksh") {
+  } elsif ($shell eq "csh") {
   } else {
-    $shortcut = 1;
+    printf("echo Your shell is unsupported\\!;");
+    return 1;
   }
-}
 
-if ($shortcut) {
-  $release = $ENV{"ECMD_RELEASE"};
-}
+  ##########################################################################
+  # Get the release
+  #
 
-# We'll see if the release is supported based upon the existence of the bin directory
-if ($release ne "auto" && !$localInstall) {
-  $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
-  if (!(-d $temp)) {
-    printf("echo The eCMD release '$release' you specified is not known\\!;");
-    exit(1);
+  # Save the previous release the user may have had
+  $prevRelease = $ENV{"ECMD_RELEASE"};
+
+  $release = shift(@ARGV);
+
+  # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
+  if ($release eq ".") {
+    if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
+      printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously\\!;");
+      return 1;
+    } else {
+      $shortcut = 1;
+    }
   }
-}
 
-##########################################################################
-# Get the plugin
-#
-if ($shortcut) {
-  $plugin = $ENV{"ECMD_PLUGIN"};
-} else {
-  $plugin = shift(@ARGV);
-}
-if ($plugin eq "cro" && $croUse) {
-} elsif ($plugin eq "gip" && $gipUse) {
-} elsif ($plugin eq "scand" && $scandUse) {
-} elsif ($plugin eq "mbo" && $mboUse) {
-} else {
-  printf("echo The eCMD plugin '$plugin' you specified is not known\\!;");
-  exit(1);
-}
+  if ($shortcut) {
+    $release = $ENV{"ECMD_RELEASE"};
+  }
 
+  # We'll see if the release is supported based upon the existence of the bin directory
+  if ($release ne "auto" && !$localInstall) {
+    $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
+    if (!(-d $temp)) {
+      printf("echo The eCMD release '$release' you specified is not known\\!;");
+      return 1;
+    }
+  }
 
-##########################################################################
-# Get the product
-#
-if ($shortcut) {
-  $product = $ENV{"ECMD_PRODUCT"};
-} else {
-  $product = shift(@ARGV);
-}
-
-# We no longer want to error check the product.  It is just passed on through to the plugin
-#if ($product eq "eclipz") {
-#} else {
-#  printf("echo The eCMD product you specified is not known\\!;");
-#  exit;
-#}
-
-##########################################################################
-# Loop through the args left and see if any are for ecmd
-#
-for (my $x = 0; $x <= $#ARGV;) {
-  if ($ARGV[$x] eq "copylocal") {
-    $copyLocal = 1;
-    splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
-  } elsif ($ARGV[$x] eq "cleanup") {
-    $cleanup = 1;
-    printf("echo Removing eCMD and Plugin settings from environment;");
-    splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+  ##########################################################################
+  # Get the plugin
+  #
+  if ($shortcut) {
+    $plugin = $ENV{"ECMD_PLUGIN"};
   } else {
-    # We have to walk the array here because the splice shortens up the array
-    $x++;
+    $plugin = shift(@ARGV);
   }
-}
-
-
-##########################################################################
-# Cleanup any ecmd bin dirs that might be in the path
-#
-# Pull out any of the matching cases
-# This expression matches anything after a : up to /tools/ecmd/<anything>/bin and then a : or end of line
-if ($localInstall) {
-  $ENV{"PATH"} =~ s!$installPath/bin!:!g;
-} else {
-  $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/bin(:|$)!:!g;
-}
-# We might have left a : on the front, remove it
-$ENV{"PATH"} =~ s/^://g;
-# Same with the back, might have left a :
-$ENV{"PATH"} =~ s/:$//g;
-# Any multiple : cases, reduce to one
-$ENV{"PATH"} =~ s/(:+)/:/g;
-# Now mark the path modifed
-$modified{"PATH"} = 1;
-
-##########################################################################
-# Call cleanup on plugins
-#
-
-# Only do this if the plugin has changed from last time
-if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
-  if ($croUse) {
-    $rc =$cro->cleanup(\%modified);
-    if ($rc) {
-      exit($rc);
-    }
-  }                 
-  if ($scandUse) {
-    $rc = $scand->cleanup(\%modified, $release);
-    if ($rc) {
-      exit($rc);
-    }
-  }
-  if ($gipUse) {
-    $rc = $gip->cleanup(\%modified);
-    if ($rc) {
-      exit($rc);
-    }
-  }
-  if ($mboUse) {
-    $rc = $mbo->cleanup(\%modified, $localInstall, $installPath);
-    if ($rc) {
-      exit($rc);
-    }
-  }
-}
-
-##########################################################################
-# Flag the ECMD_* variables as modified if appropriate
-#
-if (!$shortcut) {
-  $ENV{"ECMD_RELEASE"} = $release;
-  $modified{"ECMD_RELEASE"} = 1;
-  $ENV{"ECMD_PLUGIN"} = $plugin;
-  $modified{"ECMD_PLUGIN"} = 1;
-  $ENV{"ECMD_PRODUCT"} = $product;
-  $modified{"ECMD_PRODUCT"} = 1;
-}
-if ($cleanup) {
-  $modified{"ECMD_RELEASE"} = -1;
-  $modified{"ECMD_PLUGIN"} = -1;
-  $modified{"ECMD_PRODUCT"} = -1;
-}
-
-##########################################################################
-# Call setup on plugin specified
-#
-if (!$cleanup) {
   if ($plugin eq "cro" && $croUse) {
-    $rc = $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
-    if ($rc) {
-      exit($rc);
-    }
+  } elsif ($plugin eq "gip" && $gipUse) {
+  } elsif ($plugin eq "scand" && $scandUse) {
+  } elsif ($plugin eq "mbo" && $mboUse) {
+  } else {
+    printf("echo The eCMD plugin '$plugin' you specified is not known\\!;");
+    return 1;
   }
-  if ($plugin eq "scand" && $scandUse) {
-    $rc = $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
-    if ($rc) {
-      exit($rc);
-    }
-  }
-  if ($plugin eq "gip" && $gipUse) {
-    $rc = $gip->setup(\%modified, $localInstall, $product, @ARGV);
-    if ($rc) {
-      exit($rc);
-    }
-  }
-  if ($plugin eq "mbo" && $mboUse) {
-    $rc = $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
-    if ($rc) {
-      exit($rc);
-    }
-  }
-}
 
-##########################################################################
-# Add bin directory to path
-#
-if (!$cleanup) {
+
+  ##########################################################################
+  # Get the product
+  #
+  if ($shortcut) {
+    $product = $ENV{"ECMD_PRODUCT"};
+  } else {
+    $product = shift(@ARGV);
+  }
+
+  # We no longer want to error check the product.  It is just passed on through to the plugin
+  #if ($product eq "eclipz") {
+  #} else {
+  #  printf("echo The eCMD product you specified is not known\\!;");
+  #  return 1;
+  #}
+
+  ##########################################################################
+  # Loop through the args left and see if any are for ecmd
+  #
+  for (my $x = 0; $x <= $#ARGV;) {
+    if ($ARGV[$x] eq "copylocal") {
+      $copyLocal = 1;
+      splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } elsif ($ARGV[$x] eq "cleanup") {
+      $cleanup = 1;
+      printf("echo Removing eCMD and Plugin settings from environment;");
+      splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } else {
+      # We have to walk the array here because the splice shortens up the array
+      $x++;
+    }
+  }
+
+
+  ##########################################################################
+  # Cleanup any ecmd bin dirs that might be in the path
+  #
+  # Pull out any of the matching cases
+  # This expression matches anything after a : up to /tools/ecmd/<anything>/bin and then a : or end of line
   if ($localInstall) {
-    $ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
+    $ENV{"PATH"} =~ s!$installPath/bin!:!g;
   } else {
-    $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/bin:" . $ENV{"PATH"};
+    $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/bin(:|$)!:!g;
   }
+  # We might have left a : on the front, remove it
+  $ENV{"PATH"} =~ s/^://g;
+  # Same with the back, might have left a :
+  $ENV{"PATH"} =~ s/:$//g;
+  # Any multiple : cases, reduce to one
+  $ENV{"PATH"} =~ s/(:+)/:/g;
+  # Now mark the path modifed
   $modified{"PATH"} = 1;
-}
 
-##########################################################################
-# Updates setup scripts if release changed
-# All we need to do is resource the setup scripts
-#
-if (($prevRelease ne $ENV{"ECMD_RELEASE"}) && !$localInstall) {
-  my $file;
-  if ($shell eq "csh") {
-    $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.csh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
-    printf("source $file;");
-  } else {
-    $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.ksh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
-    printf(". $file;");
-  }
-}
+  ##########################################################################
+  # Call cleanup on plugins
+  #
 
-####################################################
-# Do the copy to /tmp if local was given
-#
-if ($copyLocal) {
-  my $command;
-  my @tempArr;
-  if ($cleanup) {
-    printf("echo Removing directory /tmp/\$ECMD_TARGET/;");
-    $command = "rm -r /tmp/" . $ENV{"ECMD_TARGET"};
-    system("$command");
-  } else {
-    printf("echo Copying ECMD_EXE and ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/;");
-    $command = "/tmp/" . $ENV{"ECMD_TARGET"};
-    if (!(-d $command)) { #if the directory isn't there, create it
-      $command = "mkdir " . $command;
-      system("$command");
+  # Only do this if the plugin has changed from last time
+  if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
+    if ($croUse) {
+      $rc =$cro->cleanup(\%modified);
+      if ($rc) {
+        return $rc;
+      }
+    }                 
+    if ($scandUse) {
+      $rc = $scand->cleanup(\%modified, $release);
+      if ($rc) {
+        return $rc;
+      }
     }
-    @tempArr = split(/\//,$ENV{"ECMD_EXE"});
-    $command = "cp " . $ENV{"ECMD_EXE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-    system("$command");
-    $ENV{"ECMD_EXE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-    $modified{"ECMD_EXE"} = 1;
-    @tempArr = split(/\//,$ENV{"ECMD_DLL_FILE"});
-    $command = "cp " . $ENV{"ECMD_DLL_FILE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-    system("$command");
-    $ENV{"ECMD_DLL_FILE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-    $modified{"ECMD_DLL_FILE"} = 1;
+    if ($gipUse) {
+      $rc = $gip->cleanup(\%modified);
+      if ($rc) {
+        return $rc;
+      }
+    }
+    if ($mboUse) {
+      $rc = $mbo->cleanup(\%modified, $localInstall, $installPath);
+      if ($rc) {
+        return $rc;
+      }
+    }
   }
+
+  ##########################################################################
+  # Flag the ECMD_* variables as modified if appropriate
+  #
+  if (!$shortcut) {
+    $ENV{"ECMD_RELEASE"} = $release;
+    $modified{"ECMD_RELEASE"} = 1;
+    $ENV{"ECMD_PLUGIN"} = $plugin;
+    $modified{"ECMD_PLUGIN"} = 1;
+    $ENV{"ECMD_PRODUCT"} = $product;
+    $modified{"ECMD_PRODUCT"} = 1;
+  }
+  if ($cleanup) {
+    $modified{"ECMD_RELEASE"} = -1;
+    $modified{"ECMD_PLUGIN"} = -1;
+    $modified{"ECMD_PRODUCT"} = -1;
+  }
+
+  ##########################################################################
+  # Call setup on plugin specified
+  #
+  if (!$cleanup) {
+    if ($plugin eq "cro" && $croUse) {
+      $rc = $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
+      if ($rc) {
+        return $rc;
+      }
+    }
+    if ($plugin eq "scand" && $scandUse) {
+      $rc = $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
+      if ($rc) {
+        return $rc;
+      }
+    }
+    if ($plugin eq "gip" && $gipUse) {
+      $rc = $gip->setup(\%modified, $localInstall, $product, @ARGV);
+      if ($rc) {
+        return $rc;
+      }
+    }
+    if ($plugin eq "mbo" && $mboUse) {
+      $rc = $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
+      if ($rc) {
+        return $rc;
+      }
+    }
+  }
+
+  ##########################################################################
+  # Add bin directory to path
+  #
+  if (!$cleanup) {
+    if ($localInstall) {
+      $ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
+    } else {
+      $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/bin:" . $ENV{"PATH"};
+    }
+    $modified{"PATH"} = 1;
+  }
+
+  ##########################################################################
+  # Updates setup scripts if release changed
+  # All we need to do is resource the setup scripts
+  #
+  if (($prevRelease ne $ENV{"ECMD_RELEASE"}) && !$localInstall) {
+    my $file;
+    if ($shell eq "csh") {
+      $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.csh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
+      printf("source $file;");
+    } else {
+      $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.ksh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
+      printf(". $file;");
+    }
+  }
+
+  ####################################################
+  # Do the copy to /tmp if local was given
+  #
+  if ($copyLocal) {
+    my $command;
+    my @tempArr;
+    if ($cleanup) {
+      printf("echo Removing directory /tmp/\$ECMD_TARGET/;");
+      $command = "rm -r /tmp/" . $ENV{"ECMD_TARGET"};
+      system("$command");
+    } else {
+      printf("echo Copying ECMD_EXE and ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/;");
+      $command = "/tmp/" . $ENV{"ECMD_TARGET"};
+      if (!(-d $command)) { #if the directory isn't there, create it
+        $command = "mkdir " . $command;
+        system("$command");
+      }
+      @tempArr = split(/\//,$ENV{"ECMD_EXE"});
+      $command = "cp " . $ENV{"ECMD_EXE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+      system("$command");
+      $ENV{"ECMD_EXE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+      $modified{"ECMD_EXE"} = 1;
+      @tempArr = split(/\//,$ENV{"ECMD_DLL_FILE"});
+      $command = "cp " . $ENV{"ECMD_DLL_FILE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+      system("$command");
+      $ENV{"ECMD_DLL_FILE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
+      $modified{"ECMD_DLL_FILE"} = 1;
+    }
+  }
+
+  ##########################################################################
+  # Write out the modified environment
+  #
+  $ecmd->write_environment($shell,\%modified);
 }
-
-##########################################################################
-# Write out the modified environment
-#
-$ecmd->write_environment($shell,\%modified);
-
 
 #  Umm.. yeah.. I'm going to need you to work this weekend on the help text.  Mkay..
 sub help {

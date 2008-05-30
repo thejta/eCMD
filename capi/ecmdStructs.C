@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips340 src/ecmd/import/ecmdStructs.C 1.34.1.13 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// (C) COPYRIGHT International Business Machines Corp. 2004,2008 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -74,66 +57,71 @@ bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
   bool equal = true; // Assume a match to start
 
   /* Use a breakout loop so we can bail on the comparisions once we find an invalid case */
+  /* The check for VALID with an || and then comparing them may seem redundant, but it is not.
+   The previous code had just a staight check && that both were valid, that caused problems when
+   one was valid and the other wasn't.  The comparision would never be done, defaulting to true.
+   By doing the check this way, if either is valid, but both aren't, we'll flag that as a mismatch.
+   This diatribe added by JTA 05/19/08 */
   do {
     /* CAGE */
-    if (lhs.cageState == ECMD_TARGET_FIELD_VALID && rhs.cageState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.cage != rhs.cage) {
+    if (lhs.cageState == ECMD_TARGET_FIELD_VALID || rhs.cageState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.cage != rhs.cage) || (lhs.cageState != rhs.cageState)) {
         equal = false;
         break;
       }
     }
 
     /* NODE */
-    if (lhs.nodeState == ECMD_TARGET_FIELD_VALID && rhs.nodeState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.node != rhs.node) {
+    if (lhs.nodeState == ECMD_TARGET_FIELD_VALID || rhs.nodeState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.node != rhs.node) || (lhs.nodeState != rhs.nodeState)) {
         equal = false;
         break;
       }
     }
 
     /* SLOT */
-    if (lhs.slotState == ECMD_TARGET_FIELD_VALID && rhs.slotState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.slot != rhs.slot) {
+    if (lhs.slotState == ECMD_TARGET_FIELD_VALID || rhs.slotState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.slot != rhs.slot) || (lhs.slotState != rhs.slotState)) {
         equal = false;
         break;
       }
     }
 
     /* CHIPTYPE */
-    if (lhs.chipTypeState == ECMD_TARGET_FIELD_VALID && rhs.chipTypeState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.chipType != rhs.chipType) {
+    if (lhs.chipTypeState == ECMD_TARGET_FIELD_VALID || rhs.chipTypeState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.chipType != rhs.chipType) || (lhs.chipTypeState != rhs.chipTypeState)) {
         equal = false;
         break;
       }
     }
 
     /* POS */
-    if (lhs.posState == ECMD_TARGET_FIELD_VALID && rhs.posState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.pos != rhs.pos) {
+    if (lhs.posState == ECMD_TARGET_FIELD_VALID || rhs.posState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.pos != rhs.pos) || (lhs.posState != rhs.posState)) {
         equal = false;
         break;
       }
     }
 
     /* CHIPUNIT TYPE */
-    if (lhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID && rhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.chipUnitType != rhs.chipUnitType) {
+    if (lhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID || rhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.chipUnitType != rhs.chipUnitType) || (lhs.chipUnitTypeState != rhs.chipUnitTypeState)) {
         equal = false;
         break;
       }
     }
 
     /* CHIPUNIT NUM */
-    if (lhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID && rhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.chipUnitNum != rhs.chipUnitNum) {
+    if (lhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID || rhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.chipUnitNum != rhs.chipUnitNum) || (lhs.chipUnitNumState != rhs.chipUnitNumState)) {
         equal = false;
         break;
       }
     }
 
     /* THREAD */
-    if (lhs.threadState == ECMD_TARGET_FIELD_VALID && rhs.threadState == ECMD_TARGET_FIELD_VALID) {
-      if (lhs.thread != rhs.thread) {
+    if (lhs.threadState == ECMD_TARGET_FIELD_VALID || rhs.threadState == ECMD_TARGET_FIELD_VALID) {
+      if ((lhs.thread != rhs.thread) || (lhs.threadState != rhs.threadState)) {
         equal = false;
         break;
       }
@@ -143,6 +131,39 @@ bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
   return equal;
 }
 
+/** @brief Used to sort ecmdChipTarget variables */
+bool operator<(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
+
+  /* CAGE */
+  if (lhs.cage < rhs.cage) {
+    /* NODE */
+    if (lhs.node < rhs.node) {
+      /* SLOT */
+      if (lhs.slot < rhs.slot) {
+        /* CHIPTYPE */
+        if (lhs.chipType < rhs.chipType) {
+          /* POS */
+          if (lhs.pos < rhs.pos) {
+            /* CHIPUNIT TYPE */
+            if (lhs.chipUnitType < rhs.chipUnitType) {
+              /* CHIPUNIT NUM */
+              if (lhs.chipUnitNum < rhs.chipUnitNum) {
+                /* THREAD */
+                if (lhs.thread < rhs.thread) {
+                  /* We made it all the way down here, we've got a winner */
+                  return true;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* We failed up above, return false */
+  return false;
+}
 
 /*
  * This function will flatten the ecmdChipTarget struct for transport accross
