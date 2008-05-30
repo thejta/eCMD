@@ -646,9 +646,12 @@ inline ecmdChipTarget::~ecmdChipTarget() { }
 #endif
 
 /** @brief Used to compare ecmdChipTarget targeting variables that have their state
- field set to valid.  If the state field is not set to valid on both sides, a comparision is not done
+ field set to valid.  A comparision is done if either side has its state field set to valid
  */
 bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs);
+
+/** @brief Used to sort ecmdChipTarget variables */
+bool operator<(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs);
 
 /**
  @brief Used for the ecmdQueryConfig function to return thread data
