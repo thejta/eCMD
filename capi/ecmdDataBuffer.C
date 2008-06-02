@@ -557,7 +557,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 #endif
     /* Now resize with the new capacity */
     rc = setCapacity(iv_NumWords);
-    if (rc) return rc;
+    if (rc) { if(tempBuf) delete[] tempBuf; return rc;}
 
     /* Restore the data */
     ecmdBigEndianMemCopy(iv_Data, tempBuf, prevbitsize % 8 ? (prevbitsize / 8) + 1 : prevbitsize / 8);

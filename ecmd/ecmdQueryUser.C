@@ -64,7 +64,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
    rc = ecmdCommandArgs(&argc, &argv);
    if (rc) return rc;
   }
-  if (argc == 0) {
+  if ((argc == 0) || (argv[0]==NULL)){
     ecmdOutputError("ecmdquery - Too few arguments specified; you need at least a query mode.\n");
     ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
     return ECMD_INVALID_ARGS;
