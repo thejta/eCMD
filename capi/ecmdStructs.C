@@ -53,8 +53,8 @@ std::string ecmdGetSharedLibVersion() {
 /** @brief Used to compare ecmdChipTarget targeting variables that have their state
  field set to valid.  If the state field is not set to valid on both sides, a comparision is not done
  */
-bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
-  bool equal = true; // Assume a match to start
+int ecmdChipTarget::operator==(const ecmdChipTarget& rhs) const {
+  int equal = 1; // Assume a match to start
 
   /* Use a breakout loop so we can bail on the comparisions once we find an invalid case */
   /* The check for VALID with an || and then comparing them may seem redundant, but it is not.
@@ -64,64 +64,64 @@ bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
    This diatribe added by JTA 05/19/08 */
   do {
     /* CAGE */
-    if (lhs.cageState == ECMD_TARGET_FIELD_VALID || rhs.cageState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.cage != rhs.cage) || (lhs.cageState != rhs.cageState)) {
+    if (cageState == ECMD_TARGET_FIELD_VALID || rhs.cageState == ECMD_TARGET_FIELD_VALID) {
+      if ((cage != rhs.cage) || (cageState != rhs.cageState)) {
         equal = false;
         break;
       }
     }
 
     /* NODE */
-    if (lhs.nodeState == ECMD_TARGET_FIELD_VALID || rhs.nodeState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.node != rhs.node) || (lhs.nodeState != rhs.nodeState)) {
+    if (nodeState == ECMD_TARGET_FIELD_VALID || rhs.nodeState == ECMD_TARGET_FIELD_VALID) {
+      if ((node != rhs.node) || (nodeState != rhs.nodeState)) {
         equal = false;
         break;
       }
     }
 
     /* SLOT */
-    if (lhs.slotState == ECMD_TARGET_FIELD_VALID || rhs.slotState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.slot != rhs.slot) || (lhs.slotState != rhs.slotState)) {
+    if (slotState == ECMD_TARGET_FIELD_VALID || rhs.slotState == ECMD_TARGET_FIELD_VALID) {
+      if ((slot != rhs.slot) || (slotState != rhs.slotState)) {
         equal = false;
         break;
       }
     }
 
     /* CHIPTYPE */
-    if (lhs.chipTypeState == ECMD_TARGET_FIELD_VALID || rhs.chipTypeState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.chipType != rhs.chipType) || (lhs.chipTypeState != rhs.chipTypeState)) {
+    if (chipTypeState == ECMD_TARGET_FIELD_VALID || rhs.chipTypeState == ECMD_TARGET_FIELD_VALID) {
+      if ((chipType != rhs.chipType) || (chipTypeState != rhs.chipTypeState)) {
         equal = false;
         break;
       }
     }
 
     /* POS */
-    if (lhs.posState == ECMD_TARGET_FIELD_VALID || rhs.posState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.pos != rhs.pos) || (lhs.posState != rhs.posState)) {
+    if (posState == ECMD_TARGET_FIELD_VALID || rhs.posState == ECMD_TARGET_FIELD_VALID) {
+      if ((pos != rhs.pos) || (posState != rhs.posState)) {
         equal = false;
         break;
       }
     }
 
     /* CHIPUNIT TYPE */
-    if (lhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID || rhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.chipUnitType != rhs.chipUnitType) || (lhs.chipUnitTypeState != rhs.chipUnitTypeState)) {
+    if (chipUnitTypeState == ECMD_TARGET_FIELD_VALID || rhs.chipUnitTypeState == ECMD_TARGET_FIELD_VALID) {
+      if ((chipUnitType != rhs.chipUnitType) || (chipUnitTypeState != rhs.chipUnitTypeState)) {
         equal = false;
         break;
       }
     }
 
     /* CHIPUNIT NUM */
-    if (lhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID || rhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.chipUnitNum != rhs.chipUnitNum) || (lhs.chipUnitNumState != rhs.chipUnitNumState)) {
+    if (chipUnitNumState == ECMD_TARGET_FIELD_VALID || rhs.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+      if ((chipUnitNum != rhs.chipUnitNum) || (chipUnitNumState != rhs.chipUnitNumState)) {
         equal = false;
         break;
       }
     }
 
     /* THREAD */
-    if (lhs.threadState == ECMD_TARGET_FIELD_VALID || rhs.threadState == ECMD_TARGET_FIELD_VALID) {
-      if ((lhs.thread != rhs.thread) || (lhs.threadState != rhs.threadState)) {
+    if (threadState == ECMD_TARGET_FIELD_VALID || rhs.threadState == ECMD_TARGET_FIELD_VALID) {
+      if ((thread != rhs.thread) || (threadState != rhs.threadState)) {
         equal = false;
         break;
       }
@@ -132,24 +132,24 @@ bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
 }
 
 /** @brief Used to sort ecmdChipTarget variables */
-bool operator<(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs) {
+bool ecmdChipTarget::operator<(const ecmdChipTarget& rhs) const {
 
   /* CAGE */
-  if (lhs.cage < rhs.cage) {
+  if (cage < rhs.cage) {
     /* NODE */
-    if (lhs.node < rhs.node) {
+    if (node < rhs.node) {
       /* SLOT */
-      if (lhs.slot < rhs.slot) {
+      if (slot < rhs.slot) {
         /* CHIPTYPE */
-        if (lhs.chipType < rhs.chipType) {
+        if (chipType < rhs.chipType) {
           /* POS */
-          if (lhs.pos < rhs.pos) {
+          if (pos < rhs.pos) {
             /* CHIPUNIT TYPE */
-            if (lhs.chipUnitType < rhs.chipUnitType) {
+            if (chipUnitType < rhs.chipUnitType) {
               /* CHIPUNIT NUM */
-              if (lhs.chipUnitNum < rhs.chipUnitNum) {
+              if (chipUnitNum < rhs.chipUnitNum) {
                 /* THREAD */
-                if (lhs.thread < rhs.thread) {
+                if (thread < rhs.thread) {
                   /* We made it all the way down here, we've got a winner */
                   return true;
                 }
