@@ -466,6 +466,9 @@ struct ecmdDllInfo {
   - The state bits are not required on all hardware access functions.  Every hardware access function should have a "TARGET STATES" block telling if the state fields have to be set or not
   - The state bits are used slightly differently for the queryFunctions they are used there to signify
      what data coming in is valid to refine a query
+
+ Operators Supported : < ==
+
 */
 struct ecmdChipTarget {
 
@@ -480,6 +483,8 @@ struct ecmdChipTarget {
   uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
+  int operator==(const ecmdChipTarget& rhs) const; ///< Used to compare ecmdChipTarget variables based on state fields
+  bool operator<(const ecmdChipTarget& rhs) const; ///< Used to sort ecmdChipTarget entries in an ecmdChipTarget list.
 #ifndef REMOVE_SIM
   void     printStruct(void) const;
 #endif
@@ -644,14 +649,6 @@ unitIdState(ECMD_TARGET_UNKNOWN_STATE)
 // ecmdChipTarget Destructor
 inline ecmdChipTarget::~ecmdChipTarget() { }
 #endif
-
-/** @brief Used to compare ecmdChipTarget targeting variables that have their state
- field set to valid.  A comparision is done if either side has its state field set to valid
- */
-bool operator==(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs);
-
-/** @brief Used to sort ecmdChipTarget variables */
-bool operator<(const ecmdChipTarget& lhs, const ecmdChipTarget& rhs);
 
 /**
  @brief Used for the ecmdQueryConfig function to return thread data
