@@ -640,7 +640,7 @@ uint32_t ecmdThreadData::flattenSize() {
 }
 
 /** @brief Used to sort Thread entries in an ecmdThreadData list. */
-bool ecmdThreadData::operator< (const ecmdThreadData& rhs) {
+bool ecmdThreadData::operator<(const ecmdThreadData& rhs) const {
 
   if (threadId < rhs.threadId) {
     return true;
@@ -663,7 +663,7 @@ void ecmdThreadData::printStruct() {
 
 
 /** @brief Used to sort chipUnit entries in an ecmdChipUnitData list. */
-bool ecmdChipUnitData::operator< (const ecmdChipUnitData& rhs) {
+bool ecmdChipUnitData::operator<(const ecmdChipUnitData& rhs) const {
 
   if (chipUnitType < rhs.chipUnitType) {
     return true;
@@ -1261,7 +1261,7 @@ uint32_t ecmdChipData::flattenSize() {
 }
 
 /** @brief Used to sort Chip entries (based on Pos) in an ecmdChipData list. */
-bool ecmdChipData::operator< (const ecmdChipData& rhs) {
+bool ecmdChipData::operator<(const ecmdChipData& rhs) const {
 
   if (chipType < rhs.chipType) {
     return true;
@@ -1535,7 +1535,7 @@ uint32_t ecmdSlotData::flattenSize() {
 }
 
 /** @brief Used to sort Slot entries in an ecmdSlotData list. */
-bool ecmdSlotData::operator< (const ecmdSlotData& rhs) {
+bool ecmdSlotData::operator<(const ecmdSlotData& rhs) const {
 
   if (slotId < rhs.slotId) {
     return true;
@@ -1808,7 +1808,7 @@ uint32_t ecmdNodeData::flattenSize()  {
 }
 
 /** @brief Used to sort Node entries in an ecmdNodeData list. */
-bool ecmdNodeData::operator< (const ecmdNodeData& rhs) {
+bool ecmdNodeData::operator<(const ecmdNodeData& rhs) const {
 
   if (nodeId < rhs.nodeId) {
     return true;
@@ -2080,7 +2080,7 @@ uint32_t ecmdCageData::flattenSize() {
 }
 
 /** @brief Used to sort Cage entries in an ecmdCageData list. */
-bool ecmdCageData::operator< (const ecmdCageData& rhs) {
+bool ecmdCageData::operator<(const ecmdCageData& rhs) const {
 
   if (cageId < rhs.cageId) {
     return true;
