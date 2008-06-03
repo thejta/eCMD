@@ -249,6 +249,12 @@ install_setup:
 	@mkdir -p ${INSTALL_PATH}/help
 	@cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
 	@cp -R `find $(foreach ext, ${EXTENSIONS},ext/${ext}/cmd/help/*) | grep -v CVS`  ${INSTALL_PATH}/help/.
+	# Do the IP istep help files
+	# Eclipz
+	@cp systems/ip/eclipz/help/istep_ipeclipz.htxt ${INSTALL_PATH}/help/.
+	# Apollo
+	@cp systems/ip/apollo/help/istep_ipapollo.htxt ${INSTALL_PATH}/help/.
+
 	@echo " "
 
 ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
