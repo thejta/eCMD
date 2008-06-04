@@ -1085,7 +1085,7 @@ struct ecmdRingData {
   std::list<std::string> ringNames;                     ///< (Detail: Low)  Names used to reference this ring
   std::list<uint32_t>    ringIds;                       ///< (Detail: Low)  Hashed ring IDs
   uint32_t               address;                       ///< (Detail: Low)  Address modifier
-  int                    bitLength;                     ///< (Detail: Low)  length of ring
+  uint32_t               bitLength;                     ///< (Detail: Low)  length of ring
   bool                   hasInversionMask;              ///< (Detail: High) Ring has an inversion mask applied before scanning
   bool                   supportsBroadsideLoad;         ///< (Detail: High) This ring supports broadside load in simulation
   bool                   isCheckable;                   ///< (Detail: High) This ring can be run through the check_rings command
@@ -1189,8 +1189,8 @@ struct ecmdTraceArrayData {
   // Members
   std::string      traceArrayName;      ///< (Detail: Low)  Name of Trace array
   uint32_t         traceArrayId;        ///< (Detail: Low)  Hashed trace array ID
-  int              length;              ///< (Detail: Low)  Length of trace array (number of entries)
-  int              width;               ///< (Detail: Low)  Bit width of trace array entry
+  uint32_t         length;              ///< (Detail: Low)  Length of trace array (number of entries)
+  uint32_t         width;               ///< (Detail: Low)  Bit width of trace array entry
   bool             isChipUnitRelated;   ///< (Detail: Low)  This trace array is related to the chipUnit level of a chip
   std::string      relatedChipUnit;     ///< (Detail: Low)  If the trace array is chipUnit related, this is the name of the chipUnit
   std::string      clockDomain;         ///< (Detail: High) Clock domain this array belongs to
@@ -1283,7 +1283,7 @@ struct ecmdLatchData {
   std::string      ringName;            ///< (Detail: Low)  Ring that this latch belongs to
   uint32_t         latchId;             ///< (Detail: Low)  Hashed latch ID
   uint32_t         ringId;              ///< (Detail: Low)  Hashed ring ID
-  int              bitLength;           ///< (Detail: Low)  length of latch, sum of all the parts
+  uint32_t         bitLength;           ///< (Detail: Low)  length of latch, sum of all the parts
   bool             isChipUnitRelated;   ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
   std::string      relatedChipUnit;     ///< (Detail: Low)  If the latch is chipUnit related, this is the name of the chipUnit
   std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
@@ -1568,8 +1568,8 @@ struct ecmdProcRegisterInfo {
 #endif
 
   // Members
-  int bitLength;                ///< Bit length of each entry
-  int totalEntries;             ///< Total number of entries available
+  uint32_t bitLength;           ///< Bit length of each entry
+  uint32_t totalEntries;        ///< Total number of entries available
   bool threadReplicated;        ///< Register is replicated for each thread
 };
 
@@ -1613,8 +1613,8 @@ struct ecmdProcRegisterInfoHidden {
 #endif
 
   // Members
-  int           bitLength;                 ///< Bit length of each entry
-  int           totalEntries;              ///< Total number of entries available
+  uint32_t      bitLength;                 ///< Bit length of each entry
+  uint32_t      totalEntries;              ///< Total number of entries available
   bool          isChipUnitRelated;         ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
   std::string   relatedChipUnit;           ///< (Detail: Low)  If the spy is chipUnit related, this is the name of the chipUnit
   bool          threadReplicated;          ///< Register is replicated for each thread
@@ -1679,7 +1679,7 @@ struct ecmdSpyLatchData {
   std::string   latchName;   ///< The latch name, including the ()'s
   uint32_t hashKey;          ///< The hashKey for the latchName
   int offset;                ///< The starting bit offset of this latch in the spy
-  int length;                ///< The length in bits of this latch
+  uint32_t length;           ///< The length in bits of this latch
   int lhsNum;                ///< left hand side Number - Value x of an (x:y) entry
   int rhsNum;                ///< right hand side Number - Value y of an (x:y) entry
 };
@@ -1709,7 +1709,7 @@ struct ecmdSpyData {
   // Members
   std::string   spyName;                   ///< Names used to reference this spy
   uint32_t      spyId;                     ///< (Detail: Low)  Hashed spy ID
-  int           bitLength;                 ///< length of spy
+  uint32_t      bitLength;                 ///< length of spy
   ecmdSpyType_t spyType;                   ///< Type of spy
   bool          isEccChecked;              ///< This spy affects some ECC groupings
   bool          isEnumerated;              ///< This spy has enumerated values
