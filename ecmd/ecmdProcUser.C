@@ -73,7 +73,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   ecmdChipTarget threadTarget;          ///< Current thread target
   ecmdLooperData threadLooperData;      ///< Store internal thread Looper data
   int idx;
-  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
   std::string sprName;
 
   /* get format flag, if it's there */
@@ -127,7 +127,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       sprName = argv[idx];
 
       /* First thing we need to do is find out for this particular target if the SPR is threaded */
-      rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
+      rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
       if (rc) {
         printed = "getspr - Error occured getting spr info for ";
         printed += sprName;
@@ -306,7 +306,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   std::string sprName;          ///< Name of spr to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
-  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not 
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
   char* cmdlinePtr = NULL;            ///< Pointer to data in argv array
@@ -386,7 +386,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
-    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
+    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
     if (rc) {
       printed = "putspr - Error occured getting spr info for ";
       printed += sprName;
@@ -497,7 +497,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   int startEntry = 0;           ///< Entry to start on
   char buf[100];                ///< Temporary string buffer
   std::string sprName;
-  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not 
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
 
   /* get format flag, if it's there */
   std::string format;
@@ -558,7 +558,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     entries.clear();
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
-    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
+    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
     if (rc) {
       printed = function + " - Error occured getting info for ";
       printed += sprName;
@@ -670,7 +670,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   std::string function;         ///< Current function being run based on daType
   std::string sprName;
   char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
-  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -760,7 +760,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
-    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
+    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
     if (rc) {
       printed = function + " - Error occured getting info for ";
       printed += sprName;

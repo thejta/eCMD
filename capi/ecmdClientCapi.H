@@ -1258,7 +1258,6 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
 //@{
 
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
-
 /**
  @brief Query Information about a Processor Register (SPR/GPR/FPR)
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -1274,29 +1273,6 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
-
-#ifndef DOCUMENTATION
-/* This function will replace the above ecmdQueryProcRegisterInfo for the 10.0 release
- We have to do it like this for now because we need to add variables to the ecmdProcRegisterInfo data type but can
- only do that on a major release.
- JTA 2/1/08 */
-
-/**
- @brief Query Information about a Processor Register (SPR/GPR/FPR)
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_name Name of the Register to fetch data about (can be either a specific SPR or GPR/FPR)
- @param o_data Data retrieved about the register
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_SPR Spr name is invalid
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
-
- TARGET DEPTH  : core/chipUnit, thread<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryProcRegisterInfoHidden(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfoHidden & o_data);
-#endif
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
