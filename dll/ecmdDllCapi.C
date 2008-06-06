@@ -1562,6 +1562,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdGlobal_quiet = 1;
   }
 
+  /* Grab the quiet error mode flag
   if (ecmdParseOption(io_argc, io_argv, "-quieterror")) {
     ecmdGlobal_quietError = 1;
   }
@@ -1570,6 +1571,12 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   if (ecmdParseOption(io_argc, io_argv, "-coe")) {
     ecmdGlobal_continueOnError = 1;
   }
+
+  /* Grab the exist loop flag */
+  if (ecmdParseOption(io_argc, io_argv, "-exist")) {
+    ecmdGlobal_looperMode = ECMD_EXIST_LOOP;
+  }
+
 
   /*************************************/
   /* Parse command line targeting args */
