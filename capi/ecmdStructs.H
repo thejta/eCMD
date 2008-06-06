@@ -203,7 +203,7 @@ typedef enum {
 */
 typedef enum {
   ECMD_LOOP_MODE_UNKNOWN,               ///< Default for not initialized
-  ECMD_GLOBALVAR_LOOP,                  ///< Uses the value of ECMD_GLOBALVAR_LOOPMODE to determine loop mode.  Default is ECMD_CONFIG_LOOP
+  ECMD_DYNAMIC_LOOP,                    ///< Uses the value of ECMD_GLOBALVAR_LOOPMODE to determine loop mode.  Default is ECMD_CONFIG_LOOP
   ECMD_CONFIG_LOOP,                     ///< Use the ecmdConfigLooper* functions
   ECMD_EXIST_LOOP,                      ///< Use the ecmdExistLooper* functions
 } ecmdLoopMode_t;

@@ -379,7 +379,7 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
   ecmdChipTarget queryTarget;
 
   /* If we aren't told what mode to run in, figure it out */
-  if (i_mode == ECMD_GLOBALVAR_LOOP) {
+  if (i_mode == ECMD_DYNAMIC_LOOP) {
     i_mode = (ecmdLoopMode_t)ecmdGlobal_looperMode;
   }
 
@@ -526,7 +526,7 @@ uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecm
   }
 
   /* If we aren't told what mode to run in, figure it out */
-  if (i_mode == ECMD_GLOBALVAR_LOOP) {
+  if (i_mode == ECMD_DYNAMIC_LOOP) {
     i_mode = (ecmdLoopMode_t)ecmdGlobal_looperMode;
   }
 
@@ -1778,8 +1778,10 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
     ret = ecmdGlobal_quiet;
   } else if (i_type == ECMD_GLOBALVAR_QUIETERRORMODE) {
     ret = ecmdGlobal_quietError;
-  } else if (i_type == ECMD_GLOBALVAR_COEMODE) {   // hjhcoe
+  } else if (i_type == ECMD_GLOBALVAR_COEMODE) {
     ret = ecmdGlobal_continueOnError;
+  } else if (i_type == ECMD_GLOBALVAR_LOOPMODE) {
+    ret = ecmdGlobal_looperMode;
   }
 
   return ret;
@@ -1799,6 +1801,8 @@ uint32_t dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
     ecmdGlobal_quietError = i_value;
   } else if (i_type == ECMD_GLOBALVAR_COEMODE) {
     ecmdGlobal_continueOnError = i_value;
+  } else if (i_type == ECMD_GLOBALVAR_LOOPMODE) {
+    ecmdGlobal_looperMode = i_value;
   } else {
     return ECMD_INVALID_ARGS;
   }
