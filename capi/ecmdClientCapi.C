@@ -395,7 +395,7 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]) {
   return rc;
 }
 
-uint32_t ecmdSetup(char* i_args) {
+uint32_t ecmdSetup(const char* i_args) {
   uint32_t rc = 0;
 
   char command[200];
