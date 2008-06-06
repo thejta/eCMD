@@ -70,10 +70,9 @@ TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 #define EDB_ADMIN_FOOTER_SIZE 1
 #endif
 
-// For 10.0, change this to 5 to match the header+footer size.
-// For 9.x it needs to be left at the old value of 10 to not break anything
+// This define is the sum of EDB_ADMIN_HEADER_SIZE + EDB_ADMIN_FOOTER_SIZE
 #ifndef EDB_ADMIN_TOTAL_SIZE
-#define EDB_ADMIN_TOTAL_SIZE 10
+#define EDB_ADMIN_TOTAL_SIZE 5
 #endif
 
 #ifdef ENABLE_MPATROL
