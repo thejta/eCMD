@@ -1571,51 +1571,6 @@ struct ecmdProcRegisterInfo {
 #endif
 
   // Members
-  uint32_t bitLength;           ///< Bit length of each entry
-  uint32_t totalEntries;        ///< Total number of entries available
-  bool threadReplicated;        ///< Register is replicated for each thread
-};
-
-#ifndef DOCUMENTATION
-// ecmdProcRegisterInfo Constructor
-inline ecmdProcRegisterInfo::ecmdProcRegisterInfo():
-bitLength(0),
-totalEntries(0),
-threadReplicated(false)
-{
-}
-
-// ecmdProcRegisterInfo Destructor
-inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
-#endif
-
-#ifndef DOCUMENTATION
-/* This structure will replace the above ecmdProcRegisterInfo for the 10.0 release
- We have to do it like this for now because we need to add variables to the ecmdProcRegisterInfo data type but can
- only do that on a major release.
- JTA 2/1/08 */
-
-/**
- @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
-*/
-struct ecmdProcRegisterInfoHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdProcRegisterInfoHidden();
-
-  // Destructor
-  ~ecmdProcRegisterInfoHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef REMOVE_SIM
-  void printStruct(void);
-#endif
-#endif
-
-  // Members
   uint32_t      bitLength;                 ///< Bit length of each entry
   uint32_t      totalEntries;              ///< Total number of entries available
   bool          isChipUnitRelated;         ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
@@ -1625,16 +1580,16 @@ struct ecmdProcRegisterInfoHidden {
 
 #ifndef DOCUMENTATION
 // ecmdProcRegisterInfo Constructor
-inline ecmdProcRegisterInfoHidden::ecmdProcRegisterInfoHidden():
+inline ecmdProcRegisterInfo::ecmdProcRegisterInfo():
 bitLength(0),
 totalEntries(0),
+isChipUnitRelated(false),
 threadReplicated(false)
 {
 }
 
 // ecmdProcRegisterInfo Destructor
-inline ecmdProcRegisterInfoHidden::~ecmdProcRegisterInfoHidden() { }
-#endif
+inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 #endif
 
 /**
