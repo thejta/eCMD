@@ -203,8 +203,10 @@ typedef enum {
 */
 typedef enum {
   ECMD_LOOP_MODE_UNKNOWN,               ///< Default for not initialized
-  ECMD_STATIC_DEPTH_LOOP                ///< Use the state specified on init, don't allow plugin to change
-} ecmdConfigLoopMode_t;
+  ECMD_GLOBALVAR_LOOP,                  ///< Uses the value of ECMD_GLOBALVAR_LOOPMODE to determine loop mode.  Default is ECMD_CONFIG_LOOP
+  ECMD_CONFIG_LOOP,                     ///< Use the ecmdConfigLooper* functions
+  ECMD_EXIST_LOOP,                      ///< Use the ecmdExistLooper* functions
+} ecmdLoopMode_t;
 
 
 /**
@@ -217,7 +219,7 @@ typedef enum {
   ECMD_SELECTED_TARGETS_LOOP_VD,        ///< Loop only on targets in the system to the depth user specified on command line (ie if user said only '-n0' then -s and below are unused) if not specified default to 0
   ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL, ///< Loop only on targets in the system to the depth user specified on command line (ie if user said only '-n0' then -s and below are unused) if not specified default to all
   ECMD_ALL_TARGETS_LOOP                 ///< Loop on all valid targets in the system
-} ecmdConfigLoopType_t;
+} ecmdLoopType_t;
 
 
 /**
@@ -331,8 +333,9 @@ typedef enum {
   ECMD_GLOBALVAR_UNKNOWN,               ///< Default for not initialized
   ECMD_GLOBALVAR_DEBUG,                 ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
   ECMD_GLOBALVAR_QUIETMODE,             ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
-  ECMD_GLOBALVAR_COEMODE,               //< Retrieve the value of the continueOnError  mode  flag = set by -coe default = 0 (hjhcoe)
-  ECMD_GLOBALVAR_QUIETERRORMODE         ///< Retrieve the value of the quiet error mode debug flag. Set by -quieterror
+  ECMD_GLOBALVAR_COEMODE,               //< Retrieve the value of the continueOnError  mode  flag = set by -coe default = 0
+  ECMD_GLOBALVAR_QUIETERRORMODE,        ///< Retrieve the value of the quiet error mode debug flag. Set by -quieterror
+  ECMD_GLOBALVAR_LOOPMODE,               //< Retrieve the value of the loopMode mode flag set by -exist default = ECMD_CONFIG_LOOP
 } ecmdGlobalVarType_t;
 
 /**
@@ -1045,7 +1048,7 @@ inline ecmdQueryData::~ecmdQueryData() { }
 struct ecmdLooperData {
   bool             ecmdLooperInitFlag;                          ///< Is fresh ?
   bool             ecmdUseUnitid;                               ///< This looper is looping on unitid targets not config data
-  ecmdConfigLoopMode_t ecmdLoopMode;                            ///< Is this a variable depth or static loop?
+  bool             initialized;                                 ///< Has the struture been intialized by LooperInit
 
   ecmdQueryData    ecmdSystemConfigData;                        ///< Config data queried from the system
   std::list<ecmdCageData>::iterator ecmdCurCage;                ///< Pointer to current Cage

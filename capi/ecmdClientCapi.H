@@ -108,6 +108,87 @@ void ecmdLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc);
 //@}
 #endif // ifndef ECMD_PERLAPI
 
+/** @name Looper Functions */
+//@{
+/**
+ @brief Selects whether or not to call ecmdConfigLooperInit or ecmdConfigLooperNext based on ECMD_GLOBALVAR_LOOPMODE or i_mode
+ @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
+ @param i_looptype Specify type of all, all chips in system or all chips selected by user
+ @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
+ @param i_mode Specify if an ecmdConfigLooperInit or ecmdExistLooperInit should be done.  If not set, the global var is used
+ @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
+ @see ecmdLooperNext
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must Be Initialized<br>
+ */
+uint32_t ecmdLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_GLOBALVAR_LOOP);
+
+/**
+ @brief Initializes data structures and code to loop over configured and selected elements of the system
+ @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
+ @param i_looptype Specify type of all, all chips in system or all chips selected by user
+ @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
+ @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
+ @see ecmdConfigLooperNext
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must Be Initialized<br>
+ */
+uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state);
+
+/**
+ @brief Initializes data structures and code to loop over existing and selected elements of the system
+ @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
+ @param i_looptype Specify type of all, all chips in system or all chips selected by user
+ @param io_state Used internally by ExistLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
+ @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
+ @see ecmdExistLooperNext
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must Be Initialized<br>
+ */
+uint32_t ecmdExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state);
+
+/**
+ @brief Selects whether or not to call ecmdConfigLooperInit or ecmdConfigLooperNext based on ECMD_GLOBALVAR_LOOPMODE
+ @param io_target ecmdChipTarget that contains info about next target to process
+ @param io_state Used internally to keep track of state, must be passed from output of ecmdConfigLooperInit
+ @retval 1 if io_target is valid, 0 if it is not
+ @param i_mode Specify if an ecmdConfigLooperNext or ecmdExistLooperNext should be done.  If not set, the global var is used
+ @see ecmdConfigLooperInit
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must be Initialized (from ecmdConfigLooperInit)<br>
+ */
+uint32_t ecmdLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_GLOBALVAR_LOOP);
+
+/**
+ @brief Loops over configured and selected elements of the system, updating target to point to them
+ @param io_target ecmdChipTarget that contains info about next target to process
+ @param io_state Used internally to keep track of state, must be passed from output of ecmdConfigLooperInit
+ @retval 1 if io_target is valid, 0 if it is not
+ @see ecmdConfigLooperInit
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must be Initialized (from ecmdConfigLooperInit)<br>
+ */
+uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
+
+/**
+ @brief Loops over configured and selected elements of the system, updating target to point to them
+ @param io_target ecmdChipTarget that contains info about next target to process
+ @param io_state Used internally to keep track of state, must be passed from output of ecmdExistLooperInit
+ @retval 1 if io_target is valid, 0 if it is not
+ @see ecmdExistLooperInit
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET STATES : Must be Initialized (from ecmdExistLooperInit)<br>
+ */
+uint32_t ecmdExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state);
+
+//@}
+
 
 /** @name Query Functions */
 //@{
@@ -208,18 +289,6 @@ uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
- NOTE: This function is going away in 10.0 and being replaced by ecmdQueryConfigSelected.  The functionality is the same, just a function name change
-*/
-uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
-
-/**
- @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all configured chips
- @param io_target Struct that contains partial information to limit query results - chipType is unused
- @param o_queryData Return data from query
- @param i_looptype (Optional) Used by config looper to specify different query modes
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
  This function acts just like ecmdQueryConfig except it operates on what targets were selected by the
   user args -n#, -p#, -c#, -t#
 
@@ -231,7 +300,7 @@ uint32_t ecmdQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryDa
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all existing chips
@@ -252,7 +321,7 @@ uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_q
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
+uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
 /**
  @brief Query Ring information from the DLL

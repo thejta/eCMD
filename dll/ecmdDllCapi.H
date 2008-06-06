@@ -36,6 +36,18 @@ std::string dllSpecificParseReturnCode(uint32_t i_returnCode);
 
 void dllLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc); 
 
+uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode); 
+
+uint32_t dllConfigLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state); 
+
+uint32_t dllExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state); 
+
+uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode); 
+
+uint32_t dllConfigLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state); 
+
+uint32_t dllExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state); 
+
 uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo); 
 
 bool dllQueryVersionGreater(const char* version); 
@@ -44,11 +56,9 @@ uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
 
 uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail); 
 
-uint32_t dllQuerySelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype); 
+uint32_t dllQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype); 
 
-uint32_t dllQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype); 
-
-uint32_t dllQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype); 
+uint32_t dllQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype); 
 
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail); 
 

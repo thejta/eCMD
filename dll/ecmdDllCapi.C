@@ -25,6 +25,7 @@
 //  @04                06/18/07 hjh       add warning if latch could not be found in hashfile
 //   
 // End Change Log *****************************************************
+//lint -e825 We deliberately want to fall through in ecmdIncrementLooperIterators - JTA
 
 //----------------------------------------------------------------------
 //  Includes
@@ -150,7 +151,7 @@ bool dllIsValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
 bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
-uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype, bool i_existMode);
+uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to sort latch entries from the scandef */
@@ -211,6 +212,11 @@ uint32_t ecmdGlobal_quietError = 1;
 
 /* @brief This is a global var set by -coe */
 uint32_t ecmdGlobal_continueOnError = 0;
+
+/* @brief This is a global var to determine how the looper runs */
+/* ECMD_CONFIG_LOOP, the default */
+/* ECMD_EXIST_LOOP, turned on by -exist */
+uint32_t ecmdGlobal_looperMode = ECMD_CONFIG_LOOP;
 
 /* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
@@ -355,6 +361,480 @@ bool dllQueryVersionGreater(const char* version) {
   return false;
 }
 
+void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state);
+
+// dllConfigLooperInit and dllExistLooperInit just call dllLooperInit in the correct mode
+uint32_t dllConfigLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state) {
+
+  return dllLooperInit(io_target, i_looptype, io_state, ECMD_CONFIG_LOOP);
+}
+
+uint32_t dllExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state) {
+  return dllLooperInit(io_target, i_looptype, io_state, ECMD_EXIST_LOOP);
+}
+
+uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipTarget queryTarget;
+
+  /* If we aren't told what mode to run in, figure it out */
+  if (i_mode == ECMD_GLOBALVAR_LOOP) {
+    i_mode = (ecmdLoopMode_t)ecmdGlobal_looperMode;
+  }
+
+  // Set to unknown so we can error check later
+  io_state.initialized = false;
+
+  /* Are we using a unitid ? */
+  if ((io_target.chipTypeState == ECMD_TARGET_FIELD_VALID) && (io_target.chipType.length() > 0) && (io_target.chipType[0] == 'u')) {
+
+    /* Ok, we need to strip the u off the front for this call */
+    std::string unitid = io_target.chipType.substr(1);
+    io_state.unitIdTargets.clear();
+    rc = dllUnitIdStringToTarget(unitid, io_state.unitIdTargets);
+    if (rc == ECMD_INVALID_ARGS) {
+      dllOutputError("ecmdConfigLooperInit - Invalid Unitid specified\n");
+    } else if (rc == ECMD_FUNCTION_NOT_SUPPORTED) {
+      dllOutputError("ecmdConfigLooperInit - Current plugin doesn't support Unitid's\n");
+    }
+
+    if (rc) return rc;
+    io_state.ecmdUseUnitid = true;
+    io_state.ecmdLooperInitFlag = true;
+    io_state.prevTarget = io_target;
+    io_state.curUnitIdTarget = io_state.unitIdTargets.begin();
+
+
+    /* Ok, we still need to call queryconfig, we will use this to make sure the targets that come back actually exist */
+    /* Lets look at the first target to see what fields are valid - which tells us which fields we need to set to     */
+    /*  wildcard so that we get all possible targets in the system                                                    */
+
+    if ((*io_state.curUnitIdTarget).cageState != ECMD_TARGET_FIELD_UNUSED) queryTarget.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.cageState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).nodeState != ECMD_TARGET_FIELD_UNUSED) queryTarget.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.nodeState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).slotState != ECMD_TARGET_FIELD_UNUSED) queryTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.slotState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).chipTypeState != ECMD_TARGET_FIELD_UNUSED) queryTarget.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).posState != ECMD_TARGET_FIELD_UNUSED) queryTarget.posState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.posState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED) queryTarget.chipUnitTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) queryTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    if ((*io_state.curUnitIdTarget).threadState != ECMD_TARGET_FIELD_UNUSED) queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    else queryTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (i_mode == ECMD_EXIST_LOOP) {
+      rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+    } else {
+      rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+    }
+    if (rc) return rc;
+
+    /* Standard physical targets */
+  } else {
+
+
+    io_state.ecmdUseUnitid = false;
+
+    queryTarget = io_target;
+
+    /* Initialize defaults into the incoming target */
+    if (io_target.cageState == ECMD_TARGET_FIELD_WILDCARD)         io_target.cage = 0;
+    if (io_target.nodeState == ECMD_TARGET_FIELD_WILDCARD)         io_target.node = 0;
+    if (io_target.slotState == ECMD_TARGET_FIELD_WILDCARD)         io_target.slot = 0;
+    if (io_target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD)     io_target.chipType = "na";
+    if (io_target.posState == ECMD_TARGET_FIELD_WILDCARD)          io_target.pos = 0;
+    if (io_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD) io_target.chipUnitType = "na";
+    if (io_target.chipUnitNumState == ECMD_TARGET_FIELD_WILDCARD)  io_target.chipUnitNum = 0;
+    if (io_target.threadState == ECMD_TARGET_FIELD_WILDCARD)       io_target.thread = 0;
+
+    /* Set all the states to valid, unless they are unused */
+    if (io_target.cageState != ECMD_TARGET_FIELD_UNUSED)          io_target.cageState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.nodeState != ECMD_TARGET_FIELD_UNUSED)          io_target.nodeState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.slotState != ECMD_TARGET_FIELD_UNUSED)          io_target.slotState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED)      io_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.posState != ECMD_TARGET_FIELD_UNUSED)           io_target.posState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.chipUnitTypeState != ECMD_TARGET_FIELD_UNUSED)  io_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED)   io_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+    if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED)        io_target.threadState = ECMD_TARGET_FIELD_VALID;
+
+    if (i_looptype == ECMD_ALL_TARGETS_LOOP) {
+      if (i_mode == ECMD_EXIST_LOOP) {
+        rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+      } else {
+        rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+      }
+    } else {
+      if (i_mode == ECMD_EXIST_LOOP) {
+        rc = dllQueryExistSelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+      } else {
+        rc = dllQueryConfigSelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
+      }
+
+      /* Selected queries can change our states, so let's update them */
+      if (queryTarget.cageState == ECMD_TARGET_FIELD_UNUSED)         io_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)         io_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.slotState == ECMD_TARGET_FIELD_UNUSED)         io_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED)     io_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.posState == ECMD_TARGET_FIELD_UNUSED)          io_target.posState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipUnitTypeState == ECMD_TARGET_FIELD_UNUSED) io_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED)  io_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+      if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)       io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    }
+    if (rc) return rc;
+
+    io_state.ecmdCurCage = io_state.ecmdSystemConfigData.cageData.begin();
+    io_state.ecmdLooperInitFlag = true;
+    io_state.prevTarget = io_target;
+  }
+
+  /* Success! */
+  io_state.initialized = true;
+
+  return rc;
+}
+
+// ConfigLooperNext and ExistLooperNext can share the same code with just a switch to call the right function
+uint32_t dllConfigLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) {
+  return dllLooperNext(io_target, io_state, ECMD_CONFIG_LOOP);
+}
+
+uint32_t dllExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state) {
+  return dllLooperNext(io_target, io_state, ECMD_EXIST_LOOP);
+}
+
+uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode) {
+
+  const uint8_t CAGE = 0;
+  const uint8_t NODE = 1;
+  const uint8_t SLOT = 2;
+  const uint8_t CHIP = 3;
+  const uint8_t CHIPUNIT = 4;
+  const uint8_t THREAD = 5;
+  bool done = false;
+  uint8_t level = 0;;
+  uint32_t rc = 0;
+
+  if (!io_state.initialized) {
+    dllOutputError("ecmdConfigLooperNext - Invalid io_state passed, verify ecmdConfigLooperInit was run successfully\n");
+    /* We return 0 which stops the loop, we can't return any failure from here */
+    return 0;
+  }
+
+  /* If we aren't told what mode to run in, figure it out */
+  if (i_mode == ECMD_GLOBALVAR_LOOP) {
+    i_mode = (ecmdLoopMode_t)ecmdGlobal_looperMode;
+  }
+
+  /* Are we using unitids ? */
+  if (io_state.ecmdUseUnitid) {
+    /* We at the end ? */
+    while (!done) {
+      if (io_state.curUnitIdTarget == io_state.unitIdTargets.end()) {
+        return 0;
+      }
+
+      io_target = *(io_state.curUnitIdTarget);
+      io_state.curUnitIdTarget++;
+
+      /* Is this target actually configured, if not try the next one */
+      if (i_mode == ECMD_EXIST_LOOP) {
+        if (dllQueryTargetExist(io_target, &(io_state.ecmdSystemConfigData))) {
+          done = true;
+        }
+      } else {
+        if (dllQueryTargetConfigured(io_target, &(io_state.ecmdSystemConfigData))) {
+          done = true;
+        }
+      }
+    } /* while !done */
+
+
+    /* Not using unitid's use physical targets */
+  } else {
+    while (!done) {
+      level = CAGE;
+      uint8_t valid = 1;
+
+
+      /* We are at the end of the loop, nothing left to loop on, get out of here */
+      if (io_state.ecmdCurCage == io_state.ecmdSystemConfigData.cageData.end()) {
+        return rc;
+      }
+
+      /* ******** NOTE : The iterators in io_state always point to the next instance to use */
+      /*           (the one that should be returned from this function ****************     */
+
+      /* Enter if : */
+      /* First time in config looper */
+      /* last cage != current cage */
+      if (io_state.ecmdLooperInitFlag ||
+          io_target.cage != (*io_state.ecmdCurCage).cageId
+          ) {
+
+        /* Data is valid, let's setup this part of the target */
+        io_target.cage = (*io_state.ecmdCurCage).cageId;
+        io_state.ecmdCurNode = (*io_state.ecmdCurCage).nodeData.begin();
+        valid = 0;
+
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.nodeState == ECMD_TARGET_FIELD_UNUSED)) {
+
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.nodeState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurNode == (*io_state.ecmdCurCage).nodeData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
+          level = NODE;
+        }
+
+
+      }
+      else {
+        level = NODE;
+      }
+
+      /* Enter if : */
+      /* Level == Node (the user is looping with nodes  */
+      /* !valid - current node iterator isn't valid */
+      /* last node != current node */
+      if (level == NODE &&
+          (!valid ||
+           io_target.node != (*io_state.ecmdCurNode).nodeId)) {
+
+        /* Data is valid, let's setup this part of the target */
+        io_target.node = (*io_state.ecmdCurNode).nodeId;
+        io_state.ecmdCurSlot = (*io_state.ecmdCurNode).slotData.begin();
+        valid = 0;
+
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.slotState == ECMD_TARGET_FIELD_UNUSED)) {
+
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.slotState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurSlot == (*io_state.ecmdCurNode).slotData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
+          level = SLOT;
+        }
+
+
+      }
+      else if (valid) {
+        level = SLOT;
+      }
+
+      /* Enter if : */
+      /* Level == Slot (the user is looping with Slots  */
+      /* !valid - current Slot iterator isn't valid */
+      /* last Slot != current Slot */
+      if (level == SLOT &&
+          (!valid ||
+           io_target.slot != (*io_state.ecmdCurSlot).slotId)) {
+
+        /* Data is valid, let's setup this part of the target */
+        io_target.slot = (*io_state.ecmdCurSlot).slotId;
+        io_state.ecmdCurChip = (*io_state.ecmdCurSlot).chipData.begin();
+        valid = 0;
+
+
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED)) {
+
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.chipTypeState == ECMD_TARGET_FIELD_UNUSED || io_state.prevTarget.posState == ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChip == (*io_state.ecmdCurSlot).chipData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
+          level = CHIP;
+        }
+
+
+      }
+      else if (valid) {
+        level = CHIP;
+      }
+
+
+      /* Enter if : */
+      /* Level == Chip (the user is looping with Chips  */
+      /* !valid - current Chip iterator isn't valid */
+      /* last ChipType != current ChipType */
+      /* last Chip pos != current Chip pos */
+      if (level == CHIP &&
+          (!valid ||
+           io_target.chipType != (*io_state.ecmdCurChip).chipType ||
+           io_target.pos != (*io_state.ecmdCurChip).pos  )) {
+
+        /* Data is valid, let's setup this part of the target */
+        io_target.chipType = (*io_state.ecmdCurChip).chipType;
+        io_target.pos = (*io_state.ecmdCurChip).pos;
+        io_state.ecmdCurChipUnit = (*io_state.ecmdCurChip).chipUnitData.begin();
+        valid = 0;
+
+        /* If next level is unused we default to 0 */
+        if ((io_state.prevTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED)) {
+
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurChipUnit == (*io_state.ecmdCurChip).chipUnitData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
+          level = CHIPUNIT;
+        }
+
+      }
+      else if (valid) {
+        level = CHIPUNIT;
+      }
+
+      /* Enter if : */
+      /* Level == ChipUnit (the user is looping with ChipUnits  */
+      /* !valid - current ChipUnit iterator isn't valid */
+      /* last ChipUnitType != current ChipUnitType */
+      /* last ChipUnitNum != current ChipUnitNum */
+      if (level == CHIPUNIT &&
+          (!valid ||
+           io_target.chipUnitType != (*io_state.ecmdCurChipUnit).chipUnitType ||
+           io_target.chipUnitNum != (*io_state.ecmdCurChipUnit).chipUnitNum)) {
+
+        /* Data is valid, let's setup this part of the target */
+        io_target.chipUnitType = (*io_state.ecmdCurChipUnit).chipUnitType;
+        io_target.chipUnitNum = (*io_state.ecmdCurChipUnit).chipUnitNum;
+        io_state.ecmdCurThread = (*io_state.ecmdCurChipUnit).threadData.begin();
+        valid = 0;
+
+
+        /* If next level is unused we default to 0 */
+        if (io_state.prevTarget.threadState == ECMD_TARGET_FIELD_UNUSED) {
+
+          /* If the next level is required but empty, this position isn't valid we need to restart */
+        } else if ((io_state.prevTarget.threadState != ECMD_TARGET_FIELD_UNUSED) && (io_state.ecmdCurThread == (*io_state.ecmdCurChipUnit).threadData.end())) {
+          /* Increment the iterators to point to the next target (at the level above us) */
+          ecmdIncrementLooperIterators(level - 1, io_state);
+          continue;
+
+          /* Everything is grand, let's continue to the next level */
+        } else {
+          level = THREAD;
+        }
+
+
+      }
+      else if (valid) {
+        level = THREAD;
+      }
+
+      /* Enter if : */
+      /* Level == Thread (the user is looping with Threads  */
+      /* !valid - current Thread iterator isn't valid */
+      /* last Thread != current Thread */
+      if (level == THREAD && (!valid || io_target.thread != (*io_state.ecmdCurThread).threadId)) {
+
+        /* Data is valid, let's setup this part of the target */
+        io_target.thread = (*io_state.ecmdCurThread).threadId;
+
+      }
+
+      /* We got here, must be done */
+      done = true;
+
+    } /* End while */
+
+    /* Increment the iterators to point to the next target */
+    ecmdIncrementLooperIterators(level, io_state);
+
+  } /* end phys/unitid if */
+
+  /* We are through the first init loop */
+  if (io_state.ecmdLooperInitFlag) {
+    io_state.ecmdLooperInitFlag = false;
+  }
+
+  /* We got here, we have more to do, let's tell the client */
+  rc = 1;
+
+  return rc;
+
+}
+
+void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
+  /* Let's start incrementing our lowest pointer so it points to the next object for the subsequent call to this function */
+  const uint8_t CAGE = 0;
+  const uint8_t NODE = 1;
+  const uint8_t SLOT = 2;
+  const uint8_t CHIP = 3;
+  const uint8_t CHIPUNIT = 4;
+  const uint8_t THREAD = 5;
+
+  // The following switch statement makes deliberate use of falling through from
+  // one case statement to the next.  So tell Beam to not flag those ass errors
+  // with the /*fall through*/ comments. @02a
+  switch (level) {
+
+    case THREAD:  //thread
+      io_state.ecmdCurThread++;
+      /* Did we find another thread, if not we will try chipUnit */
+      if (io_state.ecmdCurThread != (*io_state.ecmdCurChipUnit).threadData.end()) {
+        break;
+      }
+      /*fall through*/
+    case CHIPUNIT:  //chipUnit
+      io_state.ecmdCurChipUnit++;
+      /* Did we find another chipUnit, if not we will try chip */
+      if (io_state.ecmdCurChipUnit != (*io_state.ecmdCurChip).chipUnitData.end()) {
+        break;
+      }
+      /*fall through*/
+    case CHIP:  //chip
+      io_state.ecmdCurChip++;
+      /* Did we find another chip, if not we will try slot */
+      if (io_state.ecmdCurChip != (*io_state.ecmdCurSlot).chipData.end()) {
+        break;
+      }
+      /*fall through*/
+    case SLOT:  //slot
+      io_state.ecmdCurSlot++;
+      /* Did we find another slot, if not we will try node */
+      if (io_state.ecmdCurSlot != (*io_state.ecmdCurNode).slotData.end()) {
+        break;
+      }
+      /*fall through*/
+    case NODE:  //node
+      io_state.ecmdCurNode++;
+      /* Did we find another node, if not we will try cage */
+      if (io_state.ecmdCurNode != (*io_state.ecmdCurCage).nodeData.end()) {
+        break;
+      }
+      /*fall through*/
+    case CAGE:  //cage
+      io_state.ecmdCurCage++;
+      break;
+
+    default:
+      //shouldn't get here
+      break;
+  }
+}
+
+
+
 std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage) {
   return dllGetErrorMsgHidden(i_returnCode, i_parseReturnCode, i_deleteMessage, true);
 }
@@ -492,19 +972,19 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
   return rc;
 }
 
-uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
+uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {
   return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, false);
 }
 
-uint32_t dllQueryConfigSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
+uint32_t dllQueryConfigSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {
   return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, false);
 }
 
-uint32_t dllQueryExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype) {
+uint32_t dllQueryExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {
   return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, true);
 }
 
-uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdConfigLoopType_t i_looptype, bool i_existMode) {
+uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
