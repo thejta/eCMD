@@ -14,15 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
-// changes: HJH		coe
-
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -1390,10 +1381,10 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     validPosFound = true;
     rc = simGetHierarchy(target,  hierarchy);
     if (rc) {
@@ -1533,10 +1524,10 @@ uint32_t ecmdSimPutDialUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = simPutDial(argv[1], argv[2]);
     if (rc) {
@@ -1591,10 +1582,10 @@ uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = simGetDial(argv[1], value);
     if (rc) {

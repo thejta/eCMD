@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdVersion.C                                   
@@ -12,13 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
-
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
 /**
  @file ecmdVersion.C
  @brief Utility program to display just the eCMD Version in a string to use as a path for CTE

@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -201,19 +195,19 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
  
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while ( ecmdLooperNext(target, looperdata) ) {
       targetCount++;
     }
   }
   
   //Looper to do the actual work
-  rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+  rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
               
-  while ( ecmdConfigLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
+  while ( ecmdLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
 
     if (argc > 5) {
       rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
@@ -426,10 +420,10 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
       rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
@@ -531,10 +525,10 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdI2cReset(target, engineId, port);
     if (rc) {
@@ -701,10 +695,10 @@ uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (maskPtr != NULL) {
       rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
@@ -819,10 +813,10 @@ uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdGpioConfigPin(target, engineId, pin, mode);
     if (rc) {
@@ -952,10 +946,10 @@ uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (maskPtr != NULL) {
       rc = ecmdGpioReadPins(target, engineId, mask.getWord(0), state);
@@ -1087,10 +1081,10 @@ uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdGpioReadLatch(target, engineId, pin, mode, state);
     if (rc) {
@@ -1197,10 +1191,10 @@ uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdGpioReadConfigRegister(target, engineId, configReg, value);
     if (rc) {
@@ -1333,10 +1327,10 @@ uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdGpioWriteConfigRegister(target, engineId, mode, configReg, value);
     if (rc) {

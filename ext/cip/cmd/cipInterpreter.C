@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File cipInterpreter.C                                   
@@ -12,13 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-
-// Module Description **************************************************
-//
-// Description: CIP Extension command interpreter
-//
-// End Module Description **********************************************
-/* $Header$ */
 
 //----------------------------------------------------------------------
 //  Includes

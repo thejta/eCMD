@@ -14,11 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -267,12 +262,12 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_DEFALL, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_DEFALL, looperdata);
   if (rc) return rc;
 
   ecmdOutput("Starting Clocks on Targets ...\n");
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     rc = startClocks(target, clockDomain, force);
     if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
@@ -396,11 +391,11 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_DEFALL, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_DEFALL, looperdata);
   if (rc) return rc;
   ecmdOutput("Stopping Clocks on Targets ...\n");
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
     rc = stopClocks(target, clockDomain, force);
     if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
@@ -645,11 +640,11 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (iv_mult==0) {
       rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
@@ -772,11 +767,11 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdGetClockSpeed(target, clockType, speedType, speed);
     if (rc) {

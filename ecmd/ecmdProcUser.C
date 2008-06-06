@@ -111,10 +111,10 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Clear my lists out */
     posEntries.clear();
@@ -195,11 +195,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the core loop */
-        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
+        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
         if (rc) return rc;
 
         /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-        while (ecmdConfigLooperNext(cuTarget, cuLooperData) && (!coeRc || coeMode)) {
+        while (ecmdLooperNext(cuTarget, cuLooperData) && (!coeRc || coeMode)) {
 
           /* Actually go fetch the data */
           rc = getSprMultiple(cuTarget, cuEntryIter->second);
@@ -243,11 +243,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
         /* Init the core loop */
-        rc = ecmdConfigLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
+        rc = ecmdLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
         if (rc) return rc;
 
         /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-        while (ecmdConfigLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
+        while (ecmdLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
 
           /* Actually go fetch the data */
           rc = getSprMultiple(threadTarget, threadEntryIter->second);
@@ -380,10 +380,10 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   }
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
     rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
@@ -424,10 +424,10 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
     }
 
-    rc = ecmdConfigLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData);
+    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData);
     if (rc) break;
 
-    while (ecmdConfigLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
 
       /* The user did the r/m/w version, so we need to do a get spr */
       /* Do we need to perform a read/modify/write op ? */
@@ -549,10 +549,10 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     numEntries = atoi(argv[1]);
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Clear out our list */
     entries.clear();
@@ -595,13 +595,13 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       }
     }
 
-    rc = ecmdConfigLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
     if (rc) {
       coeRc = rc;
       continue;
     }
 
-    while (ecmdConfigLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
 
       /* Restore to our initial list */
       entries_copy = entries;
@@ -754,10 +754,10 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
     rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
@@ -799,13 +799,13 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       }
     }
 
-    rc = ecmdConfigLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
     if (rc) {
       coeRc = rc;
       continue;
     }
 
-    while (ecmdConfigLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startBit != ECMD_UNSET)) {

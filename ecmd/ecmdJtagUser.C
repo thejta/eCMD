@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -147,12 +141,12 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   /*  char outstr[30]; */
   std::string printed;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {    //@01
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {    //@01
 
     rc = sendCmd(target, instruction, modifier, statusBuffer);
     if (rc) {

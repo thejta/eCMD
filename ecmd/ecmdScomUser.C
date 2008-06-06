@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -207,11 +201,11 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
     /* Now we need to find out if this is a cu scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
@@ -253,7 +247,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitScom
       if (chipUnitType != "") {
@@ -269,7 +263,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitScom ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      rc = getScom(cuTarget, address, scombuf);
      if (rc) {
@@ -464,10 +458,10 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
   
     /* Now we need to find out if this is a chipUnit scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
@@ -522,7 +516,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitScom
       if (chipUnitType != "") {
@@ -538,7 +532,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitScom ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -757,11 +751,11 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   std::string printed;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
     /* Now we need to find out if this is a chipUnit scom or not */
     rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
@@ -802,7 +796,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitScom
       if (chipUnitType != "") {
@@ -818,7 +812,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitScom ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitScom ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      bool done = false;
      timerStart = time(NULL);

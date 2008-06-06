@@ -162,10 +162,10 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = ecmdGetConfiguration(target, configName, validOutput, valueAlpha, valueNumeric);
@@ -330,10 +330,10 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
     /* Actually go fetch the data */
     rc = ecmdSetConfiguration(target, configName, validInput, valueAlpha, valueNumeric);
     if (rc) {
@@ -470,11 +470,11 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = getCfamRegister(target, address, buffer);
     if (rc) {
@@ -665,10 +665,10 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -775,10 +775,10 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   target.slotState = target.chipTypeState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = makeSPSystemCall(target, command, standardop);
@@ -865,10 +865,10 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = ecmdDeconfigureTarget(target);
@@ -1223,11 +1223,11 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = getGpRegister(target, gpRegister, buffer);
     if (rc) {
@@ -1411,10 +1411,10 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {

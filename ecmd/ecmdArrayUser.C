@@ -146,10 +146,10 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     numEntries = (uint32_t)atoi(argv[3]);
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -301,9 +301,9 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) {
-        printed = "getarray - Error returned from ecmdConfigLooperInit on chipUnit Looper ";
+        printed = "getarray - Error returned from ecmdLooperInit on chipUnit Looper ";
         printed += ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         // Clean up allocated memory
@@ -328,7 +328,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitArray ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitArray ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = getArrayMultiple(cuTarget, arrayName.c_str(), entries);
       if (rc) {
@@ -545,10 +545,10 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We need to find out info about this array */
     rc = ecmdQueryArray(target, arrayDataList , arrayName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -621,7 +621,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) return rc;
     } else { // !isChipUnitArray
       if (chipUnitType != "") {
@@ -637,7 +637,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitArray ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitArray ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -752,10 +752,10 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
  
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     //Get all the valid trace arrays
     rc = ecmdQueryTraceArray(target, queryTraceData, NULL, ECMD_QUERY_DETAIL_LOW);
@@ -850,11 +850,11 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the core loop */
-        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) return rc;
 
         /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-        while (ecmdConfigLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
+        while (ecmdLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
 
           //Clear the core List
           for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {

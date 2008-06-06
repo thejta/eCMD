@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdInterpreter.C                                   
@@ -12,20 +13,9 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
-
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 
 /* This file tells us what extensions are supported by the plugin env we are compiling in (default is all) */
 #include <ecmdPluginExtensionSupport.H>
-
-
-
 
 
 //----------------------------------------------------------------------

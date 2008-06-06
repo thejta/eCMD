@@ -1,20 +1,18 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips340 src/ecmd/import/ecmdPsiUser.C 1.1 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// (C) COPYRIGHT International Business Machines Corp. 2008 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
+/* $Header$ */
+// Copyright ***********************************************************
+//                                                                      
+// File ecmdCommandUtils.C                                   
+//                                                                      
+// IBM Confidential                                                     
+// OCO Source Materials                                                 
+// 9400 Licensed Internal Code                                          
+// (C) COPYRIGHT IBM CORP. 1996                                         
+//                                                                      
+// The source code for this program is not published or otherwise       
+// divested of its trade secrets, irrespective of what has been         
+// deposited with the U.S. Copyright Office.                            
+//                                                                      
+// End Copyright *******************************************************
 #include <stdio.h>
 
 #include <ecmdCommandUtils.H>
@@ -86,10 +84,10 @@ uint32_t ecmdAdalPsiUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
       if (action == "init") {
         rc = ecmdAdalPsiInit(target,l_psiPort);

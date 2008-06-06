@@ -143,10 +143,10 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::string spyName = argv[1];
   uint32_t startBit = 0x0, numBits = 0x0;
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We are going to enable ring caching to speed up performance */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
@@ -278,7 +278,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitSpy
       if (chipUnitType != "") {
@@ -294,7 +294,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitSpy ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitSpy ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (outputformat == "enum") {
         rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue);
@@ -589,10 +589,10 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We are going to enable ring caching to speed up performance */
     if (!ecmdIsRingCacheEnabled(target)) {
@@ -685,7 +685,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitSpy
       if (chipUnitType != "") {
@@ -701,7 +701,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitSpy ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitSpy ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
 

@@ -1,3 +1,4 @@
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File cipProcUser.C                                   
@@ -12,12 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-
-// Module Description **************************************************
-//
-// Description: CIP Extension Processor functions
-//
-// End Module Description **********************************************
 
 //----------------------------------------------------------------------
 //  Includes
@@ -149,7 +144,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
       target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+      rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
       if (rc) return rc;
 
       if (!strcasecmp(argv[0],"start")) {
@@ -168,7 +163,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       }
 
 
-      while ( ecmdConfigLooperNext(target, looperdata) ) {
+      while ( ecmdLooperNext(target, looperdata) ) {
 
 
         if (!strcasecmp(argv[0],"start")) {
@@ -289,10 +284,10 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
         
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(target, looperdata) ) {
 
 
     if (!strcasecmp(argv[0],"set")) {
@@ -396,10 +391,10 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
     entries.push_back(entry);
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(target, looperdata) ) {
 
     /* Restore to our initial list */
     entries_copy = entries;
@@ -533,10 +528,10 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
   }
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdConfigLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(target, looperdata) ) {
 
 
     rc = cipGetVr(target, entry, sprBuffer);
