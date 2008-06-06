@@ -111,7 +111,7 @@ void ecmdLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc);
 /** @name Looper Functions */
 //@{
 /**
- @brief Selects whether or not to call ecmdConfigLooperInit or ecmdConfigLooperNext based on ECMD_GLOBALVAR_LOOPMODE or i_mode
+ @brief A wrapper function over ecmdConfigLooperInit or ecmdConfigLooperNext
  @param io_target Initial ecmdChipTarget that may contain information used in building the struct to loop over
  @param i_looptype Specify type of all, all chips in system or all chips selected by user
  @param io_state Used internally by ConfigLooper to keep track of state, unique instance must be passed into each loop and must be passed to ecmdConfigLooperNext
@@ -119,10 +119,14 @@ void ecmdLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc);
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdLooperNext
 
+ This function is designed to allow the user to make dynamic choices between a ConfigLoop or ExistLoop.  By using the i_mode default value of ECMD_DYNAMIC_LOOP, the user can change the type of loop via the commandline option -exist.
+
+ The other values of i_mode (ECMD_CONFIG_LOOP and ECMD_EXIST_LOOP) are the exact same as calling ecmdConfigLooperInit or ecmdExistLooperInit directly.
+
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must Be Initialized<br>
  */
-uint32_t ecmdLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_GLOBALVAR_LOOP);
+uint32_t ecmdLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
 
 /**
  @brief Initializes data structures and code to loop over configured and selected elements of the system
@@ -151,17 +155,22 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_loop
 uint32_t ecmdExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state);
 
 /**
- @brief Selects whether or not to call ecmdConfigLooperInit or ecmdConfigLooperNext based on ECMD_GLOBALVAR_LOOPMODE
+ @brief A wrapper function over ecmdConfigLooperNext or ecmdConfigLooperNext
  @param io_target ecmdChipTarget that contains info about next target to process
  @param io_state Used internally to keep track of state, must be passed from output of ecmdConfigLooperInit
  @retval 1 if io_target is valid, 0 if it is not
  @param i_mode Specify if an ecmdConfigLooperNext or ecmdExistLooperNext should be done.  If not set, the global var is used
- @see ecmdConfigLooperInit
+ @see ecmdLooperInit
+
+ This function is designed to allow the user to make dynamic choices between a ConfigLoop or ExistLoop.  By using the i_mode default value of ECMD_DYNAMIC_LOOP, the user can change the type of loop via the commandline option -exist.
+
+ The other values of i_mode (ECMD_CONFIG_LOOP and ECMD_EXIST_LOOP) are the exact same as calling ecmdConfigLooperNext or ecmdExistLooperNext directly.
+
 
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized (from ecmdConfigLooperInit)<br>
  */
-uint32_t ecmdLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_GLOBALVAR_LOOP);
+uint32_t ecmdLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
 
 /**
  @brief Loops over configured and selected elements of the system, updating target to point to them
