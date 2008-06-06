@@ -20,6 +20,7 @@
 //  ---- -------- ---- -------- -----     -----------------------------
 //  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
 //  @01  STG4466       07/26/07 hjh       coe
+//  @01  STGC00401862  05/30/08 hjh       remove ring caching 
 //   
 // End Change Log *****************************************************
 
@@ -83,7 +84,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
-  bool enabledCache = false;            ///< Did we enable the cache ?
+  //bool enabledCache = false;            ///< Did we enable the cache ?
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
@@ -148,17 +149,18 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
+    // as of STGC00401862  we are disabling caching for spy accesses
     /* We are going to enable ring caching to speed up performance */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
-    if (!ecmdIsRingCacheEnabled(target)) {
-      rc = ecmdEnableRingCache(target);
-      if (rc) {
-        ecmdOutputError("getspy - ecmdEnableRingCache call failed!\n");
-        coeRc = rc;
-        continue;
-      }
-      enabledCache = true;
-    }
+    //if (!ecmdIsRingCacheEnabled(target)) {
+    //  rc = ecmdEnableRingCache(target);
+    //  if (rc) {
+    //    ecmdOutputError("getspy - ecmdEnableRingCache call failed!\n");
+    //    coeRc = rc;
+    //    continue;
+    //  }
+    //  enabledCache = true;
+    //}
 
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), detail);
     if (rc || spyDataList.empty()) {
@@ -492,16 +494,17 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       }
     } /* End cuLooper */
 
+    // as of STGC00401862  we are disabling caching for spy accesses
     /* Now that we are moving onto the next target, let's flush the cache we have */
-    if (enabledCache) {
-      enabledCache = false;
-      uint32_t trc = ecmdDisableRingCache(target);
-      if (trc) {
-        ecmdOutputError("getspy - Problems disabling the ring cache\n");
-        coeRc = trc;
-        continue;
-      }
-    }
+    //if (enabledCache) {
+    //  enabledCache = false;
+    //  uint32_t trc = ecmdDisableRingCache(target);
+    //  if (trc) {
+    //    ecmdOutputError("getspy - Problems disabling the ring cache\n");
+    //    coeRc = trc;
+    //    continue;
+    //  }
+    //}
   } /* End poslooper */
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -511,14 +514,17 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
-  if (enabledCache) {
-    enabledCache = false;
-    uint32_t trc = ecmdDisableRingCache(target);
-    if (trc) {
-      ecmdOutputError("getspy - Problems disabling the ring cache\n");
-      coeRc = trc;
-    }
-  }
+
+
+  // as of STGC00401862  we are disabling caching for spy accesses
+  //if (enabledCache) {
+  //  enabledCache = false;
+  //  uint32_t trc = ecmdDisableRingCache(target);
+  //  if (trc) {
+  //    ecmdOutputError("getspy - Problems disabling the ring cache\n");
+  //    coeRc = trc;
+  //  }
+  //}
 
   return rc;
 }
@@ -542,7 +548,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   std::string printed;                  ///< Output data
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
   ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
-  bool enabledCache = false;            ///< Did we enable the cache ?
+  //bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -594,16 +600,17 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
+    // as of STGC00401862  we are disabling caching for spy accesses
     /* We are going to enable ring caching to speed up performance */
-    if (!ecmdIsRingCacheEnabled(target)) {
-      rc = ecmdEnableRingCache(target);
-      if (rc) {
-        ecmdOutputError("putspy - ecmdEnableRingCache call failed!\n");
-        coeRc = rc;
-        continue;
-      }
-      enabledCache = true;
-    }
+    //if (!ecmdIsRingCacheEnabled(target)) {
+    //  rc = ecmdEnableRingCache(target);
+    //  if (rc) {
+    //    ecmdOutputError("putspy - ecmdEnableRingCache call failed!\n");
+    //    coeRc = rc;
+    //    continue;
+    //  }
+    //  enabledCache = true;
+    //}
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
     rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -771,16 +778,17 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       }
     } /* End cuLooper */
 
+    // as of STGC00401862  we are disabling caching for spy accesses
     /* Now that we are moving onto the next target, let's flush the cache we have */
-    if (enabledCache) {
-      uint32_t trc = ecmdDisableRingCache(target);
-      if (trc) {
-        ecmdOutputError("putspy - Problems disabling the ring cache\n");
-        coeRc = trc;
-        continue;
-      }
-      enabledCache = false;
-    }
+    //if (enabledCache) {
+    //  uint32_t trc = ecmdDisableRingCache(target);
+    //  if (trc) {
+    //    ecmdOutputError("putspy - Problems disabling the ring cache\n");
+    //    coeRc = trc;
+    //    continue;
+    //  }
+    //  enabledCache = false;
+    //}
 
   } /* End poslooper */
   // coeRc will be the return code from in the loop, coe mode or not.
