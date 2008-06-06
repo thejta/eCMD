@@ -1843,21 +1843,10 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
  @param i_returnCode Error code to lookup up message for
  @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
  @param i_deleteMessage If true, the message will be deleted when the user retrieves it.  True is the default.
- @retval String containing the error data, empty of error occurred
-*/
-std::string ecmdGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode = true, bool i_deleteMessage = true);
-
-#ifndef DOCUMENTATION
-/**
- @brief Retrieve additional error information for errorcode
- @param i_returnCode Error code to lookup up message for
- @param i_parseReturnCode If true will search through return codes definitions to return define name of error code
- @param i_deleteMessage If true, the message will be deleted when the user retrieves it.  True is the default.
  @param i_messageBorder If true, the return mesage will have a top and bottom border.  True is the default.
  @retval String containing the error data, empty of error occurred
 */
-std::string ecmdGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode = true, bool i_deleteMessage = true, bool i_messageBorder = true);
-#endif
+std::string ecmdGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode = true, bool i_deleteMessage = true, bool i_messageBorder = true);
 
 /**
  @brief Register an error message that has occured
@@ -1903,6 +1892,13 @@ uint32_t ecmdRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_error
  @retval non-zero if unsuccessful
 */
 uint32_t ecmdFlushRegisteredErrorTargets(uint32_t i_returnCode);
+
+/**
+ @brief Returns the string define name for specified returnCode (ie "ECMD_SPY_GROUP_MISMATCH")
+ @param i_returnCode Return code to lookup
+ @retval String name of return code ("UNDEFINED" if unknown)
+*/
+std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
 //@}
 
@@ -2035,17 +2031,6 @@ uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
 
 */
 uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
-
-// This goes into the mainline with 10.0 - JTA 04/8/08
-// Of course, after removing the ecmdCommandUtils.C/.H implementation and removing the Hidden part of the name
-#ifndef DOCUMENTATION
-/**
- @brief Returns the string define name for specified returnCode (ie "ECMD_SPY_GROUP_MISMATCH")
- @param i_returnCode Return code to lookup
- @retval String name of return code ("UNDEFINED" if unknown)
-*/
-std::string ecmdParseReturnCodeHidden(uint32_t i_returnCode);
-#endif
 
 //@}
 

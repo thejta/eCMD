@@ -327,7 +327,7 @@ while (<IN>) {
     if ($type_flag == $INT) {
       $printout .= "  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {\n";
       $printout .= "    std::string errorString;\n";
-      $printout .= "    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);\n";
+      $printout .= "    errorString = ecmdGetErrorMsg(rc, false, false, false);\n";
       $printout .= "    if (errorString.size()) ecmdOutput(errorString.c_str());\n";
       $printout .= "  }\n\n";
     }
