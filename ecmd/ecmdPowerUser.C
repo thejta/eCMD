@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -160,10 +154,10 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (state == "on") {
       printed = "Powering on";
@@ -285,19 +279,19 @@ uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     // Now try a slot level loop on this node loop
     // Preserve the valid states from the looperNext, but reset the slot to wildcard
     vdTarget = target;
     vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
-    rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
+    rc = ecmdLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
     if (rc) break;
 
-    while (ecmdConfigLooperNext(vdTarget, vdLooperData) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(vdTarget, vdLooperData) && (!coeRc || coeMode)) {
       rc = ecmdBiasVoltage(vdTarget, voltageLevel, voltageType, biasValue, waitState);
 
       if (rc) {
@@ -375,11 +369,11 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdQueryBiasState(target, voltageLevel, currentVoltage, targetVoltage, timeLeft);
     if (rc) {

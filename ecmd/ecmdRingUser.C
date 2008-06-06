@@ -196,10 +196,10 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     /************************************************************************/
     /* Kickoff Looping Stuff						     */
     /************************************************************************/
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
-    while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
       /* We need to find out if this chip is JTAG or FSI attached to handle the scandef properly */
       /* Do this on a side copy so we don't mess up the looper states */
@@ -269,7 +269,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the chipUnit loop */
-        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
       } else { // !isChipUnitRing
         if (chipUnitType != "") {
@@ -285,7 +285,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
         rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
         if (rc) {
@@ -664,10 +664,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     bool isChipUnitLatch;		                ///< Is this a core latch ?
   
@@ -723,7 +723,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitRing
       if (chipUnitType != "") {
@@ -739,7 +739,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitLatch ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitLatch ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
       if (ringName.length() != 0)
@@ -1011,11 +1011,11 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
   char outstr[300];
   
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Now we need to find out if this is a core ring or not */
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -1055,7 +1055,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitRing
       if (chipUnitType != "") {
@@ -1071,7 +1071,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
@@ -1263,10 +1263,10 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Now we need to find out if this is a core ring or not */
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
@@ -1306,7 +1306,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !ringData.isChipUnitRelated
       if (chipUnitType != "") {
@@ -1322,7 +1322,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((ringData.isChipUnitRelated ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((ringData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* If the data the user gave on the command line is as long as the ring, and starts at bit 0
          we don't need to do the getRing since they gave us an entire ring image */
@@ -1503,10 +1503,10 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* We are going to enable the ring cache to get performance out of this beast */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
@@ -1580,7 +1580,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitRing
       if (chipUnitType != "") {
@@ -1596,7 +1596,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitLatch ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitLatch ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (ringName.length() != 0)
         rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode);
@@ -1801,11 +1801,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t pattern = 0x0;
   std::string repPattern;
   
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
     if (allRingsFlag) {
       rc = ecmdQueryRing(target, queryRingData, NULL, ECMD_QUERY_DETAIL_LOW);
@@ -1847,7 +1847,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the chipUnit loop */
-        rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
       } else { // !isChipUnitRing
         if (chipUnitType != "") {
@@ -1863,7 +1863,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       }
 
       /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+      while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
         ringName = (*curRingData).ringNames.front();
 
@@ -2180,10 +2180,10 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     return rc;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc) {
@@ -2224,7 +2224,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
     } else { // !isChipUnitRing
       if (chipUnitType != "") {
@@ -2240,7 +2240,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdConfigLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
       uint32_t curOffset = 0;
       uint32_t numBitsToInsert = 0;
       uint32_t numBitsInRing = (uint32_t)queryRingData.front().bitLength;
@@ -2342,10 +2342,10 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = ecmdConfigLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     vdTarget = target;
     // Setup the variable depth looping if not a pos level loop
@@ -2353,10 +2353,10 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
       vdTarget.nodeState = vdTarget.slotState = ECMD_TARGET_FIELD_WILDCARD;
     }
 
-    rc = ecmdConfigLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
+    rc = ecmdLooperInit(vdTarget, ECMD_SELECTED_TARGETS_LOOP_VD, vdLooperData);
     if (rc) break;
 
-    while (ecmdConfigLooperNext(vdTarget, vdLooperData) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(vdTarget, vdLooperData) && (!coeRc || coeMode)) {
 
       if (action == "enable") {
         rc = ecmdEnableRingCache(vdTarget);

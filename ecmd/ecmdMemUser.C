@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -255,10 +249,10 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
 
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (memMode == ECMD_MEM_DMA) {
       rc = getMemDma(target, address, numBytes, returnData);
@@ -500,10 +494,10 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     for (memdataIter = memdata.begin(); memdataIter != memdata.end(); memdataIter++) {
 
@@ -634,11 +628,11 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Query for info about the cache so we can loop properly */
     rc = ecmdQueryCache(target, cacheType, queryCacheData);
@@ -675,7 +669,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
       cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       /* Init the chipUnit loop */
-      rc = ecmdConfigLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
       if (rc) break;
     } else { // !isChipUnitScom
       if (chipUnitType != "") {
@@ -691,7 +685,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitCache ? ecmdConfigLooperNext(cuTarget, cuLooperData) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isChipUnitCache ? ecmdLooperNext(cuTarget, cuLooperData) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = ecmdCacheFlush(cuTarget, cacheType);
       if (rc) {

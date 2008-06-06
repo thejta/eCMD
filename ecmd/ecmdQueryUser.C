@@ -105,12 +105,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdConfigLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperdata)) {
 
       rc = ecmdQueryRing(target, ringdata,argv[2]);
       if (rc) {
@@ -229,12 +229,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdConfigLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperdata)) {
 
       rc = ecmdQuerySpy(target, spydata,argv[2]);
       if (rc) {
@@ -376,12 +376,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdConfigLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperdata)) {
 
       rc = ecmdQueryTraceArray(target, tracearraydata,argv[2]);
       if (rc) {
@@ -484,14 +484,14 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
     if (argv[2] != NULL) {
       address = strtoul(argv[2], NULL, 16);
     }
-    while (ecmdConfigLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperdata)) {
 
       rc = ecmdQueryScom(target, scomdata, address);
       if (rc) {
@@ -594,12 +594,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
     
-    while (ecmdConfigLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperdata)) {
 
       rc = ecmdQueryArray(target, arraydata, argv[2]);
       if (rc) {
@@ -699,7 +699,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
   } else if (!strcmp(argv[0],"configd") || !strcmp(argv[0],"exist")) {
 
-    // Note: ecmdConfigLooperInit/Next is not used here because they only return targets in the config, 
+    // Note: ecmdLooperInit/Next is not used here because they only return targets in the config, 
     //  but this cmd requires keeping track of each target the user requests to be checked
 
     //Setup the target that will be used to query the system config 
@@ -1463,12 +1463,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     bool validPosFound = false;
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdConfigLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperdata)) {
 
       /* Let's look up other info about the chip, namely the ec level */
       rc = ecmdGetChipData (target, chipdata);

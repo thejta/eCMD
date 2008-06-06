@@ -14,12 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -156,20 +150,20 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
  
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while ( ecmdLooperNext(target, looperdata) ) {
       targetCount++;
     }
   }
   
   //Looper to do the actual work
-  rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+  rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
               
 
-  while (ecmdConfigLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
 
     if (!strcasecmp(vpdType, "MOD")) {
       rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
@@ -335,10 +329,10 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (!strcasecmp(vpdType, "MOD")) {
       rc = putModuleVpdKeyword(target, recordName, keyWord, data);
@@ -476,10 +470,10 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (!strcasecmp(vpdType, "MOD")) {
       rc = putModuleVpdImage(target, data);
@@ -608,19 +602,19 @@ uint32_t ecmdGetVpdImageUser(int argc, char * argv[]) {
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
  
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while ( ecmdLooperNext(target, looperdata) ) {
       targetCount++;
     }
   }
   
   //Looper to do the actual work
-  rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+  rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
     if (!strcasecmp(vpdType, "MOD")) {
       rc = getModuleVpdImage(target1, numBytes, data);
     } else {
