@@ -93,7 +93,7 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]);
  Even though you have to pass in the eCMD Release, you are not able to actually change it (because eCMD is already loaded)<br>
 */
 
-uint32_t ecmdSetup(char* i_args);
+uint32_t ecmdSetup(const char* i_args);
 
 #ifndef DOCUMENTATION
 /**
