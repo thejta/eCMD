@@ -175,7 +175,7 @@ int main (int argc, char *argv[])
               /* Display the registered message right away BZ#160 */
               ecmdOutput(parse.c_str());
             }
-            parse = ecmdParseReturnCodeHidden(rc);
+            parse = ecmdParseReturnCode(rc);
             if (strlen(c_argv[0]) + parse.length() < 300)
               sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", c_argv[0], rc, parse.c_str());
             else
@@ -221,7 +221,7 @@ int main (int argc, char *argv[])
           /* Display the registered message right away BZ#160 */
           ecmdOutput(parse.c_str());
         }
-        parse = ecmdParseReturnCodeHidden(rc);
+        parse = ecmdParseReturnCode(rc);
         if (strlen(argv[1]) + parse.length() < 300)
           sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", argv[1], rc, parse.c_str());
         else

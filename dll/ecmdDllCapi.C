@@ -112,8 +112,6 @@ struct ecmdUserInfo {
   std::string chipUnitNum;
   std::string thread;
 
-  bool allTargetSpecified;
-
 } ecmdUserArgs;
 
 /* This is used by the ecmdPush/PopCommandArgs functions */
@@ -428,9 +426,9 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     else queryTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     if (i_mode == ECMD_EXIST_LOOP) {
-      rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+      rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
     } else {
-      rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+      rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
     }
     if (rc) return rc;
 
@@ -464,9 +462,9 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
 
     if (i_looptype == ECMD_ALL_TARGETS_LOOP) {
       if (i_mode == ECMD_EXIST_LOOP) {
-        rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+        rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
       } else {
-        rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_HIGH);
+        rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
       }
     } else {
       if (i_mode == ECMD_EXIST_LOOP) {
@@ -833,13 +831,7 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state) {
   }
 }
 
-
-
-std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage) {
-  return dllGetErrorMsgHidden(i_returnCode, i_parseReturnCode, i_deleteMessage, true);
-}
-
-std::string dllGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder) {
+std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder) {
   std::string ret;
   std::list<ecmdErrorMsg>::iterator cur;
   char tmp[200];
@@ -858,7 +850,7 @@ std::string dllGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode, 
   if (!first) {
     /* We must have found something */
     if (i_parseReturnCode) {
-      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_returnCode,dllParseReturnCodeHidden(i_returnCode).c_str());
+      sprintf(tmp,"RETURN CODE (0x%X): %s\n",i_returnCode,dllParseReturnCode(i_returnCode).c_str());
       ret += tmp;
     }
     if (i_messageBorder) {
@@ -868,7 +860,7 @@ std::string dllGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode, 
 
   /* We want to parse the return code even if we didn't finded extended error info */
   if ((ret.length() == 0) && (i_parseReturnCode)) {
-    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_returnCode, dllParseReturnCodeHidden(i_returnCode).c_str());
+    sprintf(tmp,"ecmdGetErrorMsg - RETURN CODE (0x%X): %s\n",i_returnCode, dllParseReturnCode(i_returnCode).c_str());
     ret = tmp;
   }
 
@@ -988,158 +980,225 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
-  uint8_t MULTI = 1;
-  uint8_t ALL = 2;
+  uint8_t ALL = 1;
+  uint8_t MULTI = 2;
+  uint8_t FT = 3;
+  uint8_t LT = 4;
+  uint8_t ET = 5;
+  uint8_t OT = 6;
 
   //@01c Add init to 1
-  uint8_t cageType = 1;
-  uint8_t nodeType = 1;
-  uint8_t slotType = 1;
-  uint8_t posType  = 1;
-  uint8_t chipUnitNumType = 1;
-  uint8_t threadType = 1;
+  uint8_t cageType = 2;
+  uint8_t nodeType = 2;
+  uint8_t slotType = 2;
+  uint8_t posType  = 2;
+  uint8_t chipUnitNumType = 2;
+  uint8_t threadType = 2;
 
-  std::string allFlag = "all";
   std::string patterns = ",.";
 
   /* Let's setup for the Variable depth, walk up until we find something specified */
   if ((i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD) || (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD_DEFALL)) {
-    /* If they specified -all, we do the lowest depth, like normal */
-    if (!ecmdUserArgs.allTargetSpecified) {
-      if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (i_target.threadState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.thread == "")) {
-        i_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    if ((i_target.threadState == ECMD_TARGET_FIELD_UNUSED) || (i_target.threadState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.thread == "")) {
+      i_target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        if ((i_target.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) || (i_target.chipUnitNumState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.chipUnitNum == "")) {
-          i_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+      if ((i_target.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) || (i_target.chipUnitNumState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.chipUnitNum == "")) {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
 
-          if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (i_target.posState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.pos == "")) {
-            i_target.posState = ECMD_TARGET_FIELD_UNUSED;
+        if ((i_target.posState == ECMD_TARGET_FIELD_UNUSED) || (i_target.posState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.pos == "")) {
+          i_target.posState = ECMD_TARGET_FIELD_UNUSED;
 
-            if ((i_target.slotState == ECMD_TARGET_FIELD_UNUSED) || (i_target.slotState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.slot == "")) {
-              i_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+          if ((i_target.slotState == ECMD_TARGET_FIELD_UNUSED) || (i_target.slotState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.slot == "")) {
+            i_target.slotState = ECMD_TARGET_FIELD_UNUSED;
 
-              if ((i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) || (i_target.nodeState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.node == "")) {
-                i_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+            if ((i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) || (i_target.nodeState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.node == "")) {
+              i_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
 
-                if ((i_target.cageState == ECMD_TARGET_FIELD_UNUSED) || (i_target.cageState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.cage == "")) {
-                  i_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+              if ((i_target.cageState == ECMD_TARGET_FIELD_UNUSED) || (i_target.cageState != ECMD_TARGET_FIELD_VALID && ecmdUserArgs.cage == "")) {
+                i_target.cageState = ECMD_TARGET_FIELD_UNUSED;
 
 
-                } /* cage */
-              } /* node */
-            } /* slot */
-          } /* pos */
-        } /* chipUnitNum */
-      } /* thread */
-    }
+              } /* cage */
+            } /* node */
+          } /* slot */
+        } /* pos */
+      } /* chipUnitNum */
+    } /* thread */
     /* Go back to a standard loop now that states are set */
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD)
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_VD) {
       i_looptype = ECMD_SELECTED_TARGETS_LOOP;
-    else
+    } else {
       i_looptype = ECMD_SELECTED_TARGETS_LOOP_DEFALL;
+    }
   }
 
-  //update target with useful info in the ecmdUserArgs struct
-  //cage
+  /* If the cage is set to ignore we can't return anything so let's just short circuit */
   if (i_target.cageState == ECMD_TARGET_FIELD_UNUSED) {
-    /* If the cage is set to ignore we can't return anything so let's just short circuit */
     return ECMD_SUCCESS;
   }
 
+  /* ----------------------------------------------------------- */
+  /* update target with useful info from the ecmdUserArgs struct */
+  /* ----------------------------------------------------------- */
+
+  //cage
   /* If the state is already valid we just continue on */
   if (i_target.cageState == ECMD_TARGET_FIELD_VALID) {
     cageType = SINGLE;
-    
-    /* If the user specified -all or -kall we will do everything */
-  } else if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.cage == allFlag)) {
-    i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    cageType = ALL;
   }
-
-  /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-  else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
-    if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
-      dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
-      return ECMD_INVALID_ARGS;
+  /* Did the user specify any cage args */
+  else if (ecmdUserArgs.cage.length()) {
+    /* See if the user specified -gall or -kall */
+    if (ecmdUserArgs.cage == "all") {
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      cageType = ALL;
     }
-    i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    cageType = MULTI;
-  }
 
-  /* Otherwise we have a single entry -k0 or nothing at all */
-  else {
-
-    /* did the user specify a number */
-    if (ecmdUserArgs.cage.length() != 0) {
+    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+    else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
-        dllOutputError("dllQuerySelected - Cage (-k#) argument contained invalid characters\n");
+        dllOutputError("dllQuerySelected - cage (-k#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      if (ecmdUserArgs.cage == "-") {
-	dllOutputError("dllQuerySelected - Position (-k-) not supported\n");
-	return ECMD_INVALID_ARGS;
-      }
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      cageType = MULTI;
+    }
+
+    /* See if we have a single entry -k1 */
+    else if (dllIsValidTargetString(ecmdUserArgs.cage)) {
+      i_target.cageState = ECMD_TARGET_FIELD_VALID;
       i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str());
       cageType = SINGLE;
-      i_target.cageState = ECMD_TARGET_FIELD_VALID;
+    }
 
-      /* User didn't specify anything, if default all is on set or states */
-    } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+    /* See if the user specified -gft or -kft */
+    else if (ecmdUserArgs.cage == "ft") {
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      cageType = FT;
+    }
+
+    /* See if the user specified -glt or -klt */
+    else if (ecmdUserArgs.cage == "lt") {
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      cageType = LT;
+    }
+
+    /* See if the user specified -get or -ket */
+    else if (ecmdUserArgs.cage == "et") {
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      cageType = ET;
+    }
+
+    /* See if the user specified -got or -kot */
+    else if (ecmdUserArgs.cage == "ot") {
+      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+      cageType = OT;
+    }
+
+    /* See if the user specified or -k- */
+    else if (ecmdUserArgs.cage == "-") {
+      dllOutputError("dllQuerySelected - argument -k- not supported\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    /* Finally, we can error out */
+    else {
+      dllOutputError("dllQuerySelected - unknown -k options found!\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+  /* Nothing was specified, set some defaults */
+  else {
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
       /* Default to all */
       i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
       cageType = ALL;
-
-      /* User didn't specify anything and we default to 0 */
     } else {
-      i_target.cage = 0x0;
+      /* User didn't specify anything and we default to 0 */
+      i_target.cage = 0;
       cageType = SINGLE;
       i_target.cageState = ECMD_TARGET_FIELD_VALID;
     }
-
   }
 
   //node
   /* If the state is already valid we just continue on */
   if (i_target.nodeState == ECMD_TARGET_FIELD_VALID) {
     nodeType = SINGLE;
-
-  } else if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
-    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.node == allFlag)) {
+  }
+  /* Did the user specify any node args */
+  else if (ecmdUserArgs.node.length()) {
+    /* See if the user specified -gall or -nall */
+    if (ecmdUserArgs.node == "all") {
       i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
       nodeType = ALL;
     }
+
+    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
     else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.node)) {
-        dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
+        dllOutputError("dllQuerySelected - node (-n#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
       i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
       nodeType = MULTI;
     }
+
+    /* See if we have a single entry -n1 */
+    else if (dllIsValidTargetString(ecmdUserArgs.node)) {
+      i_target.nodeState = ECMD_TARGET_FIELD_VALID;
+      i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str());
+      nodeType = SINGLE;
+    }
+
+    /* See if the user specified -gft or -nft */
+    else if (ecmdUserArgs.node == "ft") {
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+      nodeType = FT;
+    }
+
+    /* See if the user specified -glt or -nlt */
+    else if (ecmdUserArgs.node == "lt") {
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+      nodeType = LT;
+    }
+
+    /* See if the user specified -get or -net */
+    else if (ecmdUserArgs.node == "et") {
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+      nodeType = ET;
+    }
+
+    /* See if the user specified -got or -not */
+    else if (ecmdUserArgs.node == "ot") {
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+      nodeType = OT;
+    }
+
+    /* See if the user specified or -n- */
+    else if (ecmdUserArgs.node == "-") {
+      i_target.nodeState = ECMD_TARGET_FIELD_VALID;
+      i_target.node = ECMD_TARGETDEPTH_NA;
+      nodeType = SINGLE;
+    }
+
+    /* Finally, we can error out */
     else {
-
-      if (ecmdUserArgs.node.length() != 0) {
-        if (!dllIsValidTargetString(ecmdUserArgs.node)) {
-          dllOutputError("dllQuerySelected - Node (-n#) argument contained invalid characters\n");
-          return ECMD_INVALID_ARGS;
-        }
-	if (ecmdUserArgs.node == "-")
-	  i_target.node = ECMD_TARGETDEPTH_NA;
-	else
-	  i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str());
-        nodeType = SINGLE;
-        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
-      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-        /* Default to all */
-        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-        nodeType = ALL;
-      }
-      else {
-        i_target.node = 0x0;
-        nodeType = SINGLE;
-        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
-      }
-
+      dllOutputError("dllQuerySelected - unknown -n options found!\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+  /* Nothing was specified, set some defaults */
+  else {
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+      /* Default to all */
+      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+      nodeType = ALL;
+    } else {
+      /* User didn't specify anything and we default to 0 */
+      i_target.node = 0;
+      nodeType = SINGLE;
+      i_target.nodeState = ECMD_TARGET_FIELD_VALID;
     }
   }
 
@@ -1147,89 +1206,160 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.slotState == ECMD_TARGET_FIELD_VALID) {
     slotType = SINGLE;
-
-  } else if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
-    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.slot == allFlag)) {
+  }
+  /* Did the user specify any slot args */
+  else if (ecmdUserArgs.slot.length()) {
+    /* See if the user specified -gall or -sall */
+    if (ecmdUserArgs.slot == "all") {
       i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
       slotType = ALL;
     }
+
+    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
     else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
-        dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
+        dllOutputError("dllQuerySelected - slot (-s#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
       i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
       slotType = MULTI;
     }
+
+    /* See if we have a single entry -s1 */
+    else if (dllIsValidTargetString(ecmdUserArgs.slot)) {
+      i_target.slotState = ECMD_TARGET_FIELD_VALID;
+      i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str());
+      slotType = SINGLE;
+    }
+
+    /* See if the user specified -gft or -sft */
+    else if (ecmdUserArgs.slot == "ft") {
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+      slotType = FT;
+    }
+
+    /* See if the user specified -glt or -slt */
+    else if (ecmdUserArgs.slot == "lt") {
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+      slotType = LT;
+    }
+
+    /* See if the user specified -get or -set */
+    else if (ecmdUserArgs.slot == "et") {
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+      slotType = ET;
+    }
+
+    /* See if the user specified -got or -sot */
+    else if (ecmdUserArgs.slot == "ot") {
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+      slotType = OT;
+    }
+
+    /* See if the user specified or -s- */
+    else if (ecmdUserArgs.slot == "-") {
+      i_target.slotState = ECMD_TARGET_FIELD_VALID;
+      i_target.slot = ECMD_TARGETDEPTH_NA;
+      slotType = SINGLE;
+    }
+
+    /* Finally, we can error out */
     else {
-
-      if (ecmdUserArgs.slot.length() != 0) {
-        if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
-          dllOutputError("dllQuerySelected - Slot (-s#) argument contained invalid characters\n");
-          return ECMD_INVALID_ARGS;
-        }
-	if (ecmdUserArgs.slot == "-")
-	  i_target.slot = ECMD_TARGETDEPTH_NA;
-	else
-	  i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str());
-        slotType = SINGLE;
-        i_target.slotState = ECMD_TARGET_FIELD_VALID;
-      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-        /* Default to all */
-        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-        slotType = ALL;
-      }
-      else {
-        i_target.slot = 0x0;
-        slotType = SINGLE;
-        i_target.slotState = ECMD_TARGET_FIELD_VALID;
-      }
-
+      dllOutputError("dllQuerySelected - unknown -s options found!\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+  /* Nothing was specified, set some defaults */
+  else {
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+      /* Default to all */
+      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+      slotType = ALL;
+    } else {
+      /* User didn't specify anything and we default to 0 */
+      i_target.slot = 0;
+      slotType = SINGLE;
+      i_target.slotState = ECMD_TARGET_FIELD_VALID;
     }
   }
 
-  //position
+  //pos
   /* If the state is already valid we just continue on */
   if (i_target.posState == ECMD_TARGET_FIELD_VALID) {
     posType = SINGLE;
-
-  } else if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
-
-    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.pos == allFlag)) {
-      posType = ALL;
+  }
+  /* Did the user specify any pos args */
+  else if (ecmdUserArgs.pos.length()) {
+    /* See if the user specified -gall or -pall */
+    if (ecmdUserArgs.pos == "all") {
       i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = ALL;
     }
+
+    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
     else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
-        dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
+        dllOutputError("dllQuerySelected - pos (-p#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
-      posType = MULTI;
       i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = MULTI;
     }
+
+    /* See if we have a single entry -p1 */
+    else if (dllIsValidTargetString(ecmdUserArgs.pos)) {
+      i_target.posState = ECMD_TARGET_FIELD_VALID;
+      i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str());
+      posType = SINGLE;
+    }
+
+    /* See if the user specified -gft or -pft */
+    else if (ecmdUserArgs.pos == "ft") {
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = FT;
+    }
+
+    /* See if the user specified -glt or -plt */
+    else if (ecmdUserArgs.pos == "lt") {
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = LT;
+    }
+
+    /* See if the user specified -get or -pet */
+    else if (ecmdUserArgs.pos == "et") {
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = ET;
+    }
+
+    /* See if the user specified -got or -pot */
+    else if (ecmdUserArgs.pos == "ot") {
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = OT;
+    }
+
+    /* See if the user specified or -p- */
+    else if (ecmdUserArgs.pos == "-") {
+      dllOutputError("dllQuerySelected - argument -p- not supported\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    /* Finally, we can error out */
     else {
-      if (ecmdUserArgs.pos.length() != 0) {
-        if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
-          dllOutputError("dllQuerySelected - Position (-p#) argument contained invalid characters\n");
-          return ECMD_INVALID_ARGS;
-        }
-	if (ecmdUserArgs.pos == "-") {
-          dllOutputError("dllQuerySelected - Position (-p-) not supported\n");
-          return ECMD_INVALID_ARGS;
-	}
-        i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str());
-        posType = SINGLE;
-        i_target.posState = ECMD_TARGET_FIELD_VALID;
-      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-        /* Default to all */
-        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-        posType = ALL;
-      }
-      else {
-        i_target.pos = 0x0;
-        posType = SINGLE;
-        i_target.posState = ECMD_TARGET_FIELD_VALID;
-      }
+      dllOutputError("dllQuerySelected - unknown -p options found!\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+  /* Nothing was specified, set some defaults */
+  else {
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+      /* Default to all */
+      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      posType = ALL;
+    } else {
+      /* User didn't specify anything and we default to 0 */
+      i_target.pos = 0;
+      posType = SINGLE;
+      i_target.posState = ECMD_TARGET_FIELD_VALID;
     }
   }
 
@@ -1237,45 +1367,79 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
     chipUnitNumType = SINGLE;
-
-  } else if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
-    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.chipUnitNum == allFlag)) {
+  }
+  /* Did the user specify any chipUnitNum args */
+  else if (ecmdUserArgs.chipUnitNum.length()) {
+    /* See if the user specified -gall or -call */
+    if (ecmdUserArgs.chipUnitNum == "all") {
       i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
       chipUnitNumType = ALL;
     }
+
+    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
     else if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
-        dllOutputError("dllQuerySelected - ChipUnit/Core (-c#) argument contained invalid characters\n");
+        dllOutputError("dllQuerySelected - chipUnitNum/core (-c#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
       i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
       chipUnitNumType = MULTI;
     }
+
+    /* See if we have a single entry -c1 */
+    else if (dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+      i_target.chipUnitNum = (uint32_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
+      chipUnitNumType = SINGLE;
+    }
+
+    /* See if the user specified -gft or -cft */
+    else if (ecmdUserArgs.chipUnitNum == "ft") {
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = FT;
+    }
+
+    /* See if the user specified -glt or -clt */
+    else if (ecmdUserArgs.chipUnitNum == "lt") {
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = LT;
+    }
+
+    /* See if the user specified -get or -cet */
+    else if (ecmdUserArgs.chipUnitNum == "et") {
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = ET;
+    }
+
+    /* See if the user specified -got or -cot */
+    else if (ecmdUserArgs.chipUnitNum == "ot") {
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = OT;
+    }
+
+    /* See if the user specified or -c- */
+    else if (ecmdUserArgs.chipUnitNum == "-") {
+      dllOutputError("dllQuerySelected - argument -c- not supported\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    /* Finally, we can error out */
     else {
-
-      if (ecmdUserArgs.chipUnitNum.length() != 0) {
-        if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
-          dllOutputError("dllQuerySelected - ChipUnit/Core (-c#) argument contained invalid characters\n");
-          return ECMD_INVALID_ARGS;
-        }
-	if (ecmdUserArgs.chipUnitNum == "-") {
-          dllOutputError("dllQuerySelected - Position (-c-) not supported\n");
-          return ECMD_INVALID_ARGS;
-	}
-        i_target.chipUnitNum = (uint8_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
-        chipUnitNumType = SINGLE;
-        i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
-      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-        /* Default to all */
-        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-        chipUnitNumType = ALL;
-      }
-      else {
-        i_target.chipUnitNum = 0x0;
-        chipUnitNumType = SINGLE;
-        i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
-      }
-
+      dllOutputError("dllQuerySelected - unknown -c options found!\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+  /* Nothing was specified, set some defaults */
+  else {
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+      /* Default to all */
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      chipUnitNumType = ALL;
+    } else {
+      /* User didn't specify anything and we default to 0 */
+      i_target.chipUnitNum = 0;
+      chipUnitNumType = SINGLE;
+      i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
     }
   }
 
@@ -1283,45 +1447,79 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.threadState == ECMD_TARGET_FIELD_VALID) {
     threadType = SINGLE;
-
-  } else if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
-    if ((ecmdUserArgs.allTargetSpecified == true) || (ecmdUserArgs.thread == allFlag) || (ecmdUserArgs.thread == "alive")) {
+  }
+  /* Did the user specify any thread args */
+  else if (ecmdUserArgs.thread.length()) {
+    /* See if the user specified -gall or -tall */
+    if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread == "alive") {
       i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
       threadType = ALL;
     }
+
+    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
     else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
       if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
-        dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
+        dllOutputError("dllQuerySelected - thread (-t#) argument contained invalid characters\n");
         return ECMD_INVALID_ARGS;
       }
       i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = MULTI;    
+      threadType = MULTI;
     }
+
+    /* See if we have a single entry -t1 */
+    else if (dllIsValidTargetString(ecmdUserArgs.thread)) {
+      i_target.threadState = ECMD_TARGET_FIELD_VALID;
+      i_target.thread = (uint32_t)atoi(ecmdUserArgs.thread.c_str());
+      threadType = SINGLE;
+    }
+
+    /* See if the user specified -gft or -tft */
+    else if (ecmdUserArgs.thread == "ft") {
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      threadType = FT;
+    }
+
+    /* See if the user specified -glt or -tlt */
+    else if (ecmdUserArgs.thread == "lt") {
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      threadType = LT;
+    }
+
+    /* See if the user specified -get or -tet */
+    else if (ecmdUserArgs.thread == "et") {
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      threadType = ET;
+    }
+
+    /* See if the user specified -got or -tot */
+    else if (ecmdUserArgs.thread == "ot") {
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      threadType = OT;
+    }
+
+    /* See if the user specified or -t- */
+    else if (ecmdUserArgs.thread == "-") {
+      dllOutputError("dllQuerySelected - argument -t- not supported\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    /* Finally, we can error out */
     else {
-
-      if (ecmdUserArgs.thread.length() != 0) {
-        if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
-          dllOutputError("dllQuerySelected - Thread (-t#) argument contained invalid characters\n");
-          return ECMD_INVALID_ARGS;
-        }
-	if (ecmdUserArgs.thread == "-") {
-          dllOutputError("dllQuerySelected - Position (-t-) not supported\n");
-          return ECMD_INVALID_ARGS;
-	}
-        i_target.thread = (uint8_t)atoi(ecmdUserArgs.thread.c_str());
-        threadType = SINGLE;
-        i_target.threadState = ECMD_TARGET_FIELD_VALID;
-      } else if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-        /* Default to all */
-        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-        threadType = ALL;
-      }
-      else {
-        i_target.thread = 0x0;
-        threadType = SINGLE;
-        i_target.threadState = ECMD_TARGET_FIELD_VALID;
-      }
-
+      dllOutputError("dllQuerySelected - unknown -t options found!\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+  /* Nothing was specified, set some defaults */
+  else {
+    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+      /* Default to all */
+      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      threadType = ALL;
+    } else {
+      /* User didn't specify anything and we default to 0 */
+      i_target.thread = 0;
+      threadType = SINGLE;
+      i_target.threadState = ECMD_TARGET_FIELD_VALID;
     }
   }
 
@@ -1385,155 +1583,340 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   }
 #endif
 
+  // Within this loop the first for calls to dllRemoveCurrentElement()
+  // generates lint msg 713 & 820: Loss of precision (arg. no. 1) 
+  // So disabling that message within this scope (re-enable at end of 
+  // loop).      @02a
+  //lint -e713
+  //lint -e820
+
   /* now I need to go in and clean out any excess stuff */
   std::list<ecmdCageData>::iterator curCage = o_queryData.cageData.begin();
-
   while (curCage != o_queryData.cageData.end()) {
 
-    // Within this loop the first for calls to dllRemoveCurrentElement()
-    // generates lint msg 713 & 820: Loss of precision (arg. no. 1) 
-    // So disabling that message within this scope (re-enable at end of 
-    // loop).      @02a
-    //lint -e713
-    //lint -e820
-
-    /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-    if (cageType == MULTI) {
+    /* If cageType > MULTI, they specified one of the special queries where items need to be removed */
+    if (cageType > MULTI) {
       /* Is the current element in the list of numbers the user provided, if not remove it */
-      if (dllRemoveCurrentElement((*curCage).cageId, ecmdUserArgs.cage)) {
-        curCage = o_queryData.cageData.erase(curCage);
-        continue;
+      if (cageType == MULTI) {
+        if (dllRemoveCurrentElement(curCage->cageId, ecmdUserArgs.cage)) {
+          curCage = o_queryData.cageData.erase(curCage);
+          continue;
+        }
+      }
+      /* Is the current element in the list is first, keep it.  Otherwise, remove */
+      else if (cageType == FT) {
+        if (curCage != o_queryData.cageData.begin()) {
+          curCage = o_queryData.cageData.erase(curCage);
+          continue;
+        }
+      }
+      /* Is the current element in the list is last, keep it.  Otherwise, remove */
+      else if (cageType == LT) {
+        std::list<ecmdCageData>::iterator lastCage = curCage;
+        lastCage++;
+        if (lastCage != o_queryData.cageData.end()) {
+          curCage = o_queryData.cageData.erase(curCage);
+          continue;
+        }
+      }
+      /* If the current element in the list is even, keep it.  Otherwise, remove */
+      else if (cageType == ET) {
+        if ((curCage->cageId % 2) == 1) {
+          curCage = o_queryData.cageData.erase(curCage);
+          continue;
+        }
+      }
+      /* If the current element in the list is odd, keep it.  Otherwise, remove */
+      else if (cageType == OT) {
+        if ((curCage->cageId % 2) == 0) {
+          curCage = o_queryData.cageData.erase(curCage);
+          continue;
+        }
       }
     }
 
     /* Walk through the nodes */
-    std::list<ecmdNodeData>::iterator curNode = (*curCage).nodeData.begin();
+    std::list<ecmdNodeData>::iterator curNode = curCage->nodeData.begin();
+    while (curNode != curCage->nodeData.end()) {
 
-    while (curNode != (*curCage).nodeData.end()) {
-
-      /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-      if (nodeType == MULTI) {
+      /* If nodeType > MULTI, they specified one of the special queries where items need to be removed */
+      if (nodeType > MULTI) {
         /* Is the current element in the list of numbers the user provided, if not remove it */
-        if (dllRemoveCurrentElement((*curNode).nodeId, ecmdUserArgs.node)) {
-          curNode = (*curCage).nodeData.erase(curNode);
-          continue;
+        if (nodeType == MULTI) {
+          if (dllRemoveCurrentElement(curNode->nodeId, ecmdUserArgs.node)) {
+            curNode = curCage->nodeData.erase(curNode);
+            continue;
+          }
+        }
+        /* Is the current element in the list is first, keep it.  Otherwise, remove */
+        else if (nodeType == FT) {
+          if (curNode != curCage->nodeData.begin()) {
+            curNode = curCage->nodeData.erase(curNode);
+            continue;
+          }
+        }
+        /* Is the current element in the list is last, keep it.  Otherwise, remove */
+        else if (nodeType == LT) {
+          std::list<ecmdNodeData>::iterator lastNode = curNode;
+          lastNode++;
+          if (lastNode != curCage->nodeData.end()) {
+            curNode = curCage->nodeData.erase(curNode);
+            continue;
+          }
+        }
+        /* If the current element in the list is even, keep it.  Otherwise, remove */
+        else if (nodeType == ET) {
+          if ((curNode->nodeId % 2) == 1) {
+            curNode = curCage->nodeData.erase(curNode);
+            continue;
+          }
+        }
+        /* If the current element in the list is odd, keep it.  Otherwise, remove */
+        else if (nodeType == OT) {
+          if ((curNode->nodeId % 2) == 0) {
+            curNode = curCage->nodeData.erase(curNode);
+            continue;
+          }
         }
       }
 
       /* Walk through the slots */
-      std::list<ecmdSlotData>::iterator curSlot = (*curNode).slotData.begin();
+      std::list<ecmdSlotData>::iterator curSlot = curNode->slotData.begin();
+      while (curSlot != curNode->slotData.end()) {
 
-      while (curSlot != (*curNode).slotData.end()) {
-
-        /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-        if (slotType == MULTI) {
+        /* If slotType > MULTI, they specified one of the special queries where items need to be removed */
+        if (slotType > MULTI) {
           /* Is the current element in the list of numbers the user provided, if not remove it */
-          if (dllRemoveCurrentElement((*curSlot).slotId, ecmdUserArgs.slot)) {
-            curSlot = (*curNode).slotData.erase(curSlot);
-            continue;
+          if (slotType == MULTI) {
+            if (dllRemoveCurrentElement(curSlot->slotId, ecmdUserArgs.slot)) {
+              curSlot = curNode->slotData.erase(curSlot);
+              continue;
+            }
+          }
+          /* Is the current element in the list is first, keep it.  Otherwise, remove */
+          else if (slotType == FT) {
+            if (curSlot != curNode->slotData.begin()) {
+              curSlot = curNode->slotData.erase(curSlot);
+              continue;
+            }
+          }
+          /* Is the current element in the list is last, keep it.  Otherwise, remove */
+          else if (slotType == LT) {
+            std::list<ecmdSlotData>::iterator lastSlot = curSlot;
+            lastSlot++;
+            if (lastSlot != curNode->slotData.end()) {
+              curSlot = curNode->slotData.erase(curSlot);
+              continue;
+            }
+          }
+          /* If the current element in the list is even, keep it.  Otherwise, remove */
+          else if (slotType == ET) {
+            if ((curSlot->slotId % 2) == 1) {
+              curSlot = curNode->slotData.erase(curSlot);
+              continue;
+            }
+          }
+          /* If the current element in the list is odd, keep it.  Otherwise, remove */
+          else if (slotType == OT) {
+            if ((curSlot->slotId % 2) == 0) {
+              curSlot = curNode->slotData.erase(curSlot);
+              continue;
+            }
           }
         }
 
         /* Walk through all the chip positions */
-        std::list<ecmdChipData>::iterator curChip = (*curSlot).chipData.begin();
+        std::list<ecmdChipData>::iterator curChip = curSlot->chipData.begin();
+        while (curChip != curSlot->chipData.end()) {
 
-        while (curChip != (*curSlot).chipData.end()) {
-
-          /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-          if (posType == MULTI) {
+          /* If posType > MULTI, they specified one of the special queries where items need to be removed */
+          if (posType > MULTI) {
             /* Is the current element in the list of numbers the user provided, if not remove it */
-            if (dllRemoveCurrentElement((*curChip).pos, ecmdUserArgs.pos)) {
-              curChip = (*curSlot).chipData.erase(curChip);
-              continue;
+            if (posType == MULTI) {
+              if (dllRemoveCurrentElement(curChip->pos, ecmdUserArgs.pos)) {
+                curChip = curSlot->chipData.erase(curChip);
+                continue;
+              }
+            }
+            /* Is the current element in the list is first, keep it.  Otherwise, remove */
+            else if (posType == FT) {
+              if (curChip != curSlot->chipData.begin()) {
+                curChip = curSlot->chipData.erase(curChip);
+                continue;
+              }
+            }
+            /* Is the current element in the list is last, keep it.  Otherwise, remove */
+            else if (posType == LT) {
+              std::list<ecmdChipData>::iterator lastChip = curChip;
+              lastChip++;
+              if (lastChip != curSlot->chipData.end()) {
+                curChip = curSlot->chipData.erase(curChip);
+                continue;
+              }
+            }
+            /* If the current element in the list is even, keep it.  Otherwise, remove */
+            else if (posType == ET) {
+              if ((curChip->pos % 2) == 1) {
+                curChip = curSlot->chipData.erase(curChip);
+                continue;
+              }
+            }
+            /* If the current element in the list is odd, keep it.  Otherwise, remove */
+            else if (posType == OT) {
+              if ((curChip->pos % 2) == 0) {
+                curChip = curSlot->chipData.erase(curChip);
+                continue;
+              }
             }
           }
 
           /* Walk through all the chipUnits */
-          std::list<ecmdChipUnitData>::iterator curChipUnit = (*curChip).chipUnitData.begin();
+          std::list<ecmdChipUnitData>::iterator curChipUnit = curChip->chipUnitData.begin();
+          while (curChipUnit != curChip->chipUnitData.end()) {
 
-          while (curChipUnit != (*curChip).chipUnitData.end()) {
-
-            /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-            if (chipUnitNumType == MULTI) {
+            /* If chipUnitNumType > MULTI, they specified one of the special queries where items need to be removed */
+            if (chipUnitNumType > MULTI) {
               /* Is the current element in the list of numbers the user provided, if not remove it */
-              if (dllRemoveCurrentElement((*curChipUnit).chipUnitNum, ecmdUserArgs.chipUnitNum)) {
-                curChipUnit = (*curChip).chipUnitData.erase(curChipUnit);
-                continue;
+              if (chipUnitNumType == MULTI) {
+                if (dllRemoveCurrentElement(curChipUnit->chipUnitNum, ecmdUserArgs.chipUnitNum)) {
+                  curChipUnit = curChip->chipUnitData.erase(curChipUnit);
+                  continue;
+                }
+              }
+              /* Is the current element in the list is first, keep it.  Otherwise, remove */
+              else if (chipUnitNumType == FT) {
+                if (curChipUnit != curChip->chipUnitData.begin()) {
+                  curChipUnit = curChip->chipUnitData.erase(curChipUnit);
+                  continue;
+                }
+              }
+              /* Is the current element in the list is last, keep it.  Otherwise, remove */
+              else if (chipUnitNumType == LT) {
+                std::list<ecmdChipUnitData>::iterator lastChipUnit = curChipUnit;
+                lastChipUnit++;
+                if (lastChipUnit != curChip->chipUnitData.end()) {
+                  curChipUnit = curChip->chipUnitData.erase(curChipUnit);
+                  continue;
+                }
+              }
+              /* If the current element in the list is even, keep it.  Otherwise, remove */
+              else if (chipUnitNumType == ET) {
+                if ((curChipUnit->chipUnitNum % 2) == 1) {
+                  curChipUnit = curChip->chipUnitData.erase(curChipUnit);
+                  continue;
+                }
+              }
+              /* If the current element in the list is odd, keep it.  Otherwise, remove */
+              else if (chipUnitNumType == OT) {
+                if ((curChipUnit->chipUnitNum % 2) == 0) {
+                  curChipUnit = curChip->chipUnitData.erase(curChipUnit);
+                  continue;
+                }
               }
             }
 
             /* Walk through the threads */
-            std::list<ecmdThreadData>::iterator curThread = (*curChipUnit).threadData.begin();
+            std::list<ecmdThreadData>::iterator curThread = curChipUnit->threadData.begin();
+            while (curThread != curChipUnit->threadData.end()) {
 
-            while (curThread != (*curChipUnit).threadData.end()) {
-
-              /* If MULTI, they specified something like 1,2..5,6, the query was a wildcard so we need to remove any entries not in the list */
-              if (threadType == MULTI) {
+              /* If threadType > MULTI, they specified one of the special queries where items need to be removed */
+              if (threadType > MULTI) {
                 /* Is the current element in the list of numbers the user provided, if not remove it */
-                if (dllRemoveCurrentElement((*curThread).threadId, ecmdUserArgs.thread)) {
-                  curThread = (*curChipUnit).threadData.erase(curThread);
-                  continue;
+                if (threadType == MULTI) {
+                  if (dllRemoveCurrentElement(curThread->threadId, ecmdUserArgs.thread)) {
+                    curThread = curChipUnit->threadData.erase(curThread);
+                    continue;
+                  }
+                }
+                /* Is the current element in the list is first, keep it.  Otherwise, remove */
+                else if (threadType == FT) {
+                  if (curThread != curChipUnit->threadData.begin()) {
+                    curThread = curChipUnit->threadData.erase(curThread);
+                    continue;
+                  }
+                }
+                /* Is the current element in the list is last, keep it.  Otherwise, remove */
+                else if (threadType == LT) {
+                  std::list<ecmdThreadData>::iterator lastThread = curThread;
+                  lastThread++;
+                  if (lastThread != curChipUnit->threadData.end()) {
+                    curThread = curChipUnit->threadData.erase(curThread);
+                    continue;
+                  }
+                }
+                /* If the current element in the list is even, keep it.  Otherwise, remove */
+                else if (threadType == ET) {
+                  if ((curThread->threadId % 2) == 1) {
+                    curThread = curChipUnit->threadData.erase(curThread);
+                    continue;
+                  }
+                }
+                /* If the current element in the list is odd, keep it.  Otherwise, remove */
+                else if (threadType == OT) {
+                  if ((curThread->threadId % 2) == 0) {
+                    curThread = curChipUnit->threadData.erase(curThread);
+                    continue;
+                  }
                 }
               }
 
               curThread++;
             }  /* while curThread */
-	    if ((i_target.threadState != ECMD_TARGET_FIELD_UNUSED) &&
-		curChipUnit->threadData.empty()) {
-	      curChipUnit = curChip->chipUnitData.erase(curChipUnit);
-	    } else {
-	      curChipUnit++;
-	    }
+            if ((i_target.threadState != ECMD_TARGET_FIELD_UNUSED) &&
+                curChipUnit->threadData.empty()) {
+              curChipUnit = curChip->chipUnitData.erase(curChipUnit);
+            } else {
+              curChipUnit++;
+            }
           }  /* while curChipUnit */
 
-	  if ((i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) &&
-	      curChip->chipUnitData.empty()) {
-	    curChip = curSlot->chipData.erase(curChip);
-	  } else {
-	    curChip++;
-	  }
+          if ((i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) &&
+              curChip->chipUnitData.empty()) {
+            curChip = curSlot->chipData.erase(curChip);
+          } else {
+            curChip++;
+          }
         }  /* while curChip */
 
         /* Let's check to make sure there is something left here after we removed everything */
-	if (((i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) ||
-	     (i_target.posState != ECMD_TARGET_FIELD_UNUSED)) &&
-	    curSlot->chipData.empty()) {
-	  curSlot = curNode->slotData.erase(curSlot);
-	} else {
-	  curSlot++;
-	}
+        if (((i_target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) ||
+             (i_target.posState != ECMD_TARGET_FIELD_UNUSED)) &&
+            curSlot->chipData.empty()) {
+          curSlot = curNode->slotData.erase(curSlot);
+        } else {
+          curSlot++;
+        }
       }  /* while curSlot */
 
       /* Let's check to make sure there is something left here after we removed everything */
       if ((i_target.slotState != ECMD_TARGET_FIELD_UNUSED) &&
-	  curNode->slotData.empty()) {
-	curNode = curCage->nodeData.erase(curNode);
+          curNode->slotData.empty()) {
+        curNode = curCage->nodeData.erase(curNode);
       } else {
-	curNode++;
+        curNode++;
       }
     }  /* while curNode */
 
     /* Let's check to make sure there is something left here after we removed everything */
     if ((i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) &&
-	curCage->nodeData.empty()) {
+        curCage->nodeData.empty()) {
       curCage = o_queryData.cageData.erase(curCage);
     } else {
       curCage++;
     }
-
-    //lint +e713   @02a
-    //lint +e820   @02a
   }  /* while curCage */
 
-  return rc;
+  //lint +e713   @02a
+  //lint +e820   @02a
 
+  return rc;
 }
 
 uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   /* We need to pull out the targeting options here, and
-     store them away for future use */
+   store them away for future use */
   char * curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-trace=");
 
   //-trace
@@ -1562,7 +1945,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdGlobal_quiet = 1;
   }
 
-  /* Grab the quiet error mode flag
+  /* Grab the quiet error mode flag */
   if (ecmdParseOption(io_argc, io_argv, "-quieterror")) {
     ecmdGlobal_quietError = 1;
   }
@@ -1581,81 +1964,96 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   /*************************************/
   /* Parse command line targeting args */
   /*************************************/
-  ecmdUserArgs.allTargetSpecified = false;
+  /* This is left in for backwards comptability, prefernce is to use the option below */
   if (ecmdParseOption(io_argc, io_argv, "-all")) {
-    ecmdUserArgs.allTargetSpecified = true;
+    ecmdUserArgs.cage = "all";
+    ecmdUserArgs.node = "all";
+    ecmdUserArgs.slot = "all";
+    ecmdUserArgs.pos = "all";
+    ecmdUserArgs.chipUnitNum = "all";
+    ecmdUserArgs.thread = "all";
+  }
+
+  //global
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-g");
+  if (curArg) {
+    if (!strcmp(curArg, "all") || !strcmp(curArg, "ft") || !strcmp(curArg, "lt") || !strcmp(curArg, "et") || !strcmp(curArg, "ot")) {
+      ecmdUserArgs.cage = curArg;
+      ecmdUserArgs.node = curArg;
+      ecmdUserArgs.slot = curArg;
+      ecmdUserArgs.pos = curArg;
+      ecmdUserArgs.chipUnitNum = curArg;
+      ecmdUserArgs.thread = curArg;
+    } else {
+      dllOutputError("dllCommonCommandArgs - Unknown global option passed in.  all, ft, lt, et and lt are valid\n");
+      return ECMD_INVALID_ARGS;
+    }
   }
 
   //cage - the "-k" was Larry's idea, I just liked it - 
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
-  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
-    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -k# at the same time\n");
-    return ECMD_INVALID_ARGS;
-  } else if (curArg != NULL) {
-    ecmdUserArgs.cage = curArg;
-  }
-  else {
-    ecmdUserArgs.cage = "";
+  if (curArg) {
+    if (ecmdUserArgs.cage.size()) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -k# at the same time\n");
+      return ECMD_INVALID_ARGS;
+    } else  {
+      ecmdUserArgs.cage = curArg;
+    }
   }
 
   //node
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-n");
-  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
-    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -n# at the same time\n");
-    return ECMD_INVALID_ARGS;
-  } else if (curArg != NULL) {
-    ecmdUserArgs.node = curArg;
-  }
-  else {
-    ecmdUserArgs.node = "";
+  if (curArg) {
+    if (ecmdUserArgs.node.size()) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -n# at the same time\n");
+      return ECMD_INVALID_ARGS;
+    } else {
+      ecmdUserArgs.node = curArg;
+    }
   }
 
   //slot
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-s");
-  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
-    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -s# at the same time\n");
-    return ECMD_INVALID_ARGS;
-  } else if (curArg != NULL) {
-    ecmdUserArgs.slot = curArg;
-  }
-  else {
-    ecmdUserArgs.slot = "";
+  if (curArg) {
+    if (ecmdUserArgs.slot.size()) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -s# at the same time\n");
+      return ECMD_INVALID_ARGS;
+    } else {
+      ecmdUserArgs.slot = curArg;
+    }
   }
 
   //position
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-p");
-  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
-    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -p# at the same time\n");
-    return ECMD_INVALID_ARGS;
-  } else if (curArg != NULL) {
-    ecmdUserArgs.pos = curArg;
-  }
-  else {
-    ecmdUserArgs.pos = "";
+  if (curArg) {
+    if (ecmdUserArgs.pos.size()) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -p# at the same time\n");
+      return ECMD_INVALID_ARGS;
+    } else {
+      ecmdUserArgs.pos = curArg;
+    }
   }
 
   //chipUnit
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-c");
-  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
-    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -c# at the same time\n");
-    return ECMD_INVALID_ARGS;
-  } else if (curArg != NULL) {
-    ecmdUserArgs.chipUnitNum = curArg;
-  }
-  else {
-    ecmdUserArgs.chipUnitNum = "";
+  if (curArg) {
+    if (ecmdUserArgs.chipUnitNum.size()) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -c# at the same time\n");
+      return ECMD_INVALID_ARGS;
+    } else {
+      ecmdUserArgs.chipUnitNum = curArg;
+    }
   }
 
   //thread
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-t");
-  if ((ecmdUserArgs.allTargetSpecified == true) && curArg) {
-    dllOutputError("dllCommonCommandArgs - Cannot specify -all and -t# at the same time\n");
-    return ECMD_INVALID_ARGS;
-  } else if (curArg != NULL) {
-    ecmdUserArgs.thread = curArg;
-  }
-  else {
-    ecmdUserArgs.thread = "";
+  if (curArg) {
+    if (ecmdUserArgs.thread.size()) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -t# at the same time\n");
+      return ECMD_INVALID_ARGS;
+    } else {
+      ecmdUserArgs.thread = curArg;
+    }
   }
 
   /* Call the dllSpecificFunction */
@@ -1725,8 +2123,8 @@ bool dllIsValidTargetString(std::string &str) {
   bool ret = true;
 
   /* This is the code that allows hex input positions on the command line */
-  /* Since all of the cmdline target args are checked via this function, it's the easies place */
-  /* to conver any hex numbers to decimal.  This will allow all the rest of the code after this */
+  /* Since all of the cmdline target args are checked via this function, it's the easiest place */
+  /* to convert any hex numbers to decimal.  This will allow all the rest of the code after this */
   /* point to behave as it currently does with decimal numbers - JTA 09/11/07 */
   size_t startPos = str.find("0x");
   size_t endPos;
@@ -1749,14 +2147,9 @@ bool dllIsValidTargetString(std::string &str) {
 
   for (uint32_t x = 0; x < str.length(); x ++) {
     if (isdigit(str[x])) {
-    } else if (str[x] == '-') {
-      /* Check for -..2 which isn't allowed */
-      if (str[x+1] == '.' && str[x+2] == '.') { ret = false; break; }
     } else if (str[x] == ',') {
     } else if (str[x] == '.' && str[x+1] == '.') {
       x++;
-      /* Check for 0..- which isn't allowed*/
-      if (str[x+2] == '-') { ret = false; break; }
     } else {
       ret = false;
       break;
@@ -1844,7 +2237,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
       std::string errorParse;
       if (rc)
       {
-        errorParse = dllGetErrorMsg(rc, false, true);
+        errorParse = dllGetErrorMsg(rc, false, true, true);
         errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
 
       }
@@ -2137,7 +2530,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
     std::string errorParse;
     if (rc)
     {
-      errorParse = dllGetErrorMsg(rc, false, true);
+      errorParse = dllGetErrorMsg(rc, false, true, true);
       errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
 
     }
@@ -3017,7 +3410,7 @@ uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uin
 }
 #endif /* REMOVE_SIM */
 
-std::string dllParseReturnCodeHidden(uint32_t i_returnCode) {
+std::string dllParseReturnCode(uint32_t i_returnCode) {
   std::string ret = "";
 
   ecmdChipTarget dummy;

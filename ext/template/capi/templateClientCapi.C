@@ -2,6 +2,7 @@
 /* DO NOT EDIT THISFILE (unless you are editing the temp-late */
 
 
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File templateClientCapi.C                                   
@@ -16,12 +17,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
 
 //----------------------------------------------------------------------
 //  Includes
@@ -113,7 +108,7 @@ uint32_t templateInitExtension() {
 
   if (rc) {
     std::string errorString;
-    errorString = ecmdGetErrorMsgHidden(rc, false, false, false);
+    errorString = ecmdGetErrorMsg(rc, false, false, false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
