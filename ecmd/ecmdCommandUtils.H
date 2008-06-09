@@ -16,16 +16,6 @@
 //                                                                      
 // End Copyright ******************************************************
 
-// Class Description *************************************************
-//                                                                      
-//  Name:  ecmdCommandUtils
-//  Base class: 
-//
-//  Description: 
-//  Usage:
-//
-// End Class Description *********************************************
-
 /**
  @file ecmdCommandUtils.H
  @brief eCMD Command Utilities
@@ -87,13 +77,6 @@ bool ecmdIsAllDecimal(const char* str);
  @param str Input string to perform comparison against
 */
 bool ecmdIsAllHex(const char* str);
-
-/**
- @brief Returns the string define name for specified returnCode (ie "ECMD_SPY_GROUP_MISMATCH")
- @param i_returnCode Return code to lookup
- @retval String name of return code ("UNDEFINED" if unknown)
-*/
-std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
 /**
  @brief Returns a list of commands that were read from stdin

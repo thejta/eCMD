@@ -232,9 +232,7 @@ uint32_t dllQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, e
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
-std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage); 
-
-std::string dllGetErrorMsgHidden(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder); 
+std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder); 
 
 uint32_t dllRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const char* i_message); 
 
@@ -245,6 +243,8 @@ uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_
 uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_errorTarget); 
 
 uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode); 
+
+std::string dllParseReturnCode(uint32_t i_returnCode); 
 
 void dllOutputError(const char* i_message); 
 
@@ -269,8 +269,6 @@ uint32_t dllQueryTargetDisplayMode(ecmdTargetDisplayMode_t & o_displayMode);
 uint32_t dllDelay(uint32_t i_simCycles, uint32_t i_msDelay); 
 
 uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout); 
-
-std::string dllParseReturnCodeHidden(uint32_t i_returnCode); 
 
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
