@@ -1326,7 +1326,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
       /* If the data the user gave on the command line is as long as the ring, and starts at bit 0
          we don't need to do the getRing since they gave us an entire ring image */
-      if ((startBit == 0) && (buffer.getBitLength() >= (uint32_t)ringData.bitLength)) {
+      if ((startBit == 0) && (buffer.getBitLength() >= ringData.bitLength)) {
         ringBuffer.setBitLength(ringData.bitLength);
       } else {
         rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
@@ -1891,7 +1891,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           continue;
         }
 
-        ringBuffer.setBitLength((uint32_t)(*curRingData).bitLength);
+        ringBuffer.setBitLength(curRingData->bitLength);
         foundProblem = false;
 
         for (int i = 0; i < 4; i++) {
@@ -2243,7 +2243,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
       uint32_t curOffset = 0;
       uint32_t numBitsToInsert = 0;
-      uint32_t numBitsInRing = (uint32_t)queryRingData.front().bitLength;
+      uint32_t numBitsInRing = queryRingData.front().bitLength;
       ringBuffer.setBitLength(numBitsInRing);
       while (curOffset < numBitsInRing) {
         numBitsToInsert = (32 < numBitsInRing - curOffset) ? 32 : numBitsInRing - curOffset;
