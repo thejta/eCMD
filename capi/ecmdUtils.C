@@ -872,36 +872,6 @@ uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
 }
 #endif
 
-std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
-
-  uint32_t rc = ECMD_SUCCESS;
-
-  // This is static so we don't have to look it up more than once
-  static ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_UNKNOWN;
-
-  if (i_displayMode == ECMD_DISPLAY_TARGET_QUERY_PLUGIN) {
-    if (pluginDisplayMode == ECMD_DISPLAY_TARGET_UNKNOWN) {
-      rc = ecmdQueryTargetDisplayMode(pluginDisplayMode);
-    }
-    if (rc == ECMD_SUCCESS)     
-      i_displayMode = pluginDisplayMode;
-    else {
-      char outbuf[200];
-      sprintf(outbuf, "ecmdWriteTarget: ecmdQueryTargetDisplayMode returned 0x%0x. Using ECMD_DISPLAY_TARGET_DEFAULT\n", rc);
-      ecmdOutputWarning(outbuf);
-
-      i_displayMode = ECMD_DISPLAY_TARGET_DEFAULT; // set to original ecmd default
-    }
-  }
-  
-  /* Now call the function in ecmdSharedUtils, so it's still available to the plugin */
-  return ecmdWriteTargetNQ(i_target, i_displayMode);
-
-}
-uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
-  return ecmdReadTargetNQ(i_targetStr, o_target);
-}
-
 #ifndef ECMD_STRIP_DEBUG
 /**********************************************************************************/
 /**********************************************************************************/
@@ -1575,11 +1545,11 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
               (!strcmp(variableType,"ecmdClockState_t"))        ||
               (!strcmp(variableType,"ecmdSpyType_t"))           ||
               (!strcmp(variableType,"ecmdFileType_t"))          ||
-              (!strcmp(variableType,"ecmdConfigLoopType_t"))    ||
+              (!strcmp(variableType,"ecmdLoopType_t"))    ||
               (!strcmp(variableType,"ecmdGlobalVarType_t"))     ||
               (!strcmp(variableType,"ecmdTraceType_t"))         ||
               (!strcmp(variableType,"ecmdLatchMode_t"))         ||
-              (!strcmp(variableType,"ecmdConfigLoopMode_t"))    ||
+              (!strcmp(variableType,"ecmdLoopMode_t"))    ||
               (!strcmp(variableType,"ecmdTargetDisplayMode_t")) ||
               (!strcmp(variableType,"ecmdTargetDisplayMode_t &")) ||
               (!strcmp(variableType,"efppInOut_t"))               ){

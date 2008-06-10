@@ -569,7 +569,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       continue;
     }
 
-    if ((startEntry + numEntries) > procInfo.totalEntries) {
+    if ((startEntry + numEntries) > (int)procInfo.totalEntries) {
       printed = function + " - Num Entries requested exceeds maximum number available on: ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );

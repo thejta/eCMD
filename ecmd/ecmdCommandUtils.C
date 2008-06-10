@@ -469,7 +469,3 @@ void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
 
   }
 }
-
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
-  return ecmdParseChipFieldNQ(i_chipField, o_chipType, o_chipUnitType);
-}
