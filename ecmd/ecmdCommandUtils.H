@@ -112,16 +112,6 @@ bool isTargetStringValid(std::string i_str);
 */
 void getTargetList(std::string i_userArgs, std::list<uint32_t> &targetList);
 
-/**
- @brief Parse the chip field and look for the chipUnit
- @param i_chipField The chip field from the command line to be parsed
- @param o_chipType The chip type from the field
- @param o_chipUnitType The chipUnit type from the field (if one was found)
- @retval ECMD_SUCCESS if successful
- @retval nonzero if failure
-*/
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
-
 #endif /* ecmdCommandUtils_h */
 
 // Change Log *********************************************************

@@ -2003,14 +2003,6 @@ void ecmdSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
 */
 bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
 
-/**
- @brief Query from the plugin in what hte preferred output format is for @see ecmdWriteTarget
- @param o_displayMode The display mode returned by the plugin
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-*/
-uint32_t ecmdQueryTargetDisplayMode(ecmdTargetDisplayMode_t & o_displayMode);
-
 /** 
  @brief Function to delay a procedure either by running sim cycles or by doing a millisecond delay
  @param i_simCycles Number of sim cycles to run in simulation mode

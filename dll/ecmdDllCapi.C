@@ -766,7 +766,7 @@ uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecm
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdGlobal_DllDebug >= 8) {
-    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Found next Target : " + ecmdWriteTargetNQ(io_target, ECMD_DISPLAY_TARGET_DEFAULT); printed += "\n";
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Found next Target : " + ecmdWriteTarget(io_target, ECMD_DISPLAY_TARGET_DEFAULT); printed += "\n";
     dllOutput(printed.c_str());
   }
 #endif

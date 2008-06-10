@@ -51,6 +51,9 @@ typedef u_int8_t u8 ;
 #endif // ECMD_USE_MCP
 
 
+// This can be set by the user or plugin by calling ecmdSetTargetDisplayMode
+ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_DEFAULT;
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -342,7 +345,7 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
 
 
 
-uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target) {
+uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
 
   uint32_t rc = ECMD_SUCCESS;
   std::vector<std::string> tokens;
@@ -372,7 +375,7 @@ uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target) {
     }
     if (!numFound && !allFound && !naFound) {
       /* I didn't get a number, - or all, must be a chip */
-      ecmdParseChipFieldNQ(tokens[x], o_target.chipType, o_target.chipUnitType);
+      ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType);
       if (o_target.chipType == "chipall"){
         o_target.chipType = ""; /* Blank it for clarity */
         o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
@@ -447,12 +450,16 @@ uint32_t ecmdReadTargetNQ(std::string i_targetStr, ecmdChipTarget & o_target) {
 }
 
 
-std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
   std::string printed;
   char util[10];
   bool hexMode = false;
   std::string subPrinted;
+
+  if (i_displayMode == ECMD_DISPLAY_TARGET_PLUGIN_MODE) {
+    i_displayMode = pluginDisplayMode;    
+  }
 
   if (i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID) {
     hexMode = true;
@@ -612,7 +619,7 @@ std::string ecmdWriteTargetNQ(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t
   return printed;
 }
 
-uint32_t ecmdParseChipFieldNQ(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
   uint32_t rc = ECMD_SUCCESS;
 
   /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.

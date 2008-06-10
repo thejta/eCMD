@@ -264,8 +264,6 @@ void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable);
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type); 
 
-uint32_t dllQueryTargetDisplayMode(ecmdTargetDisplayMode_t & o_displayMode); 
-
 uint32_t dllDelay(uint32_t i_simCycles, uint32_t i_msDelay); 
 
 uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout); 
