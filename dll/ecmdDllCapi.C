@@ -363,7 +363,6 @@ void ecmdIncrementLooperIterators (uint8_t level, ecmdLooperData& io_state);
 
 // dllConfigLooperInit and dllExistLooperInit just call dllLooperInit in the correct mode
 uint32_t dllConfigLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state) {
-
   return dllLooperInit(io_target, i_looptype, io_state, ECMD_CONFIG_LOOP);
 }
 
@@ -765,6 +764,13 @@ uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecm
     io_state.ecmdLooperInitFlag = false;
   }
 
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdGlobal_DllDebug >= 8) {
+    std::string printed = "ECMD DEBUG (ecmdConfigLooperNext) : Found next Target : " + ecmdWriteTargetNQ(io_target, ECMD_DISPLAY_TARGET_DEFAULT); printed += "\n";
+    dllOutput(printed.c_str());
+  }
+#endif
+
   /* We got here, we have more to do, let's tell the client */
   rc = 1;
 
@@ -987,7 +993,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   uint8_t ET = 5;
   uint8_t OT = 6;
 
-  //@01c Add init to 1
+  //@01c Add init to 2
   uint8_t cageType = 2;
   uint8_t nodeType = 2;
   uint8_t slotType = 2;
