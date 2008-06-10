@@ -449,6 +449,9 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   return rc;
 }
 
+void ecmdSetTargetDisplayMode(ecmdTargetDisplayMode_t i_displayMode) {
+  pluginDisplayMode = i_displayMode;
+}
 
 std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
