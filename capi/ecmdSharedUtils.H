@@ -221,14 +221,3 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
 uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
 
 #endif /* ecmdSharedUtils_h */
-
-// Change Log *********************************************************
-//
-//  Flag Reason   Vers Date     Coder  Description
-//  ---- -------- ---- -------- -----  -------------------------------
-//                              cengel Initial Creation
-//                              kloss  added hash functions: hashString32, hexToUInt32
-//                              baiocchi Added ecmdSetTargetDepth()
-// End Change Log *****************************************************
-
-void setTestValue(uint32_t testNum);
