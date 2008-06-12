@@ -983,6 +983,7 @@ uint32_t dllQueryExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_quer
 }
 
 uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode) {
+
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
@@ -1051,79 +1052,82 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.cageState == ECMD_TARGET_FIELD_VALID) {
     cageType = SINGLE;
-  }
-  /* Did the user specify any cage args */
-  else if (ecmdUserArgs.cage.length()) {
-    /* See if the user specified -gall or -kall */
-    if (ecmdUserArgs.cage == "all") {
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = ALL;
-    }
 
-    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-    else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
-        dllOutputError("dllQuerySelected - cage (-k#) argument contained invalid characters\n");
+  } else if (i_target.cageState != ECMD_TARGET_FIELD_UNUSED) {
+
+    /* Did the user specify any cage args */
+    if (ecmdUserArgs.cage.length()) {
+      /* See if the user specified -gall or -kall */
+      if (ecmdUserArgs.cage == "all") {
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = ALL;
+      }
+
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
+        if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
+          dllOutputError("dllQuerySelected - cage (-k#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = MULTI;
+      }
+
+      /* See if we have a single entry -k1 */
+      else if (dllIsValidTargetString(ecmdUserArgs.cage)) {
+        i_target.cageState = ECMD_TARGET_FIELD_VALID;
+        i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str());
+        cageType = SINGLE;
+      }
+
+      /* See if the user specified -gft or -kft */
+      else if (ecmdUserArgs.cage == "ft") {
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = FT;
+      }
+
+      /* See if the user specified -glt or -klt */
+      else if (ecmdUserArgs.cage == "lt") {
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = LT;
+      }
+
+      /* See if the user specified -get or -ket */
+      else if (ecmdUserArgs.cage == "et") {
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = ET;
+      }
+
+      /* See if the user specified -got or -kot */
+      else if (ecmdUserArgs.cage == "ot") {
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = OT;
+      }
+
+      /* See if the user specified or -k- */
+      else if (ecmdUserArgs.cage == "-") {
+        dllOutputError("dllQuerySelected - argument -k- not supported\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = MULTI;
-    }
 
-    /* See if we have a single entry -k1 */
-    else if (dllIsValidTargetString(ecmdUserArgs.cage)) {
-      i_target.cageState = ECMD_TARGET_FIELD_VALID;
-      i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str());
-      cageType = SINGLE;
+      /* Finally, we can error out */
+      else {
+        dllOutputError("dllQuerySelected - unknown -k options found!\n");
+        return ECMD_INVALID_ARGS;
+      }
     }
-
-    /* See if the user specified -gft or -kft */
-    else if (ecmdUserArgs.cage == "ft") {
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = FT;
-    }
-
-    /* See if the user specified -glt or -klt */
-    else if (ecmdUserArgs.cage == "lt") {
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = LT;
-    }
-
-    /* See if the user specified -get or -ket */
-    else if (ecmdUserArgs.cage == "et") {
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = ET;
-    }
-
-    /* See if the user specified -got or -kot */
-    else if (ecmdUserArgs.cage == "ot") {
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = OT;
-    }
-
-    /* See if the user specified or -k- */
-    else if (ecmdUserArgs.cage == "-") {
-      dllOutputError("dllQuerySelected - argument -k- not supported\n");
-      return ECMD_INVALID_ARGS;
-    }
-
-    /* Finally, we can error out */
+    /* Nothing was specified, set some defaults */
     else {
-      dllOutputError("dllQuerySelected - unknown -k options found!\n");
-      return ECMD_INVALID_ARGS;
-    }
-  }
-  /* Nothing was specified, set some defaults */
-  else {
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-      /* Default to all */
-      i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-      cageType = ALL;
-    } else {
-      /* User didn't specify anything and we default to 0 */
-      i_target.cage = 0;
-      cageType = SINGLE;
-      i_target.cageState = ECMD_TARGET_FIELD_VALID;
+      if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = ALL;
+      } else {
+        /* User didn't specify anything and we default to 0 */
+        i_target.cage = 0;
+        cageType = SINGLE;
+        i_target.cageState = ECMD_TARGET_FIELD_VALID;
+      }
     }
   }
 
@@ -1131,80 +1135,83 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.nodeState == ECMD_TARGET_FIELD_VALID) {
     nodeType = SINGLE;
-  }
-  /* Did the user specify any node args */
-  else if (ecmdUserArgs.node.length()) {
-    /* See if the user specified -gall or -nall */
-    if (ecmdUserArgs.node == "all") {
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = ALL;
-    }
 
-    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-    else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.node)) {
-        dllOutputError("dllQuerySelected - node (-n#) argument contained invalid characters\n");
+  } else if (i_target.nodeState != ECMD_TARGET_FIELD_UNUSED) {
+
+    /* Did the user specify any node args */
+    if (ecmdUserArgs.node.length()) {
+      /* See if the user specified -gall or -nall */
+      if (ecmdUserArgs.node == "all") {
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = ALL;
+      }
+
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
+        if (!dllIsValidTargetString(ecmdUserArgs.node)) {
+          dllOutputError("dllQuerySelected - node (-n#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = MULTI;
+      }
+
+      /* See if we have a single entry -n1 */
+      else if (dllIsValidTargetString(ecmdUserArgs.node)) {
+        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
+        i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str());
+        nodeType = SINGLE;
+      }
+
+      /* See if the user specified -gft or -nft */
+      else if (ecmdUserArgs.node == "ft") {
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = FT;
+      }
+
+      /* See if the user specified -glt or -nlt */
+      else if (ecmdUserArgs.node == "lt") {
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = LT;
+      }
+
+      /* See if the user specified -get or -net */
+      else if (ecmdUserArgs.node == "et") {
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = ET;
+      }
+
+      /* See if the user specified -got or -not */
+      else if (ecmdUserArgs.node == "ot") {
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = OT;
+      }
+
+      /* See if the user specified or -n- */
+      else if (ecmdUserArgs.node == "-") {
+        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
+        i_target.node = ECMD_TARGETDEPTH_NA;
+        nodeType = SINGLE;
+      }
+
+      /* Finally, we can error out */
+      else {
+        dllOutputError("dllQuerySelected - unknown -n options found!\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = MULTI;
     }
-
-    /* See if we have a single entry -n1 */
-    else if (dllIsValidTargetString(ecmdUserArgs.node)) {
-      i_target.nodeState = ECMD_TARGET_FIELD_VALID;
-      i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str());
-      nodeType = SINGLE;
-    }
-
-    /* See if the user specified -gft or -nft */
-    else if (ecmdUserArgs.node == "ft") {
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = FT;
-    }
-
-    /* See if the user specified -glt or -nlt */
-    else if (ecmdUserArgs.node == "lt") {
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = LT;
-    }
-
-    /* See if the user specified -get or -net */
-    else if (ecmdUserArgs.node == "et") {
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = ET;
-    }
-
-    /* See if the user specified -got or -not */
-    else if (ecmdUserArgs.node == "ot") {
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = OT;
-    }
-
-    /* See if the user specified or -n- */
-    else if (ecmdUserArgs.node == "-") {
-      i_target.nodeState = ECMD_TARGET_FIELD_VALID;
-      i_target.node = ECMD_TARGETDEPTH_NA;
-      nodeType = SINGLE;
-    }
-
-    /* Finally, we can error out */
+    /* Nothing was specified, set some defaults */
     else {
-      dllOutputError("dllQuerySelected - unknown -n options found!\n");
-      return ECMD_INVALID_ARGS;
-    }
-  }
-  /* Nothing was specified, set some defaults */
-  else {
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-      /* Default to all */
-      i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      nodeType = ALL;
-    } else {
-      /* User didn't specify anything and we default to 0 */
-      i_target.node = 0;
-      nodeType = SINGLE;
-      i_target.nodeState = ECMD_TARGET_FIELD_VALID;
+      if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = ALL;
+      } else {
+        /* User didn't specify anything and we default to 0 */
+        i_target.node = 0;
+        nodeType = SINGLE;
+        i_target.nodeState = ECMD_TARGET_FIELD_VALID;
+      }
     }
   }
 
@@ -1212,80 +1219,83 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.slotState == ECMD_TARGET_FIELD_VALID) {
     slotType = SINGLE;
-  }
-  /* Did the user specify any slot args */
-  else if (ecmdUserArgs.slot.length()) {
-    /* See if the user specified -gall or -sall */
-    if (ecmdUserArgs.slot == "all") {
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = ALL;
-    }
 
-    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-    else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
-        dllOutputError("dllQuerySelected - slot (-s#) argument contained invalid characters\n");
+  } else if (i_target.slotState != ECMD_TARGET_FIELD_UNUSED) {
+
+    /* Did the user specify any slot args */
+    if (ecmdUserArgs.slot.length()) {
+      /* See if the user specified -gall or -sall */
+      if (ecmdUserArgs.slot == "all") {
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = ALL;
+      }
+
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
+        if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
+          dllOutputError("dllQuerySelected - slot (-s#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = MULTI;
+      }
+
+      /* See if we have a single entry -s1 */
+      else if (dllIsValidTargetString(ecmdUserArgs.slot)) {
+        i_target.slotState = ECMD_TARGET_FIELD_VALID;
+        i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str());
+        slotType = SINGLE;
+      }
+
+      /* See if the user specified -gft or -sft */
+      else if (ecmdUserArgs.slot == "ft") {
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = FT;
+      }
+
+      /* See if the user specified -glt or -slt */
+      else if (ecmdUserArgs.slot == "lt") {
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = LT;
+      }
+
+      /* See if the user specified -get or -set */
+      else if (ecmdUserArgs.slot == "et") {
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = ET;
+      }
+
+      /* See if the user specified -got or -sot */
+      else if (ecmdUserArgs.slot == "ot") {
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = OT;
+      }
+
+      /* See if the user specified or -s- */
+      else if (ecmdUserArgs.slot == "-") {
+        i_target.slotState = ECMD_TARGET_FIELD_VALID;
+        i_target.slot = ECMD_TARGETDEPTH_NA;
+        slotType = SINGLE;
+      }
+
+      /* Finally, we can error out */
+      else {
+        dllOutputError("dllQuerySelected - unknown -s options found!\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = MULTI;
     }
-
-    /* See if we have a single entry -s1 */
-    else if (dllIsValidTargetString(ecmdUserArgs.slot)) {
-      i_target.slotState = ECMD_TARGET_FIELD_VALID;
-      i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str());
-      slotType = SINGLE;
-    }
-
-    /* See if the user specified -gft or -sft */
-    else if (ecmdUserArgs.slot == "ft") {
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = FT;
-    }
-
-    /* See if the user specified -glt or -slt */
-    else if (ecmdUserArgs.slot == "lt") {
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = LT;
-    }
-
-    /* See if the user specified -get or -set */
-    else if (ecmdUserArgs.slot == "et") {
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = ET;
-    }
-
-    /* See if the user specified -got or -sot */
-    else if (ecmdUserArgs.slot == "ot") {
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = OT;
-    }
-
-    /* See if the user specified or -s- */
-    else if (ecmdUserArgs.slot == "-") {
-      i_target.slotState = ECMD_TARGET_FIELD_VALID;
-      i_target.slot = ECMD_TARGETDEPTH_NA;
-      slotType = SINGLE;
-    }
-
-    /* Finally, we can error out */
+    /* Nothing was specified, set some defaults */
     else {
-      dllOutputError("dllQuerySelected - unknown -s options found!\n");
-      return ECMD_INVALID_ARGS;
-    }
-  }
-  /* Nothing was specified, set some defaults */
-  else {
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-      /* Default to all */
-      i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-      slotType = ALL;
-    } else {
-      /* User didn't specify anything and we default to 0 */
-      i_target.slot = 0;
-      slotType = SINGLE;
-      i_target.slotState = ECMD_TARGET_FIELD_VALID;
+      if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = ALL;
+      } else {
+        /* User didn't specify anything and we default to 0 */
+        i_target.slot = 0;
+        slotType = SINGLE;
+        i_target.slotState = ECMD_TARGET_FIELD_VALID;
+      }
     }
   }
 
@@ -1293,79 +1303,82 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.posState == ECMD_TARGET_FIELD_VALID) {
     posType = SINGLE;
-  }
-  /* Did the user specify any pos args */
-  else if (ecmdUserArgs.pos.length()) {
-    /* See if the user specified -gall or -pall */
-    if (ecmdUserArgs.pos == "all") {
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = ALL;
-    }
 
-    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-    else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
-        dllOutputError("dllQuerySelected - pos (-p#) argument contained invalid characters\n");
+  } else if (i_target.posState != ECMD_TARGET_FIELD_UNUSED) {
+
+    /* Did the user specify any pos args */
+    if (ecmdUserArgs.pos.length()) {
+      /* See if the user specified -gall or -pall */
+      if (ecmdUserArgs.pos == "all") {
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = ALL;
+      }
+
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
+        if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
+          dllOutputError("dllQuerySelected - pos (-p#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = MULTI;
+      }
+
+      /* See if we have a single entry -p1 */
+      else if (dllIsValidTargetString(ecmdUserArgs.pos)) {
+        i_target.posState = ECMD_TARGET_FIELD_VALID;
+        i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str());
+        posType = SINGLE;
+      }
+
+      /* See if the user specified -gft or -pft */
+      else if (ecmdUserArgs.pos == "ft") {
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = FT;
+      }
+
+      /* See if the user specified -glt or -plt */
+      else if (ecmdUserArgs.pos == "lt") {
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = LT;
+      }
+
+      /* See if the user specified -get or -pet */
+      else if (ecmdUserArgs.pos == "et") {
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = ET;
+      }
+
+      /* See if the user specified -got or -pot */
+      else if (ecmdUserArgs.pos == "ot") {
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = OT;
+      }
+
+      /* See if the user specified or -p- */
+      else if (ecmdUserArgs.pos == "-") {
+        dllOutputError("dllQuerySelected - argument -p- not supported\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = MULTI;
-    }
 
-    /* See if we have a single entry -p1 */
-    else if (dllIsValidTargetString(ecmdUserArgs.pos)) {
-      i_target.posState = ECMD_TARGET_FIELD_VALID;
-      i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str());
-      posType = SINGLE;
+      /* Finally, we can error out */
+      else {
+        dllOutputError("dllQuerySelected - unknown -p options found!\n");
+        return ECMD_INVALID_ARGS;
+      }
     }
-
-    /* See if the user specified -gft or -pft */
-    else if (ecmdUserArgs.pos == "ft") {
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = FT;
-    }
-
-    /* See if the user specified -glt or -plt */
-    else if (ecmdUserArgs.pos == "lt") {
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = LT;
-    }
-
-    /* See if the user specified -get or -pet */
-    else if (ecmdUserArgs.pos == "et") {
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = ET;
-    }
-
-    /* See if the user specified -got or -pot */
-    else if (ecmdUserArgs.pos == "ot") {
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = OT;
-    }
-
-    /* See if the user specified or -p- */
-    else if (ecmdUserArgs.pos == "-") {
-      dllOutputError("dllQuerySelected - argument -p- not supported\n");
-      return ECMD_INVALID_ARGS;
-    }
-
-    /* Finally, we can error out */
+    /* Nothing was specified, set some defaults */
     else {
-      dllOutputError("dllQuerySelected - unknown -p options found!\n");
-      return ECMD_INVALID_ARGS;
-    }
-  }
-  /* Nothing was specified, set some defaults */
-  else {
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-      /* Default to all */
-      i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      posType = ALL;
-    } else {
-      /* User didn't specify anything and we default to 0 */
-      i_target.pos = 0;
-      posType = SINGLE;
-      i_target.posState = ECMD_TARGET_FIELD_VALID;
+      if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = ALL;
+      } else {
+        /* User didn't specify anything and we default to 0 */
+        i_target.pos = 0;
+        posType = SINGLE;
+        i_target.posState = ECMD_TARGET_FIELD_VALID;
+      }
     }
   }
 
@@ -1373,79 +1386,82 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
     chipUnitNumType = SINGLE;
-  }
-  /* Did the user specify any chipUnitNum args */
-  else if (ecmdUserArgs.chipUnitNum.length()) {
-    /* See if the user specified -gall or -call */
-    if (ecmdUserArgs.chipUnitNum == "all") {
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = ALL;
-    }
 
-    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-    else if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
-        dllOutputError("dllQuerySelected - chipUnitNum/core (-c#) argument contained invalid characters\n");
+  } else if (i_target.chipUnitNumState != ECMD_TARGET_FIELD_UNUSED) {
+
+    /* Did the user specify any chipUnitNum args */
+    if (ecmdUserArgs.chipUnitNum.length()) {
+      /* See if the user specified -gall or -call */
+      if (ecmdUserArgs.chipUnitNum == "all") {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = ALL;
+      }
+
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      else if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
+        if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+          dllOutputError("dllQuerySelected - chipUnitNum/core (-c#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = MULTI;
+      }
+
+      /* See if we have a single entry -c1 */
+      else if (dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+        i_target.chipUnitNum = (uint32_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
+        chipUnitNumType = SINGLE;
+      }
+
+      /* See if the user specified -gft or -cft */
+      else if (ecmdUserArgs.chipUnitNum == "ft") {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = FT;
+      }
+
+      /* See if the user specified -glt or -clt */
+      else if (ecmdUserArgs.chipUnitNum == "lt") {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = LT;
+      }
+
+      /* See if the user specified -get or -cet */
+      else if (ecmdUserArgs.chipUnitNum == "et") {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = ET;
+      }
+
+      /* See if the user specified -got or -cot */
+      else if (ecmdUserArgs.chipUnitNum == "ot") {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = OT;
+      }
+
+      /* See if the user specified or -c- */
+      else if (ecmdUserArgs.chipUnitNum == "-") {
+        dllOutputError("dllQuerySelected - argument -c- not supported\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = MULTI;
-    }
 
-    /* See if we have a single entry -c1 */
-    else if (dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
-      i_target.chipUnitNum = (uint32_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
-      chipUnitNumType = SINGLE;
+      /* Finally, we can error out */
+      else {
+        dllOutputError("dllQuerySelected - unknown -c options found!\n");
+        return ECMD_INVALID_ARGS;
+      }
     }
-
-    /* See if the user specified -gft or -cft */
-    else if (ecmdUserArgs.chipUnitNum == "ft") {
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = FT;
-    }
-
-    /* See if the user specified -glt or -clt */
-    else if (ecmdUserArgs.chipUnitNum == "lt") {
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = LT;
-    }
-
-    /* See if the user specified -get or -cet */
-    else if (ecmdUserArgs.chipUnitNum == "et") {
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = ET;
-    }
-
-    /* See if the user specified -got or -cot */
-    else if (ecmdUserArgs.chipUnitNum == "ot") {
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = OT;
-    }
-
-    /* See if the user specified or -c- */
-    else if (ecmdUserArgs.chipUnitNum == "-") {
-      dllOutputError("dllQuerySelected - argument -c- not supported\n");
-      return ECMD_INVALID_ARGS;
-    }
-
-    /* Finally, we can error out */
+    /* Nothing was specified, set some defaults */
     else {
-      dllOutputError("dllQuerySelected - unknown -c options found!\n");
-      return ECMD_INVALID_ARGS;
-    }
-  }
-  /* Nothing was specified, set some defaults */
-  else {
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-      /* Default to all */
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      chipUnitNumType = ALL;
-    } else {
-      /* User didn't specify anything and we default to 0 */
-      i_target.chipUnitNum = 0;
-      chipUnitNumType = SINGLE;
-      i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+      if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = ALL;
+      } else {
+        /* User didn't specify anything and we default to 0 */
+        i_target.chipUnitNum = 0;
+        chipUnitNumType = SINGLE;
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+      }
     }
   }
 
@@ -1453,79 +1469,82 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   /* If the state is already valid we just continue on */
   if (i_target.threadState == ECMD_TARGET_FIELD_VALID) {
     threadType = SINGLE;
-  }
-  /* Did the user specify any thread args */
-  else if (ecmdUserArgs.thread.length()) {
-    /* See if the user specified -gall or -tall */
-    if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread == "alive") {
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = ALL;
-    }
 
-    /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-    else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
-      if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
-        dllOutputError("dllQuerySelected - thread (-t#) argument contained invalid characters\n");
+  } else if (i_target.threadState != ECMD_TARGET_FIELD_UNUSED) {
+
+    /* Did the user specify any thread args */
+    if (ecmdUserArgs.thread.length()) {
+      /* See if the user specified -gall or -tall */
+      if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread == "alive") {
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = ALL;
+      }
+
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
+        if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
+          dllOutputError("dllQuerySelected - thread (-t#) argument contained invalid characters\n");
+          return ECMD_INVALID_ARGS;
+        }
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = MULTI;
+      }
+
+      /* See if we have a single entry -t1 */
+      else if (dllIsValidTargetString(ecmdUserArgs.thread)) {
+        i_target.threadState = ECMD_TARGET_FIELD_VALID;
+        i_target.thread = (uint32_t)atoi(ecmdUserArgs.thread.c_str());
+        threadType = SINGLE;
+      }
+
+      /* See if the user specified -gft or -tft */
+      else if (ecmdUserArgs.thread == "ft") {
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = FT;
+      }
+
+      /* See if the user specified -glt or -tlt */
+      else if (ecmdUserArgs.thread == "lt") {
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = LT;
+      }
+
+      /* See if the user specified -get or -tet */
+      else if (ecmdUserArgs.thread == "et") {
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = ET;
+      }
+
+      /* See if the user specified -got or -tot */
+      else if (ecmdUserArgs.thread == "ot") {
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = OT;
+      }
+
+      /* See if the user specified or -t- */
+      else if (ecmdUserArgs.thread == "-") {
+        dllOutputError("dllQuerySelected - argument -t- not supported\n");
         return ECMD_INVALID_ARGS;
       }
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = MULTI;
-    }
 
-    /* See if we have a single entry -t1 */
-    else if (dllIsValidTargetString(ecmdUserArgs.thread)) {
-      i_target.threadState = ECMD_TARGET_FIELD_VALID;
-      i_target.thread = (uint32_t)atoi(ecmdUserArgs.thread.c_str());
-      threadType = SINGLE;
+      /* Finally, we can error out */
+      else {
+        dllOutputError("dllQuerySelected - unknown -t options found!\n");
+        return ECMD_INVALID_ARGS;
+      }
     }
-
-    /* See if the user specified -gft or -tft */
-    else if (ecmdUserArgs.thread == "ft") {
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = FT;
-    }
-
-    /* See if the user specified -glt or -tlt */
-    else if (ecmdUserArgs.thread == "lt") {
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = LT;
-    }
-
-    /* See if the user specified -get or -tet */
-    else if (ecmdUserArgs.thread == "et") {
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = ET;
-    }
-
-    /* See if the user specified -got or -tot */
-    else if (ecmdUserArgs.thread == "ot") {
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = OT;
-    }
-
-    /* See if the user specified or -t- */
-    else if (ecmdUserArgs.thread == "-") {
-      dllOutputError("dllQuerySelected - argument -t- not supported\n");
-      return ECMD_INVALID_ARGS;
-    }
-
-    /* Finally, we can error out */
+    /* Nothing was specified, set some defaults */
     else {
-      dllOutputError("dllQuerySelected - unknown -t options found!\n");
-      return ECMD_INVALID_ARGS;
-    }
-  }
-  /* Nothing was specified, set some defaults */
-  else {
-    if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
-      /* Default to all */
-      i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-      threadType = ALL;
-    } else {
-      /* User didn't specify anything and we default to 0 */
-      i_target.thread = 0;
-      threadType = SINGLE;
-      i_target.threadState = ECMD_TARGET_FIELD_VALID;
+      if (i_looptype == ECMD_SELECTED_TARGETS_LOOP_DEFALL) {
+        /* Default to all */
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = ALL;
+      } else {
+        /* User didn't specify anything and we default to 0 */
+        i_target.thread = 0;
+        threadType = SINGLE;
+        i_target.threadState = ECMD_TARGET_FIELD_VALID;
+      }
     }
   }
 
