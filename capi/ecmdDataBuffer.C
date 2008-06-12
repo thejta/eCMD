@@ -4162,6 +4162,70 @@ void ecmdDataBuffer::queryErrorState( uint32_t & o_errorState) {
   }
 }
 
+uint32_t ecmdDataBuffer::compressBuffer() {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  ecmdDataBuffer compressBuffer;
+  uint32_t length = this->getBitLength();
+  uint32_t byteOffset = 0;
+  uint8_t numBytes;
+  uint32_t curByte;
+  uint8_t byteValue;
+  bool zeroCompress = false;
+  bool oneCompress = false;
+
+  compressBuffer.setBitLength(length);
+
+  /* Set the header, which is C2A3FV, where V is the version */
+  compressBuffer.setWord(byteOffset++, 0xC2);
+  compressBuffer.setByte(byteOffset++, 0xA3);
+  compressBuffer.setByte(byteOffset++, 0xF1);
+
+  /* Set the length, which is 3 bytes long */
+  compressBuffer.setByte(byteOffset++, ((0x00FF0000 & length) >> 16));
+  compressBuffer.setByte(byteOffset++, ((0x0000FF00 & length) >> 8));
+  compressBuffer.setByte(byteOffset++, (0x000000FF & length));
+
+  /* Start going through the data and trying to compress it */
+  for (curByte = 0; curByte < this->getByteLength(); curByte++) {
+    byteValue = this->getByte(curByte);
+    if (byteValue == 0x00) {
+      /* If we are already compressing zeros */
+      if (zeroCompress) {
+        /* If we are already at the max, start a new one */
+        if (numBytes == 255) {
+          /* Write the number of bytes for the last one */
+          compressBuffer.setByte(byteOffset++, numBytes);
+          /* Start a new 0 count entry */
+          compressBuffer.setByte(byteOffset++, 0xA0);
+          numBytes = 0;
+        }
+        numBytes++;
+      } else {
+        /* We aren't compressing zeros */
+
+      }
+    } else if (byteValue == 0xFF) {
+
+    } else {
+
+    }
+
+  }
+  
+
+
+  return rc;
+}
+
+ 
+uint32_t ecmdDataBuffer::uncompressBuffer() {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  return rc;
+}
+
+
+
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
 {
 #if defined (i386)
