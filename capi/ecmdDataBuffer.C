@@ -4223,7 +4223,7 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   numBytes++;
 
   /* Roll through the data and trying to compress it */
-  for (curByte; curByte < this->getByteLength(); curByte++) {
+  for (; curByte < this->getByteLength(); curByte++) {
     byteValue = this->getByte(curByte);
 
     /* Check for an over flow */
