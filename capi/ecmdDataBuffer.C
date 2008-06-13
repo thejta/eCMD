@@ -4165,6 +4165,17 @@ void ecmdDataBuffer::queryErrorState( uint32_t & o_errorState) {
 // Helper function for compression
 void compressBufferFlush(ecmdDataBuffer &compressBuffer, uint32_t &byteOffset, ecmdDataBuffer &insertBuffer, uint8_t &numBytes, uint8_t curByte);
 
+/* Here is the plan for the compression format
+
+ 3 byte header, includes a version
+ 3 byte length
+ Then data:
+ A0 indicates the start of zeros.  The byte immediately following is the number of zero bytes
+ AF indicates the start of ones.   The byte immediately following is the number of one bytes
+ A9 indicates the start of a pattern.  The byte immediately following is the number of bytes.  Then for numBytes after is the actual data
+
+*/
+
 uint32_t ecmdDataBuffer::compressBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   ecmdDataBuffer compressBuffer;
