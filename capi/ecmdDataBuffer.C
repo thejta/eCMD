@@ -4162,21 +4162,30 @@ void ecmdDataBuffer::queryErrorState( uint32_t & o_errorState) {
   }
 }
 
+// Helper function for compression
+void compressBufferFlush(ecmdDataBuffer &compressBuffer, uint32_t &byteOffset, ecmdDataBuffer &insertBuffer, uint8_t &numBytes, uint8_t curByte);
+
 uint32_t ecmdDataBuffer::compressBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   ecmdDataBuffer compressBuffer;
-  uint32_t length = this->getBitLength();
+  ecmdDataBuffer insertBuffer;
   uint32_t byteOffset = 0;
-  uint8_t numBytes;
-  uint32_t curByte;
+  uint8_t numBytes = 0;
+  uint32_t curByte = 0;
   uint8_t byteValue;
-  bool zeroCompress = false;
-  bool oneCompress = false;
 
-  compressBuffer.setBitLength(length);
+  /* Get the length, and make sure it doesn't over flow our length variable */
+  uint32_t length = this->getBitLength();
+  if (length > 0x00FFFFFF) {
+    ETRAC2("**** ERROR : Buffer length(%d) exceeds compression max length(%d).", length, 0x00FFFFFF);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW); 
+  }
+
+  /* Set it big enough for the header/length below.  Then we'll grow as need */
+  compressBuffer.setBitLength(48);
 
   /* Set the header, which is C2A3FV, where V is the version */
-  compressBuffer.setWord(byteOffset++, 0xC2);
+  compressBuffer.setByte(byteOffset++, 0xC2);
   compressBuffer.setByte(byteOffset++, 0xA3);
   compressBuffer.setByte(byteOffset++, 0xF1);
 
@@ -4185,41 +4194,173 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   compressBuffer.setByte(byteOffset++, ((0x0000FF00 & length) >> 8));
   compressBuffer.setByte(byteOffset++, (0x000000FF & length));
 
-  /* Start going through the data and trying to compress it */
-  for (curByte = 0; curByte < this->getByteLength(); curByte++) {
+  /* Get things started */
+  /* This is necessary so the insertBuffer.getByte calls don't fail */
+  byteValue = this->getByte(curByte);
+  insertBuffer.growBitLength(16); // Two bytes, one for the type and one for the eventual length
+  if (byteValue == 0x00) {
+    insertBuffer.setByte(0, 0xA0);
+  } else if (byteValue == 0xFF) {
+    insertBuffer.setByte(0, 0xAF);
+  } else {
+    insertBuffer.setByte(0, 0xA9);
+    /* Since we are preserving the data, insert it into the buffer as is */
+    insertBuffer.growBitLength((insertBuffer.getBitLength() + 8));
+    insertBuffer.setByte((2 + numBytes), byteValue);
+  }
+  curByte++;
+  numBytes++;
+
+  /* Roll through the data and trying to compress it */
+  for (curByte; curByte < this->getByteLength(); curByte++) {
     byteValue = this->getByte(curByte);
-    if (byteValue == 0x00) {
-      /* If we are already compressing zeros */
-      if (zeroCompress) {
-        /* If we are already at the max, start a new one */
-        if (numBytes == 255) {
-          /* Write the number of bytes for the last one */
-          compressBuffer.setByte(byteOffset++, numBytes);
-          /* Start a new 0 count entry */
-          compressBuffer.setByte(byteOffset++, 0xA0);
-          numBytes = 0;
-        }
-        numBytes++;
-      } else {
-        /* We aren't compressing zeros */
 
-      }
-    } else if (byteValue == 0xFF) {
-
-    } else {
-
+    /* Check for an over flow */
+    if (numBytes == 255) {
+      compressBufferFlush(compressBuffer, byteOffset, insertBuffer, numBytes, byteValue);
     }
 
-  }
-  
+    /* Check our three data types */
+    if (byteValue == 0x00) {
+      /* If we aren't already compressing zeros, do some setup */
+      if (insertBuffer.getByte(0) != 0xA0) {
+        /* Insert and flush */
+        compressBufferFlush(compressBuffer, byteOffset, insertBuffer, numBytes, byteValue);
+      }
+    } else if (byteValue == 0xFF) {
+      /* If we aren't already compressing zeros, do some setup */
+      if (insertBuffer.getByte(0) != 0xAF) {
+        /* Insert and flush */
+        compressBufferFlush(compressBuffer, byteOffset, insertBuffer, numBytes, byteValue);
+      }
+    }
+    /* Not a pattern we are trying to compress, so just write it directly to the buffer */
+    else {
+      /* We are switching types, handle that */
+      if (insertBuffer.getByte(0) != 0xA9) {
+        /* Insert and flush */
+        compressBufferFlush(compressBuffer, byteOffset, insertBuffer, numBytes, byteValue);
+      }
+      /* Since we are preserving the data, insert it into the buffer as is */
+      insertBuffer.growBitLength((insertBuffer.getBitLength() + 8));
+      insertBuffer.setByte((2 + numBytes), byteValue);
+    }
 
+    // All three have to increment the count, do it here
+    numBytes++;
+  }
+
+  /* All done, need to flush anything else left out there */
+  /* Set curByte to 0x00.  We are setting up insertBuffer again unnecessarily, but oh well */
+  compressBufferFlush(compressBuffer, byteOffset, insertBuffer, numBytes, 0x00);
+
+  /* Are there conditions I could error check here ? */
+
+  /* No error, copy the compress buffer into our current buffer */
+  compressBuffer.shrinkBitLength((byteOffset * 8));
+  *this = compressBuffer;
 
   return rc;
+}
+
+void compressBufferFlush(ecmdDataBuffer &compressBuffer, uint32_t &byteOffset, ecmdDataBuffer &insertBuffer, uint8_t &numBytes, uint8_t curByte) {
+  /* Byte 1 is always the count of the number of bytes */
+  insertBuffer.setByte(1, numBytes);
+  /* Grow the buffer to handle the new data */
+  compressBuffer.growBitLength(compressBuffer.getBitLength() + insertBuffer.getBitLength());
+  /* Now take what we've built up and insert it into the compression buffer */
+  compressBuffer.insert(insertBuffer, (byteOffset * 8), insertBuffer.getBitLength());
+  /* Cleanup some variables */
+  byteOffset += insertBuffer.getByteLength();
+  numBytes = 0;
+  /* Now use the curByte to setup the new insert buffer */
+  insertBuffer.shrinkBitLength(16); // Two bytes, one for the type and one for the eventual length
+  if (curByte == 0x00) {
+    insertBuffer.setByte(0, 0xA0);
+  } else if (curByte == 0xFF) {
+    insertBuffer.setByte(0, 0xAF);
+  } else {
+    insertBuffer.setByte(0, 0xA9);
+  }
 }
 
  
 uint32_t ecmdDataBuffer::uncompressBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t length = 0;
+  uint32_t byteOffset = 0;
+  ecmdDataBuffer uncompressBuffer;
+  uint8_t byteValue;
+  uint8_t numBytes;
+  uint32_t curByte = 0;
+
+  /* See if the compression header is there */
+  uint32_t header = this->getWord(0);
+  if ((header & 0xFFFFF000) != 0xC2A3F000) {
+    ETRAC1("**** ERROR : Compression header doesn't match.  Found: 0x%X.", header);
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
+  }
+  /* Make sure it's a supported version of compression */
+  if ((header & 0x00000F00) != 0x00000100) {
+    ETRAC1("**** ERROR : Unknown version. Found: 0x%X.", header);
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
+  }
+  curByte+=3;
+
+  /* Get the length, use it to set the uncompress buffer length */
+  length = (this->getByte(curByte++) << 16) | (this->getByte(curByte++) << 8) | this->getByte(curByte++);
+  uncompressBuffer.setBitLength(length);
+
+  /* Start looping through and blowing this buffer up */
+  while (curByte < this->getByteLength()) {
+    byteValue = this->getByte(curByte);
+    curByte++;
+
+    /* Zero expansion */
+    if (byteValue == 0xA0) {
+      /* Get length */
+      numBytes = this->getByte(curByte);
+      curByte++;
+
+      /* Now fill in with zero */
+      uncompressBuffer.clearBit((byteOffset * 8), (numBytes * 8));
+      byteOffset += numBytes;
+    }
+    /* One expansion */
+    else if (byteValue == 0xAF) {
+      /* Get length */
+      numBytes = this->getByte(curByte);
+      curByte++;
+
+      /* Now fill in with zero */
+      uncompressBuffer.setBit((byteOffset * 8), (numBytes * 8));
+      byteOffset += numBytes;
+    }
+    /* Pattern expansion */
+    else if (byteValue == 0xA9) {
+      /* Get length */
+      numBytes = this->getByte(curByte);
+      curByte++;
+
+      /* Loop over the length and extract the pattern */
+      for (uint8_t patternByte = 0; patternByte < numBytes; patternByte++) {
+        /* Get the byte of the pattern */
+        byteValue = this->getByte(curByte);
+        curByte++;
+
+        /* Insert the data */
+        uncompressBuffer.setByte(byteOffset++, byteValue);
+      }
+    }
+    /* Error */
+    else {
+      ETRAC1("**** ERROR : Unknown compression keyword. Found: 0x%X.", byteValue);
+      RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
+    }
+  }
+
+  /* No error, copy the uncompress buffer into our current buffer */
+  *this = uncompressBuffer;
 
   return rc;
 }
