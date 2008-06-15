@@ -80,9 +80,8 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   std::string enumValue;                ///< The enum value returned
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnits
-  bool isChipUnitSpy;                   ///< Is this a chipUnit spy ?
   std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
-  ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
+  std::list<ecmdSpyData>::iterator spyData;   ///< spy data
   std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
   //bool enabledCache = false;            ///< Did we enable the cache ?
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
@@ -171,11 +170,10 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       continue;
     }
 
-    spyData = *(spyDataList.begin());
-    isChipUnitSpy = spyData.isChipUnitRelated;
+    spyData = spyDataList.begin();
 
     /* Make sure the user didn't request enum output on an ispy */
-    if (((outputformat == "enum") || (inputformat == "enum")) && !spyData.isEnumerated) {
+    if (((outputformat == "enum") || (inputformat == "enum")) && !spyData->isEnumerated) {
       ecmdOutputError("getspy - Spy doesn't support enumerations, can't use -ienum or -oenum\n");
       rc = ECMD_INVALID_ARGS;
       break;  
@@ -183,7 +181,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
     /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
     if ((outputformat == "default") || (inputformat == "default")) {
-      if (spyData.isEnumerated) {
+      if (spyData->isEnumerated) {
         if (outputformat == "default") outputformat = "enum";
         if (inputformat == "default") inputformat = "enum";
       } else {
@@ -259,14 +257,13 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitSpy) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (spyData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (spyData.relatedChipUnit != chipUnitType) {
+      if (spyData->isChipUnitMatch(chipUnitType)) {
         printed = "getspy - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by querySpy \"";
-        printed += spyData.relatedChipUnit + "\"\n";
+        printed += spyData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -282,7 +279,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitSpy
+    } else { // !spyData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getspy - A chipUnit \"";
         printed += chipUnitType;
@@ -296,7 +293,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitSpy ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (outputformat == "enum") {
         rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue);
@@ -306,14 +303,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       }
 
       if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
-        if (spyData.epCheckers.empty()) {
+        if (spyData->epCheckers.empty()) {
           ecmdOutputError("getspy - Got back the Spy Failed ECC return code, but no epcheckers specified\n");
         }
         ecmdDataBuffer inLatches, outLatches, errorMask;
-        std::list<std::string>::iterator epcheckersIter = spyData.epCheckers.begin();
+        std::list<std::string>::iterator epcheckersIter = spyData->epCheckers.begin();
         int flag = 0;
         printed = "getspy - epcheckers \"";
-        while (epcheckersIter != spyData.epCheckers.end()) {
+        while (epcheckersIter != spyData->epCheckers.end()) {
           rc = getSpyEpCheckers(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
           if (errorMask.getNumBitsSet(0,errorMask.getBitLength())) {
             if (flag) 
@@ -448,11 +445,11 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         /* Ecc Checkers */
         /* Must have entries - setup variables and iterators, start looping */
         ecmdDataBuffer inLatches, outLatches, errorMask;
-        std::list<std::string>::iterator epcheckersIter = spyData.epCheckers.begin();
+        std::list<std::string>::iterator epcheckersIter = spyData->epCheckers.begin();
         ecmdOutput("===== epcheckers information for this spy ");
         printed = spyName + ": =====\n";
         ecmdOutput(printed.c_str());
-        while (epcheckersIter != spyData.epCheckers.end()) {
+        while (epcheckersIter != spyData->epCheckers.end()) {
           rc = getSpyEpCheckers(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
           if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK && rc != ECMD_SPY_GROUP_MISMATCH) {
             coeRc = rc;
@@ -469,14 +466,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           epcheckersIter++;
         }
         /* Spy Latch Data */
-        std::list<ecmdSpyLatchData>::iterator latchDataIter = spyData.spyLatches.begin();
+        std::list<ecmdSpyLatchData>::iterator latchDataIter = spyData->spyLatches.begin();
         ecmdOutput("===== latch information for this spy ");
         printed = spyName + ": =====\n";
         ecmdOutput(printed.c_str());
         char tempstr[50];
         uint32_t offset = 0;
-        if (!spyData.isEnumerated) { // Can't do this on enumerated spies
-          while (latchDataIter != spyData.spyLatches.end()) {
+        if (!spyData->isEnumerated) { // Can't do this on enumerated spies
+          while (latchDataIter != spyData->spyLatches.end()) {
             // Format my data
             sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
             printed = tempstr;
@@ -543,11 +540,10 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   ecmdDataBuffer spyBuffer;             ///< Buffer to hold current spy data
   ecmdChipTarget target;                ///< Current target
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnits
-  bool isChipUnitSpy;                   ///< Is this a chipUnit spy ?
   bool validPosFound = false;           ///< Did the looper find anything?
   std::string printed;                  ///< Output data
-  std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
-  ecmdSpyData spyData;                  ///< Spy information returned by ecmdQuerySpy
+  std::list<ecmdSpyData> spyDataList;           ///< Spy information returned by ecmdQuerySpy
+  std::list<ecmdSpyData>::iterator spyData;     ///< Spy information returned by ecmdQuerySpy
   //bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
@@ -622,9 +618,8 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       continue;
     }
 
-    spyData = *(spyDataList.begin());
-    isChipUnitSpy = spyData.isChipUnitRelated;
-    if (spyData.isEnumerated) {
+    spyData = spyDataList.begin();
+    if (spyData->isEnumerated) {
       if (inputformat == "default") inputformat = "enum";
     } else {
       if (inputformat == "default") inputformat = "x";
@@ -661,7 +656,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
         }
 
       } else {
-        rc = ecmdReadDataFormatted(buffer, argv[2], inputformat, spyData.bitLength);
+        rc = ecmdReadDataFormatted(buffer, argv[2], inputformat, spyData->bitLength);
         if (rc) {
           ecmdOutputError("putspy - Problems occurred parsing input data, must be an invalid format\n");
           break;
@@ -671,14 +666,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitSpy) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (spyData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (spyData.relatedChipUnit != chipUnitType) {
+      if (spyData->isChipUnitMatch(chipUnitType)) {
         printed = "putspy - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by querySpy \"";
-        printed += spyData.relatedChipUnit + "\n";
+        printed += spyData->relatedChipUnit + "\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -694,7 +688,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitSpy
+    } else { // !spyData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putspy - A chipUnit \"";
         printed += chipUnitType;
@@ -708,13 +702,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitSpy ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
 
         rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
 
-        if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData.bitLength)) {
+        if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData->bitLength)) {
           /* We will go on if the user was going to write the whole spy anyway */
           ecmdOutputWarning("putspy - Problems reading group spy - found a mismatch - going ahead with write\n");
           rc = 0;

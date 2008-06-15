@@ -2370,6 +2370,15 @@ void  ecmdQueryData::printStruct() {
  * The following methods for the ecmdSpyData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdSpyData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
@@ -2964,6 +2973,15 @@ void ecmdArrayEntry::printStruct() const {
  * The following methods for the ecmdRingData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdRingData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
@@ -3355,6 +3373,15 @@ void  ecmdRingData::printStruct() {
  * The following methods for the ecmdArrayData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdArrayData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
@@ -3822,6 +3849,15 @@ void ecmdIndexEntry::printStruct() {
  * The following methods for the ecmdTraceArrayData struct will flatten, 
  * unflatten & get the flattened size of the struct.
  */
+bool ecmdTraceArrayData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) 
 {
         uint32_t tmpData32 = 0;
@@ -4051,6 +4087,15 @@ void  ecmdTraceArrayData::printStruct() {
  * The following methods for the ecmdScomData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdScomData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
         uint32_t tmpData32 = 0;
@@ -4256,6 +4301,15 @@ void  ecmdScomData::printStruct()
  * The following methods for the ecmdLatchData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdLatchData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
         uint32_t tmpData32 = 0;
@@ -5098,6 +5152,14 @@ void  ecmdLatchEntry::printStruct() {
  * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdProcRegisterInfo::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
 
 uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
 {
@@ -5241,6 +5303,15 @@ void  ecmdProcRegisterInfo::printStruct()
  * The following methods for the ecmdCacheData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
+bool ecmdCacheData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
 uint32_t ecmdCacheData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
    // @0aa - below

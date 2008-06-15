@@ -566,7 +566,6 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
   std::string printed;                  ///< Output data
   ecmdCacheType_t cacheType;            ///< cache type to be flushed
   ecmdCacheData queryCacheData;
-  bool isChipUnitCache;
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   /************************************************************************/
@@ -644,14 +643,11 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
       continue;
     }
 
-    isChipUnitCache = queryCacheData.isChipUnitRelated;
-
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitCache) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (queryCacheData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryCacheData.relatedChipUnit != chipUnitType) {
+      if (queryCacheData.isChipUnitMatch(chipUnitType)) {
         printed = "putscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryCache \"";
@@ -671,7 +667,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
       if (rc) break;
-    } else { // !isChipUnitScom
+    } else { // !queryCacheData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putscom - A chipUnit \"";
         printed += chipUnitType;
@@ -685,7 +681,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitCache ? ecmdLooperNext(cuTarget, cuLooperData) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((queryCacheData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooperData) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = ecmdCacheFlush(cuTarget, cacheType);
       if (rc) {

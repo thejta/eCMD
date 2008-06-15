@@ -70,8 +70,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   std::list<ecmdArrayEntry> entries;    ///< List of arrays to fetch, to use getArrayMultiple
   ecmdArrayEntry entry;                 ///< Array entry to fetch
   uint32_t* add_buffer = NULL;          ///< Buffer to do temp work with the address for incrementing
-  ecmdArrayData arrayData;              ///< Query data about array
-  std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
+  std::list<ecmdArrayData> arrayDataList;       ///< Query data about array
+  std::list<ecmdArrayData>::iterator arrayData; ///< arrayData from the query
   ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   std::string outputformat = "x";       ///< Output Format to display
@@ -82,7 +82,6 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
   char* maskPtr = NULL;                 ///< Pointer to mask data in arg list
   ecmdDataBuffer expected;              ///< Buffer to store expected data
   ecmdDataBuffer mask;                  ///< Buffer for mask of expected data
-  bool isChipUnitArray;                 ///< Is this a chipUnit array ?
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
 
   //expect and mask flags check
@@ -160,12 +159,12 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       coeRc = rc;
       continue;
     }
-    arrayData = *(arrayDataList.begin());
+    arrayData = arrayDataList.begin();
 
     /* We have to do the expact flag data read here so that we know the bit length in the right aligned data case - JTA 02/21/06 */
     if (expectFlag) {
 
-      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData.width);
+      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, arrayData->width);
       if (rc) {
         ecmdOutputError("getarray - Problems occurred parsing expected data, must be an invalid format\n");
         coeRc = rc;
@@ -173,7 +172,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
       }
 
       if (maskFlag) {
-        rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData.width);
+        rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, arrayData->width);
         if (rc) {
           ecmdOutputError("getarray - Problems occurred parsing mask data, must be an invalid format\n");
           coeRc = rc;
@@ -187,8 +186,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     } else {
 
       /* Set the length  */
-      address.setBitLength(arrayData.readAddressLength);
-      rc = address.insertFromHexRight(argv[2], 0, arrayData.readAddressLength);
+      address.setBitLength(arrayData->readAddressLength);
+      rc = address.insertFromHexRight(argv[2], 0, arrayData->readAddressLength);
       if (rc) {
         ecmdOutputError("getarray - Invalid number format detected trying to parse address\n");
         coeRc = rc;
@@ -276,18 +275,15 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
 
     printedHeader = false;
 
-    isChipUnitArray = arrayData.isChipUnitRelated;
-
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitArray) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (arrayData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (arrayData.relatedChipUnit != chipUnitType) {
+      if (arrayData->isChipUnitMatch(chipUnitType)) {
         printed = "getarray - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by queryArray \"";
-        printed += arrayData.relatedChipUnit + "\"\n";
+        printed += arrayData->relatedChipUnit + "\"\n";
         ecmdOutputError( printed.c_str() );
         rc = ECMD_INVALID_ARGS;
         break;
@@ -314,7 +310,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
         coeRc = rc;
         continue;
       }
-    } else { // !isChipUnitArray
+    } else { // !arrayData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getarray - A chipUnit \"";
         printed += chipUnitType;
@@ -328,7 +324,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitArray ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((arrayData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = getArrayMultiple(cuTarget, arrayName.c_str(), entries);
       if (rc) {
@@ -451,9 +447,8 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperData;    ///< Store internal Looper data
   ecmdLooperData cuLooper;      ///< Store internal Looper data for the chipUnit loop
-  ecmdArrayData arrayData;      ///< Query data about array
-  std::list<ecmdArrayData> arrayDataList;      ///< Query data about array
-  bool isChipUnitArray;             ///< Is this a chipUnit array ?
+  std::list<ecmdArrayData> arrayDataList;        ///< Query data about array
+  std::list<ecmdArrayData>::iterator arrayData;  ///< arrayData from the query
   uint8_t oneLoop = 0;              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
@@ -559,15 +554,14 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       coeRc = rc;
       continue;
     }
-    arrayData = *(arrayDataList.begin());
-    isChipUnitArray = arrayData.isChipUnitRelated;
+    arrayData = arrayDataList.begin();
 
     /* If we have a cmdlinePtr, read it in now that we have a length we can use */
     if (cmdlinePtr != NULL) {
       if (dataModifier == "insert") {
-        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, arrayData.width);
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, arrayData->width);
       } else {
-        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, arrayData.width);
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, arrayData->width);
       }
       if (rc) {
         ecmdOutputError("putarray - Problems occurred parsing input data, must be an invalid format\n");
@@ -577,21 +571,21 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     }
 
     /* Set the length of the address field if it wasn't given properly */
-    if (arrayData.writeAddressLength > address.getBitLength()) {
-      uint32_t difference = (arrayData.writeAddressLength - address.getBitLength());
+    if (arrayData->writeAddressLength > address.getBitLength()) {
+      uint32_t difference = (arrayData->writeAddressLength - address.getBitLength());
       address.shiftRightAndResize(difference);
-    } else if (address.getBitLength() > arrayData.writeAddressLength) {
+    } else if (address.getBitLength() > arrayData->writeAddressLength) {
       char errbuf[100];
       sprintf(errbuf,"putarray - Too much address data provided with a length of %d bits.\n", address.getBitLength());
       ecmdOutputError(errbuf);
-      sprintf(errbuf,"putarray - The array you are writing only supports an address of %d bits.\n", arrayData.writeAddressLength);
+      sprintf(errbuf,"putarray - The array you are writing only supports an address of %d bits.\n", arrayData->writeAddressLength);
       ecmdOutputError(errbuf);
       coeRc = ECMD_DATA_BOUNDS_OVERFLOW;
       continue;
     }
     
-    address.setBitLength(arrayData.writeAddressLength);
-    rc = address.insertFromHexRight(argv[2], 0, arrayData.writeAddressLength);
+    address.setBitLength(arrayData->writeAddressLength);
+    rc = address.insertFromHexRight(argv[2], 0, arrayData->writeAddressLength);
     if (rc) {
       ecmdOutputError("putarray - Invalid number format detected trying to parse address\n");
       coeRc = rc;
@@ -600,14 +594,13 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitArray) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (arrayData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (arrayData.relatedChipUnit != chipUnitType) {
+      if (arrayData->isChipUnitMatch(chipUnitType)) {
         printed = "putarray - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by queryArray \"";
-        printed += arrayData.relatedChipUnit + "\"\n";
+        printed += arrayData->relatedChipUnit + "\"\n";
         ecmdOutputError( printed.c_str() );
         rc = ECMD_INVALID_ARGS;
         break;
@@ -623,7 +616,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) return rc;
-    } else { // !isChipUnitArray
+    } else { // !arrayData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putarray - A chipUnit \"";
         printed += chipUnitType;
@@ -637,7 +630,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit array we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitArray ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((arrayData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {

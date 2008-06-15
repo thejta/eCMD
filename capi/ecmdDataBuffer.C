@@ -4168,7 +4168,7 @@ void compressBufferFlush(ecmdDataBuffer &compressBuffer, uint32_t &byteOffset, e
 /* Here is the plan for the compression format
 
  3 byte header, includes a version
- 3 byte length
+ 4 byte length
  Then data:
  A0 indicates the start of zeros.  The byte immediately following is the number of zero bytes
  AF indicates the start of ones.   The byte immediately following is the number of one bytes
@@ -4187,10 +4187,6 @@ uint32_t ecmdDataBuffer::compressBuffer() {
 
   /* Get the length, and make sure it doesn't over flow our length variable */
   uint32_t length = this->getBitLength();
-  if (length > 0x00FFFFFF) {
-    ETRAC2("**** ERROR : Buffer length(%d) exceeds compression max length(%d).", length, 0x00FFFFFF);
-    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW); 
-  }
 
   /* Set it big enough for the header/length below.  Then we'll grow as need */
   compressBuffer.setBitLength(48);
@@ -4200,7 +4196,8 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   compressBuffer.setByte(byteOffset++, 0xA3);
   compressBuffer.setByte(byteOffset++, 0xF1);
 
-  /* Set the length, which is 3 bytes long */
+  /* Set the length, which is 4 bytes long */
+  compressBuffer.setByte(byteOffset++, ((0xFF000000 & length) >> 24));
   compressBuffer.setByte(byteOffset++, ((0x00FF0000 & length) >> 16));
   compressBuffer.setByte(byteOffset++, ((0x0000FF00 & length) >> 8));
   compressBuffer.setByte(byteOffset++, (0x000000FF & length));
@@ -4319,7 +4316,7 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
   curByte+=3;
 
   /* Get the length, use it to set the uncompress buffer length */
-  length = (this->getByte(curByte++) << 16) | (this->getByte(curByte++) << 8) | this->getByte(curByte++);
+  length = (this->getByte(curByte++) << 24) | (this->getByte(curByte++) << 16) | (this->getByte(curByte++) << 8) | this->getByte(curByte++);
   uncompressBuffer.setBitLength(length);
 
   /* Start looping through and blowing this buffer up */
