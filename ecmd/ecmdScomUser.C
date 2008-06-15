@@ -69,8 +69,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Input format of data
   ecmdChipTarget target;                        ///< Current target being operated on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  bool isChipUnitScom;                          ///< Is this a chipUnit scom ?
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
+  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
   ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
   ecmdDataBuffer buffer;                        ///< Data requested by the user
   bool validPosFound = false;                   ///< Did the looper find anything?
@@ -200,10 +200,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
-
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
@@ -222,18 +220,17 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       coeRc = ECMD_DLL_INVALID;
       continue;
     }
-    isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
+    scomData = queryScomData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitScom) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (scomData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
+      if (scomData->isChipUnitMatch(chipUnitType)) {
         printed = "getscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryScom \"";
-        printed += queryScomData.begin()->relatedChipUnit + "\"\n";
+        printed += scomData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -249,7 +246,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitScom
+    } else { // !scomData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getscom - A chipUnit \"";
         printed += chipUnitType;
@@ -263,7 +260,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitScom ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((scomData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      rc = getScom(cuTarget, address, scombuf);
      if (rc) {
@@ -356,10 +353,10 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdLooperData looperData;                    ///< Store internal Looper data
   ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
-  bool isChipUnitScom;                          ///< Is this a chipUnit scom ?
   ecmdChipTarget target;                        ///< Chip target being operated on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
+  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
   uint32_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store read/write data
   ecmdDataBuffer cmdlineBuffer;                 ///< Buffer to store data to be inserted
@@ -477,7 +474,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       rc = ECMD_DLL_INVALID;
       continue;
     }
-    isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
+    scomData = queryScomData.begin();
 
     /* If we have a cmdlinePtr, read it in now that we have a length we can use */
     if (cmdlinePtr != NULL) {
@@ -495,14 +492,13 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitScom) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (scomData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
+      if (scomData->isChipUnitMatch(chipUnitType)) {
         printed = "putscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryScom \"";
-        printed += queryScomData.begin()->relatedChipUnit + "\"\n";
+        printed += scomData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -518,7 +514,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitScom
+    } else { // !scomData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putscom - A chipUnit \"";
         printed += chipUnitType;
@@ -532,7 +528,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitScom ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((scomData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -599,10 +595,10 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the cores
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
+  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperData;                    ///< Store internal Looper data
   ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
-  bool isChipUnitScom;                          ///< Is this a chipUnit scom ?
   ecmdDataBuffer buffer;                        ///< Store current scom data
   ecmdDataBuffer expected;                      ///< Store expected data
   ecmdDataBuffer mask;                          ///< Store mask data
@@ -771,18 +767,17 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       rc = ECMD_DLL_INVALID;
       continue;
     }
-    isChipUnitScom = queryScomData.begin()->isChipUnitRelated;
+    scomData = queryScomData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitScom) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (scomData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryScomData.begin()->relatedChipUnit != chipUnitType) {
+      if (scomData->isChipUnitMatch(chipUnitType)) {
         printed = "pollscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryScom \"";
-        printed += queryScomData.begin()->relatedChipUnit + "\"\n";
+        printed += scomData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -798,7 +793,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitScom
+    } else { // !scomData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "pollscom - A chipUnit \"";
         printed += chipUnitType;
@@ -812,7 +807,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitScom ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((scomData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      bool done = false;
      timerStart = time(NULL);

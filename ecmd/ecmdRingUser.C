@@ -139,13 +139,13 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   bool validPosFound = false;           ///< Did the looper find something ?
   std::string format = "default";       ///< Output format
   ecmdChipData chipData;                ///< Chip data to find out bus info
   uint32_t bustype;                     ///< Stores if the chip was JTAG or FSI attached 
   bool unsort=false;			///< Sort the latchnames before printing them out
-  std::list<ecmdRingData> queryRingData;///< Ring data 
+  std::list<ecmdRingData> queryRingData;        ///< Ring data 
+  std::list<ecmdRingData>::iterator ringData;   ///< Ring data from query
   std::string printed;                  ///< Output data
   char outstr[1000];                    ///< Output string
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring contents
@@ -244,18 +244,18 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         coeRc = ECMD_DLL_INVALID;
         continue;
       }
-      isChipUnitRing = queryRingData.begin()->isChipUnitRelated;
+
+      ringData = queryRingData.begin();
 
       /* Setup our chipUnit looper if needed */
       cuTarget = target;
-      if (isChipUnitRing) {
-        cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      if (ringData->isChipUnitRelated) {
         /* Error check the chipUnit returned */
-        if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
+        if (ringData->isChipUnitMatch(chipUnitType)) {
           printed = "getringdump - Provided chipUnit \"";
           printed += chipUnitType;
           printed += "\"doesn't match chipUnit returned by queryRing \"";
-          printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+          printed += ringData->relatedChipUnit + "\"\n";
           ecmdOutputError(printed.c_str());
           rc = ECMD_INVALID_ARGS;
           break;
@@ -271,7 +271,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         /* Init the chipUnit loop */
         rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
-      } else { // !isChipUnitRing
+      } else { // !ringData->isChipUnitRelated
         if (chipUnitType != "") {
           printed = "getringdump - A chipUnit \"";
           printed += chipUnitType;
@@ -285,7 +285,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
         rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
         if (rc) {
@@ -520,8 +520,9 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
+  ecmdLatchData latchData;                      ///< Latch data from query
   std::string printed;
-  std::list<ecmdLatchEntry> latchdata;          ///< Data returned from getLatch
+  std::list<ecmdLatchEntry> latchEntry;         ///< Data returned from getLatch
   char temp[300];                               ///< Temp string buffer
   ecmdDataBuffer buffer;                        ///< Buffer for extracted data
   std::string ringName;                         ///< Ring name to fetch
@@ -669,8 +670,6 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-    bool isChipUnitLatch;		                ///< Is this a core latch ?
-  
     /* Now we need to find out if this is a core latch or not */
     if (ringName.length() != 0) 
       rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
@@ -694,22 +693,20 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       continue;
     }
     
-    if (  queryLatchData.size() < 1 ) {
+    if (queryLatchData.size() < 1) {
       ecmdOutputError("getlatch - Too much/little latch information returned from the dll, unable to determine if it is a core latch\n");
       return ECMD_DLL_INVALID;
     }  
-    isChipUnitLatch = queryLatchData.begin()->isChipUnitRelated;//We expect all latches to belong to one ring
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitLatch) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (latchData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryLatchData.begin()->relatedChipUnit != chipUnitType) {
+      if (latchData.isChipUnitMatch(chipUnitType)) {
         printed = "getlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += queryLatchData.begin()->relatedChipUnit + "\"\n";
+        printed += latchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -725,7 +722,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitRing
+    } else { // !latchData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -739,13 +736,13 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitLatch ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((latchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
       if (ringName.length() != 0)
-	rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchdata, latchMode);
+	rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchEntry, latchMode);
       else
-	rc = getLatch(cuTarget, NULL, latchName.c_str(), latchdata, latchMode);
+	rc = getLatch(cuTarget, NULL, latchName.c_str(), latchEntry, latchMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
 	printed = "getlatch - Error occurred performing getlatch on ";
 	printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -768,7 +765,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       ecmdOutput(printed.c_str());
 
       /* We need to loop over the data we got */
-      for (std::list<ecmdLatchEntry>::iterator latchit = latchdata.begin(); latchit != latchdata.end(); latchit ++) {
+      for (std::list<ecmdLatchEntry>::iterator latchit = latchEntry.begin(); latchit != latchEntry.end(); latchit ++) {
 
 
 	if (startBit == ECMD_UNSET) {
@@ -885,8 +882,8 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   std::string inputformat = "b";        ///< Input format of data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
-  std::list<ecmdRingData> queryRingData;///< Ring data 
+  std::list<ecmdRingData> queryRingData;        ///< Ring data 
+  std::list<ecmdRingData>::iterator ringData;   ///< Ring data from query 
   std::string ringName;                 ///< Ring to fetch
   uint32_t startBit;                    ///< Start bit to fetch
   uint32_t numBits;                     ///< Number of bits to fetch
@@ -1030,18 +1027,18 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       ecmdOutputError("getbits - Too much/little ring information returned from the dll, unable to determine if it is a core ring\n");
       return ECMD_DLL_INVALID;
     }
-    isChipUnitRing = queryRingData.begin()->isChipUnitRelated;
+
+    ringData = queryRingData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitRing) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (ringData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
+      if (ringData->isChipUnitMatch(chipUnitType)) {
         printed = "getbits - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+        printed += ringData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -1057,7 +1054,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitRing
+    } else { // !ringData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getbits - A chipUnit \"";
         printed += chipUnitType;
@@ -1071,7 +1068,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
       if (rc) {
@@ -1163,8 +1160,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   std::string dataModifier = "insert";  ///< Default data Modifier (And/Or/insert)
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  std::list<ecmdRingData> queryRingData;///< Ring data 
-  ecmdRingData ringData;                ///< Ring data 
+  std::list<ecmdRingData> queryRingData;        ///< Ring data 
+  std::list<ecmdRingData>::iterator ringData;   ///< Ring data from query
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
   bool validPosFound = false;           ///< Did the looper find something ?
@@ -1281,18 +1278,17 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       ecmdOutputError("putbits - Too much/little ring information returned from the dll, unable to determine if it is a core ring\n");
       return ECMD_DLL_INVALID;
     }
-    ringData = *queryRingData.begin();
+    ringData = queryRingData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (ringData.isChipUnitRelated) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (ringData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (ringData.relatedChipUnit != chipUnitType) {
+      if (ringData->relatedChipUnit != chipUnitType) {
         printed = "putbits - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";
-        printed += ringData.relatedChipUnit + "\"\n";
+        printed += ringData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -1308,7 +1304,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !ringData.isChipUnitRelated
+    } else { // !ringData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putbits - A chipUnit \"";
         printed += chipUnitType;
@@ -1322,12 +1318,12 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((ringData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* If the data the user gave on the command line is as long as the ring, and starts at bit 0
          we don't need to do the getRing since they gave us an entire ring image */
-      if ((startBit == 0) && (buffer.getBitLength() >= ringData.bitLength)) {
-        ringBuffer.setBitLength(ringData.bitLength);
+      if ((startBit == 0) && (buffer.getBitLength() >= ringData->bitLength)) {
+        ringBuffer.setBitLength(ringData->bitLength);
       } else {
         rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
         if (rc) {
@@ -1385,6 +1381,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
   std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
+  std::list<ecmdLatchData>::iterator latchData; ///< Latch data from the query
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool validLatchFound = false;         ///< Did we find a valid latch
   std::string printed;
@@ -1520,8 +1517,6 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       enabledCache = true;
     }
 
-    bool isChipUnitLatch;                         ///< Is this a core latch ?
-
     if (ringName.length() != 0) 
       rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     else
@@ -1555,18 +1550,18 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       break;
     }
 
-    isChipUnitLatch = queryLatchData.begin()->isChipUnitRelated;//We expect all latches to belong to one ring
+    // Query good, assign over
+    latchData = queryLatchData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitLatch) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (latchData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryLatchData.begin()->relatedChipUnit != chipUnitType) {
+      if (latchData->isChipUnitMatch(chipUnitType)) {
         printed = "putlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += queryLatchData.begin()->relatedChipUnit + "\"\n";
+        printed += latchData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -1582,7 +1577,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitRing
+    } else { // !latchData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -1596,7 +1591,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitLatch ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (ringName.length() != 0)
         rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode);
@@ -1746,7 +1741,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   std::list<ecmdRingData> queryRingData;///< Ring data 
   bool validPosFound = false;           ///< Did the looper find anything ?
   bool foundProblem;                    ///< Did we find a mismatch ?
-  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   ecmdCheckRingData ringlog;            ///< Used to push new entries
   std::list<ecmdCheckRingData> failedRings;   ///< Names of rings that failed
   std::list<ecmdCheckRingData> passedRings;   ///< Names of rings that failed
@@ -1823,13 +1817,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
     while (curRingData != queryRingData.end()) {
 
-      isChipUnitRing = curRingData->isChipUnitRelated;
       /* Setup our chipUnit looper if needed */
       cuTarget = target;
-      if (isChipUnitRing) {
-        cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+      if (curRingData->isChipUnitRelated) {
         /* Error check the chipUnit returned */
-        if (curRingData->relatedChipUnit != chipUnitType) {
+        if (curRingData->isChipUnitMatch(chipUnitType)) {
           printed = "checkrings - Provided chipUnit \"";
           printed += chipUnitType;
           printed += "\" doesn't match chipUnit returned by queryRing \"";
@@ -1849,7 +1841,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         /* Init the chipUnit loop */
         rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
-      } else { // !isChipUnitRing
+      } else { // !curRingData->isChipUnitRelated
         if (chipUnitType != "") {
           printed = "checkrings - A chipUnit \"";
           printed += chipUnitType;
@@ -1863,7 +1855,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       }
 
       /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-      while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+      while ((curRingData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
         ringName = (*curRingData).ringNames.front();
 
@@ -1872,8 +1864,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         }
 
         ringlog.ringName = ringName;
-        if (isChipUnitRing) ringlog.core = cuTarget.core;
-        else ringlog.core = -1;
+        if (curRingData->isChipUnitRelated) {
+          ringlog.core = cuTarget.core;
+        } else {
+          ringlog.core = -1;
+        }
 
         /* Print out the current target */
         printed = ecmdWriteTarget(cuTarget) + "\n"; ecmdOutput(printed.c_str());
@@ -2122,11 +2117,11 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   std::list<ecmdRingData> queryRingData;///< Ring query data
+  std::list<ecmdRingData>::iterator ringData;  ///< Ring data from query
   ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                ///< Current target being operated on
   ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  bool isChipUnitRing;                  ///< Is this a chipUnit ring ?
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   std::string printed;                  ///< Output print data
   bool validPosFound = false;           ///< Did the looper find anything?
@@ -2198,19 +2193,18 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       coeRc = ECMD_INVALID_ARGS;
       continue;
     } 
-    isChipUnitRing = queryRingData.begin()->isChipUnitRelated;
+    ringData = queryRingData.begin();
 
     /* Setup our Core looper if needed */
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (isChipUnitRing) {
-      cuTarget.chipTypeState = cuTarget.cageState = cuTarget.nodeState = cuTarget.slotState = cuTarget.posState = ECMD_TARGET_FIELD_VALID;
+    if (ringData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryRingData.begin()->relatedChipUnit != chipUnitType) {
+      if (ringData->isChipUnitMatch(chipUnitType)) {
         printed = "putpattern - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";
-        printed += queryRingData.begin()->relatedChipUnit + "\"\n";
+        printed += ringData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -2226,7 +2220,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !isChipUnitRing
+    } else { // !ringData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putpattern - A chipUnit \"";
         printed += chipUnitType;
@@ -2240,7 +2234,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((isChipUnitRing ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
       uint32_t curOffset = 0;
       uint32_t numBitsToInsert = 0;
       uint32_t numBitsInRing = queryRingData.front().bitLength;

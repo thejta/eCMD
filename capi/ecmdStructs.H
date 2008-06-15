@@ -774,12 +774,13 @@ struct ecmdChipUnitData {
 #endif
 
   // Members
-  std::string                   chipUnitType;   ///< (Detail: Low)  Full name of chipUnit.. i.e. core, mc, etc..
-  uint8_t                       chipUnitNum;    ///< (Detail: Low) chipUnit number of this entry
-  uint8_t                       numThreads;     ///< (Detail: Low) Number of threads this entry supports
-  uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
-  uint32_t                      chipUnitFlags;  ///< (Detail: High) Various additional info about the chipUnit - bitmask of defines
-  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chipUnit - only valid for Processor compute cores - in numerical order
+  std::string                   chipUnitType;        ///< (Detail: Low)  Full name of chipUnit.. i.e. core, mc, etc..
+  std::string                   chipUnitShortType;   ///< (Detail: Low)  Full name of chipUnit.. i.e. core, mc, etc..
+  uint8_t                       chipUnitNum;         ///< (Detail: Low) chipUnit number of this entry
+  uint8_t                       numThreads;          ///< (Detail: Low) Number of threads this entry supports
+  uint32_t                      unitId;              ///< (Detail: High) Unit Id of this entry
+  uint32_t                      chipUnitFlags;       ///< (Detail: High) Various additional info about the chipUnit - bitmask of defines
+  std::list<ecmdThreadData>     threadData;          ///< (Detail: Low) List of all threads avaliable for this chipUnit - only valid for Processor compute cores - in numerical order
 };
 
 #ifndef DOCUMENTATION
@@ -1084,18 +1085,21 @@ struct ecmdRingData {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
   // Members
-  std::list<std::string> ringNames;                     ///< (Detail: Low)  Names used to reference this ring
-  std::list<uint32_t>    ringIds;                       ///< (Detail: Low)  Hashed ring IDs
-  uint32_t               address;                       ///< (Detail: Low)  Address modifier
-  uint32_t               bitLength;                     ///< (Detail: Low)  length of ring
-  bool                   hasInversionMask;              ///< (Detail: High) Ring has an inversion mask applied before scanning
-  bool                   supportsBroadsideLoad;         ///< (Detail: High) This ring supports broadside load in simulation
-  bool                   isCheckable;                   ///< (Detail: High) This ring can be run through the check_rings command
-  bool                   isChipUnitRelated;             ///< (Detail: Low)  This ring is related to the chipUnit level of a chip
-  std::string            relatedChipUnit;               ///< (Detail: Low)  If the ring is chipUnit related, this is the name of the chipUnit
-  std::string            clockDomain;                   ///< (Detail: High) Clock domain this ring belongs to
-  ecmdClockState_t       clockState;                    ///< (Detail: High) Required clock state to access this ring
+  std::list<std::string> ringNames;              ///< (Detail: Low)  Names used to reference this ring
+  std::list<uint32_t>    ringIds;                ///< (Detail: Low)  Hashed ring IDs
+  uint32_t               address;                ///< (Detail: Low)  Address modifier
+  uint32_t               bitLength;              ///< (Detail: Low)  length of ring
+  bool                   hasInversionMask;       ///< (Detail: High) Ring has an inversion mask applied before scanning
+  bool                   supportsBroadsideLoad;  ///< (Detail: High) This ring supports broadside load in simulation
+  bool                   isCheckable;            ///< (Detail: High) This ring can be run through the check_rings command
+  bool                   isChipUnitRelated;      ///< (Detail: Low)  This ring is related to the chipUnit level of a chip
+  std::string            relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string            relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string            clockDomain;            ///< (Detail: High) Clock domain this ring belongs to
+  ecmdClockState_t       clockState;             ///< (Detail: High) Required clock state to access this ring
 };
 
 #ifndef DOCUMENTATION
@@ -1136,18 +1140,21 @@ struct ecmdArrayData {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
   // Members
-  std::string arrayName;                ///< (Detail: Low)  Names used to reference this array
-  uint32_t    arrayId;                  ///< (Detail: Low)  Hashed array ID
-  ecmdArrayType_t       arrayType;              ///< (Detail: Low)  The type of array this is
-  uint32_t    readAddressLength;        ///< (Detail: Low)  Bit length of read address
-  uint32_t    writeAddressLength;       ///< (Detail: Low)  Bit length of write address
-  uint64_t    length;                   ///< (Detail: Low)  Length of array (number of entries)
-  uint32_t    width;                    ///< (Detail: Low)  Bit width of array entry
-  bool                  isChipUnitRelated;      ///< (Detail: Low)  This array is related to the chipUnit level of a chip
-  std::string           relatedChipUnit;        ///< (Detail: Low)  If the array is chipUnit related, this is the name of the chipUnit
-  std::string           clockDomain;    ///< (Detail: High) Clock domain this array belongs to
-  ecmdClockState_t       clockState;    ///< (Detail: High) Required clock state to access this array
+  std::string      arrayName;              ///< (Detail: Low)  Names used to reference this array
+  uint32_t         arrayId;                ///< (Detail: Low)  Hashed array ID
+  ecmdArrayType_t  arrayType;              ///< (Detail: Low)  The type of array this is
+  uint32_t         readAddressLength;      ///< (Detail: Low)  Bit length of read address
+  uint32_t         writeAddressLength;     ///< (Detail: Low)  Bit length of write address
+  uint64_t         length;                 ///< (Detail: Low)  Length of array (number of entries)
+  uint32_t         width;                  ///< (Detail: Low)  Bit width of array entry
+  bool             isChipUnitRelated;      ///< (Detail: Low)  This array is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;            ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t clockState;             ///< (Detail: High) Required clock state to access this array
 };
 
 #ifndef DOCUMENTATION
@@ -1189,15 +1196,18 @@ struct ecmdTraceArrayData {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
   // Members
-  std::string      traceArrayName;      ///< (Detail: Low)  Name of Trace array
-  uint32_t         traceArrayId;        ///< (Detail: Low)  Hashed trace array ID
-  uint32_t         length;              ///< (Detail: Low)  Length of trace array (number of entries)
-  uint32_t         width;               ///< (Detail: Low)  Bit width of trace array entry
-  bool             isChipUnitRelated;   ///< (Detail: Low)  This trace array is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;     ///< (Detail: Low)  If the trace array is chipUnit related, this is the name of the chipUnit
-  std::string      clockDomain;         ///< (Detail: High) Clock domain this array belongs to
-  ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this array
+  std::string      traceArrayName;       ///< (Detail: Low)  Name of Trace array
+  uint32_t         traceArrayId;         ///< (Detail: Low)  Hashed trace array ID
+  uint32_t         length;               ///< (Detail: Low)  Length of trace array (number of entries)
+  uint32_t         width;                ///< (Detail: Low)  Bit width of trace array entry
+  bool             isChipUnitRelated;    ///< (Detail: Low)  This trace array is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;          ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this array
 };
 
 #ifndef DOCUMENTATION
@@ -1235,13 +1245,16 @@ struct ecmdScomData {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
   // Members
-  uint32_t         address;             ///< (Detail: Low)  Scom Address
-  uint32_t         length;              ///< (Detail: Low)  The length of the scom in bits
-  bool             isChipUnitRelated;   ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;     ///< (Detail: Low)  If the scom is chipUnit related, this is the name of the chipUnit
-  std::string      clockDomain;         ///< (Detail: High) Clock domain this scom belongs to
-  ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this scom
+  uint32_t         address;              ///< (Detail: Low)  Scom Address
+  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
+  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
+  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
 };
 
 #ifndef DOCUMENTATION
@@ -1280,17 +1293,19 @@ struct ecmdLatchData {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
 
   // Members
-  std::string      latchName;           ///< (Detail: Low)  Latch Name
-  std::string      ringName;            ///< (Detail: Low)  Ring that this latch belongs to
-  uint32_t         latchId;             ///< (Detail: Low)  Hashed latch ID
-  uint32_t         ringId;              ///< (Detail: Low)  Hashed ring ID
-  uint32_t         bitLength;           ///< (Detail: Low)  length of latch, sum of all the parts
-  bool             isChipUnitRelated;   ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;     ///< (Detail: Low)  If the latch is chipUnit related, this is the name of the chipUnit
-  std::string      clockDomain;         ///< (Detail: High) Clock domain this latch belongs to
-  ecmdClockState_t clockState;          ///< (Detail: High) Required clock state to access this latch
+  std::string      latchName;            ///< (Detail: Low)  Latch Name
+  std::string      ringName;             ///< (Detail: Low)  Ring that this latch belongs to
+  uint32_t         latchId;              ///< (Detail: Low)  Hashed latch ID
+  uint32_t         ringId;               ///< (Detail: Low)  Hashed ring ID
+  uint32_t         bitLength;            ///< (Detail: Low)  length of latch, sum of all the parts
+  bool             isChipUnitRelated;    ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;          ///< (Detail: High) Clock domain this latch belongs to
+  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this latch
 };
 
 #ifndef DOCUMENTATION
@@ -1570,12 +1585,15 @@ struct ecmdProcRegisterInfo {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
   // Members
-  uint32_t      bitLength;                 ///< Bit length of each entry
-  uint32_t      totalEntries;              ///< Total number of entries available
-  bool          isChipUnitRelated;         ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
-  std::string   relatedChipUnit;           ///< (Detail: Low)  If the spy is chipUnit related, this is the name of the chipUnit
-  bool          threadReplicated;          ///< Register is replicated for each thread
+  uint32_t      bitLength;              ///< Bit length of each entry
+  uint32_t      totalEntries;           ///< Total number of entries available
+  bool          isChipUnitRelated;      ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
+  std::string   relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string   relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  bool          threadReplicated;       ///< Register is replicated for each thread
 };      
 
 #ifndef DOCUMENTATION
@@ -1612,8 +1630,11 @@ struct ecmdCacheData {
 #endif
 #endif
 
-  bool isChipUnitRelated;       ///< Is the level of cache chipUnit related
-  std::string relatedChipUnit;  ///< If it is, what unit
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  bool          isChipUnitRelated;      ///< Is the level of cache chipUnit related
+  std::string   relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string   relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
 };
 
 
@@ -1664,6 +1685,8 @@ struct ecmdSpyData {
 #endif
 #endif
 
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
   // Members
   std::string   spyName;                   ///< Names used to reference this spy
   uint32_t      spyId;                     ///< (Detail: Low)  Hashed spy ID
@@ -1672,7 +1695,8 @@ struct ecmdSpyData {
   bool          isEccChecked;              ///< This spy affects some ECC groupings
   bool          isEnumerated;              ///< This spy has enumerated values
   bool          isChipUnitRelated;         ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
-  std::string   relatedChipUnit;           ///< (Detail: Low)  If the spy is chipUnit related, this is the name of the chipUnit
+  std::string   relatedChipUnit;           ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string   relatedChipUnitShort;      ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
 
   std::string           clockDomain;       ///< Clock domain this spy belongs to
   ecmdClockState_t       clockState;       ///< Required clock state to access this spy
