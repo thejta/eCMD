@@ -60,7 +60,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::list<ecmdNameEntry> posEntries;       ///< List of thread spr's to fetch, to use getSprMultiple
-  std::map< std::string, std::list<ecmdNameEntry> > cuEntries;       ///< List of core spr's to fetch, to use getSprMultiple
+  std::map< std::string, std::list<ecmdNameEntry> > cuEntries;       ///< List of spr's to fetch, to use getSprMultiple
   std::map< std::string, std::list<ecmdNameEntry> >::iterator cuEntryIter;
   std::map< std::string, std::list<ecmdNameEntry> > threadEntries;       ///< List of thread spr's to fetch, to use getSprMultiple
   std::map< std::string, std::list<ecmdNameEntry> >::iterator threadEntryIter;
@@ -194,11 +194,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        /* Init the core loop */
+        /* Init the chipUnit loop */
         rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooperData);
         if (rc) return rc;
 
-        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+        /* If this isn't a chipUnit spr we will fall into while loop and break at the end, if it is we will call run through configloopernext */
         while (ecmdLooperNext(cuTarget, cuLooperData) && (!coeRc || coeMode)) {
 
           /* Actually go fetch the data */
@@ -242,11 +242,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
-        /* Init the core loop */
+        /* Init the thread loop */
         rc = ecmdLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
         if (rc) return rc;
 
-        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+        /* If this isn't a thread spr we will fall into while loop and break at the end, if it is we will call run through configloopernext */
         while (ecmdLooperNext(threadTarget, threadLooperData) && (!coeRc || coeMode)) {
 
           /* Actually go fetch the data */
@@ -411,7 +411,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
     }
 
-    // We've done the core loop and gotten the SPR info, now figure out how to loop.
+    // We've done the chipUnit loop and gotten the SPR info, now figure out how to loop.
     subTarget = target;
     if (procInfo.isChipUnitRelated) {
       if (procInfo.relatedChipUnit != "") {

@@ -14,15 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//   @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-//       FW038109      03/30/06 Heuser    Fix up Lint errors
-//   
-// End Change Log *****************************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -62,7 +53,7 @@ struct ecmdLatchDataEntry {
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 struct ecmdCheckRingData {
   std::string ringName;                 ///< Name of ring
-  int core;                             ///< Core value -1 if not a core ring
+  int chipUnit;                         ///< chipUnit value -1 if not a chipUnit ring
 };
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
@@ -229,7 +220,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       /* Store our type */
       bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
 
-      /* Now we need to find out if this is a core ring or not */
+      /* Now we need to find out if this is a chipUnit ring or not */
       rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
       if (rc) {
         printed = "getringdump - Error occurred performing queryring on ";
@@ -240,7 +231,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         continue;
       }
       if (queryRingData.size() != 1) {
-        ecmdOutputError("getringdump - Too much/little ring information returned from the dll, unable to determine if it is a core ring\n");
+        ecmdOutputError("getringdump - Too much/little ring information returned from the dll, unable to determine if it is a chipUnit ring\n");
         coeRc = ECMD_DLL_INVALID;
         continue;
       }
@@ -310,10 +301,10 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
         printed = ecmdWriteTarget(cuTarget);
         printed += "\n*************************************************\n* ECMD Dump scan ring contents, ";
         printed += ctime(&curTime);
-        if (cuTarget.coreState == ECMD_TARGET_FIELD_UNUSED) {       
+        if (cuTarget.chipUnitNumState == ECMD_TARGET_FIELD_UNUSED) {       
           sprintf(outstr, "* Position k%d:n%d:s%d:p%d, ", cuTarget.cage, cuTarget.node, cuTarget.slot, cuTarget.pos);
         } else {
-          sprintf(outstr, "* Position k%d:n%d:s%d:p%d:c%d, ", cuTarget.cage, cuTarget.node, cuTarget.slot, cuTarget.pos, cuTarget.core);
+          sprintf(outstr, "* Position k%d:n%d:s%d:p%d:c%d, ", cuTarget.cage, cuTarget.node, cuTarget.slot, cuTarget.pos, cuTarget.chipUnitNum);
         }
         printed += outstr;
         printed += cuTarget.chipType + " " + ringName + " Ring\n";
@@ -670,7 +661,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-    /* Now we need to find out if this is a core latch or not */
+    /* Now we need to find out if this is a chipUnit latch or not */
     if (ringName.length() != 0) 
       rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
     else 
@@ -694,7 +685,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
     
     if (queryLatchData.size() < 1) {
-      ecmdOutputError("getlatch - Too much/little latch information returned from the dll, unable to determine if it is a core latch\n");
+      ecmdOutputError("getlatch - Too much/little latch information returned from the dll, unable to determine if it is a chipUnit latch\n");
       return ECMD_DLL_INVALID;
     }  
 
@@ -735,7 +726,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       oneLoop = 1;
     }
 
-    /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((latchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
@@ -1014,7 +1005,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-    /* Now we need to find out if this is a core ring or not */
+    /* Now we need to find out if this is a chipUnit ring or not */
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "getbits - Error occurred performing queryring on ";
@@ -1024,7 +1015,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       continue;
     }
     if (queryRingData.size() != 1) {
-      ecmdOutputError("getbits - Too much/little ring information returned from the dll, unable to determine if it is a core ring\n");
+      ecmdOutputError("getbits - Too much/little ring information returned from the dll, unable to determine if it is a chipUnit ring\n");
       return ECMD_DLL_INVALID;
     }
 
@@ -1265,7 +1256,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-    /* Now we need to find out if this is a core ring or not */
+    /* Now we need to find out if this is a chipUnit ring or not */
     rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "putbits - Error occurred performing queryring on ";
@@ -1275,7 +1266,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
       continue;
     }
     if (queryRingData.size() != 1) {
-      ecmdOutputError("putbits - Too much/little ring information returned from the dll, unable to determine if it is a core ring\n");
+      ecmdOutputError("putbits - Too much/little ring information returned from the dll, unable to determine if it is a chipUnit ring\n");
       return ECMD_DLL_INVALID;
     }
     ringData = queryRingData.begin();
@@ -1538,7 +1529,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       continue;
     }
     if (queryLatchData.size() < 1) {
-      ecmdOutputError("putlatch - Too much/little latch information returned from the dll, unable to determine if it is a core latch\n");
+      ecmdOutputError("putlatch - Too much/little latch information returned from the dll, unable to determine if it is a chipUnit latch\n");
       return ECMD_DLL_INVALID;
     }
 
@@ -1590,7 +1581,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       oneLoop = 1;
     }
 
-    /* If this isn't a core latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (ringName.length() != 0)
@@ -1803,11 +1794,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     
     if (allRingsFlag) {
       rc = ecmdQueryRing(target, queryRingData, NULL, ECMD_QUERY_DETAIL_LOW);
-    }
-    else {
+    } else {
       rc = ecmdQueryRing(target, queryRingData, ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     }
-
     if (rc) {
       coeRc = rc;
       continue;
@@ -1857,7 +1846,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
       while ((curRingData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-        ringName = (*curRingData).ringNames.front();
+        ringName = curRingData->ringNames.front();
 
         if (!curRingData->isCheckable && allRingsFlag) {
           break;
@@ -1865,9 +1854,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
         ringlog.ringName = ringName;
         if (curRingData->isChipUnitRelated) {
-          ringlog.core = cuTarget.core;
+          ringlog.chipUnit = cuTarget.chipUnitNum;
         } else {
-          ringlog.core = -1;
+          ringlog.chipUnit = -1;
         }
 
         /* Print out the current target */
@@ -2070,11 +2059,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     sprintf(outstr,"Passed Rings : %lu\n", (unsigned long)passedRings.size());
     ecmdOutput(outstr);
     for (std::list<ecmdCheckRingData>::iterator strit = passedRings.begin(); strit != passedRings.end(); strit ++) {
-      if (strit->core == -1) {
+      if (strit->chipUnit == -1) {
         printed = strit->ringName + " passed.\n";
         ecmdOutput(printed.c_str());
       } else {
-        sprintf(outstr,"%s on core %d passed.\n",strit->ringName.c_str(), strit->core);
+        sprintf(outstr,"%s on chipUnit %d passed.\n",strit->ringName.c_str(), strit->chipUnit);
         ecmdOutput(outstr);
       }
     }
@@ -2082,11 +2071,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     sprintf(outstr,"Failed Rings : %lu\n", (unsigned long)failedRings.size());
     ecmdOutput(outstr);
     for (std::list<ecmdCheckRingData>::iterator strit2 = failedRings.begin(); strit2 != failedRings.end(); strit2 ++) {
-      if (strit2->core == -1) {
+      if (strit2->chipUnit == -1) {
         printed = strit2->ringName + " failed.\n";
         ecmdOutput(printed.c_str());
       } else {
-        sprintf(outstr,"%s on core %d failed.\n",strit2->ringName.c_str(), strit2->core);
+        sprintf(outstr,"%s on chipUnit %d failed.\n",strit2->ringName.c_str(), strit2->chipUnit);
         ecmdOutput(outstr);
       }
 
@@ -2195,7 +2184,6 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     } 
     ringData = queryRingData.begin();
 
-    /* Setup our Core looper if needed */
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
@@ -2323,13 +2311,13 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
   if (argc == 1) {
     /* We're going loop at the cage level by default, then below we'll get all variable */
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    target.nodeState = target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    target.nodeState = target.slotState = target.chipTypeState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   } else if (argc == 2) {
     posLoop = true;
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   } else {
     ecmdOutputError("ringcache - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("ringcache - Type 'ringcache -h' for usage.\n");
