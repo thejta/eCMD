@@ -647,7 +647,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
     cuTarget = target;
     if (queryCacheData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (queryCacheData.isChipUnitMatch(chipUnitType)) {
+      if (!queryCacheData.isChipUnitMatch(chipUnitType)) {
         printed = "putscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryCache \"";
