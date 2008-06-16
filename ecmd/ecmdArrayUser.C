@@ -762,7 +762,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     }
 
     if (queryTraceData.size() < 1) {
-      ecmdOutputError("gettracearray - Too much/little tracearray information returned from the dll, unable to determine core vs non-core\n");
+      ecmdOutputError("gettracearray - Too much/little tracearray information returned from the dll, unable to determine chipUnit vs non-chipUnit\n");
       return ECMD_DLL_INVALID;
     }
 
@@ -842,14 +842,14 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-        /* Init the core loop */
+        /* Init the chipUnit loop */
         rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) return rc;
 
-        /* If this isn't a core ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+        /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
         while (ecmdLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
 
-          //Clear the core List
+          //Clear the chipUnit List
           for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
             lit->buffer.clear();
           }
@@ -882,7 +882,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
         }/* End cuLooper */
       } /* End map loop */
-    } /* If core trace */
+    } /* If chipUnit trace */
   }/* End ChipLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;

@@ -14,14 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-//   
-// End Change Log *****************************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -156,12 +148,19 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   /* Now set our states based on depth */
   target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  if (depth == POS)             target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
-  else if (depth == SLOT)       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-  else if (depth == NODE)       target.slotState = ECMD_TARGET_FIELD_UNUSED;
-  else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  if (depth == POS) {
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == SLOT) {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == NODE) {
+    target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == CAGE) {
+    target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  }
 
-  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -320,16 +319,22 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     validInput = ECMD_CONFIG_VALID_FIELD_NUMERIC;
   }
     
+   /* Now set our states based on depth */
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  /* Now set our states based on depth */
-  if (depth == POS)             target.coreState = ECMD_TARGET_FIELD_UNUSED;
-  else if (depth == SLOT)       target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-  else if (depth == NODE)       target.slotState = ECMD_TARGET_FIELD_UNUSED;
-  else if (depth == CAGE)       target.nodeState = ECMD_TARGET_FIELD_UNUSED;
-
+  if (depth == POS) {
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == SLOT) {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == NODE) {
+    target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == CAGE) {
+    target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  }
   
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -825,10 +830,19 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
-  bool validPosFound = false;   ///< Did we find something to actually execute on ?
-  std::string printed;           ///< Print Buffer
-  ecmdLooperData looperdata;     ///< Store internal Looper data
+  ecmdLooperData looperData;    ///< Store internal Looper data
+  std::string printed;          ///< Print Buffer
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
+  int depth = 0;                 ///< depth found from Command line parms
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
+  else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
+  else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
+  else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -839,279 +853,199 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-
   //Setup the target that will be used to query the system config
-  if( argc == 1) {
+  if (argc > 1) {
+    ecmdOutputError("deconfig - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("deconfig - Type 'deconfig -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if (argc == 1) {
     std::string chipType, chipUnitType;
     ecmdParseChipField(argv[0], chipType, chipUnitType);
 
+    /* Error check */
+    if (depth) {
+      if (chipUnitType == "" && depth < POS) {
+        ecmdOutputError("deconfig - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
+        return ECMD_INVALID_ARGS;
+      }
+
+      if (chipUnitType != "" && depth < CHIPUNIT) {
+        ecmdOutputError("deconfig - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
+        return ECMD_INVALID_ARGS;
+      }
+    } else { /* No depth, set on for the code below */
+      if (chipUnitType == "") {
+        depth = POS;
+      } else {
+        depth = CHIPUNIT;
+      }
+    }
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
     if (chipUnitType != "") {
       target.chipUnitType = chipUnitType;
       target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-      target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
-    } else {
-      target.coreState = ECMD_TARGET_FIELD_WILDCARD;
     }
   } else {
-   target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if (depth == 0) {
+      depth = CAGE;
+    }
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  /* Now set our states based on depth */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  if (depth == POS) {
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == SLOT) {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == NODE) {
+    target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == CAGE) {
+    target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  }
 
-  
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP_VD, looperdata);
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdExistLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdExistLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-    /* Actually go fetch the data */
     rc = ecmdDeconfigureTarget(target);
-
-    if (rc) {
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       printed = "deconfig - Error occured performing ecmdDeconfigureTarget on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
     }
-    else {
-      validPosFound = true;
+    else if (rc) {
+      printed = "deconfig - Error occured performing ecmdDeconfigureTarget on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      return rc;
     }
-
     printed = ecmdWriteTarget(target) + "deconfigured.\n";
     ecmdOutput( printed.c_str() );
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  // This is an error common across all UI functions
-  if (!validPosFound) {
-    ecmdOutputError("getconfig - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
   }
 
   return rc;
 }
 
 uint32_t ecmdReconfigUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
-
-  uint8_t ONE = 0;
-  uint8_t MANY = 1;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
-  std::string printed;           ///< Print Buffer
-  
-  std::string cage;	
-  std::string node;	
-  std::string slot;	
-  std::string pos;	
-  std::string core;	
-  
-  uint8_t cageType;
-  uint8_t nodeType;
-  uint8_t slotType;
-  uint8_t posType;
-  uint8_t coreType;
-  
-  
-  std::list<uint32_t>              cageList;
-  std::list<uint32_t>::iterator    cageListIter;
-  std::list<uint32_t>              nodeList;
-  std::list<uint32_t>::iterator    nodeListIter;
-  std::list<uint32_t>              slotList;
-  std::list<uint32_t>::iterator    slotListIter;
-  std::list<uint32_t>              posList;
-  std::list<uint32_t>::iterator    posListIter;
-  std::list<uint32_t>              coreList;
-  std::list<uint32_t>::iterator    coreListIter;
-  
+  ecmdLooperData looperData;    ///< Store internal Looper data
+  std::string printed;          ///< Print Buffer
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
+  int depth = 0;                 ///< depth found from Command line parms
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
+  if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
+  else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
+  else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
+  else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
 
-  if(ecmdParseOption(&argc, &argv, "-all")) {
-     printed = "reconfig - 'all' option for targets not supported in reconfig.\n";
-     ecmdOutputError( printed.c_str() );
-     return rc;
-  }
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
-
-  //Set all the states Unused to begin with. Then set them to valid based on the args
-  target.cageState     = ECMD_TARGET_FIELD_UNUSED;
-  target.nodeState     = ECMD_TARGET_FIELD_UNUSED;
-  target.slotState     = ECMD_TARGET_FIELD_UNUSED;
-  target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-  target.posState      = ECMD_TARGET_FIELD_UNUSED;
-  target.coreState     = ECMD_TARGET_FIELD_UNUSED;
-  target.threadState   = ECMD_TARGET_FIELD_UNUSED;
-  
-  
-  rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "node", target, nodeType, node);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "slot", target, slotType, slot);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "pos", target, posType, pos);
-  if(rc) return rc;
-  rc = ecmdParseTargetFields(&argc, &argv, "core", target, coreType, core);
-  if(rc) return rc;
-  
-  
-  
-
-  //Thread
-  char *targetPtr = ecmdParseOptionWithArgs(&argc, &argv, "-t");
-  if(targetPtr != NULL) {
-    ecmdOutputError("reconfig - Thread (-t#) argument not supported\n");
+  //Setup the target that will be used to query the system config
+  if (argc > 1) {
+    ecmdOutputError("reconfig - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("reconfig - Type 'reconfig -h' for usage.\n");
     return ECMD_INVALID_ARGS;
+  } else if (argc == 1) {
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+
+    /* Error check */
+    if (depth) {
+      if (chipUnitType == "" && depth < POS) {
+        ecmdOutputError("reconfig - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
+        return ECMD_INVALID_ARGS;
+      }
+
+      if (chipUnitType != "" && depth < CHIPUNIT) {
+        ecmdOutputError("reconfig - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
+        return ECMD_INVALID_ARGS;
+      }
+    } else { /* No depth, set on for the code below */
+      if (chipUnitType == "") {
+        depth = POS;
+      } else {
+        depth = CHIPUNIT;
+      }
+    }
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+  } else {
+    if (depth == 0) {
+      depth = CAGE;
+    }
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
-  //ChipType
-  if( argc == 1) {
-   target.chipType = argv[0];
-   target.cageState = ECMD_TARGET_FIELD_VALID;
-   target.nodeState = ECMD_TARGET_FIELD_VALID;
-   target.slotState = ECMD_TARGET_FIELD_VALID;
-   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-   target.posState = ECMD_TARGET_FIELD_VALID;
-  }
-  else {
-   target.posState = ECMD_TARGET_FIELD_UNUSED;
-   target.coreState = ECMD_TARGET_FIELD_UNUSED;
+  /* Now set our states based on depth */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  if (depth == POS) {
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == SLOT) {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == NODE) {
+    target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == CAGE) {
+    target.nodeState = ECMD_TARGET_FIELD_UNUSED;
   }
   
-  //No Args Case
-  if(target.cageState == ECMD_TARGET_FIELD_UNUSED) {
-    ecmdOutputError("reconfig - No target args specified.\n");
-    return ECMD_INVALID_ARGS;
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdExistLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+
+  while (ecmdExistLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    rc = ecmdConfigureTarget(target);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
+      printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    else if (rc) {
+      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      return rc;
+    }
+    printed = ecmdWriteTarget(target) + "configured.\n";
+    ecmdOutput( printed.c_str() );
   }
-    
-  //Go through each of the targets and configure them 
-  if (cageType == ONE) {
-    cageList.push_back(target.cage);
-  }
-  else if (cageType == MANY) {
-    getTargetList(cage, cageList);
-  }
-  if (cageList.empty()) {
-    ecmdOutputError("reconfig - no cage input found.\n");
-    return ECMD_INVALID_CONFIG;
-  }
-  /* STart walking the cages */
-  for (cageListIter = cageList.begin(); cageListIter != cageList.end(); cageListIter++) {
-     target.cage = *cageListIter;
-     
-     nodeList.clear();
-
-     if (nodeType == ONE) {
-       nodeList.push_back(target.node);
-     }
-     else if (nodeType == MANY) {
-       getTargetList(node, nodeList);
-     }
-	
-     for (nodeListIter = nodeList.begin(); nodeListIter != nodeList.end(); nodeListIter ++) {
-     	target.node = *nodeListIter;
-       
-     	slotList.clear();
-     	
-     	if (slotType == ONE) {
-     	   slotList.push_back(target.slot);
-     	}
-     	else if (slotType == MANY) {
-     	   getTargetList(slot, slotList);
-     	}
-
-	 /* Walk the slots */
-        for (slotListIter = slotList.begin(); slotListIter != slotList.end(); slotListIter ++) {
-          target.slot = *slotListIter;
-	  
-	 /* Walk the slots */
-         if (target.chipTypeState != ECMD_TARGET_FIELD_UNUSED) {
-           
-	  posList.clear();
-          //ChipType has been previously set
-	  if (posType == ONE) {
-           posList.push_back(target.pos);
-          }
-          else if (posType == MANY) {
-           getTargetList(pos, posList);
-          }
-
-	  /* Now start walking chip pos's */
-	  for (posListIter = posList.begin(); posListIter != posList.end(); posListIter ++) {
-	    target.pos = *posListIter;
-	   
-	    coreList.clear();
-
-	    if (coreType == ONE) {
-              coreList.push_back(target.core);
-            }
-            else if (coreType == MANY) {
-              getTargetList(core, coreList);
-            }
-	    
-	    /* Ok, walk the cores */
-            for (coreListIter = coreList.begin(); coreListIter != coreList.end(); coreListIter ++) {
-	      target.core = (uint8_t)*coreListIter;
-
-	      rc = ecmdConfigureTarget(target);
-
- 	     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
- 	      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
- 	      printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
- 	      ecmdOutputError( printed.c_str() );
- 	      continue;
- 	     }
- 	     else if (rc) {
- 	      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
- 	      printed += ecmdWriteTarget(target) + "\n";
- 	      ecmdOutputError( printed.c_str() );
- 	      return rc;
- 	     }
-             printed = ecmdWriteTarget(target) + "configured.\n";
- 	     ecmdOutput( printed.c_str() );
-	
-	    }//Loop cores
-
-	       
-	  }//Loop pos 
-
-	 }// end if chiptype Used
-	 else {
-	   rc = ecmdConfigureTarget(target);
-
- 	   if (rc == ECMD_TARGET_NOT_CONFIGURED) {
- 	      printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
- 	      printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
- 	      ecmdOutputError( printed.c_str() );
- 	      continue;
- 	   }
- 	   else if (rc) {
- 	     printed = "reconfig - Error occured performing ecmdConfigureTarget on ";
- 	     printed += ecmdWriteTarget(target) + "\n";
- 	     ecmdOutputError( printed.c_str() );
- 	     return rc;
- 	   }
-           printed = ecmdWriteTarget(target) + "configured.\n";
- 	   ecmdOutput( printed.c_str() );
-	 
-	 }
-
-	}// Loop slots 
-	    
-      } //Loop nodes 
-      
-    }// Loop cages
 
   return rc;
 }

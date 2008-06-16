@@ -116,7 +116,6 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
@@ -479,9 +478,9 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     /* If we have a cmdlinePtr, read it in now that we have a length we can use */
     if (cmdlinePtr != NULL) {
       if (dataModifier == "insert") {
-        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, queryScomData.begin()->length);
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, scomData->length);
       } else {
-        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, queryScomData.begin()->length);
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, scomData->length);
       }
       if (rc) {
         ecmdOutputError("putscom - Problems occurred parsing input data, must be an invalid format\n");
@@ -593,7 +592,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   std::string outputformat = "x";               ///< Output format
   std::string inputformat = "x";                ///< Input format
   ecmdChipTarget target;                        ///< Target we are operating on
-  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the cores
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnits
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
   bool validPosFound = false;                   ///< Did the looper find anything?

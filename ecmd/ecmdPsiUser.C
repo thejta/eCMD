@@ -75,7 +75,7 @@ uint32_t ecmdAdalPsiUser(int argc, char* argv[]) {
   target.chipType = argv[1];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   uint32_t l_psiPort  = atoi(argv[2]);
 
