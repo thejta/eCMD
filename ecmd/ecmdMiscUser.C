@@ -911,10 +911,10 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdExistLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdExistLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  while (ecmdConfigLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = ecmdDeconfigureTarget(target);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
