@@ -251,7 +251,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
       cuTarget = target;
       if (ringData->isChipUnitRelated) {
         /* Error check the chipUnit returned */
-        if (ringData->isChipUnitMatch(chipUnitType)) {
+        if (!ringData->isChipUnitMatch(chipUnitType)) {
           printed = "getringdump - Provided chipUnit \"";
           printed += chipUnitType;
           printed += "\"doesn't match chipUnit returned by queryRing \"";
@@ -702,7 +702,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     cuTarget = target;
     if (latchData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (latchData.isChipUnitMatch(chipUnitType)) {
+      if (!latchData.isChipUnitMatch(chipUnitType)) {
         printed = "getlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
@@ -1034,7 +1034,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (ringData->isChipUnitMatch(chipUnitType)) {
+      if (!ringData->isChipUnitMatch(chipUnitType)) {
         printed = "getbits - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";
@@ -1557,7 +1557,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     cuTarget = target;
     if (latchData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (latchData->isChipUnitMatch(chipUnitType)) {
+      if (!latchData->isChipUnitMatch(chipUnitType)) {
         printed = "putlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
@@ -1821,7 +1821,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       cuTarget = target;
       if (curRingData->isChipUnitRelated) {
         /* Error check the chipUnit returned */
-        if (curRingData->isChipUnitMatch(chipUnitType)) {
+        if (!curRingData->isChipUnitMatch(chipUnitType)) {
           printed = "checkrings - Provided chipUnit \"";
           printed += chipUnitType;
           printed += "\" doesn't match chipUnit returned by queryRing \"";
@@ -2200,7 +2200,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (ringData->isChipUnitMatch(chipUnitType)) {
+      if (!ringData->isChipUnitMatch(chipUnitType)) {
         printed = "putpattern - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";

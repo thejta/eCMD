@@ -279,7 +279,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     cuTarget = target;
     if (arrayData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (arrayData->isChipUnitMatch(chipUnitType)) {
+      if (!arrayData->isChipUnitMatch(chipUnitType)) {
         printed = "getarray - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by queryArray \"";
@@ -596,7 +596,7 @@ uint32_t ecmdPutArrayUser(int argc, char * argv[]) {
     cuTarget = target;
     if (arrayData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (arrayData->isChipUnitMatch(chipUnitType)) {
+      if (!arrayData->isChipUnitMatch(chipUnitType)) {
         printed = "putarray - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by queryArray \"";

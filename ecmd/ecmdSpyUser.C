@@ -259,7 +259,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     cuTarget = target;
     if (spyData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (spyData->isChipUnitMatch(chipUnitType)) {
+      if (!spyData->isChipUnitMatch(chipUnitType)) {
         printed = "getspy - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by querySpy \"";
@@ -668,7 +668,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
     cuTarget = target;
     if (spyData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (spyData->isChipUnitMatch(chipUnitType)) {
+      if (!spyData->isChipUnitMatch(chipUnitType)) {
         printed = "putspy - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\"doesn't match chipUnit returned by querySpy \"";

@@ -226,7 +226,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     cuTarget = target;
     if (scomData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (scomData->isChipUnitMatch(chipUnitType)) {
+      if (!scomData->isChipUnitMatch(chipUnitType)) {
         printed = "getscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryScom \"";
@@ -494,7 +494,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     cuTarget = target;
     if (scomData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (scomData->isChipUnitMatch(chipUnitType)) {
+      if (!scomData->isChipUnitMatch(chipUnitType)) {
         printed = "putscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryScom \"";
@@ -773,7 +773,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     cuTarget = target;
     if (scomData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (scomData->isChipUnitMatch(chipUnitType)) {
+      if (!scomData->isChipUnitMatch(chipUnitType)) {
         printed = "pollscom - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryScom \"";
