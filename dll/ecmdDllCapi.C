@@ -1999,8 +1999,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdUserArgs.thread = "all";
   }
 
-  //global
-  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-g");
+  //all targets
+  curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-a");
   if (curArg) {
     if (!strcmp(curArg, "all") || !strcmp(curArg, "ft") || !strcmp(curArg, "lt") || !strcmp(curArg, "et") || !strcmp(curArg, "ot")) {
       ecmdUserArgs.cage = curArg;
