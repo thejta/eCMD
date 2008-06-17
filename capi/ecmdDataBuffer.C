@@ -4189,7 +4189,7 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   uint32_t length = this->getBitLength();
 
   /* Set it big enough for the header/length below.  Then we'll grow as need */
-  compressBuffer.setBitLength(48);
+  compressBuffer.setBitLength(56);
 
   /* Set the header, which is C2A3FV, where V is the version */
   compressBuffer.setByte(byteOffset++, 0xC2);
