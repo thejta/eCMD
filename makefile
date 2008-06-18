@@ -283,6 +283,10 @@ ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo " "
 endif
 
+	@echo "Copying over supplemental libraries ... "
+        @mkdir -p ${INSTALL_PATH}/lib/x86/3.4.6/
+	@cp lib/x86/3.4.6/* ${INSTALL_PATH}/lib/x86/3.4.6/
+
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*
 
