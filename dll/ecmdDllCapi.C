@@ -2002,17 +2002,12 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   //all targets
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-a");
   if (curArg) {
-    if (!strcmp(curArg, "all") || !strcmp(curArg, "ft") || !strcmp(curArg, "lt") || !strcmp(curArg, "et") || !strcmp(curArg, "ot")) {
-      ecmdUserArgs.cage = curArg;
-      ecmdUserArgs.node = curArg;
-      ecmdUserArgs.slot = curArg;
-      ecmdUserArgs.pos = curArg;
-      ecmdUserArgs.chipUnitNum = curArg;
-      ecmdUserArgs.thread = curArg;
-    } else {
-      dllOutputError("dllCommonCommandArgs - Unknown global option passed in.  all, ft, lt, et and lt are valid\n");
-      return ECMD_INVALID_ARGS;
-    }
+    ecmdUserArgs.cage = curArg;
+    ecmdUserArgs.node = curArg;
+    ecmdUserArgs.slot = curArg;
+    ecmdUserArgs.pos = curArg;
+    ecmdUserArgs.chipUnitNum = curArg;
+    ecmdUserArgs.thread = curArg;
   }
 
   //cage - the "-k" was Larry's idea, I just liked it - 
