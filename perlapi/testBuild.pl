@@ -1,6 +1,7 @@
 #!/bin/sh 
 #! -*- perl -*-
 
+# Couldn't use $CC_VER here for some reason, so just hardocded to 3.4.6
 eval '
 if [ "X$ECMDPERLBIN" = "X" ]; then
  if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
@@ -8,10 +9,10 @@ if [ "X$ECMDPERLBIN" = "X" ]; then
  export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
  if [[ `uname` = "Linux" ]]; then
   export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:./obj_x86/;
-  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:../capi/export";
+  export LD_LIBRARY_PATH="../lib/x86/3.4.6/:../capi/export";
  else
   export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:./obj_aix/;
-  export LIBPATH="$LIBPATH:../capi/export";
+  export LIBPATH="../capi/export";
  fi
 fi
 
@@ -30,7 +31,6 @@ if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10")) { exit(0); }
 
 
 $rc = ecmdCommandArgs(\@ARGV);
-
 
 if (1) {
   my $o_dllInfo = new ecmd::ecmdDllInfo;
