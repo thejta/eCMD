@@ -597,6 +597,11 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
   return rc;
 }
 
+bool ecmdDataBuffer::getBit(uint32_t i_bit) const {
+  /* This just calls is bit set and returns that value */
+  return this->isBitSet(i_bit);
+}
+
 
 uint32_t  ecmdDataBuffer::setBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
