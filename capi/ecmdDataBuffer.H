@@ -328,12 +328,20 @@ public:
   /** @name Bit/Word Manipulation Functions */
   //@{
   /**
+   * @brief Get the value of a bit in the buffer
+   * @param i_bit Bit in buffer to get
+   * @retval true/1 if bit is on, false/0 if bit is off
+   */
+  bool  getBit(uint32_t i_bit) const;
+
+  /**
    * @brief Turn on a bit in buffer
    * @param i_bit Bit in buffer to turn on
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
   uint32_t  setBit(uint32_t i_bit);
+
   /**
    * @brief Turn on a bit in buffer
    * @param i_bit start bit in buffer to turn on
