@@ -149,7 +149,6 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       break; // Only one time through
     }
 
-
     if (chipData.chipType == "p6") {
       p6Mode = true;
     } else {
