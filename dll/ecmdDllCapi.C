@@ -1989,7 +1989,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   /*************************************/
   /* Parse command line targeting args */
   /*************************************/
-  /* This is left in for backwards comptability, prefernce is to use the option below */
+  /* This is left in for backwards comptability, preference is to use the option below */
+  bool allFound = false;
   if (ecmdParseOption(io_argc, io_argv, "-all")) {
     ecmdUserArgs.cage = "all";
     ecmdUserArgs.node = "all";
@@ -1997,6 +1998,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdUserArgs.pos = "all";
     ecmdUserArgs.chipUnitNum = "all";
     ecmdUserArgs.thread = "all";
+    allFound = true;
   }
 
   //all targets
@@ -2008,13 +2010,14 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdUserArgs.pos = curArg;
     ecmdUserArgs.chipUnitNum = curArg;
     ecmdUserArgs.thread = curArg;
+    allFound = true;
   }
 
   //cage - the "-k" was Larry's idea, I just liked it - 
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
   if (curArg) {
-    if (ecmdUserArgs.cage.size()) {
-      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -k# at the same time\n");
+    if (allFound) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -k at the same time\n");
       return ECMD_INVALID_ARGS;
     } else  {
       ecmdUserArgs.cage = curArg;
@@ -2024,8 +2027,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   //node
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-n");
   if (curArg) {
-    if (ecmdUserArgs.node.size()) {
-      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -n# at the same time\n");
+    if (allFound) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -n at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
       ecmdUserArgs.node = curArg;
@@ -2035,8 +2038,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   //slot
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-s");
   if (curArg) {
-    if (ecmdUserArgs.slot.size()) {
-      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -s# at the same time\n");
+    if (allFound) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -s at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
       ecmdUserArgs.slot = curArg;
@@ -2046,8 +2049,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   //position
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-p");
   if (curArg) {
-    if (ecmdUserArgs.pos.size()) {
-      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -p# at the same time\n");
+    if (allFound) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -p at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
       ecmdUserArgs.pos = curArg;
@@ -2057,8 +2060,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   //chipUnit
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-c");
   if (curArg) {
-    if (ecmdUserArgs.chipUnitNum.size()) {
-      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -c# at the same time\n");
+    if (allFound) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -c at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
       ecmdUserArgs.chipUnitNum = curArg;
@@ -2068,8 +2071,8 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   //thread
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-t");
   if (curArg) {
-    if (ecmdUserArgs.thread.size()) {
-      dllOutputError("dllCommonCommandArgs - Cannot specify global target parm and -t# at the same time\n");
+    if (allFound) {
+      dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -t at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
       ecmdUserArgs.thread = curArg;
