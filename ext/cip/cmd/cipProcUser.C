@@ -61,16 +61,17 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   bool verbose    = false;      ///< Display iar after each step
   ecmdDataBuffer  iarData;      ///< Data read from IAR
   int  steps = 1;               ///< Number of steps to run
+  ecmdChipData chipData;        ///< So we can determine if it's P6 or not
+  bool p6Mode = false;          ///< To save us on string compares below
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   if (ecmdParseOption(&argc, &argv, "-v"))
     verbose = true;
- 
+
   /* We can no longer loop at a thread level, so we need to fish out what the user wants and turn it into a thread parm */
-  /* JTA 09/27/06 */
+    /* JTA 09/27/06 */
   uint32_t thread = 0x8;
   for (int i = 0; i < argc; i++){
     if ((!strcasecmp(argv[i], "-all")) || (!strcasecmp(argv[i], "-tall"))){
@@ -84,7 +85,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       break;
     }
   }
- 
+
   if (ecmdParseOption(&argc, &argv, "all"))
     executeAll = true;
 
@@ -105,8 +106,6 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   if (argc > 1) {
     steps = atoi(argv[1]);
   }
-
-
 
   /* Run the all functions */
   if (executeAll) {
@@ -134,6 +133,28 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
   } else {
 
+    // Get the chip data for the special P6 code below
+    // We need to do 1 loop so we can get a valid target for the ecmdGetChipData call
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    while ( ecmdLooperNext(target, looperdata) ) {
+      rc = ecmdGetChipData(target, chipData);
+      if (rc) return rc;
+      break; // Only one time through
+    }
+
+
+    if (chipData.chipType == "p6") {
+      p6Mode = true;
+    } else {
+      thread = 0xFFFFFFFF; // This is a signal to the plugin to ignore the thread
+    }
 
     /* Loop through the steps so we step all procs in somewhat sync */
     for (int step = 0; step < steps; step ++) {
@@ -142,7 +163,11 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       target.chipType = ECMD_CHIPT_PROCESSOR;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
       target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-      target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      if (p6Mode == true) {
+        target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      } else {
+        target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      }
 
       rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
       if (rc) return rc;
@@ -154,9 +179,9 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       } else if (!strcasecmp(argv[0], "stop")) {
         ecmdOutput("Stopping processor instructions ...\n");
       } else if (!strcasecmp(argv[0], "step")) {
-	char buf[100];
+        char buf[100];
         sprintf(buf,"Stepping processor instructions (%d)  ...\n",step+1);
-	ecmdOutput(buf);
+        ecmdOutput(buf);
       } else {
         ecmdOutputError("cipinstruct - Invalid instruct mode, must be start|stop|step \n");
         return ECMD_INVALID_ARGS;
@@ -164,7 +189,6 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
 
       while ( ecmdLooperNext(target, looperdata) ) {
-
 
         if (!strcasecmp(argv[0],"start")) {
           rc = cipStartInstructions(target, thread);
@@ -193,18 +217,18 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
           printed = ecmdWriteTarget(target) + "\n";
           ecmdOutput(printed.c_str());
         }
-	if (verbose) {
-	  rc = getSpr(target,"iar", iarData);
-	  if (rc) {
-	    ecmdOutputWarning("cipinstruct - Unable to read 'iar' from chip, verbose mode disabled\n");
-	    verbose = false;
-	  } else {
-	    printed = "iar\t";
-	    printed += ecmdWriteDataFormatted(iarData, "x");
-	    ecmdOutput( printed.c_str() );
-	  }
-	}
-	    
+        if (verbose) {
+          rc = getSpr(target,"iar", iarData);
+          if (rc) {
+            ecmdOutputWarning("cipinstruct - Unable to read 'iar' from chip, verbose mode disabled\n");
+            verbose = false;
+          } else {
+            printed = "iar\t";
+            printed += ecmdWriteDataFormatted(iarData, "x");
+            ecmdOutput( printed.c_str() );
+          }
+        }
+
       }
 
       if (!validPosFound) {
