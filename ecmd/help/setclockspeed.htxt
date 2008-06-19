@@ -28,10 +28,10 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer] [-k#]
                         'ps' for picoseconds (32ps)
                         'npu' for nominal percentage up (1npu)
                         'npd' for nominal percentage down (3npd)
-                        'cpu' for current percentage up (4npu)
-                        'cpd' for current percentage down (2npu)
-                        'pspu' for power save percentage up (4npu)
-                        'pspd' for power save percentage down (2npu)
+                        'cpu' for current percentage up (4cpu)
+                        'cpd' for current percentage down (2cpu)
+                        'pspu' for power save percentage up (4pspu)
+                        'pspd' for power save percentage down (2pspu)
                         'mult' AND 'div' -- MUST have both, with mult first --
                             for multiplier and divider (100mult 10div)
 
