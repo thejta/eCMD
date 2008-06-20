@@ -17,6 +17,8 @@ Syntax: cipputvr <VrNum> <Data> [-i<format>] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
         -i<format>[opt] Specifies the format type of input data : default 'xl'
                         Run 'ecmdquery formats' to view available formats
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).
