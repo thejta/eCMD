@@ -39,6 +39,8 @@ Syntax:
                         Incase multiple chip positions are specified the target string will
                         be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
 			
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

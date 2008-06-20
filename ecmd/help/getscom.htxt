@@ -39,6 +39,8 @@ Syntax: getscom <Chip[.ChipUnit]> <ScanCommAddr> [-v] [-coe] [-a#] [-k#] [-n#] [
         -vs0 [optional] Print out Scan Comm bit meaning if available and equal to 0
 
         -vs1 [optional] Print out Scan Comm bit meaning if available and equal to 1
+        
+	-a#  [optional] Operate on all levels below with same value.
 
         -k#  [optional] Specify which cage to act on (0 is default).
 

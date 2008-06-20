@@ -37,6 +37,8 @@ Syntax: getmemdma <MemAddress> <NumBytes> [-a#] [-k#] [-n#] [-p#]
         -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
 
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

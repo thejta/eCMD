@@ -19,6 +19,8 @@ Syntax: getclockspeed <ClockType> mhz|us   [-a#] [-k#] [-n#] [-s#] [-p#]
         mhz|khz|us|ps    Speed Type that read value will be formatted in:  either mhz,
                          khz, microseconds (us) or picosecnds (ps)
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).
