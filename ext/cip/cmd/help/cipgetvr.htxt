@@ -16,6 +16,8 @@ Syntax: cipgetvr <VrStartNum> [<numEntries>] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Run 'ecmdquery formats' to view available formats
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

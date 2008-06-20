@@ -13,6 +13,8 @@ Syntax: cipbreakpoint set|clear <Type> <Address> [-a#] [-k#] [-n#] [-s#] [-p#] [
 
         Address         64 bit address of breakpoint (Hex-Right)
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

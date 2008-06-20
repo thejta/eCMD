@@ -17,6 +17,8 @@ Syntax: cipinstruct start|sreset|stop|step [<steps>] [all] [-v] [-a#] [-k#] [-n#
 
         -v   [optional] Print out IAR after each instruction step
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).
