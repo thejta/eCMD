@@ -24,6 +24,8 @@ Syntax: putmemproc <MemAddress> <Data> [-i<format>]         [-a#] [-k#] [-n#] [-
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

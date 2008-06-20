@@ -25,6 +25,8 @@ Syntax: stopclocks                                   [-force] [-a#] [-k#] [-n#] 
 
         -force    [opt] Force clocks off regardless of current state
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

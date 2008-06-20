@@ -42,6 +42,8 @@ Syntax: getscom <Chip[.ChipUnit]> <ScanCommAddr> [-v] [-coe] [-a#] [-k#] [-n#] [
         
 	-a#  [optional] Operate on all levels below with same value.
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

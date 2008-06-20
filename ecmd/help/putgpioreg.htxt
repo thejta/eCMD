@@ -25,6 +25,8 @@ Syntax: putgpioreg <Chip> <EngineId> <Config Reg> <Mode> <Data>
         -coe [optional] Continue On Error. If an error occurs, continues to the next target
                         instead of exiting.  Any error status is returned at the end.
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).
