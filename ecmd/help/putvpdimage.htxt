@@ -33,8 +33,7 @@ Syntax: putvpdimage <Chip> <VpdType> <Data> [-i<format>] [-coe] [-a#] [-k#] [-n#
 
         -s#  [optional] Specify which slot to act on (0 is default, decimal value).
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify
-                        -pall to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default).
 
         --------------------------------------------------------------------------------
 
