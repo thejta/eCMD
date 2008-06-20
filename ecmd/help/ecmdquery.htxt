@@ -10,25 +10,25 @@ Syntax: ecmdquery <Mode> [Mode Options]
         Mode            Query type to perform
 
         Mode Values     
-                        rings Chip [ringname] [-k#] [-n#] [-s#] [-p#]
+                        rings Chip [ringname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all rings available (or the selected ring) for chip
 
-                        scoms Chip [scomaddr] [-k#] [-n#] [-s#] [-p#]
+                        scoms Chip [scomaddr] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all scoms available (or the selected scom) for chip
 
-                        arrays Chip [arrayname] [-k#] [-n#] [-s#] [-p#]
+                        arrays Chip [arrayname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all arrays available (or the selected array) for chip
 
-                        tracearrays Chip [tracearrayname] [-k#] [-n#] [-s#] [-p#]
+                        tracearrays Chip [tracearrayname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all tr arrays available (or the selected tr array) for chip
 
-                        spys Chip [spyname] [-k#] [-n#] [-s#] [-p#]
+                        spys Chip [spyname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all spys available (or the selected spy) for chip
 
                         formats
                             - Display help text for all available input/output formats
         
-                        chips [-ep] [-dp | -dc | -dt | -dall] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+                        chips [-ep] [-dp | -dc | -dt | -dall] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
                             - Display all the chips in the system
                             - Use '-ep' to display in an easier to parse format
                             - Use -dp to specify position depth display
@@ -37,13 +37,13 @@ Syntax: ecmdquery <Mode> [Mode Options]
                             - Use -dall to display all depths from position thru thread
                             - Use -k# -n# -s# -p# -c# -t# to limit query to that target
 
-                        chipinfo Chip [-k#] [-n#] [-s#] [-p#]
+                        chipinfo Chip [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display info about a particular chip (ex. EC level)
 
-                        configd Chip [-k#] [-n#] [-s#] [-p#] [-c#]
+                        configd Chip [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target is configured or not.
 
-                        exist Chip [-k#] [-n#] [-s#] [-p#] [-c#]
+                        exist Chip [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
                             - Display info on whether a target exists or not.
 
                         showconfig
@@ -57,14 +57,11 @@ Syntax: ecmdquery <Mode> [Mode Options]
 
         Addendum Options
 
-                        -k#  [optional] Specify which cage to act on (0 is default !). Specify -kall
-                                        to act on all cages (-kall is default for mode value 'chips').
+                        -k#  [optional] Specify which cage to act on (0 is default !). Specify -kall                                         to act on all cages (-kall is default for mode value 'chips').
 
-                        -n#  [optional] Specify which node to act on (0 is default !). Specify -nall
-                                        to act on all nodes (-nall is default for mode value 'chips').
+                        -n#  [optional] Specify which node to act on (0 is default !). Specify -nall                                         to act on all nodes (-nall is default for mode value 'chips').
 
-                        -s#  [optional] Specify which slot to act on (0 is default !). Specify -sall
-                                        to act on all slots (-sall is default for mode value 'chips').
+                        -s#  [optional] Specify which slot to act on (0 is default !). Specify -sall                                         to act on all slots (-sall is default for mode value 'chips').
 
                         -p#  [optional] Specify which chip position to act on (0 is default !). Specify
                                         -pall to act on all chips (-pall is default for mode value 'chips').

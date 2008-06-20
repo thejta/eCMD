@@ -1,5 +1,5 @@
 
-Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#] [-s#]
+Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-a#] [-k#] [-n#] [-s#]
 
         ECMD:           Core Common Function
 
@@ -26,14 +26,11 @@ Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-k#] [-n#] [-s#]
         -immediate[opt] If "-immediate" is given on the command line the operation returns 
                         immediately instead of waiting for it to finish.
 
-        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-                        to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default).
 
-        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
-                        to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default).
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
-                        to act on all slots.
+        -s#  [optional] Specify which slot to act on (0 is default).
 
         --------------------------------------------------------------------------------
 

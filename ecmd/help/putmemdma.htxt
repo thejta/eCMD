@@ -1,7 +1,7 @@
 
-Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-p#]
-        putmemdma <MemAddress> -fb<filename>               [-k#] [-n#] [-s#] [-p#]
-        putmemdma -fd<filename>                            [-k#] [-n#] [-s#] [-p#]
+Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-a#] [-k#] [-n#] [-s#] [-p#]
+        putmemdma <MemAddress> -fb<filename>               [-a#] [-k#] [-n#] [-s#] [-p#]
+        putmemdma -fd<filename>                            [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -24,11 +24,9 @@ Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-k#] [-n#] [-s#] [-p
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
 
-        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-                        to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default).
 
-        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
-                        to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default).
 
         --------------------------------------------------------------------------------
 

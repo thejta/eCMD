@@ -2,15 +2,15 @@
 Syntax: 
         WITHOUT OFFSET:
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data>
-                         [-coe] [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
+                         [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename>
-                         [-coe] [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
+                         [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         WITH OFFSET:
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize>
-                        [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
+                        [-a#] [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize>
-                        [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
+                        [-a#] [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
 
         ECMD:           Core Common Function
 
@@ -44,14 +44,11 @@ Syntax:
         -coe [optional] Continue On Error. If an error occurs, continues to the next target
                         instead of exiting.  Any error status is returned at the end.
 
-        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-                        to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default).
 
-        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
-                        to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default).
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
-                        to act on all slots.
+        -s#  [optional] Specify which slot to act on (0 is default).
 
         -p#  [optional] Specify which chip position to act on (0 is default). Specify 
                         -pall to act on all chips.

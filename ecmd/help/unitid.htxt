@@ -14,7 +14,7 @@ Syntax: unitid <Mode> <Mode Options>
                      - Displays ecmdChiptarget(s) that the unitId input represents
                      - unitid is expected in either hex or string format
 
-                    tgt2uid -dk|-dn|-ds|-dp|-dc|-dt [ChipSelect] [-k#] [-n#] [-s#] [-p#]
+                    tgt2uid -dk|-dn|-ds|-dp|-dc|-dt [ChipSelect] [-a#] [-k#] [-n#] [-s#] [-p#]
                      - Display the unitId that target represents
                      - Need to state what depth the target for conversion to unitId:
                      - Use -dk to specify cage depth target
