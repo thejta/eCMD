@@ -18,6 +18,8 @@ Syntax: simgethierarchy <Chip[.ChipUnit]> [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 	-dc  [optional] Specify chipUnit depth to loop on. This is required for chipUnit 
 	                hierarchies.
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

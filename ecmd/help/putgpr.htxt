@@ -26,6 +26,8 @@ Syntax: putgpr <GprNum> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
         -b<mod>[opt]    Bit modifier to apply to current ring data.
                         Run 'ecmdquery formats' to view available modifiers
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).
