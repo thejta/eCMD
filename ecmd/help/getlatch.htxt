@@ -35,10 +35,8 @@ Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
 
         LatchName       Desired latch to find in the ring. (case insensitive)
 
-        Start     [opt] Starting bit position within the latch. Specify with Numbits.
-
-        Numbits   [opt] Number of bits to get. Specify along with Start. If out of range,
-                        and -exact not selected, prints a warning message instead of the
+        Start     [opt] Starting bit position within the latch. Specify with Numbits. 
+        Numbits   [opt] Number of bits to get. Specify along with Start. If out of range,                         and -exact not selected, prints a warning message instead of the
                         data. If -exact is selected, immediately returns an error.
 
         -exact    [opt] No pattern matching. Instead, search for exact latch name. (default)
@@ -66,11 +64,9 @@ Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
 
         -s#  [optional] Specify which slot to act on (0 is default).
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
-                        -pall to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default).
 
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
-                        -call to act on all cores/chipUnits.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
         --------------------------------------------------------------------------------
 
         Examples:       getlatch pu cp_abist LATCH0

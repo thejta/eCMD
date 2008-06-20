@@ -40,8 +40,7 @@ Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<form
 
         -s#  [optional] Specify which slot to act on (0 is default, decimal value).
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
-                        -pall to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default).
 
         --------------------------------------------------------------------------------
 

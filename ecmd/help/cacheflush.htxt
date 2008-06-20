@@ -23,11 +23,9 @@ Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-coe] [-a#] [-k#] [-n#] [-s#] 
 
         -n#  [optional] Specify which node to act on (0 is default).
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
-                        -pall to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default).
 	
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
-                        -call to act on all cores/chipUnits.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
       --------------------------------------------------------------------------------
 
       Example:        cacheflush pu L1I -p0,1 -call

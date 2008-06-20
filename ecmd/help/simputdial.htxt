@@ -26,8 +26,7 @@ Syntax: simputdial <Chip> <DialName> <Data> [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         -s#  [optional] Specify which slot to act on (0 is default).
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
-                        -pall to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default).
         --------------------------------------------------------------------------------
 
         Examples:       simputdial pu MYALIAS 0b1000

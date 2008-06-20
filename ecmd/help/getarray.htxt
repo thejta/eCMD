@@ -41,11 +41,9 @@ Syntax: getarray <Chip[.ChipUnit]> <ArrayName> <ArrayIndex> [NumEntries] [-o<for
 
         -s#  [optional] Specify which slot to act on (0 is default).
 
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify
-                        -pall to act on all chips.
+        -p#  [optional] Specify which chip position to act on (0 is default).
 
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default). Specify
-                        -call to act on all cores/chipUnits.
+        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
         --------------------------------------------------------------------------------
 
         Examples:       > getarray pu xgpr0 deadbeef80000000 -p0,1 -c1
