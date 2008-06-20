@@ -1113,7 +1113,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       debugFunctionOuput(printed.c_str());
 
-    } else if((!strcmp(variableType,"const char *"))||
+    } else if((!strcmp(variableType,"const char *")) ||
+              (!strcmp(variableType,"char *")) ||
               (!strcmp(variableType,"const char*"))   ){
       /* const char * */
 
@@ -1501,6 +1502,34 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         sprintf(tempIntStr,"d=0 0x0");
       } else {
         sprintf(tempIntStr,"d=%u 0x%.08X",*dummy,*dummy);
+      }
+      printed += tempIntStr;
+      printed += "\n";
+      printed += frontFPPTxt;
+      printed += "\t ***************************************\n";
+
+      if((inOut == ECMD_FPP_FUNCTIONOUT) &&
+         (ecmdClientDebug == 8)          &&
+         ((dummy != NULL) && (*dummy == 0))                     ) {
+        return;
+      }
+
+      debugFunctionOuput(printed.c_str());
+
+    } else if(!strcmp(variableType,"int")) {
+      /* int */
+
+      int* dummy = (int*)(args[looper]);
+      printed = frontFPPTxt;
+      printed += "\t type : ";
+      printed += variableType;
+      printed += " : variable name : ";
+      printed += variableName[0];
+      printed += " : ";
+      if(dummy == NULL) {
+        sprintf(tempIntStr,"d=0 0x0");
+      } else {
+        sprintf(tempIntStr,"d=%d 0x%.08X",*dummy,*dummy);
       }
       printed += tempIntStr;
       printed += "\n";
