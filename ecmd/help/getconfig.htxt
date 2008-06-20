@@ -19,6 +19,8 @@ Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>]
         -o<format>[opt] Output Format : default 'xl'. Only valid with numeric data
                         Run 'ecmdquery formats' to view available formats
 	
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -n#  [optional] Specify which node to act on (0 is default).

@@ -17,6 +17,8 @@ Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-coe] [-a#] [-k#] [-n#] [-s#] 
         -coe [optional] Continue On Error. If an error occurs, continues to the next target
                         instead of exiting.  Any error status is returned at the end.
 
+        -a#  [optional] Operate on all levels of targeting with same value.
+
         -k#  [optional] Specify which cage to act on (0 is default).
 
         -s#  [optional] Specify which slot to act on (0 is default).
