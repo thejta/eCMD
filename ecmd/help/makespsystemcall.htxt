@@ -1,5 +1,5 @@
 
-Syntax: makespsystemcall "<command>"    [-k#] [-n#]
+Syntax: makespsystemcall "<command>"    [-a#] [-k#] [-n#]
 
         ECMD:           Core Common Function
 
@@ -10,11 +10,9 @@ Syntax: makespsystemcall "<command>"    [-k#] [-n#]
         command         Command to run on the SE/SP. Place command in ""'s to avoid it 
 			being parsed.
 
-        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-                        to act on all cages.
+        -k#  [optional] Specify which cage to act on (0 is default).
 
-        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
-                        to act on all nodes.
+        -n#  [optional] Specify which node to act on (0 is default).
 
         --------------------------------------------------------------------------------
 
