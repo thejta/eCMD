@@ -648,7 +648,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
     if (queryCacheData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
       if (!queryCacheData.isChipUnitMatch(chipUnitType)) {
-        printed = "putscom - Provided chipUnit \"";
+        printed = "cacheflush - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryCache \"";
         printed += queryCacheData.relatedChipUnit + "\"\n";
@@ -669,7 +669,7 @@ uint32_t ecmdCacheFlushUser(int argc, char* argv[]) {
       if (rc) break;
     } else { // !queryCacheData.isChipUnitRelated
       if (chipUnitType != "") {
-        printed = "putscom - A chipUnit \"";
+        printed = "cacheflush - A chipUnit \"";
         printed += chipUnitType;
         printed += "\" was given on a non chipUnit scom address.\n";
         ecmdOutputError(printed.c_str());
