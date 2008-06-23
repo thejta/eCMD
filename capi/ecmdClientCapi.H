@@ -1200,8 +1200,8 @@ uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed);
 
@@ -1217,8 +1217,8 @@ uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ec
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : cage, pos<br>
- TARGET STATES : Unused<br>
+ TARGET DEPTH  : cage, pos, core/chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range);
 
@@ -1232,8 +1232,8 @@ uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ui
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : cage<br>
- TARGET STATES : Unused<br>
+ TARGET DEPTH  : cage, core/chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
