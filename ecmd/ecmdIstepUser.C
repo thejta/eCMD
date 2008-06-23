@@ -557,8 +557,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
   } else if ((strpos = clockspeed.find("us")) != std::string::npos) {
     speedType = ECMD_CLOCK_CYCLETIME_US_SPEC;
-  } else if ((strpos = clockspeed.find("ps")) != std::string::npos) {
-    speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
   } else if ((strpos = clockspeed.find("npu")) != std::string::npos) {
     speedType = ECMD_CLOCK_NOMINAL_PERCENT_UP;
   } else if ((strpos = clockspeed.find("npd")) != std::string::npos) {
@@ -571,6 +569,9 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     speedType = ECMD_CLOCK_POWERSAVE_PERCENT_UP;
   } else if ((strpos = clockspeed.find("pspd")) != std::string::npos) {
     speedType = ECMD_CLOCK_POWERSAVE_PERCENT_DOWN;
+  } // this needs to be after pspu and pspd so that those are found
+    else if ((strpos = clockspeed.find("ps")) != std::string::npos) {
+    speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
   } else if ((strpos = clockspeed.find("mult")) != std::string::npos) {
 
     // get mult and divider value from cmdline
