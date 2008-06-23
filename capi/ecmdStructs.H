@@ -1211,7 +1211,7 @@ struct ecmdTraceArrayData {
 };
 
 #ifndef DOCUMENTATION
-// ecmdTraceArrayData Constructor
+// ecmdFastArrayData Constructor
 inline ecmdTraceArrayData::ecmdTraceArrayData():
 traceArrayId(0),
 length(0),
@@ -1221,8 +1221,60 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
 
-// ecmdTraceArrayData Destructor
+// ecmdFastArrayData Destructor
 inline ecmdTraceArrayData::~ecmdTraceArrayData() { }
+#endif
+
+/**
+ @brief Used for the ecmdQueryFastArray function to return trace array info
+*/
+struct ecmdFastArrayData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdFastArrayData();
+
+  // Destructor
+  ~ecmdFastArrayData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  // Members
+  std::string      fastArrayName;        ///< (Detail: Low)  Name of fast array
+  uint32_t         fastArrayId;          ///< (Detail: Low)  Hashed fast array ID
+  uint32_t         length;               ///< (Detail: Low)  Length of fast array (number of entries)
+  uint32_t         width;                ///< (Detail: Low)  Bit width of fast array entry
+  uint32_t         readAddressLength;    ///< (Detail: Low)  Bit length of read address
+  bool             isChipUnitRelated;    ///< (Detail: Low)  This trace array is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;          ///< (Detail: High) Clock domain this array belongs to
+  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this array
+};
+
+
+#ifndef DOCUMENTATION
+// ecmdFastArrayData Constructor
+inline ecmdFastArrayData::ecmdFastArrayData():
+fastArrayId(0),
+length(0),
+width(0),
+readAddressLength(0),
+isChipUnitRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdFastArrayData Destructor
+inline ecmdFastArrayData::~ecmdFastArrayData() { }
 #endif
 
 /**
