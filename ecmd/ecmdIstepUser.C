@@ -13,7 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -229,23 +228,26 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
   
   //Setup the target that will be used to query the system config
+  target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
   if (argc >= 1) {
     std::string chipType, chipUnitType;
     ecmdParseChipField(argv[0], chipType, chipUnitType);
     if (chipUnitType != "") {
-      ecmdOutputError("startclocks - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-      return ECMD_INVALID_ARGS;
+     target.chipUnitType = chipUnitType;
+     target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
     }
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.posState      = ECMD_TARGET_FIELD_WILDCARD;
+    
   }
   else {
    target.chipTypeState = target.posState = ECMD_TARGET_FIELD_UNUSED;
   }
 
   target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string printed;
 
@@ -358,12 +360,14 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   //Setup the target that will be used to query the system config
+  target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
   if (argc >= 1) {
     std::string chipType, chipUnitType;
     ecmdParseChipField(argv[0], chipType, chipUnitType);
     if (chipUnitType != "") {
-      ecmdOutputError("startclocks - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-      return ECMD_INVALID_ARGS;
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
     }
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -374,7 +378,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   }
 
   target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string printed;
 
