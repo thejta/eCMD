@@ -1,5 +1,7 @@
 
 Syntax: getclockspeed <ClockType> mhz|us   [-a#] [-k#] [-n#] [-s#] [-p#]
+        getclockspeed <Chip[.ChipUnit]> <ClockType>  mhz|us   [-a#] [-k#] [-n#] [-s#] [-p#]
+
 
         ECMD:           Core Common Function
 
@@ -7,6 +9,10 @@ Syntax: getclockspeed <ClockType> mhz|us   [-a#] [-k#] [-n#] [-s#] [-p#]
 
         Parameters:
         --------------------------------------------------------------------------------
+        Chip            Chip to get speed from.  
+
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+
         ClockType       Clock type to read in system:
                          - pu_refclock          <-- Processor reference clock
                          - pu_coreclock         <-- Processor core clock
