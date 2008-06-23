@@ -1103,7 +1103,7 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_arrayName Name of fast array to read from
+ @param i_fastArrayName Name of fast array to read from
  @param io_entries list of fast array entries to fetch
 
  NOTE : This function does not use the array file.  This interface is for chip specific accesses.
