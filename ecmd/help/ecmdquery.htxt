@@ -20,7 +20,12 @@ Syntax: ecmdquery <Mode> [Mode Options]
                             - Display all arrays available (or the selected array) for chip
 
                         tracearrays Chip [tracearrayname] [-a#] [-k#] [-n#] [-s#] [-p#]
-                            - Display all tr arrays available (or the selected tr array) for chip
+                            - Display all tr arrays available (or the selected tr array) 
+                              for chip
+
+                       fastarrays Chip [fastarrayname] [-a#] [-k#] [-n#] [-s#] [-p#]
+                            - Display all fast arrays available (or the selected fast array)
+                              for chip
 
                         spys Chip [spyname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all spys available (or the selected spy) for chip
