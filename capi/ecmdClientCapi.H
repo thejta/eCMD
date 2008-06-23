@@ -64,7 +64,6 @@ uint32_t ecmdLoadDll(std::string i_dllName);
 
  - Errors in unloading are printed to STDERR
 */
-
 uint32_t ecmdUnloadDll(); 
 
 /**
@@ -81,7 +80,6 @@ uint32_t ecmdUnloadDll();
  - Global options such as -debug flags and -p#, -c# will be parsed out.<br>
  NOTE : This function does not affect ring caching
 */
-
 uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]); 
 
 /**
@@ -92,7 +90,6 @@ uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]);
 
  Even though you have to pass in the eCMD Release, you are not able to actually change it (because eCMD is already loaded)<br>
 */
-
 uint32_t ecmdSetup(const char* i_args);
 
 #ifndef DOCUMENTATION
@@ -442,6 +439,24 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
 uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
+#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+/**
+ @brief Query Fast Array information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_queryData Return data from query
+ @param i_fastArrayName if != NULL used to refine query to a single trace array
+ @param i_detail Specify the level of detail that should be returned with the query
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryFastArray(ecmdChipTarget & i_target, std::list<ecmdFastArrayData> & o_queryData, const char * i_fastArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
+
 /**
  @brief Query the location of a specific file type for the selected target
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -456,7 +471,6 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
-
 
 /**
  @brief Query if a particular target is configured in the system
@@ -1029,7 +1043,6 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
 */
 uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
 
-
 /**
  @brief Writes bits from the data buffer into the selected array
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -1080,6 +1093,35 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
 */
 uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
+
+#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+/**
+ @brief Reads multiple entries from a fast array type into a list of data buffers
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY if i_fastArrayName is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_arrayName Name of fast array to read from
+ @param io_entries list of fast array entries to fetch
+
+ NOTE : This function does not use the array file.  This interface is for chip specific accesses.
+ NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return<br>
+ NOTE : To fetch all addresses for the specified array pass io_entries as an empty list and it will be populated for you.<br>
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getFastArrayMultiple (ecmdChipTarget & i_target, const char * i_fastArrayName, std::list<ecmdArrayEntry> & io_entries);
+#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
+
 //@}
 
 

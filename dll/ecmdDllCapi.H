@@ -80,6 +80,10 @@ uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_que
 uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName, ecmdQueryDetail_t i_detail); 
 
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+uint32_t dllQueryFastArray(ecmdChipTarget & i_target, std::list<ecmdFastArrayData> & o_queryData, const char * i_fastArrayName, ecmdQueryDetail_t i_detail); 
+
+#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
 bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
@@ -148,6 +152,10 @@ uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDa
 uint32_t dllPutArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries); 
 
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+uint32_t dllGetFastArrayMultiple(ecmdChipTarget & i_target, const char * i_fastArrayName, std::list<ecmdArrayEntry> & io_entries); 
+
+#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t dllQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState); 
 

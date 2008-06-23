@@ -4081,6 +4081,242 @@ void  ecmdTraceArrayData::printStruct() {
 }
 #endif  // end of REMOVE_SIM
 
+/*
+ * The following methods for the ecmdFastArrayData struct will flatten, 
+ * unflatten & get the flattened size of the struct.
+ */
+bool ecmdFastArrayData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
+uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len) 
+{
+        uint32_t tmpData32 = 0;
+        uint32_t strLen = 0;
+        uint32_t l_rc = ECMD_SUCCESS;
+
+        int l_len = (int)i_len;  // use a local copy to decrement
+	uint8_t *l_ptr8 = o_buf;
+
+        do      // Single entry ->
+        {
+            // Check for buffer overflow conditions.
+            if (this->flattenSize() > i_len) 
+            {
+                // Generate an error for buffer overflow conditions.
+                ETRAC2("ECMD: Buffer overflow occurred in "
+                       "ecmdTraceArrayData::flatten(), "
+                       "structure size = %d; input length = %d",
+                       this->flattenSize(), i_len);
+                l_rc = ECMD_DATA_OVERFLOW;
+                break;
+            }
+
+            // Flatten and store the data in the ouput buffer
+
+            // fastArrayName
+            strLen = fastArrayName.size();
+            memcpy( l_ptr8, fastArrayName.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+            // fastArrayId
+            tmpData32 = htonl( fastArrayId );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(fastArrayId);
+            l_len -= sizeof(fastArrayId);
+
+            // length
+            tmpData32 = htonl( (uint32_t)length );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(length);
+            l_len -= sizeof(length);
+
+            // width
+            tmpData32 = htonl( (uint32_t)width );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(width);
+            l_len -= sizeof(width);
+
+            //isChipUnitRelated
+            tmpData32 = htonl( (uint32_t)isChipUnitRelated );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            //relatedChipUnit
+            memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
+            l_ptr8 += relatedChipUnit.size() + 1;
+            l_len -= relatedChipUnit.size() + 1;
+
+            // clockDomain
+            strLen = clockDomain.size();
+            memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
+            l_ptr8 += strLen + 1;
+            l_len -= strLen + 1;
+
+	    // clockState
+	    tmpData32 = htonl( (uint32_t)clockState );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+	    l_ptr8 += sizeof(clockState);
+	    l_len -= sizeof(clockState);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdTraceArrayData::flatten(), struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdTraceArrayData::flatten() struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
+}
+
+
+uint32_t ecmdFastArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) 
+{
+        uint32_t l_rc = ECMD_SUCCESS;
+        uint32_t tmpData32 = 0;
+
+        const uint8_t *l_ptr8 = i_buf;
+	int l_len = (int)i_len;
+
+        do    // Single entry ->
+        {
+            // Unflatten data from the input buffer
+
+	    // fastArrayName
+	    std::string l_trace_array_name = (const char *)l_ptr8;
+	    fastArrayName = l_trace_array_name;
+	    l_ptr8 += l_trace_array_name.size() + 1;
+	    l_len -= l_trace_array_name.size() + 1;
+
+            // fastArrayId
+            memcpy( &fastArrayId, l_ptr8, sizeof(fastArrayId) );
+            fastArrayId = ntohl( fastArrayId );
+            l_ptr8 += sizeof(fastArrayId);
+            l_len -= sizeof(fastArrayId);
+
+	    // length
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    length = (int)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(length);
+	    l_len -= sizeof(length);
+
+	    // width
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+	    width = (int)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(width);
+	    l_len -= sizeof(width);
+
+        //isChipUnitRelated
+        memcpy(&tmpData32, l_ptr8, sizeof(tmpData32));
+        isChipUnitRelated = (bool)ntohl(tmpData32);
+        l_ptr8 += sizeof(tmpData32);
+        l_len -= sizeof(tmpData32);
+
+        //relatedChipUnit
+        std::string l_relatedChipUnit = (const char *) l_ptr8;  //maybe this can be 1 line?
+        relatedChipUnit = l_relatedChipUnit;
+        l_ptr8 += l_relatedChipUnit.size() + 1;
+        l_len -= l_relatedChipUnit.size() + 1;
+
+	    // clockDomain
+            std::string l_clock_domain = (const char *)l_ptr8;
+            clockDomain = l_clock_domain;
+            l_ptr8 += l_clock_domain.size() + 1;
+            l_len -= l_clock_domain.size() + 1;
+
+	    // clockState
+	    memcpy( &clockState, l_ptr8, sizeof(clockState) );
+	    clockState = (ecmdClockState_t)ntohl( (uint32_t)clockState );
+	    l_ptr8 += sizeof(clockState);
+	    l_len -= sizeof(clockState);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdTraceArrayData::unflatten(), struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdTraceArrayData::unflatten() struct size= %d; "
+                      "input length= %x; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
+}
+
+uint32_t ecmdFastArrayData::flattenSize() 
+{
+        uint32_t flatSize = 0;
+
+        // size needed to store the data structure
+        flatSize = fastArrayName.size() + 1
+                   + sizeof( fastArrayId )
+                   + sizeof( length )
+                   + sizeof( width )
+                   + sizeof( uint32_t ) // isChipUnitRelated in uint32_t
+                   + relatedChipUnit.size() + 1                          
+                   + clockDomain.size() + 1
+                   + sizeof( clockState );
+
+        return flatSize;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdFastArrayData::printStruct() {
+
+        printf("\n\t--- Fast Array Data Structure ---\n");
+
+        printf("\tFast Array Name: %s\n", fastArrayName.c_str() );
+        printf("\tFast Array ID: 0x%08x\n", fastArrayId );
+        printf("\tLength: %d\n", length );
+        printf("\tWidth: %d\n", width );
+        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
+        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\tClock Domain: %s\n", clockDomain.c_str() );
+        printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
+
+}
+#endif  // end of REMOVE_SIM
+
 
 // @05 start
 /*
