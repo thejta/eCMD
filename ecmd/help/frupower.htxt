@@ -1,5 +1,6 @@
 
-Syntax: frupower on|off <Chip> [-smart] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+Syntax: frupower on|off <Chip> [-smart]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -12,20 +13,8 @@ Syntax: frupower on|off <Chip> [-smart] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 	-smart    [opt] If -smart is given, all fru's below given fru will be affected
                         as well
 	
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > frupower on pu -k0 -n1 -p3

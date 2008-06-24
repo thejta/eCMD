@@ -1,7 +1,8 @@
 
-Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-a#] [-k#] [-n#] [-s#] [-p#]
-        putmemdma <MemAddress> -fb<filename>               [-a#] [-k#] [-n#] [-s#] [-p#]
-        putmemdma -fd<filename>                            [-a#] [-k#] [-n#] [-s#] [-p#]
+Syntax: putmemdma <MemAddress> <Data> [-i<format>]
+        putmemdma <MemAddress> -fb<filename>
+        putmemdma -fd<filename>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -24,12 +25,8 @@ Syntax: putmemdma <MemAddress> <Data> [-i<format>]         [-a#] [-k#] [-n#] [-s
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > putmemdma 10000 deadbeef80000000  -p0,1 

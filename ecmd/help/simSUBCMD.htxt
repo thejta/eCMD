@@ -1,5 +1,6 @@
 
 Syntax: simSUBCMD "<command>"
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -9,6 +10,9 @@ Syntax: simSUBCMD "<command>"
         --------------------------------------------------------------------------------
         command         rtx command to run
                         Place command in ""'s to avoid it being parsed.
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simSUBCMD "run left"

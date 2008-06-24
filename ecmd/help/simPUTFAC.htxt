@@ -1,5 +1,6 @@
 
 Syntax: simPUTFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -21,6 +22,8 @@ Syntax: simPUTFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
         -i<format>[opt] Specifies the format type of input data : default 'xr'
                         Run 'ecmdquery formats' to view available formats
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simPUTFAC TITAN.TCKFREQ C 4

@@ -1,8 +1,7 @@
 
 Syntax: putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <Data> [-i<format>]
-                                                   [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
         putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> -fb<filename> 
-                                                   [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -28,16 +27,8 @@ Syntax: putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <Data> [-i<format>
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default, decimal value).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > putvpdkeyword pu mod "record" "key" deadbeef80000000  -p0,1 

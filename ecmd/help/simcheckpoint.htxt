@@ -1,5 +1,6 @@
 
 Syntax: simcheckpoint <checkpoint name>
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -9,6 +10,8 @@ Syntax: simcheckpoint <checkpoint name>
         --------------------------------------------------------------------------------
         checkpointname  name to store checkpoint under
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simcheckpoint boot

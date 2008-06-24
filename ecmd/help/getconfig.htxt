@@ -1,7 +1,6 @@
 
-Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>]
-                                 [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
-                                 [-dk | -dn | -ds | -dp | -dc]
+Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>] [-dk | -dn | -ds | -dp | -dc]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -19,18 +18,6 @@ Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>]
         -o<format>[opt] Output Format : default 'xl'. Only valid with numeric data
                         Run 'ecmdquery formats' to view available formats
 	
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
-
         -dk  [optional] Specify cage depth to loop on. When no Chip specified
                         -dk is default
 
@@ -41,8 +28,10 @@ Syntax: getconfig [<Chip[.ChipUnit]>] <ConfigName> [-o<format>]
         -dp  [optional] Specify pos depth to loop on. When Chip specified
                         -dp is default
 
-        -dc  [optional] Specify core depth to loop on. 
-
+        -dc  [optional] Specify core depth to loop on.
+ 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > getconfig SIM_BROADSIDE_MODE -dk

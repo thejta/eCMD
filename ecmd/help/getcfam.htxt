@@ -1,6 +1,6 @@
 
-Syntax: getcfam <Chip> <CFAMAddr> [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
-                                 [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
+Syntax: getcfam <Chip> <CFAMAddr> [-o<format>] [-i<format>] [-exp <data> [-mask <data>]]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -24,19 +24,8 @@ Syntax: getcfam <Chip> <CFAMAddr> [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
         -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
                         Run 'ecmdquery formats' to view available formats
         	
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > getcfam pu 6 -p0,1 

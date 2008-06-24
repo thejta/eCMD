@@ -1,6 +1,7 @@
 
-Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
-        
+Syntax: cacheflush <Chip[.ChipUnit]> <CacheType>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
         ECMD:           Core Common Function
 
         Function:       Flush a particular cache based on the cache type specified
@@ -14,20 +15,8 @@ Syntax: cacheflush <Chip[.ChipUnit]> <CacheType> [-coe] [-a#] [-k#] [-n#] [-s#] 
 
         CacheType       One of L1I / L1D / L2 / L3 / L4
 	
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-	
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
       --------------------------------------------------------------------------------
 
       Example:        cacheflush pu L1I -p0,1 -call

@@ -1,5 +1,6 @@
 
 Syntax: simaet on | off | flush
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -13,6 +14,8 @@ Syntax: simaet on | off | flush
 
         flush           Flush AET to disk
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simaet on

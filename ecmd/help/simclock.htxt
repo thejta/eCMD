@@ -1,5 +1,6 @@
 
 Syntax: simclock <cycles>
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -9,6 +10,8 @@ Syntax: simclock <cycles>
         --------------------------------------------------------------------------------
         cycles          Number of cycles to clock the simulator
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simclock 1000

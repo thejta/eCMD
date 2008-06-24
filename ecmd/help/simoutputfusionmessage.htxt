@@ -1,6 +1,7 @@
 
 Syntax: simoutputfusionmessage <Header> <Message> [<File> [<Line>]] 
                         [-severity <severity>] [-msgtype <msgtype>]
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -23,6 +24,8 @@ Syntax: simoutputfusionmessage <Header> <Message> [<File> [<Line>]]
                         Valid values are : exception, testcase, cmd_rs, cmd_exe, debug
                           broadside, end_sd_msgs, always
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simoutputfusionmessage "Warning" "I'm Here"

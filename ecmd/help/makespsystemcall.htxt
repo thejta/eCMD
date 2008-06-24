@@ -1,5 +1,6 @@
 
-Syntax: makespsystemcall "<command>"    [-a#] [-k#] [-n#]
+Syntax: makespsystemcall "<command>"
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#]
 
         ECMD:           Core Common Function
 
@@ -10,12 +11,8 @@ Syntax: makespsystemcall "<command>"    [-a#] [-k#] [-n#]
         command         Command to run on the SE/SP. Place command in ""'s to avoid it 
 			being parsed.
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > makespsystemcall "ls"
