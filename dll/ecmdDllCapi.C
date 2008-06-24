@@ -1057,7 +1057,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any cage args */
     if (ecmdUserArgs.cage.length()) {
-      /* See if the user specified -gall or -kall */
+      /* See if the user specified -aall or -kall */
       if (ecmdUserArgs.cage == "all") {
         i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
         cageType = ALL;
@@ -1080,25 +1080,25 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         cageType = SINGLE;
       }
 
-      /* See if the user specified -gft or -kft */
+      /* See if the user specified -aft or -kft */
       else if (ecmdUserArgs.cage == "ft") {
         i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
         cageType = FT;
       }
 
-      /* See if the user specified -glt or -klt */
+      /* See if the user specified -alt or -klt */
       else if (ecmdUserArgs.cage == "lt") {
         i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
         cageType = LT;
       }
 
-      /* See if the user specified -get or -ket */
+      /* See if the user specified -aet or -ket */
       else if (ecmdUserArgs.cage == "et") {
         i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
         cageType = ET;
       }
 
-      /* See if the user specified -got or -kot */
+      /* See if the user specified -aot or -kot */
       else if (ecmdUserArgs.cage == "ot") {
         i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
         cageType = OT;
@@ -1140,7 +1140,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any node args */
     if (ecmdUserArgs.node.length()) {
-      /* See if the user specified -gall or -nall */
+      /* See if the user specified -aall or -nall */
       if (ecmdUserArgs.node == "all") {
         i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
         nodeType = ALL;
@@ -1163,25 +1163,25 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         nodeType = SINGLE;
       }
 
-      /* See if the user specified -gft or -nft */
+      /* See if the user specified -aft or -nft */
       else if (ecmdUserArgs.node == "ft") {
         i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
         nodeType = FT;
       }
 
-      /* See if the user specified -glt or -nlt */
+      /* See if the user specified -alt or -nlt */
       else if (ecmdUserArgs.node == "lt") {
         i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
         nodeType = LT;
       }
 
-      /* See if the user specified -get or -net */
+      /* See if the user specified -aet or -net */
       else if (ecmdUserArgs.node == "et") {
         i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
         nodeType = ET;
       }
 
-      /* See if the user specified -got or -not */
+      /* See if the user specified -aot or -not */
       else if (ecmdUserArgs.node == "ot") {
         i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
         nodeType = OT;
@@ -1224,7 +1224,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any slot args */
     if (ecmdUserArgs.slot.length()) {
-      /* See if the user specified -gall or -sall */
+      /* See if the user specified -aall or -sall */
       if (ecmdUserArgs.slot == "all") {
         i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
         slotType = ALL;
@@ -1247,25 +1247,25 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         slotType = SINGLE;
       }
 
-      /* See if the user specified -gft or -sft */
+      /* See if the user specified -aft or -sft */
       else if (ecmdUserArgs.slot == "ft") {
         i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
         slotType = FT;
       }
 
-      /* See if the user specified -glt or -slt */
+      /* See if the user specified -alt or -slt */
       else if (ecmdUserArgs.slot == "lt") {
         i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
         slotType = LT;
       }
 
-      /* See if the user specified -get or -set */
+      /* See if the user specified -aet or -set */
       else if (ecmdUserArgs.slot == "et") {
         i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
         slotType = ET;
       }
 
-      /* See if the user specified -got or -sot */
+      /* See if the user specified -aot or -sot */
       else if (ecmdUserArgs.slot == "ot") {
         i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
         slotType = OT;
@@ -1308,7 +1308,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any pos args */
     if (ecmdUserArgs.pos.length()) {
-      /* See if the user specified -gall or -pall */
+      /* See if the user specified -aall or -pall */
       if (ecmdUserArgs.pos == "all") {
         i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
         posType = ALL;
@@ -1331,25 +1331,25 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         posType = SINGLE;
       }
 
-      /* See if the user specified -gft or -pft */
+      /* See if the user specified -aft or -pft */
       else if (ecmdUserArgs.pos == "ft") {
         i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
         posType = FT;
       }
 
-      /* See if the user specified -glt or -plt */
+      /* See if the user specified -alt or -plt */
       else if (ecmdUserArgs.pos == "lt") {
         i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
         posType = LT;
       }
 
-      /* See if the user specified -get or -pet */
+      /* See if the user specified -aet or -pet */
       else if (ecmdUserArgs.pos == "et") {
         i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
         posType = ET;
       }
 
-      /* See if the user specified -got or -pot */
+      /* See if the user specified -aot or -pot */
       else if (ecmdUserArgs.pos == "ot") {
         i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
         posType = OT;
@@ -1391,7 +1391,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any chipUnitNum args */
     if (ecmdUserArgs.chipUnitNum.length()) {
-      /* See if the user specified -gall or -call */
+      /* See if the user specified -aall or -call */
       if (ecmdUserArgs.chipUnitNum == "all") {
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         chipUnitNumType = ALL;
@@ -1414,25 +1414,25 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         chipUnitNumType = SINGLE;
       }
 
-      /* See if the user specified -gft or -cft */
+      /* See if the user specified -aft or -cft */
       else if (ecmdUserArgs.chipUnitNum == "ft") {
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         chipUnitNumType = FT;
       }
 
-      /* See if the user specified -glt or -clt */
+      /* See if the user specified -alt or -clt */
       else if (ecmdUserArgs.chipUnitNum == "lt") {
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         chipUnitNumType = LT;
       }
 
-      /* See if the user specified -get or -cet */
+      /* See if the user specified -aet or -cet */
       else if (ecmdUserArgs.chipUnitNum == "et") {
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         chipUnitNumType = ET;
       }
 
-      /* See if the user specified -got or -cot */
+      /* See if the user specified -aot or -cot */
       else if (ecmdUserArgs.chipUnitNum == "ot") {
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         chipUnitNumType = OT;
@@ -1474,7 +1474,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any thread args */
     if (ecmdUserArgs.thread.length()) {
-      /* See if the user specified -gall or -tall */
+      /* See if the user specified -aall or -tall */
       if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread == "alive") {
         i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
         threadType = ALL;
@@ -1497,25 +1497,25 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         threadType = SINGLE;
       }
 
-      /* See if the user specified -gft or -tft */
+      /* See if the user specified -aft or -tft */
       else if (ecmdUserArgs.thread == "ft") {
         i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
         threadType = FT;
       }
 
-      /* See if the user specified -glt or -tlt */
+      /* See if the user specified -alt or -tlt */
       else if (ecmdUserArgs.thread == "lt") {
         i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
         threadType = LT;
       }
 
-      /* See if the user specified -get or -tet */
+      /* See if the user specified -aet or -tet */
       else if (ecmdUserArgs.thread == "et") {
         i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
         threadType = ET;
       }
 
-      /* See if the user specified -got or -tot */
+      /* See if the user specified -aot or -tot */
       else if (ecmdUserArgs.thread == "ot") {
         i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
         threadType = OT;
@@ -1619,8 +1619,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   std::list<ecmdCageData>::iterator curCage = o_queryData.cageData.begin();
   while (curCage != o_queryData.cageData.end()) {
 
-    /* If cageType > MULTI, they specified one of the special queries where items need to be removed */
-    if (cageType > MULTI) {
+    /* If cageType >= MULTI, they specified one of the special queries where items need to be removed */
+    if (cageType >= MULTI) {
       /* Is the current element in the list of numbers the user provided, if not remove it */
       if (cageType == MULTI) {
         if (dllRemoveCurrentElement(curCage->cageId, ecmdUserArgs.cage)) {
@@ -1664,8 +1664,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     std::list<ecmdNodeData>::iterator curNode = curCage->nodeData.begin();
     while (curNode != curCage->nodeData.end()) {
 
-      /* If nodeType > MULTI, they specified one of the special queries where items need to be removed */
-      if (nodeType > MULTI) {
+      /* If nodeType >= MULTI, they specified one of the special queries where items need to be removed */
+      if (nodeType >= MULTI) {
         /* Is the current element in the list of numbers the user provided, if not remove it */
         if (nodeType == MULTI) {
           if (dllRemoveCurrentElement(curNode->nodeId, ecmdUserArgs.node)) {
@@ -1709,8 +1709,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       std::list<ecmdSlotData>::iterator curSlot = curNode->slotData.begin();
       while (curSlot != curNode->slotData.end()) {
 
-        /* If slotType > MULTI, they specified one of the special queries where items need to be removed */
-        if (slotType > MULTI) {
+        /* If slotType >= MULTI, they specified one of the special queries where items need to be removed */
+        if (slotType >= MULTI) {
           /* Is the current element in the list of numbers the user provided, if not remove it */
           if (slotType == MULTI) {
             if (dllRemoveCurrentElement(curSlot->slotId, ecmdUserArgs.slot)) {
@@ -1754,8 +1754,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         std::list<ecmdChipData>::iterator curChip = curSlot->chipData.begin();
         while (curChip != curSlot->chipData.end()) {
 
-          /* If posType > MULTI, they specified one of the special queries where items need to be removed */
-          if (posType > MULTI) {
+          /* If posType >= MULTI, they specified one of the special queries where items need to be removed */
+          if (posType >= MULTI) {
             /* Is the current element in the list of numbers the user provided, if not remove it */
             if (posType == MULTI) {
               if (dllRemoveCurrentElement(curChip->pos, ecmdUserArgs.pos)) {
@@ -1799,8 +1799,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
           std::list<ecmdChipUnitData>::iterator curChipUnit = curChip->chipUnitData.begin();
           while (curChipUnit != curChip->chipUnitData.end()) {
 
-            /* If chipUnitNumType > MULTI, they specified one of the special queries where items need to be removed */
-            if (chipUnitNumType > MULTI) {
+            /* If chipUnitNumType >= MULTI, they specified one of the special queries where items need to be removed */
+            if (chipUnitNumType >= MULTI) {
               /* Is the current element in the list of numbers the user provided, if not remove it */
               if (chipUnitNumType == MULTI) {
                 if (dllRemoveCurrentElement(curChipUnit->chipUnitNum, ecmdUserArgs.chipUnitNum)) {
@@ -1844,8 +1844,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
             std::list<ecmdThreadData>::iterator curThread = curChipUnit->threadData.begin();
             while (curThread != curChipUnit->threadData.end()) {
 
-              /* If threadType > MULTI, they specified one of the special queries where items need to be removed */
-              if (threadType > MULTI) {
+              /* If threadType >= MULTI, they specified one of the special queries where items need to be removed */
+              if (threadType >= MULTI) {
                 /* Is the current element in the list of numbers the user provided, if not remove it */
                 if (threadType == MULTI) {
                   if (dllRemoveCurrentElement(curThread->threadId, ecmdUserArgs.thread)) {
