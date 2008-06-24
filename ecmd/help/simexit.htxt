@@ -1,5 +1,6 @@
 
 Syntax: simexit [<rc> <message>]
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -12,6 +13,8 @@ Syntax: simexit [<rc> <message>]
 
         message   [opt] Testcase failure message to pass to simulation
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simexit

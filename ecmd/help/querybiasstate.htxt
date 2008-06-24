@@ -1,5 +1,6 @@
 
 Syntax: querybiasstate <voltageLevel> [-a#] [-k#] [-n#] [-s#]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#]
 
         ECMD:           Core Common Function
 
@@ -9,14 +10,8 @@ Syntax: querybiasstate <voltageLevel> [-a#] [-k#] [-n#] [-s#]
         --------------------------------------------------------------------------------
         voltageLevel    The voltage level to query on
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > querybiasstate 13 

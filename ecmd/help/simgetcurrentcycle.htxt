@@ -1,5 +1,6 @@
 
 Syntax: simgetcurrentcycle
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -8,6 +9,8 @@ Syntax: simgetcurrentcycle
         Parameters:
         --------------------------------------------------------------------------------
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simgetcurrentcycle

@@ -1,7 +1,7 @@
 
-Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>]
         getgpiopin <Chip> <EngineId> -mask <MaskValue> [-o<format>] [-i<format>] 
-                                                        [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -24,19 +24,8 @@ Syntax: getgpiopin <Chip> <EngineId> <Pin> [-o<format>] [-coe] [-a#] [-k#] [-n#]
         -i<format>[opt] Specifies the format type of the input : default 'xl'
                         Run 'ecmdquery formats' to view available formats
 
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > getgpiopin fsp 0 1

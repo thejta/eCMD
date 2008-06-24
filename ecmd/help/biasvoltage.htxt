@@ -1,5 +1,6 @@
 
-Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-a#] [-k#] [-n#] [-s#]
+Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#]
 
         ECMD:           Core Common Function
 
@@ -10,7 +11,6 @@ Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-a#] [-k#] [-n#] [-
                         If you specify a slot (-s), then the looping will be done on the
                         slot level.
                         Your plugin may not support all levels, consult your plugin.
-
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -26,14 +26,8 @@ Syntax: biasvoltage <voltageLevel> <biasValue> [-immediate] [-a#] [-k#] [-n#] [-
         -immediate[opt] If "-immediate" is given on the command line the operation returns 
                         immediately instead of waiting for it to finish.
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > biasvoltage 12 0npu  -k1 -n0 

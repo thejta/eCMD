@@ -14,6 +14,8 @@ Syntax: ecmdecho [-warning | -error] <message>
 
         message         String to echo
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        ecmdecho "Hello" -quiet

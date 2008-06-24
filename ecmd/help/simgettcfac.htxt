@@ -1,5 +1,6 @@
 
 Syntax: simgettcfac <facname> [<row> | -subset <startbit> <numbits>] [-o<format>]
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -18,6 +19,8 @@ Syntax: simgettcfac <facname> [<row> | -subset <startbit> <numbits>] [-o<format>
         -o<format>[opt] Specifies the format type of the output : default 'xr'
                         Run 'ecmdquery formats' to view available formats
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simgettcfac TITAN.TCKFREQ

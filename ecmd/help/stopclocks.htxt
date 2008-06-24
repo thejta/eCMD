@@ -1,7 +1,8 @@
 
-Syntax: stopclocks                                   [-force] [-a#] [-k#] [-n#] [-s#] 
-        stopclocks -domain <ConvenienceClockDomain>] [-force] [-a#] [-k#] [-n#] [-s#]
-        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-coe] [-force] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: stopclocks                                   [-force]
+        stopclocks -domain <ConvenienceClockDomain>] [-force]
+        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-force]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -25,17 +26,8 @@ Syntax: stopclocks                                   [-force] [-a#] [-k#] [-n#] 
 
         -force    [opt] Force clocks off regardless of current state
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > stopclocks pu -k0 -n1 -p3

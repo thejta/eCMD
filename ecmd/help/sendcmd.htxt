@@ -1,5 +1,6 @@
 
-Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
         
         ECMD:           Core Common Function
 
@@ -17,19 +18,8 @@ Syntax: sendcmd <Chip> <ScanInstrCode> <ScanInstrMod> [-v] [-coe] [-a#] [-k#] [-
         -v   [optional] Verbose mode.  Displays the instruction
                         status in an easy-to-read format.
 
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
       --------------------------------------------------------------------------------
 
         Notes:          Only valid with JTAG attached chips

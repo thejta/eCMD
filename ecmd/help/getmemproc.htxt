@@ -1,9 +1,8 @@
 
-Syntax: getmemproc <MemAddress> <NumBytes> [-a#] [-k#] [-n#] [-s#] [-p#] 
-                                           [-o<format> | -f[d|b]<filename>]
-        getmemproc <MemAddress> <NumBytes> [-a#] [-k#] [-n#] [-p#]
-                                 [-exp <data> [-i<format>] [-mask <data>]]
-        getmemproc <MemAddress>  [-exp -f[d|b]<filename> ] [-a#] [-k#] [-n#] [-p#]
+Syntax: getmemproc <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
+        getmemproc <MemAddress> <NumBytes> [-exp <data> [-i<format>] [-mask <data>]]
+        getmemproc <MemAddress>  [-exp -f[d|b]<filename>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -37,17 +36,8 @@ Syntax: getmemproc <MemAddress> <NumBytes> [-a#] [-k#] [-n#] [-s#] [-p#]
         -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
                         Not valid with '-exp -f[d|b]'
 
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > getmemproc 1000 128 -p0

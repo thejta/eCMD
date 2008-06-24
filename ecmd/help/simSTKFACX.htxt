@@ -1,5 +1,6 @@
 
 Syntax: simSTKFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -19,6 +20,8 @@ Syntax: simSTKFAC <facname> <data> <length> [<row> <offset>] [-i<format>]
  
         offset    [opt] Facility offset
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simSTKFAC TITAN.TCKFREQ 11XX01

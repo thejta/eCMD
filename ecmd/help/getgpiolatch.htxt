@@ -1,6 +1,6 @@
 
-Syntax: getgpiolatch <Chip> <EngineId> <Pin> <Mode> [-coe]
-                        [-a#] [-k#] [-n#] [-s#] [-p#] [-o<format>]
+Syntax: getgpiolatch <Chip> <EngineId> <Pin> <Mode> [-o<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -20,19 +20,8 @@ Syntax: getgpiolatch <Chip> <EngineId> <Pin> <Mode> [-coe]
         -o<format>[opt] Specifies the format type of the output : default 'b'
                         Run 'ecmdquery formats' to view available formats
 	
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > getgpiolatch fsp 0 1 OD

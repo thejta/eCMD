@@ -1,5 +1,6 @@
 
 Syntax: simrestart <checkpoint name>
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -9,6 +10,8 @@ Syntax: simrestart <checkpoint name>
         --------------------------------------------------------------------------------
         checkpointname  name to load checkpoint from
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simrestart boot

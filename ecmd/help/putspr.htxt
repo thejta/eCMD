@@ -1,6 +1,6 @@
 
-Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>]  
-                             [-b<modifier>] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
 
@@ -13,7 +13,8 @@ Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>]
 
         Start     [opt] Starting bit position.  Specify with numbits.
 
-        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits                         are not specified, start = 0 and numbits is calculated from
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits 
+                        are not specified, start = 0 and numbits is calculated from
                         length of data string, rest of register is padded with zeros.
 
         Data            Data to insert into Register.
@@ -25,20 +26,8 @@ Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>]
         -b<mod>[opt]    Bit modifier to apply to current ring data.
                         Run 'ecmdquery formats' to view available modifiers
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
-
-        -t#  [optional] Specify which processor thread to act on (0 is default). Specify                         -tall to act on all threads, -talive to act on all alive threads.
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > putspr nia deadbeef80000000  -p0,1 -c1 -t1

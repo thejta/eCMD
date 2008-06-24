@@ -1,6 +1,7 @@
 
-Syntax: putvpdimage <Chip> <VpdType> <Data> [-i<format>] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
-        putvpdimage <Chip> <VpdType> -fb<filename>       [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+Syntax: putvpdimage <Chip> <VpdType> <Data> [-i<format>]
+        putvpdimage <Chip> <VpdType> -fb<filename>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -27,16 +28,8 @@ Syntax: putvpdimage <Chip> <VpdType> <Data> [-i<format>] [-coe] [-a#] [-k#] [-n#
         -coe [optional] Continue On Error. If an error occurs, continues to the next target
                         instead of exiting.  Any error status is returned at the end.
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default, decimal value).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > putvpdimage pu mod deadbeef80000000  -p0,1 

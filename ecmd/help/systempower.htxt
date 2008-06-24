@@ -1,5 +1,6 @@
 
 Syntax: systempower on|off
+        [-quiet] [-quieterror]
 
         ECMD:           Core Common Function
 
@@ -11,6 +12,8 @@ Syntax: systempower on|off
 
         off             Turn the target system off
 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > systempower on

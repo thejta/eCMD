@@ -1,6 +1,7 @@
 
-Syntax: getvpdimage <Chip> <VpdType> <NumBytes> -o<format>    [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] 
-        getvpdimage <Chip> <VpdType> <NumBytes> -fb<filename>  [-coe][-a#] [-k#] [-n#] [-s#] [-p#] 
+Syntax: getvpdimage <Chip> <VpdType> <NumBytes> -o<format> 
+        getvpdimage <Chip> <VpdType> <NumBytes> -fb<filename>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -25,19 +26,8 @@ Syntax: getvpdimage <Chip> <VpdType> <NumBytes> -o<format>    [-coe] [-a#] [-k#]
                         Incase multiple chip positions are specified the target string will 
                         be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
 
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default, decimal value).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > getvpdimage pu mod 128 -p0

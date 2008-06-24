@@ -1,5 +1,6 @@
 
 Syntax: simPUTFACX <facname> <data> [<row> <offset>]
+        [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
 
@@ -16,7 +17,8 @@ Syntax: simPUTFACX <facname> <data> [<row> <offset>]
  
         offset    [opt] Facility offset
 
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        simPUTFACX TITAN.TCKFREQ 11XX01

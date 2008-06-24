@@ -1,6 +1,7 @@
 
 Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
-              [-exact | -partial]  [-i<format>] [-b<modifier>] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+              [-exact | -partial]  [-i<format>] [-b<modifier>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -48,21 +49,8 @@ Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
         -b<mod>[opt]    Bit modifier to apply to current ring data.
                         Run 'ecmdquery formats' to view available modifiers
 
-        -coe [optional] Continue On Error. If an error occurs, continues to the next target
-                        instead of exiting.  Any error status is returned at the end.
-
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
-        -c#  [optional] Specify which core/chipUnit to act on (0 is default).
- 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
         
         Example:        putlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FPA_LATCH -ix feed

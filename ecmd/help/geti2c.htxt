@@ -1,11 +1,10 @@
 
 Syntax: 
         WITHOUT OFFSET:
-        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> [-coe]
-                 [-a#] [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed <speed>]
+        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> [-o<format> | -f<filename>] [-busspeed <speed>]
         WITH OFFSET:
-        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize> [-coe]
-                 [-a#] [-k#] [-n#] [-s#] [-p#] [-o<format> | -f<filename>] [-busspeed <speed>]
+        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize> [-o<format> | -f<filename>] [-busspeed <speed>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
 
@@ -39,16 +38,8 @@ Syntax:
                         Incase multiple chip positions are specified the target string will
                         be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
 			
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > geti2c fsp 0 1 A0 100 -busspeed 100
