@@ -1,0 +1,44 @@
+eCMD Global Options
+
+All of these options are parsed for by eCMD in ecmdCommandArgs.  The help file
+for every command has which of these commands is supported.
+
+Targeting Parms
+--------------------------------------------------------------------------------
+Input formats are specified with the -i<format> argument and allow you to 
+specify what format you are providing data in.
+
+        -a#             Operate on all levels of targeting with same value.
+                        Using this option and any other targeting parm will
+                        cause an error.
+
+        -k#             Specify which cage to act on.
+
+        -n#             Specify which node to act on.
+
+        -s#             Specify which slot to act on.
+
+        -p#             Specify which chip position to act on.
+
+        -c#             Specify which core/chipUnit to act on.
+
+        -t#             Specify which thread to act on.
+                        This has the extra option alive, to act on only alive threads.
+Print Control
+--------------------------------------------------------------------------------
+
+        -quiet          Turn off normal and informational printing
+
+        -quieterror     Turn off error printing to the screen.  Intended for use
+                        with programs that will use ecmdGetErrorMsg to handle
+                        errors.
+
+Miscellaneous 
+--------------------------------------------------------------------------------
+
+        -coe            Continue On Error. If an error occurs, continues to the next target
+                        instead of exiting.  Any error status is returned at the end.
+
+        -exist          Instead of looping over configured targets in the system, loop
+                        over existing targets instead.  Could return targets not fucntional
+                        in the system!
