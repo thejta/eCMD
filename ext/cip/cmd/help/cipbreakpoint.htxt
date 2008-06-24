@@ -1,5 +1,6 @@
 
-Syntax: cipbreakpoint set|clear <Type> <Address> [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+Syntax: cipbreakpoint set|clear <Type> <Address>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           CIP (Cronus/IP) Extension
 
@@ -13,20 +14,8 @@ Syntax: cipbreakpoint set|clear <Type> <Address> [-a#] [-k#] [-n#] [-s#] [-p#] [
 
         Address         64 bit address of breakpoint (Hex-Right)
 
-        -a#  [optional] Operate on all levels of targeting with same value.
-
-        -k#  [optional] Specify which cage to act on (0 is default).
-
-        -n#  [optional] Specify which node to act on (0 is default).
-
-        -s#  [optional] Specify which slot to act on (0 is default).
-
-        -p#  [optional] Specify which chip position to act on (0 is default).
-
-        -c#  [optional] Specify which processor core to act on (0 is default).
-
-        -t#  [optional] Specify which processor thread to act on (0 is default). Specify                         -tall to act on all threads, -talive to act on all alive threads.
-
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       > cipbreakpoint set IABR 8000000000FAC230
