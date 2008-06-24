@@ -32,6 +32,9 @@ Syntax: ecmdquery <Mode> [Mode Options]
 
                         formats
                             - Display help text for all available input/output formats
+
+                        options
+                            - Display help text for all available global command line options
         
                         chips [-ep] [-dp | -dc | -dt | -dall] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
                             - Display all the chips in the system
