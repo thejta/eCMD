@@ -5,8 +5,8 @@ for every command has which of these commands is supported.
 
 Targeting Parms
 --------------------------------------------------------------------------------
-Input formats are specified with the -i<format> argument and allow you to 
-specify what format you are providing data in.
+
+The default for the targeting parms is 0 if it is not given on the command line.
 
         -a#             Operate on all levels of targeting with same value.
                         Using this option and any other targeting parm will
@@ -24,6 +24,27 @@ specify what format you are providing data in.
 
         -t#             Specify which thread to act on.
                         This has the extra option alive, to act on only alive threads.
+
+In addition to specifing a single target to act with the # parm, these other options
+are available:
+   0,3,4               Do specifically 0, 3 and 4
+   2..7                Do the range from 2 to 7
+   0..2,5              Do the range of 0 to 2, and 5 as well
+   all                 Do all configured at a specific level
+   ft                  Do the first target at a specific level
+   lt                  Do the last target at a specific level
+   et                  Do the even targets at a specific level
+   ot                  Do the odd targets at a specific level
+
+Examples:
+       -s2 -pall       Will operate on slot 2 and all positions found behind it
+       -aft            Will operate on the very first target in the system.
+                       The same as -kft -nft -sft -pft -cft -tft
+       -k3 -n2 -p0,2   Will operation positions 0 and 2 in node 2 of cage 3
+   
+Hex input is also support for numeric entry, in addition to decimal.  To use hex, prefix
+any number with 0x or 0X.
+
 Print Control
 --------------------------------------------------------------------------------
 
