@@ -63,5 +63,5 @@ Miscellaneous
                         instead of exiting.  Any error status is returned at the end.
 
         -exist          Instead of looping over configured targets in the system, loop
-                        over existing targets instead.  Could return targets not functional
+                        over existing targets.  This could return targets not functional
                         in the system!
