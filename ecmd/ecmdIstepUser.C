@@ -502,13 +502,9 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   /* We need to figure out if the user gave us a proc chip or not */
   std::string temp = argv[0];
   transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
-  if (temp.find_last_of("clock") == std::string::npos) {
+  if (temp.find("clock") == std::string::npos) {
     /* No clock in the very first arg, assume it is a chip */
     ecmdParseChipField(argv[0], chipType, chipUnitType);
-    if (chipUnitType != "") {
-      ecmdOutputError("setclockspeed - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-      return ECMD_INVALID_ARGS;
-    }
     clocktype = argv[1];
     clockspeed = argv[2];
     endOffet = 2;
@@ -519,12 +515,22 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     endOffet = 1;
   }
 
+
   //Setup the target that will be used to query the system config
   if (chipType != "") {
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    } else {
+      target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    }
+
   } else {
     target.cageState =  ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.slotState = target.posState = target.chipTypeState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
@@ -696,6 +702,11 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   std::string outputformat = "d";               ///< Output Format to display
   uint32_t speed;                               ///< The speed return value
   ecmdDataBuffer buffer(32);
+  std::string chipType;                         ///< The chiptype the user specified (optional)
+  std::string chipUnitType;                     ///< Purely for error checking
+  std::string clocktype;                        ///< the clock type to change the speed on
+  std::string clockspeed;                       ///< Speed - frequency or cycle time
+  uint32_t endOffet = 0;                         ///< The location where the required args in the arg list end
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -716,20 +727,49 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     ecmdOutputError("getclockspeed - Type 'getclockspeed -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-  if (argc > 2) {
-    ecmdOutputError("getclockspeed - Too many arguments specified; you need only a clocktype and speed.\n");
-    ecmdOutputError("getclockspeed - Type 'getclockspeed -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
+
+  /* We need to figure out if the user gave us a proc chip or not */
+  std::string temp = argv[0];
+  transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
+  if (temp.find("clock") == std::string::npos) {
+    /* No clock in the very first arg, assume it is a chip */
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    clocktype = argv[1];
+    clockspeed = argv[2];
+    endOffet = 2;
+  } else {
+    /* We had a clock in the very first arg, assume no chip was given */
+    clocktype = argv[0];
+    clockspeed = argv[1];
+    endOffet = 1;
   }
 
-  //Setup the target that will be used to query the system config 
-  target.chipType = ECMD_CHIPT_PROCESSOR;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  //Setup the target that will be used to query the system config
+  if (chipType != "") {
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
 
-  //Get the clock type
-  std::string clocktype = argv[0];
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    } else {
+      target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    }
+
+  } else {
+    // No chipType.chipUnitType give, so use the processor defaults for the target
+    //Setup the target that will be used to query the system config 
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  }
+
+
+  //Convert the clock type to the enum
   transform(clocktype.begin(), clocktype.end(), clocktype.begin(), (int(*)(int)) tolower);
   if (clocktype == "pu_refclock") {
     clockType = ECMD_PROC_REFCLOCK;
@@ -750,8 +790,7 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  //get clockspeed
-  std::string clockspeed = argv[1];
+  //Convert the clockspeed to the enum
   transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
   
   if (clockspeed == "mhz")  {
