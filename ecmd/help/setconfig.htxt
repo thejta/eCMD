@@ -30,7 +30,7 @@ Syntax: setconfig [<Chip[.ChipUnit]>] <ConfigName> <Value> [-i<format>] [-dk | -
         -dp  [optional] Specify pos depth to loop on. When Chip specified
                         -dp is default
 
-        -dc  [optional] Specify core depth to loop on. 
+        -dc  [optional] Specify core/chipUnit depth to loop on. 
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
