@@ -50,6 +50,7 @@ my $printout;
 my $DllFnTable;
 my @enumtable;
 my $dllCapiOut;
+my $functionListOut;
 
 # If no file is given, set the all flag
 my $genAll = 0;
@@ -67,6 +68,12 @@ while (<IN>) {
 
     $dllCapiOut .= $_;
     $printout .= $_;
+
+  } elsif (/\@name/) {  # Needed for function listing
+
+    $_ =~ m/name(.*?)\*\//;
+
+    $functionListOut .= "Name:" . $1 . "\n";
 
   } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 
@@ -95,6 +102,9 @@ while (<IN>) {
 
     my $enumname;
     my $orgfuncname = $funcname;
+
+    # Get a list of the original function names.  Used by the webpage. - JTA 06/27/08
+    $functionListOut .= $orgfuncname . "\n";
 
     # WE never want to include a main function if it is in there
     next if ($funcname eq "main");
@@ -490,6 +500,18 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
 
   close OUT;  #ecmdClientCapiFunc.C
 }
+
+if ($ARGV[1] =~ /Interface.lst/ || $genAll) {
+  # So we don't error at the end
+  $didFile = 1;
+
+  open OUT, ">${curdir}/$ARGV[0]Interface.lst" or die $!;
+
+  print OUT $functionListOut;
+
+  close OUT;
+}
+
 
 if (!$didFile) {
   printf("ERROR: Unknown file type \"$ARGV[1]\" passed in!\n");
