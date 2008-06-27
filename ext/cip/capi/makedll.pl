@@ -77,8 +77,6 @@ while (<IN>) {
 
   } elsif (/^(uint32_t|uint64_t|std::string|void|bool|int)/) {
 
-    next if (/$ignore_re/o && !(/$ignore_exceptions_re/o));
-
     my $type_flag = $INT;
     $type_flag = $VOID if (/^void/);
     $type_flag = $STRING if (/^std::string/);
@@ -105,6 +103,9 @@ while (<IN>) {
 
     # Get a list of the original function names.  Used by the webpage. - JTA 06/27/08
     $functionListOut .= $orgfuncname . "\n";
+
+    # If it's in the ignore list, don't go any further
+    next if (/$ignore_re/o && !(/$ignore_exceptions_re/o));
 
     # WE never want to include a main function if it is in there
     next if ($funcname eq "main");
