@@ -148,6 +148,7 @@
   %include "zseClientPerlapi.H"
   %include "zseClientPerlapiFunc.H"
   %include "zseStructs.H"
+  %include "zseReturnCodes.H"
 #endif
 #ifdef ECMD_BML_EXTENSION_SUPPORT
   %include "bmlClientPerlapi.H"
