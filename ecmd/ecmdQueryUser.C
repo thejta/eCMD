@@ -1623,6 +1623,14 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
   } else if (!strcmp(argv[0],"formats")) {
     /* We will just print this from the format helpfile */
     return ecmdPrintHelp("format");
+
+    /* ---------- */
+    /* options    */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"options")) {
+    /* We will just print this from the format helpfile */
+    return ecmdPrintHelp("options");
+
   } else {
     /* Invalid Query Mode */
     ecmdOutputError("ecmdquery - Invalid Query Mode.\n");
