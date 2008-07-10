@@ -135,6 +135,7 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     }
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
     if (chipUnitType != "") {
       target.chipUnitType = chipUnitType;
       target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
@@ -143,13 +144,14 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   } else {
     if (depth == 0) depth = CAGE;
     configName = argv[0];
-  
   }
+
   /* Now set our states based on depth */
   target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
   if (depth == POS) {
     target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == SLOT) {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == NODE) {
@@ -287,6 +289,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     }
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
     if (chipUnitType != "") {
       target.chipUnitType = chipUnitType;
       target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
@@ -300,7 +303,8 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     configName = argv[0];
     strcpy(inputVal, argv[1]);
   }
-  if(format == "a") {
+
+  if( format == "a") {
     valueAlpha = inputVal;
     validInput = ECMD_CONFIG_VALID_FIELD_ALPHA;
   } else {
@@ -320,10 +324,11 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   }
     
    /* Now set our states based on depth */
-  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
   if (depth == POS) {
     target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == SLOT) {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == NODE) {
