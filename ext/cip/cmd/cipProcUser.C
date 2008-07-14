@@ -166,6 +166,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         target.threadState = ECMD_TARGET_FIELD_UNUSED;
       } else {
         target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        target.chipUnitType = "core";
+        target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
       }
 
       rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
