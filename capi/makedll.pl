@@ -502,11 +502,11 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
   close OUT;  #ecmdClientCapiFunc.C
 }
 
-if ($ARGV[1] =~ /Interface.lst/ || $genAll) {
+if ($ARGV[1] =~ /Interface.list/ || $genAll) {
   # So we don't error at the end
   $didFile = 1;
 
-  open OUT, ">${curdir}/$ARGV[0]Interface.lst" or die $!;
+  open OUT, ">${curdir}/$ARGV[0]Interface.list" or die $!;
 
   print OUT $functionListOut;
 
