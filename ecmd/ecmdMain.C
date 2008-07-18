@@ -89,7 +89,7 @@ int main (int argc, char *argv[])
       /* ecmdParseStdInCommands reads from stdin and returns a vector of strings */
       /*  each string contains one command (ie 'ecmdquery version')              */
       /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
-      while (shellAlive && (rc = ecmdParseStdinCommands(commands))) {
+      while (shellAlive && ( ecmdParseStdinCommands(commands))) {
 
         rc = 0;
 
