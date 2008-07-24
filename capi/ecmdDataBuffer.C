@@ -4202,6 +4202,8 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   size_t compressedSize = PrdfCompressBuffer::compressedBufferMax(uncompressedSize);
   uint8_t* uncompressedData = new uint8_t[uncompressedSize];
   uint8_t* compressedData = new uint8_t[compressedSize];
+  /* The data has to be copied into a uint8_t buffer.  If you try to pass in (uint8_t*)this->iv_Data
+   instead of uncompressedData, you have big endian vs little endian issues */
   this->extract(uncompressedData, 0, this->getBitLength());
   
   PrdfCompressBuffer::compressBuffer(uncompressedData, uncompressedSize, compressedData, compressedSize);
@@ -4248,9 +4250,17 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
   size_t compressedSize = this->getByteLength() - byteOffset;
   uint8_t* uncompressedData = new uint8_t[uncompressedSize];
   uint8_t* compressedData = new uint8_t[compressedSize];
+  /* The data has to be copied into a uint8_t buffer.  If you try to pass in (uint8_t*)this->iv_Data
+   instead of compressedData, you have big endian vs little endian issues */
   this->extract(compressedData, (byteOffset * 8), (compressedSize * 8));
 
   PrdfCompressBuffer::uncompressBuffer(compressedData, compressedSize, uncompressedData, uncompressedSize);
+
+  /* Error check the length */
+  if (uncompressedBuffer.getByteLength() != uncompressedSize) {
+    ETRAC2("**** ERROR : Expected byte length of %d, got back %d", uncompressedBuffer.getByteLength(), uncompressedSize);
+    RETURN_ERROR(ECMD_DBUF_MISMATCH); 
+  }
 
   /* Insert the data and cleanup after ourselves */
   uncompressedBuffer.insert(uncompressedData, 0, length);
