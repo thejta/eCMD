@@ -23,12 +23,12 @@ Syntax: getclockspeed <ClockType> mhz|us
                          - io_refclock          <-- IO chip reference clock
                          - io_clock             <-- IO chip clock
 
-        mhz|khz|us|ps    Speed Type that read value will be formatted in:  either mhz,
-                         khz, microseconds (us) or picosecnds (ps)
+        mhz|khz|ps    Speed Type that read value will be formatted in:  either mhz,
+                         khz or picosecnds (ps)
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Examples:       > getclockspeed pu_refclock us
+        Examples:       > getclockspeed pu_refclock ps
                         > getclockspeed memctrl_refclock mhz
