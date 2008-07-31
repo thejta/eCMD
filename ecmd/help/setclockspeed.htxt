@@ -27,7 +27,6 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         following keyword(s) preceded by decimal numbers:
                         'mhz' for megahertz (100mhz)
                         'khz' for kilohertz (80khz)
-                        'us' for microseconds (10us)
                         'ps' for picoseconds (32ps)
                         'npu' for nominal percentage up (1npu)
                         'npd' for nominal percentage down (3npd)
@@ -46,7 +45,7 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
         --------------------------------------------------------------------------------
 
         Examples:       > setclockspeed pu_refclock 120mhz
-                        > setclockspeed memctrl_refclock 10us
+                        > setclockspeed memctrl_refclock 10ps
                         > setclockspeed pu_refclock 3npd
                         > setclockspeed pu pu_refclock 150mult 10div
 
