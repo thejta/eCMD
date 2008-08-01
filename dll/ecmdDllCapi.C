@@ -1057,14 +1057,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any cage args */
     if (ecmdUserArgs.cage.length()) {
-      /* See if the user specified -aall or -kall */
-      if (ecmdUserArgs.cage == "all") {
-        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-        cageType = ALL;
-      }
-
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-      else if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
+      if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
         if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
           dllOutputError("dllQuerySelected - cage (-k#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
@@ -1078,6 +1072,12 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         i_target.cageState = ECMD_TARGET_FIELD_VALID;
         i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str());
         cageType = SINGLE;
+      }
+
+      /* See if the user specified -aall or -kall */
+     else if (ecmdUserArgs.cage == "all") {
+        i_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        cageType = ALL;
       }
 
       /* See if the user specified -aft or -kft */
@@ -1140,14 +1140,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any node args */
     if (ecmdUserArgs.node.length()) {
-      /* See if the user specified -aall or -nall */
-      if (ecmdUserArgs.node == "all") {
-        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-        nodeType = ALL;
-      }
-
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-      else if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
+      if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
         if (!dllIsValidTargetString(ecmdUserArgs.node)) {
           dllOutputError("dllQuerySelected - node (-n#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
@@ -1161,6 +1155,12 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         i_target.nodeState = ECMD_TARGET_FIELD_VALID;
         i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str());
         nodeType = SINGLE;
+      }
+
+      /* See if the user specified -aall or -nall */
+      else if (ecmdUserArgs.node == "all") {
+        i_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        nodeType = ALL;
       }
 
       /* See if the user specified -aft or -nft */
@@ -1224,14 +1224,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any slot args */
     if (ecmdUserArgs.slot.length()) {
-      /* See if the user specified -aall or -sall */
-      if (ecmdUserArgs.slot == "all") {
-        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-        slotType = ALL;
-      }
-
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-      else if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
+      if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
         if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
           dllOutputError("dllQuerySelected - slot (-s#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
@@ -1245,6 +1239,12 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         i_target.slotState = ECMD_TARGET_FIELD_VALID;
         i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str());
         slotType = SINGLE;
+      }
+
+      /* See if the user specified -aall or -sall */
+      else if (ecmdUserArgs.slot == "all") {
+        i_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+        slotType = ALL;
       }
 
       /* See if the user specified -aft or -sft */
@@ -1308,14 +1308,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any pos args */
     if (ecmdUserArgs.pos.length()) {
-      /* See if the user specified -aall or -pall */
-      if (ecmdUserArgs.pos == "all") {
-        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-        posType = ALL;
-      }
-
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-      else if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
+      if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
         if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
           dllOutputError("dllQuerySelected - pos (-p#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
@@ -1329,6 +1323,12 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         i_target.posState = ECMD_TARGET_FIELD_VALID;
         i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str());
         posType = SINGLE;
+      }
+
+      /* See if the user specified -aall or -pall */
+      else if (ecmdUserArgs.pos == "all") {
+        i_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+        posType = ALL;
       }
 
       /* See if the user specified -aft or -pft */
@@ -1391,14 +1391,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any chipUnitNum args */
     if (ecmdUserArgs.chipUnitNum.length()) {
-      /* See if the user specified -aall or -call */
-      if (ecmdUserArgs.chipUnitNum == "all") {
-        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-        chipUnitNumType = ALL;
-      }
-
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-      else if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
+      if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
         if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
           dllOutputError("dllQuerySelected - chipUnitNum/core (-c#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
@@ -1412,6 +1406,12 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
         i_target.chipUnitNum = (uint32_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
         chipUnitNumType = SINGLE;
+      }
+
+      /* See if the user specified -aall or -call */
+      else if (ecmdUserArgs.chipUnitNum == "all") {
+        i_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        chipUnitNumType = ALL;
       }
 
       /* See if the user specified -aft or -cft */
@@ -1474,14 +1474,8 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
 
     /* Did the user specify any thread args */
     if (ecmdUserArgs.thread.length()) {
-      /* See if the user specified -aall or -tall */
-      if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread == "alive") {
-        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-        threadType = ALL;
-      }
-
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
-      else if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
+      if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
         if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
           dllOutputError("dllQuerySelected - thread (-t#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
@@ -1495,6 +1489,12 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         i_target.threadState = ECMD_TARGET_FIELD_VALID;
         i_target.thread = (uint32_t)atoi(ecmdUserArgs.thread.c_str());
         threadType = SINGLE;
+      }
+
+      /* See if the user specified -aall or -tall */
+      else if (ecmdUserArgs.thread == "all" || ecmdUserArgs.thread == "alive") {
+        i_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        threadType = ALL;
       }
 
       /* See if the user specified -aft or -tft */
