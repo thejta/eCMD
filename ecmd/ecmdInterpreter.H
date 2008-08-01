@@ -109,6 +109,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]);
 /* ecmdSimUser.C */
 #ifndef REMOVE_SIM
 uint32_t ecmdSimaetUser(int argc, char * argv[]);
+uint32_t ecmdSimCallFusionCommandUser(int argc, char * argv[]);
 uint32_t ecmdSimcheckpointUser(int argc, char * argv[]);
 uint32_t ecmdSimclockUser(int argc, char * argv[]);
 uint32_t ecmdSimechoUser(int argc, char * argv[]);

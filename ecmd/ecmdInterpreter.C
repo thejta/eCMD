@@ -540,6 +540,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #ifndef REMOVE_SIM
         } else if (!strcmp(argv[0], "simaet")) {
           rc = ecmdSimaetUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simcallfusioncommand")) {
+          rc = ecmdSimCallFusionCommandUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simcheckpoint")) {
           rc = ecmdSimcheckpointUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simclock")) {

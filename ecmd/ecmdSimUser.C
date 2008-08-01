@@ -1155,6 +1155,47 @@ uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]) {
 
 }
 
+uint32_t ecmdSimCallFusionCommandUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  std::string object, id, command, returnString, printed;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  if (argc < 3) {
+    ecmdOutputError("simcallfusioncommand - At least 3 arguments (fusion object, replica ID and command) is required for simcallfusioncommand.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  // Parse the input args
+  object = argv[0];
+  id = argv[1];
+
+  // The command could have spaces in it, so make sure we pull it all in
+  for (int idx = 2; idx < argc; idx++) {
+    command += argv[idx];
+    command += " ";
+  }
+
+  returnString = simCallFusionCommand(object.c_str(), id.c_str(), command.c_str());
+
+  //Print Output
+  printed = "simcallfusioncommand - Output from executing the command '" + command + "':\n\n";
+  ecmdOutput(printed.c_str());
+  
+  if(returnString.length() != 0) {
+    ecmdOutput(returnString.c_str());
+  } else {
+    ecmdOutput("No Output received from simCallFusionCommand\n");
+  }
+
+  return rc;
+}
+
 
 uint32_t ecmdSimTckIntervalUser(int argc, char * argv[]) {
 
