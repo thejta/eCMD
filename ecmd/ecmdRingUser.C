@@ -53,7 +53,8 @@ struct ecmdLatchDataEntry {
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 struct ecmdCheckRingData {
   std::string ringName;                 ///< Name of ring
-  int chipUnit;                         ///< chipUnit value -1 if not a chipUnit ring
+  std::string chipUnitType;                 ///< Name of ring
+  int chipUnitNum;                         ///< chipUnit value -1 if not a chipUnit ring
 };
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
@@ -1766,9 +1767,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  target.chipType = chipType;
+  target.chipType = argv[0];
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
@@ -1781,9 +1780,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   
   std::string printed;
   char outstr[300];
-  uint32_t pattern0 = 0xAAAA0000;
-  uint32_t pattern1 = 0x5555FFFF;
-  uint32_t pattern = 0x0;
+  uint32_t pattern = 0xA5A5A5A5;
   std::string repPattern;
   
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
@@ -1809,19 +1806,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       /* Setup our chipUnit looper if needed */
       cuTarget = target;
       if (curRingData->isChipUnitRelated) {
-        /* Error check the chipUnit returned */
-        if (!curRingData->isChipUnitMatch(chipUnitType)) {
-          printed = "checkrings - Provided chipUnit \"";
-          printed += chipUnitType;
-          printed += "\" doesn't match chipUnit returned by queryRing \"";
-          printed += curRingData->relatedChipUnit + "\"\n";
-          ecmdOutputError( printed.c_str() );
-          rc = ECMD_INVALID_ARGS;
-          break;
-        }
         /* If we have a chipUnit, set the state fields properly */
-        if (chipUnitType != "") {
-          cuTarget.chipUnitType = chipUnitType;
+        if (curRingData->relatedChipUnit != "") {
+          cuTarget.chipUnitType = curRingData->relatedChipUnit;
           cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
         cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
@@ -1831,14 +1818,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
       } else { // !curRingData->isChipUnitRelated
-        if (chipUnitType != "") {
-          printed = "checkrings - A chipUnit \"";
-          printed += chipUnitType;
-          printed += "\" was given on a non chipUnit ring\n";
-          ecmdOutputError(printed.c_str());
-          rc = ECMD_INVALID_ARGS;
-          break;
-        }
         // Setup the variable oneLoop variable for this non-chipUnit case
         oneLoop = 1;
       }
@@ -1854,9 +1833,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
         ringlog.ringName = ringName;
         if (curRingData->isChipUnitRelated) {
-          ringlog.chipUnit = cuTarget.chipUnitNum;
+          ringlog.chipUnitNum = cuTarget.chipUnitNum;
+          ringlog.chipUnitType = cuTarget.chipUnitType;
         } else {
-          ringlog.chipUnit = -1;
+          ringlog.chipUnitNum = -1;
         }
 
         /* Print out the current target */
@@ -1881,14 +1861,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         for (int i = 0; i < 4; i++) {
 
           if (i == 0) {
-            pattern = pattern0;
             ringBuffer.flushTo0();
-            ringBuffer.setWord(0, pattern);  //write the pattern
           }
           else if (i == 1) {
-            pattern = pattern1;
             ringBuffer.flushTo1();
-            ringBuffer.setWord(0, pattern);  //write the pattern
           }
           else if ( i == 2 ) {
             // repeating pattern of 1001010s
@@ -1902,7 +1878,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);}
               if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
             }
-
           }
           else if ( i == 3 ) {
             // repeating pattern of 0110101s
@@ -1916,9 +1891,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);}
               if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
             }
-
           }
 
+          // Stick a fixed pattern at the front so we can tell if the ring shifted
+          // This now matches the pattern used by the p7/torrent fsi2pib design
+          ringBuffer.setWord(0, pattern);  //write the pattern
 
           rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
           if (rc) {
@@ -2059,11 +2036,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     sprintf(outstr,"Passed Rings : %lu\n", (unsigned long)passedRings.size());
     ecmdOutput(outstr);
     for (std::list<ecmdCheckRingData>::iterator strit = passedRings.begin(); strit != passedRings.end(); strit ++) {
-      if (strit->chipUnit == -1) {
+      if (strit->chipUnitNum == -1) {
         printed = strit->ringName + " passed.\n";
         ecmdOutput(printed.c_str());
       } else {
-        sprintf(outstr,"%s on chipUnit %d passed.\n",strit->ringName.c_str(), strit->chipUnit);
+        sprintf(outstr,"%s on %s %d passed.\n",strit->ringName.c_str(), strit->chipUnitType.c_str(), strit->chipUnitNum);
         ecmdOutput(outstr);
       }
     }
@@ -2071,15 +2048,21 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     sprintf(outstr,"Failed Rings : %lu\n", (unsigned long)failedRings.size());
     ecmdOutput(outstr);
     for (std::list<ecmdCheckRingData>::iterator strit2 = failedRings.begin(); strit2 != failedRings.end(); strit2 ++) {
-      if (strit2->chipUnit == -1) {
+      if (strit2->chipUnitNum == -1) {
         printed = strit2->ringName + " failed.\n";
         ecmdOutput(printed.c_str());
       } else {
-        sprintf(outstr,"%s on chipUnit %d failed.\n",strit2->ringName.c_str(), strit2->chipUnit);
+        sprintf(outstr,"%s on %s %d failed.\n",strit2->ringName.c_str(), strit2->chipUnitType.c_str(), strit2->chipUnitNum);
         ecmdOutput(outstr);
       }
 
     }
+    ecmdOutput("============================================\n");
+    ecmdOutput("CheckRings Summary : \n");
+    sprintf(outstr,"Passed Rings : %lu \n", (unsigned long)passedRings.size());
+    ecmdOutput(outstr);
+    sprintf(outstr,"Failed Rings : %lu\n", (unsigned long)failedRings.size());
+    ecmdOutput(outstr);
     ecmdOutput("============================================\n");
 
     /* Make the final return code a failure if we found a miscompare */
