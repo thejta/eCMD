@@ -565,8 +565,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     speedType = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
   } else if ((strpos = clockspeed.find("khz")) != std::string::npos)  {
     speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
-  } else if ((strpos = clockspeed.find("us")) != std::string::npos) {
-    speedType = ECMD_CLOCK_CYCLETIME_US_SPEC;
   } else if ((strpos = clockspeed.find("npu")) != std::string::npos) {
     speedType = ECMD_CLOCK_NOMINAL_PERCENT_UP;
   } else if ((strpos = clockspeed.find("npd")) != std::string::npos) {
@@ -797,12 +795,10 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     speedType = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
   } else if (clockspeed == "khz")  {
     speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
-  } else if (clockspeed == "us") {
-    speedType = ECMD_CLOCK_CYCLETIME_US_SPEC;
   } else if (clockspeed == "ps") {
     speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
   } else {
-    ecmdOutputError("getclockspeed - keyword \"mhz\", \"khz\", \"ps\" or \"us\" not found in clock speed field\n");
+    ecmdOutputError("getclockspeed - keyword \"mhz\", \"khz\", \"ps\" or not found in clock speed field\n");
     return ECMD_INVALID_ARGS;
   }
   
