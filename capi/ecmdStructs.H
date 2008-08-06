@@ -806,7 +806,9 @@ inline ecmdChipUnitData::~ecmdChipUnitData() { }
 #define ECMD_CHIPFLAG_RSVDBUS1  0x00000000      ///< This is reserved for later expansion (should not be used)
 #define ECMD_CHIPFLAG_JTAG      0x40000000
 #define ECMD_CHIPFLAG_FSI       0x80000000
-#define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used) 
+#define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used)
+
+#define ECMD_CHIPFLAG_32BIT_HEADERCHECK  0x08000000 
 
 #define ECMD_FLAG_STATEMASK         0x0000001F
 #define ECMD_FLAG_CONFIGED_USEABLE  0x00000001

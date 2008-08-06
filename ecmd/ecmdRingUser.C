@@ -1738,6 +1738,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   std::list<ecmdCheckRingData> passedRings;   ///< Names of rings that failed
   bool verbose = false;                 ///< Verbose error display
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  std::string printed;
+  ecmdChipData chipData;                ///< Chip data to find out bus info
 
 
   /************************************************************************/
@@ -1767,20 +1769,30 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
 
   //Setup the target that will be used to query the system config 
-  target.chipType = argv[0];
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string ringName = argv[1];
 
-  if (ringName == "all")
+  if (ringName == "all") {
     allRingsFlag = true;
+  }
 
-  
-  std::string printed;
+  // Make sure it was a chip level target the user gave
+  if (allRingsFlag && chipUnitType != "") {
+    printed = "checkrings - A chipUnit \"";
+    printed += chipUnitType;
+    printed += "\" was given on for an all rings test.  Please give just the chip.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
   char outstr[300];
-  uint32_t pattern = 0xA5A5A5A5;
+  uint32_t checkPattern = 0xA5A5A5A5;
   std::string repPattern;
   
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
@@ -1788,7 +1800,14 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
-    
+
+    // Get the chip data so we know if we have to deal with headerchecks
+    rc = ecmdGetChipData(target, chipData);
+    if (rc) {
+      coeRc = rc;
+      continue;
+    }
+
     if (allRingsFlag) {
       rc = ecmdQueryRing(target, queryRingData, NULL, ECMD_QUERY_DETAIL_LOW);
     } else {
@@ -1806,6 +1825,19 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       /* Setup our chipUnit looper if needed */
       cuTarget = target;
       if (curRingData->isChipUnitRelated) {
+        // We have to do different things for an all check vs. a specific ring
+        // For an all check, it needs to be a chip level target and we use the chipunit returned
+        // For a ring specific check, what the user gave has to match what the query returned
+        if (!allRingsFlag && !curRingData->isChipUnitMatch(chipUnitType)) {
+          printed = "checkrings - Provided chipUnit \"";
+          printed += chipUnitType;
+          printed += "\" doesn't match chipUnit returned by queryRing \"";
+          printed += curRingData->relatedChipUnit + "\"\n";
+          ecmdOutputError(printed.c_str());
+          coeRc = ECMD_INVALID_ARGS;
+          break;
+        }
+
         /* If we have a chipUnit, set the state fields properly */
         if (curRingData->relatedChipUnit != "") {
           cuTarget.chipUnitType = curRingData->relatedChipUnit;
@@ -1818,6 +1850,15 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
         if (rc) break;
       } else { // !curRingData->isChipUnitRelated
+        // If it's not an all rings test, make sure the user didn't specify a chipunit
+        if (!allRingsFlag && chipUnitType != "") {
+          printed = "checkrings - A chipUnit \"";
+          printed += chipUnitType;
+          printed += "\" was given on a non chipUnit ring\n";
+          ecmdOutputError(printed.c_str());
+          coeRc = ECMD_INVALID_ARGS;
+          break;
+        }
         // Setup the variable oneLoop variable for this non-chipUnit case
         oneLoop = 1;
       }
@@ -1861,9 +1902,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         for (int i = 0; i < 4; i++) {
 
           if (i == 0) {
+            repPattern = "0000000";
             ringBuffer.flushTo0();
           }
           else if (i == 1) {
+            repPattern = "1111111";
             ringBuffer.flushTo1();
           }
           else if ( i == 2 ) {
@@ -1893,10 +1936,16 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             }
           }
 
-          // Stick a fixed pattern at the front so we can tell if the ring shifted
-          // This now matches the pattern used by the p7/torrent fsi2pib design
-          ringBuffer.setWord(0, pattern);  //write the pattern
+          // Stick a fixed checkPattern at the front so we can tell if the ring shifted
+          // Only do this on non 32 bit header check chips.
+          // On those chips, the hardware is taking care of doing the check, so clear the data
+          if (chipData.chipFlags & ECMD_CHIPFLAG_32BIT_HEADERCHECK) {
+            ringBuffer.clearBit(0, 32);
+          } else {
+            ringBuffer.setWord(0, checkPattern);  //write the pattern
+          }
 
+          // Write in my data and get it back out.
           rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
@@ -1909,27 +1958,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             validPosFound = true;
           }
 
-          if (i == 0) {
-            printed = "Performing 0's test on " + ringName + " ...\n";
-            ecmdOutput(printed.c_str());
-            rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-          }
-          else if (i == 1) {
-            printed = "Performing 1's test on " + ringName + " ...\n";
-            ecmdOutput(printed.c_str());
-            rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-          }
-          else if (i == 2) {
-            printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
-            ecmdOutput(printed.c_str());
-            rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
-          }
-          else if (i == 3) {
-            printed = "Performing  " + repPattern + "s pattern repeated test on " + ringName + " ...\n";
-            ecmdOutput(printed.c_str());
-            rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
-          }
-
+          printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
+          ecmdOutput(printed.c_str());
+          rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1937,73 +1968,57 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             coeRc = rc;
             continue;
           }
-          if ((i==0) || (i==1)) {
-            if (ringBuffer.getWord(0) != pattern) {
-              sprintf(outstr, "checkrings - Data fetched from ring %s did not match Pattern: %.08X Data: %.08X\n", ringName.c_str(), pattern, ringBuffer.getWord(0));
-              ecmdOutputWarning( outstr );
-              printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(cuTarget) + "\n";
-              ecmdOutputWarning( printed.c_str() );
-              foundProblem = true;
-            }
-            else {
-              /* Walk the ring looking for errors */
-              /* We need to not check the very last bit because it is the access latch and isn't actually scannable BZ#134 */
-              for (uint32_t bit = 32; bit < ringBuffer.getBitLength() - 1; bit ++ ) {
-                if (i == 0) {
-                  if (ringBuffer.isBitSet(bit)) {
-                    if (verbose) {
-                      sprintf(outstr,"checkrings - Non-zero bits found in 0's ring test at bit %d for ring %s\n", bit, ringName.c_str());
-                      ecmdOutputWarning( outstr );
-                    }
-                    foundProblem = true;
-                  }
-                } else if (i == 1) {
-                  if (ringBuffer.isBitClear(bit)) {
-                    if (verbose) {
-                      sprintf(outstr,"checkrings - Non-one bits found in 1's ring test at bit %d for ring %s\n", bit, ringName.c_str());
-                      ecmdOutputWarning( outstr);
-                    }
-                    foundProblem = true;
-                  }
-                }
-              }
-              if (foundProblem) {
-                printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(cuTarget) + "\n";
-                ecmdOutputWarning( printed.c_str() );
-              }
 
+          // Check our results
+
+          // Do not test the last bit or the ring (The access bit)
+          if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) {
+            ringBuffer.setBit((readRingBuffer.getBitLength())-1);
+          } else {
+            ringBuffer.clearBit((readRingBuffer.getBitLength())-1);
+          }
+
+          // On the hardware headercheck chips, clear the headercheck data out so we don't get false fails
+          // On non-headercheck chips, check the starting pattern
+          if (chipData.chipFlags & ECMD_CHIPFLAG_32BIT_HEADERCHECK) {
+            readRingBuffer.clearBit(0,32);
+          } else {
+            if (readRingBuffer.getWord(0) != checkPattern) {
+              sprintf(outstr, "checkrings - Data fetched from ring %s did not match expected header: %.08X.  Found: %.08X\n", ringName.c_str(), checkPattern, readRingBuffer.getWord(0));
+              ecmdOutputWarning( outstr );
+              foundProblem = true;
             }
           }
-          else {//repeated patterns
-            // Do not test the last bit or the ring (The access bit)
-            if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) { ringBuffer.setBit((readRingBuffer.getBitLength())-1);   }
-            else                                { ringBuffer.clearBit((readRingBuffer.getBitLength())-1); }
-            if (readRingBuffer != ringBuffer) {
-              sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %ss\n", ringName.c_str(),
-		      repPattern.c_str());
-              ecmdOutputWarning( outstr );
-              if (verbose) {
-                printed = "Offset  Data\n";
-                printed += "------------------------------------------------------------------------\n";
-                ecmdOutput( printed.c_str() );
-                for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
-                  printf("%6d ", y);
-                  if ( (y+64) > readRingBuffer.getBitLength()) {
-                    printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
-                  } else {
-                    printed = readRingBuffer.genBinStr(y,64) + "\n";
-                  }
-                  y += 64;
-                  ecmdOutput( printed.c_str() );
+
+          if (readRingBuffer != ringBuffer) {
+            sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %s's\n", ringName.c_str(),
+                    repPattern.c_str());
+            ecmdOutputWarning( outstr );
+            if (verbose) {
+              printed = "Offset  Data\n";
+              printed += "------------------------------------------------------------------------\n";
+              ecmdOutput( printed.c_str() );
+              for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
+                printf("%6d ", y);
+                if ( (y+64) > readRingBuffer.getBitLength()) {
+                  printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
+                } else {
+                  printed = readRingBuffer.genBinStr(y,64) + "\n";
                 }
-                printed = "checkrings - Error occurred performing checkring on " + ecmdWriteTarget(cuTarget) + "\n";
-                ecmdOutputWarning( printed.c_str() );
+                y += 64;
+                ecmdOutput( printed.c_str() );
               }
-              foundProblem = true;
-            } 
+            }
+            foundProblem = true;
+          } 
+
+          if (foundProblem) {
+            printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(cuTarget) + "\n";
+            ecmdOutputWarning( printed.c_str() );
           }
 
         } /* Test for loop */
+
         //Restore ring state
         printed = "Restoring the ring state.\n\n";
         ecmdOutput( printed.c_str() );
