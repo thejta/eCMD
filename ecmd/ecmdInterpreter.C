@@ -367,7 +367,11 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_GPIO_FUNCTIONS
         } else if (!strcmp(argv[0], "gpioconfig")) {
           rc = ecmdGpioConfigUser(argc - 1, argv + 1);
-#endif // ECMD_REMOVE_GPIO_FUNCTIONS
+#endif // ECMD_REMOVE_GPIO_FUNCTIONS        
+ #ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+        } else if (!strcmp(argv[0], "getfastarray")) {
+          rc = ecmdGetFastArrayUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
         } 
           else {
           /* We don't understand this function, let's let the caller know */
