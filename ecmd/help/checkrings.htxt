@@ -1,5 +1,5 @@
 
-Syntax: checkrings <Chip[.ChipUnit]> <RingSelect>
+Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-flush0] [-flush1] [-pattern0] [-pattern1]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -21,6 +21,18 @@ Syntax: checkrings <Chip[.ChipUnit]> <RingSelect>
                              ecmdquery rings pu                     
 	
         -v   [optional] Display detailed ring failure data
+        
+        -nosr     [opt] Do not perform the save/restore of the ring
+
+                  NOTE: If none of the below options are specified, all 4 are on by default
+	
+        -flush0   [opt] Perform a test with all 0's
+
+        -flush1   [opt] Perform a test with all 1's
+
+        -pattern0 [opt] Perform a test with a 0's heavy pattern of 1001010
+
+        -pattern1 [opt] Perform a test with a 1's heavy pattern of 0110101
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions

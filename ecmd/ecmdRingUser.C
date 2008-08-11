@@ -1740,12 +1740,35 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   std::string printed;
   ecmdChipData chipData;                ///< Chip data to find out bus info
-
+  bool saveRestore;              ///< Save restore the ring data?
+  // Selects for the different scan tests
+  bool flush0;
+  bool flush1;
+  bool pattern0;
+  bool pattern1;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   verbose = ecmdParseOption(&argc, &argv, "-v");
+
+  saveRestore = !ecmdParseOption(&argc, &argv, "-nosr");
+
+  flush0 = ecmdParseOption(&argc, &argv, "-flush0");
+
+  flush1 = ecmdParseOption(&argc, &argv, "-flush1");
+
+  pattern0 = ecmdParseOption(&argc, &argv, "-pattern0");
+
+  pattern1 = ecmdParseOption(&argc, &argv, "-pattern1");
+
+  /* If none of the options were specified, turn them all on */
+  if ((flush0 + flush1 + pattern0 + pattern1) == 0) {
+    flush0 = true;
+    flush1 = true;
+    pattern0 = true;
+    pattern1 = true;    
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1883,17 +1906,19 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         /* Print out the current target */
         printed = ecmdWriteTarget(cuTarget) + "\n"; ecmdOutput(printed.c_str());
 
-        //Save the Ring state 
-        printed = "Saving the ring state before performing pattern testing.\n";
-        ecmdOutput(printed.c_str());   
-        rc = getRing (cuTarget, ringName.c_str(), ringOrgBuffer);
-        if (rc) {
-          printed = "checkrings - Error occurred performing getring on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
+        //Save the Ring state
+        if (saveRestore) {
+          printed = "Saving the ring state before performing pattern testing.\n";
+          ecmdOutput(printed.c_str());   
+          rc = getRing (cuTarget, ringName.c_str(), ringOrgBuffer);
+          if (rc) {
+            printed = "checkrings - Error occurred performing getring on ";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
 
-          /* Go onto the next one */
-          failedRings.push_back(ringlog);
-          continue;
+            /* Go onto the next one */
+            failedRings.push_back(ringlog);
+            continue;
+          }
         }
 
         ringBuffer.setBitLength(curRingData->bitLength);
@@ -1902,14 +1927,23 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         for (int i = 0; i < 4; i++) {
 
           if (i == 0) {
+            if (!flush0) {
+              continue;
+            }
             repPattern = "0000000";
             ringBuffer.flushTo0();
           }
           else if (i == 1) {
+            if (!flush1) {
+              continue;
+            }
             repPattern = "1111111";
             ringBuffer.flushTo1();
           }
-          else if ( i == 2 ) {
+          else if (i == 2) {
+            if (!pattern0) {
+              continue;
+            }
             // repeating pattern of 1001010s
             repPattern = "1001010";
             for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
@@ -1922,7 +1956,10 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);  }
             }
           }
-          else if ( i == 3 ) {
+          else if (i == 3) {
+            if (!pattern1) {
+              continue;
+            }
             // repeating pattern of 0110101s
             repPattern = "0110101";
             for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
@@ -2020,15 +2057,17 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         } /* Test for loop */
 
         //Restore ring state
-        printed = "Restoring the ring state.\n\n";
-        ecmdOutput( printed.c_str() );
-        rc = putRing (cuTarget, ringName.c_str(), ringOrgBuffer);
-        if (rc) {
-          printed = "checkrings - Error occurred performing putring on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
+        if (saveRestore) {
+          printed = "Restoring the ring state.\n\n";
+          ecmdOutput( printed.c_str() );
+          rc = putRing (cuTarget, ringName.c_str(), ringOrgBuffer);
+          if (rc) {
+            printed = "checkrings - Error occurred performing putring on ";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+          }
         }
 
         if (foundProblem) {
