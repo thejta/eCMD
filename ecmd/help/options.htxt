@@ -1,7 +1,7 @@
 eCMD Global Options
 
 All of these options are parsed for by eCMD in ecmdCommandArgs.  The help file
-for every command has which of these commands is supported.
+for every command has which of these options is supported.
 
 Targeting Parms
 --------------------------------------------------------------------------------
