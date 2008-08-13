@@ -1,5 +1,6 @@
 
-Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-flush0] [-flush1] [-pattern0] [-pattern1]
+Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswrite]
+                                                  [-flush0] [-flush1] [-pattern0] [-pattern1]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -20,9 +21,13 @@ Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-flush0] [-flush
                         Ex:  ecmdquery rings memctrl
                              ecmdquery rings pu                     
 	
-        -v   [optional] Display detailed ring failure data
+        -v        [opt] Display detailed ring failure data
         
         -nosr     [opt] Do not perform the save/restore of the ring
+
+	-bsread   [opt] Do a broadside read of the ring when testing patterns. sim only.
+
+	-bswrite  [opt] Do a broadside write of the ring when testing patterns. sim only.
 
                   NOTE: If none of the below options are specified, all 4 are on by default
 	
