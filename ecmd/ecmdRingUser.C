@@ -1276,7 +1276,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (ringData->relatedChipUnit != chipUnitType) {
+      if (!ringData->isChipUnitMatch(chipUnitType)) {
         printed = "putbits - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryRing \"";
@@ -1746,6 +1746,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool flush1;
   bool pattern0;
   bool pattern1;
+  // Does the user want to force a broadside read or write of the data
+  bool bsRead = false;
+  bool bsWrite = false;
+  std::string bsOriginalState;
+  std::string bsModifiedState;
+  uint32_t configNum;
+  ecmdConfigValid_t configValid;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1770,6 +1777,30 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     pattern1 = true;    
   }
 
+  bsRead = ecmdParseOption(&argc, &argv, "-bsread");
+
+  bsWrite = ecmdParseOption(&argc, &argv, "-bswrite");
+
+  /* Error check some conditions related to these options */
+  if (bsRead || bsWrite) {
+
+    // If both are on, tell the user to just turn on broadside mode
+    if (bsRead && bsWrite) {
+      ecmdOutputError("checkrings - If you want to do both a broadside read and write, please set SIM_BROADSIDE_MODE to include scan.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    // Make sure broadside isn't already on with these flags
+    rc = ecmdGetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", configValid, bsOriginalState, configNum);
+    if (rc) return rc;
+    
+    /* Set a global flag to know if we are starting out with broadside on */
+    if (bsOriginalState.find("scan") != std::string::npos) {
+      ecmdOutputError("checkrings - To use the -bsread/-bswrite options, SIM_BROADSIDE_MODE \"scan\" can't be on to start.\n");
+      return ECMD_INVALID_ARGS;
+    }
+  }
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -1789,7 +1820,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     ecmdOutputError("checkrings - Type 'checkrings -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
@@ -1870,7 +1900,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         /* Init the chipUnit loop */
-        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+        /* For an all loop, we want to default to all targets at the chipUnit level
+          It doesn't make sense to have the "all" option just do 0 by default */
+        if (allRingsFlag) {
+          rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP_DEFALL, cuLooper);
+        } else {
+          rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+        }
         if (rc) break;
       } else { // !curRingData->isChipUnitRelated
         // If it's not an all rings test, make sure the user didn't specify a chipunit
@@ -1982,6 +2018,18 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             ringBuffer.setWord(0, checkPattern);  //write the pattern
           }
 
+           /* If the user wants to force a broadside write, handle that before doing the put below */
+           if (bsWrite) {
+             if (bsOriginalState == "none") {
+               bsModifiedState = "scan";
+             } else { // Other options are on, tack it on
+               bsModifiedState = bsOriginalState + ",scan";       
+             }
+             /* Set it */
+             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
+             if (rc) return rc;
+           }
+
           // Write in my data and get it back out.
           rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
           if (rc) {
@@ -1995,6 +2043,24 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             validPosFound = true;
           }
 
+          /* If we did a broadside write, restore state */
+          if (bsWrite) {
+            rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+            if (rc) return rc;
+          }
+
+          /* If the user wants to force a broadside read, handle that before doing the get below */
+          if (bsRead) {
+            if (bsOriginalState == "none") {
+              bsModifiedState = "scan";
+            } else { // Other options are on, tack it on
+              bsModifiedState = bsOriginalState + ",scan";       
+            }
+            /* Set it */
+            rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
+            if (rc) return rc;
+          }
+
           printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
           ecmdOutput(printed.c_str());
           rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
@@ -2006,7 +2072,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             continue;
           }
 
-          // Check our results
+          /* If we did a broadside read, restore state */
+          if (bsRead) {
+            rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+            if (rc) return rc;
+          }
+
+          /******* Check our results *******/
 
           // Do not test the last bit or the ring (The access bit)
           if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) {
