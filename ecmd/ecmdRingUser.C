@@ -512,7 +512,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
-  ecmdLatchData latchData;                      ///< Latch data from query
+  std::list<ecmdLatchData>::iterator latchData; ///< Latch data from the query
   std::string printed;
   std::list<ecmdLatchEntry> latchEntry;         ///< Data returned from getLatch
   char temp[300];                               ///< Temp string buffer
@@ -690,15 +690,18 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       return ECMD_DLL_INVALID;
     }  
 
+    // Query good, assign over
+    latchData = queryLatchData.begin();
+
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (latchData.isChipUnitRelated) {
+    if (latchData->isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (!latchData.isChipUnitMatch(chipUnitType)) {
+      if (!latchData->isChipUnitMatch(chipUnitType)) {
         printed = "getlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += latchData.relatedChipUnit + "\"\n";
+        printed += latchData->relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -714,7 +717,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !latchData.isChipUnitRelated
+    } else { // !latchData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -728,7 +731,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((latchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
       if (ringName.length() != 0)
