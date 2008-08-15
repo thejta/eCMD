@@ -1,0 +1,20 @@
+
+Syntax: cipgetmemproc <MemAddress> <NumBytes>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Display the contents of mainstore using the processor
+                        In addition, the tag and ecc information is also displayed
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        MemAddress      64 Bit address to read from (Hex-Right)
+
+        NumBytes        Number of bytes to fetch (Decimal).
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipgetmemproc 1000 128 -p0
