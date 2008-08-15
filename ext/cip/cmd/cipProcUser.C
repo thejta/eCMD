@@ -624,11 +624,298 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
 }
 #endif // CIP_REMOVE_VR_FUNCTIONS
 
+#ifndef CIP_REMOVE_MEMORY_FUNCTIONS
+uint32_t ecmdCipGetMemProcUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string outputformat = "mem";     ///< Output format - default to 'mem'
+  ecmdDataBuffer memoryData;            ///< Buffer to hold return data from memory
+  ecmdDataBuffer memoryTags;            ///< Buffer to hold return data from memory tags
+  ecmdDataBuffer memoryEcc;             ///< Buffer to hold return data from memory ecc
+  ecmdDataBuffer memoryEccError;        ///< Buffer to hold return data from memory ecc errors
+  bool validPosFound = false;           ///< Did the looper find anything?
+  ecmdChipTarget target;                ///< Current target being operated on
+  uint64_t address;                     ///< The address from the command line
+  uint32_t numBytes = ECMD_UNSET;       ///< Number of bytes from the command line
+  std::string cmdlineName;              ///< Stores the name of what the command line function would be.
+  int match;                            ///< For sscanf
+  std::string printLine;                ///< Output data
+
+  /************************************************************************/
+  /* Setup the cmdlineName variable                                       */
+  /************************************************************************/
+  cmdlineName = "cipgetmemproc";
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  //Setup the target that will be used to query the system config
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if ((numBytes == ECMD_UNSET) && (argc < 2)) {  //chip + address
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  } else if (argc < 1) { 
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  // Get the address
+  if (!ecmdIsAllHex(argv[0])) {
+    printLine = cmdlineName + " - Non-hex characters detected in address field\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+#ifdef _LP64
+  match = sscanf(argv[0], "%lx", &address);
+#else
+  match = sscanf(argv[0], "%llx", &address);
+#endif
+  if (match != 1) {
+    ecmdOutputError("Error occurred processing address!\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  // Get the number of bytes
+  if (numBytes == ECMD_UNSET) {
+    numBytes = (uint32_t)atoi(argv[1]);
+  }
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    rc = cipGetMemProc(target, address, numBytes, memoryData, memoryTags, memoryEcc, memoryEccError);
+    if (rc) {
+      printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
+      printLine += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printLine.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    // Now print the data
+    printLine = ecmdWriteTarget(target);
+    printLine += "\n";
+
+    // Not using something like ecmdWriteDataFormatted because of all the special printing with tags, etc..
+    // This code isn't pretty, but it gets the job done
+    uint32_t wordsDone = 0;
+    char tempstr[100];
+    uint64_t myAddr = address;
+
+    // Handle whole 64 bit blocks
+    while ((memoryData.getWordLength() - wordsDone) > 2) {
+      sprintf(tempstr,"%016llX: %08X %08X %s %s %s", (uint64_t)myAddr, memoryData.getWord(wordsDone), memoryData.getWord(wordsDone+1), memoryTags.genBinStr((wordsDone/2),1).c_str(), memoryEcc.genBinStr(((wordsDone/2) * 8), 8).c_str(), memoryEccError.genBinStr((wordsDone/2),1).c_str());
+      printLine += tempstr;
+
+      printLine += "\n";
+      myAddr += 8;
+      wordsDone += 2;
+    }
+
+    // See if we have any hangers on
+    if (memoryData.getByteLength() > (wordsDone * 4)) {
+      uint32_t byteCount = 0;
+      /* The address */
+      sprintf(tempstr,"%016llX: ", (uint64_t)myAddr);
+      printLine += tempstr;
+      /* Put on the remaining data */
+      for (uint32_t byte = wordsDone * 4; byte < memoryData.getByteLength(); byte++, byteCount++) {
+        printLine += memoryData.genHexLeftStr((byte * 4), 8);
+        /* Put a space between words */
+        if (byteCount == 3) {
+          printLine += " ";
+        }
+      }
+      /* Pad in for unused bytes */
+      for (uint32_t byte = byteCount; byte < 8; byte++) {
+        printLine += "  ";
+        /* Put a space between words */
+        if (byte == 3) {
+          printLine += " ";
+        }
+      }
+      /* Throw the tag information on the end */
+      sprintf(tempstr," %s %s %s", memoryTags.genBinStr((wordsDone/2),1).c_str(), memoryEcc.genBinStr(((wordsDone/2) * 8), 8).c_str(), memoryEccError.genBinStr((wordsDone/2),1).c_str());
+      printLine += tempstr;
+      printLine += "\n";
+    }
+
+    /* Put it all to the screen */
+    ecmdOutput( printLine.c_str() );
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    printLine = cmdlineName + " - Unable to find a valid chip to execute command on\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdCipPutMemProcUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  std::string inputformat = "x";        ///< Output format - default to 'mem'
+  ecmdDataBuffer inputData;             ///< Buffer to hold the data intended for memory
+  ecmdDataBuffer inputTag;              ///< Buffer to hold the data intended for memory tags
+  ecmdDataBuffer inputEcc;              ///< Buffer to hold the data intended for memory ecc
+  bool validPosFound = false;           ///< Did the looper find anything?
+  ecmdChipTarget target;                ///< Current target being operated on
+  uint64_t address = 0;                 ///< The address from the command line
+  std::string cmdlineName;              ///< Stores the name of what the command line function would be.
+  int match;                            ///< For sscanf
+  std::string printLine;                ///< Output data
+
+  /************************************************************************/
+  /* Setup the cmdlineName variable                                       */
+  /************************************************************************/
+  cmdlineName = "cipputmemproc";
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (argc < 4) {  //chip + address
+    printLine = cmdlineName + " - Too few arguments specified; you need an address, data, tag bit and error inject key.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  } else if(argc > 4) {
+    printLine = cmdlineName + " - Too many arguments specified; you only need an address, data, tag bit and error inject key.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState =   ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  
+  // Get the address
+  if (!ecmdIsAllHex(argv[0])) {
+    printLine = cmdlineName + " - Non-hex characters detected in address field\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+#ifdef _LP64
+  match = sscanf(argv[0], "%lx", &address);
+#else
+  match = sscanf(argv[0], "%llx", &address);
+#endif
+  if (match != 1) {
+    ecmdOutputError("Error occurred processing address!\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  // Read in the input data
+  rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
+  if (rc) {
+    printLine = cmdlineName + " - Problems occurred parsing input data, must be an invalid format\n";
+    ecmdOutputError(printLine.c_str());
+    return rc;
+  }
+
+  if (inputData.getBitLength() != 64) {
+    printLine = cmdlineName + " - Exactly 64 bits of input data has to be provided\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  // Read the input memory tag
+  inputTag.insertFromBinAndResize(argv[2]);
+
+  // Read the input memory ecc
+  inputEcc.insertFromBinAndResize(argv[3]);
+
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    rc = cipPutMemProc(target, address, 64, inputData, inputTag, inputEcc);
+    if (rc) {
+      printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
+      printLine += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printLine.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    // Write out who we wrote too
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printLine = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printLine.c_str());
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    printLine = cmdlineName + " - Unable to find a valid chip to execute command on\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+#endif // CIP_REMOVE_MEMORY_FUNCTIONS

@@ -1,0 +1,25 @@
+
+Syntax: putmemproc <MemAddress> <Data> <Tag> <EccError>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Set the contents of mainstore using the processor
+                        You can also set the tag and do an ecc error injec
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        MemAddress      64 Bit address to write to (Hex-Right). Not valid with -fd option
+
+        Data            Data to write into mainstore. Only allowed to write 64 bits
+
+        Tag             The tag bit for the data
+
+        EccError        00 & 11 is no error inject, 01 single-bit error inject
+                        10 double-bit error inject
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipputmemproc 10000 deadbeef80000000 1 00 -p0,1 
