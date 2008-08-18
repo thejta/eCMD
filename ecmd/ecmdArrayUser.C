@@ -352,8 +352,6 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
           uint32_t mismatchBit = 0;
           if (!ecmdCheckExpected(entit->buffer, expected, mismatchBit)) {
 
-            //@ make this stuff sprintf'd
-
             if (!printedHeader) {
               printed = ecmdWriteTarget(cuTarget) + " " + arrayName + "\n";
               printedHeader = true;
@@ -383,6 +381,8 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
             printed = "getarray - Expected          : ";
             printed += ecmdWriteDataFormatted(expected, outputformat);
             ecmdOutputError( printed.c_str() );
+            coeRc = ECMD_EXPECT_FAILURE;
+            continue;
           }
 
         }
