@@ -556,6 +556,13 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
 
   return rc;  
 }
+
+uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
+
+  ecmdOutputWarning("i2cmultiple - Currently not supoprted\n");
+  return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
 #endif // ECMD_REMOVE_I2C_FUNCTIONS
 
 #ifndef ECMD_REMOVE_GPIO_FUNCTIONS
