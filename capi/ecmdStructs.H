@@ -50,7 +50,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "10.0"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "10.1"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -233,17 +233,19 @@ typedef enum {
 } ecmdConfigValid_t;
 
 #define ECMD_CONFIG_VALID_FIELD_STRING  0x80000000
-#define ECMD_CONFIG_VALID_FIELD_INT32   0x40000000
-#define ECMD_CONFIG_VALID_FIELD_UINT32  0x20000000
+#define ECMD_CONFIG_VALID_FIELD_UINT32  0x40000000
+#define ECMD_CONFIG_VALID_FIELD_UINT64  0x20000000
 #define ECMD_CONFIG_VALID_FIELD_FLOAT   0x10000000
-
+/**
+ @brief Used by the get/set configuration functions to return the data
+*/
 struct ecmdConfigData {
+  uint32_t              validMask;  ///< Indicates which of the fields in this structure are valid
   std::string           cdString;   ///< If the output data is a string, will be populated
   uint32_t              cdUint32;   ///< If the output data is a uint32_t, will be populated
-  int32_t               cdInt32;    ///< If the output data is a string, will be populated
-  float                 cdFloat;    ///< If the output data is a string, will be populated
+  uint64_t              cdUint64;   ///< If the output data is a uint64_t, will be populated
+  float                 cdFloat;    ///< If the output data is a float, will be populated
 };
-
 
 
 /**

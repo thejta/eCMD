@@ -2093,9 +2093,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @brief Retrieve the value of a Configuration Setting
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
- @param o_validOutput Indicator if o_valueAlpha, o_valueNumeric (or both) are valid.
- @param o_valueAlpha Alpha value of setting (if appropriate)
- @param o_valueNumeric Numeric value of setting (if appropriate)
+ @param o_configData Structure containing the valid data
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -2103,8 +2101,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
-
-uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, uint32_t & o_validOutput, ecmdConfigData & o_configData);
+uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData);
 
 /**
  @brief Set the value of a Configuration Setting
@@ -2122,8 +2119,21 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
-
 uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
+
+/**
+ @brief Retrieve the value of a Configuration Setting
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_name Name of setting as defined by eCMD Api
+ @param o_configData Structure containing the valid data
+ @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData i_configData);
 
 
 /**

@@ -278,7 +278,11 @@ uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_co
 
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
+uint32_t dllGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData); 
+
 uint32_t dllSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric); 
+
+uint32_t dllSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData i_configData); 
 
 uint32_t dllDeconfigureTarget(ecmdChipTarget & i_target); 
 
@@ -306,6 +310,10 @@ uint32_t dllPutModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record
 uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
+
+uint32_t dllGetModuleVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data); 
+
+uint32_t dllPutModuleVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, ecmdDataBuffer & i_keyword_data); 
 
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 #ifndef ECMD_REMOVE_VPD_FUNCTIONS
