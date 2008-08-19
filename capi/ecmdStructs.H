@@ -232,6 +232,20 @@ typedef enum {
   ECMD_CONFIG_VALID_FIELD_BOTH          ///< Bothe the string and numeric fields contain valid data
 } ecmdConfigValid_t;
 
+#define ECMD_CONFIG_VALID_FIELD_STRING  0x80000000
+#define ECMD_CONFIG_VALID_FIELD_INT32   0x40000000
+#define ECMD_CONFIG_VALID_FIELD_UINT32  0x20000000
+#define ECMD_CONFIG_VALID_FIELD_FLOAT   0x10000000
+
+struct ecmdConfigData {
+  std::string           cdString;   ///< If the output data is a string, will be populated
+  uint32_t              cdUint32;   ///< If the output data is a uint32_t, will be populated
+  int32_t               cdInt32;    ///< If the output data is a string, will be populated
+  float                 cdFloat;    ///< If the output data is a string, will be populated
+};
+
+
+
 /**
  @brief Used by the GPIO functions to specify the different modes for the GPIO pin
 
