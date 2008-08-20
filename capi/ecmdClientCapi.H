@@ -2352,7 +2352,7 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
  @param i_image_data Data buffer containing VPD Image
- @param o_data Data buffer to copy keyword data to
+ @param o_keyword_data Data buffer to copy keyword data to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
  @retval ECMD_SUCCESS if successful
