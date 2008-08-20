@@ -240,11 +240,6 @@ install_setup:
 	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
 
-	@echo "Copying over setup scripts ..."
-	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
-	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
-	@echo " "
-
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
 	@cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
