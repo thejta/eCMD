@@ -2125,7 +2125,7 @@ uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @brief Retrieve the value of a Configuration Setting
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
- @param o_configData Structure containing the valid data
+ @param i_configData Structure containing the valid data
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
