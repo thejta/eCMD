@@ -3475,7 +3475,7 @@ To create Linux x86 binaries, the following is required:
 <ul>
 <li>ecmdClientCapi_x86.a
 <li>libecmd_x86.so
-<li>g++ 3.2.3
+<li>g++ 3.4.6
 </ul>
 
 <hr>
