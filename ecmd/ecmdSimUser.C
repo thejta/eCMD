@@ -1128,8 +1128,7 @@ uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS;
 
-  char buf[1000];
-  buf[0] = '\0';
+  std::string command;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1144,12 +1143,15 @@ uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  for (int idx = 0; idx < argc; idx ++) {
-    strcat(buf,argv[idx]);
-    strcat(buf," ");
+  for (int idx = 0; idx < argc; idx++) {
+    command += argv[idx];
+    command += " ";
   }
 
-  rc = simSUBCMD(buf);
+  /* Having the extra space on the end from above screws up the command down in fusion  Strip that off */
+  command.erase(command.length(), 1);
+
+  rc = simSUBCMD(command.c_str());
 
   return rc;
 
@@ -1180,6 +1182,9 @@ uint32_t ecmdSimCallFusionCommandUser(int argc, char * argv[]) {
     command += argv[idx];
     command += " ";
   }
+
+  /* Having the extra space on the end from above screws up the command down in fusion  Strip that off */
+  command.erase(command.length(), 1);
 
   returnString = simCallFusionCommand(object.c_str(), id.c_str(), command.c_str());
 
