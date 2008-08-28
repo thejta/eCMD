@@ -15,13 +15,6 @@
 #include <ecmdStructs.H>
 #include <ecmdDataBuffer.H>
 
-/* We are making sure they are compiling with the right compiler here */
-#if defined(__GNUC__) && !defined(FIPSODE) && !defined(BML)
-# if (__GNUC__ != 3) && (__GNUC_MINOR__ != 2)
-#  error "YOU MUST USE THE GCC 3.2 COMPILER AS THAT IS THE ONLY SUPPORTED COMPILER BY ECMD CURRENTLY FOR LINUX"
-# endif
-#endif
-
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
