@@ -1586,8 +1586,6 @@ uint32_t ecmdSimPutDialUser(int argc, char * argv[]) {
       validPosFound = true;
     }
 
-    printed = ecmdWriteTarget(target) + "\n";
-    ecmdOutputError(printed.c_str());
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -1636,7 +1634,7 @@ uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
     rc = simGetDial(argv[1], value);
     if (rc) {
       printed = "simgetdial - Error occured performing simgetdial on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed = ecmdWriteTarget(target) + " " + value.c_str() + "\n";
       ecmdOutputError(printed.c_str());
       coeRc = rc;
       continue;
@@ -1644,8 +1642,7 @@ uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
       validPosFound = true;
     }
 
-    printed = ecmdWriteTarget(target) + " " + value.c_str() + "\n";
-    ecmdOutputError(printed.c_str());
+   
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
