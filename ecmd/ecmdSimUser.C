@@ -1586,6 +1586,10 @@ uint32_t ecmdSimPutDialUser(int argc, char * argv[]) {
       validPosFound = true;
     }
 
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -1642,6 +1646,8 @@ uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
       validPosFound = true;
     }
 
+    printed = ecmdWriteTarget(target) + " " + value.c_str() + "\n";
+    ecmdOutput(printed.c_str());
    
   }
   // coeRc will be the return code from in the loop, coe mode or not.
