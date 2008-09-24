@@ -69,8 +69,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Input format of data
   ecmdChipTarget target;                        ///< Current target being operated on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  std::list<ecmdScomData> queryScomData;        ///< Scom data 
-  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
+  std::list<ecmdScomDataHidden> queryScomData;        ///< Scom data 
+  std::list<ecmdScomDataHidden>::iterator scomData;   ///< Scom data 
   ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
   ecmdDataBuffer buffer;                        ///< Data requested by the user
   bool validPosFound = false;                   ///< Did the looper find anything?
@@ -205,7 +205,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
     /* Now we need to find out if this is a cu scom or not */
-    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
+    rc = ecmdQueryScomHidden(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "getscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
@@ -303,11 +303,11 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      	 else {
      	   printed += " 	   : ";
      	 }
-     	 printed += ecmdWriteDataFormatted(buffer, outputformat);
+     	 printed += ecmdWriteDataFormattedHidden(buffer, outputformat, 0, scomData->endianMode);
      	 ecmdOutputError( printed.c_str() );
 
      	 printed = "getscom - Expected  	   : ";
-     	 printed += ecmdWriteDataFormatted(expected, outputformat);
+     	 printed += ecmdWriteDataFormattedHidden(expected, outputformat, 0, scomData->endianMode);
      	 ecmdOutputError( printed.c_str() );
      	 e_rc = ECMD_EXPECT_FAILURE;
        }
@@ -316,7 +316,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      else {
 
        printed = ecmdWriteTarget(cuTarget);
-       printed += ecmdWriteDataFormatted(buffer, outputformat);
+       printed += ecmdWriteDataFormattedHidden(buffer, outputformat, 0, scomData->endianMode);
        ecmdOutput( printed.c_str() );
  
        if ((verbosePtr != NULL) && !expectFlag) {
@@ -354,8 +354,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                        ///< Chip target being operated on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  std::list<ecmdScomData> queryScomData;        ///< Scom data 
-  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
+  std::list<ecmdScomDataHidden> queryScomData;        ///< Scom data 
+  std::list<ecmdScomDataHidden>::iterator scomData;   ///< Scom data 
   uint32_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store read/write data
   ecmdDataBuffer cmdlineBuffer;                 ///< Buffer to store data to be inserted
@@ -460,7 +460,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
   
     /* Now we need to find out if this is a chipUnit scom or not */
-    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
+    rc = ecmdQueryScomHidden(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "putscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
@@ -544,7 +544,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
           validPosFound = true;
         }
 
-        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier);
+        rc = ecmdApplyDataModifierHidden(buffer, cmdlineBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier, scomData->endianMode);
         if (rc) {
           coeRc = rc;
           continue;
@@ -593,8 +593,8 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Input format
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnits
-  std::list<ecmdScomData> queryScomData;        ///< Scom data 
-  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
+  std::list<ecmdScomDataHidden> queryScomData;        ///< Scom data 
+  std::list<ecmdScomDataHidden>::iterator scomData;   ///< Scom data 
   bool validPosFound = false;                   ///< Did the looper find anything?
   ecmdLooperData looperData;                    ///< Store internal Looper data
   ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
@@ -753,7 +753,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
     /* Now we need to find out if this is a chipUnit scom or not */
-    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
+    rc = ecmdQueryScomHidden(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "pollscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
