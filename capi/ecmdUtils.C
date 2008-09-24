@@ -120,11 +120,7 @@ tracDesc_t g_ptrc=0; /** Procedure Trace Descriptor **/
 TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
 #endif
 
-//----------------------------------------------------------------------
-//  Forward Declarations
-//----------------------------------------------------------------------
-
-uint32_t ecmdReadDataFormatted (ecmdDataBuffer & o_data, const char * i_dataStr, std::string i_format, int i_expectedLength) {
+uint32_t ecmdReadDataFormatted(ecmdDataBuffer & o_data, const char * i_dataStr, std::string i_format, int i_expectedLength) {
   uint32_t rc = ECMD_SUCCESS;
 
   std::string localFormat = i_format;
@@ -195,7 +191,12 @@ uint32_t decToUInt32(const char *decstr) {
     }
     return decdata;
 }
-std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_format, uint64_t address) {
+
+std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address) {
+  return ecmdWriteDataFormattedHidden(i_data, i_format, i_address);
+}
+
+std::string ecmdWriteDataFormattedHidden(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
   std::string printed;
   int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
@@ -370,7 +371,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
   }
 #endif
   else if (curState == ECMD_FORMAT_MEM || curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
-    uint64_t myAddr = address;
+    uint64_t myAddr = i_address;
     uint32_t wordsDone = 0;
     std::string lastBytes;
     char tempstr[400];
@@ -477,7 +478,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
     }
   }
   else if (curState == ECMD_FORMAT_MEMD) {
-    uint64_t myAddr = address;
+    uint64_t myAddr = i_address;
 /*    int wordsDone = 0; */
     char tempstr[400];
     int y=0;
@@ -549,7 +550,7 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
 
       if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B || curState == ECMD_FORMAT_BXN || curState == ECMD_FORMAT_BXW) {
         printed += "\n";
-        printed += ecmdBitsHeader(5, blockSize, numCols, dataBitLength);
+        printed += ecmdBitsHeaderHidden(5, blockSize, numCols, dataBitLength, i_endianMode);
       } 
 
       printed += "\n000: ";
@@ -601,9 +602,13 @@ std::string ecmdWriteDataFormatted (ecmdDataBuffer & i_data, std::string i_forma
 }
 
 std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i_maxBitWidth) {
+  return ecmdBitsHeaderHidden(initCharOffset, blockSize, numCols, i_maxBitWidth);
+}
 
-  std::string topLine(initCharOffset, ' ');
-  std::string bottomLine(initCharOffset, ' ');
+std::string ecmdBitsHeaderHidden(int initCharOffset, int blockSize, int numCols, int i_maxBitWidth, ecmdEndianMode_t i_endianMode) {
+
+  std::string topLine;
+  std::string bottomLine;
 
   int bitsToPrint = blockSize * numCols < i_maxBitWidth ? blockSize * numCols : i_maxBitWidth;
   int numSpaces = numCols - 1;
@@ -643,7 +648,28 @@ std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i
 
   }
 
-  return topLine + "\n" + bottomLine;
+  /* Now create the final output */
+  std::string totalLine;
+
+  if (i_endianMode == ECMD_LITTLE_ENDIAN) {
+    /* In little endian we need to flip the header information to display properly */
+    reverse(topLine.begin(), topLine.end());
+    reverse(bottomLine.begin(), bottomLine.end());
+  }
+
+  /* Pad the front with spacing */
+  topLine.insert(0, initCharOffset, ' ');
+  bottomLine.insert(0, initCharOffset, ' ');
+#if 0
+  for (int x = 0; x < initCharOffset; x++) {
+    topLine = " " + topLine;
+    bottomLine = " " + bottomLine;
+  }
+#endif
+
+  totalLine = topLine + "\n" + bottomLine;
+
+  return totalLine;
 }
 
 uint32_t ecmdDisplayDllInfo() {

@@ -133,39 +133,71 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
         
 }
 
-uint32_t ecmdApplyDataModifier (ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier) {
+uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier) {
+  return ecmdApplyDataModifierHidden(io_data, i_newData, i_startbit, i_modifier);
+}
+
+uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t length;
 
-  /* We no longer just error out on length problems, let's try and be smart about it */
-  /* STGC00108031 - JTA 01/31/07 */
-  if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
-    length = io_data.getBitLength() - i_startbit;
-    /* If there are bits on past the length, let's error.  Otherwise, let it through */
-    if (i_newData.isBitSet((i_startbit + length), (i_newData.getBitLength() - (i_startbit+length)))) {
-      char buf[200];	     
-      sprintf(buf,"ecmdApplyDataModifier - There are bits set past on the input data(%d) past the length of the destination data(%d)!\n", i_newData.getBitLength(), io_data.getBitLength());
-      ecmdOutput(buf);
+  if (i_endianMode == ECMD_LITTLE_ENDIAN) {
+    if ((i_startbit - i_newData.getBitLength()) < 0) {
+      length = io_data.getBitLength() - i_startbit;
+      /* If there are bits on past the length, let's error.  Otherwise, let it through */
+      if (i_newData.isBitSet((i_startbit + length), (i_newData.getBitLength() - (i_startbit+length)))) {
+        char buf[200];	     
+        sprintf(buf,"ecmdApplyDataModifier - There are bits set past on the input data(%d) past the length of the destination data(%d)!\n", i_newData.getBitLength(), io_data.getBitLength());
+        ecmdOutput(buf);
+        return ECMD_INVALID_ARGS;
+      }
+    } else {
+      length = i_newData.getBitLength();
+    }
+
+    /* On a little endian insert, we need to reverse the data and play with how we insert it */
+    /* Only do this if the startBit isn't bit 0, because then we could have all the data and want to put it right in */
+    if (i_modifier == "insert") {
+      io_data.insert(i_newData, i_startbit, length);
+    } else if (i_modifier == "and") {
+      io_data.setAnd(i_newData, i_startbit, length);
+    } else if (i_modifier == "or") {
+      io_data.setOr(i_newData, i_startbit, length);
+    } else {
+      ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier + "\n").c_str());
       return ECMD_INVALID_ARGS;
     }
   } else {
-    length = i_newData.getBitLength();
-  }
+    /* We no longer just error out on length problems, let's try and be smart about it */
+    /* STGC00108031 - JTA 01/31/07 */
+    if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
+      length = io_data.getBitLength() - i_startbit;
+      /* If there are bits on past the length, let's error.  Otherwise, let it through */
+      if (i_newData.isBitSet((i_startbit + length), (i_newData.getBitLength() - (i_startbit+length)))) {
+        char buf[200];	     
+        sprintf(buf,"ecmdApplyDataModifier - There are bits set past on the input data(%d) past the length of the destination data(%d)!\n", i_newData.getBitLength(), io_data.getBitLength());
+        ecmdOutput(buf);
+        return ECMD_INVALID_ARGS;
+      }
+    } else {
+      length = i_newData.getBitLength();
+    }
 
-  if (i_modifier == "insert") {
-    io_data.insert(i_newData, i_startbit, length);
-  } else if (i_modifier == "and") {
-    io_data.setAnd(i_newData, i_startbit, length);
-  } else if (i_modifier == "or") {
-    io_data.setOr(i_newData, i_startbit, length);
-  } else {
-    ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier + "\n").c_str());
-    return ECMD_INVALID_ARGS;
+    if (i_modifier == "insert") {
+      io_data.insert(i_newData, i_startbit, length);
+    } else if (i_modifier == "and") {
+      io_data.setAnd(i_newData, i_startbit, length);
+    } else if (i_modifier == "or") {
+      io_data.setOr(i_newData, i_startbit, length);
+    } else {
+      ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier + "\n").c_str());
+      return ECMD_INVALID_ARGS;
+    }
   }
-
 
   return rc;
 }
+
 
 uint32_t ecmdPrintHelp(const char* i_command) {
 

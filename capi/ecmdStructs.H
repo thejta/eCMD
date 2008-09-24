@@ -185,6 +185,15 @@ typedef enum {
 } ecmdClockState_t;
 
 /**
+ @brief Used by scomQuery function to return endian mode of data
+*/
+typedef enum {
+  ECMD_UNKNOWN_ENDIAN,                  ///< Unable to determine the endianness of the data
+  ECMD_BIG_ENDIAN,                      ///< The data for this chip is big endian
+  ECMD_LITTLE_ENDIAN,                   ///< The data for this ch is little endian
+} ecmdEndianMode_t;
+
+/**
  @brief Used by SetClockSpeed interfaces to specify the clock to control
  */
 typedef enum {
@@ -1342,6 +1351,55 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 inline ecmdScomData::~ecmdScomData() { }
 #endif
 
+
+#ifndef DOCUMENTATION
+/**
+ @brief Used for the ecmdQueryScom function to return scom info
+*/
+struct ecmdScomDataHidden {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdScomDataHidden();
+
+  // Destructor
+  ~ecmdScomDataHidden();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  // Members
+  uint32_t         address;              ///< (Detail: Low)  Scom Address
+  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
+  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the data
+  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
+  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
+};
+
+#ifndef DOCUMENTATION
+// ecmdScomData Constructor
+inline ecmdScomDataHidden::ecmdScomDataHidden():
+address(0),
+length(0),
+isChipUnitRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdScomData Destructor
+inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
+#endif
+#endif
 
 
 /**
