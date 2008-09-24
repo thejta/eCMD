@@ -165,13 +165,21 @@ uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & 
      63                         0
 
      We need to convert their LE start bit into something that works with our BE buffers.
-     At first thought, that is just length() - i_startBit.  In reality though, that gives you the end point of the data.  Example:
-     User said insert 0b011 starting at bit 12
-     64 - 12 = 52 in our BE buffer
-     So, insert 0b011 at 52 for 3.  In our LE buffer, that is actually setting bits 12, 11 and 10.  That doesn't work!
-     To addition things need to be done.  1) You need to subtract length:
-     64 - 12 - 3 = 49 in our BE buffer
-     Now, you would be getting LE bits 12, 13, 14.  However, the data would be in the wrong order.  You also need to reverse the buffer
+     When doing an insert at 12, for 4 bits, they expect the insert to go from 12 down to 9.
+
+     At first thought, this is just getBitLength() - i_startBit.  However, you really want the end bit, 63, which is getBitLength() - 1.
+
+     Once you have the start location, since the buffer is oriented like this:
+        6         5         4          3         2         1         0
+     32109876543210987654321098765432 10987654321098765432109876543210
+
+     You can then just take the data and insert it starting at bit 12 and it will set 12,11,10,9
+
+     Example:
+
+     64 - 12 - 1 = 51 in our BE buffer
+
+     Then insert 0b0101 at 51 for 4.  That sets bits 12, 11, 10 and 9 in our LE buffer.
 
      That sums things up pretty well I think.  Hopefully typing out this comment was worth something to someone in 2 years.  09/24/08 - JTA
 
@@ -183,8 +191,7 @@ uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & 
     if (io_data.getBitLength() == i_newData.getBitLength()) {
       leStartBit = i_startBit;
     } else {
-      leStartBit = io_data.getBitLength() - i_startBit - length;  
-      i_newData.reverse();
+      leStartBit = io_data.getBitLength() - 1 - i_startBit;  
     }
 
     if (i_modifier == "insert") {
