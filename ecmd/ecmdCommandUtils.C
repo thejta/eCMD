@@ -137,15 +137,15 @@ uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newD
   return ecmdApplyDataModifierHidden(io_data, i_newData, i_startbit, i_modifier);
 }
 
-uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
+uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t length;
 
   if (i_endianMode == ECMD_LITTLE_ENDIAN) {
-    if ((i_startbit - i_newData.getBitLength()) < 0) {
-      length = io_data.getBitLength() - i_startbit;
+    if ((i_startBit - i_newData.getBitLength()) < 0) {
+      length = io_data.getBitLength() - i_startBit;
       /* If there are bits on past the length, let's error.  Otherwise, let it through */
-      if (i_newData.isBitSet((i_startbit + length), (i_newData.getBitLength() - (i_startbit+length)))) {
+      if (i_newData.isBitSet((i_startBit + length), (i_newData.getBitLength() - (i_startBit+length)))) {
         char buf[200];	     
         sprintf(buf,"ecmdApplyDataModifier - There are bits set past on the input data(%d) past the length of the destination data(%d)!\n", i_newData.getBitLength(), io_data.getBitLength());
         ecmdOutput(buf);
@@ -155,25 +155,55 @@ uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & 
       length = i_newData.getBitLength();
     }
 
-    /* On a little endian insert, we need to reverse the data and play with how we insert it */
-    /* Only do this if the startBit isn't bit 0, because then we could have all the data and want to put it right in */
-    if (i_modifier == "insert") {
-      io_data.insert(i_newData, i_startbit, length);
-    } else if (i_modifier == "and") {
-      io_data.setAnd(i_newData, i_startbit, length);
-    } else if (i_modifier == "or") {
-      io_data.setOr(i_newData, i_startbit, length);
+    /* On a little endian insert, we need to mess with the data and our start offsets to put the LE data into a BE buffer */
+    /* Here is how the math below works
+     io_data.getBitLength() is the length of the entire data buffer, this gives us our conversion point from LE to BE
+     If io_data is 64 bits long, then our two different views of the data are:
+     Storage (BE)
+     0                         64
+     User View (LE)
+     63                         0
+
+     We need to convert their LE start bit into something that works with our BE buffers.
+     At first thought, that is just length() - i_startBit.  In reality though, that gives you the end point of the data.  Example:
+     User said insert 0b011 starting at bit 12
+     64 - 12 = 52 in our BE buffer
+     So, insert 0b011 at 52 for 3.  In our LE buffer, that is actually setting bits 12, 11 and 10.  That doesn't work!
+     To addition things need to be done.  1) You need to subtract length:
+     64 - 12 - 3 = 49 in our BE buffer
+     Now, you would be getting LE bits 12, 13, 14.  However, the data would be in the wrong order.  You also need to reverse the buffer
+
+     That sums things up pretty well I think.  Hopefully typing out this comment was worth something to someone in 2 years.  09/24/08 - JTA
+
+     Addendum - we can only do this if they are messing with subranges of io_data.  If i_newData matches io_data in length, they have provided
+     the entire image and just overlay that.
+     */
+    uint32_t leStartBit;
+
+    if (io_data.getBitLength() == i_newData.getBitLength()) {
+      leStartBit = i_startBit;
     } else {
-      ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier + "\n").c_str());
+      leStartBit = io_data.getBitLength() - i_startBit - length;  
+      i_newData.reverse();
+    }
+
+    if (i_modifier == "insert") {
+      io_data.insert(i_newData, leStartBit, length);
+    } else if (i_modifier == "and") {
+      io_data.setAnd(i_newData, leStartBit, length);
+    } else if (i_modifier == "or") {
+      io_data.setOr(i_newData, leStartBit, length);
+    } else {
+      ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : " + i_modifier + "\n").c_str());
       return ECMD_INVALID_ARGS;
     }
   } else {
     /* We no longer just error out on length problems, let's try and be smart about it */
     /* STGC00108031 - JTA 01/31/07 */
-    if ((i_startbit + i_newData.getBitLength()) > io_data.getBitLength()) {
-      length = io_data.getBitLength() - i_startbit;
+    if ((i_startBit + i_newData.getBitLength()) > io_data.getBitLength()) {
+      length = io_data.getBitLength() - i_startBit;
       /* If there are bits on past the length, let's error.  Otherwise, let it through */
-      if (i_newData.isBitSet((i_startbit + length), (i_newData.getBitLength() - (i_startbit+length)))) {
+      if (i_newData.isBitSet((i_startBit + length), (i_newData.getBitLength() - (i_startBit+length)))) {
         char buf[200];	     
         sprintf(buf,"ecmdApplyDataModifier - There are bits set past on the input data(%d) past the length of the destination data(%d)!\n", i_newData.getBitLength(), io_data.getBitLength());
         ecmdOutput(buf);
@@ -184,11 +214,11 @@ uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & 
     }
 
     if (i_modifier == "insert") {
-      io_data.insert(i_newData, i_startbit, length);
+      io_data.insert(i_newData, i_startBit, length);
     } else if (i_modifier == "and") {
-      io_data.setAnd(i_newData, i_startbit, length);
+      io_data.setAnd(i_newData, i_startBit, length);
     } else if (i_modifier == "or") {
-      io_data.setOr(i_newData, i_startbit, length);
+      io_data.setOr(i_newData, i_startBit, length);
     } else {
       ecmdOutputError(("ecmdApplyDataModifier - Invalid Data Modifier specified with -b arg : "+i_modifier + "\n").c_str());
       return ECMD_INVALID_ARGS;
