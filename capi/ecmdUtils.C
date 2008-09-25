@@ -739,6 +739,17 @@ uint32_t ecmdDisplayDllInfo() {
 
 #ifndef FIPSODE
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
+
+  // Fake out some basic info the hidden function needs until we get 11.0 in here
+  ecmdScomDataHidden scomData;
+  scomData.address = i_address;
+  scomData.length = 64;
+  scomData.endianMode = ECMD_BIG_ENDIAN;
+
+  return ecmdDisplayScomDataHidden(i_target, scomData, i_data, i_format, o_strData);
+}
+
+uint32_t ecmdDisplayScomDataHidden(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
@@ -772,7 +783,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
     rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
     return rc;
   }
-  rc = readScomDefFile(i_address, scomdefFile);
+  rc = readScomDefFile(i_scomData.address, scomdefFile);
   if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
     ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
     return rc;
@@ -803,10 +814,30 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
     *o_strData += printed;
   }
 
+  // We need these variable below to abstract some stuff for LE support
+  uint32_t beStart, length;
+
   //Print Bits description
   for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
-    if ((i_data.getNumBitsSet(definIt->lhsNum, definIt->length) && verboseBitsSetFlag) ||
-    ((!i_data.getNumBitsSet(definIt->lhsNum, definIt->length)) && verboseBitsClearFlag) || (verboseFlag)) {
+    // Set our pivots for LE converstion in the BE buffer
+    if (i_scomData.endianMode == ECMD_LITTLE_ENDIAN) {
+      // minus 1 because you don't want the length, you want the last bit position and then flip
+      beStart = (i_scomData.length - 1) - definIt->lhsNum;
+      /* If we have rhs, the length is negative so flip it */
+      if (definIt->rhsNum != -1) {
+        length = definIt->length * -1;
+        // We also have to add two to the length because it's messed up by the EDC parser which doesn't do little endian
+        // example
+        // 31-4 = 27 + 1 = 28, to get the real length.  EDC does this on little endian data
+        // 4-31 = -27 + 1 = -26
+        // The mult * -1 above gave us 26, but we are still missing 2.
+        length += 2;
+      } else {
+        length = definIt->length;
+      }
+    }
+    if (verboseFlag || (verboseBitsSetFlag && i_data.getNumBitsSet(beStart, length)) ||
+        (verboseBitsClearFlag && (!i_data.getNumBitsSet(beStart, length)))) {
       
       if(definIt->rhsNum == -1) {
   	sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
@@ -820,12 +851,12 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmd
         *o_strData += bitDesc;
       }
 
-      if (definIt->length <= 8) {
-  	std::string binstr = i_data.genBinStr(definIt->lhsNum, definIt->length);
+      if (length <= 8) {
+  	std::string binstr = i_data.genBinStr(beStart, length);
   	sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
       }
       else {
-  	std::string hexLeftStr = i_data.genHexLeftStr(definIt->lhsNum, definIt->length);
+  	std::string hexLeftStr = i_data.genHexLeftStr(beStart, length);
   	sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
       }
       ecmdOutput(bitDesc);

@@ -240,6 +240,19 @@ uint32_t ecmdDisplayDllInfo();
  @param o_strData If passed in, then we load o_strData with what is printed to the screen
  */
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
+
+#ifndef DOCUMENTATION
+/**
+ @brief Display the Scom data with the bit descriptions.
+ @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
+ @param i_target target for which scom data needs to be displayed.
+ @param i_scomData Contains the address, as well as additional info, needed to lookup the scom
+ @param i_data buffer that holds the scom data
+ @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
+ @param o_strData If passed in, then we load o_strData with what is printed to the screen
+ */
+uint32_t ecmdDisplayScomDataHidden(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
+#endif
 #endif
 
 //@}
