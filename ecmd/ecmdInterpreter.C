@@ -564,6 +564,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimGETFACUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simGETFACX")) {
           rc = ecmdSimGETFACXUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "simgetfullfacname")) {
+          rc = ecmdSimGetFullFacNameUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simgettcfac")) {
           rc = ecmdSimgettcfacUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simgetcurrentcycle")) {

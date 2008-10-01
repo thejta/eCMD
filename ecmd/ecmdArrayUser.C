@@ -1216,6 +1216,17 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         /* Setup our target */
         cuTarget = target;
         if (cuArrayMapIter->first != "") {
+          /* Check that if the user gave a chipunit, it matches the type for this array */
+          /* If the user didn't specify a chipunit, we don't want to check and just let the code set it */
+          if (!chipUnitType.empty() && chipUnitType != cuArrayMapIter->first) {
+            printed = "gettracearray - Provided chipUnit \"";
+            printed += chipUnitType;
+            printed += "\" doesn't match chipUnit returned by queryTraceArray \"";
+            printed += cuArrayMapIter->first + "\"\n";
+            ecmdOutputError(printed.c_str());
+            rc = ECMD_INVALID_ARGS;
+            break;
+          }
           cuTarget.chipUnitType = cuArrayMapIter->first;
           cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }

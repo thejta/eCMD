@@ -118,6 +118,7 @@ uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]);
 uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimGETFACUser(int argc, char * argv[]);
 uint32_t ecmdSimGETFACXUser(int argc, char * argv[]);
+uint32_t ecmdSimGetFullFacNameUser(int argc, char * argv[]);
 uint32_t ecmdSimgettcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]);
 uint32_t ecmdSiminitUser(int argc, char * argv[]);
