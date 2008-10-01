@@ -3229,6 +3229,23 @@ NOTE - To retrieve the hierarchy of a processor core/chipUnit the core/chipUnit 
 uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
 
 /**
+ @brief Fetch the full facility name for the specified chip target based on the i_facName passed in
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_facName The chip level facility name.  In the form of ECP.XXX insted of EC0.XXX
+ @param o_fullFacName i_facName after the system level facility has been created by simDispatcher
+ @param i_hierarchyOnly Instead of creating the system level facility, just return the hierarchy
+
+NOTE - To retrieve the hierarchy of a processor core/chipUnit the core/chipUnit field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
+ TARGET DEPTH : pos, core/chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t simGetFullFacName(ecmdChipTarget & i_target, std::string i_facName, std::string & o_fullFacName, bool i_hierarchyOnly = false);
+
+/**
  @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_timestamp Timestamp value from simulation model
