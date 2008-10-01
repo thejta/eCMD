@@ -437,6 +437,8 @@ uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdD
 
 uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
 
+uint32_t dllSimGetFullFacName(ecmdChipTarget & i_target, std::string i_facName, std::string & o_fullFacName, bool i_hierarchyOnly); 
+
 uint32_t dllQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
 
 uint32_t dllQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp); 
