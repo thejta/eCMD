@@ -1382,16 +1382,25 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   ecmdLooperData looperdata;            /// Store internal Looper data
   std::string printed;
   bool validPosFound = false;
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  ///< depth found from Command line parms
+  int depth = 0;
+  int CHIPUNIT = 1;
+  if (ecmdParseOption(&argc, &argv, "-dc")) {
+    depth = CHIPUNIT;
+  }
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-
 
   if (argc < 1) {
     ecmdOutputError("simgethierarchy - Too few arguments specified; you need at least a chip name.\n");
@@ -1405,10 +1414,6 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
   //Setup the target  
   std::string chipType, chipUnitType;
   ecmdParseChipField(argv[0], chipType, chipUnitType);
-
-  int depth = 0;                 ///< depth found from Command line parms
-  int CHIPUNIT = 1;
-  if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
 
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -1452,6 +1457,99 @@ uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]) {
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
+
+  return rc;
+}
+
+uint32_t ecmdSimGetFullFacNameUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  ecmdChipTarget target;                /// Current target being operated on
+  std::string  fullFacName;		/// Return the full facname for this target
+  std::string facName;                  //  The input facname from the user
+  ecmdLooperData looperdata;            /// Store internal Looper data
+  std::string printed;
+  bool validPosFound = false;
+  bool hierarchyOnly = false;
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  ///< depth found from Command line parms        
+  int depth = 0;
+  int CHIPUNIT = 1;
+  if (ecmdParseOption(&argc, &argv, "-dc")) {
+    depth = CHIPUNIT;
+  }
+
+  if (ecmdParseOption(&argc, &argv, "-hieronly")) {
+    hierarchyOnly = true;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (argc < 2) {
+    ecmdOutputError("simgetfullfacname - Too few arguments specified; you need a chip name and facname.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if (argc > 3) {
+    ecmdOutputError("simgetfullfacname - Too many arguments to simgethierarchy, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  //Setup the target  
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitType = chipUnitType;
+  target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+
+  if (depth != CHIPUNIT){
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  }
+  target.cageState = target.nodeState = target.slotState = target.posState =  ECMD_TARGET_FIELD_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  // Grab the fac name off the command line
+  facName = argv[1];
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+    validPosFound = true;
+    rc = simGetFullFacName(target, facName, fullFacName, hierarchyOnly);
+    if (rc) {
+      coeRc = rc;
+      continue;
+    }
+
+    printed = "Full facility name for target ";
+    printed += ecmdWriteTarget(target);
+    printed += "is :\n" + fullFacName + "\n";
+    ecmdOutput(printed.c_str());
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("simgetfullfacname - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
 
   return rc;
 }

@@ -322,7 +322,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
        if ((verbosePtr != NULL) && !expectFlag) {
      	 //even if rc returned is non-zero we want to continue to the next chip
 #ifndef FIPSODE
-        ecmdDisplayScomData(cuTarget, address, buffer, verbosePtr);
+        ecmdDisplayScomDataHidden(cuTarget, *scomData, buffer, verbosePtr);
 #else
 	ecmdOutputWarning("ecmdDisplayScomData not supported on FSP\n");
 #endif
