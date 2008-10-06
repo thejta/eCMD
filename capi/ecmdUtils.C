@@ -835,6 +835,9 @@ uint32_t ecmdDisplayScomDataHidden(ecmdChipTarget & i_target, ecmdScomDataHidden
       } else {
         length = definIt->length;
       }
+    } else { // Big Endian
+      beStart = definIt->lhsNum;
+      length = definIt->length;
     }
     if (verboseFlag || (verboseBitsSetFlag && i_data.getNumBitsSet(beStart, length)) ||
         (verboseBitsClearFlag && (!i_data.getNumBitsSet(beStart, length)))) {
