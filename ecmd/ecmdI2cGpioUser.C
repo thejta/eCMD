@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips710 src/ecmd/import/ecmdI2cGpioUser.C 1.3.1.9 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2005,2008 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -30,12 +13,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
 
 //----------------------------------------------------------------------
 //  Includes
@@ -218,19 +195,19 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   
   //Run the loop to Check the number of targets
   if (filename != NULL) {
-    rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
  
-    while ( ecmdConfigLooperNext(target, looperdata) ) {
+    while ( ecmdLooperNext(target, looperdata) ) {
       targetCount++;
     }
   }
   
   //Looper to do the actual work
-  rc = ecmdConfigLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+  rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
   if (rc) return rc;
               
-  while ( ecmdConfigLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
+  while ( ecmdLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
 
     if (argc > 5) {
       rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
@@ -443,10 +420,10 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
       rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
@@ -548,10 +525,10 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     rc = ecmdI2cReset(target, engineId, port);
     if (rc) {
@@ -579,814 +556,9 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
 
   return rc;  
 }
-#endif // ECMD_REMOVE_I2C_FUNCTIONS
 
-#ifndef ECMD_REMOVE_GPIO_FUNCTIONS
-uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS; 
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdChipTarget target;                ///< Current target operating on
-  ecmdDataBuffer buffer;                ///< Container to store write data
-  ecmdDataBuffer mask;                  ///< Container to store mask data
-  bool validPosFound = false;           ///< Did the looper find anything to execute on
-  std::string inputformat = "b";        ///< Input Format to display
-  uint32_t value;                       ///< Value to write to pin/s
-  std::string printed;
-  
-  /************************************************************************/
-  /* Parse Local FLAGS here!                                              */
-  /************************************************************************/
- 
-  /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
-  }
-  
-  /* get mask value for multiple pins, if it's there */
-  char * maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask");
-  if (maskPtr != NULL) {
-   rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, 32);
-   if (rc) {
-    ecmdOutputError("putgpiolatch - Problems occurred parsing mask value, must be an invalid format\n");
-    return rc;
-   }
-   if (mask.getBitLength() > 32) {
-    ecmdOutputError("putgpiolatch - Mask length cannot exceed 32 bits\n");
-    return ECMD_INVALID_ARGS;
-   }
-  }
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
 
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-  /* Global args have been parsed, we can read if -coe was given */
-  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  if (((maskPtr != NULL) && (argc < 4)) || ((maskPtr == NULL) && (argc < 5)) ) {  
-    ecmdOutputError("putgpiolatch - Too few arguments specified; you need at least a chip, engineId, pin/mask, mode, data.\n");
-    ecmdOutputError("putgpiolatch - Type 'putgpiolatch -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if ( ((maskPtr != NULL) && (argc > 4)) || ((maskPtr == NULL) && (argc > 5))) {
-    ecmdOutputError("putgpiolatch - Too many arguments specified; you only need chip, engineId, pin/mask, mode, data.\n");
-    ecmdOutputError("putgpiolatch - Type 'putgpiolatch -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("putgpiolatch - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  if (!ecmdIsAllDecimal(argv[1])) {
-    ecmdOutputError("putgpiolatch - Non-decimal numbers detected in engineId field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t engineId = (uint32_t)atoi(argv[1]);
-  
-  uint32_t pin = 0;
-  std::string modeStr, dataStr;
-  
-  if (maskPtr == NULL) {
-   if (!ecmdIsAllDecimal(argv[2])) {
-     ecmdOutputError("putgpiolatch - Non-decimal numbers detected in pin field\n");
-     return ECMD_INVALID_ARGS;
-   }
- 
-   pin = (uint32_t)atoi(argv[2]);
-   modeStr = argv[3];
-   dataStr = argv[4];
-  } else {
-   modeStr = argv[2];
-   dataStr = argv[3];
-  }
-
-  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
-  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
-
-  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
-  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
-  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
-  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
-  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
-  else {
-    ecmdOutputError("putgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  if (maskPtr != NULL) {
-   rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat, 32);
-   if (rc) {
-     ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
-     return rc;
-   }
-   if (buffer.getBitLength() > 32) {
-     ecmdOutputError("putgpiolatch - Input Data length cannot exceed 32 bits\n");
-     return ECMD_INVALID_ARGS;
-   } 
-   value = buffer.getWord(0);
-  } else {
-   rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat);
-   if (rc) {
-     ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
-     return rc;
-   }
-   if (buffer.getBitLength() > 1) {
-     ecmdOutputError("putgpiolatch - Input Data length should be 1\n");
-     return ECMD_INVALID_ARGS;
-   }
-   if (buffer.isBitSet(0)) {
-    value = 1;
-   } else value = 0;
-  }
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    if (maskPtr != NULL) {
-      rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
-    } else {
-      rc = ecmdGpioWriteLatch(target, engineId, pin, mode, value );
-    }
-
-    if (rc) {
-      if (maskPtr != NULL) {
-        printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatches on ";
-      } else {
-        printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatch on ";
-      }
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;                        
-      continue;
-    } else {
-      validPosFound = true;     
-    }
-
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-    }
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  if (!validPosFound) {
-    ecmdOutputError("putgpiolatch - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-
-  return rc;  
-}
-
-uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdChipTarget target;                ///< Current target operating on
-  bool validPosFound = false;           ///< Did the looper find anything to execute on
-  std::string printed;
-  
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-  /* Global args have been parsed, we can read if -coe was given */
-  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-  
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  if (argc < 4) {  
-    ecmdOutputError("gpioconfig - Too few arguments specified; you need at least a chip, engineId, pin, mode.\n");
-    ecmdOutputError("gpioconfig - Type 'gpioconfig -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if ( argc > 4) {
-    ecmdOutputError("gpioconfig - Too many arguments specified; you only need chip, engineId, pin, mode.\n");
-    ecmdOutputError("gpioconfig - Type 'gpioconfig -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("gpioconfig - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  if (!ecmdIsAllDecimal(argv[1])) {
-    ecmdOutputError("gpioconfig - Non-decimal numbers detected in engineId field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t engineId = (uint32_t)atoi(argv[1]);
-  
-  if (!ecmdIsAllDecimal(argv[2])) {
-    ecmdOutputError("gpioconfig - Non-decimal numbers detected in pin field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t pin = (uint32_t)atoi(argv[2]);
-
-  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
-  std::string modeStr = argv[3];
-  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
-  
-  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
-  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
-  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
-  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
-  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
-  else {
-    ecmdOutputError("gpioconfig - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    rc = ecmdGpioConfigPin(target, engineId, pin, mode);
-    if (rc) {
-      printed = "gpioconfig - Error occurred performing ecmdGpioConfigPin on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;                           
-      continue;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-    }
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  if (!validPosFound) {
-    ecmdOutputError("gpioconfig - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-
-  return rc;  
-}
-
-
-uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdChipTarget target;                ///< Current target operating on
-  ecmdDataBuffer data;                  ///< DataBuffer to store state into
-  ecmdDataBuffer mask;                  ///< Container to store the mask value for multiple pins
-  bool validPosFound = false;           ///< Did the looper find anything to execute on
-  std::string outputformat = "b";       ///< Output Format to display
-  std::string inputformat = "xl";       ///< Output Format to display
-  uint32_t state;                       ///< State read on pin (0/1)
-  std::string printed;
-  
-  /************************************************************************/
-  /* Parse Local FLAGS here!                                              */
-  /************************************************************************/
- 
-  /* get format flag, if it's there */
-  char * oformatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (oformatPtr != NULL) {
-    outputformat = oformatPtr;
-  }
-  
-  char * iformatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (iformatPtr != NULL) {
-    inputformat = iformatPtr;
-  }
-
-  /* get mask value for multiple pins, if it's there */
-  char * maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask");
-  if (maskPtr != NULL) {
-   rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, 32);
-   if (rc) {
-    ecmdOutputError("getgpiopin - Problems occurred parsing mask value, must be an invalid format\n");
-    return rc;
-   }
-   if (mask.getBitLength() > 32) {
-    ecmdOutputError("getgpiopin - Mask length should be <= 32 bits.\n");
-    return ECMD_INVALID_ARGS;
-   }
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-  /* Global args have been parsed, we can read if -coe was given */
-  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-  
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  if (((maskPtr == NULL) && (argc < 3))  ||  ((maskPtr != NULL) && (argc < 2))){  
-    ecmdOutputError("getgpiopin - Too few arguments specified; you need at least a chip, engineId, pin/mask.\n");
-    ecmdOutputError("getgpiopin - Type 'getgpiopin -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if ( ((maskPtr == NULL) && (argc > 3))  ||  ((maskPtr != NULL) && (argc > 2))) {
-    ecmdOutputError("getgpiopin - Too many arguments specified; you only need chip, engineId, pin/mask.\n");
-    ecmdOutputError("getgpiopin - Type 'getgpiopin -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("getgpiopin - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  if (!ecmdIsAllDecimal(argv[1])) {
-    ecmdOutputError("getgpiopin - Non-decimal numbers detected in engineId field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t engineId = (uint32_t)atoi(argv[1]);
-  
-  
-  uint32_t pin=0;
-  if (maskPtr == NULL) {
-   if (!ecmdIsAllDecimal(argv[2])) {
-    ecmdOutputError("getgpiopin - Non-decimal numbers detected in pin field\n");
-    return ECMD_INVALID_ARGS;
-   }
-   pin = (uint32_t)atoi(argv[2]);
-  }
-
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    if (maskPtr != NULL) {
-      rc = ecmdGpioReadPins(target, engineId, mask.getWord(0), state);
-    } else {
-      rc = ecmdGpioReadPin(target, engineId, pin,  state);
-    }
-
-    if (rc) {
-      if (maskPtr != NULL) {
-        printed = "getgpiopin - Error occurred performing ecmdGpioReadPins on ";
-      } else {
-        printed = "getgpiopin - Error occurred performing ecmdGpioReadPin on ";
-      }
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;                       
-      continue;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    printed = ecmdWriteTarget(target) + "\n";
-
-    data.setBitLength(32);
-    data.insert(state, 0, 32 );   
-    std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
-    printed += dataStr;
-    ecmdOutput( printed.c_str() );
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  if (!validPosFound) {
-    ecmdOutputError("getgpiopin - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-  
-  return rc;  
-}
-
-uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
-
-  uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdChipTarget target;                ///< Current target operating on
-  ecmdDataBuffer data;                  ///< DataBuffer to stores state into
-  bool validPosFound = false;           ///< Did the looper find anything to execute on
-  std::string outputformat = "b";      ///< Output Format to display
-  uint32_t state;                       ///< State read on pin (0/1)
-  std::string printed;
-  
-  /************************************************************************/
-  /* Parse Local FLAGS here!                                              */
-  /************************************************************************/
- 
-  /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr != NULL) {
-    outputformat = formatPtr;
-  }
-
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-  /* Global args have been parsed, we can read if -coe was given */
-  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-  
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  if (argc < 4) {  
-    ecmdOutputError("getgpiolatch - Too few arguments specified; you need at least a chip, engineId, pin, mode.\n");
-    ecmdOutputError("getgpiolatch - Type 'getgpiolatch -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if ( argc > 4) {
-    ecmdOutputError("getgpiolatch - Too many arguments specified; you only need chip, engineId, pin, mode.\n");
-    ecmdOutputError("getgpiolatch - Type 'getgpiolatch -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("getgpiolatch - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  if (!ecmdIsAllDecimal(argv[1])) {
-    ecmdOutputError("getgpiolatch - Non-decimal numbers detected in engineId field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t engineId = (uint32_t)atoi(argv[1]);
-  
-  if (!ecmdIsAllDecimal(argv[2])) {
-    ecmdOutputError("getgpiolatch - Non-decimal numbers detected in pin field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t pin = (uint32_t)atoi(argv[2]);
-  
-  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
-  std::string modeStr = argv[3];
-  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
-
-  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
-  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
-  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
-  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
-  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
-  else {
-    ecmdOutputError("getgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    rc = ecmdGpioReadLatch(target, engineId, pin, mode, state);
-    if (rc) {
-      printed = "getgpiolatch - Error occurred performing ecmdGpioReadLatch on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                          
-      continue;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    printed = ecmdWriteTarget(target) + "\n";
-
-    data.setBitLength(32);
-    data.insert(state, 0, 32 );   
-    std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
-    printed += dataStr;
-    ecmdOutput( printed.c_str() );
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  if (!validPosFound) {
-    ecmdOutputError("getgpiolatch - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-
-  return rc;
-}
-
-uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdChipTarget target;                ///< Current target operating on
-  ecmdDataBuffer data;                  ///< DataBuffer to store state into
-  ecmdDataBuffer mask;                  ///< Container to store the mask value for multiple pins
-  bool validPosFound = false;           ///< Did the looper find anything to execute on
-  std::string outputformat = "xl";      ///< Output Format to display
-  uint32_t value;                       ///< value read from register
-  std::string printed;
-  
-  /************************************************************************/
-  /* Parse Local FLAGS here!                                              */
-  /************************************************************************/
- 
-  /* get format flag, if it's there */
-  char * oformatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (oformatPtr != NULL) {
-    outputformat = oformatPtr;
-  }
-  
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-  /* Global args have been parsed, we can read if -coe was given */
-  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-  
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  if (argc < 3){  
-    ecmdOutputError("getgpioreg - Too few arguments specified; you need at least a chip, engineId, configReg.\n");
-    ecmdOutputError("getgpioreg - Type 'getgpioreg -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if (argc > 3) {
-    ecmdOutputError("getgpioreg - Too many arguments specified; you only need chip, engineId, configReg.\n");
-    ecmdOutputError("getgpioreg - Type 'getgpiopin -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("getgpioreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  if (!ecmdIsAllDecimal(argv[1])) {
-    ecmdOutputError("getgpioreg - Non-decimal numbers detected in engineId field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  uint32_t engineId = (uint32_t)atoi(argv[1]);
-  
-  /* Get the configReg */
-  uint32_t configReg = 0;
-  sscanf(argv[2], "%x", &configReg);
-
-
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    rc = ecmdGpioReadConfigRegister(target, engineId, configReg, value);
-    if (rc) {
-      printed = "getgpioreg - Error occurred performing ecmdGpioReadPin on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                       
-      continue;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    printed = ecmdWriteTarget(target) + "\n";
-
-    data.setBitLength(32);
-    data.insert(value, 0, 32 );   
-    std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
-    printed += dataStr;
-    ecmdOutput( printed.c_str() );
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  if (!validPosFound) {
-    ecmdOutputError("getgpioreg - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-  
-  return rc;  
-}
-
-uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
-  uint32_t coeRc = ECMD_SUCCESS;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
-  ecmdChipTarget target;                ///< Current target operating on
-  ecmdDataBuffer buffer;                ///< Container to store write data
-  ecmdDataBuffer mask;                  ///< Container to store mask data
-  bool validPosFound = false;           ///< Did the looper find anything to execute on
-  std::string inputformat = "xl";       ///< Input Format to display
-  uint32_t value=0;                     ///< Value to write to pin/s
-  std::string printed;
-  
-  /************************************************************************/
-  /* Parse Local FLAGS here!                                              */
-  /************************************************************************/
- 
-  /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
-  }
-  
-  /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
-  /************************************************************************/
-
-  rc = ecmdCommandArgs(&argc, &argv);
-  if (rc) return rc;
-
-  /* Global args have been parsed, we can read if -coe was given */
-  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-  
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  if (argc < 5) {  
-    ecmdOutputError("putgpioreg - Too few arguments specified; you need at least a chip, engineId, configReg, value, mode.\n");
-    ecmdOutputError("putgpioreg - Type 'putgpioreg -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  } else if (argc > 5) {
-    ecmdOutputError("putgpioreg - Too many arguments specified; you only need chip, engineId, configReg, value, mode.\n");
-    ecmdOutputError("putgpioreg - Type 'putgpioreg -h' for usage.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  
-  
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("putgpioreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-
-  if (!ecmdIsAllDecimal(argv[1])) {
-    ecmdOutputError("putgpioreg - Non-decimal numbers detected in engineId field\n");
-    return ECMD_INVALID_ARGS;
-  }
-  uint32_t engineId = (uint32_t)atoi(argv[1]);
-  
-  /* Get the configReg */
-  uint32_t configReg = 0;
-  sscanf(argv[2], "%x", &configReg);
-
-  /* Get the mode and data strings */
-  std::string modeStr, dataStr;
-  modeStr = argv[3];
-  dataStr = argv[4];
-
-  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
-  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
-
-  ecmdGpioWriteMode_t mode = ECMD_GPIO_CONFIG_WRITE;  // defaulting to remove compiler warnings
-  if (modeStr == "WR") mode = ECMD_GPIO_CONFIG_WRITE;
-  else if (modeStr == "SB")  mode = ECMD_GPIO_SET_BIT;
-  else if (modeStr == "CB")  mode = ECMD_GPIO_CLEAR_BIT;
-  else {
-    ecmdOutputError("putgpioreg - Invalid value for mode. Valid Values : WR(Write Data as is) SB(Set Bits in Data) CB(Clear Bits in Data)\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  /* Read in the data */
-  rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat);
-  if (rc) {
-    ecmdOutputError("putgpioreg - Problems occurred parsing input data, must be an invalid format\n");
-    return rc;
-  }    
-  if (buffer.getBitLength() != 32) {
-    ecmdOutputError("putgpioreg - Input Data length should be 32 bits\n");
-    return ECMD_INVALID_ARGS;
-  }
-
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
-
-  rc = ecmdConfigLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
-  
-  while (ecmdConfigLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    rc = ecmdGpioWriteConfigRegister(target, engineId, mode, configReg, value);
-    if (rc) {
-      printed = "putgpioreg - Error occurred performing putgpioreg on ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;                                 
-      continue;
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-    }
-  }
-  // coeRc will be the return code from in the loop, coe mode or not.
-  if (coeRc) return coeRc;
-
-  if (!validPosFound) {
-    ecmdOutputError("putgpioreg - Unable to find a valid chip to execute command on\n");
-    return ECMD_TARGET_NOT_CONFIGURED;
-  }
-
-  return rc;  
-}
-#endif //ECMD_REMOVE_GPIO_FUNCTIONS
-
-
-#ifndef ECMD_REMOVE_I2C_FUNCTIONS
-
+//I2cMultiple stuff
 /******Used in ecmdI2cMultipleUser for parsting the geti2c calls*******/
 
 uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
@@ -1947,4 +1119,810 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   return rc;  
 }
 
-#endif
+
+
+#endif // ECMD_REMOVE_I2C_FUNCTIONS
+
+#ifndef ECMD_REMOVE_GPIO_FUNCTIONS
+uint32_t ecmdPutGpioLatchUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS; 
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  ecmdDataBuffer buffer;                ///< Container to store write data
+  ecmdDataBuffer mask;                  ///< Container to store mask data
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string inputformat = "b";        ///< Input Format to display
+  uint32_t value;                       ///< Value to write to pin/s
+  std::string printed;
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+  
+  /* get mask value for multiple pins, if it's there */
+  char * maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask");
+  if (maskPtr != NULL) {
+   rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, 32);
+   if (rc) {
+    ecmdOutputError("putgpiolatch - Problems occurred parsing mask value, must be an invalid format\n");
+    return rc;
+   }
+   if (mask.getBitLength() > 32) {
+    ecmdOutputError("putgpiolatch - Mask length cannot exceed 32 bits\n");
+    return ECMD_INVALID_ARGS;
+   }
+  }
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (((maskPtr != NULL) && (argc < 4)) || ((maskPtr == NULL) && (argc < 5)) ) {  
+    ecmdOutputError("putgpiolatch - Too few arguments specified; you need at least a chip, engineId, pin/mask, mode, data.\n");
+    ecmdOutputError("putgpiolatch - Type 'putgpiolatch -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if ( ((maskPtr != NULL) && (argc > 4)) || ((maskPtr == NULL) && (argc > 5))) {
+    ecmdOutputError("putgpiolatch - Too many arguments specified; you only need chip, engineId, pin/mask, mode, data.\n");
+    ecmdOutputError("putgpiolatch - Type 'putgpiolatch -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  //Setup the target that will be used to query the system config 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("putgpiolatch - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("putgpiolatch - Non-decimal numbers detected in engineId field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
+  
+  uint32_t pin = 0;
+  std::string modeStr, dataStr;
+  
+  if (maskPtr == NULL) {
+   if (!ecmdIsAllDecimal(argv[2])) {
+     ecmdOutputError("putgpiolatch - Non-decimal numbers detected in pin field\n");
+     return ECMD_INVALID_ARGS;
+   }
+ 
+   pin = (uint32_t)atoi(argv[2]);
+   modeStr = argv[3];
+   dataStr = argv[4];
+  } else {
+   modeStr = argv[2];
+   dataStr = argv[3];
+  }
+
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
+
+  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
+  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
+  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
+  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
+  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
+  else {
+    ecmdOutputError("putgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  if (maskPtr != NULL) {
+   rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat, 32);
+   if (rc) {
+     ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
+     return rc;
+   }
+   if (buffer.getBitLength() > 32) {
+     ecmdOutputError("putgpiolatch - Input Data length cannot exceed 32 bits\n");
+     return ECMD_INVALID_ARGS;
+   } 
+   value = buffer.getWord(0);
+  } else {
+   rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat);
+   if (rc) {
+     ecmdOutputError("putgpiolatch - Problems occurred parsing input data, must be an invalid format\n");
+     return rc;
+   }
+   if (buffer.getBitLength() > 1) {
+     ecmdOutputError("putgpiolatch - Input Data length should be 1\n");
+     return ECMD_INVALID_ARGS;
+   }
+   if (buffer.isBitSet(0)) {
+    value = 1;
+   } else value = 0;
+  }
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    if (maskPtr != NULL) {
+      rc = ecmdGpioWriteLatches(target, engineId, mode, mask.getWord(0), value );
+    } else {
+      rc = ecmdGpioWriteLatch(target, engineId, pin, mode, value );
+    }
+
+    if (rc) {
+      if (maskPtr != NULL) {
+        printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatches on ";
+      } else {
+        printed = "putgpiolatch - Error occurred performing ecmdGpioWriteLatch on ";
+      }
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                        
+      continue;
+    } else {
+      validPosFound = true;     
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("putgpiolatch - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;  
+}
+
+uint32_t ecmdGpioConfigUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string printed;
+  
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 4) {  
+    ecmdOutputError("gpioconfig - Too few arguments specified; you need at least a chip, engineId, pin, mode.\n");
+    ecmdOutputError("gpioconfig - Type 'gpioconfig -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if ( argc > 4) {
+    ecmdOutputError("gpioconfig - Too many arguments specified; you only need chip, engineId, pin, mode.\n");
+    ecmdOutputError("gpioconfig - Type 'gpioconfig -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  //Setup the target that will be used to query the system config 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("gpioconfig - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("gpioconfig - Non-decimal numbers detected in engineId field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
+  
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("gpioconfig - Non-decimal numbers detected in pin field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t pin = (uint32_t)atoi(argv[2]);
+
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  std::string modeStr = argv[3];
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
+  
+  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
+  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
+  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
+  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
+  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
+  else {
+    ecmdOutputError("gpioconfig - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    rc = ecmdGpioConfigPin(target, engineId, pin, mode);
+    if (rc) {
+      printed = "gpioconfig - Error occurred performing ecmdGpioConfigPin on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                           
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("gpioconfig - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;  
+}
+
+
+uint32_t ecmdGetGpioPinUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  ecmdDataBuffer data;                  ///< DataBuffer to store state into
+  ecmdDataBuffer mask;                  ///< Container to store the mask value for multiple pins
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string outputformat = "b";       ///< Output Format to display
+  std::string inputformat = "xl";       ///< Output Format to display
+  uint32_t state;                       ///< State read on pin (0/1)
+  std::string printed;
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  /* get format flag, if it's there */
+  char * oformatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (oformatPtr != NULL) {
+    outputformat = oformatPtr;
+  }
+  
+  char * iformatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (iformatPtr != NULL) {
+    inputformat = iformatPtr;
+  }
+
+  /* get mask value for multiple pins, if it's there */
+  char * maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask");
+  if (maskPtr != NULL) {
+   rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, 32);
+   if (rc) {
+    ecmdOutputError("getgpiopin - Problems occurred parsing mask value, must be an invalid format\n");
+    return rc;
+   }
+   if (mask.getBitLength() > 32) {
+    ecmdOutputError("getgpiopin - Mask length should be <= 32 bits.\n");
+    return ECMD_INVALID_ARGS;
+   }
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (((maskPtr == NULL) && (argc < 3))  ||  ((maskPtr != NULL) && (argc < 2))){  
+    ecmdOutputError("getgpiopin - Too few arguments specified; you need at least a chip, engineId, pin/mask.\n");
+    ecmdOutputError("getgpiopin - Type 'getgpiopin -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if ( ((maskPtr == NULL) && (argc > 3))  ||  ((maskPtr != NULL) && (argc > 2))) {
+    ecmdOutputError("getgpiopin - Too many arguments specified; you only need chip, engineId, pin/mask.\n");
+    ecmdOutputError("getgpiopin - Type 'getgpiopin -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  //Setup the target that will be used to query the system config 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("getgpiopin - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("getgpiopin - Non-decimal numbers detected in engineId field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
+  
+  
+  uint32_t pin=0;
+  if (maskPtr == NULL) {
+   if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("getgpiopin - Non-decimal numbers detected in pin field\n");
+    return ECMD_INVALID_ARGS;
+   }
+   pin = (uint32_t)atoi(argv[2]);
+  }
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    if (maskPtr != NULL) {
+      rc = ecmdGpioReadPins(target, engineId, mask.getWord(0), state);
+    } else {
+      rc = ecmdGpioReadPin(target, engineId, pin,  state);
+    }
+
+    if (rc) {
+      if (maskPtr != NULL) {
+        printed = "getgpiopin - Error occurred performing ecmdGpioReadPins on ";
+      } else {
+        printed = "getgpiopin - Error occurred performing ecmdGpioReadPin on ";
+      }
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                       
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    printed = ecmdWriteTarget(target) + "\n";
+
+    data.setBitLength(32);
+    data.insert(state, 0, 32 );   
+    std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
+    printed += dataStr;
+    ecmdOutput( printed.c_str() );
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("getgpiopin - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  
+  return rc;  
+}
+
+uint32_t ecmdGetGpioLatchUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  ecmdDataBuffer data;                  ///< DataBuffer to stores state into
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string outputformat = "b";      ///< Output Format to display
+  uint32_t state;                       ///< State read on pin (0/1)
+  std::string printed;
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 4) {  
+    ecmdOutputError("getgpiolatch - Too few arguments specified; you need at least a chip, engineId, pin, mode.\n");
+    ecmdOutputError("getgpiolatch - Type 'getgpiolatch -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if ( argc > 4) {
+    ecmdOutputError("getgpiolatch - Too many arguments specified; you only need chip, engineId, pin, mode.\n");
+    ecmdOutputError("getgpiolatch - Type 'getgpiolatch -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  //Setup the target that will be used to query the system config 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("getgpiolatch - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("getgpiolatch - Non-decimal numbers detected in engineId field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
+  
+  if (!ecmdIsAllDecimal(argv[2])) {
+    ecmdOutputError("getgpiolatch - Non-decimal numbers detected in pin field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t pin = (uint32_t)atoi(argv[2]);
+  
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  std::string modeStr = argv[3];
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
+
+  ecmdDioMode_t mode = ECMD_DIO_INPUT;  // defaulting to remove compiler warnings
+  if (modeStr == "IN") mode = ECMD_DIO_INPUT;
+  else if (modeStr == "OD")  mode = ECMD_DIO_OPEN_DRAIN;
+  else if (modeStr == "OS")  mode = ECMD_DIO_OPEN_SOURCE;
+  else if (modeStr == "PP")  mode = ECMD_DIO_PUSH_PULL;
+  else {
+    ecmdOutputError("getgpiolatch - Invalid value for mode. Valid Values : IN(Input) OD(Open Drain) OS(Open Source) PP(Push Pull)\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    rc = ecmdGpioReadLatch(target, engineId, pin, mode, state);
+    if (rc) {
+      printed = "getgpiolatch - Error occurred performing ecmdGpioReadLatch on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                          
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    printed = ecmdWriteTarget(target) + "\n";
+
+    data.setBitLength(32);
+    data.insert(state, 0, 32 );   
+    std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
+    printed += dataStr;
+    ecmdOutput( printed.c_str() );
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("getgpiolatch - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdGetGpioRegUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  ecmdDataBuffer data;                  ///< DataBuffer to store state into
+  ecmdDataBuffer mask;                  ///< Container to store the mask value for multiple pins
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string outputformat = "xl";      ///< Output Format to display
+  uint32_t value;                       ///< value read from register
+  std::string printed;
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  /* get format flag, if it's there */
+  char * oformatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (oformatPtr != NULL) {
+    outputformat = oformatPtr;
+  }
+  
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 3){  
+    ecmdOutputError("getgpioreg - Too few arguments specified; you need at least a chip, engineId, configReg.\n");
+    ecmdOutputError("getgpioreg - Type 'getgpioreg -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if (argc > 3) {
+    ecmdOutputError("getgpioreg - Too many arguments specified; you only need chip, engineId, configReg.\n");
+    ecmdOutputError("getgpioreg - Type 'getgpiopin -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  //Setup the target that will be used to query the system config 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("getgpioreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("getgpioreg - Non-decimal numbers detected in engineId field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
+  
+  /* Get the configReg */
+  uint32_t configReg = 0;
+  sscanf(argv[2], "%x", &configReg);
+
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    rc = ecmdGpioReadConfigRegister(target, engineId, configReg, value);
+    if (rc) {
+      printed = "getgpioreg - Error occurred performing ecmdGpioReadPin on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                       
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    printed = ecmdWriteTarget(target) + "\n";
+
+    data.setBitLength(32);
+    data.insert(value, 0, 32 );   
+    std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
+    printed += dataStr;
+    ecmdOutput( printed.c_str() );
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("getgpioreg - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  
+  return rc;  
+}
+
+uint32_t ecmdPutGpioRegUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t coeRc = ECMD_SUCCESS;
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  ecmdDataBuffer buffer;                ///< Container to store write data
+  ecmdDataBuffer mask;                  ///< Container to store mask data
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string inputformat = "xl";       ///< Input Format to display
+  uint32_t value=0;                     ///< Value to write to pin/s
+  std::string printed;
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+ 
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+  
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 5) {  
+    ecmdOutputError("putgpioreg - Too few arguments specified; you need at least a chip, engineId, configReg, value, mode.\n");
+    ecmdOutputError("putgpioreg - Type 'putgpioreg -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if (argc > 5) {
+    ecmdOutputError("putgpioreg - Too many arguments specified; you only need chip, engineId, configReg, value, mode.\n");
+    ecmdOutputError("putgpioreg - Type 'putgpioreg -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  
+  //Setup the target that will be used to query the system config 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("putgpioreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  if (!ecmdIsAllDecimal(argv[1])) {
+    ecmdOutputError("putgpioreg - Non-decimal numbers detected in engineId field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  uint32_t engineId = (uint32_t)atoi(argv[1]);
+  
+  /* Get the configReg */
+  uint32_t configReg = 0;
+  sscanf(argv[2], "%x", &configReg);
+
+  /* Get the mode and data strings */
+  std::string modeStr, dataStr;
+  modeStr = argv[3];
+  dataStr = argv[4];
+
+  // Push toupper for the comparision below.  This will allow the user to use lower case - JTA
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) toupper);
+
+  ecmdGpioWriteMode_t mode = ECMD_GPIO_CONFIG_WRITE;  // defaulting to remove compiler warnings
+  if (modeStr == "WR") mode = ECMD_GPIO_CONFIG_WRITE;
+  else if (modeStr == "SB")  mode = ECMD_GPIO_SET_BIT;
+  else if (modeStr == "CB")  mode = ECMD_GPIO_CLEAR_BIT;
+  else {
+    ecmdOutputError("putgpioreg - Invalid value for mode. Valid Values : WR(Write Data as is) SB(Set Bits in Data) CB(Clear Bits in Data)\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /* Read in the data */
+  rc = ecmdReadDataFormatted(buffer, dataStr.c_str(), inputformat);
+  if (rc) {
+    ecmdOutputError("putgpioreg - Problems occurred parsing input data, must be an invalid format\n");
+    return rc;
+  }    
+  if (buffer.getBitLength() != 32) {
+    ecmdOutputError("putgpioreg - Input Data length should be 32 bits\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    rc = ecmdGpioWriteConfigRegister(target, engineId, mode, configReg, value);
+    if (rc) {
+      printed = "putgpioreg - Error occurred performing putgpioreg on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;                                 
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound) {
+    ecmdOutputError("putgpioreg - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;  
+}
+#endif //ECMD_REMOVE_GPIO_FUNCTIONS
+
