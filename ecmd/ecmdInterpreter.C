@@ -1,20 +1,4 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips710 src/ecmd/import/ecmdInterpreter.C 1.17.1.11 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2004,2008 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
+/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File ecmdInterpreter.C                                   
@@ -29,20 +13,9 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
-
-// Module Description **************************************************
-//
-// Description: 
-//
-// End Module Description **********************************************
-
 
 /* This file tells us what extensions are supported by the plugin env we are compiling in (default is all) */
 #include <ecmdPluginExtensionSupport.H>
-
-
-
 
 
 //----------------------------------------------------------------------
@@ -212,7 +185,6 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
 
 uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
-	printf("ENTER-> ecmdCommandInterpreter\n");
   uint32_t rc = ECMD_SUCCESS;
 
   if (argc >= 1) {
@@ -395,9 +367,11 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_GPIO_FUNCTIONS
         } else if (!strcmp(argv[0], "gpioconfig")) {
           rc = ecmdGpioConfigUser(argc - 1, argv + 1);
-#endif // ECMD_REMOVE_GPIO_FUNCTIONS
-
-
+#endif // ECMD_REMOVE_GPIO_FUNCTIONS        
+ #ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+        } else if (!strcmp(argv[0], "getfastarray")) {
+          rc = ecmdGetFastArrayUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
         } 
           else {
           /* We don't understand this function, let's let the caller know */
@@ -415,12 +389,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         if (!strcmp(argv[0], "istep")) {
           rc = ecmdIstepUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
+        } else if (!strcmp(argv[0], "i2cmultiple")) {
+          rc = ecmdI2cMultipleUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "i2creset")) {
           rc = ecmdI2cResetUser(argc - 1, argv + 1);
-#endif // ECMD_REMOVE_I2C_FUNCTIONS
-#ifndef ECMD_REMOVE_I2C_FUNCTIONS
-        } else if (!strcmp(argv[0], "i2cmultiple")) {	
-          rc = ecmdI2cMultipleUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_I2C_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
@@ -574,6 +546,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #ifndef REMOVE_SIM
         } else if (!strcmp(argv[0], "simaet")) {
           rc = ecmdSimaetUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "simcallfusioncommand")) {
+          rc = ecmdSimCallFusionCommandUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simcheckpoint")) {
           rc = ecmdSimcheckpointUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simclock")) {
@@ -590,6 +564,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdSimGETFACUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simGETFACX")) {
           rc = ecmdSimGETFACXUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "simgetfullfacname")) {
+          rc = ecmdSimGetFullFacNameUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simgettcfac")) {
           rc = ecmdSimgettcfacUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "simgetcurrentcycle")) {
