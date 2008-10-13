@@ -1,3 +1,20 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips710 src/ecmd/import/ecmdInterpreter.H 1.17.1.10 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// COPYRIGHT International Business Machines Corp. 2004,2008 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
 #ifndef ecmdInterpreter_h
 #define ecmdInterpreter_h
 // Copyright **********************************************************
@@ -85,7 +102,6 @@ uint32_t ecmdSendCmdUser(int argc, char* argv[]);
 
 /* ecmdArrayUser.C */
 uint32_t ecmdGetArrayUser(int argc, char* argv[]);
-uint32_t ecmdGetFastArrayUser(int argc, char* argv[]);
 uint32_t ecmdGetTraceArrayUser(int argc, char* argv[]);
 uint32_t ecmdPutArrayUser(int argc, char* argv[]);
 
@@ -109,7 +125,6 @@ uint32_t ecmdQueryUser(int argc, char* argv[]);
 /* ecmdSimUser.C */
 #ifndef REMOVE_SIM
 uint32_t ecmdSimaetUser(int argc, char * argv[]);
-uint32_t ecmdSimCallFusionCommandUser(int argc, char * argv[]);
 uint32_t ecmdSimcheckpointUser(int argc, char * argv[]);
 uint32_t ecmdSimclockUser(int argc, char * argv[]);
 uint32_t ecmdSimechoUser(int argc, char * argv[]);
@@ -118,7 +133,6 @@ uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]);
 uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimGETFACUser(int argc, char * argv[]);
 uint32_t ecmdSimGETFACXUser(int argc, char * argv[]);
-uint32_t ecmdSimGetFullFacNameUser(int argc, char * argv[]);
 uint32_t ecmdSimgettcfacUser(int argc, char * argv[]);
 uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]);
 uint32_t ecmdSiminitUser(int argc, char * argv[]);
@@ -176,13 +190,13 @@ uint32_t ecmdGetVpdImageUser(int argc, char* argv[]);
 uint32_t ecmdPutI2cUser(int argc, char* argv[]);
 uint32_t ecmdGetI2cUser(int argc, char* argv[]);
 uint32_t ecmdI2cResetUser(int argc, char* argv[]);
-uint32_t ecmdI2cMultipleUser(int argc, char* argv[]);
 uint32_t ecmdGetGpioPinUser(int argc, char* argv[]);
 uint32_t ecmdGetGpioLatchUser(int argc, char* argv[]);
 uint32_t ecmdPutGpioLatchUser(int argc, char* argv[]);
 uint32_t ecmdGpioConfigUser(int argc, char* argv[]);
 uint32_t ecmdGetGpioRegUser(int argc, char* argv[]);
 uint32_t ecmdPutGpioRegUser(int argc, char* argv[]);
+uint32_t ecmdI2cMultipleUser(int argc, char* argv[]);	
 
 /* ecmdPowerUser.C */
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
