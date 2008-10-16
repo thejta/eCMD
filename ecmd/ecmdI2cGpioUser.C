@@ -975,7 +975,7 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
        int argc_temp = cmdsize -ctrvar_helper-1;//This is the actual length of a particular cmdLine for geti2c, puti2c ot i2creset
                                                 //which will be passed in the parser function.
 
-       char * argv_temp[argc_temp];	//This char * array will be passed in the parser function	
+       char ** argv_temp = new char*[argc_temp+1]; //This char * array will be passed in the parser function
        for(int k = 0;(k<argc_temp)&&(ctrvar_helper<cmdsize);k++,ctrvar_helper++){//creating the cmd to be passed in the parser funcs
             argv_temp[k]=argv_helper[ctrvar_helper];
        }
@@ -1018,6 +1018,8 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
        else {		//else puch_back in the list
 	o_cmdList.push_back(o_cmd);
        }    
+       delete [] argv_temp;
+       argv_temp = NULL; 
     }	//ending the while loop
   }	//multiple cmd Line operation is completed 
 
