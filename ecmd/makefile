@@ -126,6 +126,7 @@ clean: objclean exportclean
 
 objclean:
 	rm -rf ${SUBDIR}
+	rm -rf *.o
 
 exportclean:
 	rm -rf export/
