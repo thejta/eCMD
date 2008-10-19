@@ -2293,6 +2293,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
 	}
         curLatchData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
         curLatchData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
+        curLatchData.relatedChipUnitShort = o_ringData.begin()->relatedChipUnitShort;
       } else {
 	o_queryData.push_back(curLatchData);
       }

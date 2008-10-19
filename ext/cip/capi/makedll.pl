@@ -24,6 +24,7 @@ my $curdir = ".";
 my $INT = 0;
 my $VOID = 1;
 my $STRING = 2;
+my $BOOL = 3;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
 my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdFunctionTimer);
@@ -80,6 +81,7 @@ while (<IN>) {
     my $type_flag = $INT;
     $type_flag = $VOID if (/^void/);
     $type_flag = $STRING if (/^std::string/);
+    $type_flag = $BOOL if (/^bool/);
     my $chipTarget = 0;
     $chipTarget = 1 if (/ecmdChipTarget/);
 
@@ -230,6 +232,9 @@ while (<IN>) {
       }
       elsif ($type_flag == $INT) {
         $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;\n";
+      }
+      elsif ($type_flag == $BOOL) {
+        $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return false;\n";
       }
       else { #type is VOID
         $printout .= "   if (ecmdIsRingCacheEnabled(cacheTarget)) return;\n";
