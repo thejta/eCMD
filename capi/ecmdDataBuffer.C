@@ -1766,7 +1766,6 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_ta
 
 
 uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, uint32_t i_len) const {
-
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   // ecmdExtract can't make good input checks, so we have to do that here
@@ -1785,10 +1784,9 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, 
   if (rc) return rc;
 
   rc = ecmdExtract(this->iv_Data, i_start, i_len, o_bufferOut.iv_Data);
+  if (rc) return rc;   
 
-  if (rc) RETURN_ERROR(rc);   
-
-#ifndef REMOVE_SIM   
+#ifndef REMOVE_SIM
   /* We have xstates, force the output buffer to have them as well */
   if (iv_XstateEnabled) {
     o_bufferOut.enableXstateBuffer();
@@ -4327,7 +4325,7 @@ void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer 
   if (!buff->iv_XstateEnabled) {
     return;
   }
-  strcpy(buff->iv_DataStr,buff->genBinStr().c_str());
+  strcpy(buff->iv_DataStr,buff->genXstateStr().c_str());
 #endif
   return;
 }
