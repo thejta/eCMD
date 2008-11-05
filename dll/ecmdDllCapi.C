@@ -2287,6 +2287,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
 	  return rc;
         }
         curLatchData.ringName = curLatchInfo->ringName;
+	if (!o_ringData.empty()) {
 	if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
 	  curLatchData.clockDomain = o_ringData.begin()->clockDomain;
 	  curLatchData.clockState = o_ringData.begin()->clockState;
@@ -2294,6 +2295,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
         curLatchData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
         curLatchData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
         curLatchData.relatedChipUnitShort = o_ringData.begin()->relatedChipUnitShort;
+        }
       } else {
 	o_queryData.push_back(curLatchData);
       }
