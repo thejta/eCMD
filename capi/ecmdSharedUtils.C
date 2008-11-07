@@ -79,6 +79,14 @@ ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_DEFAULT;
  */
 void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
 
+/**
+ * @brief Converts a ecmdChipTargetState_t enum to a std::string
+ * @retval The string
+ * @param io_argv Array of strings passed in from command line
+
+ */
+std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState);
+
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -107,6 +115,24 @@ void ecmdRemoveNullPointers (int *argc, char **argv[]) {
       return;
     }
   }
+}
+
+std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState)
+{
+  std::string str;
+
+  switch (i_targetState)
+  {
+    case ECMD_TARGET_UNKNOWN_STATE: {str="(UNK)"; break;}
+    case ECMD_TARGET_FIELD_VALID: {str="(V)"; break;}
+    case ECMD_TARGET_FIELD_UNUSED: {str="(U)"; break;}
+    case ECMD_TARGET_FIELD_WILDCARD: {str="(WC)"; break;}
+    case ECMD_TARGET_THREAD_ALIVE: {str="(TA)"; break;}
+
+    default: {str="(ERROR)"; break;}
+  }
+
+  return str;
 }
 
 
@@ -458,14 +484,19 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
   std::string printed;
   char util[10];
   bool hexMode = false;
+  bool stateMode = false;
   std::string subPrinted;
 
   if (i_displayMode == ECMD_DISPLAY_TARGET_PLUGIN_MODE) {
     i_displayMode = pluginDisplayMode;    
   }
 
-  if (i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID) {
+  if (i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_HYBRID || i_displayMode == ECMD_DISPLAY_TARGET_STATES_HEX) {
     hexMode = true;
+  }
+
+  if (i_displayMode == ECMD_DISPLAY_TARGET_STATES_DECIMAL || i_displayMode == ECMD_DISPLAY_TARGET_STATES_HEX) {
+    stateMode = true;
   }
 
   if ((i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT ||
@@ -484,13 +515,23 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
       printed += ":";
     }
   }
+  else if (stateMode)
+  {
+        printed += i_target.chipType;
+        printed += ecmdWriteTargetState(i_target.chipTypeState); 
+        printed += ".";
+        printed += i_target.chipUnitType;
+        printed += ecmdWriteTargetState(i_target.chipUnitTypeState);
+        printed += " ";
+  }
+
 
   /* Put the hex prefix onto the output */
   if (hexMode) {
     subPrinted += "0x[";
   }
 
-  if (i_target.cageState == ECMD_TARGET_FIELD_VALID) {
+  if (i_target.cageState == ECMD_TARGET_FIELD_VALID || stateMode) {
     if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
       subPrinted += " -";
     } else {
@@ -502,8 +543,9 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
       sprintf(util, "k%d", i_target.cage);
     }
     subPrinted += util;
+    subPrinted += ecmdWriteTargetState(i_target.cageState);
 
-    if (i_target.nodeState == ECMD_TARGET_FIELD_VALID) {
+    if (i_target.nodeState == ECMD_TARGET_FIELD_VALID || stateMode) {
       if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
         subPrinted += " -";
       } else {
@@ -521,8 +563,9 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
         }
         subPrinted += util;
       }
+      subPrinted += ecmdWriteTargetState(i_target.nodeState);
 
-      if (i_target.slotState == ECMD_TARGET_FIELD_VALID) {
+      if (i_target.slotState == ECMD_TARGET_FIELD_VALID || stateMode) {
         if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
           subPrinted += " -";
         } else {
@@ -540,8 +583,10 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
           }
           subPrinted += util;
         }
+        subPrinted += ecmdWriteTargetState(i_target.slotState);
 
-        if ((i_target.posState == ECMD_TARGET_FIELD_VALID) && (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID)) {
+        if (((i_target.posState == ECMD_TARGET_FIELD_VALID) && (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID))
+             || stateMode)  {
 
           if (i_displayMode == ECMD_DISPLAY_TARGET_COMPRESSED || i_displayMode == ECMD_DISPLAY_TARGET_HEX_COMPRESSED) {
             subPrinted += ":";
@@ -564,8 +609,9 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
             sprintf(util, "p%02d", i_target.pos);
           }
           subPrinted += util;
-
-          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+          subPrinted += ecmdWriteTargetState(i_target.posState);
+ 
+          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID || stateMode) {
             if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
               subPrinted += " -";
             } else {
@@ -578,8 +624,9 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
               sprintf(util, "c%d", i_target.chipUnitNum);
             }
             subPrinted += util;
+            subPrinted += ecmdWriteTargetState(i_target.chipUnitNumState);
 
-            if (i_target.threadState == ECMD_TARGET_FIELD_VALID) {
+            if (i_target.threadState == ECMD_TARGET_FIELD_VALID || stateMode) {
               if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
                 subPrinted += " -";
               } else {
@@ -592,6 +639,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
                 sprintf(util, "t%d", i_target.thread);
               }
               subPrinted += util;
+              subPrinted += ecmdWriteTargetState(i_target.threadState);
             }
           } //chipUnitNum
         } //pos
@@ -603,6 +651,16 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
   if (hexMode) {
     subPrinted += "]";
   }
+
+  /* Add the unitId and state */
+  if (stateMode) {
+    subPrinted += " (uid 0x";
+    sprintf(util, "%X", i_target.unitId);
+    subPrinted += util;
+    subPrinted += ecmdWriteTargetState(i_target.unitIdState);
+    subPrinted += ")";
+  }
+
 
   /* Now put the subPrinted stuff onto the printed string so we've got the full thing */
   printed += subPrinted;
