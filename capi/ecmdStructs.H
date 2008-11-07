@@ -469,7 +469,9 @@ typedef enum {
   ECMD_DISPLAY_TARGET_HEX_COMPRESSED,   ///< Compressed : '0x[k0:n0:s0:pu:p01:c1]' or '0x[k0:n0]'
   ECMD_DISPLAY_TARGET_HYBRID,           ///< Hybrid mode : '0x[pu:k0:n0:s0:p01:c1]' or '0x[pu.core:k0:n0:s0:p01:c1]'
   ECMD_DISPLAY_TARGET_HEX_HYBRID,       ///< Hybrid mode : '0x[pu:k0:n0:s0:p01:c1]' or '0x[pu.core:k0:n0:s0:p01:c1]'
-  ECMD_DISPLAY_TARGET_COMMANDLINE       ///< Command Line mode : pu -k0 -n1 -s0 -p2
+  ECMD_DISPLAY_TARGET_COMMANDLINE,      ///< Command Line mode : pu -k0 -n1 -s0 -p2
+  ECMD_DISPLAY_TARGET_STATES_DECIMAL,   ///< States Mode Decimal: pu(V).cu(V) k0(V):n0(V):s0(V):p01(WC):c0(U):t0(U) (uid 0x0(UNK))
+  ECMD_DISPLAY_TARGET_STATES_HEX        ///< States Mode Hex: pu(V).cu(V) 0x[k0(V):n0(V):s0(V):p01(WC):c0(U):t0(U)] (uid 0x0(UNK))
 } ecmdTargetDisplayMode_t;
 
 //--------------------------------------------------------------------
