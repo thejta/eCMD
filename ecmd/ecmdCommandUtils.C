@@ -382,22 +382,41 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
      return ECMD_INVALID_ARGS;
        }
        if(isCage) {
-         target.cage = (uint32_t)atoi(targetFieldList.c_str());
+         if (!targetFieldList.compare(0,2,"0x")) //input is hex
+           target.cage = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+         else  // dec
+           target.cage = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isNode) {
-         target.node = (uint32_t)atoi(targetFieldList.c_str());
+         if (!targetFieldList.compare(0,2,"0x")) //input is hex
+           target.node = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+         else  // dec
+           target.node = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isSlot) {
-         target.slot = (uint32_t)atoi(targetFieldList.c_str());
+         if (!targetFieldList.compare(0,2,"0x")) //input is hex
+           target.slot = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+         else  // dec
+           target.slot = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isPos) {
-         target.pos = (uint32_t)atoi(targetFieldList.c_str());
+         if (!targetFieldList.compare(0,2,"0x")) //input is hex
+           target.pos = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+         else  // dec
+           target.pos = (uint32_t)atoi(targetFieldList.c_str());
        }
        else if(isCore) {
-         target.core = (uint8_t)atoi(targetFieldList.c_str());
+         if (!targetFieldList.compare(0,2,"0x")) //input is hex
+           target.core = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+         else  // dec
+           target.core = (uint8_t)atoi(targetFieldList.c_str());
        }
        else if(isThread) {
-         target.thread = (uint8_t)atoi(targetFieldList.c_str());
+
+         if (!targetFieldList.compare(0,2,"0x")) //input is hex
+           target.thread = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+         else  // dec
+           target.thread = (uint8_t)atoi(targetFieldList.c_str());
        }
      }
      else {
@@ -487,14 +506,31 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
 bool isTargetStringValid(std::string str) {
 
   bool ret = true;
-  for (uint32_t x = 0; x < str.length(); x ++) {
-    if (isdigit(str[x])) {
-    } else if (str[x] == ',') {
-    } else if (str[x] == '.' && str[x+1] == '.') {
-      x++;
-    } else {
-      ret = false;
-      break;
+  if (str[0]=='0' && (str[1]=='x' ||str[1]=='X' )) // hex
+  {
+    for (uint32_t x = 0; x < str.length(); x ++) {
+      if (isxdigit(str[x])) {
+      } else if (str[x] == ',') {
+      } else if (str[x] == 'x') {
+      } else if (str[x] == '.' && str[x+1] == '.') {
+        x++;
+      } else {
+        ret = false;
+        break;
+      }
+    }
+  }
+  else // dec
+  {
+    for (uint32_t x = 0; x < str.length(); x ++) {
+      if (isdigit(str[x])) {
+      } else if (str[x] == ',') {
+      } else if (str[x] == '.' && str[x+1] == '.') {
+        x++;
+      } else {
+        ret = false;
+        break;
+      }
     }
   }
 
