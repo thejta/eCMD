@@ -116,6 +116,10 @@ uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffe
 
 uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
 
+uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_mask, ecmdDataBuffer & i_data); 
+
+uint32_t dllDoScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries); 
+
 uint32_t dllSendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status); 
 
 uint32_t dllGetCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
