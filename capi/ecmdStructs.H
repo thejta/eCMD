@@ -50,7 +50,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "10.1"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "10.2"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -670,8 +670,12 @@ nodeState(ECMD_TARGET_UNKNOWN_STATE),
 slotState(ECMD_TARGET_UNKNOWN_STATE),
 chipTypeState(ECMD_TARGET_UNKNOWN_STATE),
 posState(ECMD_TARGET_UNKNOWN_STATE),
-chipUnitTypeState(ECMD_TARGET_UNKNOWN_STATE),
-coreState(ECMD_TARGET_UNKNOWN_STATE),
+// The chipUnitTypeState field is init'd differently.  By doing this, we fix this problem: p6.	k0:n0:s0:p00
+// By setting to UNUSED, the P6 code doesn't have to be touched.  And for P7/Z7 above, people don't have to
+// set the chipUnitTypeState field if not used by their chip.  Setting the chipUnitNumState = UNUSED is still
+// required for chip level queries - JTA 10/21/08
+chipUnitTypeState(ECMD_TARGET_FIELD_UNUSED),
+chipUnitNumState(ECMD_TARGET_UNKNOWN_STATE),
 threadState(ECMD_TARGET_UNKNOWN_STATE),
 unitIdState(ECMD_TARGET_UNKNOWN_STATE)
 {
@@ -1453,6 +1457,27 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 // ecmdLatchData Destructor
 inline ecmdLatchData::~ecmdLatchData() { }
 #endif
+
+/**
+ @brief Used by ecmdScomEntry to specify scom multiple d/a type
+*/
+typedef enum {
+  ECMD_SCOM_UNKNOWN,            ///< The unknown state for this enum, not a valid output type
+  ECMD_SCOM_READ,               ///< Do a scom read (getScom)
+  ECMD_SCOM_WRITE,              ///< Do a scom write (putScom)
+  ECMD_SCOM_WRITE_UNDER_MASK,   ///< Do a scome write under mask (putScomUnderMask)
+} ecmdScomMode_t;
+
+/**
+ @brief Used by the getArrayMultiple function to pass data
+*/
+struct ecmdScomEntry {
+  uint32_t         address;         ///< The address to read or write
+  ecmdDataBuffer   scomData;        ///< The data to read or write depending on the operation
+  ecmdDataBuffer   scomDataMask;    ///< The mask data, only used on a mask operation
+  ecmdScomMode_t   scomOperation;   ///< SCOM_READ, SCOM_WRITE, SCOM_WRITE_UNDER_MASK
+  uint32_t rc;                      ///< The return code for the operation
+};
 
 /**
  @brief Used by the getArrayMultiple function to pass data

@@ -725,6 +725,53 @@ uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
 */
 uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
+/**
+ @brief Perform a read/modify/write operation using the mask and data
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_address Scom address to write to
+ @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
+ @param i_data DataBuffer object that holds data to write into address
+ @see getScom
+
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putScomUnderMask (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_mask, ecmdDataBuffer & i_data);
+
+/**
+ @brief Do a sequence of reads and writes in one operation
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param io_entries The list of scom operations to do
+ @see getScom
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.
+
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t doScomMultiple (ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries);
+
 //@}
 /* End Scom Functions */
 
