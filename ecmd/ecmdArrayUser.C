@@ -161,6 +161,14 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
     }
     arrayData = arrayDataList.begin();
 
+    if (arrayData->readAddressLength == 0) {
+      printed = "getarray - readAddressLength of '" + arrayName + "' is 0.  Read not possible on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError(printed.c_str());
+      coeRc = ECMD_INVALID_ARGS;
+      continue;
+    }
+
     /* We have to do the expact flag data read here so that we know the bit length in the right aligned data case - JTA 02/21/06 */
     if (expectFlag) {
 
