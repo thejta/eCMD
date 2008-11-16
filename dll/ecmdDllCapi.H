@@ -116,7 +116,7 @@ uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffe
 
 uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
 
-uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_mask, ecmdDataBuffer & i_data); 
+uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
 
 uint32_t dllDoScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries); 
 
@@ -269,6 +269,8 @@ void dllOutput(const char* i_message);
 uint32_t dllGetGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data); 
+
+uint32_t dllPutGpRegisterUnderMask(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
 
 uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
 
