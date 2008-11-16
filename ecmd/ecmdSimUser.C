@@ -1538,10 +1538,17 @@ uint32_t ecmdSimGetFullFacNameUser(int argc, char * argv[]) {
       continue;
     }
 
-    printed = "Full facility name for target ";
-    printed += ecmdWriteTarget(target);
-    printed += "is :\n" + fullFacName + "\n";
+    if (hierarchyOnly) {
+      printed = "Hierarchy name for target ";
+      printed += ecmdWriteTarget(target);
+      printed += "is :\n" + fullFacName + "\n";
+    } else {
+      printed = "Full facility name for target ";
+      printed += ecmdWriteTarget(target);
+      printed += "is :\n" + fullFacName + "\n";
+    }
     ecmdOutput(printed.c_str());
+
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
