@@ -1,0 +1,31 @@
+
+Syntax: simgetfullfacname <Chip[.ChipUnit]> <-hieronly> <-dc>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+        
+        ECMD:           Core Common Function
+
+        Function:       Retrieve the Simulation hierarchy for a give chip position
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+	-dc  [optional] Specify chipUnit depth to loop on. This is required for chipUnit 
+	                hierarchies.
+
+	-hieronly [opt] Instead of getting full fac name, get only the hierarchy 
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Example:        > simgetfullfacname pu -p2
+                        Full facility name for target pu        k0:n0:s0:p00       is :
+                        P0.B.S.LT.EM.BLAH.FANCY.LATCH.L2
+			
+		        > simgetfullfacname pu.mc -c1 -dc -hieronly
+                        Hierarchy for target pu.mc     k0:n0:s0:p00:c1    is :
+                        B0.C0.S0.D0.P0.E7.EM1
