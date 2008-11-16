@@ -726,7 +726,7 @@ uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
 uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
 /**
- @brief Perform a read/modify/write operation using the mask and data
+ @brief Perform a read/modify/write scom operation using the mask and data
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -736,8 +736,8 @@ uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_address Scom address to write to
- @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
  @param i_data DataBuffer object that holds data to write into address
+ @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
  @see getScom
 
  NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
@@ -745,7 +745,7 @@ uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScomUnderMask (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_mask, ecmdDataBuffer & i_data);
+uint32_t putScomUnderMask (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask);
 
 /**
  @brief Do a sequence of reads and writes in one operation
@@ -2053,7 +2053,7 @@ void ecmdOutput(const char* i_message);
 uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & o_data); 
 
 /**
- @brief Writes a GP Register in CFAM/Access from the data buffer into the selected chip in the selected GR Register
+ @brief Writes a GP Register in CFAM/Access from the data buffer into the selected chip in the selected GP Register
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -2071,6 +2071,26 @@ uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDat
 
 */
 uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data); 
+
+/**
+ @brief Perform a read/modify/write GP Register operation using the mask and data
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_GP_REGISTER if GP Regiter is not valid for target
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_gpRegister Number of the GP Resiter to read from
+ @param i_data DataBuffer object that holds data to write into address
+ @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putGpRegisterUnderMask(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
 
 /**
  @brief Retrieve the value of some ecmdGlobalVars
