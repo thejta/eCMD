@@ -15,22 +15,22 @@ Syntax: ecmd
         biasvoltage              getringdump              putmemproc               simexpecttcfac           
                                  getscom                  putpattern               simgetcurrentcycle       
         cacheflush               getspr                   putscom                  simgetdial               
-        checkrings               getspy                   putspr                   simgethierarchy          
-                                 gettracearray            putspy                   simgettcfac              
-        deconfig                 getvpdimage              putvpdimage              siminit                  
-                                 getvpdkeyword            putvpdkeyword            simoutputfusionmessage   
-        ecmd                     gpioconfig                                        simputdial               
-        ecmdecho                                          querybiasstate           simputtcfac              
-        ecmdquery                i2creset                                          simrestart               
-                                 istep                    reconfig                 simstktcfac              
-        format                                            ringcache                simtckinterval           
-        frupower                 makespsystemcall                                  simunsticktcfac          
-                                                          sendcmd                  startclocks              
-        getarray                 options                  setclockspeed            stopclocks               
-        getbits                                           setconfig                systempower              
-        getcfam                  pollscom                 simEXPECTFAC                                      
-        getclockspeed            psi                      simGETFAC                unitid                   
-        getconfig                putarray                 simGETFACX               
+        checkrings               getspy                   putspr                   simgetfullfacname        
+                                 gettracearray            putspy                   simgethierarchy          
+        deconfig                 getvpdimage              putvpdimage              simgettcfac              
+                                 getvpdkeyword            putvpdkeyword            siminit                  
+        ecmd                     gpioconfig                                        simoutputfusionmessage   
+        ecmdecho                                          querybiasstate           simputdial               
+        ecmdquery                i2creset                                          simputtcfac              
+                                 istep                    reconfig                 simrestart               
+        format                                            ringcache                simstktcfac              
+        frupower                 makespsystemcall                                  simtckinterval           
+                                                          sendcmd                  simunsticktcfac          
+        getarray                 options                  setclockspeed            startclocks              
+        getbits                                           setconfig                stopclocks               
+        getcfam                  pollscom                 simEXPECTFAC             systempower              
+        getclockspeed            psi                      simGETFAC                                         
+        getconfig                putarray                 simGETFACX               unitid                   
         getfpr                   putbits                  simPUTFAC                
         getgpiolatch             putcfam                  simPUTFACX               
         getgpiopin               putfpr                   simSTKFAC                
