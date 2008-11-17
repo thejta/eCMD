@@ -4240,7 +4240,13 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
   byteOffset+=3;
 
   /* Get the length, use it to set the uncompress buffer length */
-  length = (this->getByte(byteOffset++) << 24) | (this->getByte(byteOffset++) << 16) | (this->getByte(byteOffset++) << 8) | this->getByte(byteOffset++);
+  // split the following line up to avoid warnings:
+  // length = (this->getByte(byteOffset++) << 24) | (this->getByte(byteOffset++) << 16) | (this->getByte(byteOffset++) << 8) | this->getByte(byteOffset++);
+  length  = this->getByte(byteOffset++) << 24;
+  length |= this->getByte(byteOffset++) << 16;
+  length |= this->getByte(byteOffset++) << 8;
+  length |= this->getByte(byteOffset++);
+
   uncompressedBuffer.setBitLength(length);
 
   /* Setup our inputs and call the uncompress */
