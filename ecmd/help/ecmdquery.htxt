@@ -27,12 +27,12 @@ Syntax: ecmdquery <Mode> [Mode Options]
                             - Display all fast arrays available (or the selected fast array)
                               for chip
 
-                        procregs Chip [procregistername] [-a#] [-k#] [-n#] [-s#] [-p#]
-                            - Display information on the proc regs (sprs, gprs, fprs,
-                              etc) available for chip
-
                         spys Chip [spyname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all spys available (or the selected spy) for chip
+
+                        procregs Chip.ChipUnit [procregistername] [-a#] [-k#] [-n#] [-s#] [-p#]
+                            - Display information on the proc regs (sprs, gprs, fprs,
+                              etc) available for Chip.ChipUnit (ChipUnit required)
 
                         formats
                             - Display help text for all available input/output formats
