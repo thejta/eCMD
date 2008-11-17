@@ -23,9 +23,13 @@ Syntax: ecmdquery <Mode> [Mode Options]
                             - Display all tr arrays available (or the selected tr array) 
                               for chip
 
-                       fastarrays Chip [fastarrayname] [-a#] [-k#] [-n#] [-s#] [-p#]
+                        fastarrays Chip [fastarrayname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all fast arrays available (or the selected fast array)
                               for chip
+
+                        procregs Chip [procregistername] [-a#] [-k#] [-n#] [-s#] [-p#]
+                            - Display information on the proc regs (sprs, gprs, fprs,
+                              etc) available for chip
 
                         spys Chip [spyname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all spys available (or the selected spy) for chip
