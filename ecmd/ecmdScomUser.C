@@ -466,11 +466,12 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   } else {
 
     // Check that data is numerical
-    if (!ecmdIsAllDecimal(argv[2])) {
-      ecmdOutputError("putscom - Non-decimal characters detected in data field\n");
+    // Check that data is numerical
+    if (!ecmdIsAllHex(argv[2])) {
+      ecmdOutputError("putscom - Non-hex characters detected in data field\n");
       return ECMD_INVALID_ARGS;
     }
-    
+
     cmdlinePtr = argv[2];
 
   }
