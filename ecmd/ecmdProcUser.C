@@ -73,7 +73,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   ecmdChipTarget threadTarget;          ///< Current thread target
   ecmdLooperData threadLooperData;      ///< Store internal thread Looper data
   int idx;
-  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not
   std::string sprName;
 
   /* get format flag, if it's there */
@@ -127,7 +127,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       sprName = argv[idx];
 
       /* First thing we need to do is find out for this particular target if the SPR is threaded */
-      rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+      rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
       if (rc) {
         printed = "getspr - Error occured getting spr info for ";
         printed += sprName;
@@ -135,6 +135,16 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
+        continue;
+      }
+
+      if (procInfo.mode == ECMD_PROCREG_WRITE_ONLY)
+      {
+        // Error! Trying to read/get Write-Only Register 
+        printed = "getspr - Can't Read From Write-Only Register '";
+        printed += sprName + "' \n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = ECMD_READING_FROM_WRITE_ONLY_REG;
         continue;
       }
 
@@ -306,7 +316,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   std::string sprName;          ///< Name of spr to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
-  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
+  ecmdProcRegisterInfoHidden procInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
   char* cmdlinePtr = NULL;            ///< Pointer to data in argv array
@@ -386,7 +396,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
-    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+    rc = ecmdQueryProcRegisterInfoHidden(target, sprName.c_str(), procInfo);
     if (rc) {
       printed = "putspr - Error occured getting spr info for ";
       printed += sprName;
@@ -394,6 +404,16 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
+      continue;
+    }
+
+    if (procInfo.mode == ECMD_PROCREG_READ_ONLY)
+    {
+      // Error! Trying to read/get Write-Only Register 
+      printed = "putspr - Can't Write to Read-Only Register '";
+      printed += sprName + "' \n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = ECMD_WRITING_TO_READ_ONLY_REG;
       continue;
     }
 
