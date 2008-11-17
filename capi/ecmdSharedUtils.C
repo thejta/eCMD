@@ -543,7 +543,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
       sprintf(util, "k%d", i_target.cage);
     }
     subPrinted += util;
-    subPrinted += ecmdWriteTargetState(i_target.cageState);
+    if (stateMode) subPrinted += ecmdWriteTargetState(i_target.cageState);
 
     if (i_target.nodeState == ECMD_TARGET_FIELD_VALID || stateMode) {
       if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
@@ -563,7 +563,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
         }
         subPrinted += util;
       }
-      subPrinted += ecmdWriteTargetState(i_target.nodeState);
+      if (stateMode) subPrinted += ecmdWriteTargetState(i_target.nodeState);
 
       if (i_target.slotState == ECMD_TARGET_FIELD_VALID || stateMode) {
         if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
@@ -583,7 +583,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
           }
           subPrinted += util;
         }
-        subPrinted += ecmdWriteTargetState(i_target.slotState);
+        if (stateMode) subPrinted += ecmdWriteTargetState(i_target.slotState);
 
         if (((i_target.posState == ECMD_TARGET_FIELD_VALID) && (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID))
              || stateMode)  {
@@ -609,7 +609,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
             sprintf(util, "p%02d", i_target.pos);
           }
           subPrinted += util;
-          subPrinted += ecmdWriteTargetState(i_target.posState);
+          if (stateMode) subPrinted += ecmdWriteTargetState(i_target.posState);
  
           if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID || stateMode) {
             if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
@@ -624,7 +624,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
               sprintf(util, "c%d", i_target.chipUnitNum);
             }
             subPrinted += util;
-            subPrinted += ecmdWriteTargetState(i_target.chipUnitNumState);
+            if (stateMode) subPrinted += ecmdWriteTargetState(i_target.chipUnitNumState);
 
             if (i_target.threadState == ECMD_TARGET_FIELD_VALID || stateMode) {
               if (i_displayMode == ECMD_DISPLAY_TARGET_COMMANDLINE) {
@@ -639,7 +639,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
                 sprintf(util, "t%d", i_target.thread);
               }
               subPrinted += util;
-              subPrinted += ecmdWriteTargetState(i_target.threadState);
+              if (stateMode) subPrinted += ecmdWriteTargetState(i_target.threadState);
             }
           } //chipUnitNum
         } //pos
