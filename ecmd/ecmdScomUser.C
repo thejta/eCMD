@@ -144,6 +144,15 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     ecmdOutputError("getscom - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
   }
+
+  // Check address field in argv[1] is less than 8 chars + NULL terminator since
+  //  we are restricting this to a uint32_t
+  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  { 
+    ecmdOutputError("getscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
 
 
@@ -406,7 +415,17 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     ecmdOutputError("putscom - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
   }
+
+  // Check address field in argv[1] is less than 8 chars + NULL terminator since
+  //  we are restricting this to a uint32_t
+  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  {
+    ecmdOutputError("putscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   address = ecmdGenB32FromHexRight(&address, argv[1]);
+
 
   /* Did they specify a start/numbits */
   if (argc > 3) {
@@ -446,6 +465,12 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
     }  
   } else {
 
+    // Check that data is numerical
+    if (!ecmdIsAllDecimal(argv[2])) {
+      ecmdOutputError("putscom - Non-decimal characters detected in data field\n");
+      return ECMD_INVALID_ARGS;
+    }
+    
     cmdlinePtr = argv[2];
 
   }
@@ -740,6 +765,15 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     ecmdOutputError("pollscom - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
   }
+
+  // Check address field in argv[1] is less than 8 chars + NULL terminator since
+  //  we are restricting this to a uint32_t
+  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  {
+    ecmdOutputError("pollscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
 
 
