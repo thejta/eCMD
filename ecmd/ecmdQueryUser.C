@@ -791,6 +791,133 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 
 
+    /* ----------- */
+    /* procregs    */
+    /* ----------- */
+#ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
+  } else if (!strcmp(argv[0], "procregs")) {
+
+    std::string isChipUnit, isThreadRep, chipType, chipUnitType;
+
+    ecmdProcRegisterInfoHidden procInfo;
+    std::list<ecmdArrayData>::iterator arrayit;
+
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for procregs; you need at least a query procregs <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    ecmdParseChipField(argv[1], chipType, chipUnitType);
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+
+    // chipUnitType is required from user since this query is chipUnit depth
+    target.chipUnitType = chipUnitType;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+
+    if (!strcmp(chipUnitType.c_str(), ""))
+    {
+      ecmdOutputError("ecmdquery - procregs requires a chipUnitType.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+
+    std::string procRegName = argv[2];
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    bool validPosFound = false;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
+
+    char buf[200];
+
+    while (ecmdLooperNext(target, looperdata)) {
+
+      rc = ecmdQueryProcRegisterInfoHidden(target, procRegName.c_str(), procInfo);
+      if (rc) {
+        printed = "ecmdquery - Error occured performing procregs query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;
+      }
+
+      /* Let's look up other info about the chip, namely the ec level */
+      rc = ecmdGetChipData (target, chipdata);
+      if (rc) {
+        printed = "ecmdquery - Unable to lookup ec information for chip ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+
+      sprintf(buf,"\nAvailable procregs for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+
+      printed = "ProcRegs Names                 R/W Mode           BitLength TotalEntries ChipUnit ThreadReplicated\n"; ecmdOutput(printed.c_str());
+      printed = "------------------------------ ------------------ --------- ------------ -------- ----------------\n"; ecmdOutput(printed.c_str());
+
+        printed = "";
+        printed += procRegName;
+        for (size_t i = printed.length(); i <= 29; i++) {
+          printed += " ";
+        }
+
+        if (procInfo.mode == ECMD_PROCREG_UNKNOWN)
+          printed += " UNKNOWN            ";
+        else if (procInfo.mode == ECMD_PROCREG_READ_AND_WRITE)
+          printed += " READ-AND-WRITE     ";
+        else if (procInfo.mode == ECMD_PROCREG_WRITE_ONLY)
+          printed += " WRITE-ONLY         ";
+        else if (procInfo.mode == ECMD_PROCREG_READ_ONLY)
+          printed += " READ-ONLY          ";
+        else
+          printed += "** ERROR **         ";
+
+
+        if(procInfo.isChipUnitRelated) {
+          if (procInfo.relatedChipUnit != "") {
+            isChipUnit = procInfo.relatedChipUnit;
+          } else {
+            isChipUnit = "Y";
+          }
+        } else {
+          isChipUnit = "N";
+        }
+
+        if(procInfo.threadReplicated) {
+          isThreadRep = "Y";
+        } else {
+          isThreadRep = "N";
+        }
+
+        sprintf(buf,"%-9d %-12d %-8s %-8s\n", procInfo.bitLength, procInfo.totalEntries, isChipUnit.c_str(), isThreadRep.c_str());
+        printed += (std::string)buf;
+
+        ecmdOutput(printed.c_str());
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+#endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
+
+
     /* ---------- */
     /* version    */
     /* ---------- */
