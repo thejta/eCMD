@@ -1766,6 +1766,65 @@ threadReplicated(false)
 inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 #endif
 
+
+/**
+ @brief Used by ecmdProcRegisterInfoHidden to specify read/write mode
+*/
+typedef enum {
+  ECMD_PROCREG_UNKNOWN,         ///< The unknown state for this enum, not a valid output type
+  ECMD_PROCREG_READ_AND_WRITE,  ///< Register can be written and read
+  ECMD_PROCREG_WRITE_ONLY,      ///< Register can only be written 
+  ECMD_PROCREG_READ_ONLY        ///< Register can only be read 
+} ecmdProcRegMode_t;
+
+#ifndef DOCUMENTATION
+/**
+ @brief Used by ecmdQueryProcRegisterInfoHidden function to return data about a Architected register
+*/
+struct ecmdProcRegisterInfoHidden {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdProcRegisterInfoHidden();
+
+  // Destructor
+  ~ecmdProcRegisterInfoHidden();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  // Members
+  uint32_t      bitLength;              ///< Bit length of each entry
+  uint32_t      totalEntries;           ///< Total number of entries available
+  ecmdProcRegMode_t mode;               ///< (Detail: Low)  The mode associated with this register
+  bool          isChipUnitRelated;      ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
+  std::string   relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string   relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  bool          threadReplicated;       ///< Register is replicated for each thread
+};
+
+#ifndef DOCUMENTATION
+// ecmdProcRegisterInfoHidden Constructor
+inline ecmdProcRegisterInfoHidden::ecmdProcRegisterInfoHidden():
+bitLength(0),
+totalEntries(0),
+isChipUnitRelated(false),
+threadReplicated(false)
+{
+}
+
+// ecmdProcRegisterInfoHidden Destructor
+inline ecmdProcRegisterInfoHidden::~ecmdProcRegisterInfoHidden() { }
+#endif
+#endif
+
 /**
  @brief Used to return information for cache query information
 */

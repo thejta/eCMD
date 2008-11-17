@@ -97,6 +97,8 @@
 #define ECMD_GPREG_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1077) ///< GP Register requested was not found
 #define ECMD_SPY_NOT_FOUND                      (ECMD_ERR_ECMD | 0x1079) ///< Spy requested was not found
 #define ECMD_IRSTAT_NOT_FOUND                   (ECMD_ERR_ECMD | 0x107B) ///< IRSTAT requested was not found
+#define ECMD_WRITING_TO_READ_ONLY_REG           (ECMD_ERR_ECMD | 0x107D) ///< Writing to Read-Only Register
+#define ECMD_READING_FROM_WRITE_ONLY_REG        (ECMD_ERR_ECMD | 0x107F) ///< Reading from Write-Only Register
 
 
 /* Return codes for command interpreter */
