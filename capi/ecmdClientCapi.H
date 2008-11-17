@@ -1383,6 +1383,25 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
 */
 uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
 
+#ifndef DOCUMENTATION
+/**
+ @brief Query Information about a Processor Register (SPR/GPR/FPR)
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_name Name of the Register to fetch data about (can be either a specific SPR or GPR/FPR)
+ @param o_data Data retrieved about the register
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryProcRegisterInfoHidden(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfoHidden & o_data);
+#endif
+
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
