@@ -1472,12 +1472,41 @@ typedef enum {
  @brief Used by the getArrayMultiple function to pass data
 */
 struct ecmdScomEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdScomEntry();
+
+  // Destructor
+  ~ecmdScomEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
   uint32_t         address;         ///< The address to read or write
   ecmdDataBuffer   scomData;        ///< The data to read or write depending on the operation
   ecmdDataBuffer   scomDataMask;    ///< The mask data, only used on a mask operation
   ecmdScomMode_t   scomOperation;   ///< SCOM_READ, SCOM_WRITE, SCOM_WRITE_UNDER_MASK
   uint32_t rc;                      ///< The return code for the operation
 };
+
+#ifndef DOCUMENTATION
+// ecmdScomEntry Constructor
+inline ecmdScomEntry::ecmdScomEntry():
+address(0),
+rc(0)
+{
+}
+
+// ecmdScomEntry Destructor
+inline ecmdScomEntry::~ecmdScomEntry() { }
+#endif
 
 /**
  @brief Used by the getArrayMultiple function to pass data
