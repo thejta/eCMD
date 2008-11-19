@@ -4745,7 +4745,7 @@ uint32_t ecmdScomDataHidden::flattenSize()
                    + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t 
                    + relatedChipUnit.size() + 1                                
                    + relatedChipUnitShort.size() + 1
-                   + sizeof(uint32_t);  // ecmdEndianMode_t stored as uint32_t
+                   + sizeof(uint32_t)  // ecmdEndianMode_t stored as uint32_t
                    + clockDomain.size() + 1
                    + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
 
@@ -5903,6 +5903,212 @@ void  ecmdCacheData::printStruct()
 
 }
 #endif  // end of REMOVE_SIM
+
+
+/*
+ * The following methods for the ecmdScomEntry struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
+
+    uint32_t tmpData32 = 0;
+    uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
+    uint32_t l_rc = ECMD_SUCCESS;
+
+    uint8_t * l_ptr = o_buf;
+
+    do {    // Single entry ->
+
+        // Check for buffer size mismatch (overflow or underflow)
+        if ( this->flattenSize() != i_len ) {
+        ETRAC2("Buffer overflow occurred in ecmdScomEntry::flatten() "
+                   "structure size = %d; input length = %d",
+                   this->flattenSize(), i_len );
+        l_rc = ECMD_DATA_OVERFLOW;
+        break;
+        }
+
+        // Write "address" into the output buffer
+        tmpData32 = htonl( address );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( address );
+        i_len -= sizeof( address );
+
+        // Write the size of "scomData", to check against when unflattening
+        dataBufSize = scomData.flattenSize();
+        tmpData32 = htonl( dataBufSize );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Write contents of "scomData" into the output buffer
+        l_rc = scomData.flatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+           l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // Write the size of "scomDataMask", to check against when unflattening
+        dataBufSize = scomDataMask.flattenSize();
+        tmpData32 = htonl( dataBufSize );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Write contents of "scomDataMask" into the output buffer
+        l_rc = scomDataMask.flatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+           l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // "scomOperation" (ecmdScomMode_t, stored as uint32_t)
+        tmpData32 = htonl( (uint32_t) scomOperation );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof(tmpData32);
+        i_len -= sizeof(tmpData32);
+
+        // Write "rc" into the output buffer
+        tmpData32 = htonl( rc );
+        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
+        l_ptr += sizeof( rc );
+        i_len -= sizeof( rc );
+
+        // If the length has not decremented to 0, something is wrong
+        if ( i_len != 0 ) {
+        ETRAC1("Buffer overflow occurred in ecmdScomEntry::flatten() "
+                   "leftover data bytes = %d", i_len );
+           l_rc = ECMD_DATA_OVERFLOW;
+           break;
+        }
+
+    } while (0);    // <- single exit.
+
+    return l_rc;
+}
+
+uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
+
+    uint32_t tmpData32 = 0;
+    uint32_t dataBufSize = 0;
+    uint32_t l_rc = ECMD_SUCCESS;
+
+    uint8_t * l_ptr = (uint8_t *) i_buf;
+
+    do {    // Single entry ->
+
+        // Get "address" from the input buffer
+        memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+        address = ntohl( tmpData32 );
+        l_ptr += sizeof( tmpData32 );
+        i_len -= sizeof( tmpData32 );
+
+        // Get the size of "scomData" to pass to unflatten()
+        memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
+        dataBufSize = ntohl( dataBufSize );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Unflatten "scomData" from the input buffer
+        l_rc = scomData.unflatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+            l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // Get the size of "scomDataMask" to pass to unflatten()
+        memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
+        dataBufSize = ntohl( dataBufSize );
+        l_ptr += sizeof( dataBufSize );
+        i_len -= sizeof( dataBufSize );
+
+        // Unflatten "scomDataMask" from the input buffer
+        l_rc = scomDataMask.unflatten( l_ptr, dataBufSize );
+        if ( l_rc != ECMD_DBUF_SUCCESS ) {
+            break;
+        } else {
+            l_rc = ECMD_SUCCESS;
+        }
+        l_ptr += dataBufSize;
+        i_len -= dataBufSize;
+
+        // "scomOperation" (ecmdScomMode_t, stored as uint32_t)
+        memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+        scomOperation = (ecmdScomMode_t) ntohl( tmpData32 );
+        l_ptr += sizeof(tmpData32);
+        i_len -= sizeof(tmpData32);
+
+        // Get "rc" from the input buffer
+        memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
+        rc = ntohl( tmpData32 );
+        l_ptr += sizeof( tmpData32 );
+        i_len -= sizeof( tmpData32 );
+
+        // If the length has not decremented to 0, something is wrong
+        if ( i_len != 0 )
+        {
+          ETRAC1("Buffer overflow occurred in ecmdScomEntry::unflatten() "
+                 "leftover data bytes = %d", i_len );
+          l_rc = ECMD_DATA_OVERFLOW;
+          break;
+        }
+
+    } while (0);    // <- single exit.
+
+    return l_rc;
+}
+
+uint32_t ecmdScomEntry::flattenSize() {
+
+    uint32_t flatSize = 0;
+
+        uint32_t dataBufSize = 0;  // A size is stored for each ecmdDataBuf
+
+        flatSize += sizeof( address );           // Space for member "address"
+
+        flatSize += sizeof( dataBufSize );  // Size of member "scomData"
+        flatSize += scomData.flattenSize();  // Space for "scomData" flattened
+
+        flatSize += sizeof( dataBufSize );  // Size of member "scomDataMask"
+        flatSize += scomDataMask.flattenSize();   // Space for "scomDataMask" flattened
+
+        flatSize += sizeof(uint32_t);  //  Space for scomOperation, ecmdScomMode_t stored as uint32_t
+        flatSize += sizeof( rc );           // Space for member "rc"
+
+    return flatSize;
+}
+
+
+#ifndef REMOVE_SIM
+void ecmdScomEntry::printStruct() const {
+
+    printf("\n\t\teCMD Scom Entry:\n");
+
+    printf("\t\t\taddress: 0x%x\n", address );
+
+    printf("\t\t\tscomData bitlength: %d\n", scomData.getBitLength() );
+    printf("\t\t\tscomData wordlength: %d\n", scomData.getWordLength() );
+    printf("\t\t\tscomData data: %s\n", scomData.genHexLeftStr().c_str() );
+
+    printf("\t\t\tscomDataMask bitlength: %d\n", scomDataMask.getBitLength() );
+    printf("\t\t\tscomDataMask wordlength: %d\n", scomDataMask.getWordLength() );
+    printf("\t\t\tscomDataMask data: %s\n", scomDataMask.genHexLeftStr().c_str() );
+
+    printf("\t\t\tScomOperation: 0x%x\n", (uint32_t) scomOperation );
+    printf("\t\t\treturn code (rc): 0x%x\n", rc );
+}
+#endif
+// @02 end
+
 
 
 
