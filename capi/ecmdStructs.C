@@ -4594,6 +4594,17 @@ uint32_t ecmdScomDataHidden::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += relatedChipUnit.size() + 1;
             l_len -= relatedChipUnit.size() + 1;
 
+            //relatedChipUnitShort
+            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+            l_ptr8 += relatedChipUnitShort.size() + 1;
+            l_len -= relatedChipUnitShort.size() + 1;
+
+            // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
+            tmpData32 = htonl( (uint32_t)endianMode );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
             memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
@@ -4671,6 +4682,18 @@ uint32_t ecmdScomDataHidden::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += l_relatedChipUnit.size() + 1;
             l_len -= l_relatedChipUnit.size() + 1;
 
+            //relatedChipUnitShort
+            std::string l_relatedChipUnitShort = (const char *) l_ptr8;  //maybe this can be 1 line?
+            relatedChipUnitShort = l_relatedChipUnitShort;
+            l_ptr8 += l_relatedChipUnitShort.size() + 1;
+            l_len -= l_relatedChipUnitShort.size() + 1;
+
+            // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
+            memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            endianMode = (ecmdEndianMode_t) ntohl( tmpData32 );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
             clockDomain = l_clock_domain;
@@ -4721,6 +4744,8 @@ uint32_t ecmdScomDataHidden::flattenSize()
                    + sizeof(length)                                              
                    + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t 
                    + relatedChipUnit.size() + 1                                
+                   + relatedChipUnitShort.size() + 1
+                   + sizeof(uint32_t);  // ecmdEndianMode_t stored as uint32_t
                    + clockDomain.size() + 1
                    + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
 
@@ -4738,6 +4763,8 @@ void  ecmdScomDataHidden::printStruct()
         printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnit.c_str());
+        printf("\tEndian Mode: 0x%x\n", (uint32_t)endianMode );
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
         
