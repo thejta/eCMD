@@ -6089,7 +6089,7 @@ uint32_t ecmdScomEntry::flattenSize() {
 
 
 #ifndef REMOVE_SIM
-void ecmdScomEntry::printStruct() const {
+void ecmdScomEntry::printStruct() {
 
     printf("\n\t\teCMD Scom Entry:\n");
 
