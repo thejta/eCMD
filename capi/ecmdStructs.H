@@ -1245,7 +1245,7 @@ struct ecmdTraceArrayData {
 };
 
 #ifndef DOCUMENTATION
-// ecmdFastArrayData Constructor
+// ecmdTraceArrayData Constructor
 inline ecmdTraceArrayData::ecmdTraceArrayData():
 traceArrayId(0),
 length(0),
@@ -1255,7 +1255,7 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
 
-// ecmdFastArrayData Destructor
+// ecmdTraceArrayData Destructor
 inline ecmdTraceArrayData::~ecmdTraceArrayData() { }
 #endif
 
