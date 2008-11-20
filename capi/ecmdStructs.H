@@ -1826,7 +1826,7 @@ struct ecmdProcRegisterInfoHidden {
 //#ifndef REMOVE_SIM
 //  void printStruct(void);
 //#endif
-//#endif
+#endif
 
   bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
 
