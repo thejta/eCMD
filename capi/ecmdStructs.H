@@ -1823,10 +1823,10 @@ struct ecmdProcRegisterInfoHidden {
 //  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
 //  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
 //  uint32_t flattenSize(void);
-#ifndef REMOVE_SIM
-  void printStruct(void);
-#endif
-#endif
+//#ifndef REMOVE_SIM
+//  void printStruct(void);
+//#endif
+//#endif
 
   bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
 
