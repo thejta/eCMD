@@ -1378,7 +1378,7 @@ uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepName
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
@@ -1395,8 +1395,7 @@ uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name
  @retval ECMD_SUCCESS if successful read
  @retval nonzero on failure
 
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryProcRegisterInfoHidden(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfoHidden & o_data);
