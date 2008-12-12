@@ -322,14 +322,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         }
         printed += "}\n";
         
-        #ifndef FIPSODE
          printed += "Enums = {";
          for (strit = spyit->enums.begin(); strit != spyit->enums.end(); strit ++) {
           if (strit != spyit->enums.begin()) printed += ", ";
           printed += (*strit);
          }
          printed += "}\n";
-        #endif
         
 	if (argv[2] == NULL) {
           printed += "\n";
