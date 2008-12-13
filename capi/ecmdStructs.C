@@ -711,6 +711,10 @@ uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) {
         l_ptr += chipUnitType.size() + 1;
         i_len -= chipUnitType.size() + 1;
 
+        // chipUnitShortType.
+        memcpy(l_ptr, chipUnitShortType.c_str(), chipUnitShortType.size() + 1);
+        l_ptr += chipUnitShortType.size() + 1;
+        i_len -= chipUnitShortType.size() + 1;
         
         memcpy(l_ptr, &chipUnitNum, sizeof(chipUnitNum)); 
         l_ptr += sizeof(chipUnitNum);
@@ -811,9 +815,13 @@ uint32_t ecmdChipUnitData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         
         std::string l_chipUnitType = (const char *) l_ptr;
         l_ptr += l_chipUnitType.size() + 1;
-        
         chipUnitType = l_chipUnitType;
         i_len -= l_chipUnitType.size() + 1;
+        
+        std::string l_chipUnitShortType = (const char *) l_ptr;
+        l_ptr += l_chipUnitShortType.size() + 1;
+        chipUnitShortType = l_chipUnitShortType;
+        i_len -= l_chipUnitShortType.size() + 1;
         
         memcpy(&chipUnitNum, l_ptr, sizeof(chipUnitNum));
         l_ptr += sizeof(chipUnitNum);
@@ -896,7 +904,8 @@ uint32_t ecmdChipUnitData::flattenSize() {
                  + sizeof(numThreads)
                  + sizeof(unitId) 
                  + sizeof(chipUnitFlags) 
-                 + chipUnitType.size() + 1);
+                 + chipUnitType.size() + 1
+                 + chipUnitShortType.size() + 1);
                  
         /* 
          * Every struct entry which contains a list of other structs is
@@ -930,6 +939,7 @@ void ecmdChipUnitData::printStruct() {
 
     // Print non-list data.
     printf("\t\t\t\t\t\tchipUnitType :%s\n",chipUnitType.c_str());
+    printf("\t\t\t\t\t\tchipUnitShortType :%s\n",chipUnitShortType.c_str());
     printf("\t\t\t\t\t\tchipUnitNum : %d\n", chipUnitNum);
     printf("\t\t\t\t\t\tNumber of threads: %d\n", numThreads);
     printf("\t\t\t\t\t\tUnit ID: 0x%x\n", unitId);
@@ -2438,18 +2448,23 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
             tmpData32 = htonl( (uint32_t)isEnumerated );
 	    memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
 	    l_ptr += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32); 
+	    
+	    //"isChipUnitRelated" (bool, store in uint32_t)        
+	    tmpData32 = htonl( (uint32_t)isChipUnitRelated ); 
+	    memcpy( l_ptr, &tmpData32, sizeof(tmpData32) ); 
+	    l_ptr += sizeof(tmpData32); 
 	    i_len -= sizeof(tmpData32);
-
-        //"isChipUnitRelated" (bool, store in uint32_t)        
-        tmpData32 = htonl( (uint32_t)isChipUnitRelated );
-        memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
-        l_ptr += sizeof(tmpData32);
-        i_len -= sizeof(tmpData32);
         
-        //relatedChipUnit     
-        memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
-        l_ptr += relatedChipUnit.size() + 1;
-        i_len -= relatedChipUnit.size() + 1;
+            //relatedChipUnit     
+	    memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1); 
+	    l_ptr += relatedChipUnit.size() + 1;
+	    i_len -= relatedChipUnit.size() + 1; 
+	    
+	    //relatedChipUnitShort     
+	    memcpy(l_ptr, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+	    l_ptr += relatedChipUnitShort.size() + 1;
+	    i_len -= relatedChipUnitShort.size() + 1;
 
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
@@ -2592,6 +2607,12 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         l_ptr += l_relatedChipUnit.size() + 1;
         l_left -= l_relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        std::string l_relatedChipUnitShort = (const char *) l_ptr;  //maybe this can be 1 line?
+        relatedChipUnitShort = l_relatedChipUnitShort;
+        l_ptr += l_relatedChipUnitShort.size() + 1;
+        l_left -= l_relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
 	    clockDomain = l_clockDomain;
@@ -2693,6 +2714,7 @@ uint32_t ecmdSpyData::flattenSize() {
                              + sizeof(uint32_t) // for isEnumerated
                              + sizeof(uint32_t) // for isChipUnitRelated 
                              + relatedChipUnit.size() + 1               
+                             + relatedChipUnitShort.size() + 1               
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -2754,6 +2776,7 @@ void  ecmdSpyData::printStruct() {
         printf("\tisEnumerated: 0x%08x\n", (uint32_t) isEnumerated);
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tSpy Name:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -3050,6 +3073,11 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
         l_ptr += relatedChipUnit.size() + 1;
         i_len -= relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        memcpy(l_ptr, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+        l_ptr += relatedChipUnitShort.size() + 1;
+        i_len -= relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
 	    l_ptr += clockDomain.size() + 1;
@@ -3180,6 +3208,12 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         l_ptr += l_relatedChipUnit.size() + 1;
         l_left -= l_relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        std::string l_relatedChipUnitShort = (const char *) l_ptr; 
+        relatedChipUnitShort = l_relatedChipUnitShort;
+        l_ptr += l_relatedChipUnitShort.size() + 1;
+        l_left -= l_relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
 	    clockDomain = l_clockDomain;
@@ -3285,6 +3319,7 @@ uint32_t ecmdRingData::flattenSize() {
 			     + sizeof(uint32_t) // isCheckable
                              + sizeof(uint32_t) // isChipUnitRelated 
                              + relatedChipUnit.size() + 1           
+                             + relatedChipUnitShort.size() + 1           
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -3338,6 +3373,7 @@ void  ecmdRingData::printStruct() {
         printf("\tisCheckable: 0x%08x\n", (uint32_t) isCheckable);
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tClock Domain:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -3462,6 +3498,11 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
         l_ptr += relatedChipUnit.size() + 1;
         i_len -= relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        memcpy(l_ptr, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+        l_ptr += relatedChipUnitShort.size() + 1;
+        i_len -= relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
 	    memcpy(l_ptr, clockDomain.c_str(), clockDomain.size() + 1);
 	    l_ptr += clockDomain.size() + 1;
@@ -3570,6 +3611,12 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         l_ptr += l_relatedChipUnit.size() + 1;
         l_left -= l_relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        std::string l_relatedChipUnitShort = (const char *) l_ptr; 
+        relatedChipUnitShort = l_relatedChipUnitShort;
+        l_ptr += l_relatedChipUnitShort.size() + 1;
+        l_left -= l_relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
 	    std::string l_clockDomain = (const char *) l_ptr;
 	    clockDomain = l_clockDomain;
@@ -3632,6 +3679,7 @@ uint32_t ecmdArrayData::flattenSize() {
                              + sizeof(width)
                              + sizeof(uint32_t)          //isChipUnitRelated
                              + relatedChipUnit.size() + 1                    
+                             + relatedChipUnitShort.size() + 1                    
                              + clockDomain.size() + 1
                              + sizeof(clockState));
 
@@ -3655,6 +3703,7 @@ void  ecmdArrayData::printStruct() {
         printf("\tWidth: 0x%08x\n", (uint32_t) width);
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tClock Domain:  %s\n", clockDomain.c_str());
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
@@ -3918,6 +3967,11 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += relatedChipUnit.size() + 1;
             l_len -= relatedChipUnit.size() + 1;
 
+            //relatedChipUnitShort
+            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+            l_ptr8 += relatedChipUnitShort.size() + 1;
+            l_len -= relatedChipUnitShort.size() + 1;
+
             // clockDomain
             strLen = clockDomain.size();
             memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
@@ -4007,6 +4061,12 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
         l_ptr8 += l_relatedChipUnit.size() + 1;
         l_len -= l_relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
+        relatedChipUnitShort = l_relatedChipUnitShort;
+        l_ptr8 += l_relatedChipUnitShort.size() + 1;
+        l_len -= l_relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
             std::string l_clock_domain = (const char *)l_ptr8;
             clockDomain = l_clock_domain;
@@ -4058,6 +4118,7 @@ uint32_t ecmdTraceArrayData::flattenSize()
                    + sizeof( width )
                    + sizeof( uint32_t ) // isChipUnitRelated in uint32_t
                    + relatedChipUnit.size() + 1                          
+                   + relatedChipUnitShort.size() + 1                          
                    + clockDomain.size() + 1
                    + sizeof( clockState );
 
@@ -4075,6 +4136,7 @@ void  ecmdTraceArrayData::printStruct() {
         printf("\tWidth: %d\n", width );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
 
@@ -4153,6 +4215,11 @@ uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len)
             memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
             l_ptr8 += relatedChipUnit.size() + 1;
             l_len -= relatedChipUnit.size() + 1;
+
+            //relatedChipUnitShort
+            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+            l_ptr8 += relatedChipUnitShort.size() + 1;
+            l_len -= relatedChipUnitShort.size() + 1;
 
             // clockDomain
             strLen = clockDomain.size();
@@ -4243,6 +4310,12 @@ uint32_t ecmdFastArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
         l_ptr8 += l_relatedChipUnit.size() + 1;
         l_len -= l_relatedChipUnit.size() + 1;
 
+        //relatedChipUnitShort
+        std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
+        relatedChipUnitShort = l_relatedChipUnitShort;
+        l_ptr8 += l_relatedChipUnitShort.size() + 1;
+        l_len -= l_relatedChipUnitShort.size() + 1;
+
 	    // clockDomain
             std::string l_clock_domain = (const char *)l_ptr8;
             clockDomain = l_clock_domain;
@@ -4294,6 +4367,7 @@ uint32_t ecmdFastArrayData::flattenSize()
                    + sizeof( width )
                    + sizeof( uint32_t ) // isChipUnitRelated in uint32_t
                    + relatedChipUnit.size() + 1                          
+                   + relatedChipUnitShort.size() + 1                          
                    + clockDomain.size() + 1
                    + sizeof( clockState );
 
@@ -4380,6 +4454,11 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += relatedChipUnit.size() + 1;
             l_len -= relatedChipUnit.size() + 1;
 
+            //relatedChipUnitShort
+            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+            l_ptr8 += relatedChipUnitShort.size() + 1;
+            l_len -= relatedChipUnitShort.size() + 1;
+
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
             memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
@@ -4457,6 +4536,12 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += l_relatedChipUnit.size() + 1;
             l_len -= l_relatedChipUnit.size() + 1;
 
+            //relatedChipUnitShort
+            std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
+            relatedChipUnitShort = l_relatedChipUnitShort;
+            l_ptr8 += l_relatedChipUnitShort.size() + 1;
+            l_len -= l_relatedChipUnitShort.size() + 1;
+
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
             clockDomain = l_clock_domain;
@@ -4507,6 +4592,7 @@ uint32_t ecmdScomData::flattenSize()
                    + sizeof(length)                                              
                    + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t 
                    + relatedChipUnit.size() + 1                                
+                   + relatedChipUnitShort.size() + 1                                
                    + clockDomain.size() + 1
                    + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
 
@@ -4524,6 +4610,7 @@ void  ecmdScomData::printStruct()
         printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
         
@@ -4683,7 +4770,7 @@ uint32_t ecmdScomDataHidden::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_len -= l_relatedChipUnit.size() + 1;
 
             //relatedChipUnitShort
-            std::string l_relatedChipUnitShort = (const char *) l_ptr8;  //maybe this can be 1 line?
+            std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
             relatedChipUnitShort = l_relatedChipUnitShort;
             l_ptr8 += l_relatedChipUnitShort.size() + 1;
             l_len -= l_relatedChipUnitShort.size() + 1;
@@ -4763,7 +4850,7 @@ void  ecmdScomDataHidden::printStruct()
         printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
-        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tEndian Mode: 0x%x\n", (uint32_t)endianMode );
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
@@ -4851,6 +4938,11 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len)
             memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
             l_ptr8 += relatedChipUnit.size() + 1;
             l_len -= relatedChipUnit.size() + 1;
+
+            //relatedChipUnitShort
+            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+            l_ptr8 += relatedChipUnitShort.size() + 1;
+            l_len -= relatedChipUnitShort.size() + 1;
 
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
@@ -4946,6 +5038,12 @@ uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += l_relatedChipUnit.size() + 1;
             l_len -= l_relatedChipUnit.size() + 1;
 
+            //relatedChipUnitShort
+            std::string l_relatedChipUnitShort = (const char *) l_ptr8;
+            relatedChipUnitShort = l_relatedChipUnitShort;
+            l_ptr8 += l_relatedChipUnitShort.size() + 1;
+            l_len -= l_relatedChipUnitShort.size() + 1;
+
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
             clockDomain = l_clock_domain;
@@ -4998,6 +5096,7 @@ uint32_t ecmdLatchData::flattenSize() const
                    + sizeof(bitLength)
                    + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t   
                    + relatedChipUnit.size() + 1                                  
+                   + relatedChipUnitShort.size() + 1                                  
                    + clockDomain.size() + 1
                    + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
 
@@ -5017,6 +5116,7 @@ void  ecmdLatchData::printStruct() const
         printf("\tBit Length: %d\n", bitLength );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
 
@@ -5834,6 +5934,10 @@ uint32_t ecmdCacheData::flatten(uint8_t *o_buf, uint32_t i_len)
       memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
       l_ptr += relatedChipUnit.size() + 1;
 
+      //relatedChipUnitShort
+      memcpy(l_ptr, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+      l_ptr += relatedChipUnitShort.size() + 1;
+
    } while (0);  // <- single exit
 
    return l_rc;
@@ -5874,6 +5978,11 @@ uint32_t ecmdCacheData::unflatten(const uint8_t *i_buf, uint32_t i_len)
       relatedChipUnit = l_relatedChipUnit;
       l_ptr += l_relatedChipUnit.size() + 1;
 
+      //relatedChipUnitShort
+      std::string l_relatedChipUnitShort = (const char *) l_ptr; 
+      relatedChipUnitShort = l_relatedChipUnitShort;
+      l_ptr += l_relatedChipUnitShort.size() + 1;
+
 
    } while (0);  // <- single exit
 
@@ -5887,6 +5996,7 @@ uint32_t ecmdCacheData::flattenSize()
 
    flatSize += sizeof(uint32_t); // for isChipUnitRelated (bool stored as uint32_t)
    flatSize += relatedChipUnit.size() + 1;
+   flatSize += relatedChipUnitShort.size() + 1;
 
    return flatSize;
 }
@@ -5900,6 +6010,7 @@ void  ecmdCacheData::printStruct()
    // Print non-list data.
    printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
    printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+   printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
 
 }
 #endif  // end of REMOVE_SIM
@@ -6168,6 +6279,7 @@ void  ecmdSimModelInfo::printStruct() {
 //  @10  L9285         11/20/07 heuser   ecmdMcmThermalData added      removed 03/28/08
 //  @0b  D608981       07/23/07 honi     Fix endian in flatten/unflatten in core and thread data
 //                                       and ecmdProcRegisterInfo
+//  none D672342       12/13/08 honi     Update flatten/unflatten of chipunit shortname
 // End Change Log *****************************************************
 
 
