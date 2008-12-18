@@ -1756,12 +1756,43 @@ uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len) {
+uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_datain, uint32_t i_start, uint32_t i_len) {
 
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::insertFromRight with const * uint8_t input has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
-}
+ 
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  int offset;
+  if((i_len % 8) == 0) {
+    offset = 0;
+  } else {
+    offset = 8 - (i_len % 8);
+  }  
+
+  if (i_start+i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  // other input checks happen below in setBit and clearBit
+    
+  uint8_t mask = 0x80 >> offset;
+  for (uint32_t i = 0; i < i_len; i++) {
+    if (i_datain[(i+offset)/8] & mask) {
+      rc = this->setBit(i_start+i);
+    }
+    else { 
+      rc = this->clearBit(i_start+i);
+    }
+
+    mask >>= 1;
+    if (mask == 0x00) {
+      mask = 0x80;
+    }
+    if (rc) break;
+  }
+
+  return rc;
+
+ }
 
 
 
@@ -1932,9 +1963,34 @@ uint32_t ecmdDataBuffer::extractPreserve(uint32_t *o_outBuffer, uint32_t i_start
 
 uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const {
 
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve with a * uint8_t ouput has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+// input checks done in the insert function
+
+  //const uint32_t numWords = ( i_targetStart + i_len + 31 ) / 32;
+  const uint32_t numBytes = ( i_targetStart + i_len + 7 ) / 8;
+  if ( numBytes == 0 ) return rc;
+
+  ecmdDataBuffer *tempBuf = new ecmdDataBuffer;
+
+  if ( NULL == tempBuf ) {
+      ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : Unable to allocate memory for new databuffer\n");
+      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+  } 
+
+  rc = tempBuf->setByteLength( numBytes );
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->memCopyIn( o_data, numBytes);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->insert( *this, i_targetStart, i_len, i_start);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->memCopyOut( o_data, numBytes);
+
+  delete tempBuf;
+  return rc;
 } 
 
 uint32_t ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const {
@@ -1962,9 +2018,13 @@ uint32_t ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uin
 
 uint32_t ecmdDataBuffer::extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
 
-    // function not implemented yet
-    ETRAC0("**** ERROR : ecmdDataBuffer::extractToRight with a * uint8_t ouput has not been implemented yet");
-    RETURN_ERROR(ECMD_DBUF_UNDEFINED_FUNCTION);
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+// input checks done in the extract function
+  rc = this->extract(o_data, i_start, i_len);
+
+  if (i_len < 8)
+    *o_data >>= (8 - i_len);
+  return rc;
 } 
 
 uint32_t ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0,
