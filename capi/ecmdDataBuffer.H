@@ -680,7 +680,7 @@ public:
   uint32_t  insert(const uint8_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
   /**
-   * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer - NOT IMPLEMENTED YET
+   * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer 
    * @param i_datain uint8_t array to copy into this DataBuffer - data is taken right aligned
    * @param i_start Start bit to insert into
    * @param i_len Length of bits to insert
@@ -756,7 +756,7 @@ public:
   uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const; 
 
   /**
-   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer - NOT IMPLEMENTED YET
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer 
    * @param o_data Array of data to write into, must be pre-allocated
    * @param i_start Start bit in this DataBuffer to begin the copy
    * @param i_len Length of consecutive bits to copy
@@ -791,7 +791,7 @@ public:
   uint32_t extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
   /**
-   * @brief Copy data from this DataBuffer into a uint8_t buffer - NOT YET IMPLEMENTED
+   * @brief Copy data from this DataBuffer into a uint8_t buffer
    * @param o_data uint8_t buffer to copy into - data is placed right aligned - must be pre-allocated
    * @param i_start Start bit of data in DataBuffer to copy
    * @param i_len Length of consecutive bits to copy
