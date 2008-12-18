@@ -889,6 +889,7 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
 
         int argc_temp;	//To store the length of the cmd char * array.  
 	int i =0;
+    argv_temp_helper[0]= NULL; //beam
 	for(i = 0;i<len;i++){
 		argv_temp_helper[i]= (char *)(splitArgs[i].c_str());   //obtaining the char * array from the vector
 	}
@@ -921,13 +922,18 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
           }
 	}
         else{
-	   sprintf(temp_buf,"i2cmultiple - Invalid cmd '%s' present in the input File\n",argv_temp_helper[0]);
+               if (argv_temp_helper[0]!=NULL) {           //beam
+                 sprintf(temp_buf,"i2cmultiple - Invalid cmd '%s' present in the input File\n",argv_temp_helper[0]);
+               } else {
+                 sprintf(temp_buf,"i2cmultiple - Invalid cmd NULL present in the input File\n");
+               }
 	   ecmdOutputError(temp_buf);
 	   l_rc = ECMD_INVALID_ARGS;
 	}
         argv_temp.clear();
 	if(l_rc){
 	   l_rc = ECMD_SUCCESS;
+       delete [] argv_temp_helper;     //beam
 	   continue;		//If error then continue looking for the next cmd in the input File.
 	}
 	else{			//else push back in the cmd list
@@ -976,16 +982,18 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
                                                 //which will be passed in the parser function.
 
        char ** argv_temp = new char*[argc_temp+1]; //This char * array will be passed in the parser function
+       argv_temp[0]=NULL;       //beam
        for(int k = 0;(k<argc_temp)&&(ctrvar_helper<cmdsize);k++,ctrvar_helper++){//creating the cmd to be passed in the parser funcs
             argv_temp[k]=argv_helper[ctrvar_helper];
        }
+       if (argv_temp[0]!=NULL) {     //beam
        if(argv_temp[0]==cmdList[0]){	//Now checking if the cmd passed has the geti2c in it as the first argument
-	  rc = getI2cMultipleParser(argc_temp,argv_temp,o_cmd);
-	  if(rc){
-		sprintf(temp_buf,"i2cmultiple - Error in getI2cMultipleParser,rc: 0x%x\n",rc);
-                ecmdOutputError(temp_buf);
-		l_rc = rc;
-	  }
+	    rc = getI2cMultipleParser(argc_temp,argv_temp,o_cmd);
+	    if(rc){
+	      sprintf(temp_buf,"i2cmultiple - Error in getI2cMultipleParser,rc: 0x%x\n",rc);
+                  ecmdOutputError(temp_buf);
+	      l_rc = rc;
+	    }
        }
        else if(argv_temp[0]==cmdList[1]){	//checking for the puti2c
           rc = putI2cMultipleParser(argc_temp,argv_temp,o_cmd);
@@ -1008,11 +1016,14 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
            ecmdOutputError(temp_buf);
            l_rc = ECMD_INVALID_ARGS;
        }
+       }     //beam
        argc_helper = argc_helper - cmdsize;	//decrementing argc_helper pointer by cmdsize
        argv_helper = argv_helper + cmdsize;	//incrementing argv_helper pointer by cmdsize
        
        if(l_rc){
 	l_rc = ECMD_SUCCESS;
+    delete [] argv_temp;       //beam
+    argv_temp = NULL;          //beam
 	continue;	//if error returned from the parser function then continue looking for the next cmd in the cmd Line
        }
        else {		//else puch_back in the list
