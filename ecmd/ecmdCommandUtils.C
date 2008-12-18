@@ -34,7 +34,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-
+#include <unistd.h>
+#include <unistd.h>
+#include <termios.h>
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdClientCapi.H>
@@ -55,10 +57,26 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+int getch(void);
+void setch(void);
+void resetch(void);
+struct termios oldt;
+
+std::string prompt;
 
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
+#define MAX_NUM_ECMDS 150
+#define MAX_CMD_LEN 80
+#define MAX_CMD_HISTORY_LEN 10
+char cmdHistory[MAX_CMD_HISTORY_LEN][MAX_CMD_LEN];
+int  curIndex = 0; // points to the next write position
+int  getIndex = 0; // points to the selected cmd
+int  curHistorySize = 0; // counts the number of valid history entries
+
+std::string allecmds[MAX_NUM_ECMDS];
+
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -298,20 +316,274 @@ bool ecmdIsAllHex(const char* str) {
   return ret;
 }
 
-uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands) {
+uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
+{
   std::string buffer;
 
+  int x;
+
+  int cp = 0; // cursorpos
   o_commands.clear();
 
-  if (!std::cin) {
+  if (!std::cin)
+  {
     /* We have reached EOF */
     return ECMD_SUCCESS;
-  } else {
-    getline(std::cin, buffer);
+  }
+  else
+  {
+    setch();
 
-    /* Carve up what we have here */
+    buffer.clear();
+    x = getch();
+
+    if (x=='$')    // test mode
+    {
+
+      printf(" Test Mode entered \n");
+      do
+      {
+        x = getch();
+        printf(".. got key %u \n",x);
+
+
+      } while (x !='$');
+      printf(" Test Mode exited \n");
+    }
+    else 
+    {
+      cp = 0; // cursorpos
+      do
+      {
+        if (x==27)  //esc
+        {
+          x = getch(); // get next esc seq II
+          x = getch(); // get next cmdr
+
+          if (x==68)    // ****left**** 
+          {
+            if (cp>0)
+            {
+              cp=cp-1;
+              printf("\b");  // backspace
+              x = getch(); // get next cmdr
+              continue;
+            }
+
+          }
+          if (x==67)   // ****right**** 
+          {
+            if (cp<buffer.size())
+            {
+              printf("%c",27);
+              printf("%c",91);
+              printf("%c",x);
+              cp=cp+1;
+              x = getch(); // get next cmdr
+              continue;
+            }
+          }
+          if (x==65)   // ****  up  **** 
+          {
+
+
+            if (getIndex == 0)
+            {
+              if (curHistorySize>0) getIndex=curHistorySize-1;
+            }
+            else
+              getIndex = getIndex -1;
+
+                // erase current buffer contents
+            for (int s=0; s<cp; s++)
+            {
+              printf("\b \b");
+            }
+            printf("%s", cmdHistory[getIndex]);
+            buffer = cmdHistory[getIndex];
+            cp = buffer.size();
+
+            x = getch(); // get next cmdr
+            continue;
+
+          }
+          if (x==66)   // **** down **** 
+          {
+
+
+            getIndex = getIndex+1;
+            if (getIndex >= curHistorySize)
+            {
+              getIndex=0;
+            }
+
+              // erase current input and buffer
+            for (int s=0; s<cp; s++)
+            {
+              printf("\b \b");
+            }
+            printf("%s", cmdHistory[getIndex]);
+            //cp = strlen(cmdHistory[getIndex]);
+            buffer = cmdHistory[getIndex];
+            cp = buffer.size();
+
+            x = getch(); // get next cmdr
+            continue;
+          }
+          if (x==70)   //**** end ****
+          {
+            for (int s= cp; s< buffer.size();s++)
+            {   // move cursor  right
+              printf("%c",27);
+              printf("%c",91);
+              printf("%c",67);
+            }
+            cp=buffer.size();
+            x = getch(); // get next cmdr
+            continue;
+          }
+          if (x==72)   // ****pos 1**** 
+          {
+            printf("\r");  
+            printf("%s",getEcmdPrompt().c_str());
+            cp=0;
+            x = getch(); // get next cmdr
+            continue;
+          }
+
+          if (x==51) //  ****delete key****
+          {
+            x = getch(); // get next cmdr  126
+
+            buffer.erase(cp,1);
+
+            printf("\b ");   // delte last char
+            printf("\r");   // pos 1
+            printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
+            if (buffer.size()> (unsigned)cp)   // delete in middle of string
+            {
+              for (int rp=0; rp<buffer.size()-cp;rp++)
+              {
+                printf("\b");  // backspace
+              }
+            }
+            printf("\b");  // backspace
+          }
+        }
+        else if (x==127)  //   ***backspace***
+        {
+          if (cp>0)
+          {
+            cp=cp-1;
+            buffer.erase(cp,1);
+
+            printf("\b ");   // delte last char
+            printf("\r");   // pos 1
+            printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
+            if (buffer.size()> (unsigned)cp)   // delete in middle of string
+            {
+              for (int rp=0; rp<buffer.size()-cp;rp++)
+              {
+                printf("\b");  // backspace
+              }
+            }
+            printf("\b");  // backspace
+          }
+        }
+        else if (((x >= 48) && (x <= 57))||((x >= 97) && (x <= 122)) ||( (x>= 65) && (x<= 90))|| (x==32) || (x==95) || (x==46)|| (x==45)) // alphanumeric values
+        {
+          if (buffer.size()>(unsigned)cp)   // always insert mode
+          {
+
+            printf("%c",x);  //print character
+            printf("%s",buffer.substr(cp).c_str());  // print rest of string
+            buffer.insert(cp,1,(char)x);
+
+            for (int s= cp; s< (buffer.size()-1) ;s++)
+            {   // move cursor  left
+              printf("\b");  // backspace
+            }
+          }
+          else
+          {
+            buffer = buffer + (char *)&x;
+            printf("%c",x);
+          }
+
+          cp=cp+1;
+          // insert start
+          if (buffer.size()>3)
+          {
+            buffer = getBestEcmd(buffer.substr(0,cp));
+            printf("\r");   // pos 1
+            printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
+            if (buffer.size()<cp)
+            {
+              for (int s=0; s<cp-buffer.size(); s++)
+              {
+                printf("\b \b");
+              }
+            }
+            else 
+            {
+              for (int s=cp; s<buffer.size()+1; s++)
+              {
+                printf("\b");
+              }
+            }
+
+            //cp=buffer.size();
+          }
+          //insert end
+        }
+
+
+        x = getch(); // get next char
+      } while (x != 10);
+
+
+      printf("\n");  // newline
+       // first check whether previous cmd was the same
+      if (curIndex>0)
+      {
+        if (strcmp(buffer.c_str(),cmdHistory[curIndex-1]))
+        {  // not the smae .. so save it in history
+          (void)memset(cmdHistory[curIndex],0x00,MAX_CMD_LEN);  
+          (void)memcpy(cmdHistory[curIndex],buffer.c_str(),buffer.size());
+          curIndex = curIndex+1;
+          if (curHistorySize < MAX_CMD_HISTORY_LEN) curHistorySize=curHistorySize+1;
+          else  curHistorySize = MAX_CMD_HISTORY_LEN;
+          if (curIndex >= MAX_CMD_HISTORY_LEN)
+          {
+            curIndex=0;
+          }
+          getIndex=curIndex;
+        }
+      }
+      else
+      {
+        if (strcmp(buffer.c_str(),cmdHistory[curHistorySize]))
+        {  // not the smae .. so save it in history
+          (void)memset(cmdHistory[curIndex],0x00,MAX_CMD_LEN);  
+          (void)memcpy(cmdHistory[curIndex],buffer.c_str(),buffer.size());
+          curIndex = curIndex+1;
+          if (curHistorySize < MAX_CMD_HISTORY_LEN) curHistorySize=curHistorySize+1;
+          else  curHistorySize = MAX_CMD_HISTORY_LEN;
+          if (curIndex >= MAX_CMD_HISTORY_LEN)
+          {
+            curIndex=0;
+          }
+          getIndex=curIndex;
+        }
+      }
+    }
+    printf("..processing cmd: %s \n", buffer.c_str());
+
+    std::cout << buffer.c_str() ;
     ecmdParseTokens(buffer,"\n;", o_commands);
 
+
+    resetch();
   }
   return 1;
 }
@@ -573,4 +845,207 @@ void getTargetList (std::string userArgs, std::list<uint32_t> &targetList) {
     curOffset = nextOffset+1;
 
   }
+}
+
+void setch(void)
+{
+ struct termios newt;
+
+ tcgetattr(STDIN_FILENO, &oldt); /*store old settings */
+ newt = oldt; /* copy old settings to new settings */
+ newt.c_lflag &= ~(ICANON | ECHO); /* make one change to old settings in new settings */
+ tcsetattr(STDIN_FILENO, TCSANOW, &newt); /*apply the new settings immediatly */
+ return ;
+}
+
+void resetch(void)
+{
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt); /*reapply the old settings */
+  return;
+}
+
+int getch(void)
+{
+
+  int ch = 0;
+  ch = getchar(); /* standard getchar call */
+  return ch; /*return received char */
+}
+
+
+std::string getEcmdPrompt()
+{
+
+ char dirBuffer[80];
+ getcwd(dirBuffer,80);
+ prompt = dirBuffer;
+ prompt = prompt + ">>eCMD>";
+ return prompt;
+}
+
+void setupEcmds(void)
+{
+
+  ifstream ecmdDefFile ("/console/data/ecmdDefFile.txt");
+  int i=0;
+  if (ecmdDefFile.is_open())
+  {
+    i=0;
+    getline (ecmdDefFile,allecmds[i]);
+    while (! ecmdDefFile.eof() )
+    {
+      allecmds[i].resize(allecmds[i].size()-1,00);
+      i++;
+      getline (ecmdDefFile,allecmds[i]);
+    }
+    ecmdDefFile.close();
+  }
+  else {
+    ecmdOutput( "Unable to open ecmd definition file"); 
+
+    allecmds[0]="ecmdquery -h";
+    allecmds[1]="ecmdquery chips -all";
+    allecmds[2]="ecmdquery chips -k1 -n0 -s0";
+    allecmds[3]="ecmdquery showconfig";
+    allecmds[4]="ecmdquery showexist";
+    allecmds[5]="ecmdquery rings pu -all";
+    allecmds[6]="ecmdquery rings pu NAME  -k1 -n0 -s0";
+    allecmds[7]="ecmdquery scoms pu -all";
+    allecmds[8]="ecmdquery scoms pu 24608 -k1 -n0 -s0";
+    allecmds[9]="ecmdquery arrays pu NAME -k1 -n0 -s0";
+    allecmds[10]="ecmdquery arrays pu -all";
+    allecmds[11]="ecmdquery spys pu NAME  -k1 -n0 -s0";
+    allecmds[12]="ecmdquery spys pu -all";
+    allecmds[13]="ecmdquery version";
+    allecmds[14]="ecmdquery formats";
+    allecmds[15]="ecmdquery chipinfo pu -all";
+    allecmds[16]="ecmdquery chipinfo pu -k1 -n0 -s0";
+    allecmds[17]="ecmdquery configd pu -k1 -n0 -s0";
+    allecmds[18]="ecmdquery configd -all";
+    allecmds[19]="ecmdquery exist pu -k1 -n0 -s0";
+    allecmds[20]="ecmdquery exist -all";
+    i=21;
+  }
+
+  std::list<ecmdRingData> ringDataList;
+  ecmdRingData ringData;
+
+  ecmdChipTarget queryTarget; 
+  ecmdChipTarget chipTarget; 
+
+  ecmdQueryData qData;
+
+  ecmdCageData     cageData     ;
+  ecmdNodeData     nodeData     ;
+  ecmdSlotData     slotData     ;
+  ecmdChipData     chipData     ;
+  ecmdChipUnitData chipUnitData ;
+
+  std::list<ecmdCageData>     cageList     ;
+  std::list<ecmdNodeData>     nodeList     ;
+  std::list<ecmdSlotData>     slotList     ;
+  std::list<ecmdChipData>     chipList     ;
+  std::list<ecmdChipUnitData> chipUnitList ;
+
+
+  uint32_t src = 0;
+
+  int cage = 0;
+  int node = 0;
+  int slot = 0;
+  std::string chipType = "";
+  int pos = 0;
+  int chipUnitNum = 0;
+  std::string chipUnitType = "";
+
+
+
+  chipTarget.cageState=ECMD_TARGET_FIELD_WILDCARD;
+  chipTarget.nodeState=ECMD_TARGET_FIELD_WILDCARD;
+  chipTarget.slotState=ECMD_TARGET_FIELD_WILDCARD;
+  chipTarget.posState=ECMD_TARGET_FIELD_WILDCARD;
+  chipTarget.chipTypeState=ECMD_TARGET_FIELD_VALID;
+  chipTarget.chipUnitNumState=ECMD_TARGET_FIELD_UNUSED;
+  chipTarget.chipUnitTypeState=ECMD_TARGET_FIELD_UNUSED;
+  chipTarget.chipType = "pu";
+
+
+  src=ecmdQueryConfig(chipTarget, qData, ECMD_QUERY_DETAIL_HIGH);
+  //printf("qConfig done: src: %u \n",src );
+  if (src==0)
+  {
+    cageList= qData.cageData;
+    cageData = cageList.front();
+    cage=cageData.cageId; 
+
+    nodeList=  cageData.nodeData;
+    nodeData=  nodeList.front();
+    node= nodeData.nodeId; 
+
+    slotList=  nodeData.slotData;
+    slotData=  slotList.front();
+    slot= slotData.slotId; 
+
+    chipList=  slotData.chipData;
+    chipData=  chipList.front();
+    chipType= chipData.chipType; 
+    pos= chipData.pos; 
+
+
+    // now check for valid rings on first taqrget
+    queryTarget.cageState=ECMD_TARGET_FIELD_VALID;
+    queryTarget.nodeState=ECMD_TARGET_FIELD_VALID;
+    queryTarget.slotState=ECMD_TARGET_FIELD_VALID;
+    queryTarget.posState=ECMD_TARGET_FIELD_VALID;
+    queryTarget.chipTypeState=ECMD_TARGET_FIELD_VALID;
+    queryTarget.chipUnitTypeState=ECMD_TARGET_FIELD_UNUSED;
+    queryTarget.chipUnitNumState=ECMD_TARGET_FIELD_UNUSED;
+
+    queryTarget.cage = cage ;
+    queryTarget.node = node ;
+    queryTarget.slot = slot ;
+    queryTarget.pos = pos ;
+
+    queryTarget.chipType = chipType.c_str() ;
+
+    src = ecmdQueryRing(queryTarget,ringDataList,NULL,ECMD_QUERY_DETAIL_HIGH);
+
+    if (src==0)
+    {
+      char tempBuff[80];
+      for (int s = 0;(s<ringDataList.size()) && (s<100);s++)
+      {
+        ringData=ringDataList.front();
+        ringDataList.pop_front();
+        (void)memset(tempBuff,0x00,sizeof(tempBuff));
+        //printf("ring name -%s-, ring type -%s- \n",ringData.ringNames.front().c_str(), ringData.relatedChipUnit.c_str());
+        if (ringData.relatedChipUnit== (std::string)"")
+        {
+
+          sprintf(tempBuff,"getbits pu %s 0 %u -all",ringData.ringNames.front().c_str() , ringData.bitLength  );
+        }
+        else 
+         sprintf(tempBuff,"getbits pu.%s %s 0 %u -all",ringData.relatedChipUnit.c_str(), ringData.ringNames.front().c_str(), ringData.bitLength   );
+        allecmds[i+s]=(std::string)tempBuff;
+      }
+    }
+    else 
+      ecmdOutput( "Unable to get  ecmd ring informaton data"); 
+
+  }
+  else {  
+    ecmdOutput( "Unable to get  ecmd configuration data"); 
+  }
+}
+
+
+std::string  getBestEcmd(std::string i_ecmd)
+{
+  int i;
+  for (i = 0; i< MAX_NUM_ECMDS; i++)
+  {
+    if (i_ecmd==allecmds[i].substr(0,i_ecmd.length()))
+       return allecmds[i] ;
+  }
+  return i_ecmd ;
 }
