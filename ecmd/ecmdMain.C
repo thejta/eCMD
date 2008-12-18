@@ -39,6 +39,8 @@ int main (int argc, char *argv[])
   uint32_t rc = ECMD_SUCCESS;
 
   std::string cmdSave;
+  std::string curCmd;
+  bool isSystemCmd = false;
   char errorbuf[200];
   for (int i = 0; i < argc; i++) {
     cmdSave += argv[i];
@@ -82,20 +84,27 @@ int main (int argc, char *argv[])
       size_t   commlen;
       bool shellAlive = true;
 
+
       if (shellMode) {
-        ecmdOutput("ecmd> "); fflush(0);
+
+        setupEcmds();
+        ecmdOutput("\n");
+        ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
       }
 
       /* ecmdParseStdInCommands reads from stdin and returns a vector of strings */
       /*  each string contains one command (ie 'ecmdquery version')              */
       /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
-      while (shellAlive && ( ecmdParseStdinCommands(commands))) {
 
+      //while (shellAlive && (rc = ecmdParseStdinCommands(commands))) { .. old caused BEAM ERRORS
+      while (shellAlive) {
+        rc = ecmdParseStdinCommands(commands);  // rc is 0 if no more cmds are to be parsed
+        if (rc==0) break;
         rc = 0;
 
         /* Walk through individual commands from ecmdParseStdInCommands */
         for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
-
+          isSystemCmd=false;
           c_argc = 0;
           c_argv[0] = NULL;
 
@@ -158,22 +167,43 @@ int main (int argc, char *argv[])
 
           // Before Executing the cmd save it on the Dll side 
           ecmdSetCurrentCmdline(c_argc, c_argv);
-
+          //sprintf(errorbuf,"ecmd -  argc %u, argv0 %s \n",c_argc, c_argv[0]);
+          //ecmdOutputError(errorbuf);
+          curCmd = "";
+          for (int j=0 ; j < c_argc ; j++ )
+          {
+            curCmd += c_argv[j];
+            curCmd += " ";
+           }
+          //sprintf(errorbuf,"1ecmd -  argc %u,, argv0 %s \n",argc, argv[0]);
+          //ecmdOutputError(errorbuf);
+           curCmd+="\n";
+          // sprintf(errorbuf,"2ecmd -  cur cmd %s \n",curCmd.c_str());
+          // ecmdOutputError(errorbuf);
           /* We now want to call the command interpreter to handle what the user provided us */
           if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
 
 
           if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-            if (strlen(c_argv[0]) < 200)
-              sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+            if (strlen(c_argv[0]) < 200){
+              //sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+              sprintf(errorbuf,"executing system cmd: %s  \n",curCmd.c_str());
+              ecmdOutputError(errorbuf);
+              isSystemCmd=true;
+              (void)system(curCmd.c_str());
+              ecmdOutput("  system call done\n");
+            }
             else
+            {
               sprintf(errorbuf,"ecmd -  Unknown Command specified \n");
-            ecmdOutputError(errorbuf);
+              ecmdOutputError(errorbuf);
+            }
           } else if (rc) {
             std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
             if (parse.length() > 0) {
               /* Display the registered message right away BZ#160 */
               ecmdOutput(parse.c_str());
+              ecmdOutput("\n");
             }
             parse = ecmdParseReturnCode(rc);
             if (strlen(c_argv[0]) + parse.length() < 300)
@@ -184,15 +214,23 @@ int main (int argc, char *argv[])
             break;
           }
 
+
           if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-            ecmdOutput((*commandIter + "\n").c_str());
+            if (isSystemCmd==false)
+            {
+              ecmdOutput("\n");
+              ecmdOutput((*commandIter).c_str());
+              ecmdOutput("\n");
+            }
           }
         } /* tokens loop */
-        if (rc) break;
+        //if (rc) break;
 
         /* Print the prompt again */
         if (shellMode && shellAlive) {
-          ecmdOutput("ecmd> "); fflush(0);
+
+          ecmdOutput("\n");
+          ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
         }
       }
       if (buffer != NULL) delete[] buffer;
@@ -220,6 +258,7 @@ int main (int argc, char *argv[])
         if (parse.length() > 0) {
           /* Display the registered message right away BZ#160 */
           ecmdOutput(parse.c_str());
+          ecmdOutput("\n");
         }
         parse = ecmdParseReturnCode(rc);
         if (strlen(argv[1]) + parse.length() < 300)
@@ -234,6 +273,7 @@ int main (int argc, char *argv[])
     /* Move these outputs into the if !rc to fix BZ#224 - cje */
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       ecmdOutput(cmdSave.c_str());
+      ecmdOutput("\n");
     }
 
 
