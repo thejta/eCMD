@@ -1838,15 +1838,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     allRingsFlag = true;
   }
 
-  // Make sure it was a chip level target the user gave
-  if (allRingsFlag && chipUnitType != "") {
-    printed = "checkrings - A chipUnit \"";
-    printed += chipUnitType;
-    printed += "\" was given on for an all rings test.  Please give just the chip.\n";
-    ecmdOutputError(printed.c_str());
-    return ECMD_INVALID_ARGS;
-  }
-
   char outstr[300];
   uint32_t checkPattern = 0xA5A5A5A5;
   std::string repPattern;
@@ -1872,6 +1863,24 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     if (rc) {
       coeRc = rc;
       continue;
+    }
+
+    /* If it was an all rings check, and we have chipUnit, loop through the data and only */
+    /* use the rings that match the chipunit given - JTA 12/17/08 */
+    if (allRingsFlag && chipUnitType != "") {
+      std::list<ecmdRingData>::iterator curRingData = queryRingData.begin();
+      std::list<ecmdRingData>::iterator lastRingData;
+
+      while (curRingData != queryRingData.end()) {
+        /* Doesn't match, so remove */
+        if (!curRingData->isChipUnitRelated || !curRingData->isChipUnitMatch(chipUnitType)) {
+          lastRingData = curRingData;
+          lastRingData--; // backup to a point before we were going to erase
+          queryRingData.erase(curRingData);
+          curRingData = lastRingData; // Now go to our backup point, so the ++ below advances
+        }
+        curRingData++;
+      }
     }
 
     std::list<ecmdRingData>::iterator curRingData = queryRingData.begin();

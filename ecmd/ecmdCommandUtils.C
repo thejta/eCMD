@@ -886,7 +886,7 @@ std::string getEcmdPrompt()
 void setupEcmds(void)
 {
 
-  ifstream ecmdDefFile ("/console/data/ecmdDefFile.txt");
+  std::ifstream ecmdDefFile ("/console/data/ecmdDefFile.txt");
   int i=0;
   if (ecmdDefFile.is_open())
   {
