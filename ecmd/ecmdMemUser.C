@@ -420,13 +420,18 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }else if(((argc > 2)&&((filename == NULL) && (dcardfilename == NULL))) || (((argc > 1)&&(filename != NULL)) || ((argc > 0)&&(dcardfilename != NULL)))) {
-    printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file or just a dcard file.\n";
+  } else if(((argc > 2)&&((filename == NULL) && (dcardfilename == NULL))) || ((argc > 1)&&(filename != NULL))) {
+    printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  
+  } else if((argc > 1) && (dcardfilename != NULL)) {
+    printLine = cmdlineName + " - Too many arguments specified; you only need an optional address offset and a dcard file.\n";
+    ecmdOutputError(printLine.c_str());
+    printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
   }
   //Setup the target that will be used to query the system config 
   // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
@@ -442,7 +447,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
 
   // Get the address
-  if (dcardfilename == NULL) {
+  if ((dcardfilename == NULL) || (dcardfilename != NULL && argv[0] != NULL)) {
    if (!ecmdIsAllHex(argv[0])) {
      printLine = cmdlineName + " - Non-hex characters detected in address field\n";
      ecmdOutputError(printLine.c_str());
@@ -473,7 +478,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     memdata.push_back(memEntry);
     
   } else if(dcardfilename != NULL) {
-    rc = ecmdReadDcard(dcardfilename, memdata);
+    rc = ecmdReadDcardHidden(dcardfilename, memdata, address);
     if (rc) {
      printLine = cmdlineName + " - Problems occurred parsing input data from file " + dcardfilename +", must be an invalid format\n";
      ecmdOutputError(printLine.c_str());

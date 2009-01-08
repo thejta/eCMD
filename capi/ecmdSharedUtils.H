@@ -185,6 +185,18 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
  */
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data);
 
+#ifndef DOCUMENTATION
+/**
+ *  @brief Sets Fields of ecmdMemoryEntry_t from the DCard data in the file
+ *  @param i_filename file to read the d-card data from
+ *  @param o_data list to be updated with the d-card data
+ *  @param i_addressOffset Increase the address in the file by the addressOffset passed in
+ *  @retval ECMD_SUCCESS if setting successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching depth
+ */
+uint32_t ecmdReadDcardHidden(const char *i_filename, std::list<ecmdMemoryEntry> &o_data, uint64_t i_addressOffset = 0);
+#endif
+
 /**
  @brief Returns a formatted string containing the data in the given ecmdChipTarget
  @return String with formatted target data
