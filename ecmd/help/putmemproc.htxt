@@ -1,7 +1,7 @@
 
 Syntax: putmemproc <MemAddress> <Data> [-i<format>]
         putmemproc <MemAddress> -fb<filename>
-        putmemproc -fd<filename>
+        putmemproc [AddressOffset] -fd<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -14,6 +14,8 @@ Syntax: putmemproc <MemAddress> <Data> [-i<format>]
 
         -fd <filename>  Specify full path and filename to file in D-Card format to load
                         to system
+                        You can optionally specify AddressOffset which will be added
+                        to the addresses in the dcardfile
 
         -fb <filename>  Specify full path and filename to binary file to load to system
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
