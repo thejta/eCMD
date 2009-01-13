@@ -373,7 +373,7 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
           }
           if (x==67)   // ****right**** 
           {
-            if (cp<buffer.size())
+            if (cp<(int)buffer.size())
             {
               printf("%c",27);
               printf("%c",91);
@@ -432,7 +432,7 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
           }
           if (x==70)   //**** end ****
           {
-            for (int s= cp; s< buffer.size();s++)
+            for (int s= cp; s< (int)buffer.size();s++)
             {   // move cursor  right
               printf("%c",27);
               printf("%c",91);
@@ -462,7 +462,7 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
             printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
             if (buffer.size()> (unsigned)cp)   // delete in middle of string
             {
-              for (int rp=0; rp<buffer.size()-cp;rp++)
+              for (int rp=0; rp<(int)buffer.size()-cp;rp++)
               {
                 printf("\b");  // backspace
               }
@@ -482,7 +482,7 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
             printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
             if (buffer.size()> (unsigned)cp)   // delete in middle of string
             {
-              for (int rp=0; rp<buffer.size()-cp;rp++)
+              for (int rp=0; rp<(int)buffer.size()-cp;rp++)
               {
                 printf("\b");  // backspace
               }
@@ -499,7 +499,7 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
             printf("%s",buffer.substr(cp).c_str());  // print rest of string
             buffer.insert(cp,1,(char)x);
 
-            for (int s= cp; s< (buffer.size()-1) ;s++)
+            for (int s= cp; s< ((int)buffer.size()-1) ;s++)
             {   // move cursor  left
               printf("\b");  // backspace
             }
@@ -517,16 +517,16 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
             buffer = getBestEcmd(buffer.substr(0,cp));
             printf("\r");   // pos 1
             printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
-            if (buffer.size()<cp)
+            if ((int)buffer.size()<cp)
             {
-              for (int s=0; s<cp-buffer.size(); s++)
+              for (int s=0; s<cp-(int)buffer.size(); s++)
               {
                 printf("\b \b");
               }
             }
             else 
             {
-              for (int s=cp; s<buffer.size()+1; s++)
+              for (int s=cp; s<(int)buffer.size()+1; s++)
               {
                 printf("\b");
               }
@@ -886,7 +886,8 @@ std::string getEcmdPrompt()
 void setupEcmds(void)
 {
 
-  std::ifstream ecmdDefFile ("/console/data/ecmdDefFile.txt");
+  std::ifstream ecmdDefFile;
+  ecmdDefFile.open("/console/data/ecmdDefFile.txt");
   int i=0;
   if (ecmdDefFile.is_open())
   {
@@ -955,7 +956,7 @@ void setupEcmds(void)
   int slot = 0;
   std::string chipType = "";
   int pos = 0;
-  int chipUnitNum = 0;
+  //int chipUnitNum = 0;
   std::string chipUnitType = "";
 
 
@@ -1013,7 +1014,7 @@ void setupEcmds(void)
     if (src==0)
     {
       char tempBuff[80];
-      for (int s = 0;(s<ringDataList.size()) && (s<100);s++)
+      for (int s = 0;(s<(int)ringDataList.size()) && (s<100);s++)
       {
         ringData=ringDataList.front();
         ringDataList.pop_front();
