@@ -113,6 +113,17 @@ then
    fi
 elif [[ $numFields = 1 ]]
 then
+
+   # Make sure the file exists
+   if [[ $ECMD_PLUGIN != "scand" ]]
+   then 
+      if [[ ! -e $CRONUS_HOME/targets/$TARGET_VARIABLES""_info ]]
+      then
+         echo "\"$TARGET_VARIABLES\" doesn't exist!  Please check your target and try again"
+         return
+      fi
+   fi
+
    # Must be a real target, so set the environment variable
    export ECMD_TARGET=$TARGET_VARIABLES
    if [[ $ECMD_PLUGIN = "scand" ]]
