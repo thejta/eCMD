@@ -53,6 +53,8 @@ these formats please see the eCMD documentation.
 
         -oa             Display data as ascii
 
+        -od             Display data as decimal
+
 
 INPUT FORMATS
 --------------------------------------------------------------------------------
@@ -71,6 +73,8 @@ specify what format you are providing data in.
         -ienum          Data is an enumeration (only valid with putspy)
 
         -ia             Data is ascii
+
+        -ia             Data is decimal
 
 BIT MODIFIERS
 --------------------------------------------------------------------------------
