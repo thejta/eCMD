@@ -74,7 +74,7 @@ specify what format you are providing data in.
 
         -ia             Data is ascii
 
-        -ia             Data is decimal
+        -id             Data is decimal
 
 BIT MODIFIERS
 --------------------------------------------------------------------------------
