@@ -379,6 +379,14 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
   if (i_mode == ECMD_DYNAMIC_LOOP) {
     i_mode = (ecmdLoopMode_t)ecmdGlobal_looperMode;
   }
+  /* If it's a dynamic reverse, we need to set things up properly based on the default */
+  if (i_mode == ECMD_DYNAMIC_REVERSE_LOOP) {
+    if (ecmdGlobal_looperMode == ECMD_CONFIG_LOOP) {
+      i_mode = ECMD_CONFIG_REVERSE_LOOP;
+    } else {
+      i_mode = ECMD_EXIST_REVERSE_LOOP;
+    }
+  }
 
   // Set to unknown so we can error check later
   io_state.initialized = false;
@@ -424,7 +432,7 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     if ((*io_state.curUnitIdTarget).threadState != ECMD_TARGET_FIELD_UNUSED) queryTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
     else queryTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-    if (i_mode == ECMD_EXIST_LOOP) {
+    if (i_mode == ECMD_EXIST_LOOP || i_mode == ECMD_EXIST_REVERSE_LOOP) {
       rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
     } else {
       rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
@@ -460,13 +468,13 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     if (io_target.threadState != ECMD_TARGET_FIELD_UNUSED)        io_target.threadState = ECMD_TARGET_FIELD_VALID;
 
     if (i_looptype == ECMD_ALL_TARGETS_LOOP) {
-      if (i_mode == ECMD_EXIST_LOOP) {
+      if (i_mode == ECMD_EXIST_LOOP || i_mode == ECMD_EXIST_REVERSE_LOOP) {
         rc = dllQueryExist(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
       } else {
         rc = dllQueryConfig(queryTarget, io_state.ecmdSystemConfigData, ECMD_QUERY_DETAIL_LOW);
       }
     } else {
-      if (i_mode == ECMD_EXIST_LOOP) {
+      if (i_mode == ECMD_EXIST_LOOP || i_mode == ECMD_EXIST_REVERSE_LOOP) {
         rc = dllQueryExistSelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
       } else {
         rc = dllQueryConfigSelected(queryTarget, io_state.ecmdSystemConfigData, i_looptype);
@@ -483,6 +491,39 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
       if (queryTarget.threadState == ECMD_TARGET_FIELD_UNUSED)       io_target.threadState = ECMD_TARGET_FIELD_UNUSED;
     }
     if (rc) return rc;
+
+    /* If the reverse option is set, go through and flip all the data structures */
+    if (i_mode == ECMD_EXIST_REVERSE_LOOP || i_mode == ECMD_CONFIG_REVERSE_LOOP) {
+      std::list<ecmdCageData>::iterator curCage;
+      std::list<ecmdNodeData>::iterator curNode;
+      std::list<ecmdSlotData>::iterator curSlot;
+      std::list<ecmdChipData>::iterator curChip;
+      std::list<ecmdChipUnitData>::iterator curChipUnit;
+      std::list<ecmdThreadData>::iterator curThread;
+
+      for (curCage = io_state.ecmdSystemConfigData.cageData.begin(); curCage != io_state.ecmdSystemConfigData.cageData.end(); curCage++) {
+        for (curNode = curCage->nodeData.begin(); curNode != curCage->nodeData.end(); curNode++) {
+          for (curSlot = curNode->slotData.begin(); curSlot != curNode->slotData.end(); curSlot++) {
+            for (curChip = curSlot->chipData.begin(); curChip != curSlot->chipData.end(); curChip++) {
+              for (curChipUnit = curChip->chipUnitData.begin(); curChipUnit != curChip->chipUnitData.end(); curChipUnit++) {
+                /* All done at this level, now reverse it */
+                curChipUnit->threadData.reverse();
+              }
+              /* All done at this level, now reverse it */
+              curChip->chipUnitData.reverse();
+            }
+            /* All done at this level, now reverse it */
+            curSlot->chipData.reverse();
+          }
+          /* All done at this level, now reverse it */
+          curNode->slotData.reverse();
+        }
+        /* All done at this level, now reverse it */
+        curCage->nodeData.reverse();
+      }
+      /* All done at this level, now reverse it */
+      io_state.ecmdSystemConfigData.cageData.reverse();
+    }
 
     io_state.ecmdCurCage = io_state.ecmdSystemConfigData.cageData.begin();
     io_state.ecmdLooperInitFlag = true;
@@ -525,6 +566,14 @@ uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecm
   /* If we aren't told what mode to run in, figure it out */
   if (i_mode == ECMD_DYNAMIC_LOOP) {
     i_mode = (ecmdLoopMode_t)ecmdGlobal_looperMode;
+  }
+  /* If it's a dynamic reverse, we need to set things up properly based on the default */
+  if (i_mode == ECMD_DYNAMIC_REVERSE_LOOP) {
+    if (ecmdGlobal_looperMode == ECMD_CONFIG_LOOP) {
+      i_mode = ECMD_CONFIG_REVERSE_LOOP;
+    } else {
+      i_mode = ECMD_EXIST_REVERSE_LOOP;
+    }
   }
 
   /* Are we using unitids ? */

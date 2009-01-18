@@ -215,6 +215,9 @@ typedef enum {
   ECMD_DYNAMIC_LOOP,                    ///< Uses the value of ECMD_GLOBALVAR_LOOPMODE to determine loop mode.  Default is ECMD_CONFIG_LOOP
   ECMD_CONFIG_LOOP,                     ///< Use the ecmdConfigLooper* functions
   ECMD_EXIST_LOOP,                      ///< Use the ecmdExistLooper* functions
+  ECMD_DYNAMIC_REVERSE_LOOP,            ///< Uses the value of ECMD_GLOBALVAR_LOOPMODE to determine loop mode, then set it to the reverse version
+  ECMD_CONFIG_REVERSE_LOOP,             ///< Use the ecmdConfigLooper* functions, but reverse the order of the data after the init
+  ECMD_EXIST_REVERSE_LOOP,              ///< Use the ecmdExistLooper* functions, but reverse the order of the data after the init
 } ecmdLoopMode_t;
 
 
