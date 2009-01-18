@@ -119,7 +119,7 @@ then
    then 
       if [[ ! -e $CRONUS_HOME/targets/$TARGET_VARIABLES""_info ]]
       then
-         echo "\"$TARGET_VARIABLES\" doesn't exist!  Please check your target and try again"
+         echo "\"$TARGET_VARIABLES\" doesn't exist!  Please check your target name and try again"
          return
       fi
    fi
