@@ -253,13 +253,17 @@ int main (int argc, char *argv[])
         else
           sprintf(errorbuf,"ecmd - Unknown Command specified \n");
         ecmdOutputError(errorbuf);
-      } else if (rc) {
-        std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
-        if (parse.length() > 0) {
-          /* Display the registered message right away BZ#160 */
-          ecmdOutput(parse.c_str());
-          ecmdOutput("\n");
-        }
+      }
+
+      // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being lost
+      std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
+      if (parse.length() > 0) {
+        /* Display the registered message right away BZ#160 */
+        ecmdOutput(parse.c_str());
+      }
+
+      // If we did get a return code, parse that and print it to the screen
+      if (rc) {
         parse = ecmdParseReturnCode(rc);
         if (strlen(argv[1]) + parse.length() < 300)
           sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", argv[1], rc, parse.c_str());
@@ -283,16 +287,3 @@ int main (int argc, char *argv[])
 
   return rc;
 }
-
-
-
-
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//  none STGC7449      04/18/05 prahl    Clean up Beam messages.
-//
-// End Change Log *****************************************************
