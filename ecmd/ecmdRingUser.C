@@ -830,6 +830,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	    printed = "getlatch - Expected	   : ";
 	    printed += ecmdWriteDataFormatted(expected, curOutputFormat);
 	    ecmdOutputError( printed.c_str() );
+            coeRc = ECMD_EXPECT_FAILURE;
 	  }
 
 	}
