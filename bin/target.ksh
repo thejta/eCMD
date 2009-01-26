@@ -13,6 +13,9 @@
 #
 ##############################################
 
+# Turn off control C so we don't have to worry about lock cleanup and signal handlers
+stty intr ""
+
 numFields=`echo $TARGET_VARIABLES | awk '{print NF}'`
 
 # Very first thing, do the help if nothing is passed in
@@ -55,6 +58,17 @@ then
      	   echo "Please enter message about the machine lock:"
      	   read message
      	fi
+
+        # Now see if someone else locked the machine while I was trying to lock it
+        # If they did, error out
+        temp3=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "LOCK"`
+        if [[ $temp3 != 0 ]]
+        then
+           echo "Someone else locked the machine out from under you!"
+           echo "Lock aborted - try \"target query\" to find out who"
+           return
+        fi
+
      	echo "#LOCK# yes" >> $CRONUS_HOME/targets/$ECMD_TARGET""_info
      	echo "#LOCK_COMMENT# $message" >> $CRONUS_HOME/targets/$ECMD_TARGET""_info
      	echo "#LOCK_OWNER# `whoami` on `date`" >> $CRONUS_HOME/targets/$ECMD_TARGET""_info
@@ -132,6 +146,9 @@ then
    fi
    echo eCMD Target is now \"$ECMD_TARGET\"
 fi
+
+# Re-enable control C from aboves
+stty intr "^C"
 
 unset numFields
 unset message
