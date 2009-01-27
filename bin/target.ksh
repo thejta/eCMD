@@ -102,10 +102,25 @@ elif [[ $TARGET_VARIABLES = "unlock" ]]
 then
    if [[ $ECMD_PLUGIN != "scand" ]]
    then
-     echo "Releasing lock on target $ECMD_TARGET"
-     cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | awk '{ if($1 !~ /LOCK/) {path = sprintf("%s/targets/%s_info_temp",ENVIRON["CRONUS_HOME"],ENVIRON["ECMD_TARGET"]); print $0 > path} }'
-     mv $CRONUS_HOME/targets/$ECMD_TARGET""_info_temp $CRONUS_HOME/targets/$ECMD_TARGET""_info
-     echo "Target is now unlocked"
+      # See if the target is locked.
+      temp1=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK# yes"`
+      if [[ $temp1 != 0 ]] #Locked
+      then
+         # It is locked.  If the user is allowed, let them unlock.  If not, throw an error
+         temp2=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK_ALLOWED# $ECMD_LOCK"`
+         if [[ $temp2 != 0 ]] #Allowed through
+         then
+            echo "Releasing lock on target $ECMD_TARGET"
+            cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | awk '{ if($1 !~ /LOCK/) {path = sprintf("%s/targets/%s_info_temp",ENVIRON["CRONUS_HOME"],ENVIRON["ECMD_TARGET"]); print $0 > path} }'
+            mv $CRONUS_HOME/targets/$ECMD_TARGET""_info_temp $CRONUS_HOME/targets/$ECMD_TARGET""_info
+            echo "Target is now unlocked"
+         else
+            echo "The target is locked!  Please override the lock before trying to unlock."
+            return
+         fi
+      else
+         echo "The target is already unlocked"
+      fi
    fi
    
 elif [[ $TARGET_VARIABLES = "query" || $TARGET_VARIABLES = "q" ]]
