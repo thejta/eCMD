@@ -175,7 +175,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         target.threadState = ECMD_TARGET_FIELD_UNUSED;
       }
 
-      rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData, loopMode);
+      rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
       if (rc) return rc;
 
       if (!strcasecmp(argv[0],"start")) {
