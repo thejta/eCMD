@@ -205,8 +205,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         } else {
           subTarget = target;
           subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
-          // We only want to loop backwards over the start, the rest need to go forwards like normal
-          if (!strcasecmp(argv[0],"start")) {
+          // We only want to loop backwards over the start/sreset, the rest need to go forwards like normal
+          if (!strcasecmp(argv[0],"start") || !strcasecmp(argv[0],"sreset")) {
             loopMode = ECMD_DYNAMIC_REVERSE_LOOP;
           } else {
             loopMode = ECMD_DYNAMIC_LOOP;
