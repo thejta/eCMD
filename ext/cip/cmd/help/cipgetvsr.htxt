@@ -1,0 +1,24 @@
+
+Syntax: cipgetvsr <VsrStartNum> [<numEntries>] [-o<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Gets Processor VSR (VSX Register).
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        VsrNum          Vsr Entry to read (Decimal)
+
+        numEntries      Specifies number of entries to get from starting entry (Decimal)
+
+        -o<format>[opt] Specifies the format type of the output : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipgetvsr 6 -p0,1 
+                        > cipgetvsr 0 32 -p10, -t1 -c1
