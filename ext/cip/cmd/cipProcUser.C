@@ -531,9 +531,9 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 2) {
-    printed = "cipputvr - Too few arguments specified; you need at least one vr  and some data.\n";
+    printed = "cipputvr - Too few arguments specified; you need at least one vr and some data.\n";
     ecmdOutputError(printed.c_str());
-    printed = "r - Type 'cipputvr -h' for usage.\n";
+    printed = "cipputvr - Type 'cipputvr -h' for usage.\n";
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   }
@@ -943,3 +943,271 @@ uint32_t ecmdCipPutMemProcUser(int argc, char * argv[]) {
   return rc;
 }
 #endif // CIP_REMOVE_MEMORY_FUNCTIONS
+
+#ifndef CIP_REMOVE_VSR_FUNCTIONS
+uint32_t cipGetVsrUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  std::list<ecmdIndexEntry> entries;    ///< List of vsr's to fetch, to use getVsrMultiple
+  std::list<ecmdIndexEntry> entries_copy;    ///< List of vsr's to fetch, to use getVsrMultiple
+  ecmdIndexEntry  entry;         ///< Vsr entry to fetch
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  int idx;
+  int numEntries = 1;           ///< Number of consecutive entries to retrieve
+  int startEntry = 0;           ///< Entry to start on
+  char buf[100];                ///< Temporary string buffer
+
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr == NULL) {
+    format = "x";
+  }
+  else {
+    format = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 1) {
+    printed = "cipgetvsr - Too few arguments specified; you need at least one vsr.\n";
+    ecmdOutputError(printed.c_str());
+    printed = "cipgetvsr - Type 'cipgetvsr -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+
+  /* Walk through the arguments and create our list of vsrs */
+  startEntry = atoi(argv[0]);
+  if (argc > 1) {
+    numEntries = atoi(argv[1]);
+  }
+  for (idx = startEntry; idx < numEntries; idx ++) {
+    entry.index = idx;
+    entries.push_back(entry);
+  }
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdLooperNext(target, looperdata) ) {
+
+    /* Restore to our initial list */
+    entries_copy = entries;
+
+
+    /* Actually go fetch the data */
+    rc = cipGetVsrMultiple(target, entries_copy);
+
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+      printed = "cipgetvsr - Error occured performing cipGetVsrMultiple on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    printed = ecmdWriteTarget(target) + "\n";
+    ecmdOutput( printed.c_str() );
+    for (std::list<ecmdIndexEntry>::iterator entit = entries_copy.begin(); entit != entries_copy.end(); entit ++) {
+
+      sprintf(buf,"%.02X\t", entit->index);
+      printed = buf;
+
+      printed += ecmdWriteDataFormatted(entit->buffer, format);
+
+      ecmdOutput( printed.c_str() );
+    }
+
+    ecmdOutput("\n");
+  }
+
+  if (!validPosFound) {
+    printed = "cipgetvsr - Unable to find a valid chip to execute command on\n";
+    //this is an error common across all UI functions
+    ecmdOutputError(printed.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t cipPutVsrUser(int argc, char * argv[]) { 
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  std::string inputformat = "x";                ///< Default input format
+  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  ecmdDataBuffer buffer;        ///< Buffer to store data to write with
+  ecmdDataBuffer sprBuffer;     ///< Buffer to store data from the spr
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  int entry;                    ///< Index entry to write 
+  uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
+  uint32_t numBits = 0;         ///< Number of bits to insert data
+  char* dataPtr = NULL;         ///< Pointer to spr data in argv array
+  
+  /* get format flag, if it's there */
+  char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
+  }
+
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+
+  
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {
+    printed = "cipputvsr - Too few arguments specified; you need at least one vsr and some data.\n";
+    ecmdOutputError(printed.c_str());
+    printed = "cipputvsr - Type 'cipputvsr -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+  entry = atoi(argv[0]);
+
+  if (argc == 4) {
+    if (!ecmdIsAllDecimal(argv[1])) {
+      printed = "cipputvsr - Non-decimal numbers detected in startbit field\n";
+    ecmdOutputError(printed.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+    startBit = (uint32_t)atoi(argv[1]);
+
+    if (!ecmdIsAllDecimal(argv[2])) {
+      printed = "cipputvsr - Non-decimal numbers detected in numbits field\n";
+    ecmdOutputError(printed.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+    numBits = (uint32_t)atoi(argv[2]);
+    
+    
+    dataPtr = argv[3];
+
+  } else if (argc == 2) {
+
+    dataPtr = argv[1];
+
+  } else {
+    printed = "cipputvsr - Too many arguments specified; you probably added an option that wasn't recognized.\n";
+    ecmdOutputError(printed.c_str());
+    printed = "cipputvsr - Type 'cipputvsr -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+    
+  }
+
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while ( ecmdLooperNext(target, looperdata) ) {
+
+
+    rc = cipGetVsr(target, entry, sprBuffer);
+    
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      continue;
+    }
+    else if (rc) {
+        printed = "cipputvsr - Error occured performing getvsr on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    /* Only do this once */
+    if (dataPtr != NULL) {
+
+      /* They didn't specify a range */
+      if (startBit == ECMD_UNSET ) {
+        startBit = 0;
+        numBits = sprBuffer.getBitLength();
+      }
+
+      rc = ecmdReadDataFormatted(buffer, dataPtr, inputformat, numBits);
+      if (rc) {
+        printed = "cipputvsr - Problems occurred parsing input data, must be an invalid format\n";
+        ecmdOutputError(printed.c_str());
+        return rc;
+      }
+
+      dataPtr = NULL;
+    }
+
+    rc = ecmdApplyDataModifier(sprBuffer, buffer,  startBit, dataModifier);
+    if (rc) return rc;
+
+
+    cipPutVsr(target, entry, sprBuffer);
+
+    if (rc) {
+      printed = "cipputvsr - Error occured performing command on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      return rc;
+    }
+
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "\n";
+      ecmdOutput(printed.c_str());
+    }
+
+  }
+
+  if (!validPosFound) {
+    //this is an error common across all UI functions
+    printed = "cipputvsr - Unable to find a valid chip to execute command on\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+#endif // CIP_REMOVE_VSR_FUNCTIONS
