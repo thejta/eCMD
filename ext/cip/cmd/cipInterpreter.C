@@ -104,6 +104,10 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "cipgetvr")) {
           rc = cipGetVrUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_VR_FUNCTIONS
+#ifndef CIP_REMOVE_VSR_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipgetvsr")) {
+          rc = cipGetVsrUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_VSR_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -146,6 +150,10 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "cipputvr")) {
           rc = cipPutVrUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_VR_FUNCTIONS
+#ifndef CIP_REMOVE_VSR_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipputvsr")) {
+          rc = cipPutVsrUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_VSR_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
