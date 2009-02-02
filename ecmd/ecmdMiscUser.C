@@ -59,13 +59,10 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   ecmdChipTarget target;        ///< Current target
   std::string configName;       ///< Name of config variable to fetch
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
-  bool formatSpecfied = false;   ///< Was the -o option specified
-  ecmdConfigValid_t validOutput;  ///< Indicator if valueAlpha, valueNumeric (or both) are valid
-  std::string  valueAlpha;       ///< Alpha value of setting (if appropriate)
-  uint32_t  valueNumeric;        ///< Numeric value of setting (if appropriate)
+  ecmdConfigData configData;    ///< Structure holding our return data
   ecmdDataBuffer numData(32);	 ///< Initialise data buffer with the numeric value
   std::string printed;           ///< Print Buffer
-  ecmdLooperData looperdata;     ///< Store internal Looper data
+  ecmdLooperData looperData;     ///< Store internal Looper data
 
   int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
@@ -75,10 +72,8 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr == NULL) {
     format = "x";
-  }
-  else {
+  } else {
     format = formatPtr;
-    formatSpecfied = true;
   }
 
   if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
@@ -163,14 +158,13 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
-    rc = ecmdGetConfiguration(target, configName, validOutput, valueAlpha, valueNumeric);
-
+    rc = ecmdGetConfigurationComplex(target, configName, configData);
     if (rc) {
       printed = "getconfig - Error occured performing ecmdGetConfiguration on ";
       printed += ecmdWriteTarget(target) + "\n";
@@ -183,19 +177,33 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     }
 
     printed = ecmdWriteTarget(target) + "\n";
-    
-    if( (validOutput == ECMD_CONFIG_VALID_FIELD_ALPHA) || ((validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH) &&
-    (!formatSpecfied))) {
-     printed += configName + " = " + valueAlpha + "\n";
-     ecmdOutput(printed.c_str());
+
+    if (configData.validMask & ECMD_CONFIG_VALID_FIELD_STRING) {
+      printed += configName + " = " + configData.cdString + "\n";
+      ecmdOutput(printed.c_str());
     }
-    else if(( validOutput == ECMD_CONFIG_VALID_FIELD_NUMERIC) || ((validOutput ==  ECMD_CONFIG_VALID_FIELD_BOTH) && (formatSpecfied))) {
-     numData.setWord(0, valueNumeric);
-     printed += configName + " = ";
-     printed += ecmdWriteDataFormatted(numData, format);
-     printed += "\n";
-     ecmdOutput(printed.c_str()); 
+    else if (configData.validMask & ECMD_CONFIG_VALID_FIELD_FLOAT) {
+      char floatStr[100];
+      sprintf(floatStr, "%f", configData.cdFloat);
+      printed += configName + " = " + floatStr + "\n";
+      ecmdOutput(printed.c_str());
     }
+    else if((configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) || (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT64)) {
+      if (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) {
+        numData.setWord(0, configData.cdUint32);
+      } else {
+        numData.setDoubleWord(0, configData.cdUint64);
+      }
+      printed += configName + " = ";
+      printed += ecmdWriteDataFormatted(numData, format);
+      printed += "\n";
+      ecmdOutput(printed.c_str()); 
+    } else {
+      ecmdOutputError("getconfig - Unknown config return type found!\n");
+      coeRc = ECMD_INVALID_ARGS;
+      continue;
+    }
+
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -215,14 +223,13 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
 
   ecmdChipTarget target;        ///< Current target
   std::string configName;       ///< Name of config variable to fetch
-  bool validPosFound = false;   ///< Did we find something to actually execute on ?
-  ecmdConfigValid_t validInput;  ///< Indicator if valueAlpha, valueNumeric (or both) are valid
-  std::string  valueAlpha = "";  ///< Input of type Ascii   @01c add init
-  uint32_t  valueNumeric= 0;     ///< Input of type Numeric @01c add init 
+  bool validPosFound = false;   ///< Did we find something to actually execute on?
+  ecmdConfigData configData;     ///< Holds the different config values
+  configData.validMask = 0x0;
   ecmdDataBuffer inputBuffer;	 ///< Initialise data buffer with the numeric value(if input is Numeric)
   char inputVal[400];		 ///< Value to set configuration variable to
   std::string printed;           ///< Print Buffer
-  ecmdLooperData looperdata;     ///< Store internal Looper data
+  ecmdLooperData looperData;     ///< Store internal Looper data
 
   int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
@@ -232,10 +239,10 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr == NULL) {
     format = "a";
-  }
-  else {
+  } else {
     format = formatPtr;
   }
+
   if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
   else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
   else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
@@ -304,23 +311,31 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     strcpy(inputVal, argv[1]);
   }
 
-  if( format == "a") {
-    valueAlpha = inputVal;
-    validInput = ECMD_CONFIG_VALID_FIELD_ALPHA;
+  if (format == "a") {
+    configData.cdString = inputVal;
+    configData.validMask |= ECMD_CONFIG_VALID_FIELD_STRING;
+  } else if (format == "f") {
+    configData.cdFloat = atof(inputVal);
+    configData.validMask |= ECMD_CONFIG_VALID_FIELD_FLOAT;
   } else {
     rc = ecmdReadDataFormatted(inputBuffer, inputVal, format);
     if (rc) {
-     ecmdOutputError("setconfig - Problems occurred parsing input data, must be an invalid format\n");
-     return rc;
+      ecmdOutputError("setconfig - Problems occurred parsing input data, must be an invalid format\n");
+      return rc;
     }
     uint32_t numBits = inputBuffer.getBitLength();
-    if(numBits > 32 ) {
-     ecmdOutputError("setconfig - Problems occurred parsing input data, Bitlength should be <= 32 bits\n");
-     return ECMD_INVALID_ARGS;
+    if (numBits > 64) {
+      ecmdOutputError("setconfig - Problems occurred parsing input data, Bitlength should be <= 64 bits\n");
+      return ECMD_INVALID_ARGS;
+    } else if (numBits > 32) {
+      inputBuffer.shiftRightAndResize(64-numBits);
+      configData.cdUint64 = inputBuffer.getDoubleWord(0);
+      configData.validMask |= ECMD_CONFIG_VALID_FIELD_UINT64;
+    } else {
+      inputBuffer.shiftRightAndResize(32-numBits);
+      configData.cdUint64 = inputBuffer.getWord(0);
+      configData.validMask |= ECMD_CONFIG_VALID_FIELD_UINT32;
     }
-    inputBuffer.shiftRightAndResize(32-numBits);
-    valueNumeric = inputBuffer.getWord(0);
-    validInput = ECMD_CONFIG_VALID_FIELD_NUMERIC;
   }
     
    /* Now set our states based on depth */
@@ -340,20 +355,19 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-    /* Actually go fetch the data */
-    rc = ecmdSetConfiguration(target, configName, validInput, valueAlpha, valueNumeric);
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    rc = ecmdSetConfigurationComplex(target, configName, configData);
     if (rc) {
       printed = "setconfig - Error occured performing ecmdSetConfiguration on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
-    }
-    else {
+    } else {
       validPosFound = true;
     }
     printed = ecmdWriteTarget(target) + "\n";
@@ -385,7 +399,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   ecmdChipTarget target;                        ///< Current target being operated on
   ecmdDataBuffer buffer;                        ///< Buffer to hold Cfam data
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
   std::string printed;                          ///< Output data
 
   /************************************************************************/
@@ -480,11 +494,11 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = getCfamRegister(target, address, buffer);
     if (rc) {
@@ -561,7 +575,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
-  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdLooperData looperData;                    ///< Store internal Looper data
   ecmdChipTarget target;                        ///< Chip target being operated on
   uint32_t address;                             ///< Cfam address
   ecmdDataBuffer buffer;                        ///< Container to store write data
@@ -675,10 +689,10 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
@@ -754,7 +768,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   std::string command;          ///< Print Buffer
   std::string standardop = "";       ///< Standard out captured by running command
-  ecmdLooperData looperdata;    ///< Store internal Looper data
+  ecmdLooperData looperData;    ///< Store internal Looper data
 
 
   /************************************************************************/
@@ -785,10 +799,10 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   target.slotState = target.chipTypeState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Actually go fetch the data */
     rc = makeSPSystemCall(target, command, standardop);
@@ -951,6 +965,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1048,8 +1063,18 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
       coeRc = rc;
       return rc;
     }
+    else {
+      validPosFound = true;
+    }
+
     printed = ecmdWriteTarget(target) + "configured.\n";
     ecmdOutput( printed.c_str() );
+  }
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("reconfig - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
   }
 
   return rc;
@@ -1070,7 +1095,7 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   ecmdChipTarget target;                        ///< Current target being operated on
   ecmdDataBuffer buffer;                        ///< Buffer to hold gp register data
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
   std::string printed;                          ///< Output data
 
   /************************************************************************/
@@ -1162,11 +1187,11 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     rc = getGpRegister(target, gpRegister, buffer);
     if (rc) {
@@ -1240,7 +1265,7 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer fetchBuffer;                   ///< Buffer to store read/modify/write data
-  ecmdLooperData looperdata;                    ///< Store internal Looper data
+  ecmdLooperData looperData;                    ///< Store internal Looper data
   ecmdChipTarget target;                        ///< Chip target being operated on
   ecmdDataBuffer buffer;                        ///< Container to store write data
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
@@ -1350,10 +1375,10 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
     /* Do we need to perform a read/modify/write op ? */
     if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
