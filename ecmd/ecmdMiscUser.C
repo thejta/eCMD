@@ -60,9 +60,9 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
   std::string configName;       ///< Name of config variable to fetch
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   ecmdConfigData configData;    ///< Structure holding our return data
-  ecmdDataBuffer numData(32);	 ///< Initialise data buffer with the numeric value
-  std::string printed;           ///< Print Buffer
-  ecmdLooperData looperData;     ///< Store internal Looper data
+  ecmdDataBuffer numData;       ///< Initialise data buffer with the numeric value
+  std::string printed;          ///< Print Buffer
+  ecmdLooperData looperData;    ///< Store internal Looper data
 
   int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
@@ -191,8 +191,10 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     }
     if((configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) || (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT64)) {
       if (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) {
+        numData.setBitLength(32);
         numData.setWord(0, configData.cdUint32);
       } else {
+        numData.setBitLength(64);
         numData.setDoubleWord(0, configData.cdUint64);
       }
       printed += configName + " = ";
