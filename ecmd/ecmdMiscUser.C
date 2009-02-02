@@ -178,17 +178,18 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
 
     printed = ecmdWriteTarget(target) + "\n";
 
+    /* If there was multiple return data types, print them all to the screen */
     if (configData.validMask & ECMD_CONFIG_VALID_FIELD_STRING) {
       printed += configName + " = " + configData.cdString + "\n";
       ecmdOutput(printed.c_str());
     }
-    else if (configData.validMask & ECMD_CONFIG_VALID_FIELD_FLOAT) {
+    if (configData.validMask & ECMD_CONFIG_VALID_FIELD_FLOAT) {
       char floatStr[100];
       sprintf(floatStr, "%f", configData.cdFloat);
       printed += configName + " = " + floatStr + "\n";
       ecmdOutput(printed.c_str());
     }
-    else if((configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) || (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT64)) {
+    if((configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) || (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT64)) {
       if (configData.validMask & ECMD_CONFIG_VALID_FIELD_UINT32) {
         numData.setWord(0, configData.cdUint32);
       } else {
