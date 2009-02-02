@@ -199,10 +199,6 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
       printed += ecmdWriteDataFormatted(numData, format);
       printed += "\n";
       ecmdOutput(printed.c_str()); 
-    } else {
-      ecmdOutputError("getconfig - Unknown config return type found!\n");
-      coeRc = ECMD_INVALID_ARGS;
-      continue;
     }
 
   }
