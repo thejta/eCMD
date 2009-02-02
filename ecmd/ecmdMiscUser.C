@@ -332,7 +332,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
       configData.validMask |= ECMD_CONFIG_VALID_FIELD_UINT64;
     } else {
       inputBuffer.shiftRightAndResize(32-numBits);
-      configData.cdUint64 = inputBuffer.getWord(0);
+      configData.cdUint32 = inputBuffer.getWord(0);
       configData.validMask |= ECMD_CONFIG_VALID_FIELD_UINT32;
     }
   }
