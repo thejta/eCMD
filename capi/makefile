@@ -88,9 +88,6 @@ endif
 # *****************************************************************************
 #all: dir autogen ${TARGET} ${SLIB}
 all: dir ${TARGET} ${SLIB}
-	@touch t.o t.a t.so
-	@mv *.o *.a *.so ${SUBDIR}
-	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a ${SUBDIR}/t.so
 	@echo "Exporting eCMD Client Api/Shared Lib to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${SLIB} export/
@@ -126,8 +123,10 @@ dir:
 # Object Build Targets
 # *****************************************************************************
 CAPI_SOURCE_OBJS  = $(basename $(CAPI_SOURCE))
+CAPI_SOURCE_OBJS := $(addprefix ${SUBDIR}, $(CAPI_SOURCE_OBJS))
 CAPI_SOURCE_OBJS := $(addsuffix .o, $(CAPI_SOURCE_OBJS))
 SLIB_SOURCE_OBJS  = $(basename $(SLIB_SOURCE))
+SLIB_SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SLIB_SOURCE_OBJS))
 SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 
 # *****************************************************************************
@@ -135,9 +134,9 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(CAPI_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(CAPI_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-$(SLIB_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SLIB_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -146,16 +145,14 @@ $(SLIB_SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
 	@echo "Creating Static client library ..."
-	${AR} r $@ $^
+	${AR} r ${SUBDIR}$@ $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
-	$(LD) ${SLDFLAGS} -o $@ $^ 
-
-
+	$(LD) ${SLDFLAGS} -o ${SUBDIR}$@ $^
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll

@@ -51,9 +51,6 @@ VPATH := ${VPATH}${SUBDIR}:../../../capi/export:../../template/capi:../capi/expo
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} 
-	@touch t.o t.a
-	@mv *.o *.a ${SUBDIR}
-	@rm ${SUBDIR}/t.o ${SUBDIR}/t.a
 	@echo "Exporting ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to export/ ..."
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${INCLUDES} export/
@@ -86,6 +83,7 @@ dir:
 # Object Build Targets
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
+SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SOURCE_OBJS))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 
 # *****************************************************************************
@@ -93,7 +91,7 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -101,6 +99,6 @@ $(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${AR} r $@ $^
+	${AR} r ${SUBDIR}$@ $^
 
 

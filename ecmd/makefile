@@ -117,8 +117,6 @@ endif
 # *****************************************************************************
 all: dir ${TARGET} ${VER_TARGET}
 	@echo "Exporting eCMD Client to export/ ..."
-	@touch t.o t${TARGET} t${VER_TARGET}
-	@mv *.o *${TARGET} *${VER_TARGET} ${SUBDIR}
 	@cp -p ${SUBDIR}${TARGET} export/
 	@cp -p ${SUBDIR}${VER_TARGET} export/
 
@@ -126,7 +124,6 @@ clean: objclean exportclean
 
 objclean:
 	rm -rf ${SUBDIR}
-	rm -rf *.o
 
 exportclean:
 	rm -rf export/
@@ -158,8 +155,10 @@ extensions:
 # Object Build Targets
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
+SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SOURCE_OBJS))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 VER_SOURCE_OBJS  = $(basename $(VER_SOURCE))
+VER_SOURCE_OBJS := $(addprefix ${SUBDIR}, $(VER_SOURCE_OBJS))
 VER_SOURCE_OBJS := $(addsuffix .o, $(VER_SOURCE_OBJS))
 
 # *****************************************************************************
@@ -167,9 +166,9 @@ VER_SOURCE_OBJS := $(addsuffix .o, $(VER_SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-$(VER_SOURCE_OBJS): %.o : %.C ${INCLUDES} 
+$(VER_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} 
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -177,15 +176,15 @@ $(VER_SOURCE_OBJS): %.o : %.C ${INCLUDES}
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${LD} ${LDFLAGS} $^ -o $@ 
+	${LD} ${LDFLAGS} $^ -o ${SUBDIR}$@ 
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 ifeq (${OS},AIX)
-	${LD} ${LDFLAGS}  -brtl -bloadmap:PARM -w $^ -o $@ 
+	${LD} ${LDFLAGS}  -brtl -bloadmap:PARM -w $^ -o ${SUBDIR}$@ 
 endif
 ifeq (${OS},Linux_x86)
-	${LD} ${LDFLAGS} -ldl $^ -o $@ 
+	${LD} ${LDFLAGS} -ldl $^ -o ${SUBDIR}$@ 
 endif
 ifeq (${OS},Linux_ppc)
-	${LD} ${LDFLAGS} -ldl $^ -o $@ 
+	${LD} ${LDFLAGS} -ldl $^ -o ${SUBDIR}$@ 
 endif

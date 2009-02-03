@@ -118,11 +118,7 @@ VPATH     := ${VPATH}:${SUBDIR}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}.so ${TARGET}.pm move test
-
-move: ${TARGET}.so ${TARGET}.pm
-	@touch t.o tecmd.so tecmd.pm t_wrap.c
-	@mv *_wrap.c *.o *ecmd.so *ecmd.pm  ${SUBDIR}
+all: dir ${TARGET}.so ${TARGET}.pm test
 
 clean: objclean exportclean
 	rm -f *wrap*
@@ -132,8 +128,6 @@ clean: objclean exportclean
 objclean:
 	rm -rf ${SUBDIR}
 	rm -f *.o
-	rm -f ecmd.pm
-	rm -f ecmd.so
 
 exportclean:
        # Nothing to do
@@ -147,7 +141,7 @@ install:
 dir:
 	@mkdir -p ${SUBDIR}
 
-test: move
+test:
         ifeq (${OS},AIX)
 	@slibclean
         endif
@@ -158,35 +152,29 @@ test: move
 # Object Build Targets
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
+SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SOURCE_OBJS))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
+WRAP_OBJS    = ${SUBDIR}ecmdClientPerlapi_wrap.o
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES} ${GENERATED_INCLUDES}
+$(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES} ${GENERATED_INCLUDES}
 	$(CC) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
 ${TARGET}.pm ecmdClientPerlapi_wrap.c: ${INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
-	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap.c ecmdClientPerlapi.i
-# This was not necessary after all.  The ecmdChipTarget is a union on the C side of the inteface.
-# This means they share memory and we don't have to update the variables.  Special handling is only
-# required in ecmdStructs.H to expose the core and chipUnitNum on the interface
-# since union isn't supported there
-# Tab this all back in and uncomment it if for some reason you need it
-#${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap_prefix.c ecmdClientPerlapi.i
-#@echo "==== Fixing wrap file so that a core access sets chipUnitNum as well"
-#@sed "s/if (arg1) (arg1)->core = arg2/if (arg1) { (arg1)->core = arg2; (arg1)->chipUnitNum = arg2; }/g" ecmdClientPerlapi_wrap_prefix.c > ecmdClientPerlapi_wrap.c
+	${SWIG} ${SWIGFLAGS} -o ecmdClientPerlapi_wrap.c -outdir ${SUBDIR} ecmdClientPerlapi.i
 
-ecmdClientPerlapi_wrap.o: ecmdClientPerlapi_wrap.c
+$(WRAP_OBJS): ${SUBDIR}%.o : %.c
 	${CC} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Perl Shared Library
 # *****************************************************************************
-${TARGET}.so: ${SOURCE_OBJS}  ecmdClientPerlapi_wrap.o ${LINK_OBJS}
-	${LD} ${SLDFLAGS} $^ ${LINK_OBJS} -o $@ 
+${TARGET}.so: ${SOURCE_OBJS} ${WRAP_OBJS} ${LINK_OBJS}
+	${LD} ${SLDFLAGS} $^ ${LINK_OBJS} -o ${SUBDIR}$@ 
 
 
 # *****************************************************************************
