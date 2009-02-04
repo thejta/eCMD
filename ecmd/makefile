@@ -70,7 +70,7 @@ ifeq (${OS},AIX)
   TARGET     := ecmd_aix
   VER_TARGET := ecmdVersion_aix
   LD         := ${CC}  # This is right, we want to overload the default of makeC++SharedLib
-  LDFLAGS    := -brtl -bloadmap:PARM -w -L../capi/${SUBDIR} -lecmd_aix
+  LDFLAGS    := -brtl -w -L../capi/${SUBDIR} -lecmd_aix
   LINK_OBJS  := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_aix.a
   LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_aix.a ${ext}CmdInterpreter_aix.a)
   CFLAGS     := ${CFLAGS} -+ -qstaticinline -qnoinline
