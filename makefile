@@ -35,6 +35,15 @@ BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} ${PERLAPI_BU
 # The default
 all: ${BUILD_TARGETS}
 
+# Runs the objclean and export clean targets in addition to removing generated source
+clean: ${BUILD_TARGETS} ecmdutils
+
+# Remove the obj_* dir for the system type you are building on
+objclean: ${BUILD_TARGETS} ecmdutils
+
+# Remove the export dir if it exists
+exportclean: ${BUILD_TARGETS} ecmdutils
+
 # The core eCMD pieces
 ecmdcapi:
 	@echo "eCMD Core Client C-API ..."
@@ -211,14 +220,13 @@ cmdperlapi:
 	@cd ext/cmd/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-# Runs the objclean and export clean targets in addition to removing generated source
-clean: ${BUILD_TARGETS}
-
-# Remove the obj_* dir for the system type you are building on
-objclean: ${BUILD_TARGETS}
-
-# Remove the export dir if it exists
-exportclean: ${BUILD_TARGETS}
+########################
+# Utils
+########################
+ecmdutils:
+	@echo "eCMD Utilities ..."
+	@cd utils && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
 
 # Runs the install routines for all targets
 install: install_setup ${BUILD_TARGETS} install_finish
