@@ -15,7 +15,7 @@ CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}Cl
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
 
 #DEFINES      := 
-CFLAGS       := ${CFLAGS} -I../../../capi/export -I../capi/export -I../../../ecmd/
+CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../ecmd/
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
@@ -44,38 +44,29 @@ ifeq (${OS},AIX)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
-VPATH := ${VPATH}${SUBDIR}:../../../capi/export:../../template/capi:../capi/export
+VPATH := ${VPATH}${SUBDIR}:../../../capi:../../template/capi:../capi
 
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET} 
-	@echo "Exporting ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to export/ ..."
-	@cp -p ${SUBDIR}${TARGET} export/
-	@cp -p ${INCLUDES} export/
-	@cp -p  $(foreach file, ${CAPI_INCLUDES}, ../capi/${file}) export/
 
-
-clean: objclean exportclean
+clean: objclean
 
 objclean:
 	rm -rf ${SUBDIR}
 
-exportclean:
-	rm -rf export/
-
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/ ..."
 	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/
-	cp export/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
+	cp ${SUBDIR}/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 
 dir:
 	@mkdir -p ${SUBDIR}
-	@mkdir -p export
 
 
 
@@ -99,6 +90,6 @@ $(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${AR} r ${SUBDIR}$@ $^
+	${AR} r ${SUBDIR}${TARGET} $^
 
 

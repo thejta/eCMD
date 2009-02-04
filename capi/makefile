@@ -8,7 +8,6 @@ ECMD_ROOT   := ${PWD}/../
 include ../makefile.rules
 
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H  prdfCompressBuffer.H
-EXPORTS      := ${INCLUDES}
 INT_INCLUDES := ecmdDllCapi.H
 CAPI_SOURCE  := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE  := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
@@ -86,37 +85,27 @@ endif
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-#all: dir autogen ${TARGET} ${SLIB}
 all: dir ${TARGET} ${SLIB}
-	@echo "Exporting eCMD Client Api/Shared Lib to export/ ..."
-	@cp -p ${SUBDIR}${TARGET} export/
-	@cp -p ${SUBDIR}${SLIB} export/
-	@cp -p ${EXPORTS} export/
 	-@cp -p ecmdDllCapi.H ../dll/
 
-clean: objclean exportclean
+clean: objclean
 	rm -f $(GENERATED_SOURCE)
 	rm -f $(GENERATED_INCLUDES)
 
 objclean:
 	rm -rf ${SUBDIR} 
 
-exportclean:
-	rm -rf export/
-
 install:
 	@echo "Installing eCMD Client Api to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
-	cp export/${TARGET} ${INSTALL_PATH}/capi/.
-	cp ${EXPORTS} ${INSTALL_PATH}/capi/.
+	cp ${SUBDIR}/${TARGET} ${INSTALL_PATH}/capi/.
+	cp ${INCLUDES} ${INSTALL_PATH}/capi/.
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/lib/ ..."
 	@mkdir -p ${INSTALL_PATH}/lib/
-	cp export/${SLIB} ${INSTALL_PATH}/lib/.
+	cp ${SUBDIR}/${SLIB} ${INSTALL_PATH}/lib/.
 
 dir:
 	@mkdir -p ${SUBDIR}
-	@mkdir -p export
-
 
 
 # *****************************************************************************
@@ -145,14 +134,14 @@ $(SLIB_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
 	@echo "Creating Static client library ..."
-	${AR} r ${SUBDIR}$@ $^
+	${AR} r ${SUBDIR}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
-	$(LD) ${SLDFLAGS} -o ${SUBDIR}$@ $^
+	$(LD) ${SLDFLAGS} -o ${SUBDIR}${SLIB} $^
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll

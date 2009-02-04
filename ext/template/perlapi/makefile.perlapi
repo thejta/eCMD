@@ -22,7 +22,7 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
 
 endif
 
-VPATH := ${VPATH}:../../../capi/export:../../template/perlapi
+VPATH := ${VPATH}:../../../capi/${SUBDIR}:../../template/perlapi
 
 # *****************************************************************************
 # The Main Targets

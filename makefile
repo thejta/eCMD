@@ -253,12 +253,6 @@ install_setup:
 	@echo " "
 
 ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
-	@echo "Creating plugins dir ..."
-	@mkdir -p ${INSTALL_PATH}/plugins
-	@cp -R plugins/ ${INSTALL_PATH}/.
-	@rm -r `find ${INSTALL_PATH}/plugins/* -type d -name CVS`
-	@echo " "
-
 	@echo "Copying over setup perl modules ..."
 	@find ${INSTALL_PATH}/plugins/ -type f -name "*setup.pm" -exec cp {} ${INSTALL_PATH}/bin/. \;
 	@echo " "
