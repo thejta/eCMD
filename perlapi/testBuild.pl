@@ -9,10 +9,10 @@ if [ "X$ECMDPERLBIN" = "X" ]; then
  export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
  if [[ `uname` = "Linux" ]]; then
   export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:./obj_x86/;
-  export LD_LIBRARY_PATH="../lib/x86/3.4.6/:../capi/export";
+  export LD_LIBRARY_PATH="../lib/x86/3.4.6/:../capi/obj_x86/";
  else
   export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:./obj_aix/;
-  export LIBPATH="../capi/export";
+  export LIBPATH="../capi/obj_x86";
  fi
 fi
 

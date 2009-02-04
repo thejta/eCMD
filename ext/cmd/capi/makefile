@@ -22,7 +22,7 @@ EXTENSIONS := $(subst cmd,,${EXTENSIONS})
 EXTENSIONS := $(subst scand,,${EXTENSIONS})
 
 
-VPATH        := ${VPATH}../../../ecmd/${SUBDIR} $(foreach ext, ${EXTENSIONS},:../../${ext}/cmd/${SUBDIR}:../../${ext}/capi/${SUBDIR}:../../${ext}/capi/export:../../${ext}/cmd/export)
+VPATH        := ${VPATH}../../../ecmd/${SUBDIR} $(foreach ext, ${EXTENSIONS},:../../${ext}/cmd/${SUBDIR}:../../${ext}/capi/${SUBDIR}:../../${ext}/capi:../../${ext}/cmd)
 # We need to tack on a seperator to get the vpath right in makefile.capi
 VPATH          := ${VPATH}:
 
@@ -34,7 +34,7 @@ VPATH := $(subst ${space},,${VPATH})
 # These are includes not to be exported
 INT_INCLUDES     := ${INT_INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
-CFLAGS       := ${CFLAGS} -I../../../capi/export -I../../../ecmd
+CFLAGS       := ${CFLAGS} -I../../../capi -I../../../ecmd
 #######################
 # Extension Objects   #
 #######################
