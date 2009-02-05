@@ -247,6 +247,12 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   }
 
 
+  // do not allow numBytes >= 512MB
+  if (numBytes >= 0x20000000) {
+    printLine = cmdlineName + " - Number of bytes must be < 512MB\n";
+    ecmdOutputError(printLine.c_str());
+    return ECMD_INVALID_ARGS;
+  }
 
 
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
