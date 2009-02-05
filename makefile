@@ -262,7 +262,7 @@ install_setup:
 
 ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo "Copying over setup perl modules ..."
-	@find ${INSTALL_PATH}/plugins/ -type f -name "*setup.pm" -exec cp {} ${INSTALL_PATH}/bin/. \;
+	@find plugins/ -type f -name "*setup.pm" -exec cp {} ${INSTALL_PATH}/bin/. \;
 	@echo " "
 endif
 
