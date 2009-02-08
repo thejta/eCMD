@@ -35,14 +35,11 @@ BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} ${PERLAPI_BU
 # The default
 all: ${BUILD_TARGETS}
 
-# Runs the objclean and export clean targets in addition to removing generated source
+# Runs the objclean targets in addition to removing generated source
 clean: ${BUILD_TARGETS} ecmdutils
 
 # Remove the obj_* dir for the system type you are building on
 objclean: ${BUILD_TARGETS} ecmdutils
-
-# Remove the export dir if it exists
-exportclean: ${BUILD_TARGETS} ecmdutils
 
 # The core eCMD pieces
 ecmdcapi:

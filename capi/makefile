@@ -53,7 +53,7 @@ endif
 ifeq (${OS},AIX)
   TARGET  := ecmdClientCapi_aix.a
   SLIB    := libecmd_aix.so
-  CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
+  CFLAGS  := ${CFLAGS} -ftemplate-depth-25 -Wall -I /tmp/jason/install/include
 endif
 
 VPATH := ${VPATH}:${SUBDIR}

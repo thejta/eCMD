@@ -29,7 +29,7 @@ VPATH := ${VPATH}:../../../capi/${SUBDIR}:../../template/perlapi
 # *****************************************************************************
 all:  ${GENERATED_INCLUDES} ${GENERATED_SOURCE} ${TEMPLATE_SOURCE}
 
-clean: objclean exportclean
+clean: objclean
       ifeq ($(strip $(DISABLE_AUTOGEN)),)
 	rm -f $(GENERATED_SOURCE)
 	rm -f $(GENERATED_INCLUDES)
@@ -37,9 +37,6 @@ clean: objclean exportclean
       endif
 
 objclean:
-  # Do nothing
-
-exportclean:
   # Do nothing
 
 install:
