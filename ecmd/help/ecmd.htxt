@@ -50,9 +50,11 @@ Syntax: ecmd
         cipbreakpoint            
         cipgetmemproc            
         cipgetvr                 
+        cipgetvsr                
         cipinstruct              
         cipputmemproc            
         cipputvr                 
+        cipputvsr                
 
 
         Eclipz Cronus/IP Extensions:
@@ -75,6 +77,9 @@ Syntax: ecmd
         crogetl2                 
         crogetl2data             
         crogetl2dir              
+        crogetl3                 
+        crogetl3data             
+        crogetl3dir              
         croputl2                 
         croputl2data             
         croputl2dir              
