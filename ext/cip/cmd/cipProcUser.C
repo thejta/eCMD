@@ -435,7 +435,8 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
   if (argc > 1) {
     numEntries = atoi(argv[1]);
   }
-  for (idx = startEntry; idx < numEntries; idx ++) {
+  
+  for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
     entry.index = idx;
     entries.push_back(entry);
   }
@@ -999,11 +1000,11 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
   if (argc > 1) {
     numEntries = atoi(argv[1]);
   }
-  for (idx = startEntry; idx < numEntries; idx ++) {
+
+  for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
     entry.index = idx;
     entries.push_back(entry);
   }
-
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
