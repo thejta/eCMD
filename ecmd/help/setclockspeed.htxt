@@ -48,4 +48,7 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         > setclockspeed memctrl_refclock 10ps
                         > setclockspeed pu_refclock 3npd
                         > setclockspeed pu pu_refclock 150mult 10div
+                        > setclockspeed pu.core pu_coreclock 2700mhz
+                        > setclockspeed pu pu_coreclock 5npu
+                        > setclockspeed pu pu_coreclock 10cpd
 
