@@ -32,3 +32,4 @@ Syntax: getclockspeed <ClockType> mhz|us
 
         Examples:       > getclockspeed pu_refclock ps
                         > getclockspeed memctrl_refclock mhz
+                        > getclockspeed pu.core pu_coreclock khz
