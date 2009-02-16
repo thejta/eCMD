@@ -52,7 +52,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Capi; /usr/local/bin/doxygen ecmdDoxygen.config");
+$rc = system("cd $outputDirectory/Capi; " . $ENV{"CTEPATH"} . "/tools/ecmd/utils/doxygen-1.5.8/bin/doxygen ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 printf("Creating C-API Documentation (pdf)...\n\n");
