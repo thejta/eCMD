@@ -244,22 +244,6 @@ typedef enum {
   ECMD_CONFIG_VALID_FIELD_BOTH          ///< Bothe the string and numeric fields contain valid data
 } ecmdConfigValid_t;
 
-#define ECMD_CONFIG_VALID_FIELD_STRING  0x80000000
-#define ECMD_CONFIG_VALID_FIELD_UINT32  0x40000000
-#define ECMD_CONFIG_VALID_FIELD_UINT64  0x20000000
-#define ECMD_CONFIG_VALID_FIELD_FLOAT   0x10000000
-/**
- @brief Used by the get/set configuration functions to return the data
-*/
-struct ecmdConfigData {
-  uint32_t              validMask;  ///< Indicates which of the fields in this structure are valid
-  std::string           cdString;   ///< If the output data is a string, will be populated
-  uint32_t              cdUint32;   ///< If the output data is a uint32_t, will be populated
-  uint64_t              cdUint64;   ///< If the output data is a uint64_t, will be populated
-  float                 cdFloat;    ///< If the output data is a float, will be populated
-};
-
-
 /**
  @brief Used by the GPIO functions to specify the different modes for the GPIO pin
 
@@ -461,6 +445,31 @@ typedef enum {
 } ecmdArrayType_t;
 
 /**
+ @brief Used by ecmdProcRegisterInfoHidden to specify read/write mode
+*/
+typedef enum {
+  ECMD_PROCREG_UNKNOWN,         ///< The unknown state for this enum, not a valid output type
+  ECMD_PROCREG_READ_AND_WRITE,  ///< Register can be written and read
+  ECMD_PROCREG_WRITE_ONLY,      ///< Register can only be written 
+  ECMD_PROCREG_READ_ONLY        ///< Register can only be read 
+} ecmdProcRegMode_t;
+
+/**
+ @brief Used by ecmdScomEntry to specify scom multiple d/a type
+*/
+typedef enum {
+  ECMD_SCOM_UNKNOWN,            ///< The unknown state for this enum, not a valid output type
+#ifndef DOCUMENTATION
+  ECMD_SCOM_READ,               ///< Do a scom read (getScom)
+  ECMD_SCOM_WRITE,              ///< Do a scom write (putScom)
+  ECMD_SCOM_WRITE_UNDER_MASK,   ///< Do a scome write under mask (putScomUnderMask)
+#endif
+  ECMD_GETSCOM_OP = 1,              ///< Do a getScom operation
+  ECMD_PUTSCOM_OP = 2,              ///< Do a putScom operation
+  ECMD_PUTSCOMUNDERMASK_OP = 3,     ///< Do a putScomUnderMask operation
+} ecmdScomMode_t;
+
+/**
  @brief Used by ecmdWriteTarget to specify displayMode
 */
 typedef enum {
@@ -655,7 +664,6 @@ struct ecmdChipTarget {
 #endif
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
-  
 };
 
 #ifndef DOCUMENTATION
@@ -1102,6 +1110,21 @@ struct ecmdLooperData {
   std::list<ecmdChipTarget>::iterator curUnitIdTarget;          ///< Pointer to current unitid target
 };
 
+#define ECMD_CONFIG_VALID_FIELD_STRING  0x80000000
+#define ECMD_CONFIG_VALID_FIELD_UINT32  0x40000000
+#define ECMD_CONFIG_VALID_FIELD_UINT64  0x20000000
+#define ECMD_CONFIG_VALID_FIELD_FLOAT   0x10000000
+/**
+ @brief Used by the get/set configuration functions to return the data
+*/
+struct ecmdConfigData {
+  uint32_t              validMask;  ///< Indicates which of the fields in this structure are valid
+  std::string           cdString;   ///< If the output data is a string, will be populated
+  uint32_t              cdUint32;   ///< If the output data is a uint32_t, will be populated
+  uint64_t              cdUint64;   ///< If the output data is a uint64_t, will be populated
+  float                 cdFloat;    ///< If the output data is a float, will be populated
+};
+
 /**
  @brief Used for the ecmdQueryRing function to return ring info
 */
@@ -1462,16 +1485,6 @@ inline ecmdLatchData::~ecmdLatchData() { }
 #endif
 
 /**
- @brief Used by ecmdScomEntry to specify scom multiple d/a type
-*/
-typedef enum {
-  ECMD_SCOM_UNKNOWN,            ///< The unknown state for this enum, not a valid output type
-  ECMD_SCOM_READ,               ///< Do a scom read (getScom)
-  ECMD_SCOM_WRITE,              ///< Do a scom write (putScom)
-  ECMD_SCOM_WRITE_UNDER_MASK,   ///< Do a scome write under mask (putScomUnderMask)
-} ecmdScomMode_t;
-
-/**
  @brief Used by the getArrayMultiple function to pass data
 */
 struct ecmdScomEntry {
@@ -1797,17 +1810,6 @@ threadReplicated(false)
 // ecmdProcRegisterInfo Destructor
 inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
 #endif
-
-
-/**
- @brief Used by ecmdProcRegisterInfoHidden to specify read/write mode
-*/
-typedef enum {
-  ECMD_PROCREG_UNKNOWN,         ///< The unknown state for this enum, not a valid output type
-  ECMD_PROCREG_READ_AND_WRITE,  ///< Register can be written and read
-  ECMD_PROCREG_WRITE_ONLY,      ///< Register can only be written 
-  ECMD_PROCREG_READ_ONLY        ///< Register can only be read 
-} ecmdProcRegMode_t;
 
 #ifndef DOCUMENTATION
 /**
