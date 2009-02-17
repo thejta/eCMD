@@ -33,6 +33,7 @@
 #include <ecmdCommandUtils.H>
 #include <ecmdSharedUtils.H>
 
+#define ERRORBUF_SIZE 200
 
 int main (int argc, char *argv[])
 {
@@ -40,8 +41,7 @@ int main (int argc, char *argv[])
 
   std::string cmdSave;
   std::string curCmd;
-  bool isSystemCmd = false;
-  char errorbuf[200];
+  char errorbuf[ERRORBUF_SIZE];
   for (int i = 0; i < argc; i++) {
     cmdSave += argv[i];
     cmdSave += " ";
@@ -84,11 +84,8 @@ int main (int argc, char *argv[])
       size_t   commlen;
       bool shellAlive = true;
 
-
       if (shellMode) {
-
-        setupEcmds();
-        ecmdOutput("\n");
+        //setupEcmds();
         ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
       }
 
@@ -96,15 +93,11 @@ int main (int argc, char *argv[])
       /*  each string contains one command (ie 'ecmdquery version')              */
       /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
 
-      //while (shellAlive && (rc = ecmdParseStdinCommands(commands))) { .. old caused BEAM ERRORS
-      while (shellAlive) {
-        rc = ecmdParseStdinCommands(commands);  // rc is 0 if no more cmds are to be parsed
-        if (rc==0) break;
+      while (shellAlive && ecmdParseStdinCommands(commands)) {
         rc = 0;
 
         /* Walk through individual commands from ecmdParseStdInCommands */
         for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
-          isSystemCmd=false;
           c_argc = 0;
           c_argv[0] = NULL;
 
@@ -124,7 +117,7 @@ int main (int argc, char *argv[])
 
           /* Create a char buffer to hold the whole command, we will use this to create pointers to each token in the command (like argc,argv) */
           commlen = commandIter->length();
-          if ( commlen > bufflen) {
+          if (commlen > bufflen) {
             if (buffer != NULL) delete[] buffer;
             buffer = new char[commlen + 20];
             bufflen = commlen + 19;
@@ -167,46 +160,27 @@ int main (int argc, char *argv[])
 
           // Before Executing the cmd save it on the Dll side 
           ecmdSetCurrentCmdline(c_argc, c_argv);
-          //sprintf(errorbuf,"ecmd -  argc %u, argv0 %s \n",c_argc, c_argv[0]);
-          //ecmdOutputError(errorbuf);
-          curCmd = "";
-          for (int j=0 ; j < c_argc ; j++ )
-          {
-            curCmd += c_argv[j];
-            curCmd += " ";
-           }
-          //sprintf(errorbuf,"1ecmd -  argc %u,, argv0 %s \n",argc, argv[0]);
-          //ecmdOutputError(errorbuf);
-           curCmd+="\n";
-          // sprintf(errorbuf,"2ecmd -  cur cmd %s \n",curCmd.c_str());
-          // ecmdOutputError(errorbuf);
+
           /* We now want to call the command interpreter to handle what the user provided us */
-          if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
-
-
+          rc = ecmdCallInterpreters(c_argc, c_argv);
           if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-            if (strlen(c_argv[0]) < 200){
-              //sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
-              sprintf(errorbuf,"executing system cmd: %s  \n",curCmd.c_str());
-              ecmdOutputError(errorbuf);
-              isSystemCmd=true;
-              (void)system(curCmd.c_str());
-              ecmdOutput("  system call done\n");
-            }
+            if (strlen(c_argv[0]) < (ERRORBUF_SIZE - 50))
+              sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
             else
-            {
               sprintf(errorbuf,"ecmd -  Unknown Command specified \n");
-              ecmdOutputError(errorbuf);
-            }
-          } else if (rc) {
-            std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
-            if (parse.length() > 0) {
-              /* Display the registered message right away BZ#160 */
-              ecmdOutput(parse.c_str());
-              ecmdOutput("\n");
-            }
+            ecmdOutputError(errorbuf);
+          }
+
+          // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being   lost
+          std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
+          if (parse.length() > 0) {
+            ecmdOutput(parse.c_str());
+          }
+
+          // If we did get a return code, parse that and print it to the screen
+          if (rc) {
             parse = ecmdParseReturnCode(rc);
-            if (strlen(c_argv[0]) + parse.length() < 300)
+            if (strlen(c_argv[0]) + parse.length() < (ERRORBUF_SIZE - 50))
               sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", c_argv[0], rc, parse.c_str());
             else
               sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
@@ -214,22 +188,15 @@ int main (int argc, char *argv[])
             break;
           }
 
-
           if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-            if (isSystemCmd==false)
-            {
-              ecmdOutput("\n");
-              ecmdOutput((*commandIter).c_str());
-              ecmdOutput("\n");
-            }
+            ecmdOutput((*commandIter + "\n").c_str());
           }
         } /* tokens loop */
+        /* Removing the rc check to prevent the shell from exiting on failing command - JTA 02/16/09 */
         //if (rc) break;
 
         /* Print the prompt again */
         if (shellMode && shellAlive) {
-
-          ecmdOutput("\n");
           ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
         }
       }
@@ -243,12 +210,10 @@ int main (int argc, char *argv[])
 
       /* We now want to call the command interpreter to handle what the user provided us */
       rc = ecmdCallInterpreters(argc - 1, argv + 1);
-
-
       if (rc == ECMD_INT_UNKNOWN_COMMAND) {
         if (argv[1] == NULL)
           sprintf(errorbuf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
-        else if (strlen(argv[1]) < 200)
+        else if (strlen(argv[1]) < (ERRORBUF_SIZE - 50))
           sprintf(errorbuf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
         else
           sprintf(errorbuf,"ecmd - Unknown Command specified \n");
@@ -257,15 +222,15 @@ int main (int argc, char *argv[])
 
       // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being lost
       std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
+      /* Display the registered message right away BZ#160 */
       if (parse.length() > 0) {
-        /* Display the registered message right away BZ#160 */
         ecmdOutput(parse.c_str());
       }
 
       // If we did get a return code, parse that and print it to the screen
       if (rc) {
         parse = ecmdParseReturnCode(rc);
-        if (strlen(argv[1]) + parse.length() < 300)
+        if (strlen(argv[1]) + parse.length() < (ERRORBUF_SIZE - 50))
           sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", argv[1], rc, parse.c_str());
         else
           sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
@@ -273,13 +238,10 @@ int main (int argc, char *argv[])
       }
     }
 
-
-    /* Move these outputs into the if !rc to fix BZ#224 - cje */
+    /* Only print to the screen if quietmode isn't on */
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       ecmdOutput(cmdSave.c_str());
-      ecmdOutput("\n");
     }
-
 
     // If you check the rc, don't use the "rc" variable, it will corrupt the return value
     ecmdUnloadDll();
