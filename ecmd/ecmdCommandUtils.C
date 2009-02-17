@@ -14,14 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-//   
-// End Change Log *****************************************************
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -61,8 +53,6 @@ int getch(void);
 void setch(void);
 void resetch(void);
 struct termios oldt;
-
-std::string prompt;
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -318,6 +308,24 @@ bool ecmdIsAllHex(const char* str) {
 
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
 {
+  std::string buffer;
+
+  o_commands.clear();
+
+  if (!std::cin) {
+    /* We have reached EOF */
+    return ECMD_SUCCESS;
+  } else {
+    getline(std::cin, buffer);
+
+    /* Carve up what we have here */
+    ecmdParseTokens(buffer,"\n;", o_commands);
+
+  }
+  return 1;
+
+/* Pulled by JTA 02/16/09 in order to get 10.3 going */
+#if 0
   std::string buffer;
 
   int x;
@@ -577,15 +585,12 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
         }
       }
     }
-    printf("..processing cmd: %s \n", buffer.c_str());
-
-    std::cout << buffer.c_str() ;
     ecmdParseTokens(buffer,"\n;", o_commands);
-
 
     resetch();
   }
   return 1;
+#endif
 }
 
 uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecmdChipTarget &target, uint8_t &targetFieldType, std::string &targetFieldList) {
@@ -875,12 +880,7 @@ int getch(void)
 
 std::string getEcmdPrompt()
 {
-
- char dirBuffer[80];
- getcwd(dirBuffer,80);
- prompt = dirBuffer;
- prompt = prompt + ">>eCMD>";
- return prompt;
+ return "ecmd> ";
 }
 
 void setupEcmds(void)
