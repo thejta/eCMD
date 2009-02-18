@@ -20,6 +20,9 @@ my $version = shift(@ARGV);
 
 system("mkdir -p $outputDirectory");
 
+# Set the environment for the script to have the latex install in CTE at the front of the path
+$ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/utils/tetex-3.0/bin:" . $ENV{"PATH"};
+
 # Do the C-API
 printf("Creating C-API Documentation (html)...\n\n");
 system("mkdir -p $outputDirectory/Capi");
