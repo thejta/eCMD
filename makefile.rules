@@ -48,7 +48,7 @@ ifeq (${OS},Linux_x86)
   CFLAGS   := -g -I.
   LD       := ${CC}
   LDFLAGS  :=
-  SLDFLAGS := -shared
+  SLDFLAGS := -share
   GPATH    := ${SUBDIR}
   AR       := ${CTEPATH}/tools/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
