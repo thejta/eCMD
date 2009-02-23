@@ -103,7 +103,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPm.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Perlapi!g\" > $outputDirectory/Perlapi/ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Perlapi; /usr/local/bin/doxygen ecmdDoxygenPm.config");
+$rc = system("cd $outputDirectory/Perlapi; " . $ENV{"CTEPATH"} . "/tools/ecmd/utils/doxygen-1.5.8/bin/doxygen ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 printf("Creating Perl-API Documentation (pdf)...\n\n");
