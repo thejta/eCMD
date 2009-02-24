@@ -505,6 +505,12 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   if (temp.find("clock") == std::string::npos) {
     /* No clock in the very first arg, assume it is a chip */
     ecmdParseChipField(argv[0], chipType, chipUnitType);
+    //check if clocktype and speed were provided before reading them
+    if (argc < 3) {  //chip + clocktype + speed
+      ecmdOutputError("setclockspeed - Too few arguments specified; you need at least a clocktype and speed.\n");
+      ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
     clocktype = argv[1];
     clockspeed = argv[2];
     endOffet = 2;
@@ -514,7 +520,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     clockspeed = argv[1];
     endOffet = 1;
   }
-
 
   //Setup the target that will be used to query the system config
   if (chipType != "") {
@@ -563,23 +568,32 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   
   if ((strpos = clockspeed.find("mhz")) != std::string::npos)  {
     speedType = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("khz")) != std::string::npos)  {
     speedType = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("npu")) != std::string::npos) {
     speedType = ECMD_CLOCK_NOMINAL_PERCENT_UP;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("npd")) != std::string::npos) {
     speedType = ECMD_CLOCK_NOMINAL_PERCENT_DOWN;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("cpu")) != std::string::npos) {
     speedType = ECMD_CLOCK_CURRENT_PERCENT_UP;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("cpd")) != std::string::npos) {
     speedType = ECMD_CLOCK_CURRENT_PERCENT_DOWN;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("pspu")) != std::string::npos) {
     speedType = ECMD_CLOCK_POWERSAVE_PERCENT_UP;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("pspd")) != std::string::npos) {
     speedType = ECMD_CLOCK_POWERSAVE_PERCENT_DOWN;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } // this needs to be after pspu and pspd so that those are found
     else if ((strpos = clockspeed.find("ps")) != std::string::npos) {
     speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("mult")) != std::string::npos) {
 
     // get mult and divider value from cmdline
@@ -611,9 +625,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
         ecmdOutputError("setclockspeed - 'div' value cannot equal 0\n");
         return ECMD_INVALID_ARGS;
       }
-      // set 'clockspeed' variable back to argv[1], as if another parm was used rather than mult and div
-      //  therefore, code after this check will work
-      clockspeed = argv[1];
+      endOffet = endOffet + 1;//add for div also
+      clockspeed = "0"; //clockspeed of zero in case of mult div
 
     } else {
       // this is supposed to be 'div'
@@ -629,8 +642,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
   
-  clockspeed.erase(strpos, clockspeed.length()-strpos);
-  
   if (!ecmdIsAllDecimal(clockspeed.c_str())) {
     ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field\n");
     return ECMD_INVALID_ARGS;
@@ -643,7 +654,6 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-  
   
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -731,6 +741,11 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
   if (temp.find("clock") == std::string::npos) {
     /* No clock in the very first arg, assume it is a chip */
+    if (argc < 3) {  //target + clocktype + speedtype
+      ecmdOutputError("getclockspeed - Too few arguments specified; you need at least a clocktype and speed.\n");
+      ecmdOutputError("getclockspeed - Type 'getclockspeed -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
     ecmdParseChipField(argv[0], chipType, chipUnitType);
     clocktype = argv[1];
     clockspeed = argv[2];
