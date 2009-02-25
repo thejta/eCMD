@@ -1,4 +1,4 @@
- The default build rules
+# The default build rules
 
 ECMD_ROOT     := ${PWD}/
 include makefile.rules
