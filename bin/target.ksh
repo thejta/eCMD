@@ -61,7 +61,7 @@ then
 
         # Now see if someone else locked the machine while I was trying to lock it
         # If they did, error out
-        temp3=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "LOCK"`
+        temp3=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK#"`
         if [[ $temp3 != 0 ]]
         then
            echo "Someone else locked the machine out from under you!"

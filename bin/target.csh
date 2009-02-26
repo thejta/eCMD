@@ -51,7 +51,7 @@ if ($TARGET_VARIABLES == "override" || $TARGET_VARIABLES == "lock") then
 
         # Now see if someone else locked the machine while I was trying to lock it
         # If they did, error out
-        set temp3 = `cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "LOCK"`
+        set temp3 = `cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK#"`
         if ($temp3) then
            echo Someone else locked the machine out from under you!
            echo Lock aborted - try \"target query\" to find out who
