@@ -1,3 +1,7 @@
+
+
+!!! NOT SUPPORTED YET !!!
+
 Syntax: getsensor <Sensor Type> [read mode]  [return value unit]   [-k#] [-n#] [-s#] [-p#]  [-c#]
 
         ECMD:           Core Common Function
