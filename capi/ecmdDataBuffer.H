@@ -177,7 +177,6 @@ public:
   static void applyRawBufferToXstate( void* i_buffer );
 
 };
-  
 
 
 /**
@@ -185,7 +184,6 @@ public:
 */
 
 class ecmdDataBuffer {
-
   friend class ecmdDataBufferImplementationHelper;
 
 public:

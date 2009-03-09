@@ -1298,9 +1298,8 @@ uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, 
 //@}
 
 
-/** @name iSteps Functions */
+/** @name Initialization Functions */
 //@{
-
 
 /**
  @brief Run iSteps by number
@@ -1312,9 +1311,8 @@ uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, 
  @param i_steps Bit mask defining which steps to run
 
  NOTE - function returns on first failure and remaining steps are not run<br>
-
 */
-uint32_t iStepsByNumber (ecmdDataBuffer & i_steps);
+uint32_t iStepsByNumber(ecmdDataBuffer & i_steps);
 
 /**
  @brief Run a single iStep by name
@@ -1324,7 +1322,6 @@ uint32_t iStepsByNumber (ecmdDataBuffer & i_steps);
  @retval nonzero if unsuccessful
  @post iStep specified is complete
  @param i_stepName List of iStep names to run
-
 */
 uint32_t iStepsByName(std::string i_stepName);
 
@@ -1354,11 +1351,24 @@ uint32_t iStepsByNameMultiple(std::list< std::string > i_stepNames);
 
  NOTE - function returns on first failure and remaining steps are not run<br>
 */
-uint32_t iStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepNameEnd);
+uint32_t iStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNameEnd);
 
+/**
+ @brief Run chip initializations stored in a file
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_initFile The file containing the initialization data
+ @param i_initId The id in the initialization file to use
+ @param i_mode The mode to run the initialization file in
+ 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+uint32_t initChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode);
 
 //@}
-
 
 
 

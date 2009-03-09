@@ -184,7 +184,9 @@ uint32_t dllIStepsByName(std::string i_stepName);
 
 uint32_t dllIStepsByNameMultiple(std::list< std::string > i_stepNames); 
 
-uint32_t dllIStepsByNameRange(std::string  i_stepNameBegin, std::string  i_stepNameEnd); 
+uint32_t dllIStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNameEnd); 
+
+uint32_t dllInitChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode); 
 
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
 uint32_t dllQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data); 
