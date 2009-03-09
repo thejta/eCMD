@@ -106,6 +106,9 @@
 /* Removes Adal interfaces from api and cmdline code */
 //#define ECMD_REMOVE_ADAL_FUNCTIONS
 
+/* Removes Sensor interfaces from api and cmdline code */
+//#define ECMD_REMOVE_SENSOR_FUNCTIONS
+
 
 
 /*************************************************************************/
