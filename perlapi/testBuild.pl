@@ -29,6 +29,16 @@ $| = 1;  # set autoflush
 
 if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10")) { exit(0); }
 
+my $data1 = new ecmd::ecmdDataBuffer(8);
+my $data2 = new ecmd::ecmdDataBuffer(8);
+my $data3 = new ecmd::ecmdDataBuffer(8);
+
+$data1->setByte(0,0xF8);
+$data2->setByte(0,0x1F);
+
+$data3 = $data1 & $data2;
+
+printf("%s\n", $data3->genHexLeftStr(0,8));
 
 $rc = ecmdCommandArgs(\@ARGV);
 
