@@ -61,6 +61,9 @@
 /* Removes simulation interfaces from api and ecmdDataBuffer */
 //#define REMOVE_SIM
 
+/* Removes SEDC functions and files from api and cmdline code */
+//#define ECMD_REMOVE_SEDC_SUPPORT
+
 /* Removes Ring interfaces from api and cmdline code */
 //#define ECMD_REMOVE_RING_FUNCTIONS
 

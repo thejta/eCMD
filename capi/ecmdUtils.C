@@ -44,7 +44,7 @@
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
 
-#ifndef FIPSODE
+#ifndef ECMD_REMOVE_SECD_SUPPORT
 # include <sedcScomdefParser.H>
 # include <sedcScomdefClasses.H>
 #endif
@@ -100,7 +100,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, ecm
 void debugFunctionOuput(const char* outbuf);
 #endif
 
-#ifndef FIPSODE
+#ifndef ECMD_REMOVE_SECD_SUPPORT
 /**
  @brief Read in the scomdef file and find the start of the specified entry.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
@@ -737,7 +737,7 @@ uint32_t ecmdDisplayDllInfo() {
 
 }
 
-#ifndef FIPSODE
+#ifndef ECMD_REMOVE_SECD_SUPPORT
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
 
   // Fake out some basic info the hidden function needs until we get 11.0 in here
@@ -888,7 +888,7 @@ uint32_t ecmdDisplayScomDataHidden(ecmdChipTarget & i_target, ecmdScomDataHidden
 }
 #endif
 
-#ifndef FIPSODE
+#ifndef ECMD_REMOVE_SECD_SUPPORT
 uint32_t readScomDefFile(uint32_t address, std::ifstream &scomdefFile) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                      ///< Full path to scomdef file
