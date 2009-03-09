@@ -189,8 +189,71 @@ uint32_t ecmdIstepUser(int argc, char * argv[]) {
   }
 
   return rc;
-
 }
+
+uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  ecmdChipTarget target;        ///< Current target
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;           ///< Print Buffer
+  ecmdLooperData looperData;     ///< Store internal Looper data
+  int i = 0;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  char* file = ecmdParseOptionWithArgs(&argc, &argv, "-file");
+  char* id = ecmdParseOptionWithArgs(&argc, &argv, "-id");
+  char* mode = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+
+  if (argc != 1) {
+    ecmdOutputError("initchipfromfile - Incorrect number of args.\n");
+    ecmdOutputError("initchipfromfile - Type 'runinitfromfile -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  target.chipType = argv[0];
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+    rc = initChipFromFile(target, file, id, mode);
+    if (rc) {
+      printed = "initchipfromfile - Error occured performing initchipfromfile on ";
+      printed += ecmdWriteTarget(target);
+      printed += "\n";
+      ecmdOutputError(printed.c_str());
+      coeRc = rc;
+      continue;
+    } else {
+      validPosFound = true;
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  //this is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("initchipfromfile - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
 
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
@@ -857,12 +920,3 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   return rc;
 }
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//  @00  D546069       11/03/06 honi     setclockspeed cpu/cpd change
-//  @02  F620122       08/22/07 shashank Add support for "continue on error" for the command lines
-// End Change Log *****************************************************

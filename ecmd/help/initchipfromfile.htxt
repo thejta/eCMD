@@ -1,0 +1,35 @@
+
+Syntax: initchipfromfile <ChipSelect> [-file filename] [-id idname] [-mode initmode]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        THIS NEEDS TO BE COMPLETED
+
+        Function:       Let the user run their own copy of the initfile
+			
+        Parameters:
+        --------------------------------------------------------------------------------
+        ChipSelect      Chip to get scancomm data from.
+
+	WhenMode	Mode to run in.  Valid modes are:
+			   L    = Long scan
+			   S    = Scan commm
+			   LS   = Long scan and Scan comm
+			   LN   = Long scan and Node hot add
+			   LG   = Long scan and GX hot add
+			   SN   = Scan comm and Node hot add
+			   SG   = Scan comm and GX host add
+			   LGP  = Long scan and Post GX hot add
+			   SGP  = Scan comm and Post GX hot add
+			   C    = Evaluate spies during cfaminit (can NOT run with other modes)
+			   D    = Evaluate spies during draminit (can NOT run with other modes)
+
+	Initfile        Full path to the initfile to run
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > initchipfromfile nova LN /tmp/my.initfile -all
+                        > initchipfromfile pu sgp  /tmp/my.initfile -pall -c0

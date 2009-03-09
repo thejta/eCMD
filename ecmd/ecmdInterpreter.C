@@ -386,7 +386,9 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'i':
 
-        if (!strcmp(argv[0], "istep")) {
+        if (!strcmp(argv[0], "initchipfromfile")) {
+          rc = ecmdInitChipFromFileUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "istep")) {
           rc = ecmdIstepUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
         } else if (!strcmp(argv[0], "i2cmultiple")) {
