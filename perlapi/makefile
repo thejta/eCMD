@@ -83,16 +83,6 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},AIX)
-  # We have to use the re-entrant version, so override the default setup in makefile.rules
-  CC      := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
-  ifeq (${SITE},apd.pok.ibm.com)
-    CC      := xlC_r
-  endif
-  ifeq (${SITE},awd.austin.ibm.com)
-    CC      := xlC_r
-  endif
-  LD       := ${CC}
-
   TARGET    := ecmd
   SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ../capi/${SUBDIR} -l ecmd_aix
   LINK_OBJS := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_aix.a
@@ -160,19 +150,19 @@ SWIG_OBJS   := $(addsuffix .o, $(SWIG_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES}
-	$(CC) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
+	$(CC_R) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
 ${PM_TARGET} ${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
 	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${SUBDIR} ecmdClientPerlapi.i
 
 ${SWIG_OBJS}: ${SUBDIR}%.o : %.C ${SWIG_SOURCE}
-	${CC} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}
+	${CC_R} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Perl Shared Library
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
-	${LD} ${SLDFLAGS} $^ -o ${SUBDIR}${SO_TARGET}
+	${LD_R} ${SLDFLAGS} $^ -o ${SUBDIR}${SO_TARGET}
 
 
 # *****************************************************************************

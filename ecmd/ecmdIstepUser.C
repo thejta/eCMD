@@ -197,7 +197,6 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperData;     ///< Store internal Looper data
-  int i = 0;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
