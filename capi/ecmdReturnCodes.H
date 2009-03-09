@@ -81,7 +81,7 @@
 #define ECMD_SCOMADDRESS_NOT_FOUND              (ECMD_ERR_ECMD | 0x1057) ///< Scom Address not found in the ScomDef file
 #define ECMD_INVALID_ENTRY_REQUESTED            (ECMD_ERR_ECMD | 0x1059) ///< An invalid entry was requested
 #define ECMD_INSTRUCTIONS_IN_INVALID_STATE      (ECMD_ERR_ECMD | 0x105B) ///< Instructions were in an invalid state for operation
-#define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x105D) ///< Memory Address was not on a 8-byte boundary
+#define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x105D) ///< Memory Address was not on a proper byte boundary
 #define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_IP   | 0x105F) ///< Requests that the user retries operation with returned Virtual Address
 #define ECMD_UNABLE_TO_MAP_HASHID		(ECMD_ERR_IP   | 0x1061) ///< Mapping function was unable to match the hashid given by the user
 #define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1053) ///< eCMD was unable to open arraydef file
