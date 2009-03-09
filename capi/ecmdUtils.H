@@ -229,7 +229,7 @@ std::string ecmdBitsHeaderHidden(int i_initCharOffset, int i_blockSize, int i_nu
 */
 uint32_t ecmdDisplayDllInfo();
 
-#ifndef FIPSODE      
+#ifndef ECMD_REMOVE_SECD_SUPPORT      
 /**
  @brief Display the Scom data with the bit descriptions.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
