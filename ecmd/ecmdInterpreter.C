@@ -368,10 +368,14 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "gpioconfig")) {
           rc = ecmdGpioConfigUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_GPIO_FUNCTIONS        
- #ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
         } else if (!strcmp(argv[0], "getfastarray")) {
           rc = ecmdGetFastArrayUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
+#ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
+        } else if (!strcmp(argv[0], "getsensor")) {
+          rc = ecmdGetSensorUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SENSOR_FUNCTIONS
         } 
           else {
           /* We don't understand this function, let's let the caller know */

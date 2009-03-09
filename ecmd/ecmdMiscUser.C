@@ -1688,6 +1688,14 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
 
 }
 
+uint32_t ecmdGetSensorUser(int, char**)
+{
+ ecmdOutputError("ecmdGetSensorUser is NOT supported yet\n");
+
+ return ECMD_FUNCTION_NOT_SUPPORTED;
+
+}
+
 
 // Change Log *********************************************************
 //                                                                      
