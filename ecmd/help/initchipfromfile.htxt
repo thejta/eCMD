@@ -1,5 +1,5 @@
 
-Syntax: initchipfromfile <ChipSelect> [-file filename] [-id idname] [-mode initmode]
+Syntax: initchipfromfile <ChipSelect> [-file filename] [-name idname] [-mode initmode]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -12,7 +12,7 @@ Syntax: initchipfromfile <ChipSelect> [-file filename] [-id idname] [-mode initm
 
         -file           The file containing the initialization data
 
-        -idname         The id inside of the file to apply
+        -name           The id inside of the file to apply
        
         -mode           The mode to run the initialization file in
 

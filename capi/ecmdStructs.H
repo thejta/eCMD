@@ -506,8 +506,8 @@ typedef enum {
 */
 typedef enum {
   ECMD_THERMAL_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
-  ECMD_THERMAL_UNIT_C,            ///< Celcius
-  ECMD_THERMAL_UNIT_C10           ///< Tenths of Celcius
+  ECMD_THERMAL_UNIT_dC,           ///< Celcius deciDegrees
+  ECMD_THERMAL_UNIT_C             ///< Celcius Degrees
 } ecmdThermalUnit_t;
 
 /**
@@ -550,10 +550,10 @@ typedef enum {
 */
 typedef enum {
   ECMD_POWER_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_POWER_UNIT_uW,           ///< microWatt
   ECMD_POWER_UNIT_mW,           ///< milliWatt
-  ECMD_POWER_UNIT_microW,       ///< microWatt
-  ECMD_POWER_UNIT_W,            ///< watt
-  ECMD_POWER_UNIT_dW,           ///< deci watt
+  ECMD_POWER_UNIT_dW,           ///< deciWatt
+  ECMD_POWER_UNIT_W             ///< watt
 } ecmdPowerUnit_t;
 
 /**
@@ -561,8 +561,8 @@ typedef enum {
 */
 typedef enum {
   ECMD_UTILIZATION_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
-  ECMD_UTILIZATION_UNIT_P,            ///< Percentage
-  ECMD_UTILIZATION_UNIT_P10           ///< Tenth of a percentage
+  ECMD_UTILIZATION_UNIT_dP,           ///< deciPercentage
+  ECMD_UTILIZATION_UNIT_P             ///< Percentage
 } ecmdUtilizationUnit_t;
 
 
