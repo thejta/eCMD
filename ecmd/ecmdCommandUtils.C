@@ -150,7 +150,7 @@ uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & 
   uint32_t length;
 
   if (i_endianMode == ECMD_LITTLE_ENDIAN) {
-    if ((i_startBit - i_newData.getBitLength()) < 0) {
+    if (i_startBit < i_newData.getBitLength()) { 
       length = io_data.getBitLength() - i_startBit;
       /* If there are bits on past the length, let's error.  Otherwise, let it through */
       if (i_newData.isBitSet((i_startBit + length), (i_newData.getBitLength() - (i_startBit+length)))) {
