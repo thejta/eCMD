@@ -25,6 +25,9 @@ Syntax: unitid <Mode> <Mode Options>
                      - Use -dt to specify thread depth target [requires ChipSelect]
                      - ChipSelect needed for position, chipUnit, or thread depth
                      - Use -k# -n# -s# -p# -c# -t# to set up target.  
-                       - Default value is 0 if not specified. 
-                       - "-all" options not supported.
+                     - Default value is 0 if not specified. 
+                     - "-all" options not supported.
+
+                    getversion
+                     - Displays version number of unitId files
 
