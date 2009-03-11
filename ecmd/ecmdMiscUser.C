@@ -1678,8 +1678,31 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
       sprintf(buf,"For target = %s, unitId is '0x%X'\n",(ecmdWriteTarget(target)).c_str(),target.unitId);
       ecmdOutput(buf);
     }
-    
-    
+
+  }else if(!strcmp(argv[0], "getversion")){
+
+      if (argc >1 ) {
+        ecmdOutputError("unitid - Too many arguments specified for 'getversion'.You  only need 'getversion'\n");
+        ecmdOutputError("unitid - Type 'unitId -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      else {
+        uint32_t o_uidVersion=0;
+        rc = ecmdGetUnitIdVersion(o_uidVersion);
+        if (rc != ECMD_SUCCESS) {
+          char errBuf[128];
+          sprintf(errBuf,"unitid getversion-Failed,rc: 0x%x\n",rc);
+          ecmdOutputError(errBuf);
+          return rc;
+        }
+        else{
+          char resBuf[128];
+          sprintf(resBuf,"unitIdVersion = 0x%x\n",o_uidVersion);
+          ecmdOutput(resBuf);
+
+        }
+     }
+
   }else{
     ecmdOutputError("unitid- Invalid arguments-Type 'unitid -h' for correct arguments\n");
     return ECMD_INVALID_ARGS;
