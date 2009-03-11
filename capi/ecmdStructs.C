@@ -4385,6 +4385,7 @@ void  ecmdFastArrayData::printStruct() {
         printf("\tWidth: %d\n", width );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
 
@@ -5777,6 +5778,10 @@ uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
       memcpy(l_ptr, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
       l_ptr += relatedChipUnit.size() + 1;
 
+      //relatedChipUnitShort 
+      memcpy(l_ptr, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
+      l_ptr += relatedChipUnitShort.size() + 1;
+
       // Store boolean as uint32_t, just to be careful...
       l_temp32 = htonl((uint32_t)threadReplicated);
       memcpy(l_ptr, &l_temp32, sizeof(l_temp32));
@@ -5829,6 +5834,11 @@ uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t i_len)
       relatedChipUnit = l_relatedChipUnit;
       l_ptr += l_relatedChipUnit.size() + 1;
       
+      //relatedChipUnitShort
+      std::string l_relatedChipUnitShort = (const char *) l_ptr;  //maybe this can be 1 line?
+      relatedChipUnitShort = l_relatedChipUnitShort;
+      l_ptr += l_relatedChipUnitShort.size() + 1;
+
       // threadReplicated stored as uint32_t, so convert back to bool here...
       memcpy(&l_temp32, l_ptr, sizeof(l_temp32));
       threadReplicated = (bool)ntohl(l_temp32);
@@ -5849,6 +5859,7 @@ uint32_t ecmdProcRegisterInfo::flattenSize()
    flatSize += sizeof(totalEntries);
    flatSize += sizeof(uint32_t); // for isChipUnitRelated (bool stored as uint32_t)
    flatSize += relatedChipUnit.size() + 1;  
+   flatSize += relatedChipUnitShort.size() + 1;
    // threadReplicated stored as uint32_t...
    flatSize += sizeof(uint32_t);
 
@@ -5868,6 +5879,7 @@ void  ecmdProcRegisterInfo::printStruct()
    printf("\t\ttotalEntries:     %d\n", totalEntries);
    printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
    printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
+   printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
    printf("\t\tthreadReplicated: %d\n", threadReplicated);
    // @0aa - above
 
