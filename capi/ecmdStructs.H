@@ -487,6 +487,86 @@ typedef enum {
   ECMD_DISPLAY_TARGET_STATES_HEX        ///< States Mode Hex: pu(V).cu(V) 0x[k0(V):n0(V):s0(V):p01(WC):c0(U):t0(U)] (uid 0x0(UNK))
 } ecmdTargetDisplayMode_t;
 
+
+/**
+ @brief Used by Sensor interfaces to specify what mode to use when reading the sensor values
+*/
+typedef enum {
+  ECMD_SENSOR_READ_MODE_UNKNOWN,       ///< The unknown state for this enum, not a valid output type
+  ECMD_SENSOR_READ_MODE_DEFAULT,       ///< To be used as the default for any Sensor Interface
+  ECMD_SENSOR_READ_MODE_1ms,           ///< 1 miliSecond ('instanteous')
+  ECMD_SENSOR_READ_MODE_8ms,           ///< 8 miliSeconds
+  ECMD_SENSOR_READ_MODE_32ms,          ///< 32 miliSeconds
+  ECMD_SENSOR_READ_MODE_1s,            ///< 1 second
+  ECMD_SENSOR_READ_MODE_8s             ///< 8 seconds
+} ecmdSensorReadMode_t;
+
+/**
+ @brief Used by ecmdGetThermalSensor() interface to specify thermal return value
+*/
+typedef enum {
+  ECMD_THERMAL_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_THERMAL_UNIT_C,            ///< Celcius
+  ECMD_THERMAL_UNIT_C10           ///< Tenths of Celcius
+} ecmdThermalUnit_t;
+
+/**
+ @brief Used by ecmdGetVoltageSensor() interface to specify voltage return value
+*/
+typedef enum {
+  ECMD_VOLTAGE_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_VOLTAGE_UNIT_mV,           ///< miliVolt
+  ECMD_VOLTAGE_UNIT_V             ///< Volt
+} ecmdVoltageUnit_t;
+
+/**
+ @brief Used by ecmdGetCurrentSensor() interface to specify current return value
+*/
+typedef enum {
+  ECMD_CURRENT_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_CURRENT_UNIT_mA,           ///< milliampere
+  ECMD_CURRENT_UNIT_A             ///< ampere
+} ecmdCurrentUnit_t;
+
+/**
+ @brief Used by ecmdGetAirDensitySensor() interface to specify air density return value
+*/
+typedef enum {
+  ECMD_AIRDENSITY_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_AIRDENSITY_UNIT_KG_M3         ///< kilogram per qubic meter
+} ecmdAirDensityUnit_t;
+
+/**
+ @brief Used by ecmdGetHumiditySensor() interface to specify humidity return value
+*/
+typedef enum {
+  ECMD_HUMIDITY_UNIT_UNKNOWN,         ///< The unknown state for this enum, not a valid output type
+  ECMD_HUMIDITY_UNIT_G_M3,            ///< Absolute humidity in grams per cubic meter
+  ECMD_HUMIDITY_UNIT_REL_PERCENTAGE   ///< Relative humidity in percentage,
+} ecmdHumidityUnit_t;
+
+/**
+ @brief Used by ecmdPowerSensor() interface to specify power return value
+*/
+typedef enum {
+  ECMD_POWER_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_POWER_UNIT_mW,           ///< milliWatt
+  ECMD_POWER_UNIT_microW,       ///< microWatt
+  ECMD_POWER_UNIT_W,            ///< watt
+  ECMD_POWER_UNIT_dW,           ///< deci watt
+} ecmdPowerUnit_t;
+
+/**
+ @brief Used by ecmdGetUtilizationSensor() interface to specify utilization return value
+*/
+typedef enum {
+  ECMD_UTILIZATION_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_UTILIZATION_UNIT_P,            ///< Percentage
+  ECMD_UTILIZATION_UNIT_P10           ///< Tenth of a percentage
+} ecmdUtilizationUnit_t;
+
+
+
 //--------------------------------------------------------------------
 //  Structures                                    
 //--------------------------------------------------------------------
