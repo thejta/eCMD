@@ -3011,6 +3011,148 @@ uint32_t ecmdAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
 //@}
 
+/** @name Sensor Functions */
+//@{
+#ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
+
+/**
+ @brief Read Thermal Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdThermalSensorId String that specifies the thermal sensor on the target ("THERMAL_DEFAULT" always supported)
+ @param o_temperature Temperature value returned
+ @param i_thermalUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdThermalSensorId, uint32_t & o_temperature, ecmdThermalUnit_t i_thermalUnit=ECMD_THERMAL_UNIT_C, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
+/**
+ @brief Read Clockspeed Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdClockspeedSensorId String that specifies the Clockspeed sensor on the target ("CLOCKSPEEDL_DEFAULT" always supported)
+ @param o_clockspeed Clockspeed value returned
+ @param i_clockspeedUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetClockspeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockspeedSensorId, uint32_t o_clockspeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
+/**
+ @brief Read Voltage Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdVoltageSensorId String that specifies the Voltage sensor on the target ("VOLTAGE_DEFAULT" always supported)
+ @param o_voltage Voltage value returned
+ @param i_voltageUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetVoltageSensor(ecmdChipTarget & i_target, const char * i_ecmdVoltageSensorId, uint32_t & o_voltage, ecmdVoltageUnit_t i_voltageUnit=ECMD_VOLTAGE_UNIT_V, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
+/**
+ @brief Read Current Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdCurrentSensorId String that specifies the Current sensor on the target ("CURRENT_DEFAULT" always supported)
+ @param o_current Current value returned
+ @param i_currentUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetCurrentSensor(ecmdChipTarget & i_target, const char * i_ecmdCurrentSensorId, uint32_t & o_current, ecmdCurrentUnit_t i_currentUnit=ECMD_CURRENT_UNIT_A, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+/**
+ @brief Read Air Density Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdAirDensitySensorId String that specifies the Air Density sensor on the target ("AIRDENSITY_DEFAULT" always supported)
+ @param o_airDensity Air Density value returned
+ @param i_airDensityUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage, node<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetAirDensitySensor(ecmdChipTarget & i_target, const char * i_ecmdAirDensitySensorId, uint32_t & o_airDensity, ecmdAirDensityUnit_t i_airDensityUnit=ECMD_AIRDENSITY_UNIT_KG_M3, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
+/**
+ @brief Read Humidity Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdHumiditySensorId String that specifies the Humidity sensor on the target ("HUMIDITY_DEFAULT" always supported)
+ @param o_humidity Humidity value returned
+ @param i_humidityUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage, node<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetHumiditySensor(ecmdChipTarget & i_target, const char * i_ecmdHumiditySensorId, uint32_t & o_humidity, ecmdHumidityUnit_t i_humidityUnit=ECMD_HUMIDITY_UNIT_G_M3, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
+/**
+ @brief Read Power Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdPowerSensorId String that specifies the Power sensor on the target ("POWER_DEFAULT" always supported)
+ @param o_power Power value returned
+ @param i_powerUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetPowerSensor(ecmdChipTarget & i_target, const char * i_ecmdPowerSensorId, uint32_t & o_power, ecmdPowerUnit_t i_powerUnit=ECMD_POWER_UNIT_mW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
+/**
+ @brief Read Utilization Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdUtilizationSensorId String that specifies the Power sensor on the target ("UTILIZATION_DEFAULT" always supported)
+ @param o_utilization Utilization value returned
+ @param i_utilizationUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmdUtilizationSensorId, uint32_t & o_utilization, ecmdUtilizationUnit_t i_utilizationUnit=ECMD_UTILIZATION_UNIT_P, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+#endif // ECMD_REMOVE_SENSOR_FUNCTIONS
+//@}
+
+
 #ifndef REMOVE_SIM
 /** @name Simulation Functions */
 //@{
