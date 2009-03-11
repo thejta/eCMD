@@ -199,6 +199,13 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   ecmdLooperData looperData;     ///< Store internal Looper data
 
   /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  char* file = ecmdParseOptionWithArgs(&argc, &argv, "-file");
+  char* name = ecmdParseOptionWithArgs(&argc, &argv, "-name");
+  char* mode = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+
+  /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
@@ -206,13 +213,6 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-
-  /************************************************************************/
-  /* Parse Local ARGS here!                                               */
-  /************************************************************************/
-  char* file = ecmdParseOptionWithArgs(&argc, &argv, "-file");
-  char* id = ecmdParseOptionWithArgs(&argc, &argv, "-id");
-  char* mode = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
 
   if (argc != 1) {
     ecmdOutputError("initchipfromfile - Incorrect number of args.\n");
@@ -229,7 +229,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
-    rc = initChipFromFile(target, file, id, mode);
+    rc = initChipFromFile(target, file, name, mode);
     if (rc) {
       printed = "initchipfromfile - Error occured performing initchipfromfile on ";
       printed += ecmdWriteTarget(target);
@@ -263,10 +263,9 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   ecmdChipTarget target;                ///< Current target being operated on
   bool validPosFound = false;           ///< Did the looper find something to run on?
 
-   /************************************************************************/
+  /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
- 
   //Check force option
   bool force = ecmdParseOption(&argc, &argv, "-force");
 
@@ -280,9 +279,6 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
-
-  
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 

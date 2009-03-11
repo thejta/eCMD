@@ -394,6 +394,24 @@ uint32_t dllAdalPsiLinkVerify(ecmdChipTarget & i_target, uint32_t i_psiPort, uin
 uint32_t dllAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_speed, uint32_t i_mode); 
 
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
+#ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
+uint32_t dllGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdThermalSensorId, uint32_t & o_temperature, ecmdThermalUnit_t i_thermalUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetClockspeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockspeedSensorId, uint32_t o_clockspeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetVoltageSensor(ecmdChipTarget & i_target, const char * i_ecmdVoltageSensorId, uint32_t & o_voltage, ecmdVoltageUnit_t i_voltageUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetCurrentSensor(ecmdChipTarget & i_target, const char * i_ecmdCurrentSensorId, uint32_t & o_current, ecmdCurrentUnit_t i_currentUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetAirDensitySensor(ecmdChipTarget & i_target, const char * i_ecmdAirDensitySensorId, uint32_t & o_airDensity, ecmdAirDensityUnit_t i_airDensityUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetHumiditySensor(ecmdChipTarget & i_target, const char * i_ecmdHumiditySensorId, uint32_t & o_humidity, ecmdHumidityUnit_t i_humidityUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetPowerSensor(ecmdChipTarget & i_target, const char * i_ecmdPowerSensorId, uint32_t & o_power, ecmdPowerUnit_t i_powerUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmdUtilizationSensorId, uint32_t & o_utilization, ecmdUtilizationUnit_t i_utilizationUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+#endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 #ifndef REMOVE_SIM
 uint32_t dllSimaet(const char* i_function); 
 
