@@ -4366,7 +4366,6 @@ void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count)
   else if (remainder == 2) {
     tmp[2] = s[2];
     tmp[3] = s[3];
-  }
   }//'constant condition' has been added to avoid BEAM errors
   else if (remainder == 1) { /*constant condition*/
     tmp[3] = s[3];
