@@ -3431,7 +3431,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       
       o_latchdata.scandefName = scandefFile;
       if (i_ringName != NULL)
-        o_latchdata.ringName = i_ringName;
+        o_latchdata.ringName = i_ring;
       else
         o_latchdata.ringName = "";
       o_latchdata.latchName = latchName;
