@@ -636,8 +636,16 @@ sedcAEIEntry sedcAEIParser(std::ifstream &spyFile, std::vector<std::string> &err
   /************************************************/
 
   /* Group Bits stuff (counted in non-EDC mode only) */
-  if (numGroupBits != 0)
-    returnAEI.length = numGroupBits;
+  if (!(runtimeFlags & RTF_EDC_MODE)) {
+    if (numGroupBits != 0) {
+      if ((returnAEI.states & (SPY_RING | SPY_SCOM)) == (SPY_RING | SPY_SCOM)) {
+        /* The group bits would get double counted in a case where a group contained a ring and a scome, so we need to cut it in half */
+        /* This fixes the problem gerard salem reported on 3/25/09 where groups spies were twice as long as expected */
+        numGroupBits /= 2;
+      }
+      returnAEI.length = numGroupBits;
+    }
+  }
 
   /* Check all the clock states stuff (counted in non-EDC mode only) */
   if (!(runtimeFlags & RTF_EDC_MODE) && returnAEI.states & SPY_CLOCK_ANY) {
