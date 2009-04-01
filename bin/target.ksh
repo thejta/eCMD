@@ -13,9 +13,6 @@
 #
 ##############################################
 
-# Turn off control C so we don't have to worry about lock cleanup and signal handlers
-stty intr ""
-
 numFields=`echo $TARGET_VARIABLES | awk '{print NF}'`
 
 # Very first thing, do the help if nothing is passed in
@@ -108,11 +105,11 @@ then
       then
          # It is locked.  If the user is allowed, let them unlock.  If not, throw an error
          # If the user doesn't have the ECMD_LOCK variable set, there is no way they could get in
-         if [[ !(-z "$ECMD_LOCK") ]]
+         if [[ -n "$ECMD_LOCK" ]]
          then
            temp2=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK_ALLOWED# $ECMD_LOCK"`
          else
-           temp2=0;
+           temp2=0
          fi
          if [[ $temp2 != 0 ]] #Allowed through
          then
