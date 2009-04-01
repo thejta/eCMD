@@ -45,7 +45,7 @@ if ($TARGET_VARIABLES == "override" || $TARGET_VARIABLES == "lock") then
      	endif
 
      	if (!($?message)) then
-     	   echo "Please enter reason for machine lock:"
+     	   echo "Please enter message about the machine lock:"
      	   set message = "$<"
      	endif
 
@@ -91,7 +91,12 @@ else if ($TARGET_VARIABLES == "unlock") then
     set temp1 = `cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK# yes"`
     if ($temp1) then
       # It is locked.  If the user is allowed, let them unlock.  If not, throw an error
-      set temp2 = `cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK_ALLOWED# $ECMD_LOCK"`
+      # If the user doesn't have the ECMD_LOCK variable set, there is no way they could get in
+      if ($?ECMD_LOCK) then
+        set temp2 = `cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK_ALLOWED# $ECMD_LOCK"`
+      else
+        set temp2 = 0;
+      endif
       if ($temp2) then
         echo "Releasing lock on target $ECMD_TARGET"
         cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | awk '{ if($1 !~ /LOCK/) {path = sprintf("%s/targets/%s_info_temp",ENVIRON["CRONUS_HOME"],ENVIRON["ECMD_TARGET"]); print $0 > path} }'

@@ -107,7 +107,13 @@ then
       if [[ $temp1 != 0 ]] #Locked
       then
          # It is locked.  If the user is allowed, let them unlock.  If not, throw an error
-         temp2=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK_ALLOWED# $ECMD_LOCK"`
+         # If the user doesn't have the ECMD_LOCK variable set, there is no way they could get in
+         if [[ !(-z "$ECMD_LOCK") ]]
+         then
+           temp2=`cat $CRONUS_HOME/targets/$ECMD_TARGET""_info | grep -c "#LOCK_ALLOWED# $ECMD_LOCK"`
+         else
+           temp2=0;
+         fi
          if [[ $temp2 != 0 ]] #Allowed through
          then
             echo "Releasing lock on target $ECMD_TARGET"
@@ -161,9 +167,6 @@ then
    fi
    echo eCMD Target is now \"$ECMD_TARGET\"
 fi
-
-# Re-enable control C from aboves
-stty intr "^C"
 
 unset numFields
 unset message
