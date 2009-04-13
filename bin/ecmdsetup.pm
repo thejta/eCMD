@@ -2,13 +2,11 @@
 # File ecmdsetup.pm created by Jason Albert,6A5244 at 13:27:35 on Mon May 16 2005. 
 
 package ecmdsetup;
-
 use strict;
 
-# ARGHH!!!  Germany's WAY OLD perl doesn't support this.  Luckily we don't sem to need it
-#require Exporter;
-#our @ISA = qw(Exporter);
-#our @EXPORT = qw ();
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT = qw (ecmd_print);
 
 sub new {
   my $invocant = shift;
@@ -44,6 +42,24 @@ sub write_environment {
       exit;
     }
   }
+}
+
+sub ecmd_print {
+  my $string = shift(@_);
+
+  # Escape some special characters
+  # All these turn specialchar on left into \specialchar
+  $string =~ s/\'/\\\`/g;
+  $string =~ s/\!/\\\!/g;
+  $string =~ s/\</\\\</g;
+  $string =~ s/\>/\\\>/g;
+  $string =~ s/\[/\\\[/g;
+  $string =~ s/\]/\\\]/g;
+  $string =~ s/\(/\\\(/g;
+  $string =~ s/\)/\\\)/g;
+  $string =~ s/\|/\\\|/g;
+
+  printf("echo $string;");
 }
 
 
