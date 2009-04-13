@@ -11,41 +11,43 @@ use Cwd 'chdir';
 # return value
 my $rc = 0;
 
-
-# Meghna needs me to save away the directory the script was called from, I'll do that here
 my $callingPwd;
-#Commenting this since this seems to be resolving the links in the path
-#chomp($callingPwd = `pwd`);
-#This seems to keep the directory intact. Tested in ksh, Jason will test in csh
-chomp($callingPwd = `cd .;pwd`);
-# Now do the rest
 my $pwd;
-my @tempArr = split(/\/+/,$0);
-pop(@tempArr); # The script name
-$" = "/"; # Make it so the array below seperates on / instead of space
-#If it starts with a ., it's being called with relative path
-if (substr($0,0,1) ne "/") {
-  $pwd = $callingPwd;  # Get where I got called from
-  $pwd = $pwd . "/" . "@tempArr";  # Now use the relative to find out where the script is 
-} else { # Absolute path
-  $pwd = "@tempArr";
+
+BEGIN {
+  # Meghna needs me to save away the directory the script was called from, I'll do that here
+  #Commenting this since this seems to be resolving the links in the path
+  #chomp($callingPwd = `pwd`);
+  #This seems to keep the directory intact. Tested in ksh, Jason will test in csh
+  chomp($callingPwd = `cd .;pwd`);
+  # Now do the rest
+  my @tempArr = split(/\/+/,$0);
+  pop(@tempArr); # The script name
+  $" = "/"; # Make it so the array below seperates on / instead of space
+  #If it starts with a ., it's being called with relative path
+  if (substr($0,0,1) ne "/") {
+    $pwd = $callingPwd;  # Get where I got called from
+    $pwd = $pwd . "/" . "@tempArr";  # Now use the relative to find out where the script is 
+  } else { # Absolute path
+    $pwd = "@tempArr";
+  }
+  $" = " "; # Reset
+  chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
+
+  # This is a slick bit of trickeration if I may say so myself.
+  # We have to change to the directory the script is in for the module requires below
+  # This will enable the modules to be found in the local directory in the @INC
+  chdir "$pwd";
 }
-$" = " "; # Reset
-chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
 
 # installpath points to root of install
 my $installPath = $pwd;
 $installPath =~ s/\/([^\/..]*\/?)$/\//;
 
-# This is a slick bit of trickeration if I may say so myself.
-# We have to change to the directory the script is in for the module requires below
-# This will enable the modules to be found in the local directory in the @INC
-chdir "$pwd";
-
 #########################################
 # Setup the modules to include
 # Base support, always there
-require ecmdsetup;
+use ecmdsetup;
 my $ecmd = new ecmdsetup();
 
 # Create the other setup objects based upon what is available
@@ -163,7 +165,7 @@ sub main {
   if ($shell eq "ksh") {
   } elsif ($shell eq "csh") {
   } else {
-    printf("echo Your shell is unsupported\\!;");
+    ecmd_print("Your shell is unsupported!");
     return 1;
   }
 
@@ -179,7 +181,7 @@ sub main {
   # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
   if ($release eq ".") {
     if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
-      printf("echo You can\\'t specify the \\'.\\' shortcut without having specified the release, product and plugin previously\\!;");
+      ecmd_print("You can't specify the '.' shortcut without having specified the release, product and plugin previously!");
       return 1;
     } else {
       $shortcut = 1;
@@ -194,7 +196,7 @@ sub main {
   if ($release ne "auto" && !$localInstall) {
     $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
     if (!(-d $temp)) {
-      printf("echo The eCMD release '$release' you specified is not known\\!;");
+      ecmd_print("The eCMD release '$release' you specified is not known!");
       return 1;
     }
   }
@@ -212,7 +214,7 @@ sub main {
   } elsif ($plugin eq "scand" && $scandUse) {
   } elsif ($plugin eq "mbo" && $mboUse) {
   } else {
-    printf("echo The eCMD plugin '$plugin' you specified is not known\\!;");
+    ecmd_print("The eCMD plugin '$plugin' you specified is not known!");
     return 1;
   }
 
@@ -242,7 +244,7 @@ sub main {
       splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } elsif ($ARGV[$x] eq "cleanup") {
       $cleanup = 1;
-      printf("echo Removing eCMD and Plugin settings from environment;");
+      ecmd_print("Removing eCMD and Plugin settings from environment");
       splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } else {
       # We have to walk the array here because the splice shortens up the array
@@ -383,11 +385,11 @@ sub main {
     my $command;
     my @tempArr;
     if ($cleanup) {
-      printf("echo Removing directory /tmp/\$ECMD_TARGET/;");
+      ecmd_print("Removing directory /tmp/\$ECMD_TARGET/");
       $command = "rm -r /tmp/" . $ENV{"ECMD_TARGET"};
       system("$command");
     } else {
-      printf("echo Copying ECMD_EXE and ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/;");
+      ecmd_print("Copying ECMD_EXE and ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
       $command = "/tmp/" . $ENV{"ECMD_TARGET"};
       if (!(-d $command)) { #if the directory isn't there, create it
         $command = "mkdir " . $command;
@@ -414,12 +416,12 @@ sub main {
 
 #  Umm.. yeah.. I'm going to need you to work this weekend on the help text.  Mkay..
 sub help {
-  printf("echo ecmdsetup \\<release\\> \\<plugin\\> \\<product\\> \\[copylocal\\] \\[cleanup\\] \\<plugin options\\>;");
-  printf("echo \\<release\\> - Any eCMD Version currently supported in CVS \\(ex rel, ver5, ver4-3\\);");
-  printf("echo \\<plugin\\> - cro\\|scand\\|gip\\|mbo;");
-  printf("echo \\<product\\> - eclipz, etc..;");
-  printf("echo \\[copylocal\\] - Copy the \\\$ECMD_EXE and \\\$ECMD_DLL_FILE to /tmp/\\\$ECMD_TARGET/;");
-  printf("echo \\[cleanup\\] - Remove all eCMD and Plugin settings from environment;");
-  printf("echo \\<plugin options\\> - anything else passed into the script is passed onto the plugin;");
-  printf("echo -h                               - this help text;");
+  ecmd_print("ecmdsetup <release> <plugin> <product> [copylocal] [cleanup] <plugin options>");
+  ecmd_print("<release> - Any eCMD Version currently supported in CVS (ex rel, ver5, ver4-3)");
+  ecmd_print("<plugin> - cro|scand|gip|mbo");
+  ecmd_print("<product> - eclipz, etc..");
+  ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
+  ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
+  ecmd_print("<plugin options> - anything else passed into the script is passed onto the plugin");
+  ecmd_print("-h - this help text");
 }
