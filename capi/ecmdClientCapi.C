@@ -400,17 +400,85 @@ uint32_t ecmdSetup(const char* i_args) {
 
   char command[200];
   std::string retstr;
-  FILE * lFilePtr ;
-  unsigned char lChar;
 
   sprintf(command, "%s/tools/ecmd/%s/bin/ecmdsetup.pl ksh %s", getenv("CTEPATH"), getenv("ECMD_RELEASE"), i_args);
-  lFilePtr = popen(command, "r") ;
-  // read the output from the command
-  while (255 != (lChar = getc(lFilePtr)))
+
+  bool finished = false;
+  for (int trial = 1; trial <= 10; ++trial)
   {
-    retstr += lChar;
-  }
-  pclose(lFilePtr);
+      int charsBeforeError = -1;
+
+      FILE* lFilePtr = popen(command, "r");
+
+      // Handle a popen error
+      if (ferror(lFilePtr))
+      {
+	  //printf("ecmdClientCapi.C: popen call produced error %d: %s\n", errno, sys_errlist[errno]);
+	  clearerr(lFilePtr);
+      }
+      // Make sure we have a valid file pointer
+      else if (lFilePtr)
+      {
+	  // read the output from the command
+	  while (TRUE)
+	  {
+	      int nextChar = getc(lFilePtr);
+
+	      // Check if there was an error.  Some of them we can handle.
+	      if (ferror(lFilePtr))
+	      {
+		  //printf("ecmdClientCapi.C: getc call after getting %d characters produced error %d: %s\n", retstr.length(), errno, sys_errlist[errno]);
+
+		  // If we're not looping on the same character then we may be able to continue the getc loop
+		  if (charsBeforeError < (int)retstr.length())
+		  {
+		      // We made some progress since the last error.
+		      charsBeforeError = retstr.length();
+
+		      // If we got an EINTR (interrupted system call) error then clear it and try the getc again
+		      if (errno == EINTR)
+		      {
+			  clearerr(lFilePtr);
+			  continue;
+		      }
+		  }
+
+		  // All other errors we can't handle so break out of the loop
+		  clearerr(lFilePtr);
+		  break;
+	      }
+
+	      // If we truly hit the end of file then we're done
+	      if (feof(lFilePtr))
+	      {
+		  finished = true;
+		  break;
+	      }
+
+	      // Else add this character to the string
+	      unsigned char lChar = nextChar;
+	      retstr += lChar;
+	  }  // while (TRUE)
+
+      }  // if (lFilePtr)
+
+      pclose(lFilePtr);
+
+      if (finished)
+      {
+	  //if (charsBeforeError != -1)
+	  //    printf("ecmdClientCapi.C: recovered from getc errors\n");
+	  //if (trial > 1)
+	  //    printf("ecmdClientCapi.C: popen trial %d succeeded\n", trial);
+	  break;
+      }
+      else
+      {
+	  //printf("ecmdClientCapi.C: popen trial %d failed\n", trial);
+	  retstr.clear();
+      }
+  }  // for (int trial = 1; trial <= 10; ++trial)
+
 
   /* Print what we got back for debug */
   //printf("output: %s\n", retstr.c_str());
