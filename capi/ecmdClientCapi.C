@@ -407,80 +407,85 @@ uint32_t ecmdSetup(const char* i_args) {
   bool finished = false;
   for (int trial = 1; trial <= 10; ++trial)
   {
-      int charsBeforeError = -1;
+    int charsBeforeError = -1;
 
-      FILE* lFilePtr = popen(command, "r");
+    FILE* lFilePtr = popen(command, "r");
 
-      // Handle a popen error
-      if (ferror(lFilePtr))
+    // Handle a popen error
+    if (ferror(lFilePtr))
+    {
+      //printf("ecmdClientCapi.C: popen call produced error %d: %s\n", errno, sys_errlist[errno]);
+      clearerr(lFilePtr);
+    }
+    // Make sure we have a valid file pointer
+    else if (lFilePtr)
+    {
+      // read the output from the command
+      while (true)
       {
-	  //printf("ecmdClientCapi.C: popen call produced error %d: %s\n", errno, sys_errlist[errno]);
-	  clearerr(lFilePtr);
-      }
-      // Make sure we have a valid file pointer
-      else if (lFilePtr)
-      {
-	  // read the output from the command
-	  while (true)
-	  {
-	      int nextChar = getc(lFilePtr);
+        int nextChar = getc(lFilePtr);
 
-	      // Check if there was an error.  Some of them we can handle.
-	      if (ferror(lFilePtr))
-	      {
-		  //printf("ecmdClientCapi.C: getc call after getting %d characters produced error %d: %s\n", retstr.length(), errno, sys_errlist[errno]);
+        // Check if there was an error.  Some of them we can handle.
+        if (ferror(lFilePtr))
+        {
+          //printf("ecmdClientCapi.C: getc call after getting %d characters produced error %d: %s\n", retstr.length(), errno, sys_errlist[errno]);
 
-		  // If we're not looping on the same character then we may be able to continue the getc loop
-		  if (charsBeforeError < (int)retstr.length())
-		  {
-		      // We made some progress since the last error.
-		      charsBeforeError = retstr.length();
+          // If we're not looping on the same character then we may be able to continue the getc loop
+          if (charsBeforeError < (int)retstr.length())
+          {
+            // We made some progress since the last error.
+            charsBeforeError = retstr.length();
 
-		      // If we got an EINTR (interrupted system call) error then clear it and try the getc again
-		      if (errno == EINTR)
-		      {
-			  clearerr(lFilePtr);
-			  continue;
-		      }
-		  }
+            // If we got an EINTR (interrupted system call) error then clear it and try the getc again
+            if (errno == EINTR)
+            {
+              clearerr(lFilePtr);
+              continue;
+            }
+          }
 
-		  // All other errors we can't handle so break out of the loop
-		  clearerr(lFilePtr);
-		  break;
-	      }
+          // All other errors we can't handle so break out of the loop
+          clearerr(lFilePtr);
+          break;
+        }
 
-	      // If we truly hit the end of file then we're done
-	      if (feof(lFilePtr))
-	      {
-		  finished = true;
-		  break;
-	      }
+        // If we truly hit the end of file then we're done
+        if (feof(lFilePtr))
+        {
+          finished = true;
+          break;
+        }
 
-	      // Else add this character to the string
-	      unsigned char lChar = nextChar;
-	      retstr += lChar;
-	  }  // while (TRUE)
+        // Else add this character to the string
+        unsigned char lChar = nextChar;
+        retstr += lChar;
+      }  // while (TRUE)
 
-      }  // if (lFilePtr)
+    }  // if (lFilePtr)
 
-      pclose(lFilePtr);
+    pclose(lFilePtr);
 
-      if (finished)
-      {
-	  //if (charsBeforeError != -1)
-	  //    printf("ecmdClientCapi.C: recovered from getc errors\n");
-	  //if (trial > 1)
-	  //    printf("ecmdClientCapi.C: popen trial %d succeeded\n", trial);
-	  break;
-      }
-      else
-      {
-          if (trial > 9)
-	     printf("ecmdClientCapi.C: popen trial %d failed\n", trial);
-	  retstr.clear();
-      }
+    if (finished)
+    {
+      //if (charsBeforeError != -1)
+      //    printf("ecmdClientCapi.C: recovered from getc errors\n");
+      //if (trial > 1)
+      //    printf("ecmdClientCapi.C: popen trial %d succeeded\n", trial);
+      // We got everything we need, so get out of here
+      break;
+    }
+    else
+    {
+      // Reset the string because we are starting over
+      retstr.clear();
+    }
   }  // for (int trial = 1; trial <= 10; ++trial)
 
+  if (!finished) {
+    ecmdOutputError("ecmdSetup - execution of the ecmdsetup script failed!\n");
+    ecmdOutputError("ecmdSetup - none of you environment variables have been updated!\n");
+    return ECMD_FAILURE;
+  }
 
   /* Print what we got back for debug */
   //printf("output: %s\n", retstr.c_str());
