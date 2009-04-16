@@ -483,7 +483,7 @@ uint32_t ecmdSetup(const char* i_args) {
 
   if (!finished) {
     ecmdOutputError("ecmdSetup - execution of the ecmdsetup script failed!\n");
-    ecmdOutputError("ecmdSetup - none of you environment variables have been updated!\n");
+    ecmdOutputError("ecmdSetup - none of your environment variables have been updated!\n");
     return ECMD_FAILURE;
   }
 
