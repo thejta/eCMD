@@ -24,6 +24,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
@@ -420,7 +421,7 @@ uint32_t ecmdSetup(const char* i_args) {
       else if (lFilePtr)
       {
 	  // read the output from the command
-	  while (TRUE)
+	  while (true)
 	  {
 	      int nextChar = getc(lFilePtr);
 
