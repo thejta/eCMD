@@ -475,7 +475,8 @@ uint32_t ecmdSetup(const char* i_args) {
       }
       else
       {
-	  //printf("ecmdClientCapi.C: popen trial %d failed\n", trial);
+          if (trial > 9)
+	     printf("ecmdClientCapi.C: popen trial %d failed\n", trial);
 	  retstr.clear();
       }
   }  // for (int trial = 1; trial <= 10; ++trial)
