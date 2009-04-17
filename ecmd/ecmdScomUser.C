@@ -330,10 +330,10 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
  
        if ((verbosePtr != NULL) && !expectFlag) {
      	 //even if rc returned is non-zero we want to continue to the next chip
-#ifndef FIPSODE
+#ifndef ECMD_REMOVE_SEDC_SUPPORT
         ecmdDisplayScomDataHidden(cuTarget, *scomData, buffer, verbosePtr);
 #else
-	ecmdOutputWarning("ecmdDisplayScomData not supported on FSP\n");
+	ecmdOutputWarning("ecmdDisplayScomData is not supported in this getscom implementation (ECMD_REMOVE_SEDC_SUPPORT has been defined)\n");
 #endif
        }
      }
