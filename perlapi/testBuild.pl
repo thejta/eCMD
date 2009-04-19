@@ -29,6 +29,9 @@ $| = 1;  # set autoflush
 
 if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10")) { exit(0); }
 
+$rc = ecmdCommandArgs(\@ARGV);
+
+# Test the data buffer
 my $data1 = new ecmd::ecmdDataBuffer(8);
 my $data2 = new ecmd::ecmdDataBuffer(8);
 my $data3 = new ecmd::ecmdDataBuffer(8);
@@ -38,27 +41,29 @@ $data2->setByte(0,0x1F);
 
 $data3 = $data1 & $data2;
 
-printf("%s\n", $data3->genHexLeftStr(0,8));
-
-$rc = ecmdCommandArgs(\@ARGV);
-
-if (1) {
-  my $o_dllInfo = new ecmd::ecmdDllInfo;
-
-  print "---- starting ecmdQueryDllInfo -----\n";
-  $rc = ecmdQueryDllInfo($o_dllInfo);
-  printf("some dll info:\n");
-  printf("dllType        = %s\n",$o_dllInfo->{dllType});
-  printf("dllProduct     = %s\n",$o_dllInfo->{dllProduct});
-  printf("dllProductType = %s\n",$o_dllInfo->{dllProductType});
-  printf("dllEnv         = %s\n",$o_dllInfo->{dllEnv});
-  printf("dllBuildDate   = %s\n",$o_dllInfo->{dllBuildDate});
-  printf("dllCapiVersion = %s\n",$o_dllInfo->{dllCapiVersion});
-  printf("dllBuildInfo   = %s\n",$o_dllInfo->{dllBuildInfo});
+if ($data3->genHexLeftStr() eq "18") {
+  printf("Quick Databuffer check PASSED!\n");
+} else {
+  printf("Quick Databuffer check FAILED!\n");
+  exit(1);
 }
 
-printf("\n\n\n");
-+printf("*********************************************************\n");
+my $o_dllInfo = new ecmd::ecmdDllInfo;
+
+# Test loading the plugin
+print "---- starting ecmdQueryDllInfo -----\n";
+$rc = ecmdQueryDllInfo($o_dllInfo);
+printf("some dll info:\n");
+printf("dllType        = %s\n",$o_dllInfo->{dllType});
+printf("dllProduct     = %s\n",$o_dllInfo->{dllProduct});
+printf("dllProductType = %s\n",$o_dllInfo->{dllProductType});
+printf("dllEnv         = %s\n",$o_dllInfo->{dllEnv});
+printf("dllBuildDate   = %s\n",$o_dllInfo->{dllBuildDate});
+printf("dllCapiVersion = %s\n",$o_dllInfo->{dllCapiVersion});
+printf("dllBuildInfo   = %s\n",$o_dllInfo->{dllBuildInfo});
+
+printf("\n");
+printf("*********************************************************\n");
 printf("Build appears to be successful\n");
 printf("*********************************************************\n");
 

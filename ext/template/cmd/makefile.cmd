@@ -19,28 +19,29 @@ CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../ecmd/
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
+# *****************************************************************************
+# The Common Setup stuff
+# *****************************************************************************
+TARGET = ${EXTENSION_NAME}CmdInterpreter_${OS}.a
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
-  TARGET = ${EXTENSION_NAME}CmdInterpreter_x86.a
+ifeq (${OS},x86)
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
 endif
 
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_ppc)
-  TARGET = ${EXTENSION_NAME}CmdInterpreter_ppc.a
+ifeq (${OS},ppc)
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},AIX)
-  TARGET = ${EXTENSION_NAME}CmdInterpreter_aix.a
+ifeq (${OS},aix)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 

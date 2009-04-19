@@ -32,39 +32,33 @@ INCLUDES      := ${INCLUDES} ${CAPI_INCLUDES}
 GENERATED_SOURCE := ${EXTENSION_NAME}ClientCapiFunc.C
 GENERATED_INCLUDES := ${EXTENSION_NAME}DllCapi.H ${EXTENSION_NAME}ClientEnums.H
 
+# *****************************************************************************
+# The Common Setup stuff
+# *****************************************************************************
+TARGET = ${EXTENSION_NAME}ClientCapi_${OS}.a
+ifneq (${SLIB_SOURCE},)
+  SLIB    := lib${EXTENSION_NAME}_${OS}.so
+endif
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
-  TARGET = ${EXTENSION_NAME}ClientCapi_x86.a
+ifeq (${OS},x86)
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
-  ifneq (${SLIB_SOURCE},)
-    SLIB    := lib${EXTENSION_NAME}_x86.so
-  endif
 endif
 
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_ppc)
-  TARGET = ${EXTENSION_NAME}ClientCapi_ppc.a
+ifeq (${OS},ppc)
   CFLAGS := ${CFLAGS} -ftemplate-depth-30 -Wall
-  ifneq (${SLIB_SOURCE},)
-    SLIB    := lib${EXTENSION_NAME}_ppc.so
-  endif
 endif
-
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},AIX)
-  TARGET = ${EXTENSION_NAME}ClientCapi_aix.a 
+ifeq (${OS},aix)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
-  ifneq (${SLIB_SOURCE},)
-    SLIB    := lib${EXTENSION_NAME}_aix.so
-  endif
 endif
 
 VPATH := ${VPATH}${SUBDIR}:../../../capi:../../template/capi

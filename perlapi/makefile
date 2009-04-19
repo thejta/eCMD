@@ -31,27 +31,29 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi -I.
 SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 
-# The two build target
-PM_TARGET    = ecmd.pm
-SO_TARGET    = ecmd.so
+# *****************************************************************************
+# The Common Setup stuff
+# *****************************************************************************
+PM_TARGET := ecmd.pm
+SO_TARGET := ecmd.so
+LINK_OBJS := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_${OS}.a
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/${SUBDIR}/${ext}ClientCapi_${OS}.a)
+VPATH     := ${VPATH}:${SUBDIR}
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
-  TARGET    := ecmd
+ifeq (${OS},x86)
   SLDFLAGS  := ${SLDFLAGS} -L../capi/${SUBDIR} -lecmd_x86
-  LINK_OBJS := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_x86.a
-  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/${SUBDIR}/${ext}ClientCapi_x86.a)
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
+    SWIG      := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/bin/swig.x86
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib/perl5 -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
@@ -60,11 +62,8 @@ endif
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_ppc)
-  TARGET    := ecmd
+ifeq (${OS},ppc)
   SLDFLAGS  := ${SLDFLAGS} -L../capi/${SUBDIR} -lecmd_ppc
-  LINK_OBJS := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_ppc.a
-  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/${SUBDIR}/${ext}ClientCapi_ppc.a)
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
@@ -82,27 +81,22 @@ endif
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},AIX)
-  TARGET    := ecmd
+ifeq (${OS},aix)
   SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ../capi/${SUBDIR} -l ecmd_aix
-  LINK_OBJS := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_aix.a
-  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/${SUBDIR}/${ext}ClientCapi_aix.a)
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
   endif
   ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
+    SWIG      := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/bin/swig.aix
   endif
   ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib/perl5
+    SWIGFLAGS := ${SWIGFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib/perl5 -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib
   else
     SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
-
-VPATH     := ${VPATH}:${SUBDIR}
 
 # *****************************************************************************
 # The Main Targets
@@ -128,7 +122,7 @@ dir:
 	@mkdir -p ${SUBDIR}
 
 test: ${SO_TARGET} ${PM_TARGET}
-        ifeq (${OS},AIX)
+        ifeq (${OS},aix)
 	@slibclean
         endif
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
@@ -152,7 +146,10 @@ SWIG_OBJS   := $(addsuffix .o, $(SWIG_OBJS))
 $(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES}
 	$(CC_R) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
-${PM_TARGET} ${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
+${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
+	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${SUBDIR} ecmdClientPerlapi.i
+
+${PM_TARGET}: ${SWIG_SOURCE}
 	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${SUBDIR} ecmdClientPerlapi.i
 
 ${SWIG_OBJS}: ${SUBDIR}%.o : %.C ${SWIG_SOURCE}

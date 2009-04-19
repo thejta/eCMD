@@ -14,17 +14,16 @@ endif
 
 
 # Figure out the OS
-OS           := $(shell uname)
+OS := $(shell uname)
 # We need to do extra for Linux
 ifeq (${OS},Linux)
   ifneq ($(strip $(shell uname -a |grep ppc)),)
-    OS := Linux_ppc
+    OS := ppc
   else
-    OS := Linux_x86
+    OS := x86
   endif
 else
-  # Figure out site
-  SITE         := $(shell fs wscell | cut -d\' -f2)
+    OS := aix
 endif
 
 
@@ -63,19 +62,24 @@ endif
 # AIX:
 #  Added 03/09/09 - when section was created
 #  CC_VER  := 6.0.0.8
-#  CC      := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
-#  CC_R    := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
+#  CC      := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC.6008
+#  CC_R    := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC_r.6008
 #  LD       := ${CC}
 #  LD_R     := ${CC_R}
 #  AR       := ar
 
 # *****************************************************************************
+# The Common Setup stuff
+# *****************************************************************************
+SUBDIR   := obj_${OS}/
+
+# *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
-  SUBDIR   := obj_x86/
+ifeq (${OS},x86)
+  GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
   CC_VER   := 3.4.6
-  CC       := ${CTEPATH}/tools/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
+  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
   CC_R     := ${CC}
   CFLAGS   := -g -I.
   LD       := ${CC}
@@ -83,14 +87,13 @@ ifeq (${OS},Linux_x86)
   LDFLAGS  :=
   SLDFLAGS := -shared
   GPATH    := ${SUBDIR}
-  AR       := ${CTEPATH}/tools/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
+  AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
 
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_ppc)
-  SUBDIR   := obj_ppc/
+ifeq (${OS},ppc)
   CC       := g++
   CC_R     := ${CC}
   CFLAGS   := -g -I. -fPIC
@@ -105,26 +108,23 @@ endif
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},AIX)
-  SUBDIR  := obj_aix/
-  CC_VER  := 6.0.0.8
-  # Austin and Pok you can use a local 6.0.0.8 compiler, all other sites must run remote from Rochester
-  CC      := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC.6008
-  CC_R    := /afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/bin/xlC_r.6008
-  ifeq (${SITE},apd.pok.ibm.com)
-    CC      := xlC
-    CC_R    := xlC_r
-  endif
-  ifeq (${SITE},awd.austin.ibm.com)
-    CC      := xlC
-    CC_R    := xlC_r
-  endif
+ifeq (${OS},aix)
+  GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+  CC_VER   := 6.0.0.8
+  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC
+  CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC_r
   CFLAGS   := -g -I.
   LD       := ${CC}
   LD_R     := ${CC_R}
   LDFLAGS  :=
   SLDFLAGS := -qmkshrobj -brtl
   AR       := ar
+endif
+
+# Try and use distcc if it's available - JTA 03/24/09
+ifeq ($(strip $(shell /usr/bin/ls /usr/bin/distcc 2>&1)),/usr/bin/distcc)
+  CC       := distcc ${CC}
+  CC_R     := distcc ${CC_R}
 endif
 
 
@@ -139,7 +139,7 @@ ifeq ($(strip $(INSTALL_PATH)),)
 endif
 
 # Figure out how many gmake threads to run
-ifeq (${OS},AIX)
+ifeq (${OS},aix)
   #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
   GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)
 else
