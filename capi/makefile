@@ -30,29 +30,29 @@ GENERATED_INCLUDES := ecmdDllCapi.H ecmdClientEnums.H
 SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, $(SEDC_INCLUDES))
 
 # *****************************************************************************
+# The Common Setup stuff
+# *****************************************************************************
+TARGET   := ecmdClientCapi_${OS}.a
+SLIB     := libecmd_${OS}.so
+
+# *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
-  TARGET   := ecmdClientCapi_x86.a
-  SLIB     := libecmd_x86.so
+ifeq (${OS},x86)
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
 endif
 
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_ppc)
-  TARGET   := ecmdClientCapi_ppc.a
-  SLIB     := libecmd_ppc.so
+ifeq (${OS},ppc)
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},AIX)
-  TARGET  := ecmdClientCapi_aix.a
-  SLIB    := libecmd_aix.so
+ifeq (${OS},aix)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 

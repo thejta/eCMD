@@ -175,3 +175,5 @@
   %include "cmdClientPerlapiFunc.H"
 #endif
 /*********** End Files to swigify ***********/
+
+%pragma(perl5) include="ecmdClientPerlapi.pl"

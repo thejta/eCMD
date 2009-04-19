@@ -28,37 +28,29 @@ space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
-ifeq (${OS},Linux_x86)
-endif
-ifeq (${OS},Linux_ppc)
-endif
-ifeq (${OS},AIX)
-endif
 CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 
-
+# *****************************************************************************
+# The Common Setup stuff
+# *****************************************************************************
+TARGET     := ecmd_${OS}
+VER_TARGET := ecmdVersion_${OS}
+LINK_OBJS  := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_${OS}.a
+LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_${OS}.a ${SUBDIR}${ext}CmdInterpreter_${OS}.a)
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_x86)
-  TARGET     := ecmd_x86
-  VER_TARGET := ecmdVersion_x86
+ifeq (${OS},x86)
   LDFLAGS    := ${LDFLAGS} -ldl -L../capi/${SUBDIR} -lecmd_x86
-  LINK_OBJS  := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_x86.a
-  LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_x86.a ${SUBDIR}${ext}CmdInterpreter_x86.a)
   CFLAGS     := ${CFLAGS} -ftemplate-depth-30 -Wall
 endif
 
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux_ppc)
-  TARGET     := ecmd_ppc
-  VER_TARGET := ecmdVersion_ppc
+ifeq (${OS},ppc)
   LDFLAGS    := ${LDFLAGS} -ldl -L../capi/${SUBDIR} -lecmd_ppc
-  LINK_OBJS  := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_ppc.a
-  LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_ppc.a ${ext}CmdInterpreter_ppc.a)
   CFLAGS     := ${CFLAGS} -ftemplate-depth-30 -Wall
   GPATH      := ${SUBDIR}
 endif
@@ -66,13 +58,8 @@ endif
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},AIX)
-  TARGET     := ecmd_aix
-  VER_TARGET := ecmdVersion_aix
-  LD         := ${CC}  # This is right, we want to overload the default of makeC++SharedLib
+ifeq (${OS},aix)
   LDFLAGS    := -brtl -w -L../capi/${SUBDIR} -lecmd_aix
-  LINK_OBJS  := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_aix.a
-  LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_aix.a ${ext}CmdInterpreter_aix.a)
   CFLAGS     := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
@@ -138,12 +125,12 @@ ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
 	${LD} ${LDFLAGS} $^ -o ${SUBDIR}${TARGET}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
-ifeq (${OS},AIX)
+ifeq (${OS},aix)
 	${LD} ${LDFLAGS}  -brtl -w $^ -o ${SUBDIR}${VER_TARGET}
 endif
-ifeq (${OS},Linux_x86)
+ifeq (${OS},x86)
 	${LD} ${LDFLAGS} -ldl $^ -o ${SUBDIR}${VER_TARGET}
 endif
-ifeq (${OS},Linux_ppc)
+ifeq (${OS},ppc)
 	${LD} ${LDFLAGS} -ldl $^ -o ${SUBDIR}${VER_TARGET}
 endif
