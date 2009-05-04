@@ -160,7 +160,10 @@ typedef enum {
   ECMD_CLOCK_CURRENT_PERCENT_UP,     ///< Clock speed specified in % above current value
   ECMD_CLOCK_CURRENT_PERCENT_DOWN,   ///< Clock speed specified in % below current value
   ECMD_CLOCK_POWERSAVE_PERCENT_UP,   ///< Clock speed specified in % above powersave value
-  ECMD_CLOCK_POWERSAVE_PERCENT_DOWN  ///< Clock speed specified in % below powersave value
+  ECMD_CLOCK_POWERSAVE_PERCENT_DOWN, ///< Clock speed specified in % below powersave value
+  ECMD_CLOCK_TURBO_PERCENT_UP,       ///< Clock speed specified in % above turbo value  
+  ECMD_CLOCK_TURBO_PERCENT_DOWN      ///< Clock speed specified in % below turbo value  
+
 } ecmdClockSpeedType_t;
 
 /**
