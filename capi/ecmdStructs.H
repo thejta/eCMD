@@ -221,10 +221,6 @@ typedef enum {
   ECMD_EXIST_REVERSE_LOOP,              ///< Use the ecmdExistLooper* functions, but reverse the order of the data after the init
 } ecmdLoopMode_t;
 
-valgrind --show-reachable=yes --leak-check=full --db-attach=yes ./ecmdclient
-valgrind --show-reachable=yes --leak-check=full --db-attach=yes ./ecmdclient
-
-
 /**
  @brief Used by ecmdConfigLooperInit function to specify what type of data to loop on
 
