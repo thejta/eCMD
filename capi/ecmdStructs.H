@@ -2155,6 +2155,43 @@ inline ecmdSimModelInfo::ecmdSimModelInfo()
 inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
 #endif
 
+/**
+ @brief Used for the ecmdQueryConnectedTargets function to return connection info
+*/
+struct ecmdConnectionData {
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdConnectionData();
+
+  // Destructor
+  ~ecmdConnectionData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
+  ecmdChipTarget targetA;       ///< The chip target of chip A, the one that initiated the connection
+  std::string portA;            ///< The port on chip A that the connection is off of
+  std::string connectionType;   ///< The connectionType between ports A and B
+  std::string portB;            ///< The port on chip B that the connection is off of
+  ecmdChipTarget targetB;       ///< The chip target of chip B, the chip connected to A
+};
+
+#ifndef DOCUMENTATION
+// ecmdConnectionData Constructor
+inline ecmdConnectionData::ecmdConnectionData() {
+}
+
+// ecmdConnectionData Destructor
+inline ecmdConnectionData::~ecmdConnectionData() { }
+#endif
 
 
 

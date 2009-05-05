@@ -1959,11 +1959,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (saveRestore) {
           printed = "Saving the ring state before performing pattern testing.\n";
           ecmdOutput(printed.c_str());   
-          rc = getRing (cuTarget, ringName.c_str(), ringOrgBuffer);
+          rc = getRing(cuTarget, ringName.c_str(), ringOrgBuffer);
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
-
+            ecmdOutputError(printed.c_str());   
+          
             /* Go onto the next one */
             failedRings.push_back(ringlog);
             continue;
@@ -2049,6 +2050,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputError( printed.c_str() );
+            foundProblem = true;
             coeRc = rc;
             continue;
           }
@@ -2081,6 +2083,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputError( printed.c_str() );
+            foundProblem = true;
             coeRc = rc;
             continue;
           }
@@ -2145,7 +2148,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (saveRestore) {
           printed = "Restoring the ring state.\n\n";
           ecmdOutput( printed.c_str() );
-          rc = putRing (cuTarget, ringName.c_str(), ringOrgBuffer);
+          rc = putRing(cuTarget, ringName.c_str(), ringOrgBuffer);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";

@@ -322,6 +322,7 @@ uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_q
 */
 uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
  @brief Query Ring information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -338,6 +339,8 @@ uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_qu
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+#endif // ECMD_REMOVE_RING_FUNCTIONS
+
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
  @brief Query Latch information from the DLL
@@ -361,6 +364,7 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
 */
 uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
+
 #ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
 /**
  @brief Query Array information from the DLL
@@ -379,6 +383,7 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
 */
 uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
+
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 /**
  @brief Query Spy information from the DLL
@@ -512,15 +517,28 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
 bool ecmdQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
 
 /**
+ @brief Query what connections a particular target has to other targets in the system
+ @param i_target Target to query connections of
+ @param i_connectionType The connection, or bus, to find connected targets on.  "ALL" will return all connection types.
+ @param o_connections A list containing all the connections found.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : cage, node, slot, pos<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+uint32_t ecmdQueryConnectedTargets(ecmdChipTarget & i_target, const char * i_connectionType, std::list<ecmdConnectionData> & o_connections); 
+
+/**
  @brief Fetch the detailed chip data structure for the selected target
- @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
  @param i_target ecmdChipTarget that information is requested for
  @param o_data ecmdChipData struct that contains detailed info on chip ec level, etc.
+ @retval ECMD_SUCCESS if chip data for target is found, non-zero otherwise
 
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
  */
-uint32_t ecmdGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
+uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
 //@}
 
 
