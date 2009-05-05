@@ -1777,6 +1777,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     char buf[200];
     while (ecmdLooperNext(target, looperData)) {
 
+      connectionData.clear(); // Reset each time through
       rc = ecmdQueryConnectedTargets(target, connectionType.c_str(), connectionData);
       if (rc) {
         printed = "ecmdquery - Error occured performing ecmdQueryConnectedTargets on ";
@@ -1789,16 +1790,14 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         validPosFound = true;     
       }
 
-      sprintf(buf,"\nAvailable connections for %s:\n", ecmdWriteTarget(target).c_str());
+      sprintf(buf,"\nAvailable connections for %s:\n", ecmdWriteTarget(target, ECMD_DISPLAY_TARGET_HYBRID).c_str());
       ecmdOutput(buf);
-      printed = "Target A     Port A   Connection Type Port B   Target B\n";
+      printed = "Target A                  Port A          Connection Type Port B          Target B\n";
       ecmdOutput(printed.c_str());
-      printed = "------------ -------- --------------- -------- ------------\n";
+      printed = "------------------------- --------------- --------------- --------------- ------------------------\n";
       ecmdOutput(printed.c_str());
       for (connIter = connectionData.begin(); connIter != connectionData.end(); connIter++) {
-
-        printed = "";
-        sprintf(buf,"%s %s %s %s %s\n", ecmdWriteTarget(connIter->targetA, ECMD_DISPLAY_TARGET_HYBRID).c_str(), connIter->portA.c_str(), connIter->connectionType.c_str(), connIter->portB.c_str(), ecmdWriteTarget(connIter->targetB, ECMD_DISPLAY_TARGET_HYBRID).c_str());
+        sprintf(buf,"%-25s %-15s %-15s %-15s %-25s\n", ecmdWriteTarget(connIter->targetA, ECMD_DISPLAY_TARGET_HYBRID).c_str(), connIter->portA.c_str(), connIter->connectionType.c_str(), connIter->portB.c_str(), ecmdWriteTarget(connIter->targetB, ECMD_DISPLAY_TARGET_HYBRID).c_str());
         ecmdOutput(buf);
       }
     }
