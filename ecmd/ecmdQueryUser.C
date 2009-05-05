@@ -54,7 +54,7 @@
 uint32_t ecmdQueryUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   std::string printed;
-  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdLooperData looperData;            ///< Store internal Looper data
 
 
   /************************************************************************/
@@ -70,23 +70,20 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  /* ----------- */
+  /* scoms       */
+  /* ----------- */
+  if (!strcmp(argv[0], "scoms")) {
 
-  /* ---------- */
-  /* rings      */
-  /* ---------- */
-
-  if (!strcmp(argv[0], "rings")) {
-
-    char invmask = 'N';
-    char chkable  = 'N';
-    char broadmode = 'N';
     std::string isChipUnit = "N";
-    std::list<ecmdRingData> ringdata;
-    std::list<ecmdRingData>::iterator ringit;
-    std::list<std::string>::iterator strit;
+    uint32_t address =0xFFFFFFFF;
+    char addrStr[20];
+
+    std::list<ecmdScomData> scomdata;
+    std::list<ecmdScomData>::iterator scomit;
 
     if (argc < 2) {
-      ecmdOutputError("ecmdquery - Too few arguments specified for rings; you need at least a query rings <chipname>.\n");
+      ecmdOutputError("ecmdquery - Too few arguments specified for scoms; you need at least a query scoms <chipname>.\n");
       ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
@@ -105,16 +102,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
+    if (argv[2] != NULL) {
+      address = strtoul(argv[2], NULL, 16);
+    }
+    while (ecmdLooperNext(target, looperData)) {
 
-    while (ecmdLooperNext(target, looperdata)) {
-
-      rc = ecmdQueryRing(target, ringdata,argv[2]);
+      rc = ecmdQueryScom(target, scomdata, address);
       if (rc) {
-        printed = "ecmdquery - Error occured performing ring query on ";
+        printed = "ecmdquery - Error occured performing scom query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -125,7 +124,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
 
       /* Let's look up other info about the chip, namely the ec level */
-      rc = ecmdGetChipData(target, chipdata);
+      rc = ecmdGetChipData (target, chipdata);
       if (rc) {
         printed = "ecmdquery - Unable to lookup ec information for chip ";
         printed += ecmdWriteTarget(target);
@@ -133,35 +132,25 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         ecmdOutputError( printed.c_str() );
         return rc;
       }
-        
-      sprintf(buf,"\nAvailable rings for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Ring Names                          Address     Length ChipUnit Mask Check Broad ClockDomain       ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "----------------------------------- ----------  ------ -------- ---- ----- ----- ----------------- ----------\n"; ecmdOutput(printed.c_str());
-      for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
+
+      sprintf(buf,"\nAvailable scoms for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      printed = "Scom Address  ChipUnit  Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "------------  --------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
+
+      for (scomit = scomdata.begin(); scomit != scomdata.end(); scomit ++) {
 
         printed = "";
-        /* The Ring Names */
-        for (strit = ringit->ringNames.begin(); strit != ringit->ringNames.end(); strit ++) {
-          if (strit != ringit->ringNames.begin()) printed += ", ";
-          printed += (*strit);
-        }
-        for (size_t i = printed.length(); i <= 35; i++) { 
+
+        sprintf(addrStr, "%8.8X", scomit->address);
+        printed += addrStr;
+
+        for (size_t i = printed.length(); i <= 13; i++) { 
           printed += " ";
         }
 
-        if(ringit->hasInversionMask) {
-          invmask = 'Y';
-        } else {
-          invmask = 'N';
-        }
-
-        if (ringit->isCheckable) {
-          chkable = 'Y';
-        } else chkable = 'N';
-
-        if (ringit->isChipUnitRelated) {
-          if (ringit->relatedChipUnit != "") {
-            isChipUnit = ringit->relatedChipUnit;
+        if (scomit->isChipUnitRelated) {
+          if (scomit->relatedChipUnit != "") {
+            isChipUnit = scomit->relatedChipUnit;
           } else {
             isChipUnit = "Y";
           }
@@ -169,20 +158,16 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isChipUnit = "N";
         }
 
-        if (ringit->supportsBroadsideLoad) {
-          broadmode = 'Y';
-        } else broadmode = 'N';
+        sprintf(buf,"%8s  %-7d %-21s", isChipUnit.c_str() ,scomit->length, scomit->clockDomain.c_str());
+        printed += (std::string)buf;
 
-        sprintf(buf,"0x%.8X  %6d %8s %4c %5c %5c %-18s", ringit->address, ringit->bitLength, isChipUnit.c_str(), invmask, chkable, broadmode,ringit->clockDomain.c_str());
-        printed += buf;
-
-        if (ringit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
+        if (scomit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
           printed += "UNKNOWN\n";
-        else if (ringit->clockState == ECMD_CLOCKSTATE_ON)
+        else if (scomit->clockState == ECMD_CLOCKSTATE_ON)
           printed += "ON\n";
-        else if (ringit->clockState == ECMD_CLOCKSTATE_OFF)
+        else if (scomit->clockState == ECMD_CLOCKSTATE_OFF)
           printed += "OFF\n";
-        else if (ringit->clockState == ECMD_CLOCKSTATE_NA)
+        else if (scomit->clockState == ECMD_CLOCKSTATE_NA)
           printed += "NA\n";
 
         ecmdOutput(printed.c_str());
@@ -193,7 +178,6 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
 
 
     /* ----------- */
@@ -229,12 +213,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperData)) {
 
       rc = ecmdQuerySpy(target, spydata,argv[2]);
       if (rc) {
@@ -374,12 +358,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperData)) {
 
       rc = ecmdQueryTraceArray(target, tracearraydata,argv[2]);
       if (rc) {
@@ -481,12 +465,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperData)) {
 
       rc = ecmdQueryFastArray(target, fastarraydata,argv[2]);
       if (rc) {
@@ -557,20 +541,22 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 #endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
 
-    /* ----------- */
-    /* scoms       */
-    /* ----------- */
-  } else if (!strcmp(argv[0], "scoms")) {
+  /* ---------- */
+  /* rings      */
+  /* ---------- */
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
+  } else if (!strcmp(argv[0], "rings")) {
 
+    char invmask = 'N';
+    char chkable  = 'N';
+    char broadmode = 'N';
     std::string isChipUnit = "N";
-    uint32_t address =0xFFFFFFFF;
-    char addrStr[20];
-    
-    std::list<ecmdScomData> scomdata;
-    std::list<ecmdScomData>::iterator scomit;
+    std::list<ecmdRingData> ringdata;
+    std::list<ecmdRingData>::iterator ringit;
+    std::list<std::string>::iterator strit;
 
     if (argc < 2) {
-      ecmdOutputError("ecmdquery - Too few arguments specified for scoms; you need at least a query scoms <chipname>.\n");
+      ecmdOutputError("ecmdquery - Too few arguments specified for rings; you need at least a query rings <chipname>.\n");
       ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
@@ -589,18 +575,16 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
-    if (argv[2] != NULL) {
-      address = strtoul(argv[2], NULL, 16);
-    }
-    while (ecmdLooperNext(target, looperdata)) {
 
-      rc = ecmdQueryScom(target, scomdata, address);
+    while (ecmdLooperNext(target, looperData)) {
+
+      rc = ecmdQueryRing(target, ringdata,argv[2]);
       if (rc) {
-        printed = "ecmdquery - Error occured performing scom query on ";
+        printed = "ecmdquery - Error occured performing ring query on ";
         printed += ecmdWriteTarget(target);
         printed += "\n";
         ecmdOutputError( printed.c_str() );
@@ -611,7 +595,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
 
       /* Let's look up other info about the chip, namely the ec level */
-      rc = ecmdGetChipData (target, chipdata);
+      rc = ecmdGetChipData(target, chipdata);
       if (rc) {
         printed = "ecmdquery - Unable to lookup ec information for chip ";
         printed += ecmdWriteTarget(target);
@@ -620,24 +604,34 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         return rc;
       }
         
-      sprintf(buf,"\nAvailable scoms for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Scom Address  ChipUnit  Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------  --------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
-
-      for (scomit = scomdata.begin(); scomit != scomdata.end(); scomit ++) {
+      sprintf(buf,"\nAvailable rings for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
+      printed = "Ring Names                          Address     Length ChipUnit Mask Check Broad ClockDomain       ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "----------------------------------- ----------  ------ -------- ---- ----- ----- ----------------- ----------\n"; ecmdOutput(printed.c_str());
+      for (ringit = ringdata.begin(); ringit != ringdata.end(); ringit ++) {
 
         printed = "";
-        
-        sprintf(addrStr, "%8.8X", scomit->address);
-	printed += addrStr;
-	
-	for (size_t i = printed.length(); i <= 13; i++) { 
+        /* The Ring Names */
+        for (strit = ringit->ringNames.begin(); strit != ringit->ringNames.end(); strit ++) {
+          if (strit != ringit->ringNames.begin()) printed += ", ";
+          printed += (*strit);
+        }
+        for (size_t i = printed.length(); i <= 35; i++) { 
           printed += " ";
         }
 
-        if (scomit->isChipUnitRelated) {
-          if (scomit->relatedChipUnit != "") {
-            isChipUnit = scomit->relatedChipUnit;
+        if(ringit->hasInversionMask) {
+          invmask = 'Y';
+        } else {
+          invmask = 'N';
+        }
+
+        if (ringit->isCheckable) {
+          chkable = 'Y';
+        } else chkable = 'N';
+
+        if (ringit->isChipUnitRelated) {
+          if (ringit->relatedChipUnit != "") {
+            isChipUnit = ringit->relatedChipUnit;
           } else {
             isChipUnit = "Y";
           }
@@ -645,16 +639,20 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isChipUnit = "N";
         }
 
-        sprintf(buf,"%8s  %-7d %-21s", isChipUnit.c_str() ,scomit->length, scomit->clockDomain.c_str());
-        printed += (std::string)buf;
-	
-        if (scomit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
+        if (ringit->supportsBroadsideLoad) {
+          broadmode = 'Y';
+        } else broadmode = 'N';
+
+        sprintf(buf,"0x%.8X  %6d %8s %4c %5c %5c %-18s", ringit->address, ringit->bitLength, isChipUnit.c_str(), invmask, chkable, broadmode,ringit->clockDomain.c_str());
+        printed += buf;
+
+        if (ringit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
           printed += "UNKNOWN\n";
-        else if (scomit->clockState == ECMD_CLOCKSTATE_ON)
+        else if (ringit->clockState == ECMD_CLOCKSTATE_ON)
           printed += "ON\n";
-        else if (scomit->clockState == ECMD_CLOCKSTATE_OFF)
+        else if (ringit->clockState == ECMD_CLOCKSTATE_OFF)
           printed += "OFF\n";
-        else if (scomit->clockState == ECMD_CLOCKSTATE_NA)
+        else if (ringit->clockState == ECMD_CLOCKSTATE_NA)
           printed += "NA\n";
 
         ecmdOutput(printed.c_str());
@@ -665,7 +663,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
 
     /* ----------- */
@@ -699,12 +697,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
     
-    while (ecmdLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperData)) {
 
       rc = ecmdQueryArray(target, arraydata, argv[2]);
       if (rc) {
@@ -835,12 +833,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /************************************************************************/
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperData)) {
 
       rc = ecmdQueryProcRegisterInfoHidden(target, procRegName.c_str(), procInfo);
       if (rc) {
@@ -1695,12 +1693,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
 
     char buf[200];
 
-    while (ecmdLooperNext(target, looperdata)) {
+    while (ecmdLooperNext(target, looperData)) {
 
       /* Let's look up other info about the chip, namely the ec level */
       rc = ecmdGetChipData (target, chipdata);
@@ -1735,6 +1733,74 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       sprintf(buf,  "Chip Flags       : %.08X\n", chipdata.chipFlags); ecmdOutput(buf);
       ecmdOutput(   "*******************************************************\n");
 
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    /* ----------- */
+    /* connections */
+    /* ----------- */
+  } else if (!strcmp(argv[0],"connections")) {
+
+    std::list<ecmdConnectionData> connectionData;
+    std::list<ecmdConnectionData>::iterator connIter;
+    std::string connectionType = "ALL";
+
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for connections; you need at least query connections <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.threadState = target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+
+    // See if they passed in a connectionType.  If so, use that
+    if (argv[2] != NULL) {
+      connectionType = argv[2]; 
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    bool validPosFound = false;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    char buf[200];
+    while (ecmdLooperNext(target, looperData)) {
+
+      rc = ecmdQueryConnectedTargets(target, connectionType.c_str(), connectionData);
+      if (rc) {
+        printed = "ecmdquery - Error occured performing ecmdQueryConnectedTargets on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      sprintf(buf,"\nAvailable connections for %s:\n", ecmdWriteTarget(target).c_str());
+      ecmdOutput(buf);
+      printed = "Target A     Port A   Connection Type Port B   Target B\n";
+      ecmdOutput(printed.c_str());
+      printed = "------------ -------- --------------- -------- ------------\n";
+      ecmdOutput(printed.c_str());
+      for (connIter = connectionData.begin(); connIter != connectionData.end(); connIter++) {
+
+        printed = "";
+        sprintf(buf,"%s %s %s %s %s\n", ecmdWriteTarget(connIter->targetA, ECMD_DISPLAY_TARGET_HYBRID).c_str(), connIter->portA.c_str(), connIter->connectionType.c_str(), connIter->portB.c_str(), ecmdWriteTarget(connIter->targetB, ECMD_DISPLAY_TARGET_HYBRID).c_str());
+        ecmdOutput(buf);
+      }
     }
 
     if (!validPosFound) {

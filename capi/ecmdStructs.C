@@ -6264,34 +6264,31 @@ void  ecmdSimModelInfo::printStruct() {
 
 
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              prahl    Initial Creation
-//  @01x 492138        02/10/05 prahl    Fix ecmdThreadData::unflatten overflow
-//                                       check & Added underflow check 
-//                                       to ecmdQueryData::unflatten
-//  @02  494820        03/01/05 scottw   Add ecmdArrayEntry flatten, unflatten
-//                                        and flattensize
-//  none F494212       03/06/05 baiocchi Added flatten/unflatten/flattenSize/printStruct
-//                                        for ecmdRingData and ecmdArrayData
-//  none F497173       03/18/05 scottw   Added printStruct for ecmdArrayEntry
-//  @03  D516687       08/16/05 prahl    fix ecmdNodeData::unflatten method
-//  @04  D532808       01/26/06 prahl    update ecmdArrayData methods for new
-//                                       isCoreRelated field.
-//  @05  FW026865      03/29/06 scottw   Fill in flatten{Size}, unflatten,
-//                                        printStruct for ecmdScomData
-//  @06  FW026866      03/29/06 scottw   Fill in flatten{Size}, unflatten,
-//                                        printStruct for ecmdLatchData
-//  @07  FW038451      03/30/06 scottw   Add flatten, unflatten, flattenSize,
-//                                        and printStruct for ecmdI2CCmdEntry
-//  @08  FW041574      03/31/06 scottw   Store bools as uint32_t
-//  @09  D546092       04/12/06 prahl    Fix unflatten to clear list data
-//  @10  L9285         11/20/07 heuser   ecmdMcmThermalData added      removed 03/28/08
-//  @0b  D608981       07/23/07 honi     Fix endian in flatten/unflatten in core and thread data
-//                                       and ecmdProcRegisterInfo
-//  none D672342       12/13/08 honi     Update flatten/unflatten of chipunit shortname
-// End Change Log *****************************************************
+/*
+ * The following methods for the ecmdConnectionData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) {
+  return ECMD_FUNCTION_NOT_SUPPORTED;
+}
 
+uint32_t ecmdConnectionData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
+  return ECMD_FUNCTION_NOT_SUPPORTED;
+}
 
+uint32_t ecmdConnectionData::flattenSize() {
+  return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdConnectionData::printStruct() {
+
+  printf("\n\t--- Connection Data Structure ---\n");
+
+  // Print non-list data.
+  printf("\tPort A:  %s\n", portA.c_str());
+  printf("\tConnection Type:  %s\n", connectionType.c_str());
+  printf("\tPort B:  %s\n", portB.c_str());
+
+}
+#endif

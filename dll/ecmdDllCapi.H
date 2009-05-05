@@ -60,8 +60,10 @@ uint32_t dllQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_qu
 
 uint32_t dllQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype); 
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail); 
 
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail); 
 
@@ -91,6 +93,8 @@ uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileTy
 bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
 
 bool dllQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
+
+uint32_t dllQueryConnectedTargets(ecmdChipTarget & i_target, const char * i_connectionType, std::list<ecmdConnectionData> & o_connections); 
 
 uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data); 
 
