@@ -95,7 +95,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -206,7 +206,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -351,7 +351,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -458,7 +458,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -568,7 +568,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -690,7 +690,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = argv[1];
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
@@ -812,7 +812,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.coreState = ECMD_TARGET_FIELD_UNUSED;
+    target.threadState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
 
     // chipUnitType is required from user since this query is chipUnit depth
     target.chipUnitType = chipUnitType;
@@ -1385,7 +1385,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
                       printed = sbuf + buf;
                       ecmdOutput(printed.c_str());
                     }
-                  } /* threadCoreIter */
+                  } /* curThreadIter */
 
                 } else {
                   /* For non-threaded chips */
@@ -1478,7 +1478,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     /* Start looking at the cage level */
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    target.nodeState = target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    target.nodeState = target.slotState = target.chipTypeState = target.posState = target.chipUnitNumState = target.chipUnitTypeState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     if (!strcmp(argv[0],"showconfig")) {
       rc = ecmdQueryConfig(target, cageQueryData, ECMD_QUERY_DETAIL_HIGH);
@@ -1496,7 +1496,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       target.cage = ecmdCurCage->cageId;
       target.cageState = ECMD_TARGET_FIELD_VALID;
       target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-      target.slotState = target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      target.slotState = target.chipTypeState = target.posState = target.chipUnitNumState = target.chipUnitTypeState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
       if (!strcmp(argv[0],"showconfig")) {
         rc = ecmdQueryConfig(target, nodeQueryData, ECMD_QUERY_DETAIL_HIGH);
@@ -1526,7 +1526,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         target.node = ecmdCurNode->nodeId;
         target.nodeState = ECMD_TARGET_FIELD_VALID;
         target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-        target.chipTypeState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+        target.chipTypeState = target.posState = target.chipUnitNumState = target.chipUnitTypeState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
         if (!strcmp(argv[0],"showconfig")) {
           rc = ecmdQueryConfig(target, slotQueryData, ECMD_QUERY_DETAIL_HIGH);
@@ -1558,7 +1558,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           target.slot = ecmdCurSlot->slotId;
           target.slotState = ECMD_TARGET_FIELD_VALID;
           target.chipTypeState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-          target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+          target.chipUnitNumState = target.chipUnitTypeState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
           if (!strcmp(argv[0],"showconfig")) {
             rc = ecmdQueryConfig(target, chipQueryData, ECMD_QUERY_DETAIL_HIGH);
@@ -1748,6 +1748,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::list<ecmdConnectionData> connectionData;
     std::list<ecmdConnectionData>::iterator connIter;
     std::string connectionType = "ALL";
+    std::string chipType, chipUnitType;
 
     if (argc < 2) {
       ecmdOutputError("ecmdquery - Too few arguments specified for connections; you need at least query connections <chipname>.\n");
@@ -1757,10 +1758,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
-    target.chipType = argv[1];
+    ecmdParseChipField(argv[1], chipType, chipUnitType);
+    target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+
+    /* Check for a chip unit */
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    }
 
     // See if they passed in a connectionType.  If so, use that
     if (argv[2] != NULL) {
