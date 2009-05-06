@@ -530,10 +530,9 @@ bool ecmdQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData =
  | A |--------- -----------------  ---------| B |--------- -----------------  ---------| C |
  |   |                                      |   |                                      |   |
  -----                                      -----                                      -----
-
- NOTE: This interface will return only direction connections.  In the scenario above, passing in the target for A will only return B and the A1B1 connection. If you want to get C, you would have to recall the interface using B as the input target to get B2C1
  </pre>
 
+ NOTE: This interface will return only direction connections.  In the scenario above, passing in the target for A will only return B and the A1B1 connection. If you want to get C, you would have to recall the interface using B as the input target to get B2C1
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be Initialized<br>
 */
