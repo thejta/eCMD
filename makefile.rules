@@ -140,8 +140,10 @@ endif
 
 # Figure out how many gmake threads to run
 ifeq (${OS},aix)
-  #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
-  GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)
+  ifeq ($(strip $(shell /usr/bin/ls /etc/lsdev 2>&1)),/etc/lsdev)
+    #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
+    GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)
+  endif
 else
   #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell cat /proc/cpuinfo | grep -c processor)
   GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `cat /proc/cpuinfo | grep -c processor` \* 2)
