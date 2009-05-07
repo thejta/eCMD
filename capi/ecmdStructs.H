@@ -570,8 +570,6 @@ typedef enum {
   ECMD_UTILIZATION_UNIT_P             ///< Percentage
 } ecmdUtilizationUnit_t;
 
-
-
 //--------------------------------------------------------------------
 //  Structures                                    
 //--------------------------------------------------------------------
@@ -2194,6 +2192,38 @@ inline ecmdConnectionData::~ecmdConnectionData() { }
 #endif
 
 
+/**
+ @brief Used by getRingDump function to return data
+*/
+struct ecmdRingDumpEntry {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdRingDumpEntry();
+
+  // Destructor
+  ~ecmdRingDumpEntry();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  void printStruct(void);
+#endif
+#endif
+
+  // Members
+  ecmdLatchEntry latch;         ///< Info about the latch that goes with the data
+  ecmdDataBuffer data;          ///< The data that goes with the latch
+};
+
+#ifndef DOCUMENTATION
+// ecmdLatchEntry Constructor
+inline ecmdRingDumpEntry::ecmdRingDumpEntry() { }
+
+// ecmdLatchEntry Destructor
+inline ecmdRingDumpEntry::~ecmdRingDumpEntry() { }
+#endif
 
 
 /* @name Misc functions */

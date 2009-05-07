@@ -1,5 +1,5 @@
 
-Syntax: simgettcfac <facname> [<row> | -subset <startbit> <numbits>] [-o<format>]
+Syntax: simgettcfac <facname> [row] [-subset <startbit> <numbits>] [-o<format>]
         [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
@@ -10,11 +10,11 @@ Syntax: simgettcfac <facname> [<row> | -subset <startbit> <numbits>] [-o<format>
         --------------------------------------------------------------------------------
         facname         Must be a facility name
 
-        row  [optional] Facility row - not valid with -subset
+        row  [optional] Facility row
  
-        startbit  [opt] Facility offset - not valid with row
+        startbit  [opt] Facility offset
 
-        numbits   [opt] Number of bits from startbit to read - not valid with row
+        numbits   [opt] Number of bits from startbit to read
 
         -o<format>[opt] Specifies the format type of the output : default 'xr'
                         Run 'ecmdquery formats' to view available formats
