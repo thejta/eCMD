@@ -2794,6 +2794,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 }
 
 uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char * i_ringName, std::list<ecmdLatchEntry> & o_data, bool i_sorted) {
+#if 0
   uint32_t rc = ECMD_SUCCESS;
 
   rc = dllRing(cuTarget, ringName.c_str(), ringBuffer);
@@ -2978,6 +2979,9 @@ uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char * i_ringName, std:
   }/* Case-Sort */
 
   return rc;
+#endif
+
+  return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 
