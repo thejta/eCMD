@@ -539,15 +539,15 @@ uint32_t ecmdSimgettcfacUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
   /* They want a subset of bits, not the entire thing */
-  bool useSubset = false;
-  if (ecmdParseOption(&argc, &argv, "-subset"))
-    useSubset = true;
+  bool useSubset  = ecmdParseOption(&argc, &argv, "-subset");
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
@@ -1070,9 +1070,14 @@ uint32_t ecmdSimstktcfacUser(int argc, char * argv[]) {
   }
 
   /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  /* They want a subset of bits, not the entire thing */
+  bool useSubset  = ecmdParseOption(&argc, &argv, "-subset");
+
+  /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 

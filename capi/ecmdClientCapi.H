@@ -597,6 +597,28 @@ uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
 uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
+#if !defined(ECMD_REMOVE_RING_FUNCTIONS) && !defined(ECMD_REMOVE_LATCH_FUNCTIONS)
+/**
+ @brief Scans the ring from the selected chip into the data buffer
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @see putRing
+
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRingDump(ecmdChipTarget & i_target, const char * i_ringName, std::list<ecmdLatchEntry> & o_data, bool i_sorted = true); 
+#endif // ECMD_REMOVE_RING_FUNCTIONS ECMD_REMOVE_LATCH_FUNCTIONS
+
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
  @brief Reads the selected spy into the data buffer
