@@ -27,6 +27,7 @@
 #include <ecmdDataBuffer.H>
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
+#include <algorithm>
 
 //----------------------------------------------------------------------
 //  User Types
