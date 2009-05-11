@@ -1808,7 +1808,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       debugFunctionOuput(printed.c_str());
 
     } else if((!strcmp(variableType,"ecmdDataBuffer &")) ||
-              (!strcmp(variableType,"ecmdDataBuffer&"))    ) {
+              (!strcmp(variableType,"ecmdDataBuffer&"))  ||
+              (!strcmp(variableType,"ecmdDataBuffer"))   ) {
       /***
        private:  //data
        int iv_Capacity;              ///< Actual buffer capacity - always >= iv_NumWords
