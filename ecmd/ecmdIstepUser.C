@@ -648,6 +648,12 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   } else if ((strpos = clockspeed.find("pspd")) != std::string::npos) {
     speedType = ECMD_CLOCK_POWERSAVE_PERCENT_DOWN;
     clockspeed.erase(strpos, clockspeed.length()-strpos);
+  } else if ((strpos = clockspeed.find("tpu")) != std::string::npos) {
+    speedType = ECMD_CLOCK_TURBO_PERCENT_UP;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
+  } else if ((strpos = clockspeed.find("tpd")) != std::string::npos) {
+    speedType = ECMD_CLOCK_TURBO_PERCENT_DOWN;
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
   } // this needs to be after pspu and pspd so that those are found
     else if ((strpos = clockspeed.find("ps")) != std::string::npos) {
     speedType = ECMD_CLOCK_CYCLETIME_PS_SPEC;
