@@ -734,7 +734,6 @@ uint32_t ecmdDisplayDllInfo() {
 
 
   return rc;
-
 }
 
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
