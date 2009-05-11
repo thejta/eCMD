@@ -104,10 +104,6 @@ uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
 uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
-#if !defined(ECMD_REMOVE_RING_FUNCTIONS) && !defined(ECMD_REMOVE_LATCH_FUNCTIONS)
-uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char * i_ringName, std::list<ecmdLatchEntry> & o_data, bool i_sorted); 
-
-#endif // ECMD_REMOVE_RING_FUNCTIONS ECMD_REMOVE_LATCH_FUNCTIONS
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
 
