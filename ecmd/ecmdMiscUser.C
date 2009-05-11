@@ -1711,14 +1711,300 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
 
 }
 
-uint32_t ecmdGetSensorUser(int, char**)
+uint32_t ecmdGetSensorUser(int argc, char* argv[]) 
 {
- ecmdOutputError("ecmdGetSensorUser is NOT supported yet\n");
 
- return ECMD_FUNCTION_NOT_SUPPORTED;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  
+  std::string printed;                  //< Output data
+  ecmdChipTarget target;
+  ecmdLooperData looperdata;            //< Store internal Looper data
+  bool validPosFound = false;           //< Did we find a valid chip in the looper
+  std::string outputformat = "d";       //< Display format for output
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc != 5) {
+    ecmdOutputError("getsensor - Too few arguments, Type 'getsensor -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Read the sensorType and its unit
+  std::string sensorType = argv[1];
+  std::string unit = argv[4];
+
+  transform(sensorType.begin(), sensorType.end(), sensorType.begin(), (int(*)(int)) tolower);
+  transform(unit.begin(), unit.end(), unit.begin(), (int(*)(int)) tolower);
+
+  //Read sensorId
+  std::string sensorId = argv[2];
+  transform(sensorId.begin(), sensorId.end(), sensorId.begin(), (int(*)(int)) tolower);
+
+  //Read readMode string
+  ecmdSensorReadMode_t readMode =  ECMD_SENSOR_READ_MODE_DEFAULT;
+  std::string modeStr = argv[3];
+  transform(modeStr.begin(), modeStr.end(), modeStr.begin(), (int(*)(int)) tolower);
+
+  if (modeStr == "1ms"){
+    readMode = ECMD_SENSOR_READ_MODE_1ms;
+  }else if(modeStr == "8ms"){
+    readMode = ECMD_SENSOR_READ_MODE_8ms;
+  }else if(modeStr == "32ms"){
+    readMode = ECMD_SENSOR_READ_MODE_32ms;
+  }else if(modeStr == "1s"){
+    readMode = ECMD_SENSOR_READ_MODE_1s;
+  }else if(modeStr == "8s"){
+    readMode = ECMD_SENSOR_READ_MODE_8s;
+  }else {
+    ecmdOutputError("getsensor - Invalid sensor readMode. Type 'getsensor -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //setup target
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0],chipType,chipUnitType);
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  uint32_t o_data = 0; //the output return value
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    if (sensorType == "thermal") 
+    {
+      ecmdThermalUnit_t sensorUnit; //thermal unit
+      if(unit == "dc") 
+      {
+        //deci degree Celcius
+        sensorUnit = ECMD_THERMAL_UNIT_dC;
+      }
+      else if(unit == "c") 
+      {
+        //degree celcius
+        sensorUnit = ECMD_THERMAL_UNIT_C;
+      }
+      else 
+      {
+        ecmdOutputError("getsensor - Invalid unit for thermal sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get thermal sensor
+      rc =  ecmdGetThermalSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "power")
+    {
+      ecmdPowerUnit_t sensorUnit;
+      if(unit == "uw") 
+      {
+        //microWatt
+        sensorUnit = ECMD_POWER_UNIT_uW;
+      }
+      else if(unit == "mw")
+      {
+        //milliWatt
+        sensorUnit = ECMD_POWER_UNIT_mW;
+      }
+      else if(unit == "dw") 
+      {
+        //deciWatt
+        sensorUnit = ECMD_POWER_UNIT_dW;
+      }
+      else if(unit == "w")
+      {
+        //Watt
+        sensorUnit = ECMD_POWER_UNIT_W;
+      }
+      else
+      {
+        ecmdOutputError("getsensor - Invalid unit for power sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get power sensor
+      rc =  ecmdGetPowerSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "voltage") 
+    {
+      ecmdVoltageUnit_t sensorUnit;
+      if(unit == "mv")
+      {
+        //milliVolt
+        sensorUnit = ECMD_VOLTAGE_UNIT_mV;
+      }
+      else if(unit == "v")
+      {
+        //Volt
+        sensorUnit = ECMD_VOLTAGE_UNIT_V;
+      }
+      else
+      {
+        ecmdOutputError("getsensor - Invalid unit for voltage sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get voltage sensor
+      rc =  ecmdGetVoltageSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "current") 
+    {
+      ecmdCurrentUnit_t sensorUnit;
+      if(unit == "ma") 
+      {
+        //milliAmpere
+        sensorUnit = ECMD_CURRENT_UNIT_mA; 
+      }
+      else if(unit == "a") 
+      {
+        //Ampere
+        sensorUnit = ECMD_CURRENT_UNIT_A;
+      }
+      else { 
+        ecmdOutputError("getsensor - Invalid unit for current sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get current sensor
+      rc =  ecmdGetCurrentSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "humidity") 
+    {
+      ecmdHumidityUnit_t sensorUnit;
+      if(unit == "gm3")
+      {
+        //gram per cubic meter
+        sensorUnit = ECMD_HUMIDITY_UNIT_G_M3;
+      }
+      else if(unit == "p")
+      {
+        //relative percentage
+        sensorUnit = ECMD_HUMIDITY_UNIT_REL_PERCENTAGE;
+      }
+      else { 
+        ecmdOutputError("getsensor - Invalid unit for humidity sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get humidity sensor
+      rc =  ecmdGetHumiditySensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "airdensity") 
+    {
+      ecmdAirDensityUnit_t sensorUnit;
+      if(unit == "kgm3")
+      {
+        //kilogram per cubic meter
+        sensorUnit = ECMD_AIRDENSITY_UNIT_KG_M3;
+      }
+      else 
+      { 
+        ecmdOutputError("getsensor - Invalid unit for airdensity sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      rc =  ecmdGetAirDensitySensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "utilization") 
+    {
+      ecmdUtilizationUnit_t sensorUnit;
+      if(unit == "dp")
+      {
+        //deci Percentage
+        sensorUnit = ECMD_UTILIZATION_UNIT_dP;
+      }
+      else if(unit == "p")
+      {
+        //Percentage
+        sensorUnit = ECMD_UTILIZATION_UNIT_P;
+      }
+      else 
+      { 
+        ecmdOutputError("getsensor - Invalid unit for utilization sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get utilization sensor
+      rc =  ecmdGetUtilizationSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+
+    else if (sensorType == "clockspeed") 
+    {
+      ecmdClockSpeedType_t sensorUnit;
+      if(unit == "mhz") 
+      {
+        //megahertz
+        sensorUnit = ECMD_CLOCK_FREQUENCY_MHZ_SPEC;
+      }
+      else if(unit == "khz")
+      {
+        //kilhertz
+        sensorUnit = ECMD_CLOCK_FREQUENCY_KHZ_SPEC;
+      }
+      else if(unit == "ps")
+      {
+        //picosecond cycle time
+        sensorUnit = ECMD_CLOCK_CYCLETIME_PS_SPEC;
+      }
+      else 
+      {
+        ecmdOutputError("getsensor - Invalid unit for clockspeed sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get clockspeed sensor
+      rc =  ecmdGetClockspeedSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+    }
+    else
+    {
+      ecmdOutputError("getsensor - Invalid sensor type. Type 'getsensor -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    validPosFound = true;//setting true as we did find a target to make sensor call
+    
+    if (rc) {
+      printed = "getsensor - Error occured performing getsensor " + sensorType + " " + sensorId + " on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError(printed.c_str());
+      coeRc = rc;
+    }
+    else {
+      ecmdDataBuffer buf(32);
+      buf.setWord(0,o_data);
+      printed = ecmdWriteTarget(target);
+      printed += ecmdWriteDataFormatted(buf, outputformat);
+
+      ecmdOutput(printed.c_str());
+    }
+  } //end - configLooper 
+
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("getsensor - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
 }
-
 
 // Change Log *********************************************************
 //                                                                      

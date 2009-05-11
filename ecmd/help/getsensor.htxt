@@ -1,36 +1,47 @@
+Syntax: getsensor <chip.[chipUnit]> <sensorType> <sensorId> <[readMode> <unit> 
+        [-k#] [-n#] [-s#] [-p#] [-c#]
 
+    ECMD:         Core Common Function
 
-!!! NOT SUPPORTED YET !!!
+    Function:     Read the specified sensor in the system
 
-Syntax: getsensor <Sensor Type> [read mode]  [return value unit]   [-k#] [-n#] [-s#] [-p#]  [-c#]
+    Parameters:
+    ----------------------------------------------------------------------------
+    chip.[chipUnit] chip/chipUnit to read sensor from.
 
-        ECMD:           Core Common Function
+    sensorType The type of sensor to read. The sensor types are:
+        
+               thermal
+               power
+               voltage
+               current
+               humidity
+               airdensity
+               utilization
+               clockspeed
 
-        Function:       Read the specified sensor in the system.
+    sensorId   The character string of the sensor to read.
 
-        Parameters:
-        --------------------------------------------------------------------------------
-        Sensor Type       Sensor type to read :     
-                        defined by the platform 
-	Examples: power_sensor, thermal_sensor
+    readMode   Sensor read modes:
 
-        read mode      ECMD_READ_MODE_DEFAULT, or 1ms integral value,
-         
-       return value unit      ms | ps | mv | v ... etc                
+               1ms (instantaneous value)
+               8ms
+               32ms
+               1s
+               8s
 
-        -k#  [optional] Specify which cage to act on (0 is default). Specify -kall
-                        to act on all cages.
+    unit       Unit of the output value of the sensor type specified.
+               The units for different sensor types are:
 
-        -n#  [optional] Specify which node to act on (0 is default). Specify -nall
-                        to act on all nodes.
+               thermal    : dc (Celcius deciDegree), c (Celsius Degree)
+               power      : uw (microWatt),mw(milliWatt),dw(deciWatt),w(watt)
+               voltage    : mv (milliVolt), v (Volt)
+               current    : ma (milliAmpere), a (Ampere)
+               humidity   : gm3(gram per cubic meter), p(relative percentage)
+               airdensity : kgm3 (kilogram per cubic meter)
+               utilization: dp (deciPercentage), p (Percentage)
+               clockspeed : mhz (megaHertz), khz(kiloHertz), ps(picosecond)
 
-        -s#  [optional] Specify which slot to act on (0 is default). Specify -sall
-                        to act on all slots.
-
-        -p#  [optional] Specify which chip position to act on (0 is default). Specify 
-                        -pall to act on all chips.
-
-        --------------------------------------------------------------------------------
-
-        Examples:     
-
+    ----------------------------------------------------------------------------
+    Example:   getsensor pu power cage_sensor 1ms mw
+               getsensor pu thermal proc_sensor 8ms ma
