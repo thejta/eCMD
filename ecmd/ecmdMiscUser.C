@@ -1773,11 +1773,23 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
   //setup target
   std::string chipType, chipUnitType;
   ecmdParseChipField(argv[0],chipType,chipUnitType);
+
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
+  //if chipUnitType was passed, set a chipUnit target
+  if(chipUnitType != "")
+  {
+    target.chipUnitType = chipUnitType;
+    target.chipUnitTypeState =  ECMD_TARGET_FIELD_VALID;
+    target.chipUnitNumState  =  ECMD_TARGET_FIELD_WILDCARD;
+    target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  }
+  else
+  {
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  }
   uint32_t o_data = 0; //the output return value
 
   /************************************************************************/
