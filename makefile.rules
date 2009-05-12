@@ -12,7 +12,6 @@ ifeq ($(strip $(EXTENSIONS)),)
   export EXTENSIONS
 endif
 
-
 # Figure out the OS
 OS := $(shell uname)
 # We need to do extra for Linux
@@ -25,7 +24,6 @@ ifeq (${OS},Linux)
 else
     OS := aix
 endif
-
 
 ######## Default things we need setup for every compile ########
 # SUBDIR = where the objects are moved to after compile
