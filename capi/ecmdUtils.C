@@ -1575,7 +1575,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       debugFunctionOuput(printed.c_str());
 
-    } else if(!strcmp(variableType,"int")) {
+    } else if((!strcmp(variableType,"int")) ||
+             (!strcmp(variableType,"int&")) ||
+             (!strcmp(variableType,"int &"))) {
       /* int */
 
       int* dummy = (int*)(args[looper]);
@@ -1603,7 +1605,9 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       debugFunctionOuput(printed.c_str());
 
-    } else if(!strcmp(variableType,"uint64_t")) {
+    } else if((!strcmp(variableType,"uint64_t")) ||
+             (!strcmp(variableType,"uint64_t&")) ||
+             (!strcmp(variableType,"uint64_t &"))) {
       /* uint64_t */
       uint64_t* dummy = (uint64_t*)(args[looper]);
 
