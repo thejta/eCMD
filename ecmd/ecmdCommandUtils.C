@@ -1009,6 +1009,7 @@ void setupEcmds(void)
 
     queryTarget.chipType = chipType.c_str() ;
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
     src = ecmdQueryRing(queryTarget,ringDataList,NULL,ECMD_QUERY_DETAIL_HIGH);
 
     if (src==0)
@@ -1032,6 +1033,7 @@ void setupEcmds(void)
     }
     else 
       ecmdOutput( "Unable to get  ecmd ring informaton data"); 
+#endif // ECMD_REMOVE_RING_FUNCTIONS
 
   }
   else {  

@@ -1712,6 +1712,7 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
 
 }
 
+#ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
 uint32_t ecmdGetSensorUser(int argc, char* argv[]) 
 {
 
@@ -2018,6 +2019,7 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
 
   return rc;
 }
+#endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 
 // Change Log *********************************************************
 //                                                                      
