@@ -82,7 +82,7 @@ ifeq ($(strip $(OBJROOT)),)
   OBJROOT  := ${ECMD_ROOT}
 endif
 OBJDIR   := obj_${OS}/
-OBJPATH  := ${OBJROOT}${SUBDIR}${OBJDIR}
+OBJPATH  := ${OBJROOT}/${SUBDIR}/${OBJDIR}
 export OBJROOT
 export OBJDIR
 export OBJPATH
