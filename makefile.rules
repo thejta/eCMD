@@ -139,7 +139,7 @@ endif
 -include ${ECMD_ROOT}/makefile.config
 
 # Try and use distcc if it's available - JTA 03/24/09
-ifneq ($(strip ${NODISTCC}),)
+ifeq ($(strip ${NODISTCC}),)
   ifeq ($(strip $(shell /bin/ls /usr/bin/distcc 2>&1)),/usr/bin/distcc)
     CC       := distcc ${CC}
     CC_R     := distcc ${CC_R}
