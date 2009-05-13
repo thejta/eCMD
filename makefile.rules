@@ -25,6 +25,14 @@ else
     OS := aix
 endif
 
+# Setup the ECMD_ROOT
+# Strip the subdir off the end of the path so it points to the root of the repository
+ECMD_ROOT := $(shell echo ${PWD}/ | sed 's@${SUBDIR}$$@@')
+
+#These are needed to define a space char for substitutions later on
+empty :=
+space := ${empty} ${empty}
+
 ######## Default things we need setup for every compile ########
 # SUBDIR = where the objects are moved to after compile
 # CC_VER = the version of the compiler we are using.  Used by the install rule to grab right shared lib versions
@@ -59,9 +67,9 @@ endif
 
 # AIX:
 #  Added 03/09/09 - when section was created
-#  CC_VER  := 6.0.0.8
-#  CC      := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC.6008
-#  CC_R    := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC_r.6008
+#  CC_VER   := 6.0.0.8
+#  CC       := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC.6008
+#  CC_R     := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC_r.6008
 #  LD       := ${CC}
 #  LD_R     := ${CC_R}
 #  AR       := ar
@@ -69,7 +77,15 @@ endif
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
-SUBDIR   := obj_${OS}/
+# If the user didn't give a dir to place the objects, just do it in their eCMD dirs
+ifeq ($(strip $(OBJROOT)),)
+  OBJROOT  := ${ECMD_ROOT}
+endif
+OBJDIR   := obj_${OS}/
+OBJPATH  := ${OBJROOT}${SUBDIR}${OBJDIR}
+export OBJROOT
+export OBJDIR
+export OBJPATH
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -84,7 +100,7 @@ ifeq (${OS},x86)
   LD_R     := ${CC_R}
   LDFLAGS  :=
   SLDFLAGS := -shared
-  GPATH    := ${SUBDIR}
+  GPATH    := ${OBJDIR}
   AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
 
@@ -99,7 +115,7 @@ ifeq (${OS},ppc)
   LD_R     := ${CC_R}
   LDFLAGS  :=
   SLDFLAGS := -shared
-  GPATH    := ${SUBDIR}
+  GPATH    := ${OBJDIR}
   AR       := ar
 endif
 

@@ -1,11 +1,9 @@
-# Makefile for the ecmd Extensions
-# Written by Chris Engel
-
 # $Header$
+# Makefile for the ecmd Extensions
 
-ECMD_ROOT       := ${PWD}/../../../
-# The default build rules
-include ${ECMD_ROOT}/makefile.rules
+# Base info and default build rules
+SUBDIR     := ext/${EXTENSION_NAME}/perlapi/
+include ../../../makefile.rules
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -22,7 +20,7 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
 
 endif
 
-VPATH := ${VPATH}:../../../capi/${SUBDIR}:../../template/perlapi
+VPATH := ${VPATH}:.${OBJROOT}/capi/${OBJDIR}:../../template/perlapi
 
 # *****************************************************************************
 # The Main Targets
@@ -67,3 +65,10 @@ ifeq ($(strip $(DISABLE_AUTOGEN)),)
 	@echo "==== Auto Generating $@"
 	@sed "s/template/${EXTENSION_NAME}/g" $< | sed "s/TEMPLATE/${EXTENSION_NAME_u}/g" | sed "s/Template/${EXTENSION_NAME_u1}/g" > $@
 endif
+
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug:
+	@echo ${ECMD_ROOT}
+	@echo ${SUBDIR}

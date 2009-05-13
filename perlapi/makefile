@@ -1,11 +1,9 @@
-# Makefile for the ecmd Perl Module
-# Written by Chris Engel
-
 # $Header$
+# Makefile for the ecmd Perl Module
 
-ECMD_ROOT    := ${PWD}/../
-# The default build rules
-include ${ECMD_ROOT}/makefile.rules
+# Base info and default build rules
+SUBDIR     := perlapi/
+include ../makefile.rules
 
 VPATH        := ../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdClientPerlapi.H ecmdBit64.H
@@ -21,9 +19,6 @@ SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi -I../dll -D
 
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi:../ext/${ext}/perlapi)
-#These are needed to define a space char for substitutions later on
-empty :=
-space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H ${ext}ClientCapi.H )
@@ -36,15 +31,15 @@ SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${
 # *****************************************************************************
 PM_TARGET := ecmd.pm
 SO_TARGET := ecmd.so
-LINK_OBJS := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_${OS}.a
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ../ext/${ext}/capi/${SUBDIR}/${ext}ClientCapi_${OS}.a)
-VPATH     := ${VPATH}:${SUBDIR}
+LINK_OBJS := ${LINK_OBJS} ${OBJROOT}capi/${OBJDIR}ecmdClientCapi_${OS}.a
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}ext/${ext}/capi/${OBJDIR}${ext}ClientCapi_${OS}.a)
+VPATH     := ${VPATH}:${OBJPATH}
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},x86)
-  SLDFLAGS  := ${SLDFLAGS} -L../capi/${SUBDIR} -lecmd_x86
+  SLDFLAGS  := ${SLDFLAGS} -L${OBJROOT}/capi/${OBJDIR} -lecmd_x86
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
@@ -63,7 +58,7 @@ endif
 # The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},ppc)
-  SLDFLAGS  := ${SLDFLAGS} -L../capi/${SUBDIR} -lecmd_ppc
+  SLDFLAGS  := ${SLDFLAGS} -L${OBJROOT}/capi/${OBJDIR} -lecmd_ppc
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
@@ -82,7 +77,7 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},aix)
-  SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ../capi/${SUBDIR} -l ecmd_aix
+  SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ${OBJROOT}/capi/${OBJDIR} -l ecmd_aix
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
@@ -109,17 +104,17 @@ clean: objclean
 	rm -f ${GENERATED_INCLUDES}
 
 objclean:
-	rm -rf ${SUBDIR}
+	rm -rf ${OBJPATH}
 	rm -f *.o
 
 install:
 	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/perlapi/`uname`/ ..."
 	@mkdir -p ${INSTALL_PATH}/perlapi/`uname`/
-	cp ${SUBDIR}${PM_TARGET} ${INSTALL_PATH}/perlapi/`uname`/.
-	cp ${SUBDIR}${SO_TARGET} ${INSTALL_PATH}/perlapi/`uname`/.
+	cp ${OBJPATH}${PM_TARGET} ${INSTALL_PATH}/perlapi/`uname`/.
+	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/perlapi/`uname`/.
 
 dir:
-	@mkdir -p ${SUBDIR}
+	@mkdir -p ${OBJPATH}
 
 test: ${SO_TARGET} ${PM_TARGET}
         ifeq (${OS},aix)
@@ -132,10 +127,10 @@ test: ${SO_TARGET} ${PM_TARGET}
 # Object Build Targets
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
-SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SOURCE_OBJS))
+SOURCE_OBJS := $(addprefix ${OBJPATH}, $(SOURCE_OBJS))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 SWIG_OBJS    = $(basename $(SWIG_SOURCE))
-SWIG_OBJS   := $(addprefix ${SUBDIR}, $(SWIG_OBJS))
+SWIG_OBJS   := $(addprefix ${OBJPATH}, $(SWIG_OBJS))
 SWIG_OBJS   := $(addsuffix .o, $(SWIG_OBJS))
 
 # *****************************************************************************
@@ -143,23 +138,23 @@ SWIG_OBJS   := $(addsuffix .o, $(SWIG_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES}
+$(SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES}
 	$(CC_R) -c $(CFLAGS) ${PERLINC} $< -o $@ $(DEFINES)
 
 ${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdClientPerlapi.pl 
-	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${SUBDIR} ecmdClientPerlapi.i
+	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${OBJPATH} ecmdClientPerlapi.i
 
 ${PM_TARGET}: ${SWIG_SOURCE}
-	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${SUBDIR} ecmdClientPerlapi.i
+	${SWIG} ${SWIGFLAGS} -o ${SWIG_SOURCE} -outdir ${OBJPATH} ecmdClientPerlapi.i
 
-${SWIG_OBJS}: ${SUBDIR}%.o : %.C ${SWIG_SOURCE}
+${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE}
 	${CC_R} -c ${CFLAGS} ${PERLINC} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Perl Shared Library
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
-	${LD_R} ${SLDFLAGS} $^ -o ${SUBDIR}${SO_TARGET}
+	${LD_R} ${SLDFLAGS} $^ -o ${OBJPATH}${SO_TARGET}
 
 
 # *****************************************************************************
@@ -176,3 +171,9 @@ ${GENERATED_SOURCE}: ${GENERATED_INCLUDES} makepm.pl
 	@chmod 777 makepm.pl
 	@./makepm.pl ecmd $@
 
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug:
+	@echo ${ECMD_ROOT}
+	@echo ${SUBDIR}
