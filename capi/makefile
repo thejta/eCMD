@@ -1,10 +1,8 @@
-# Makefile for the ecmd Capi
-# Written by Chris Engel
-
 # $Header$
+# Makefile for the ecmd capi
 
-ECMD_ROOT   := ${PWD}/../
-# The default build rules
+# Base info and default build rules
+SUBDIR     := capi/
 include ../makefile.rules
 
 CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H  prdfCompressBuffer.H
@@ -56,7 +54,7 @@ ifeq (${OS},aix)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
-VPATH := ${VPATH}:${SUBDIR}
+VPATH := ${VPATH}:${OBJPATH}
 
 # *****************************************************************************
 # The Main Targets
@@ -69,30 +67,29 @@ clean: objclean
 	rm -f $(GENERATED_INCLUDES)
 
 objclean:
-	rm -rf ${SUBDIR} 
+	rm -rf ${OBJPATH} 
 
 install:
 	@echo "Installing eCMD Client Api to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
-	cp ${SUBDIR}/${TARGET} ${INSTALL_PATH}/capi/.
+	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/capi/.
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
 	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/lib/ ..."
 	@mkdir -p ${INSTALL_PATH}/lib/
-	cp ${SUBDIR}/${SLIB} ${INSTALL_PATH}/lib/.
+	cp ${OBJPATH}/${SLIB} ${INSTALL_PATH}/lib/.
 
 dir:
-	@mkdir -p ${SUBDIR}
-
+	@mkdir -p ${OBJPATH}
 
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************
 CAPI_SOURCE_OBJS  = $(basename $(CAPI_SOURCE))
-CAPI_SOURCE_OBJS := $(addprefix ${SUBDIR}, $(CAPI_SOURCE_OBJS))
+CAPI_SOURCE_OBJS := $(addprefix ${OBJPATH}, $(CAPI_SOURCE_OBJS))
 CAPI_SOURCE_OBJS := $(addsuffix .o, $(CAPI_SOURCE_OBJS))
 SLIB_SOURCE_OBJS  = $(basename $(SLIB_SOURCE))
-SLIB_SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SLIB_SOURCE_OBJS))
+SLIB_SOURCE_OBJS := $(addprefix ${OBJPATH}, $(SLIB_SOURCE_OBJS))
 SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 
 # *****************************************************************************
@@ -100,9 +97,9 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(CAPI_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(CAPI_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-$(SLIB_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SLIB_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -111,14 +108,14 @@ $(SLIB_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
 	@echo "Creating Static client library ..."
-	${AR} r ${SUBDIR}${TARGET} $^
+	${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
-	$(LD) ${SLDFLAGS} -o ${SUBDIR}${SLIB} $^
+	$(LD) ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
@@ -127,3 +124,10 @@ $(GENERATED_SOURCE) $(GENERATED_INCLUDES): ecmdClientCapi.H makedll.pl
 	@echo "==== Auto Generating $@"
 	@chmod 777 makedll.pl
 	@./makedll.pl ecmd $@
+
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug:
+	@echo ${ECMD_ROOT}
+	@echo ${SUBDIR}

@@ -1,11 +1,9 @@
-# Makefile for the ecmd Capi
-# Written by Chris Engel
-
 # $Header$
+# Makefile for the ecmd cmdline
 
-ECMD_ROOT    := ${PWD}/../
-# The default build rules
-include ${ECMD_ROOT}makefile.rules
+# Base info and default build rules
+SUBDIR     := ecmd/
+include ../makefile.rules
 
 VPATH        := ../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
@@ -21,10 +19,7 @@ EXTENSIONS   := $(subst cmd,,${EXTENSIONS})
 # Don't want to include the scand extension, there isn't one
 EXTENSIONS   := $(subst scand,,${EXTENSIONS})
 
-VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/cmd/${SUBDIR}:../ext/${ext}/capi/${SUBDIR}:../ext/${ext}/cmd/:../ext/${ext}/capi/)
-#These are needed to define a space char for substitutions later on
-empty :=
-space := ${empty} ${empty}
+VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../ext/${ext}/cmd/:../ext/${ext}/capi/)
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
@@ -35,14 +30,14 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/cmd -I..
 # *****************************************************************************
 TARGET     := ecmd_${OS}
 VER_TARGET := ecmdVersion_${OS}
-LINK_OBJS  := ${LINK_OBJS} ../capi/${SUBDIR}/ecmdClientCapi_${OS}.a
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_${OS}.a ${SUBDIR}${ext}CmdInterpreter_${OS}.a)
+LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi_${OS}.a
+LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_${OS}.a ${OBJROOT}/ext/${ext}/cmd/${OBJDIR}/${ext}CmdInterpreter_${OS}.a)
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},x86)
-  LDFLAGS    := ${LDFLAGS} -ldl -L../capi/${SUBDIR} -lecmd_x86
+  LDFLAGS    := ${LDFLAGS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd_x86
   CFLAGS     := ${CFLAGS} -ftemplate-depth-30 -Wall
 endif
 
@@ -50,20 +45,20 @@ endif
 # The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},ppc)
-  LDFLAGS    := ${LDFLAGS} -ldl -L../capi/${SUBDIR} -lecmd_ppc
+  LDFLAGS    := ${LDFLAGS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd_ppc
   CFLAGS     := ${CFLAGS} -ftemplate-depth-30 -Wall
-  GPATH      := ${SUBDIR}
+  GPATH      := ${OBJDIR}
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${OS},aix)
-  LDFLAGS    := -brtl -w -L../capi/${SUBDIR} -lecmd_aix
+  LDFLAGS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd_aix
   CFLAGS     := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
-VPATH     := ${VPATH}:${SUBDIR}
+VPATH     := ${VPATH}:${OBJPATH}
 
 # *****************************************************************************
 # The Main Targets
@@ -73,15 +68,14 @@ all: dir ${TARGET} ${VER_TARGET}
 clean: objclean
 
 objclean:
-	rm -rf ${SUBDIR}
+	rm -rf ${OBJPATH}
 
 dir:
-	@mkdir -p ${SUBDIR}
+	@mkdir -p ${OBJPATH}
 
 install:
-	cp ${SUBDIR}/${TARGET} ${INSTALL_PATH}/bin/
-	cp ${SUBDIR}/${VER_TARGET} ${INSTALL_PATH}/bin/
-
+	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/bin/
+	cp ${OBJPATH}/${VER_TARGET} ${INSTALL_PATH}/bin/
 
 # Build the extensions
 extensions:
@@ -101,10 +95,10 @@ extensions:
 # Object Build Targets
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
-SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SOURCE_OBJS))
+SOURCE_OBJS := $(addprefix ${OBJPATH}, $(SOURCE_OBJS))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 VER_SOURCE_OBJS  = $(basename $(VER_SOURCE))
-VER_SOURCE_OBJS := $(addprefix ${SUBDIR}, $(VER_SOURCE_OBJS))
+VER_SOURCE_OBJS := $(addprefix ${OBJPATH}, $(VER_SOURCE_OBJS))
 VER_SOURCE_OBJS := $(addsuffix .o, $(VER_SOURCE_OBJS))
 
 # *****************************************************************************
@@ -112,9 +106,9 @@ VER_SOURCE_OBJS := $(addsuffix .o, $(VER_SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-$(VER_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} 
+$(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} 
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -122,15 +116,23 @@ $(VER_SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES}
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${LD} ${LDFLAGS} $^ -o ${SUBDIR}${TARGET}
+	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${TARGET}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 ifeq (${OS},aix)
-	${LD} ${LDFLAGS}  -brtl -w $^ -o ${SUBDIR}${VER_TARGET}
+	${LD} ${LDFLAGS}  -brtl -w $^ -o ${OBJPATH}${VER_TARGET}
 endif
 ifeq (${OS},x86)
-	${LD} ${LDFLAGS} -ldl $^ -o ${SUBDIR}${VER_TARGET}
+	${LD} ${LDFLAGS} -ldl $^ -o ${OBJPATH}${VER_TARGET}
 endif
 ifeq (${OS},ppc)
-	${LD} ${LDFLAGS} -ldl $^ -o ${SUBDIR}${VER_TARGET}
+	${LD} ${LDFLAGS} -ldl $^ -o ${OBJPATH}${VER_TARGET}
 endif
+
+
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug:
+	@echo ${ECMD_ROOT}
+	@echo ${SUBDIR}

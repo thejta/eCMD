@@ -1,6 +1,8 @@
-# The default build rules
+# $Header$
+# The main makefile for all rules
 
-ECMD_ROOT     := ${PWD}/
+# Base info and default build rules
+SUBDIR     := " "
 include makefile.rules
 
 # *****************************************************************************
@@ -288,9 +290,9 @@ endif
 	@echo "*** Install Done! ***"
 	@echo ""
 
-# Just print some vars
-vars:
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug: ${BUILD_TARGETS}
 	@echo ${ECMD_ROOT}
-	@echo ${BUILD_TARGETS}
-	@echo ${EXTENSIONS}
-	@echo ${GMAKEFLAGS}
+	@echo ${SUBDIR}

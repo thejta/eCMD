@@ -1,11 +1,9 @@
-# Makefile for the ecmd Extensions
-# Written by Chris Engel
-
 # $Header$
+# Makefile for the ecmd Extensions
 
-ECMD_ROOT       := ${PWD}/../../../
-# The default build rules
-include ${ECMD_ROOT}/makefile.rules
+# Base info and default build rules
+SUBDIR     := ext/${EXTENSION_NAME}/cmd/
+include ../../../makefile.rules
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -45,7 +43,7 @@ ifeq (${OS},aix)
   CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
 endif
 
-VPATH := ${VPATH}${SUBDIR}:../../../capi:../../template/capi:../capi
+VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:../capi
 
 
 # *****************************************************************************
@@ -56,18 +54,18 @@ all: dir ${TARGET}
 clean: objclean
 
 objclean:
-	rm -rf ${SUBDIR}
+	rm -rf ${OBJPATH}
 
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/ ..."
 	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/
-	cp ${SUBDIR}/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
+	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 
 dir:
-	@mkdir -p ${SUBDIR}
+	@mkdir -p ${OBJPATH}
 
 
 
@@ -75,7 +73,7 @@ dir:
 # Object Build Targets
 # *****************************************************************************
 SOURCE_OBJS  = $(basename $(SOURCE))
-SOURCE_OBJS := $(addprefix ${SUBDIR}, $(SOURCE_OBJS))
+SOURCE_OBJS := $(addprefix ${OBJPATH}, $(SOURCE_OBJS))
 SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 
 # *****************************************************************************
@@ -83,7 +81,7 @@ SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+$(SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
 
 
@@ -91,6 +89,12 @@ $(SOURCE_OBJS): ${SUBDIR}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${AR} r ${SUBDIR}${TARGET} $^
+	${AR} r ${OBJPATH}${TARGET} $^
 
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug:
+	@echo ${ECMD_ROOT}
+	@echo ${SUBDIR}
 
