@@ -81,8 +81,13 @@ space := ${empty} ${empty}
 ifeq ($(strip $(OBJROOT)),)
   OBJROOT  := ${ECMD_ROOT}
 endif
-OBJDIR   := obj_${OS}/
-OBJPATH  := ${OBJROOT}/${SUBDIR}/${OBJDIR}
+# Remove any trailing slashes at the end
+OBJROOT   := $(shell echo ${OBJROOT} | sed 's@/\+$$@@g')
+OBJDIR    := obj_${OS}
+OBJPATH   := ${OBJROOT}/${SUBDIR}/${OBJDIR}/
+# Cleanup multiple //'s in the path built above
+OBJPATH   := $(shell echo ${OBJPATH} | sed 's@/\+@/@g')
+# Now export it all so it can be used in scripts, etc..
 export OBJROOT
 export OBJDIR
 export OBJPATH
