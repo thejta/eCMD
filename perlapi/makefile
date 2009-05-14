@@ -31,8 +31,8 @@ SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${
 # *****************************************************************************
 PM_TARGET := ecmd.pm
 SO_TARGET := ecmd.so
-LINK_OBJS := ${LINK_OBJS} ${OBJROOT}capi/${OBJDIR}ecmdClientCapi_${OS}.a
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}ext/${ext}/capi/${OBJDIR}${ext}ClientCapi_${OS}.a)
+LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi_${OS}.a
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi_${OS}.a)
 VPATH     := ${VPATH}:${OBJPATH}
 
 # *****************************************************************************

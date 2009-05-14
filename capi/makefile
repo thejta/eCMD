@@ -130,4 +130,5 @@ $(GENERATED_SOURCE) $(GENERATED_INCLUDES): ecmdClientCapi.H makedll.pl
 # *****************************************************************************
 debug:
 	@echo ${ECMD_ROOT}
+	@echo ${OBJROOT}
 	@echo ${SUBDIR}
