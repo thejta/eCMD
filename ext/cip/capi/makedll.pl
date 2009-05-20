@@ -343,7 +343,8 @@ while (<IN>) {
     if ($type_flag == $INT) {
       $printout .= "  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {\n";
       $printout .= "    std::string errorString;\n";
-      $printout .= "    errorString = ecmdGetErrorMsg(rc, false, false, false);\n";
+      # If ECMD_GLOBALVAR_CMDLINEMODE is set, that will return true, which is what we want to pass in
+      $printout .= "    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);\n";
       $printout .= "    if (errorString.size()) ecmdOutput(errorString.c_str());\n";
       $printout .= "  }\n\n";
     }
