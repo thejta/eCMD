@@ -21,7 +21,7 @@ my $version = shift(@ARGV);
 system("mkdir -p $outputDirectory");
 
 # Set the environment for the script to have the latex install in CTE at the front of the path
-$ENV{"PATH"} = "/gsa/rchgsa/projects/e/ecmd/utils/tetex-3.0/bin:" . $ENV{"PATH"};
+$ENV{"PATH"} = "/gsa/rchgsa/projects/e/ecmd/utils/x86/bin:" . $ENV{"PATH"};
 
 # Do the C-API
 printf("Creating C-API Documentation (html)...\n\n");
@@ -55,7 +55,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Capi; /gsa/rchgsa/projects/e/ecmd/utils/doxygen-1.5.8/bin/doxygen ecmdDoxygen.config");
+$rc = system("cd $outputDirectory/Capi; doxygen ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 printf("Creating C-API Documentation (pdf)...\n\n");
@@ -103,7 +103,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPm.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Perlapi!g\" > $outputDirectory/Perlapi/ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Perlapi; /gsa/rchgsa/projects/e/ecmd/utils/doxygen-1.5.8/bin/doxygen ecmdDoxygenPm.config");
+$rc = system("cd $outputDirectory/Perlapi; doxygen ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 printf("Creating Perl-API Documentation (pdf)...\n\n");
