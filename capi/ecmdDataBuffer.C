@@ -2539,7 +2539,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, ui
   }
 
   /* If the user left the data identifier on the front, remove it */
-  if (i_start == 0 && i_length > 3) {
+  if (i_start == 0 && (strlen(i_hexChars)> 3)) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x') {
       if (i_hexChars[2] == 'l') {
         i_hexChars += 3; // Advance the pointer past the special characters
@@ -2563,7 +2563,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t i_
   int bitlength = (i_length == 0 ? strlen(i_hexChars) * 4 : i_length);
 
   /* If the user left the data identifier on the front, remove it */
-  if (i_start == 0 && bitlength > 3) {
+  if (i_start == 0 && (strlen(i_hexChars)> 3)) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x') {
       if (i_hexChars[2] == 'l') {
         i_hexChars += 3; // Advance the pointer past the special characters
@@ -2591,7 +2591,10 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t i_
   char nextOne[2];
   nextOne[1] = '\0';
 
-  for (i = 0; i < (int) strlen(i_hexChars); i++) {
+  int wordSize = wordLength * 8;
+  int loopCount = (wordSize < (int)strlen(i_hexChars) ? wordSize : (int)strlen(i_hexChars));
+
+  for (i = 0; i < loopCount ; i++) {
     if ((i & 0xFFF8) == i)
       number_ptr[i>>3] = 0x0;
     if (!isxdigit(i_hexChars[i])) {
@@ -2617,7 +2620,7 @@ uint32_t ecmdDataBuffer::insertFromHexRightAndResize (const char * i_hexChars, u
   }
 
   /* If the user left the data identifier on the front, remove it */
-  if (i_start == 0 && i_length > 3) {
+  if (i_start == 0 && (strlen(i_hexChars)> 3)) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x' && i_hexChars[2] == 'r') {
       i_hexChars += 3; // Advance the pointer past the special characters
       i_length -= 12;  // And shrink the bit length
@@ -2635,7 +2638,7 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t i
   int bitlength = (i_expectedLength == 0 ? strlen(i_hexChars) * 4 : i_expectedLength);
 
   /* If the user left the data identifier on the front, remove it */
-  if (i_start == 0 && bitlength > 3) {
+  if (i_start == 0 && (strlen(i_hexChars)> 3)) {
     if (i_hexChars[0] == '0' && i_hexChars[1] == 'x' && i_hexChars[2] == 'r') {
       i_hexChars += 3; // Advance the pointer past the special characters
       bitlength -= 12;  // And shrink the bit length
@@ -2691,7 +2694,7 @@ uint32_t ecmdDataBuffer::insertFromBinAndResize (const char * i_binChars, uint32
   if (rc) return rc;
 
   /* If the user left the data identifier on the front, remove it */
-  if (i_start == 0 && i_length > 2) {
+  if (i_start == 0 && (strlen(i_binChars)> 2)) {
     if (i_binChars[0] == '0' && i_binChars[1] == 'b') {
       i_binChars += 2; // Advance the pointer past the special characters
       i_length -= 2;   // And shrink the bit length
@@ -2709,7 +2712,7 @@ uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t i_star
   }
 
   /* If the user left the data identifier on the front, remove it */
-  if (i_start == 0 && i_length > 2) {
+  if (i_start == 0 && (strlen(i_binChars)> 2)) {
     if (i_binChars[0] == '0' && i_binChars[1] == 'b') {
       i_binChars += 2; // Advance the pointer past the special characters
       i_length -= 2;   // And shrink the bit length
