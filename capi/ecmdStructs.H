@@ -352,9 +352,10 @@ typedef enum {
   ECMD_GLOBALVAR_UNKNOWN,               ///< Default for not initialized
   ECMD_GLOBALVAR_DEBUG,                 ///< Retrieve the value of the ecmd debug flag set by ECMD_DEBUG env var
   ECMD_GLOBALVAR_QUIETMODE,             ///< Retrieve the value of the quiet mode debug flag = set by -quiet default = 0
-  ECMD_GLOBALVAR_COEMODE,               //< Retrieve the value of the continueOnError  mode  flag = set by -coe default = 0
+  ECMD_GLOBALVAR_COEMODE,               ///< Retrieve the value of the continueOnError  mode  flag = set by -coe default = 0
   ECMD_GLOBALVAR_QUIETERRORMODE,        ///< Retrieve the value of the quiet error mode debug flag. Set by -quieterror
-  ECMD_GLOBALVAR_LOOPMODE,               //< Retrieve the value of the loopMode mode flag set by -exist default = ECMD_CONFIG_LOOP
+  ECMD_GLOBALVAR_LOOPMODE,              ///< Retrieve the value of the loopMode mode flag set by -exist default = ECMD_CONFIG_LOOP
+  ECMD_GLOBALVAR_CMDLINEMODE,           ///< Retrieve the value of the cmdLine mode value.  cmdline default = 1, other = 0
 } ecmdGlobalVarType_t;
 
 /**

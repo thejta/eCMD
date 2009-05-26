@@ -41,9 +41,9 @@ void ECMDPERLAPI::ecmdUnloadDll()  {
 }
 
 
-int ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_clientVersion) {
+uint32_t ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_clientVersion) {
 
-  int rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
   std::string dllName = "";
   if (i_dllName != NULL) {
     dllName = i_dllName;
@@ -71,10 +71,10 @@ int ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_clientVersi
 
 }
 
-int ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
+uint32_t ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
 
-  int rc =0;
-  int looper =0;
+  uint32_t rc = 0;
+  int looper = 0;
 
   while(i_argv[looper] != NULL) looper++;
 
@@ -117,7 +117,7 @@ uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName
 
 bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option){
 
-  int looper =0;
+  int looper = 0;
 
   while(io_argv[looper] != NULL) looper++;
 
@@ -128,7 +128,7 @@ bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option){
 char * ECMDPERLAPI::ecmdParseOptionWithArgs(char ** io_argv, const char * i_option){
 
   char * ret = NULL;
-  int looper =0;
+  int looper = 0;
 
   while(io_argv[looper] != NULL) looper++;
 

@@ -900,7 +900,7 @@ public:
   /* these functions AND the datain into the DataBuffer buffer */
   /**
    * @brief AND data into DataBuffer
-   * @param i_bufferIn Bitvector to AND data from - data is taken left aligned
+   * @param i_bufferIn ecmdDataBuffer to AND data from - data is taken left aligned
    * @param i_startbit Start bit to AND to
    * @param i_len Length of bits to AND
    * @post Data is ANDed from bufferIn to this DataBuffer in specified location

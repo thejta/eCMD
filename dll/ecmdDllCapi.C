@@ -194,6 +194,10 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 
+/* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+std::list<ecmdLatchBufferEntry> latchBuffer;
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -216,13 +220,11 @@ uint32_t ecmdGlobal_continueOnError = 0;
 /* ECMD_EXIST_LOOP, turned on by -exist */
 uint32_t ecmdGlobal_looperMode = ECMD_CONFIG_LOOP;
 
-/* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
-std::list<ecmdLatchBufferEntry> latchBuffer;
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
 /* @brief This is a global var set by ecmdSetCurrentCmdline() */
 std::string ecmdGlobal_currentCmdline = "";
+
+/* @brief This is a global var set by ecmdMain.C to say we are in a cmdline program */
+uint32_t ecmdGlobal_cmdLineMode = 0;
 
 
 // Eliminate the follow unavoidable lint message for everywhere 'major' and
@@ -2247,6 +2249,8 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
     ret = ecmdGlobal_continueOnError;
   } else if (i_type == ECMD_GLOBALVAR_LOOPMODE) {
     ret = ecmdGlobal_looperMode;
+  } else if (i_type == ECMD_GLOBALVAR_CMDLINEMODE) {
+    ret = ecmdGlobal_cmdLineMode;
   }
 
   return ret;
@@ -2268,6 +2272,8 @@ uint32_t dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
     ecmdGlobal_continueOnError = i_value;
   } else if (i_type == ECMD_GLOBALVAR_LOOPMODE) {
     ecmdGlobal_looperMode = i_value;
+  } else if (i_type == ECMD_GLOBALVAR_CMDLINEMODE) {
+    ecmdGlobal_cmdLineMode = i_value;
   } else {
     return ECMD_INVALID_ARGS;
   }

@@ -60,6 +60,11 @@ int main (int argc, char *argv[])
     rc = ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE, 0);
     if (rc) return rc;
 
+    // Also tell the plugin that we are running in cmdline mode - STGC01079967
+    // Currently this is used to cleanup stored error messages in *Func.C so that -coe mode doesn't double report them
+    rc = ecmdSetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE, 1);
+    if (rc) return rc;
+
     /* Check to see if we are using stdin to pass in multiple commands */
     bool shellMode = ecmdParseOption(&argc, &argv, "-shell");
     bool stdinMode = ecmdParseOption(&argc, &argv, "-stdin");
