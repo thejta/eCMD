@@ -103,7 +103,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 # Open up all the .H files and modify source to change the C variables to perl variables
 my @files = split(/\s+/,`ls $outputDirectory/Perlapi/`);
 for (my $x = 0; $x <= $#files; $x++) {
-  if (-e "$outputDirectory/Perlapi/$files[$x]") {
+  if (-f "$outputDirectory/Perlapi/$files[$x]") {
     open (INFILE, "<$outputDirectory/Perlapi/$files[$x]") or die "Couldn't open the file $files[$x] for input\n";
     my @fileLines = <INFILE>;
     my $fileLine;
