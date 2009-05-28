@@ -82,7 +82,7 @@ ifeq ($(strip $(OBJROOT)),)
   OBJROOT  := ${ECMD_ROOT}
 endif
 # Remove any trailing slashes at the end
-OBJROOT   := $(shell echo ${OBJROOT} | sed 's@/\+$$@@g')
+OBJROOT   := $(shell echo ${OBJROOT} | sed 's@/*$$@@g')
 OBJDIR    := obj_${OS}
 OBJPATH   := ${OBJROOT}/${SUBDIR}/${OBJDIR}/
 # Cleanup multiple //'s in the path built above
@@ -91,6 +91,8 @@ OBJPATH   := $(shell echo ${OBJPATH} | sed 's@/\+@/@g')
 export OBJROOT
 export OBJDIR
 export OBJPATH
+# Common compile flags
+CFLAGS    := -g -I.
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -98,15 +100,15 @@ export OBJPATH
 ifeq (${OS},x86)
   GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
   CC_VER   := 3.4.6
-  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
+  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
   CC_R     := ${CC}
-  CFLAGS   := -g -I.
+  CFLAGS   := ${CFLAGS}
   LD       := ${CC}
   LD_R     := ${CC_R}
   LDFLAGS  :=
   SLDFLAGS := -shared
   GPATH    := ${OBJDIR}
-  AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
+  AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
 
 # *****************************************************************************
@@ -115,7 +117,7 @@ endif
 ifeq (${OS},ppc)
   CC       := g++
   CC_R     := ${CC}
-  CFLAGS   := -g -I. -fPIC
+  CFLAGS   := ${CFLAGS} -fPIC
   LD       := ${CC}
   LD_R     := ${CC_R}
   LDFLAGS  :=
@@ -130,9 +132,9 @@ endif
 ifeq (${OS},aix)
   GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
   CC_VER   := 6.0.0.8
-  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC.6008
-  CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC_r.6008
-  CFLAGS   := -g -I.
+  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.9003/usr/vacpp/bin/xlC
+  CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.9003/usr/vacpp/bin/xlC_r
+  CFLAGS   := ${CFLAGS}
   LD       := ${CC}
   LD_R     := ${CC_R}
   LDFLAGS  :=

@@ -419,24 +419,6 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
-#ifndef DOCUMENTATION
-/**
- @brief Query Scom information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return data from query
- @param i_address if != 0xFFFFFFFF used to refine query to a single scom
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint32_t i_address = 0xFFFFFFFF, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-#endif
-
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
  @brief Query Trace Array information from the DLL
@@ -454,24 +436,6 @@ uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHi
 */
 uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
-
-#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
-/**
- @brief Query Fast Array information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return data from query
- @param i_fastArrayName if != NULL used to refine query to a single trace array
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryFastArray(ecmdChipTarget & i_target, std::list<ecmdFastArrayData> & o_queryData, const char * i_fastArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
 
 /**
  @brief Query the location of a specific file type for the selected target
@@ -1178,35 +1142,6 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
 */
 uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
-
-#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
-/**
- @brief Reads multiple entries from a fast array type into a list of data buffers
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARRAY if i_fastArrayName is not valid for target
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_fastArrayName Name of fast array to read from
- @param io_entries list of fast array entries to fetch
-
- NOTE : This function does not use the array file.  This interface is for chip specific accesses.
- NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return<br>
- NOTE : To fetch all addresses for the specified array pass io_entries as an empty list and it will be populated for you.<br>
-
- The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
-  the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.
-
- TARGET DEPTH  : pos, core/chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getFastArrayMultiple (ecmdChipTarget & i_target, const char * i_fastArrayName, std::list<ecmdArrayEntry> & io_entries);
-#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
-
 //@}
 
 
@@ -1413,30 +1348,12 @@ uint32_t initChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, con
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_SPR Spr name is invalid
  @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
-
-#ifndef DOCUMENTATION
-/**
- @brief Query Information about a Processor Register (SPR/GPR/FPR)
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_name Name of the Register to fetch data about (can be either a specific SPR or GPR/FPR)
- @param o_data Data retrieved about the register
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_SPR Spr name is invalid
- @retval ECMD_SUCCESS if successful read
  @retval nonzero on failure
 
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryProcRegisterInfoHidden(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfoHidden & o_data);
-#endif
+uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer

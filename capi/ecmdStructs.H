@@ -50,7 +50,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "10.4"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "11.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -452,7 +452,7 @@ typedef enum {
 } ecmdArrayType_t;
 
 /**
- @brief Used by ecmdProcRegisterInfoHidden to specify read/write mode
+ @brief Used by ecmdProcRegisterInfo to specify read/write mode
 */
 typedef enum {
   ECMD_PROCREG_UNKNOWN,         ///< The unknown state for this enum, not a valid output type
@@ -1450,6 +1450,7 @@ struct ecmdScomData {
   bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
   std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
   std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the data
   std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
   ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
 };
@@ -1466,56 +1467,6 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 
 // ecmdScomData Destructor
 inline ecmdScomData::~ecmdScomData() { }
-#endif
-
-
-#ifndef DOCUMENTATION
-/**
- @brief Used for the ecmdQueryScom function to return scom info
-*/
-struct ecmdScomDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdScomDataHidden();
-
-  // Destructor
-  ~ecmdScomDataHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef REMOVE_SIM
-  void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  uint32_t         address;              ///< (Detail: Low)  Scom Address
-  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
-  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the data
-  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
-  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
-};
-
-#ifndef DOCUMENTATION
-// ecmdScomData Constructor
-inline ecmdScomDataHidden::ecmdScomDataHidden():
-address(0),
-length(0),
-isChipUnitRelated(false),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdScomData Destructor
-inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
-#endif
 #endif
 
 
@@ -1876,11 +1827,12 @@ struct ecmdProcRegisterInfo {
   // Members
   uint32_t      bitLength;              ///< Bit length of each entry
   uint32_t      totalEntries;           ///< Total number of entries available
+  ecmdProcRegMode_t mode;               ///< (Detail: Low)  The mode associated with this register
   bool          isChipUnitRelated;      ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
   std::string   relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
   std::string   relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
   bool          threadReplicated;       ///< Register is replicated for each thread
-};      
+};
 
 #ifndef DOCUMENTATION
 // ecmdProcRegisterInfo Constructor
@@ -1894,55 +1846,6 @@ threadReplicated(false)
 
 // ecmdProcRegisterInfo Destructor
 inline ecmdProcRegisterInfo::~ecmdProcRegisterInfo() { }
-#endif
-
-#ifndef DOCUMENTATION
-/**
- @brief Used by ecmdQueryProcRegisterInfoHidden function to return data about a Architected register
-*/
-struct ecmdProcRegisterInfoHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdProcRegisterInfoHidden();
-
-  // Destructor
-  ~ecmdProcRegisterInfoHidden();
-
-  // Methods
-// These methods are not needed until this becomes the official version
-//  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-//  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-//  uint32_t flattenSize(void);
-//#ifndef REMOVE_SIM
-//  void printStruct(void);
-//#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  uint32_t      bitLength;              ///< Bit length of each entry
-  uint32_t      totalEntries;           ///< Total number of entries available
-  ecmdProcRegMode_t mode;               ///< (Detail: Low)  The mode associated with this register
-  bool          isChipUnitRelated;      ///< (Detail: Low)  This spy is related to the chipUnit level of a chip
-  std::string   relatedChipUnit;        ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string   relatedChipUnitShort;   ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  bool          threadReplicated;       ///< Register is replicated for each thread
-};
-
-#ifndef DOCUMENTATION
-// ecmdProcRegisterInfoHidden Constructor
-inline ecmdProcRegisterInfoHidden::ecmdProcRegisterInfoHidden():
-bitLength(0),
-totalEntries(0),
-isChipUnitRelated(false),
-threadReplicated(false)
-{
-}
-
-// ecmdProcRegisterInfoHidden Destructor
-inline ecmdProcRegisterInfoHidden::~ecmdProcRegisterInfoHidden() { }
-#endif
 #endif
 
 /**

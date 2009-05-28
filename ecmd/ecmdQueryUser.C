@@ -434,113 +434,6 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 #endif // ECMD_REMOVE_TRACE_ARRAY_FUNCTIONS
 
-    /* ---------- */
-    /* fastarrays */
-    /* ---------- */
-#ifndef ECMD_REMOVE_FASTARRAY_FUNCTIONS
-  } else if (!strcmp(argv[0], "fastarrays")) {
-
-    std::string isChipUnit = "N";
-    
-    std::list<ecmdFastArrayData> fastarraydata;
-    std::list<ecmdFastArrayData>::iterator fastit;
-    
-    if (argc < 2) {
-      ecmdOutputError("ecmdquery - Too few arguments specified for fastarrays; you need at least a query fastarrays <chipname>.\n");
-      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
-      return ECMD_INVALID_ARGS;
-    }
-
-    ecmdChipData chipdata;
-
-    //Setup the target that will be used to query the system config 
-    ecmdChipTarget target;
-    target.chipType = argv[1];
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
-
-    /************************************************************************/
-    /* Kickoff Looping Stuff                                                */
-    /************************************************************************/
-
-    bool validPosFound = false;
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
-    if (rc) return rc;
-
-    char buf[200];
-
-    while (ecmdLooperNext(target, looperData)) {
-
-      rc = ecmdQueryFastArray(target, fastarraydata,argv[2]);
-      if (rc) {
-        printed = "ecmdquery - Error occured performing fastarray query on ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-      else {
-        validPosFound = true;     
-      }
-
-      /* Let's look up other info about the chip, namely the ec level */
-      rc = ecmdGetChipData (target, chipdata);
-      if (rc) {
-        printed = "ecmdquery - Unable to lookup ec information for chip ";
-        printed += ecmdWriteTarget(target);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        return rc;
-      }
-        
-      sprintf(buf,"\nAvailable fastarrays for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "FastArray Names         Length   Width ChipUnit ClockDomain         ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------------------ -------- ----- -------- ------------------- ----------\n"; ecmdOutput(printed.c_str());
-
-      for (fastit = fastarraydata.begin(); fastit != fastarraydata.end(); fastit ++) {
-
-        printed = "";
-        printed += fastit->fastArrayName;
-        
-	for (size_t i = printed.length(); i <= 24; i++) { 
-          printed += " ";
-        }
-
-        
-        if (fastit->isChipUnitRelated) {
-          if (fastit->relatedChipUnit != "") {
-            isChipUnit = fastit->relatedChipUnit;
-          } else {
-            isChipUnit = "Y";
-          }
-        } else {
-          isChipUnit = "N";
-        }
-
-        sprintf(buf,"%-8d %-5d %8s %-20s", fastit->length, fastit->width, isChipUnit.c_str(), fastit->clockDomain.c_str());
-        printed += buf;
-	
-
-        if (fastit->clockState == ECMD_CLOCKSTATE_UNKNOWN)
-          printed += "UNKNOWN\n";
-        else if (fastit->clockState == ECMD_CLOCKSTATE_ON)
-          printed += "ON\n";
-        else if (fastit->clockState == ECMD_CLOCKSTATE_OFF)
-          printed += "OFF\n";
-        else if (fastit->clockState == ECMD_CLOCKSTATE_NA)
-          printed += "NA\n";
-
-        ecmdOutput(printed.c_str());
-      }
-    }
-
-    if (!validPosFound) {
-      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
-      return ECMD_TARGET_NOT_CONFIGURED;
-    }
-#endif // ECMD_REMOVE_FASTARRAY_FUNCTIONS
-
   /* ---------- */
   /* rings      */
   /* ---------- */
@@ -795,7 +688,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     std::string isChipUnit, isThreadRep, chipType, chipUnitType;
 
-    ecmdProcRegisterInfoHidden procInfo;
+    ecmdProcRegisterInfo procInfo;
     std::list<ecmdArrayData>::iterator arrayit;
 
     if (argc < 2) {
@@ -840,7 +733,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     while (ecmdLooperNext(target, looperData)) {
 
-      rc = ecmdQueryProcRegisterInfoHidden(target, procRegName.c_str(), procInfo);
+      rc = ecmdQueryProcRegisterInfo(target, procRegName.c_str(), procInfo);
       if (rc) {
         printed = "ecmdquery - Error occured performing procregs query on ";
         printed += ecmdWriteTarget(target);

@@ -192,11 +192,7 @@ uint32_t decToUInt32(const char *decstr) {
     return decdata;
 }
 
-std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address) {
-  return ecmdWriteDataFormattedHidden(i_data, i_format, i_address);
-}
-
-std::string ecmdWriteDataFormattedHidden(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
+std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
   std::string printed;
   int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
@@ -550,7 +546,7 @@ std::string ecmdWriteDataFormattedHidden(ecmdDataBuffer & i_data, std::string i_
 
       if (curState == ECMD_FORMAT_BN || curState == ECMD_FORMAT_BW || curState == ECMD_FORMAT_B || curState == ECMD_FORMAT_BXN || curState == ECMD_FORMAT_BXW) {
         printed += "\n";
-        printed += ecmdBitsHeaderHidden(5, blockSize, numCols, dataBitLength, i_endianMode);
+        printed += ecmdBitsHeader(5, blockSize, numCols, dataBitLength, i_endianMode);
       } 
 
       printed += "\n000: ";
@@ -601,11 +597,7 @@ std::string ecmdWriteDataFormattedHidden(ecmdDataBuffer & i_data, std::string i_
 
 }
 
-std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i_maxBitWidth) {
-  return ecmdBitsHeaderHidden(initCharOffset, blockSize, numCols, i_maxBitWidth);
-}
-
-std::string ecmdBitsHeaderHidden(int initCharOffset, int blockSize, int numCols, int i_maxBitWidth, ecmdEndianMode_t i_endianMode) {
+std::string ecmdBitsHeader(int initCharOffset, int blockSize, int numCols, int i_maxBitWidth, ecmdEndianMode_t i_endianMode) {
 
   std::string topLine;
   std::string bottomLine;
@@ -737,18 +729,7 @@ uint32_t ecmdDisplayDllInfo() {
 }
 
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
-
-  // Fake out some basic info the hidden function needs until we get 11.0 in here
-  ecmdScomDataHidden scomData;
-  scomData.address = i_address;
-  scomData.length = 64;
-  scomData.endianMode = ECMD_BIG_ENDIAN;
-
-  return ecmdDisplayScomDataHidden(i_target, scomData, i_data, i_format, o_strData);
-}
-
-uint32_t ecmdDisplayScomDataHidden(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
+uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file

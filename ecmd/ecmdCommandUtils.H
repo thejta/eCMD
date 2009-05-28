@@ -50,20 +50,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
  @param i_startbit Startbit of io_data to begin modification
  @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
 */
-uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier);
-
-#ifndef DOCUMENTATION
-/**
- @brief Applies the buffer i_newData to the io_data buffer based upon the specified i_modifier for length of i_newData
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
- @param io_data Data buffer to modify
- @param i_newData Data to insert into io_data based on modifier
- @param i_startbit Startbit of io_data to begin modification
- @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
-*/
-uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
-#endif
+uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /**
  @brief Write help text file for command

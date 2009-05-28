@@ -187,18 +187,7 @@ uint32_t decToUInt32(const char *i_decstr);
  @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
  @param i_address A base address value that can be used in formating certain data- i.e., data from memory
  */
-std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0);
-
-#ifndef DOCUMENTATION
-/**
- @brief Formats data from data buffer into a string according to format flag and returns the string
- @return String of formatted data
- @param i_data ecmdDataBuffer where data to format is stored
- @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
- @param i_address A base address value that can be used in formating certain data- i.e., data from memory
- */
-std::string ecmdWriteDataFormattedHidden(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
-#endif
+std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /**
  @brief Print the bits header used in the output formats
@@ -208,19 +197,7 @@ std::string ecmdWriteDataFormattedHidden(ecmdDataBuffer & i_data, std::string i_
  @param i_maxBitWidth Maximum number of bits to display - this is actual data valid so we don't display more columns then we need
  @return String of formatted data
 */
-std::string ecmdBitsHeader(int i_initCharOffset, int i_blockSize, int i_numCols, int i_maxBitWidth);
-
-#ifndef DOCUMENTATION
-/**
- @brief Print the bits header used in the output formats
- @param i_initCharOffset char offset on screen to start printing
- @param i_blockSize Binary block size (ie. column char size)
- @param i_numCols Number of columns to display
- @param i_maxBitWidth Maximum number of bits to display - this is actual data valid so we don't display more columns then we need
- @return String of formatted data
-*/
-std::string ecmdBitsHeaderHidden(int i_initCharOffset, int i_blockSize, int i_numCols, int i_maxBitWidth, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
-#endif
+std::string ecmdBitsHeader(int i_initCharOffset, int i_blockSize, int i_numCols, int i_maxBitWidth, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /**
  @brief Function calls ecmdQueryDllInfo and displays the output to stdout
@@ -234,25 +211,12 @@ uint32_t ecmdDisplayDllInfo();
  @brief Display the Scom data with the bit descriptions.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
  @param i_target target for which scom data needs to be displayed.
- @param i_address Scom Address for which the details are required
- @param i_data buffer that holds the scom data
- @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
- @param o_strData If passed in, then we load o_strData with what is printed to the screen
- */
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
-
-#ifndef DOCUMENTATION
-/**
- @brief Display the Scom data with the bit descriptions.
- @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
- @param i_target target for which scom data needs to be displayed.
  @param i_scomData Contains the address, as well as additional info, needed to lookup the scom
  @param i_data buffer that holds the scom data
  @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
  @param o_strData If passed in, then we load o_strData with what is printed to the screen
  */
-uint32_t ecmdDisplayScomDataHidden(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
-#endif
+uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
 #endif
 
 //@}

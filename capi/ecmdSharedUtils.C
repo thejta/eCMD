@@ -698,12 +698,7 @@ uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, st
   return rc;
 }
 
-uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data) {
-  return ecmdReadDcardHidden(i_filename, o_data);
-}
-
-
-uint32_t ecmdReadDcardHidden(const char *i_filename, std::list<ecmdMemoryEntry> &o_data, uint64_t i_addressOffset) {
+uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data, uint64_t i_addressOffset) {
   std::ifstream ins;
   std::string line;
   std::vector<std::string> splitArgs;

@@ -4460,6 +4460,12 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += relatedChipUnitShort.size() + 1;
             l_len -= relatedChipUnitShort.size() + 1;
 
+            // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
+            tmpData32 = htonl( (uint32_t)endianMode );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
             // "clockDomain" (std::string)
             strLen = clockDomain.size();
             memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
@@ -4543,6 +4549,12 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += l_relatedChipUnitShort.size() + 1;
             l_len -= l_relatedChipUnitShort.size() + 1;
 
+            // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
+            memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            endianMode = (ecmdEndianMode_t) ntohl( tmpData32 );
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
             // "clockDomain" (std::string)
             std::string l_clock_domain = (const char *)l_ptr8;
             clockDomain = l_clock_domain;
@@ -4593,245 +4605,6 @@ uint32_t ecmdScomData::flattenSize()
                    + sizeof(length)                                              
                    + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t 
                    + relatedChipUnit.size() + 1                                
-                   + relatedChipUnitShort.size() + 1                                
-                   + clockDomain.size() + 1
-                   + sizeof(uint32_t);  // ecmdClockState stored as uint32_t
-
-        return flatSize;
-}
-
-
-#ifndef REMOVE_SIM
-void  ecmdScomData::printStruct()
-{
-
-        printf("\n\t--- Scom Data Structure ---\n");
-
-        printf("\tAddress: 0x%08x\n", address );
-        printf("\tLength: %d\n", length );
-        printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
-        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
-        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
-        printf("\tClock Domain: %s\n", clockDomain.c_str() );
-        printf("\tClock State: 0x%x\n", (uint32_t)clockState );
-        
-}
-#endif  // end of REMOVE_SIM
-// @05 end
-
-
-// @05 start
-/*
- * The following methods for the ecmdScomData struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-bool ecmdScomDataHidden::isChipUnitMatch(std::string &i_chipUnitType) {
-  /* If either matches, return true */
-  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
-    return true;
-  }
-
-  return false;
-}
-
-uint32_t ecmdScomDataHidden::flatten(uint8_t *o_buf, uint32_t i_len)
-{
-        uint32_t tmpData32 = 0;
-        uint32_t strLen = 0;
-        uint32_t l_rc = ECMD_SUCCESS;
-
-        int l_len = (int)i_len;   // use a local copy to decrement
-	uint8_t *l_ptr8 = o_buf;  // pointer to the output buffer
-
-        do      // Single entry ->
-        {
-            // Check for buffer overflow conditions.
-            if (this->flattenSize() > i_len) 
-            {
-                // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
-                       "ecmdScomDataHidden::flatten(), "
-                       "structure size = %d; input length = %d",
-                       this->flattenSize(), i_len);
-                l_rc = ECMD_DATA_OVERFLOW;
-                break;
-            }
-
-            // Flatten and store each data member in the ouput buffer
-
-            // "address" (uint32_t)
-            tmpData32 = htonl( address );
-            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(address);
-            l_len -= sizeof(address);
-
-            //"length"  (uint32_t)
-            tmpData32 = htonl( length );
-            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(length);
-            l_len -= sizeof(length);
-
-            //isChipUnitRelated     
-            tmpData32 = htonl( (uint32_t)isChipUnitRelated );
-            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(tmpData32);
-            l_len -= sizeof(tmpData32);
-
-            //relatedChipUnit
-            memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
-            l_ptr8 += relatedChipUnit.size() + 1;
-            l_len -= relatedChipUnit.size() + 1;
-
-            //relatedChipUnitShort
-            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
-            l_ptr8 += relatedChipUnitShort.size() + 1;
-            l_len -= relatedChipUnitShort.size() + 1;
-
-            // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
-            tmpData32 = htonl( (uint32_t)endianMode );
-            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(tmpData32);
-            l_len -= sizeof(tmpData32);
-
-            // "clockDomain" (std::string)
-            strLen = clockDomain.size();
-            memcpy( l_ptr8, clockDomain.c_str(), strLen + 1 );
-            l_ptr8 += strLen + 1;
-            l_len -= strLen + 1;
-
-            // "clockState" (ecmdClockState_t, store in uint32_t)
-	    tmpData32 = htonl( (uint32_t)clockState );
-	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
-
-            // Final check: if the length isn't 0, something went wrong
-            if (l_len < 0)
-            {	
-               // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
-                      "ecmdScomDataHidden::flatten(), struct size= %d; "
-                      "input length= %d; remainder= %d\n",
-                      this->flattenSize(), i_len, l_len);
-               l_rc = ECMD_DATA_OVERFLOW;
-               break;
-            }
-
-            if (l_len > 0)
-            {	
-               // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
-                      "ecmdScomDataHidden::flatten() struct size= %d; "
-                      "input length= %d; remainder= %d\n",
-                      this->flattenSize(), i_len, l_len);
-               l_rc = ECMD_DATA_UNDERFLOW;
-               break;
-            }
-
-        } while (false);   // <- single exit
-
-        return l_rc;
-}
-
-
-uint32_t ecmdScomDataHidden::unflatten(const uint8_t *i_buf, uint32_t i_len)
-{
-        uint32_t l_rc = ECMD_SUCCESS;
-        uint32_t tmpData32 = 0;
-
-	int l_len = (int)i_len;         // use a local copy to decrement
-        const uint8_t *l_ptr8 = i_buf;  // pointer to the input buffer
-
-        do    // Single entry ->
-        {
-            // Unflatten each data member from the input buffer
-
-            // "address" (uint32_t)
-            memcpy( &address, l_ptr8, sizeof(address) );
-            address = ntohl( address );
-            l_ptr8 += sizeof(address);
-            l_len -= sizeof(address);
- 
-            //"length" (uint32_t)
-            memcpy( &length, l_ptr8, sizeof(length) );
-            length = ntohl( length );
-            l_ptr8 += sizeof(length);
-            l_len -= sizeof(length);
-
-            //isChipUnitRelated
-            memcpy(&tmpData32, l_ptr8, sizeof(tmpData32));
-            isChipUnitRelated = (bool)ntohl(tmpData32);
-            l_ptr8 += sizeof(tmpData32);
-            l_len -= sizeof(tmpData32);
-
-            //relatedChipUnit
-            std::string l_relatedChipUnit = (const char *) l_ptr8;  //maybe this can be 1 line?
-            relatedChipUnit = l_relatedChipUnit;
-            l_ptr8 += l_relatedChipUnit.size() + 1;
-            l_len -= l_relatedChipUnit.size() + 1;
-
-            //relatedChipUnitShort
-            std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
-            relatedChipUnitShort = l_relatedChipUnitShort;
-            l_ptr8 += l_relatedChipUnitShort.size() + 1;
-            l_len -= l_relatedChipUnitShort.size() + 1;
-
-            // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
-            memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-            endianMode = (ecmdEndianMode_t) ntohl( tmpData32 );
-            l_ptr8 += sizeof(tmpData32);
-            l_len -= sizeof(tmpData32);
-
-            // "clockDomain" (std::string)
-            std::string l_clock_domain = (const char *)l_ptr8;
-            clockDomain = l_clock_domain;
-            l_ptr8 += l_clock_domain.size() + 1;
-            l_len -= l_clock_domain.size() + 1;
-
-            // "clockState" (ecmdClockState_t, stored as uint32_t)
-	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
-	    clockState = (ecmdClockState_t)ntohl( tmpData32 );
-	    l_ptr8 += sizeof(tmpData32);
-	    l_len -= sizeof(tmpData32);
-
-            // Final check: if the length isn't 0, something went wrong
-            if (l_len < 0)
-            {	
-               // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
-                      "ecmdScomDataHidden::unflatten(), struct size= %d; "
-                      "input length= %d; remainder= %d\n",
-                      this->flattenSize(), i_len, l_len);
-               l_rc = ECMD_DATA_OVERFLOW;
-               break;
-            }
-
-            if (l_len > 0)
-            {	
-               // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
-                      "ecmdScomDataHidden::unflatten() struct size= %d; "
-                      "input length= %d; remainder= %d\n",
-                      this->flattenSize(), i_len, l_len);
-               l_rc = ECMD_DATA_UNDERFLOW;
-               break;
-            }
-
-        } while (false);   // <- single exit
-
-        return l_rc;
-}
-
-
-uint32_t ecmdScomDataHidden::flattenSize()
-{
-        uint32_t flatSize = 0;
-
-        // Calculate the size needed to store the flattened struct
-        flatSize = sizeof(address)
-                   + sizeof(length)                                              
-                   + sizeof(uint32_t)   // isChipUnitRelated stored as uint32_t 
-                   + relatedChipUnit.size() + 1                                
                    + relatedChipUnitShort.size() + 1
                    + sizeof(uint32_t)  // ecmdEndianMode_t stored as uint32_t
                    + clockDomain.size() + 1
@@ -4842,7 +4615,7 @@ uint32_t ecmdScomDataHidden::flattenSize()
 
 
 #ifndef REMOVE_SIM
-void  ecmdScomDataHidden::printStruct()
+void  ecmdScomData::printStruct()
 {
 
         printf("\n\t--- Scom Data Structure ---\n");
@@ -5885,21 +5658,6 @@ void  ecmdProcRegisterInfo::printStruct()
 
 }
 #endif  // end of REMOVE_SIM
-
-/*
- * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-bool ecmdProcRegisterInfoHidden::isChipUnitMatch(std::string &i_chipUnitType) {
-  /* If either matches, return true */
-  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
-    return true;
-  }
-
-  return false;
-}
-
-
 
 /*
  * The following methods for the ecmdCacheData struct will flatten, unflatten &
