@@ -141,11 +141,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
         
 }
 
-uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier) {
-  return ecmdApplyDataModifierHidden(io_data, i_newData, i_startbit, i_modifier);
-}
-
-uint32_t ecmdApplyDataModifierHidden(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
+uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t length;
 

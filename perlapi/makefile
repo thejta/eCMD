@@ -22,8 +22,8 @@ VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi:../ext/
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H ${ext}ClientCapi.H )
-CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/capi -I../ext/${ext}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS}, -I../ext/${ext}/perlapi -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I../ext/${ext}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/perlapi -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 
 # *****************************************************************************
@@ -34,6 +34,14 @@ SO_TARGET := ecmd.so
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi_${OS}.a
 LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi_${OS}.a)
 VPATH     := ${VPATH}:${OBJPATH}
+ifeq ($(strip ${SWIG}),)
+  SWIG      := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/${OS}/bin/swig
+endif
+ifeq ($(strip ${SWIGDIR}),)
+  SWIGFLAGS := ${SWIGFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/${OS}/lib/perl5 -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/${OS}/lib
+else
+  SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
+endif
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -43,14 +51,6 @@ ifeq (${OS},x86)
   CFLAGS    := ${CFLAGS} -ftemplate-depth-30 -Wall
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
-  endif
-  ifeq ($(strip ${SWIG}),)
-    SWIG      := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/bin/swig.x86
-  endif
-  ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib/perl5 -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib
-  else
-    SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
 endif
 
@@ -63,14 +63,6 @@ ifeq (${OS},ppc)
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   endif
-  ifeq ($(strip ${SWIG}),)
-    SWIG      := ${CTEPATH}/tools/ecmd/utils/swig-1.3.31/bin/swig
-  endif
-  ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib -I${CTEPATH}/tools/ecmd/utils/swig-1.3.31/lib/perl5
-  else
-    SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
-  endif
 endif
 
 # *****************************************************************************
@@ -81,14 +73,6 @@ ifeq (${OS},aix)
   CFLAGS    := ${CFLAGS}  -qstaticinline -qnoinline -+
   ifeq ($(strip ${PERLINC}),)
     PERLINC   := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
-  endif
-  ifeq ($(strip ${SWIG}),)
-    SWIG      := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/bin/swig.aix
-  endif
-  ifeq ($(strip ${SWIGDIR}),)
-    SWIGFLAGS := ${SWIGFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib/perl5 -I/gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/lib
-  else
-    SWIGFLAGS := ${SWIGFLAGS} -I${SWIGDIR}/perl5 -I${SWIGDIR}
   endif
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif

@@ -294,5 +294,5 @@ endif
 # Debug rule for any makefile testing 
 # *****************************************************************************
 debug: ${BUILD_TARGETS}
+	@echo ${OBJROOT}
 	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
