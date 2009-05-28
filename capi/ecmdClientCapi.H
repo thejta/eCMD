@@ -464,7 +464,7 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
-bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
+bool ecmdQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData = NULL);
 
 /**
  @brief Query if a particular target exists in the system
@@ -478,7 +478,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryD
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
-bool ecmdQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData = NULL);
+bool ecmdQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData = NULL);
 
 /**
  @brief Query what connections a particular target has to other targets in the system

@@ -147,7 +147,7 @@ uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
 bool dllIsValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
-bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery);
+bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
 uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
 
@@ -3619,15 +3619,15 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
 
 /* TargetConfiged and TargetExist are the same function, except for having to call a different interface */
 /* Wrapping them this way, to call the internal queryTargetConfiguredExist is the most efficient way */
-bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
+bool dllQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData) {
   return queryTargetConfigExist(i_target, i_queryData, false);
 }
 
-bool dllQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData) {
+bool dllQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData) {
   return queryTargetConfigExist(i_target, i_queryData, true);
 }
 
-bool queryTargetConfigExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData, bool i_existQuery) {
+bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery) {
   uint32_t rc = ECMD_SUCCESS;
   bool ret = false;
   bool myQuery = false;
