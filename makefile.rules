@@ -139,7 +139,7 @@ ifeq (${OS},aix)
   LD_R     := ${CC_R}
   LDFLAGS  :=
   SLDFLAGS := -qmkshrobj -brtl
-  AR       := ar
+  AR       := /usr/bin/ar
 endif
 
 # Include the makefile.confg if the config script was run, this will override anything above
