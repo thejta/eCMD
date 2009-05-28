@@ -151,7 +151,6 @@ typedef enum {
   ECMD_CLOCK_FREQUENCY_UNKNOWN,      ///< Default for not initialized
   ECMD_CLOCK_FREQUENCY_KHZ_SPEC,        ///< Clock speed is specified in Khz
   ECMD_CLOCK_FREQUENCY_MHZ_SPEC,        ///< Clock speed is specified in Mhz
-  ECMD_CLOCK_CYCLETIME_US_SPEC,         ///< Clock speed is specified in microseconds cycle time
   ECMD_CLOCK_CYCLETIME_PS_SPEC,         ///< Clock speed is specified in picoseconds cycle time
   ECMD_CLOCK_FREQUENCY_SPEC = ECMD_CLOCK_FREQUENCY_MHZ_SPEC,    ///< Clock speed is specified in Mhz
   ECMD_CLOCK_CYCLETIME_SPEC = ECMD_CLOCK_CYCLETIME_PS_SPEC,     ///< Clock speed is specified in picoseconds cycle time
@@ -163,7 +162,6 @@ typedef enum {
   ECMD_CLOCK_POWERSAVE_PERCENT_DOWN, ///< Clock speed specified in % below powersave value
   ECMD_CLOCK_TURBO_PERCENT_UP,       ///< Clock speed specified in % above turbo value  
   ECMD_CLOCK_TURBO_PERCENT_DOWN      ///< Clock speed specified in % below turbo value  
-
 } ecmdClockSpeedType_t;
 
 /**
