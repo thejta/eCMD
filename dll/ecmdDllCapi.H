@@ -84,9 +84,9 @@ uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayD
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
-bool dllQueryTargetConfigured(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
+bool dllQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData); 
 
-bool dllQueryTargetExist(ecmdChipTarget i_target, ecmdQueryData * i_queryData); 
+bool dllQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData); 
 
 uint32_t dllQueryConnectedTargets(ecmdChipTarget & i_target, const char * i_connectionType, std::list<ecmdConnectionData> & o_connections); 
 
