@@ -11,6 +11,18 @@ if ($#ARGV != 2) {
   exit(1);
 }
 
+#####################################################
+# Get the OS
+#
+my $OS;
+if (`uname` eq "AIX\n") {
+  $OS = "aix";
+} elsif (`uname -a|grep ppc` ne "") {
+  $OS = "ppc";
+} else {
+  $OS = "x86";
+}
+
 # ARGV[0] will be the place to write this all out to
 my $outputDirectory = shift(@ARGV);
 # ARGV[1] will be the root of the ecmd CVS
@@ -21,7 +33,7 @@ my $version = shift(@ARGV);
 system("mkdir -p $outputDirectory");
 
 # Set the environment for the script to have the latex install in CTE at the front of the path
-$ENV{"PATH"} = "/gsa/rchgsa/projects/e/ecmd/utils/x86/bin:" . $ENV{"PATH"};
+$ENV{"PATH"} = "/gsa/rchgsa/projects/e/ecmd/utils/$OS/bin:" . $ENV{"PATH"};
 
 # Do the C-API
 printf("Creating C-API Documentation (html)...\n\n");
