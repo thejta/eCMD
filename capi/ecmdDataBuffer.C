@@ -55,40 +55,19 @@ TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
-#ifndef EDB_HEADER
-#define EDB_HEADER 0xBEEFBEEF
-#endif
-
-#ifndef EDB_RANDNUM
 #define EDB_RANDNUM 0x12345678
-#endif
-
-#ifndef EDB_ADMIN_HEADER_SIZE
-#define EDB_ADMIN_HEADER_SIZE 4
-#endif
-
-#ifndef EDB_ADMIN_FOOTER_SIZE
+#define EDB_ADMIN_HEADER_SIZE 1
 #define EDB_ADMIN_FOOTER_SIZE 1
-#endif
-
 // This define is the sum of EDB_ADMIN_HEADER_SIZE + EDB_ADMIN_FOOTER_SIZE
-#ifndef EDB_ADMIN_TOTAL_SIZE
-#define EDB_ADMIN_TOTAL_SIZE 5
-#endif
-
-#ifdef ENABLE_MPATROL
-#ifdef _AIX
-/* This is to fix a missing symbol problem when compiling on aix with mpatrol */
-char **p_xargv;
-#endif
-#endif
+#define EDB_ADMIN_TOTAL_SIZE 2
+#define EDB_RETURN_CODE 0
 
 // New Constants for improved performance
 //#define MIN(x,y)            (((x)<(y))?x:y) - Removed 7/23/08 because prdfCompressBuffer.H defines this function
 #define UNIT_SZ             32
 
-#define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; } return i_rc;
-#define SET_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[2] == 0)) { iv_RealData[2] = i_rc; }
+#define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[EDB_RETURN_CODE] == 0)) { iv_RealData[EDB_RETURN_CODE] = i_rc; } return i_rc;
+#define SET_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[EDB_RETURN_CODE] == 0)) { iv_RealData[EDB_RETURN_CODE] = i_rc; }
 
 //----------------------------------------------------------------------
 //  Forward declarations
@@ -106,90 +85,79 @@ inline uint32_t ecmdFastInsert(uint32_t *i_target,const uint32_t * i_dataIn, uin
 //----------------------------------------------------------------------
 inline /* leave this inlined */
 uint32_t fast_mask32(int32_t i_pos, int32_t i_len) {
-        /* generates an arbitrary 32-bit mask using two
-           operations, not too shabby */
+  /* generates an arbitrary 32-bit mask using two
+   operations, not too shabby */
 
-        static const uint32_t l_mask32[] = {
-                0x00000000,
-                0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
-                0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
-                0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
-                0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
-                0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
-                0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
-                0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
-                0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF,
-        };
-        return l_mask32[i_len] >> i_pos;
+  static const uint32_t l_mask32[] = {
+    0x00000000,
+    0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
+    0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
+    0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
+    0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
+    0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
+    0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
+    0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
+    0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF,
+  };
+  return l_mask32[i_len] >> i_pos;
 }
 
 inline /* leave this inlined */
 uint32_t fast_set32(uint32_t i_trg, int32_t i_pos, int32_t i_len) {
-
-    return fast_mask32(i_pos, i_len) | i_trg;
+  return fast_mask32(i_pos, i_len) | i_trg;
 }
 
 inline /* leave this inlined */
 uint32_t fast_clear32(uint32_t i_trg, int32_t i_pos, int32_t i_len) {
-
-    return fast_mask32(i_pos, i_len) & ~i_trg;
+  return fast_mask32(i_pos, i_len) & ~i_trg;
 }
 
 inline /* leave this inlined */
 uint8_t fast_reverse8(uint8_t data) {
-    static const uint8_t reverse8[] = {
-                0x00,0x80,0x40,0xc0,0x20,0xa0,0x60,0xe0,
-                0x10,0x90,0x50,0xd0,0x30,0xb0,0x70,0xf0,
-                0x08,0x88,0x48,0xc8,0x28,0xa8,0x68,0xe8,
-                0x18,0x98,0x58,0xd8,0x38,0xb8,0x78,0xf8,
-                0x04,0x84,0x44,0xc4,0x24,0xa4,0x64,0xe4,
-                0x14,0x94,0x54,0xd4,0x34,0xb4,0x74,0xf4,
-                0x0c,0x8c,0x4c,0xcc,0x2c,0xac,0x6c,0xec,
-                0x1c,0x9c,0x5c,0xdc,0x3c,0xbc,0x7c,0xfc,
-                0x02,0x82,0x42,0xc2,0x22,0xa2,0x62,0xe2,
-                0x12,0x92,0x52,0xd2,0x32,0xb2,0x72,0xf2,
-                0x0a,0x8a,0x4a,0xca,0x2a,0xaa,0x6a,0xea,
-                0x1a,0x9a,0x5a,0xda,0x3a,0xba,0x7a,0xfa,
-                0x06,0x86,0x46,0xc6,0x26,0xa6,0x66,0xe6,
-                0x16,0x96,0x56,0xd6,0x36,0xb6,0x76,0xf6,
-                0x0e,0x8e,0x4e,0xce,0x2e,0xae,0x6e,0xee,
-                0x1e,0x9e,0x5e,0xde,0x3e,0xbe,0x7e,0xfe,
-                0x01,0x81,0x41,0xc1,0x21,0xa1,0x61,0xe1,
-                0x11,0x91,0x51,0xd1,0x31,0xb1,0x71,0xf1,
-                0x09,0x89,0x49,0xc9,0x29,0xa9,0x69,0xe9,
-                0x19,0x99,0x59,0xd9,0x39,0xb9,0x79,0xf9,
-                0x05,0x85,0x45,0xc5,0x25,0xa5,0x65,0xe5,
-                0x15,0x95,0x55,0xd5,0x35,0xb5,0x75,0xf5,
-                0x0d,0x8d,0x4d,0xcd,0x2d,0xad,0x6d,0xed,
-                0x1d,0x9d,0x5d,0xdd,0x3d,0xbd,0x7d,0xfd,
-                0x03,0x83,0x43,0xc3,0x23,0xa3,0x63,0xe3,
-                0x13,0x93,0x53,0xd3,0x33,0xb3,0x73,0xf3,
-                0x0b,0x8b,0x4b,0xcb,0x2b,0xab,0x6b,0xeb,
-                0x1b,0x9b,0x5b,0xdb,0x3b,0xbb,0x7b,0xfb,
-                0x07,0x87,0x47,0xc7,0x27,0xa7,0x67,0xe7,
-                0x17,0x97,0x57,0xd7,0x37,0xb7,0x77,0xf7,
-                0x0f,0x8f,0x4f,0xcf,0x2f,0xaf,0x6f,0xef,
-                0x1f,0x9f,0x5f,0xdf,0x3f,0xbf,0x7f,0xff,
-    };
-    return reverse8[data];
+  static const uint8_t reverse8[] = {
+    0x00,0x80,0x40,0xc0,0x20,0xa0,0x60,0xe0,
+    0x10,0x90,0x50,0xd0,0x30,0xb0,0x70,0xf0,
+    0x08,0x88,0x48,0xc8,0x28,0xa8,0x68,0xe8,
+    0x18,0x98,0x58,0xd8,0x38,0xb8,0x78,0xf8,
+    0x04,0x84,0x44,0xc4,0x24,0xa4,0x64,0xe4,
+    0x14,0x94,0x54,0xd4,0x34,0xb4,0x74,0xf4,
+    0x0c,0x8c,0x4c,0xcc,0x2c,0xac,0x6c,0xec,
+    0x1c,0x9c,0x5c,0xdc,0x3c,0xbc,0x7c,0xfc,
+    0x02,0x82,0x42,0xc2,0x22,0xa2,0x62,0xe2,
+    0x12,0x92,0x52,0xd2,0x32,0xb2,0x72,0xf2,
+    0x0a,0x8a,0x4a,0xca,0x2a,0xaa,0x6a,0xea,
+    0x1a,0x9a,0x5a,0xda,0x3a,0xba,0x7a,0xfa,
+    0x06,0x86,0x46,0xc6,0x26,0xa6,0x66,0xe6,
+    0x16,0x96,0x56,0xd6,0x36,0xb6,0x76,0xf6,
+    0x0e,0x8e,0x4e,0xce,0x2e,0xae,0x6e,0xee,
+    0x1e,0x9e,0x5e,0xde,0x3e,0xbe,0x7e,0xfe,
+    0x01,0x81,0x41,0xc1,0x21,0xa1,0x61,0xe1,
+    0x11,0x91,0x51,0xd1,0x31,0xb1,0x71,0xf1,
+    0x09,0x89,0x49,0xc9,0x29,0xa9,0x69,0xe9,
+    0x19,0x99,0x59,0xd9,0x39,0xb9,0x79,0xf9,
+    0x05,0x85,0x45,0xc5,0x25,0xa5,0x65,0xe5,
+    0x15,0x95,0x55,0xd5,0x35,0xb5,0x75,0xf5,
+    0x0d,0x8d,0x4d,0xcd,0x2d,0xad,0x6d,0xed,
+    0x1d,0x9d,0x5d,0xdd,0x3d,0xbd,0x7d,0xfd,
+    0x03,0x83,0x43,0xc3,0x23,0xa3,0x63,0xe3,
+    0x13,0x93,0x53,0xd3,0x33,0xb3,0x73,0xf3,
+    0x0b,0x8b,0x4b,0xcb,0x2b,0xab,0x6b,0xeb,
+    0x1b,0x9b,0x5b,0xdb,0x3b,0xbb,0x7b,0xfb,
+    0x07,0x87,0x47,0xc7,0x27,0xa7,0x67,0xe7,
+    0x17,0x97,0x57,0xd7,0x37,0xb7,0x77,0xf7,
+    0x0f,0x8f,0x4f,0xcf,0x2f,0xaf,0x6f,0xef,
+    0x1f,0x9f,0x5f,0xdf,0x3f,0xbf,0x7f,0xff,
+  };
+  return reverse8[data];
 }
 
 inline /* leave this inlined */
 uint32_t fast_reverse32(uint32_t data) {
-    return fast_reverse8((data & 0xFF000000) >> 24) |
-      fast_reverse8((data & 0x00FF0000) >> 16) << 8 |
-      fast_reverse8((data & 0x0000FF00) >> 8) << 16 |
-      fast_reverse8(data & 0x000000FF) << 24;
+  return fast_reverse8((data & 0xFF000000) >> 24) |
+    fast_reverse8((data & 0x00FF0000) >> 16) << 8 |
+    fast_reverse8((data & 0x0000FF00) >> 8) << 16 |
+    fast_reverse8(data & 0x000000FF) << 24;
 }
-
-
-
-//----------------------------------------------------------------------
-//  Data Storage Header Format - Example has 4 words
-//   Pointer       offset    data
-//  real_data  ->  000000   EDB_HEADER  <numwords> <errcde> EDB_RANDNUM
-//       data  ->  000010   <data>      <data>     <data>   <data>
-//             ->  000020   EDB_RANDNUM 
 
 //---------------------------------------------------------------------
 //  Constructors
@@ -239,7 +207,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& i_other)
     // iv_Data
     memcpy(iv_Data, i_other.iv_Data, iv_NumWords * 4);
     // Error state
-    iv_RealData[2] = i_other.iv_RealData[2];
+    iv_RealData[EDB_RETURN_CODE] = i_other.iv_RealData[EDB_RETURN_CODE];
 
 
 #ifndef REMOVE_SIM
@@ -267,7 +235,6 @@ ecmdDataBuffer::~ecmdDataBuffer()
 //  Public Member Function Specifications
 //---------------------------------------------------------------------
 uint32_t ecmdDataBuffer::clear() {
-
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if(!iv_UserOwned)  // If this buffer is shared
@@ -281,18 +248,22 @@ uint32_t ecmdDataBuffer::clear() {
       }
   }
 
-  if ((iv_RealData != NULL)) {
+  if (iv_RealData != NULL) {
+
     /* Let's check our header,footer info */
-    if ((iv_RealData[0] != EDB_HEADER) || (iv_RealData[1] != iv_NumWords) || (iv_RealData[3] != iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE])) {
+    if (iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] != EDB_RANDNUM) {
       /* Ok, something is wrong here */
-      ETRAC3("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_RealData[1]: %X, iv_NumWords: %X",iv_RealData[0],iv_RealData[1],iv_NumWords);
-      ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[3]: %X, iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[3],iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]);
+      ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_NumWords: %X",iv_RealData[EDB_RETURN_CODE],iv_NumWords);
+      ETRAC1("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]);
       ETRAC0("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/FOOTER");
       abort();
     }
 
     /* That looked okay, reset everything else */
-    delete[] iv_RealData;
+    /* Only do the delete if we alloc'd something */
+    if (iv_RealData != iv_LocalData) {
+      delete[] iv_RealData;
+    }
     iv_RealData = NULL;
     iv_Capacity = 0;
     iv_NumWords = 0;
@@ -311,119 +282,39 @@ uint32_t ecmdDataBuffer::clear() {
 }
 
 
-uint32_t   ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
-uint32_t   ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
-uint32_t   ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}
-uint32_t   ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
+uint32_t ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
+uint32_t ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
+uint32_t ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}
+uint32_t ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
 
-uint32_t  ecmdDataBuffer::setWordLength(uint32_t i_newNumWords) {
-
+uint32_t ecmdDataBuffer::setWordLength(uint32_t i_newNumWords) {
   return setBitLength(i_newNumWords * 32);
-
 }  
 
-uint32_t  ecmdDataBuffer::setByteLength(uint32_t i_newNumBytes) {
-
+uint32_t ecmdDataBuffer::setByteLength(uint32_t i_newNumBytes) {
   return setBitLength(i_newNumBytes * 8);
-
 }  
 
-uint32_t  ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
-
+uint32_t ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-
-  if(!iv_UserOwned) {
-    ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
-  }
 
   if ((i_newNumBits == 0) && (iv_NumBits == 0)) {
     // Do Nothing:  this data doesn't already have iv_RealData,iv_Data defined, and it doesn't want to define it
     return rc;
   }
 
-  else if ((i_newNumBits == iv_NumBits) && i_newNumBits != 0) {
-    /* Just clear the buffer */
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      this->fillDataStr('0'); /* init to 0 */
-    }
-#endif
-    iv_RealData[2] = 0; ///< Reset error code
-    return rc;  /* nothing to do */
-  }
-
-  uint32_t newNumWords = i_newNumBits % 32 ? (i_newNumBits / 32 + 1) : i_newNumBits / 32;
-
-  iv_NumWords = newNumWords;
+  /* Assign i_newNumBits to iv_NumBits and figure out how many words that is */
   iv_NumBits = i_newNumBits;
+  iv_NumWords = (iv_NumBits + 31) / 32;
 
-  if (iv_Capacity < newNumWords) {  /* we need to resize iv_Data member */
-    if (iv_RealData != NULL) {
-      delete[] iv_RealData;
-    }
-    iv_RealData = NULL;
-
-    iv_Capacity = newNumWords;
-
-    iv_RealData = new uint32_t[iv_Capacity + EDB_ADMIN_TOTAL_SIZE];
-    if (iv_RealData == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::setBitLength : Unable to allocate memory for new databuffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-    }
-
-    iv_Data = iv_RealData + EDB_ADMIN_HEADER_SIZE;
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      if (iv_DataStr != NULL) {
-        delete[] iv_DataStr;
-      }
-
-      iv_DataStr = new char[iv_NumBits + 42];
-
-      if (iv_DataStr == NULL) {
-        ETRAC0("**** ERROR : ecmdDataBuffer::setBitLength : Unable to allocate Xstate memory for new databuffer");
-        RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-      }
-
-      this->fillDataStr('0'); /* init to 0 */
-    }
-#endif
-
-  } else if (iv_NumBits != 0) { /* no need to resize */
-
-    /* Make sure we clear the capacity instead of just numWords - JTA 03/10/08 */
-    //memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-    memset(iv_Data, 0, iv_Capacity * 4); /* init to 0 */
-
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      this->fillDataStr('0'); /* init to 0 */
-    }
-#endif
-  }
-
-#ifndef REMOVE_SIM
-  else if (iv_XstateEnabled) { /* decreasing bit length to zero */
-    iv_DataStr[0] = '\0';
-  }
-#endif
-
-  /* Ok, now setup the header, and tail */
-  iv_RealData[0] = EDB_HEADER;
-  iv_RealData[1] = iv_NumWords;
-  iv_RealData[2] = 0; ///< Reset error code
-  iv_RealData[3] = EDB_RANDNUM;
-  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+  /* Now call setCapacity to do all the data buffer resizing and setup */
+  rc = setCapacity(iv_NumWords);
+  if (rc) return rc;
 
   return rc;
 }  
 
 uint32_t ecmdDataBuffer::setCapacity (uint32_t i_newCapacity) {
-
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if(!iv_UserOwned) {
@@ -431,53 +322,57 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t i_newCapacity) {
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
- /* only resize to make the capacity bigger */
+  /* only resize to make the capacity bigger */
   if (iv_Capacity < i_newCapacity) {
     iv_Capacity = i_newCapacity;
-    if (iv_RealData != NULL) {
-      delete[] iv_RealData;
+
+    /* Now setup iv_RealData */
+    if (iv_Capacity <= 2) {
+      /* We are using iv_LocalData, so point iv_RealData to the start of that */
+      iv_RealData = iv_LocalData;
+    } else {
+      /* If we are going from <= 64 to > 64, there was no malloc done so can't do delete */
+      if ((iv_RealData != NULL) && (iv_RealData != iv_LocalData)) {
+        delete[] iv_RealData;
+      }
+      iv_RealData = NULL;
+
+      iv_RealData = new uint32_t[iv_Capacity + EDB_ADMIN_TOTAL_SIZE]; 
+      if (iv_RealData == NULL) {
+        ETRAC0("**** ERROR : ecmdDataBuffer::setCapacity : Unable to allocate memory for new databuffer");
+        RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+      }
     }
 
-    iv_RealData = NULL;
-
-    iv_RealData = new uint32_t[iv_Capacity + EDB_ADMIN_TOTAL_SIZE]; 
-
-    if (iv_RealData == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::setCapacity : Unable to allocate memory for new databuffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-    }
-
+    /* Now setup iv_Data to point into the offset inside of iv_RealData */
     iv_Data = iv_RealData + EDB_ADMIN_HEADER_SIZE;
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
-
-    /* Ok, now setup the header, and tail */
-    iv_RealData[0] = EDB_HEADER;
-    iv_RealData[1] = iv_NumWords;
-    iv_RealData[2] = 0; ///< Reset error code
-    iv_RealData[3] = EDB_RANDNUM;
-    iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
-      if (iv_DataStr != NULL)
+      if (iv_DataStr != NULL) {
         delete[] iv_DataStr;
-
+      }
       iv_DataStr = NULL;
 
       iv_DataStr = new char[(iv_Capacity*32)+42];
-
       if (iv_DataStr == NULL) {
         ETRAC0("**** ERROR : ecmdDataBuffer::setCapacity : Unable to allocate Xstate memory for new databuffer");
         RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
       }
-
-      this->fillDataStr('0'); /* init to 0 */
     }
 #endif
-
   }
-  return rc;
 
+  /* We are all setup, now init everything to 0 */
+  /* We want to do this regardless of if the buffer was resized.  This function is meant to be a destructive operation */
+  /* Ok, now setup the header, and tail */
+  iv_RealData[EDB_RETURN_CODE] = 0; ///< Reset error code
+  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+
+  rc = flushTo0();
+  if (rc) return rc;
+
+  return rc;
 }
 
 uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
@@ -488,8 +383,11 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
     rc = ECMD_DBUF_BUFFER_OVERFLOW;
     RETURN_ERROR(rc);
   }
-  if (i_newNumBits == iv_NumBits)
-    return rc;  /* nothing to do */
+
+  /* If the length is the same, do nothing */
+  if (i_newNumBits == iv_NumBits) {
+    return rc;
+  }
 
   // before shrinking, clear all data that is going to now be invalid
   this->clearBit(i_newNumBits, (iv_NumBits-i_newNumBits));
@@ -504,7 +402,6 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
   iv_NumBits = i_newNumBits;
 
   /* Ok, now setup the header, and tail */
-  iv_RealData[1] = iv_NumWords;
   iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   return rc;
@@ -590,8 +487,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 
   /* Only reset this stuff if things have changed */
   if (prevwordsize != iv_NumWords) {
-    iv_RealData[1] = iv_NumWords;
-    iv_RealData[2] = 0;  // error state
+    iv_RealData[EDB_RETURN_CODE] = 0;  // error state
     iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
   }
 
@@ -604,7 +500,7 @@ bool ecmdDataBuffer::getBit(uint32_t i_bit) const {
 }
 
 
-uint32_t  ecmdDataBuffer::setBit(uint32_t i_bit) {
+uint32_t ecmdDataBuffer::setBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
@@ -622,7 +518,7 @@ uint32_t  ecmdDataBuffer::setBit(uint32_t i_bit) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::setBit(uint32_t i_bit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setBit(uint32_t i_bit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_bit+i_len > iv_NumBits) {
@@ -648,7 +544,7 @@ uint32_t ecmdDataBuffer::writeBit(uint32_t i_bit, uint32_t i_value) {
 
 
 
-uint32_t  ecmdDataBuffer::setWord(uint32_t i_wordOffset, uint32_t i_value) {
+uint32_t ecmdDataBuffer::setWord(uint32_t i_wordOffset, uint32_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_wordOffset >= iv_NumWords) {
@@ -688,7 +584,7 @@ uint32_t  ecmdDataBuffer::setWord(uint32_t i_wordOffset, uint32_t i_value) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::setByte(uint32_t i_byteOffset, uint8_t i_value) {
+uint32_t ecmdDataBuffer::setByte(uint32_t i_byteOffset, uint8_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_byteOffset >= getByteLength()) {
@@ -746,7 +642,7 @@ uint8_t ecmdDataBuffer::getByte(uint32_t i_byteOffset) const {
 }
 
 
-uint32_t  ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value) {
+uint32_t ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_halfwordoffset >= ((getByteLength()+1)/2)) {
@@ -805,7 +701,7 @@ uint16_t ecmdDataBuffer::getHalfWord(uint32_t i_halfwordoffset) const {
   return ret;
 }
 
-uint32_t  ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value) {
+uint32_t ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
@@ -887,7 +783,7 @@ uint64_t ecmdDataBuffer::getDoubleWord(uint32_t i_doublewordoffset) const {
   return ret;
 }
 
-uint32_t  ecmdDataBuffer::clearBit(uint32_t i_bit) {
+uint32_t ecmdDataBuffer::clearBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::clearBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
@@ -905,7 +801,7 @@ uint32_t  ecmdDataBuffer::clearBit(uint32_t i_bit) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::clearBit(uint32_t i_bit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::clearBit(uint32_t i_bit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::clearBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
@@ -919,7 +815,7 @@ uint32_t  ecmdDataBuffer::clearBit(uint32_t i_bit, uint32_t i_len) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::flipBit(uint32_t i_bit) {
+uint32_t ecmdDataBuffer::flipBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::flipBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
@@ -941,7 +837,7 @@ uint32_t  ecmdDataBuffer::flipBit(uint32_t i_bit) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::flipBit(uint32_t i_bit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::flipBit(uint32_t i_bit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::flipBit: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
@@ -1033,7 +929,7 @@ bool ecmdDataBuffer::isBitClear(uint32_t i_bit, uint32_t i_len) const
   return rc;
 }
 
-uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
+uint32_t ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
   if (i_bit+i_len > iv_NumBits) {
     ETRAC3("**** ERROR : ecmdDataBuffer::getNumBitsSet: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1087,7 +983,7 @@ uint32_t   ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
   return count;
 }
 
-uint32_t   ecmdDataBuffer::shiftRight(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftRight(uint32_t i_shiftNum) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1138,7 +1034,7 @@ uint32_t   ecmdDataBuffer::shiftRight(uint32_t i_shiftNum) {
   return rc;
 }
 
-uint32_t   ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1190,7 +1086,7 @@ uint32_t   ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum) {
 }
 
 
-uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1252,7 +1148,6 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
 #endif
   }
 
-  iv_RealData[1] = iv_NumWords;
   iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   // shift iv_Data array
@@ -1308,7 +1203,7 @@ uint32_t   ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
  return rc;
 }
 
-uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1353,7 +1248,6 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
   /* Adjust our lengths based on the shift */
   iv_NumBits -= i_shiftNum;
   iv_NumWords = (iv_NumBits +31) / 32;
-  iv_RealData[1] = iv_NumWords;
   iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
 #ifndef REMOVE_SIM
@@ -1373,7 +1267,7 @@ uint32_t   ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::rotateRight(uint32_t i_rotateNum) {
+uint32_t ecmdDataBuffer::rotateRight(uint32_t i_rotateNum) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1392,7 +1286,7 @@ uint32_t  ecmdDataBuffer::rotateRight(uint32_t i_rotateNum) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
+uint32_t ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1411,7 +1305,7 @@ uint32_t  ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::flushTo0() {
+uint32_t ecmdDataBuffer::flushTo0() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (iv_NumWords > 0) {
     memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
@@ -1423,7 +1317,7 @@ uint32_t  ecmdDataBuffer::flushTo0() {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::flushTo1() {
+uint32_t ecmdDataBuffer::flushTo1() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (iv_NumWords > 0) {
     for (uint32_t i = 0; i < iv_NumWords; i++) {
@@ -1662,7 +1556,7 @@ uint32_t ecmdDataBuffer::insert(const uint32_t * i_dataIn, uint32_t i_targetStar
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+uint32_t ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if ( i_sourceStart + i_len > 32 ) {
@@ -1682,7 +1576,7 @@ uint32_t  ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
+uint32_t ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1718,7 +1612,7 @@ uint32_t  ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
+uint32_t ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
 
   if (i_len > 32) {
     ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_len %d > sizeof i_dataIn (32)", i_len);
@@ -1729,7 +1623,7 @@ uint32_t  ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, u
     return this->insertFromRight(&i_datain, i_start, i_len);
 }
 
-uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+uint32_t ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1756,7 +1650,7 @@ uint32_t  ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::insertFromRight(const uint8_t *i_datain, uint32_t i_start, uint32_t i_len) {
+uint32_t ecmdDataBuffer::insertFromRight(const uint8_t *i_datain, uint32_t i_start, uint32_t i_len) {
 
  
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -2178,7 +2072,7 @@ uint32_t ecmdDataBuffer::setAnd(uint32_t i_dataIn, uint32_t i_startBit, uint32_t
   return this->setAnd(&i_dataIn, i_startBit, i_len);
 }
 
-uint32_t   ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop) const {
+uint32_t ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop) const {
 
   int charOffset;
   int posOffset;
@@ -2220,7 +2114,7 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop) const {
 
 }
 
-uint32_t   ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop) const {
+uint32_t ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop) const {
 // input checks done as part of oddParity()
   if (this->oddParity(i_start, i_stop))
     return 0;
@@ -2228,7 +2122,7 @@ uint32_t   ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop) const {
     return 1;
 }
 
-uint32_t   ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertPos) {
+uint32_t ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertPos) {
 // input checks done as part of oddParity()
   if (this->oddParity(i_start,i_stop))
     this->setBit(i_insertPos);
@@ -2237,7 +2131,7 @@ uint32_t   ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop, uint32_t
   return 0;
 }
 
-uint32_t   ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertPos) {
+uint32_t ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertPos) {
 // input checks done as part of evenParity()...which calls oddParity
   if (this->evenParity(i_start,i_stop))
     this->setBit(i_insertPos);
@@ -2755,7 +2649,7 @@ uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &o_newCopy) const {
     // iv_Data
     memcpy(o_newCopy.iv_Data, iv_Data, iv_NumWords * 4);
     // Error state
-    o_newCopy.iv_RealData[2] = iv_RealData[2];
+    o_newCopy.iv_RealData[EDB_RETURN_CODE] = iv_RealData[EDB_RETURN_CODE];
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
       /* enable the xstate in the copy */
@@ -2781,7 +2675,7 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
     // iv_Data
     memcpy(iv_Data, i_master.iv_Data, iv_NumWords * 4);
     // Error state
-    iv_RealData[2] = i_master.iv_RealData[2];
+    iv_RealData[EDB_RETURN_CODE] = i_master.iv_RealData[EDB_RETURN_CODE];
 #ifndef REMOVE_SIM
     if (i_master.iv_XstateEnabled) {
       enableXstateBuffer();
@@ -2840,7 +2734,7 @@ uint32_t ecmdDataBuffer::memCopyIn(const uint32_t* i_buf, uint32_t i_bytes) { /*
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::memCopyOut(uint32_t* o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+uint32_t ecmdDataBuffer::memCopyOut(uint32_t* o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
@@ -3043,7 +2937,7 @@ bool ecmdDataBuffer::isXstateEnabled() const {
 
 
 #ifndef REMOVE_SIM
-uint32_t  ecmdDataBuffer::flushToX(char i_value) {
+uint32_t ecmdDataBuffer::flushToX(char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
 
@@ -3203,7 +3097,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bitOffset, const char* i_datastr) 
 
 
 #ifndef REMOVE_SIM
-uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+uint32_t ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   /* cbytes is equal to the bit length of data */
@@ -3238,7 +3132,7 @@ uint32_t  ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) {
 #endif /* REMOVE_SIM */
 
 #ifndef REMOVE_SIM
-uint32_t  ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+uint32_t ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t cbytes = i_bits < getBitLength() ? i_bits : getBitLength();
   if (!iv_XstateEnabled) {
@@ -3746,13 +3640,13 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
   return(rc);
 }
 
-uint32_t  ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format, const char * i_facName) {
+uint32_t ecmdDataBuffer::writeFile(const char * filename, ecmdFormatType_t format, const char * i_facName) {
   ecmdWriteMode_t mode = ECMD_WRITE_MODE;
   uint32_t dataNumber;
   return this->writeFileMultiple(filename, format, mode, dataNumber, i_facName) ;
 }
 
-uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
+uint32_t ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t *buffer;
   uint32_t numBytes = getByteLength();
@@ -3782,7 +3676,7 @@ uint32_t  ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
   return rc;
 }
 
-uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * i_filename, ecmdFormatType_t i_format, uint32_t &o_num) {
+uint32_t ecmdDataBuffer::queryNumOfBuffers(const char * i_filename, ecmdFormatType_t i_format, uint32_t &o_num) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
   uint32_t endOffset = 0, totalFileSz=0;
@@ -3840,7 +3734,7 @@ uint32_t  ecmdDataBuffer::queryNumOfBuffers(const char * i_filename, ecmdFormatT
   
 }
 
-uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, const char * i_prpty, uint32_t &o_dataNumber) {
+uint32_t ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, const char * i_prpty, uint32_t &o_dataNumber) {
   uint32_t *dataOffsets;
   bool propertyMatch = false;
   std::string facNameFromFile; 
@@ -3958,7 +3852,7 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatTy
     }
 }
 
-uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber, std::string *o_facName) {
+uint32_t ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber, std::string *o_facName) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   std::ifstream ins;
   uint32_t numBits = 0, numBytes = 0, hexbitlen = 0, property = 0, *buffer;
@@ -4166,12 +4060,12 @@ uint32_t  ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatTy
   return(rc);
 }
 
-uint32_t  ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_facName) {
+uint32_t ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_facName) {
   uint32_t dataNumber=0;
   return this->readFileMultiple(i_filename, i_format, dataNumber, o_facName);
 }
 
-uint32_t  ecmdDataBuffer::readFileStream(std::istream & i_filestream, uint32_t i_bitlength) {
+uint32_t ecmdDataBuffer::readFileStream(std::istream & i_filestream, uint32_t i_bitlength) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t numBytes = i_bitlength % 8 ? (i_bitlength / 8) + 1 : i_bitlength / 8;
   uint32_t *buffer;
@@ -4223,7 +4117,7 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
 
 void ecmdDataBuffer::queryErrorState( uint32_t & o_errorState) {
   if (iv_RealData != NULL) {
-    o_errorState = iv_RealData[2];
+    o_errorState = iv_RealData[EDB_RETURN_CODE];
   } else {
     o_errorState = 0;
   }
