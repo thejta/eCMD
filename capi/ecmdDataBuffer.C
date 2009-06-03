@@ -284,7 +284,7 @@ uint32_t ecmdDataBuffer::clear() {
 
 uint32_t ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
 uint32_t ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
-uint32_t ecmdDataBuffer::getByteLength() const { return iv_NumBits % 8 ? (iv_NumBits / 8) + 1 : iv_NumBits / 8;}
+uint32_t ecmdDataBuffer::getByteLength() const { return (iv_NumBits + 7) / 8; }
 uint32_t ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
 
 uint32_t ecmdDataBuffer::setWordLength(uint32_t i_newNumWords) {
@@ -396,7 +396,7 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
     RETURN_ERROR(rc);  
   }
 
-  uint32_t newNumWords = i_newNumBits % 32 ? i_newNumBits / 32 + 1 : i_newNumBits / 32;
+  uint32_t newNumWords = (i_newNumBits + 31) / 32;
 
   iv_NumWords = newNumWords;
   iv_NumBits = i_newNumBits;
@@ -430,7 +430,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
   /* Set our new length */
   prevwordsize = iv_NumWords;
   prevbitsize = iv_NumBits;
-  iv_NumWords = i_newNumBits % 32 ? (i_newNumBits / 32) + 1 : i_newNumBits / 32;
+  iv_NumWords = (i_newNumBits + 31) / 32;
   iv_NumBits = i_newNumBits;
   if (iv_NumWords > iv_Capacity) {
     /* UhOh we are out of room, have to resize */
@@ -457,7 +457,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
     if (rc) { if(tempBuf) delete[] tempBuf; return rc;}
 
     /* Restore the data */
-    ecmdBigEndianMemCopy(iv_Data, tempBuf, prevbitsize % 8 ? (prevbitsize / 8) + 1 : prevbitsize / 8);
+    ecmdBigEndianMemCopy(iv_Data, tempBuf, (prevbitsize + 7) / 8);
     delete[] tempBuf;
 
 #ifndef REMOVE_SIM
@@ -553,7 +553,7 @@ uint32_t ecmdDataBuffer::setWord(uint32_t i_wordOffset, uint32_t i_value) {
   }
 
   // Create mask if part of this word is not in the valid part of the ecmdDataBuffer 
-  if (((i_wordOffset + 1) == iv_NumWords) && (iv_NumBits%32)) {
+  if (((i_wordOffset + 1) == iv_NumWords) && (iv_NumBits % 32)) {
     /* Create my mask */
     uint32_t bitMask = 0xFFFFFFFF;
     /* Shift it left by the amount of unused bits */
@@ -593,7 +593,7 @@ uint32_t ecmdDataBuffer::setByte(uint32_t i_byteOffset, uint8_t i_value) {
   }
 
   // Create mask if part of this byte is not in the valid part of the ecmdDataBuffer 
-  if (((i_byteOffset + 1) == getByteLength()) && (iv_NumBits%8)) {
+  if (((i_byteOffset + 1) == getByteLength()) && (iv_NumBits % 8)) {
     /* Create my mask */
     uint8_t bitMask = 0xFF;
     /* Shift it left by the amount of unused bits */
@@ -651,7 +651,7 @@ uint32_t ecmdDataBuffer::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value
   }
 
   // Create mask if part of this byte is not in the valid part of the ecmdDataBuffer 
-  if (((i_halfwordoffset + 1) == ((getByteLength()+1)/2)) && (iv_NumBits%16)) {
+  if (((i_halfwordoffset + 1) == ((getByteLength()+1)/2)) && (iv_NumBits % 16)) {
     /* Create my mask */
     uint16_t bitMask = 0xFFFF;
     /* Shift it left by the amount of unused bits */
@@ -711,7 +711,7 @@ uint32_t ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_v
   }
 
   // Create mask if part of this byte is not in the valid part of the ecmdDataBuffer 
-  if (((i_doublewordoffset + 1) == ((getWordLength()+1)/2)) && (iv_NumBits%64)) {
+  if (((i_doublewordoffset + 1) == ((getWordLength()+1)/2)) && (iv_NumBits % 64)) {
     /* Create my mask */
 #ifdef _LP64
     uint64_t bitMask = 0xFFFFFFFFFFFFFFFFul;
@@ -1404,7 +1404,7 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
   }
 
   /* We need to make sure our last word is clean if numBits isn't on a word boundary */
-  if ((wordlen == iv_NumWords) && (iv_NumBits%32)) {
+  if ((wordlen == iv_NumWords) && (iv_NumBits % 32)) {
     /* Reading out the last word and writing it back will clear any bad bits on */
     uint32_t myWord = getWord((wordlen-1));
     rc = setWord((wordlen-1), myWord);
@@ -2474,7 +2474,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t i_
     return rc;
   }
 
-  int wordLength = (bitlength % 32) ? bitlength / 32 + 1 : bitlength / 32;
+  int wordLength = (bitlength + 31) / 32;
 
   uint32_t * number_ptr = new uint32_t[wordLength];
   for (i = 0; i < wordLength; i++) {
@@ -2545,7 +2545,7 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t i
   }
 
   /* Number of valid nibbles */
-  uint32_t nibbles = bitlength % 4 ? bitlength / 4 + 1 : bitlength / 4;
+  uint32_t nibbles = (bitlength + 3) / 4;
 
   /* If they provided us more data then we expect we will have to offset into the data to start reading */
   uint32_t dataOverFlowOffset = strlen(i_hexChars) > nibbles ? strlen(i_hexChars) - nibbles : 0;
@@ -3551,10 +3551,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       asciidatastr = genHexLeftStr(szcount, numBits-(szcount));
      }
      if (szcount !=0 ) {
-      if((szcount%256) == 0) {
+      if((szcount % 256) == 0) {
   	ops << "\n"; 
       }
-      else if((szcount%32) == 0) {
+      else if((szcount % 32) == 0) {
   	ops << " ";
       }
      }
@@ -4046,7 +4046,7 @@ uint32_t ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatTyp
     }
     
     this->setBitLength(numBits);
-    NumDwords = iv_NumBits % 64 ? (iv_NumBits / 64) + 1 : iv_NumBits / 64;
+    NumDwords = (iv_NumBits + 63) / 64;
     for (uint32_t i = 0; i < NumDwords; i++) {
       ins.width(65);  ins >> binstr;
       if ((i*64)+64 > numBits) 
@@ -4067,7 +4067,7 @@ uint32_t ecmdDataBuffer::readFile(const char * i_filename, ecmdFormatType_t i_fo
 
 uint32_t ecmdDataBuffer::readFileStream(std::istream & i_filestream, uint32_t i_bitlength) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  uint32_t numBytes = i_bitlength % 8 ? (i_bitlength / 8) + 1 : i_bitlength / 8;
+  uint32_t numBytes = (i_bitlength + 7) / 8;
   uint32_t *buffer;
   
   this->setBitLength(i_bitlength);

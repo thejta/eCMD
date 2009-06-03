@@ -201,8 +201,8 @@ public:
    * @param i_numBits Size of data in bits to initialize
    * @post ecmdDataBuffer is initialized and zero'd out
    */
-  ecmdDataBuffer(uint32_t i_numBits); 
-
+  //STGC01056640 - remove implicit conversion ability to data = 08FF doesn't work
+  explicit ecmdDataBuffer(uint32_t i_numBits); 
 
   /**
    * @brief Copy Constructor
@@ -215,7 +215,6 @@ public:
    */
   virtual ~ecmdDataBuffer();
   //@}
-
 
 
   // Member Functions
