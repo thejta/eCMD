@@ -99,6 +99,7 @@
 #define ECMD_IRSTAT_NOT_FOUND                   (ECMD_ERR_ECMD | 0x107B) ///< IRSTAT requested was not found
 #define ECMD_WRITING_TO_READ_ONLY_REG           (ECMD_ERR_ECMD | 0x107D) ///< Writing to Read-Only Register
 #define ECMD_READING_FROM_WRITE_ONLY_REG        (ECMD_ERR_ECMD | 0x107F) ///< Reading from Write-Only Register
+#define ECMD_NOT_CHIPUNIT_0                     (ECMD_ERR_ECMD | 0x108a) ///< The item passed in wasn't for chipUnit 0
 
 
 /* Return codes for command interpreter */
@@ -122,6 +123,7 @@
  #define ECMD_DBUF_FILE_OPERATION_FAIL           (ECMD_ERR_ECMD | 0x2057) ///< File operation failed
  #define ECMD_DBUF_NOT_OWNER                     (ECMD_ERR_ECMD | 0x2061) ///< Don't own this buffer so can't do this operation
  #define ECMD_DBUF_XSTATE_NOT_ENABLED            (ECMD_ERR_ECMD | 0x2063) ///< Xstate function called on a buffer that doesn't have xstates enabled
+ #define ECMD_DBUF_MISMATCH                      (ECMD_ERR_ECMD | 0x2065) ///< There was a mismatch between a comparision operation in the buffer
 #endif
 
 #define ECMD_GET_ALL_REMAINING_ERRORS            (ECMD_ERR_ECMD | 0xFFFF) ///< Retrieve all errors from getErrorMsg.  Not to be used.
