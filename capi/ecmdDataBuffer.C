@@ -1091,10 +1091,9 @@ uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
 
   uint32_t i, prevlen;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  if (!iv_UserOwned) {
+    ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
   /* We need to verify we have room to do this shifting */
@@ -1301,7 +1300,7 @@ uint32_t ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
 uint32_t ecmdDataBuffer::flushTo0() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (iv_NumWords > 0) {
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+    memset(iv_Data, 0x00, iv_NumWords * 4); /* init to 0 */
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled)
       rc = this->fillDataStr('0');
@@ -1313,9 +1312,11 @@ uint32_t ecmdDataBuffer::flushTo0() {
 uint32_t ecmdDataBuffer::flushTo1() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (iv_NumWords > 0) {
-    for (uint32_t i = 0; i < iv_NumWords; i++) {
-      setWord(i, 0xFFFFFFFF);
-    }
+    memset(iv_Data, 0xFF, iv_NumWords * 4); /* init to 1 */
+#ifndef REMOVE_SIM
+    if (iv_XstateEnabled)
+      rc = this->fillDataStr('1');
+#endif
   }
   return rc;
 }
@@ -1332,51 +1333,50 @@ uint32_t ecmdDataBuffer::reverse() {
   uint32_t l_slop =  (iv_NumBits % UNIT_SZ);
 
   if(l_slop)
-        l_words = iv_NumBits/32+1;
+    l_words = iv_NumBits/32+1;
   else
-        l_words = iv_NumBits/32;
-    
+    l_words = iv_NumBits/32;
+
   // reverse words
   for(uint32_t i=0;i< l_words/2;i++){
-      uint32_t l_tmp = fast_reverse32(iv_Data[l_words-1-i]); 
-      iv_Data[l_words-1-i] = fast_reverse32(iv_Data[i]);
-      iv_Data[i] = l_tmp;
+    uint32_t l_tmp = fast_reverse32(iv_Data[l_words-1-i]); 
+    iv_Data[l_words-1-i] = fast_reverse32(iv_Data[i]);
+    iv_Data[i] = l_tmp;
   }
 
   // if odd number of words, reverse middle word; if only 1 word, reverse this word
   if(l_words&1){
-      iv_Data[l_words/2 ] = fast_reverse32(iv_Data[l_words/2]);
+    iv_Data[l_words/2 ] = fast_reverse32(iv_Data[l_words/2]);
   }
-    
+
   // now account for slop
   if (l_slop != 0){
 
     for(uint32_t i=0;i<l_words;i++){ // loop through all words
 
       if((l_words>1)&&(i!=(l_words-1))){ // deal with most words here                
-          uint32_t mask = 0xffffffff >> (32-l_slop);
-          uint32_t tmp1 = (iv_Data[i]& mask)<< (32-l_slop);
-          
-          mask =~mask;
-          uint32_t tmp2 = (iv_Data[i+1] & mask)>>l_slop;
+        uint32_t mask = 0xffffffff >> (32-l_slop);
+        uint32_t tmp1 = (iv_Data[i]& mask)<< (32-l_slop);
 
-          tmp1 |=tmp2;
-          iv_Data[i]=tmp1;
+        mask =~mask;
+        uint32_t tmp2 = (iv_Data[i+1] & mask)>>l_slop;
+
+        tmp1 |=tmp2;
+        iv_Data[i]=tmp1;
 
       } else { //dealing with the last word separately; Also, handle if there is only one word here
-          uint32_t mask = 0xffffffff >> (32-l_slop);
-          iv_Data[l_words-1] = (iv_Data[l_words-1]& mask) <<(32-l_slop); 
+        uint32_t mask = 0xffffffff >> (32-l_slop);
+        iv_Data[l_words-1] = (iv_Data[l_words-1]& mask) <<(32-l_slop); 
       }
     } // end of for loop through all words
   } // end of slop check
-   
+
 #ifndef REMOVE_SIM   
   if (iv_XstateEnabled) {
     /* We have xstates, re-generate the binary data */
-      strncpy(&(iv_DataStr[0]), (this->genBinStr()).c_str(), iv_NumBits);
+    strncpy(&(iv_DataStr[0]), (this->genBinStr()).c_str(), iv_NumBits);
   }
 #endif
-
 
   return rc;
 }
@@ -1428,54 +1428,54 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
 
 inline uint32_t ecmdFastInsert(uint32_t *i_target,const uint32_t * i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
 
-     uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t rc = ECMD_DBUF_SUCCESS;
 
-     do {
-        const uint32_t * p_src = i_dataIn + i_sourceStart / UNIT_SZ;
-        uint32_t * p_trg = i_target + i_targetStart / UNIT_SZ;
+  do {
+    const uint32_t * p_src = i_dataIn + i_sourceStart / UNIT_SZ;
+    uint32_t * p_trg = i_target + i_targetStart / UNIT_SZ;
 
-        // "slop" = unaligned bits 
-        int32_t src_slop = i_sourceStart % UNIT_SZ;
-        int32_t trg_slop = i_targetStart % UNIT_SZ;
-        // "shift" = amount of shifting needed for target alignment 
-        int32_t shift = trg_slop - src_slop;
+    // "slop" = unaligned bits 
+    int32_t src_slop = i_sourceStart % UNIT_SZ;
+    int32_t trg_slop = i_targetStart % UNIT_SZ;
+    // "shift" = amount of shifting needed for target alignment 
+    int32_t shift = trg_slop - src_slop;
 
-        int32_t cnt = i_len;
+    int32_t cnt = i_len;
 
-            // "cnt" = largest number of bits to be moved each pass 
-            cnt = MIN(cnt, UNIT_SZ);
-            cnt = MIN(cnt, UNIT_SZ - src_slop);
-            cnt = MIN(cnt, UNIT_SZ - trg_slop);
+    // "cnt" = largest number of bits to be moved each pass 
+    cnt = MIN(cnt, UNIT_SZ);
+    cnt = MIN(cnt, UNIT_SZ - src_slop);
+    cnt = MIN(cnt, UNIT_SZ - trg_slop);
 
-            // generate the source mask only once 
-            uint32_t mask = fast_mask32(src_slop, cnt);
-            // read the source bits only once 
-            uint32_t src_bits = *p_src & mask;
+    // generate the source mask only once 
+    uint32_t mask = fast_mask32(src_slop, cnt);
+    // read the source bits only once 
+    uint32_t src_bits = *p_src & mask;
 
-            // ideally (i << -1) would yield (i >> 1), but it
-            //   doesn't, so we need an extra branch here 
-            if (shift < 0) {
-                shift = -shift;
-                src_bits <<= shift;
-                mask <<= shift;
-            } else {
-                src_bits >>= shift;
-                mask >>= shift;
-            }
+    // ideally (i << -1) would yield (i >> 1), but it
+    //   doesn't, so we need an extra branch here 
+    if (shift < 0) {
+      shift = -shift;
+      src_bits <<= shift;
+      mask <<= shift;
+    } else {
+      src_bits >>= shift;
+      mask >>= shift;
+    }
 
-            // clear source '0' bits in the target 
-            *p_trg &= ~mask;
-            // set source '1' bits in the target  
-            *p_trg |= src_bits;
+    // clear source '0' bits in the target 
+    *p_trg &= ~mask;
+    // set source '1' bits in the target  
+    *p_trg |= src_bits;
 
 
-        i_sourceStart += cnt;
-        i_targetStart += cnt;
+    i_sourceStart += cnt;
+    i_targetStart += cnt;
 
-        i_len -= cnt;
-    } while (0 < i_len);
+    i_len -= cnt;
+  } while (0 < i_len);
 
-    return rc;  
+  return rc;  
 }
 
 
