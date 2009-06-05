@@ -314,7 +314,7 @@ uint32_t ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
   return rc;
 }  
 
-uint32_t ecmdDataBuffer::setCapacity (uint32_t i_newCapacity) {
+uint32_t ecmdDataBuffer::setCapacity(uint32_t i_newCapacity) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if(!iv_UserOwned) {
@@ -459,7 +459,12 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 #endif
     /* Now resize with the new capacity */
     rc = setCapacity(iv_NumWords);
-    if (rc) { if(tempBuf) delete[] tempBuf; return rc;}
+    if (rc) {
+      if (tempBuf) {
+        delete[] tempBuf;
+      }
+      return rc;
+    }
 
     /* Restore the data */
     ecmdBigEndianMemCopy(iv_Data, tempBuf, (prevbitsize + 7) / 8);
@@ -1050,62 +1055,15 @@ uint32_t ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum, uint32_t i_offset) {
 
 uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum, uint32_t i_offset) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  uint32_t prevlen;
+  uint32_t iv_NumBitsOrig = iv_NumBits;
 
-  /* We need to verify we have room to do this shifting */
-  /* Set our new length */
-  iv_NumWords = (iv_NumBits + i_shiftNum + 31) / 32;
-  if (iv_NumWords > iv_Capacity) {
-    /* UhOh we are out of room, have to resize */
-    prevlen = iv_Capacity;
-    uint32_t * tempBuf = new uint32_t[prevlen];
-    if (tempBuf == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::shiftRightAndResize : Unable to allocate temp buffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-    }
-    memcpy(tempBuf, iv_Data, prevlen * 4);
-
-#ifndef REMOVE_SIM
-    char* temp = NULL;
-    if (iv_XstateEnabled) {
-      temp = new char[iv_NumBits+42];
-      if (temp == NULL) {
-        ETRAC0("**** ERROR : ecmdDataBuffer::shiftRightAndResize : Unable to allocate temp X-State buffer");
-	delete[] tempBuf;
-        RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-      }
-      strncpy(temp, iv_DataStr, iv_NumBits);
-    }
-#endif
-    /* Now resize with the new capacity */
-    rc = setCapacity(iv_NumWords);
-    if (rc) {
-#ifndef REMOVE_SIM
-      if (temp != NULL) delete[] temp;
-#endif
-      delete[] tempBuf;
-      return rc;
-    }
-
-    /* Restore the data */
-    memcpy(iv_Data, tempBuf, prevlen * 4);
-    delete[] tempBuf;
-
-#ifndef REMOVE_SIM
-    if (iv_XstateEnabled) {
-      strncpy(iv_DataStr, temp, iv_NumBits); // copy back into iv_DataStr
-      delete[] temp;
-    }
-#endif
-  }
-  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+  /* Make room in the data before we shift right */
+  rc = growBitLength((iv_NumBitsOrig + i_shiftNum));
+  if (rc) return rc;
 
   /* We have enough room, move our data over */
   rc = shiftRight(i_shiftNum, i_offset);
   if (rc) return rc;
-
-  // Don't update the length until we are done shifting the data to the right
-  iv_NumBits += i_shiftNum;
 
  return rc;
 }
