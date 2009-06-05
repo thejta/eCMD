@@ -516,28 +516,31 @@ public:
   /**
    * @brief Shift data to right
    * @param i_shiftnum Number of bits to shift
+   * @param i_offset Offset into the buffer to start the shift from.  Default is bit 0.
    * @post Bits in buffer are shifted to right by specified number of bits - data is shifted off the end
    * @post Buffer size is unchanged
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t shiftRight(uint32_t i_shiftnum);
+  uint32_t shiftRight(uint32_t i_shiftnum, uint32_t i_offset = 0);
   /**
    * @brief Shift data to left
    * @param i_shiftnum Number of bits to shift
+   * @param i_offset Offset into the buffer to start the shift from.  Default is to start at end of buffer.
    * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
    * @post Buffer size is unchanged
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t shiftLeft(uint32_t i_shiftnum);
+  uint32_t shiftLeft(uint32_t i_shiftnum, uint32_t i_offset = 0xFFFFFFFF);
   /**
    * @brief Shift data to right - resizing buffer
    * @param i_shiftnum Number of bits to shift
+   * @param i_offset Offset into the buffer to start the shift from.  Default is bit 0.
    * @post Bits in buffer are shifted to right by specified number of bits
    * @post Buffer size is resized to accomodate shift
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    */
-  uint32_t shiftRightAndResize(uint32_t i_shiftnum);
+  uint32_t shiftRightAndResize(uint32_t i_shiftnum, uint32_t i_offset = 0);
 
   /**
    * @brief Shift data to left - resizing buffer
