@@ -28,6 +28,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <string>
+#include <vector>
 #include <inttypes.h>
 
 #include <ecmdDefines.H>
@@ -815,15 +816,13 @@ public:
    */
   uint32_t concat(const ecmdDataBuffer & i_buf0, const ecmdDataBuffer & i_buf1);
   /**
-   * @brief Concatenate 3 DataBuffers into in this one
-   * @param i_buf0 First DataBuffer to concatenate; copied to beginning of this buffer
-   * @param i_buf1 Second DataBuffer to concatenate; copied to this buffer after the first buffer
-   * @param i_buf2 Third DataBuffer to concatenate; copied to this buffer after the second buffer
-   * @post Space is allocated, and data from the 3 DataBuffers is concatenated and copied to this buffer
+   * @brief Concatenate multiple DataBuffers into in this one
+   * @param i_bufs The vector of databuffers to concatenate; copied in order into this buffer
+   * @post Space is allocated, and data from the vector is concatenated and copied to this buffer
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t concat(const ecmdDataBuffer & i_buf0, const ecmdDataBuffer & i_buf1, const ecmdDataBuffer & i_buf2);
+  uint32_t concat(const std::vector<ecmdDataBuffer> & i_bufs);
 
 
   /* these functions OR the datain into the DataBuffer buffer */
