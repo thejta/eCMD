@@ -1520,11 +1520,35 @@ public:
 
 
 protected:  //data
+  /*************************************************************************/
+  /* Layout of the eCMD Data Buffer                                        */
+  /*                                                                       */
+  /* If iv_NumBits <= 64, we use the variable iv_LocalData                 */
+  /*   iv_LocalData[0] = Error Code.  Stored here for db sharing           */
+  /*   iv_LocalData[1] = Word 0 of actual user data                        */
+  /*   iv_LocalData[2] = Word 1 of actual user data                        */
+  /*   iv_LocalData[3] = A footer put at the end of data to catch problems */
+  /*                                                                       */
+  /* The internal pointers are then set as such                            */
+  /*   iv_RealData -> iv_LocalData[0]                                      */
+  /*   iv_Data -> iv_LocalData[1]                                          */
+  /*                                                                       */
+  /* If iv_NumBits > 63, we actually malloc iv_RealData                    */
+  /*   iv_RealData[0] = Error Code.  Stored here for db sharing            */
+  /*   iv_RealData[1..X] = Actual user data.  X-1 = iv_Capacity            */
+  /*   iv_RealData[1 + iv_NumWords] = Same footer as above                 */
+  /*                                                                       */
+  /* The internal pointers are then set as such                            */
+  /*   iv_RealData -> malloced                                             */
+  /*   iv_Data -> iv_RealData[1]                                           */
+  /*                                                                       */
+  /*************************************************************************/
+
   uint32_t iv_Capacity;         ///< Actual buffer capacity - always >= iv_NumWords
   uint32_t iv_NumWords;         ///< Specified buffer size rounded to next word
   uint32_t iv_NumBits;          ///< Specified buffer size in bits
-  uint32_t * iv_Data;           ///< Pointer to buffer inside iv_RealData
-  uint32_t * iv_RealData;       ///< Real buffer - with header and tail
+  uint32_t *iv_Data;            ///< Pointer to buffer inside iv_RealData
+  uint32_t *iv_RealData;        ///< Real buffer - with header and tail
   uint32_t iv_LocalData[4];     ///< If the buffer is <= 64 bits, we'll store the data locally in the class
   bool     iv_UserOwned;        ///< Whether or not this buffer owns the data
   bool     iv_BufferOptimizable;///< Whether or not this is an optimizable buffer
