@@ -377,6 +377,12 @@ uint32_t ecmdDataBuffer::setCapacity (uint32_t i_newCapacity) {
 
 uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if(!iv_UserOwned) {
+    ETRAC0("**** ERROR (ecmdDataBuffer::shrinkBitLength) : Attempt to modify non user owned buffer size.");
+    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
+  }
+
   if (i_newNumBits > iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::shrinkBitLength: New Bit Length (%d) > current NumBits (%d)", i_newNumBits, iv_NumBits);
     rc = ECMD_DBUF_BUFFER_OVERFLOW;
@@ -982,119 +988,69 @@ uint32_t ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
   return count;
 }
 
-uint32_t ecmdDataBuffer::shiftRight(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftRight(uint32_t i_shiftNum, uint32_t i_offset) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  uint32_t thisCarry;
-  uint32_t prevCarry = 0x00000000;
-
-  uint32_t i;
-
-  /* If we are going to shift off the end we can just clear everything out */
-  if (i_shiftNum >= iv_NumBits) {
-    rc = flushTo0();
-    return rc;
+  /* Error check */
+  if (i_offset > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::shiftRight: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
+  /* To shift the data, extact the piece being shifted and then re-insert it at the new location */
+  ecmdDataBuffer shiftData;
 
-  // shift iv_Data array
-  for (uint32_t iter = 0; iter < i_shiftNum; iter++) {
-    for (i = 0; i < iv_NumWords; i++) {
+  // Get the hunk of data
+  rc = extract(shiftData, i_offset, (iv_NumBits - i_offset));
+  if (rc) return rc;
 
-      if (this->iv_Data[i] & 0x00000001) 
-        thisCarry = 0x80000000;
-      else
-        thisCarry = 0x00000000;
+  // Clear the hole that was opened
+  rc = clearBit(i_offset, i_shiftNum);
+  if (rc) return rc;
 
-      // perform shift
-      this->iv_Data[i] >>= 1;
-      this->iv_Data[i] &= 0x7fffffff;  // backfill with a zero
+  // Stick the data back in
+  rc = insert(shiftData, (i_offset + i_shiftNum), (shiftData.getBitLength() - i_shiftNum));
+  if (rc) return rc;
 
-      // add carry
-      this->iv_Data[i] |= prevCarry;
-
-      // set up for next time
-      prevCarry = thisCarry; 
-    }
-  }
-
-#ifndef REMOVE_SIM
-  if (iv_XstateEnabled) {
-    // shift char
-    char* temp = new char[iv_NumBits+42];
-    for (i = 0; i < i_shiftNum+1; i++) temp[i] = '0'; // backfill with zeros
-    temp[iv_NumBits] = '\0';
-    strncpy(&temp[i_shiftNum], iv_DataStr, iv_NumBits-i_shiftNum);  
-    strcpy(iv_DataStr, temp); // copy back into iv_DataStr
-    delete[] temp;
-  }
-#endif
   return rc;
 }
 
-uint32_t ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum, uint32_t i_offset) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  uint32_t thisCarry;
-  uint32_t prevCarry = 0x00000000;
-  uint32_t i;
-
-  /* If we are going to shift off the end we can just clear everything out */
-  if (i_shiftNum >= iv_NumBits) {
-    rc = flushTo0();
-    return rc;
+  /* If the offset is equal to 0xFFFFFFFF, take that to mean iv_NumBits, or the end of the buffer */
+  if (i_offset == 0xFFFFFFFF) {
+    i_offset = iv_NumBits;
   }
 
-  // shift iv_Data array
-  for (uint32_t iter = 0; iter < i_shiftNum; iter++) {
-    prevCarry = 0;
-    for (i = iv_NumWords-1; i != 0xFFFFFFFF; i--) {
-
-      if (this->iv_Data[i] & 0x80000000) 
-        thisCarry = 0x00000001;
-      else
-        thisCarry = 0x00000000;
-
-      // perform shift
-      this->iv_Data[i] <<= 1;
-      this->iv_Data[i] &= 0xfffffffe; // backfill with a zero
-
-      // add carry
-      this->iv_Data[i] |= prevCarry;
-
-      // set up for next time
-      prevCarry = thisCarry; 
-    }
+  /* Error check */
+  if (i_offset > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::shiftLeft: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
-#ifndef REMOVE_SIM
-  if (iv_XstateEnabled) {
-    // shift char
-    char* temp = new char[iv_NumBits+42];
-    for (uint32_t j = iv_NumBits - i_shiftNum - 1; j < iv_NumBits; j++) temp[j] = '0'; // backfill with zeros
-    temp[iv_NumBits] = '\0';
-    strncpy(temp, &iv_DataStr[i_shiftNum], iv_NumBits - i_shiftNum);  
-    strcpy(iv_DataStr, temp); // copy back into iv_DataStr
-    delete[] temp;
-  }
-#endif
+  /* To shift the data, extact the piece being shifted and then re-insert it at the new location */
+  ecmdDataBuffer shiftData;
+
+  // Get the hunk of data
+  rc = extract(shiftData, 0, i_offset);
+  if (rc) return rc;
+
+  // Clear the hole that was opened
+  rc = clearBit((i_offset - i_shiftNum), i_shiftNum);
+  if (rc) return rc;
+
+  // Stick the data back in
+  rc = insert(shiftData, 0, (shiftData.getBitLength() - i_shiftNum), i_shiftNum);
+  if (rc) return rc;
+
   return rc;
-
 }
 
 
-uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
+uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum, uint32_t i_offset) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-
-  uint32_t thisCarry;
-  uint32_t prevCarry = 0x00000000;
-
-  uint32_t i, prevlen;
-
-  if (!iv_UserOwned) {
-    ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-    RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
-  }
+  uint32_t prevlen;
 
   /* We need to verify we have room to do this shifting */
   /* Set our new length */
@@ -1142,158 +1098,77 @@ uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum) {
     }
 #endif
   }
-
   iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
-  // shift iv_Data array
-  if (!(i_shiftNum % 32)) {
-    /* We will do this faster if we are shifting nice word boundaries */
-    uint32_t numwords = i_shiftNum / 32;
+  /* We have enough room, move our data over */
+  rc = shiftRight(i_shiftNum, i_offset);
+  if (rc) return rc;
 
-    for (uint32_t witer = iv_NumWords - numwords - 1; witer != 0xFFFFFFFF; witer--) {
-      iv_Data[witer + numwords] = iv_Data[witer];
-    }
-    /* Zero out the bottom of the array */
-    for (uint32_t w = 0; w < numwords; w ++) iv_Data[w] = 0;
-
-  } else {
-    for (uint32_t iter = 0; iter < i_shiftNum; iter++) {
-      for (i = 0; i < iv_NumWords; i++) {
-
-        if (this->iv_Data[i] & 0x00000001) 
-          thisCarry = 0x80000000;
-        else
-          thisCarry = 0x00000000;
-
-        // perform shift
-        this->iv_Data[i] >>= 1;
-        this->iv_Data[i] &= 0x7fffffff;  // backfill with a zero
-
-        // add carry
-        this->iv_Data[i] |= prevCarry;
-
-        // set up for next time
-        prevCarry = thisCarry; 
-      }
-    }
-  }
-
+  // Don't update the length until we are done shifting the data to the right
   iv_NumBits += i_shiftNum;
 
-#ifndef REMOVE_SIM
-  if (iv_XstateEnabled) {
-    // shift char
-    char* temp = new char[iv_NumBits+42];
-    if (temp == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::shiftRightAndResize : Unable to allocate temp X-State buffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-    }
-    for (i = 0; i < i_shiftNum; i++) temp[i] = '0'; // backfill with zeros
-    temp[iv_NumBits] = '\0';
-    strncpy(&temp[i_shiftNum], iv_DataStr, iv_NumBits-i_shiftNum);  
-    strcpy(iv_DataStr, temp); // copy back into iv_DataStr
-    delete[] temp;
-  }
-#endif
  return rc;
 }
 
 uint32_t ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  uint32_t thisCarry;
-  uint32_t prevCarry = 0x00000000;
-  uint32_t i;
+  /* Move our data over */
+  rc = shiftLeft(i_shiftNum);
+  if (rc) return rc;
 
-  if(!iv_UserOwned)
-  {
-      ETRAC0("**** ERROR (ecmdDataBuffer) : Attempt to modify non user owned buffer size.");
-      RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
-  }
+  /* Adjust our length based on the shift */
+  rc = shrinkBitLength((iv_NumBits - i_shiftNum));
+  if (rc) return rc;
 
-  /* If we are going to shift off the end we can just clear everything out */
-  if (i_shiftNum >= iv_NumBits) {
-    rc = setBitLength(0);
-    return rc;
-  }
-
-  // shift iv_Data array
-  for (uint32_t iter = 0; iter < i_shiftNum; iter++) {
-    prevCarry = 0;
-    for (i = (iv_NumWords-1); i != 0xFFFFFFFF; i--) {
-
-      if (this->iv_Data[i] & 0x80000000) 
-        thisCarry = 0x00000001;
-      else
-        thisCarry = 0x00000000;
-
-      // perform shift
-      this->iv_Data[i] <<= 1;
-      this->iv_Data[i] &= 0xfffffffe; // backfill with a zero
-
-      // add carry
-      this->iv_Data[i] |= prevCarry;
-
-      // set up for next time
-      prevCarry = thisCarry; 
-    }
-  }
-
-  /* Adjust our lengths based on the shift */
-  iv_NumBits -= i_shiftNum;
-  iv_NumWords = (iv_NumBits +31) / 32;
-  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
-
-#ifndef REMOVE_SIM
-  if (iv_XstateEnabled) {
-    // shift char
-    char* temp = new char[iv_NumBits+42];
-    if (temp == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBuffer::shiftLeftAndResize : Unable to allocate temp X-State buffer");
-      RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
-    }
-    temp[iv_NumBits] = '\0';
-    strncpy(temp, &iv_DataStr[i_shiftNum], iv_NumBits);  
-    strcpy(iv_DataStr, temp); // copy back into iv_DataStr
-    delete[] temp;
-  }
-#endif
   return rc;
 }
 
 uint32_t ecmdDataBuffer::rotateRight(uint32_t i_rotateNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  bool lastBitSet;
-  // rotate iv_Data
-  for (uint32_t iter = 0; iter < i_rotateNum; iter++) {
-    lastBitSet = this->isBitSet(iv_NumBits-1);   // save the last bit
-    rc = this->shiftRight(1);   // right-shift
-    if (rc) break;
-    if (lastBitSet)    // insert into beginning
-      rc = this->setBit(0); 
-    else
-      rc = this->clearBit(0);
-    if (rc) break;
-  }
+  /* The quickest way to rotate the data is to grab the two chunks and swap their position */
+  ecmdDataBuffer leftPart;
+  ecmdDataBuffer rightPart;
+
+  // Grab the two pieces
+  rc = extract(leftPart, 0, (iv_NumBits - i_rotateNum));
+  if (rc) return rc;
+
+  rc = extract(rightPart, (iv_NumBits - i_rotateNum), i_rotateNum);
+  if (rc) return rc;
+
+  // Stick the two pieces back together in a different order
+  rc = insert(rightPart, 0, rightPart.getBitLength());
+  if (rc) return rc;
+
+  rc = insert(leftPart, rightPart.getBitLength(), leftPart.getBitLength());
+  if (rc) return rc;
+
   return rc;
 }
 
 uint32_t ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  bool firstBitSet;
-  // rotate iv_Data
-  for (uint32_t iter = 0; iter < i_rotateNum; iter++) {
-    firstBitSet = this->isBitSet(0);   // save the first bit
-    rc = this->shiftLeft(1);   // left-shift
-    if (rc) break;
-    if (firstBitSet)   // insert at the end
-      rc = this->setBit(iv_NumBits-1);
-    else
-      rc = this->clearBit(iv_NumBits-1);
-    if (rc) break;
-  }
+  /* The quickest way to rotate the data is to grab the two chunks and swap their position */
+  ecmdDataBuffer leftPart;
+  ecmdDataBuffer rightPart;
+
+  // Grab the two pieces
+  rc = extract(leftPart, 0, i_rotateNum);
+  if (rc) return rc;
+
+  rc = extract(rightPart, i_rotateNum, (iv_NumBits - i_rotateNum));
+  if (rc) return rc;
+
+  // Stick the two pieces back together in a different order
+  rc = insert(rightPart, 0, rightPart.getBitLength());
+  if (rc) return rc;
+
+  rc = insert(leftPart, rightPart.getBitLength(), leftPart.getBitLength());
+  if (rc) return rc;
+
   return rc;
 }
 
