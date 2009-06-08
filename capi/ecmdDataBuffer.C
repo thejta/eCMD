@@ -282,13 +282,23 @@ uint32_t ecmdDataBuffer::clear() {
 }
 
 
+uint32_t ecmdDataBuffer::getDoubleWordLength() const { return (iv_NumBits + 63) / 64; }
 uint32_t ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
-uint32_t ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
+uint32_t ecmdDataBuffer::getHalfWordLength() const { return (iv_NumBits + 15) / 16; }
 uint32_t ecmdDataBuffer::getByteLength() const { return (iv_NumBits + 7) / 8; }
+uint32_t ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
 uint32_t ecmdDataBuffer::getCapacity() const { return iv_Capacity; }
+
+uint32_t ecmdDataBuffer::setDoubleWordLength(uint32_t i_newNumDoubleWords) {
+  return setBitLength(i_newNumDoubleWords * 64);
+}  
 
 uint32_t ecmdDataBuffer::setWordLength(uint32_t i_newNumWords) {
   return setBitLength(i_newNumWords * 32);
+}  
+
+uint32_t ecmdDataBuffer::setHalfWordLength(uint32_t i_newNumHalfWords) {
+  return setBitLength(i_newNumHalfWords * 16);
 }  
 
 uint32_t ecmdDataBuffer::setByteLength(uint32_t i_newNumBytes) {
@@ -1259,7 +1269,7 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
   return rc;
 }
 
-inline uint32_t ecmdFastInsert(uint32_t *i_target,const uint32_t * i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+inline uint32_t ecmdFastInsert(uint32_t *i_target, const uint32_t * i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -1351,7 +1361,7 @@ uint32_t ecmdDataBuffer::insert(const ecmdDataBuffer &i_bufferIn, uint32_t i_tar
   return rc;      
 }
 
-uint32_t ecmdDataBuffer::insert(const uint32_t * i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {      
+uint32_t ecmdDataBuffer::insert(const uint32_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {      
 
   uint32_t rc = ECMD_DBUF_SUCCESS;
     
@@ -1366,7 +1376,7 @@ uint32_t ecmdDataBuffer::insert(const uint32_t * i_dataIn, uint32_t i_targetStar
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
     
-  rc = ecmdFastInsert(this->iv_Data,i_dataIn, i_targetStart, i_len, i_sourceStart);
+  rc = ecmdFastInsert(this->iv_Data,i_data, i_targetStart, i_len, i_sourceStart);
   if (rc) return rc;
 
 #ifndef REMOVE_SIM   
@@ -1381,27 +1391,27 @@ uint32_t ecmdDataBuffer::insert(const uint32_t * i_dataIn, uint32_t i_targetStar
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insert(uint32_t i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+uint32_t ecmdDataBuffer::insert(uint32_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if ( i_sourceStart + i_len > 32 ) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > sizeof i_dataIn (32)\n", i_sourceStart, i_len );
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > sizeof i_data (32)\n", i_sourceStart, i_len );
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_sourceStart >= 32) {
-    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d >= sizeof i_dataIn (32)", i_sourceStart);
+    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d >= sizeof i_data (32)", i_sourceStart);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > 32) {
-    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_len %d > sizeof i_dataIn (32)", i_len);
+    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_len %d > sizeof i_data (32)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks are perfomred in the insert function called below
   
-  rc = this->insert(&i_dataIn, i_targetStart, i_len, i_sourceStart);
+  rc = this->insert(&i_data, i_targetStart, i_len, i_sourceStart);
 
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_start, uint32_t i_len) {
+uint32_t ecmdDataBuffer::insertFromRight(const uint32_t * i_data, uint32_t i_start, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   int offset;
@@ -1419,7 +1429,7 @@ uint32_t ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_s
     
   uint32_t mask = 0x80000000 >> offset;
   for (uint32_t i = 0; i < i_len; i++) {
-    if (i_datain[(i+offset)/32] & mask) {
+    if (i_data[(i+offset)/32] & mask) {
       rc = this->setBit(i_start+i);
     }
     else { 
@@ -1436,18 +1446,115 @@ uint32_t ecmdDataBuffer::insertFromRight(const uint32_t * i_datain, uint32_t i_s
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insertFromRight(uint32_t i_datain, uint32_t i_start, uint32_t i_len) {
+uint32_t ecmdDataBuffer::insertFromRight(uint32_t i_data, uint32_t i_start, uint32_t i_len) {
 
   if (i_len > 32) {
-    ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_len %d > sizeof i_dataIn (32)", i_len);
+    ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_len %d > sizeof i_data (32)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     // other input checks are perfomred in the insertFromRight function called below
   }
 
-  return this->insertFromRight(&i_datain, i_start, i_len);
+  return this->insertFromRight(&i_data, i_start, i_len);
 }
 
-uint32_t ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+uint32_t ecmdDataBuffer::insert(const uint16_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {      
+
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+    
+  if (i_targetStart+i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_targetStart >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+    
+  rc = ecmdFastInsert(this->iv_Data, ((uint32_t*)i_data), i_targetStart, i_len, i_sourceStart);
+  if (rc) return rc;
+
+#ifndef REMOVE_SIM   
+  if (iv_XstateEnabled) {
+    /* We have xstates, generate the binary data */
+    if (i_targetStart+i_len <= iv_NumBits) {
+      strncpy(&(iv_DataStr[i_targetStart]), (this->genBinStr(i_sourceStart, i_len)).c_str(), i_len);
+    }
+  }
+#endif
+
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::insert(uint16_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if ( i_sourceStart + i_len > 16) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d + i_len %d > sizeof i_data (16)\n", i_sourceStart, i_len );
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_sourceStart >= 16) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_sourceStart %d >= sizeof i_data (16)", i_sourceStart);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > 16) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insert: i_len %d > sizeof i_data (16)", i_len);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  // other input checks are perfomred in the insert function called below
+  
+  rc = this->insert(&i_data, i_targetStart, i_len, i_sourceStart);
+
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(const uint16_t * i_data, uint32_t i_start, uint32_t i_len) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  if (i_start+i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  // other input checks happen below in setBit and clearBit
+
+  int offset;
+  if((i_len % 16) == 0) {
+    offset = 0;
+  } else {
+    offset = 16 - (i_len % 16);
+  }  
+    
+  uint16_t mask = 0x8000 >> offset;
+  for (uint32_t i = 0; i < i_len; i++) {
+    if (i_data[(i+offset)/16] & mask) {
+      rc = this->setBit(i_start+i);
+    }
+    else { 
+      rc = this->clearBit(i_start+i);
+    }
+
+    mask >>= 1;
+    if (mask == 0x0000) {
+      mask = 0x8000;
+    }
+    if (rc) break;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(uint16_t i_data, uint32_t i_start, uint32_t i_len) {
+
+  if (i_len > 16) {
+    ETRAC1("**** ERROR : ecmdDataBuffer::insertFromRight: i_len %d > sizeof i_data (16)", i_len);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+    // other input checks are perfomred in the insertFromRight function called below
+  }
+
+  return this->insertFromRight(&i_data, i_start, i_len);
+}
+
+
+uint32_t ecmdDataBuffer::insert(const uint8_t *i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_targetStart+i_len > iv_NumBits) {
@@ -1456,7 +1563,7 @@ uint32_t ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart,
     // other input checks are perfomred in the setBit(), clearBit() functions called below
   }
 
-  const uint8_t * sourcePtr = i_dataIn;
+  const uint8_t * sourcePtr = i_data;
 
   for (uint32_t i=0; i< i_len; i++) {
 
@@ -1472,7 +1579,7 @@ uint32_t ecmdDataBuffer::insert(const uint8_t *i_dataIn, uint32_t i_targetStart,
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insertFromRight(const uint8_t *i_datain, uint32_t i_start, uint32_t i_len) {
+uint32_t ecmdDataBuffer::insertFromRight(const uint8_t *i_data, uint32_t i_start, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   int offset;
@@ -1490,7 +1597,7 @@ uint32_t ecmdDataBuffer::insertFromRight(const uint8_t *i_datain, uint32_t i_sta
 
   uint8_t mask = 0x80 >> offset;
   for (uint32_t i = 0; i < i_len; i++) {
-    if (i_datain[(i+offset)/8] & mask) {
+    if (i_data[(i+offset)/8] & mask) {
       rc = this->setBit(i_start+i);
     }
     else { 
@@ -1548,7 +1655,7 @@ uint32_t ecmdDataBuffer::extract(ecmdDataBuffer& o_bufferOut, uint32_t i_start, 
   return rc;
 }
 
-uint32_t ecmdDataBuffer::extract(uint32_t *o_dataOut, uint32_t i_start, uint32_t i_len) const {
+uint32_t ecmdDataBuffer::extract(uint32_t *o_data, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   // ecmdExtract can't make good input checks, so we have to do that here
@@ -1565,7 +1672,7 @@ uint32_t ecmdDataBuffer::extract(uint32_t *o_dataOut, uint32_t i_start, uint32_t
     return ECMD_DBUF_SUCCESS;
   }
 
-  rc = ecmdExtract(this->iv_Data, i_start, i_len, o_dataOut);
+  rc = ecmdExtract(this->iv_Data, i_start, i_len, o_data);
   if (rc) {
     RETURN_ERROR(rc);
   }
@@ -1582,27 +1689,71 @@ uint32_t ecmdDataBuffer::extract(uint32_t *o_dataOut, uint32_t i_start, uint32_t
   return rc;
 }
 
-uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_bitLen) const {
+uint32_t ecmdDataBuffer::extract(uint16_t *o_data, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  // Error checking
-  if (i_start + i_bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBuffer::extract: i_start %d + i_bitLen %d > iv_NumBits (%d)\n", i_start, i_bitLen, iv_NumBits);
+  // ecmdExtract can't make good input checks, so we have to do that here
+  if (i_start + i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::extract: i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start >= iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if (i_bitLen > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_bitLen %d > iv_NumBits (%d)", i_bitLen, iv_NumBits);
+  } else if (i_len > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
-  } else if (i_bitLen == 0) {
+  } else if (i_len == 0) {
     return ECMD_DBUF_SUCCESS;
   }
 
   // Put the users data into a temporary buffer, which will align it on byte boundaries.
   // Then just loop over the extractBuffer, placing it byte by byte into o_data
-  ecmdDataBuffer extractBuffer(i_bitLen);
-  rc = extractBuffer.insert(*this, 0, i_bitLen, i_start);
+  ecmdDataBuffer extractBuffer(i_len);
+  rc = extractBuffer.insert(*this, 0, i_len, i_start);
+  if (rc) {
+    RETURN_ERROR(rc);
+  }
+
+  // Now do a byte loop, setting the data in o_data
+  int numHalfWords = extractBuffer.getHalfWordLength();
+  for (int i = 0; i < numHalfWords; i++) {
+    o_data[i] = extractBuffer.getHalfWord(i);
+  }
+
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    /* If we are using this interface and find Xstate data we have a problem */
+    if (hasXstate(i_start, i_len)) {
+      ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character present\n");
+      RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
+    }
+  }
+#endif
+
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  // Error checking
+  if (i_start + i_len > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBuffer::extract: i_start %d + i_bitLen %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_start >= iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len > iv_NumBits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::extract: i_bitLen %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (i_len == 0) {
+    return ECMD_DBUF_SUCCESS;
+  }
+
+  // Put the users data into a temporary buffer, which will align it on byte boundaries.
+  // Then just loop over the extractBuffer, placing it byte by byte into o_data
+  ecmdDataBuffer extractBuffer(i_len);
+  rc = extractBuffer.insert(*this, 0, i_len, i_start);
   if (rc) {
     RETURN_ERROR(rc);
   }
@@ -1616,8 +1767,8 @@ uint32_t ecmdDataBuffer::extract(uint8_t * o_data, uint32_t i_start, uint32_t i_
 #ifndef REMOVE_SIM
   if (iv_XstateEnabled) {
     /* If we are using this interface and find Xstate data we have a problem */
-    if (hasXstate(i_start, i_bitLen)) {
-      ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character      present\n");
+    if (hasXstate(i_start, i_len)) {
+      ETRAC0("**** WARNING : ecmdDataBuffer::extract: Cannot extract when non-binary (X-State) character present\n");
       RETURN_ERROR(ECMD_DBUF_XSTATE_ERROR);
     }
   }
@@ -1665,7 +1816,38 @@ uint32_t ecmdDataBuffer::extractPreserve(uint32_t *o_outBuffer, uint32_t i_start
 
   delete tempBuf;
   return rc;
+}
 
+// extractPreserve() with a generic data buffer is hard to work on, so the
+// output buffer is first copied into an ecmdDataBuffer object, then insert()
+// is called to do the work
+uint32_t ecmdDataBuffer::extractPreserve(uint16_t *o_outBuffer, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  // input checks done in the insert function
+
+  const uint32_t numHalfWords = ( i_targetStart + i_len + 15 ) / 16;
+  if ( numHalfWords == 0 ) return rc;
+
+  ecmdDataBuffer *tempBuf = new ecmdDataBuffer;
+
+  if ( NULL == tempBuf ) {
+    ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : Unable to allocate memory for new databuffer\n");
+    RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
+  } 
+
+  rc = tempBuf->setHalfWordLength(numHalfWords);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->memCopyIn( o_outBuffer, numHalfWords * 2);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->insert( *this, i_targetStart, i_len, i_start);
+
+  if ( rc == ECMD_DBUF_SUCCESS ) 
+    rc = tempBuf->memCopyOut( o_outBuffer, numHalfWords * 2);
+
+  delete tempBuf;
+  return rc;
 }
 
 uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const {
@@ -1715,8 +1897,23 @@ uint32_t ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uin
   // input checks done in the extract function
   rc = this->extract(o_data, i_start, i_len);
 
-  if (i_len < 32)
+  if (i_len < 32) {
     *o_data >>= (32 - i_len);
+  }
+
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::extractToRight(uint16_t * o_data, uint32_t i_start, uint32_t i_len) const {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  // input checks done in the extract function
+  rc = this->extract(o_data, i_start, i_len);
+
+  if (i_len < 16) {
+    *o_data >>= (16 - i_len);
+  }
+
   return rc;
 }
 
@@ -1725,8 +1922,10 @@ uint32_t ecmdDataBuffer::extractToRight(uint8_t * o_data, uint32_t i_start, uint
   // input checks done in the extract function
   rc = this->extract(o_data, i_start, i_len);
 
-  if (i_len < 8)
+  if (i_len < 8) {
     *o_data >>= (8 - i_len);
+  }
+
   return rc;
 } 
 
@@ -1768,7 +1967,7 @@ uint32_t ecmdDataBuffer::setOr(const ecmdDataBuffer& i_bufferIn, uint32_t i_star
   return this->setOr(i_bufferIn.iv_Data, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setOr(const uint32_t * i_dataIn, uint32_t i_startBit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setOr(const uint32_t * i_data, uint32_t i_startBit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_startBit + i_len > iv_NumBits) {
@@ -1779,7 +1978,7 @@ uint32_t ecmdDataBuffer::setOr(const uint32_t * i_dataIn, uint32_t i_startBit, u
 
   uint32_t mask = 0x80000000;
   for (uint32_t i = 0; i < i_len; i++) {
-    if (i_dataIn[i/32] & mask) {
+    if (i_data[i/32] & mask) {
       rc = this->setBit(i_startBit + i);
     }
     mask >>= 1;
@@ -1792,9 +1991,9 @@ uint32_t ecmdDataBuffer::setOr(const uint32_t * i_dataIn, uint32_t i_startBit, u
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setOr(uint32_t i_dataIn, uint32_t i_startBit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setOr(uint32_t i_data, uint32_t i_startBit, uint32_t i_len) {
   // input checks done as part of setOr()
-  return this->setOr(&i_dataIn, i_startBit, i_len);
+  return this->setOr(&i_data, i_startBit, i_len);
 }
 
 uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
@@ -1809,7 +2008,7 @@ uint32_t ecmdDataBuffer::setXor(const ecmdDataBuffer& i_bufferIn, uint32_t i_sta
   return this->setXor(i_bufferIn.iv_Data, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setXor(const uint32_t * i_dataIn, uint32_t i_startBit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setXor(const uint32_t * i_data, uint32_t i_startBit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_startBit + i_len > iv_NumBits) {
@@ -1820,7 +2019,7 @@ uint32_t ecmdDataBuffer::setXor(const uint32_t * i_dataIn, uint32_t i_startBit, 
 
   uint32_t mask = 0x80000000;
   for (uint32_t i = 0; i < i_len; i++) {
-    rc = this->writeBit(i_startBit + i, ((i_dataIn[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
+    rc = this->writeBit(i_startBit + i, ((i_data[i/32] & mask) ^ (this->iv_Data[i/32] & mask)));
     mask >>= 1;
     if (mask == 0x00000000) {
       mask = 0x80000000;
@@ -1831,9 +2030,9 @@ uint32_t ecmdDataBuffer::setXor(const uint32_t * i_dataIn, uint32_t i_startBit, 
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setXor(uint32_t i_dataIn, uint32_t i_startBit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setXor(uint32_t i_data, uint32_t i_startBit, uint32_t i_len) {
   // input checks done as part of setXor()
-  return this->setXor(&i_dataIn, i_startBit, i_len);
+  return this->setXor(&i_data, i_startBit, i_len);
 }
 
 uint32_t ecmdDataBuffer::merge(const ecmdDataBuffer& i_bufferIn) {
@@ -1860,7 +2059,7 @@ uint32_t ecmdDataBuffer::setAnd(const ecmdDataBuffer& i_bufferIn, uint32_t i_sta
   return this->setAnd(i_bufferIn.iv_Data, i_startBit, i_len);
 }
 
-uint32_t ecmdDataBuffer::setAnd(const uint32_t * i_dataIn, uint32_t i_startBit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setAnd(const uint32_t * i_data, uint32_t i_startBit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_startBit + i_len > iv_NumBits) {
@@ -1871,7 +2070,7 @@ uint32_t ecmdDataBuffer::setAnd(const uint32_t * i_dataIn, uint32_t i_startBit, 
 
   uint32_t mask = 0x80000000;
   for (uint32_t i = 0; i < i_len; i++) {
-    if (!(i_dataIn[i/32] & mask)) {
+    if (!(i_data[i/32] & mask)) {
       this->clearBit(i_startBit + i);
     }
     mask >>= 1;
@@ -1884,9 +2083,9 @@ uint32_t ecmdDataBuffer::setAnd(const uint32_t * i_dataIn, uint32_t i_startBit, 
   return rc;
 }
 
-uint32_t ecmdDataBuffer::setAnd(uint32_t i_dataIn, uint32_t i_startBit, uint32_t i_len) {
+uint32_t ecmdDataBuffer::setAnd(uint32_t i_data, uint32_t i_startBit, uint32_t i_len) {
   // input checks done as part of setAnd()
-  return this->setAnd(&i_dataIn, i_startBit, i_len);
+  return this->setAnd(&i_data, i_startBit, i_len);
 }
 
 uint32_t ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop) const {
@@ -2509,7 +2708,6 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
   return *this;
 }
 
-
 uint32_t ecmdDataBuffer::memCopyIn(const uint32_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
@@ -2567,6 +2765,65 @@ uint32_t ecmdDataBuffer::memCopyOut(uint32_t* o_buf, uint32_t i_bytes) const { /
 
   return rc;
 }
+
+uint32_t ecmdDataBuffer::memCopyIn(const uint16_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+  if (cbytes == 0) {
+    ETRAC0("**** ERROR : ecmdDataBuffer: memCopyIn: Copy performed on buffer with length of 0");
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
+  ecmdBigEndianMemCopy(iv_Data, i_buf, cbytes);
+
+  /* We're worried we might have data on in our last byte copied in that excedes numbits */
+  if (cbytes == getByteLength()) {
+    /* We'll cheat and do a getByte and then write that value back so the masking logic is done */
+    uint8_t myByte = getByte((getByteLength() - 1));
+    rc = setByte((getByteLength() - 1), myByte);
+    if (rc) return rc;
+  }
+
+#ifndef REMOVE_SIM
+  if (iv_XstateEnabled) {
+    uint32_t mask = 0x8000;
+    uint32_t curWord = 0;
+
+    for (uint32_t w = 0; w < cbytes*4; w++) {
+      if (iv_Data[curWord] & mask) {
+        iv_DataStr[w] = '1';
+      }
+      else {
+        iv_DataStr[w] = '0';
+      }
+
+      mask >>= 1;
+
+      if (!mask) {
+        curWord++;
+        mask = 0x8000;
+      }
+    }
+  }
+
+#endif
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::memCopyOut(uint16_t* o_buf, uint32_t i_bytes) const { /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
+  if (cbytes == 0) {
+    ETRAC0("**** ERROR : ecmdDataBuffer: memCopyOut: Copy performed on buffer with length of 0");
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
+  ecmdBigEndianMemCopy(o_buf, iv_Data, cbytes);
+
+  return rc;
+}
+
 
 uint32_t ecmdDataBuffer::memCopyIn(const uint8_t* i_buf, uint32_t i_bytes) { /* Does a memcpy from supplied buffer into ecmdDataBuffer */
   uint32_t rc = ECMD_DBUF_SUCCESS;
