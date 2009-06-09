@@ -37,6 +37,7 @@
 #include <netinet/in.h> /* for htonl */
 #include <fstream>
 #include <iostream>
+#include <zlib.h>
 
 #include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
@@ -163,7 +164,7 @@ uint32_t fast_reverse32(uint32_t data) {
 //  Constructors
 //---------------------------------------------------------------------
 ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
-: iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
+: iv_Capacity(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
   iv_UserOwned = true;
   iv_BufferOptimizable = false;
@@ -175,7 +176,7 @@ ecmdDataBuffer::ecmdDataBuffer()  // Default constructor
 }
 
 ecmdDataBuffer::ecmdDataBuffer(uint32_t i_numBits)
-: iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
+: iv_Capacity(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
   iv_UserOwned = true;
   iv_BufferOptimizable = false;
@@ -191,7 +192,7 @@ ecmdDataBuffer::ecmdDataBuffer(uint32_t i_numBits)
 }
 
 ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& i_other) 
-: iv_Capacity(0), iv_NumWords(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
+: iv_Capacity(0), iv_NumBits(0), iv_Data(NULL), iv_RealData(NULL)
 {
   iv_UserOwned = true;
   iv_BufferOptimizable = false;
@@ -205,7 +206,7 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& i_other)
 
     this->setBitLength(i_other.iv_NumBits);
     // iv_Data
-    memcpy(iv_Data, i_other.iv_Data, iv_NumWords * 4);
+    memcpy(iv_Data, i_other.iv_Data, getWordLength() * 4);
     // Error state
     iv_RealData[EDB_RETURN_CODE] = i_other.iv_RealData[EDB_RETURN_CODE];
 
@@ -251,10 +252,10 @@ uint32_t ecmdDataBuffer::clear() {
   if (iv_RealData != NULL) {
 
     /* Let's check our header,footer info */
-    if (iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] != EDB_RANDNUM) {
+    if (iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] != EDB_RANDNUM) {
       /* Ok, something is wrong here */
-      ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, iv_NumWords: %X",iv_RealData[EDB_RETURN_CODE],iv_NumWords);
-      ETRAC1("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE]);
+      ETRAC2("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[0]: %X, getWordLength(): %X",iv_RealData[EDB_RETURN_CODE],getWordLength());
+      ETRAC1("**** SEVERE ERROR (ecmdDataBuffer) : iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE]);
       ETRAC0("**** SEVERE ERROR (ecmdDataBuffer) : PROBLEM WITH DATABUFFER - INVALID HEADER/FOOTER");
       abort();
     }
@@ -266,7 +267,6 @@ uint32_t ecmdDataBuffer::clear() {
     }
     iv_RealData = NULL;
     iv_Capacity = 0;
-    iv_NumWords = 0;
     iv_NumBits = 0;
   }
 
@@ -282,7 +282,7 @@ uint32_t ecmdDataBuffer::clear() {
 }
 
 uint32_t ecmdDataBuffer::getDoubleWordLength() const { return (iv_NumBits + 63) / 64; }
-uint32_t ecmdDataBuffer::getWordLength() const { return iv_NumWords; }
+uint32_t ecmdDataBuffer::getWordLength() const { return (iv_NumBits + 31) / 32; }
 uint32_t ecmdDataBuffer::getHalfWordLength() const { return (iv_NumBits + 15) / 16; }
 uint32_t ecmdDataBuffer::getByteLength() const { return (iv_NumBits + 7) / 8; }
 uint32_t ecmdDataBuffer::getBitLength() const { return iv_NumBits; }
@@ -314,10 +314,9 @@ uint32_t ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
 
   /* Assign i_newNumBits to iv_NumBits and figure out how many words that is */
   iv_NumBits = i_newNumBits;
-  iv_NumWords = (iv_NumBits + 31) / 32;
 
   /* Now call setCapacity to do all the data buffer resizing and setup */
-  rc = setCapacity(iv_NumWords);
+  rc = setCapacity(getWordLength());
   if (rc) RETURN_ERROR(rc);
 
   return rc;
@@ -376,7 +375,7 @@ uint32_t ecmdDataBuffer::setCapacity(uint32_t i_newCapacity) {
   /* We want to do this regardless of if the buffer was resized.  This function is meant to be a destructive operation */
   /* Ok, now setup the header, and tail */
   iv_RealData[EDB_RETURN_CODE] = 0; ///< Reset error code
-  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+  iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   rc = flushTo0();
   if (rc) RETURN_ERROR(rc);
@@ -410,13 +409,10 @@ uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits) {
     RETURN_ERROR(rc);  
   }
 
-  uint32_t newNumWords = (i_newNumBits + 31) / 32;
-
-  iv_NumWords = newNumWords;
   iv_NumBits = i_newNumBits;
 
   /* Ok, now setup the header, and tail */
-  iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+  iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   return rc;
 }
@@ -442,11 +438,10 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 
   /* We need to verify we have room to do this shifting */
   /* Set our new length */
-  prevwordsize = iv_NumWords;
+  prevwordsize = getWordLength();
   prevbitsize = iv_NumBits;
-  iv_NumWords = (i_newNumBits + 31) / 32;
   iv_NumBits = i_newNumBits;
-  if (iv_NumWords > iv_Capacity) {
+  if (getWordLength() > iv_Capacity) {
     /* UhOh we are out of room, have to resize */
     uint32_t * tempBuf = new uint32_t[prevwordsize];
     if (tempBuf == NULL) {
@@ -467,7 +462,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
     }
 #endif
     /* Now resize with the new capacity */
-    rc = setCapacity(iv_NumWords);
+    rc = setCapacity(getWordLength());
     if (rc) {
       if (tempBuf) {
         delete[] tempBuf;
@@ -491,9 +486,9 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
       clearBit(idx);
     }
 
-  } else if (prevwordsize < iv_NumWords) {
+  } else if (prevwordsize < getWordLength()) {
     /* We didn't have to grow the buffer capacity, but we did move into a new word(s) so clear that data space out */
-    for (uint32_t idx = prevwordsize; idx < iv_NumWords; idx++) {
+    for (uint32_t idx = prevwordsize; idx < getWordLength(); idx++) {
       memset(&iv_Data[idx], 0, 4);  // Clear the word
 
 #ifndef REMOVE_SIM
@@ -505,9 +500,9 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
   }    
 
   /* Only reset this stuff if things have changed */
-  if (prevwordsize != iv_NumWords) {
+  if (prevwordsize != getWordLength()) {
     iv_RealData[EDB_RETURN_CODE] = 0;  // error state
-    iv_RealData[iv_NumWords + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
+    iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
   }
 
   return rc;
@@ -567,17 +562,17 @@ uint32_t ecmdDataBuffer::writeBit(uint32_t i_bit, uint32_t i_value) {
 uint32_t ecmdDataBuffer::setWord(uint32_t i_wordOffset, uint32_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-  if (i_wordOffset >= iv_NumWords) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)", i_wordOffset, iv_NumWords);
+  if (i_wordOffset >= getWordLength()) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::setWord: wordoffset %d >= NumWords (%d)", i_wordOffset, getWordLength());
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
   // Create mask if part of this word is not in the valid part of the ecmdDataBuffer 
-  if (((i_wordOffset + 1) == iv_NumWords) && (iv_NumBits % 32)) {
+  if (((i_wordOffset + 1) == getWordLength()) && (iv_NumBits % 32)) {
     /* Create my mask */
     uint32_t bitMask = 0xFFFFFFFF;
     /* Shift it left by the amount of unused bits */
-    bitMask <<= ((32 * iv_NumWords) - iv_NumBits);
+    bitMask <<= ((32 * getWordLength()) - iv_NumBits);
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -1142,8 +1137,8 @@ uint32_t ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
 
 uint32_t ecmdDataBuffer::flushTo0() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  if (iv_NumWords > 0) {
-    memset(iv_Data, 0x00, iv_NumWords * 4); /* init to 0 */
+  if (getWordLength() > 0) {
+    memset(iv_Data, 0x00, getWordLength() * 4); /* init to 0 */
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled)
       rc = this->fillDataStr('0');
@@ -1154,8 +1149,8 @@ uint32_t ecmdDataBuffer::flushTo0() {
 
 uint32_t ecmdDataBuffer::flushTo1() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
-  if (iv_NumWords > 0) {
-    memset(iv_Data, 0xFF, iv_NumWords * 4); /* init to 1 */
+  if (getWordLength() > 0) {
+    memset(iv_Data, 0xFF, getWordLength() * 4); /* init to 1 */
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled)
       rc = this->fillDataStr('1');
@@ -1233,14 +1228,14 @@ uint32_t ecmdDataBuffer::applyInversionMask(const uint32_t * i_invMask, uint32_t
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   /* Do the smaller of data provided or size of buffer */
-  uint32_t wordlen = (i_invByteLen / 4) + 1 < iv_NumWords ? (i_invByteLen / 4) + 1 : iv_NumWords;
+  uint32_t wordlen = (i_invByteLen / 4) + 1 < getWordLength() ? (i_invByteLen / 4) + 1 : getWordLength();
 
   for (uint32_t i = 0; i < wordlen; i++) {
     iv_Data[i] = iv_Data[i] ^ i_invMask[i]; /* Xor */
   }
 
   /* We need to make sure our last word is clean if numBits isn't on a word boundary */
-  if ((wordlen == iv_NumWords) && (iv_NumBits % 32)) {
+  if ((wordlen == getWordLength()) && (iv_NumBits % 32)) {
     /* Reading out the last word and writing it back will clear any bad bits on */
     uint32_t myWord = getWord((wordlen-1));
     rc = setWord((wordlen-1), myWord);
@@ -1970,8 +1965,8 @@ uint32_t ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop, uint32_t 
 }
 
 uint32_t ecmdDataBuffer::getWord(uint32_t i_wordOffset) const {
-  if (i_wordOffset >= iv_NumWords) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::getWord: i_wordOffset %d >= NumWords (%d)", i_wordOffset, iv_NumWords);
+  if (i_wordOffset >= getWordLength()) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::getWord: i_wordOffset %d >= NumWords (%d)", i_wordOffset, getWordLength());
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
@@ -2480,7 +2475,7 @@ uint32_t ecmdDataBuffer::copy(ecmdDataBuffer &o_newCopy) const {
   
   if (!rc && iv_NumBits != 0) {
     // iv_Data
-    memcpy(o_newCopy.iv_Data, iv_Data, iv_NumWords * 4);
+    memcpy(o_newCopy.iv_Data, iv_Data, getWordLength() * 4);
     // Error state
     o_newCopy.iv_RealData[EDB_RETURN_CODE] = iv_RealData[EDB_RETURN_CODE];
 #ifndef REMOVE_SIM
@@ -2506,7 +2501,7 @@ ecmdDataBuffer& ecmdDataBuffer::operator=(const ecmdDataBuffer & i_master) {
 
   if (!rc && iv_NumBits != 0) {
     // iv_Data
-    memcpy(iv_Data, i_master.iv_Data, iv_NumWords * 4);
+    memcpy(iv_Data, i_master.iv_Data, getWordLength() * 4);
     // Error state
     iv_RealData[EDB_RETURN_CODE] = i_master.iv_RealData[EDB_RETURN_CODE];
 #ifndef REMOVE_SIM
@@ -2777,11 +2772,11 @@ bool ecmdDataBuffer::isXstateEnabled() const {
 uint32_t ecmdDataBuffer::flushToX(char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
-
-  if (iv_NumWords > 0) {
-    memset(iv_Data, 0, iv_NumWords * 4); /* init to 0 */
+  if (getWordLength() > 0) {
+    memset(iv_Data, 0, getWordLength() * 4); /* init to 0 */
     rc = this->fillDataStr(i_value);
   }
+
   return rc;
 }
 #endif /* REMOVE_SIM */
@@ -3077,7 +3072,7 @@ uint32_t ecmdDataBuffer::fillDataStr(char i_fillChar) {
     ETRAC0("**** ERROR : ecmdDataBuffer::fillDataStr: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
-  if (iv_NumWords > 0) {
+  if (getWordLength() > 0) {
     memset(iv_DataStr, i_fillChar, iv_NumBits);
     iv_DataStr[iv_NumBits] = '\0';  
   }
@@ -3849,7 +3844,7 @@ uint32_t ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatTyp
         *o_facName = fac;
     } 
     this->setBitLength(numBits);
-    for (uint32_t i = 0; i < iv_NumWords; i++) {
+    for (uint32_t i = 0; i < getWordLength(); i++) {
       ins.width(9);  ins >> hexstr;
       if (((i*32)+32) > numBits) {
         hexstr[strlen(hexstr)] = '\0'; //strip newline char
@@ -3941,7 +3936,6 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
 
     //copy the buffer called from minus the owner flag
     i_sharingBuffer->iv_Capacity = iv_Capacity;
-    i_sharingBuffer->iv_NumWords = iv_NumWords;
     i_sharingBuffer->iv_NumBits = iv_NumBits;
     i_sharingBuffer->iv_Data = iv_Data;
     i_sharingBuffer->iv_RealData = iv_RealData;
@@ -3968,7 +3962,7 @@ void ecmdDataBuffer::queryErrorState( uint32_t & o_errorState) {
  Then data the data as returned by the compression algorithm that PRD is kindly letting us use
 */
 
-uint32_t ecmdDataBuffer::compressBuffer() {
+uint32_t ecmdDataBuffer::compressBuffer(ecmdCompressionMode_t i_mode) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   ecmdDataBuffer compressedBuffer;
   uint32_t byteOffset = 0;
@@ -3982,7 +3976,15 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   /* Set the header, which is C2A3FV, where V is the version */
   compressedBuffer.setByte(byteOffset++, 0xC2);
   compressedBuffer.setByte(byteOffset++, 0xA3);
-  compressedBuffer.setByte(byteOffset++, 0xF2);
+  if (i_mode == ECMD_COMP_PRD) {
+    compressedBuffer.setByte(byteOffset++, 0xF2);
+  } else if (i_mode == ECMD_COMP_ZLIB || i_mode == ECMD_COMP_ZLIB_SPEED || i_mode == ECMD_COMP_ZLIB_COMPRESSION) {
+    // All three of these are zlib compression, so they get the same version
+    compressedBuffer.setByte(byteOffset++, 0xF3);
+  } else {
+    ETRAC0("**** ERROR : Unknown compression mode passed in!");
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
+  }
 
   /* Set the length, which is 4 bytes long */
   compressedBuffer.setByte(byteOffset++, ((0xFF000000 & length) >> 24));
@@ -3990,16 +3992,37 @@ uint32_t ecmdDataBuffer::compressBuffer() {
   compressedBuffer.setByte(byteOffset++, ((0x0000FF00 & length) >> 8));
   compressedBuffer.setByte(byteOffset++, (0x000000FF & length));
 
-  /* Now setup our inputs and call the compress */
+  /* Our common variables used in all modes */
   size_t uncompressedSize = this->getByteLength();
-  size_t compressedSize = PrdfCompressBuffer::compressedBufferMax(uncompressedSize);
+  size_t compressedSize;
   uint8_t* uncompressedData = new uint8_t[uncompressedSize];
-  uint8_t* compressedData = new uint8_t[compressedSize];
+  uint8_t* compressedData = NULL;
   /* The data has to be copied into a uint8_t buffer.  If you try to pass in (uint8_t*)this->iv_Data
    instead of uncompressedData, you have big endian vs little endian issues */
   this->extract(uncompressedData, 0, this->getBitLength());
-  
-  PrdfCompressBuffer::compressBuffer(uncompressedData, uncompressedSize, compressedData, compressedSize);
+
+  if (compressedBuffer.getByte(2) == 0xF2) {
+    /* Now setup our inputs and call the compress */
+    compressedSize = PrdfCompressBuffer::compressedBufferMax(uncompressedSize);
+    compressedData = new uint8_t[compressedSize];
+
+    PrdfCompressBuffer::compressBuffer(uncompressedData, uncompressedSize, compressedData, compressedSize);
+  } else if (compressedBuffer.getByte(2) == 0xF3) {
+    /* Now setup our inputs and call the compress */
+    compressedSize = compressBound(uncompressedSize);
+    compressedData = new uint8_t[compressedSize];
+    /* Select the proper compression level */
+    int level;
+    if (i_mode == ECMD_COMP_ZLIB) {
+      level = Z_DEFAULT_COMPRESSION;
+    } else if (i_mode == ECMD_COMP_ZLIB_SPEED) {
+      level = Z_BEST_SPEED;
+    } else if (i_mode == ECMD_COMP_ZLIB_COMPRESSION) {
+      level = Z_BEST_COMPRESSION;
+    }
+
+    compress2((Bytef*)compressedData, (uLongf*)&compressedSize, (const Bytef*)uncompressedData, (uLongf)uncompressedSize, level);
+  }
 
   /* Now grow the buffer to the size of the compressed data */
   compressedBuffer.growBitLength((compressedBuffer.getBitLength() + (compressedSize * 8)));
@@ -4020,6 +4043,7 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
   uint32_t length = 0;
   ecmdDataBuffer uncompressedBuffer;
   uint32_t byteOffset = 0;
+  ecmdCompressionMode_t mode;
 
   /* See if the compression header is there */
   uint32_t header = this->getWord(0);
@@ -4028,7 +4052,11 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
   }
   /* Make sure it's a supported version of compression */
-  if ((header & 0x00000F00) != 0x00000200) {
+  if ((header & 0x00000F00) == 0x00000200) {
+    mode = ECMD_COMP_PRD;
+  } else if ((header & 0x00000F00) == 0x00000300) {
+    mode = ECMD_COMP_ZLIB;
+  } else {
     ETRAC1("**** ERROR : Unknown version. Found: 0x%X.", header);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
   }
@@ -4053,7 +4081,11 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
    instead of compressedData, you have big endian vs little endian issues */
   this->extract(compressedData, (byteOffset * 8), (compressedSize * 8));
 
-  PrdfCompressBuffer::uncompressBuffer(compressedData, compressedSize, uncompressedData, uncompressedSize);
+  if (mode == ECMD_COMP_PRD) {
+    PrdfCompressBuffer::uncompressBuffer(compressedData, compressedSize, uncompressedData, uncompressedSize);
+  } else if (mode == ECMD_COMP_ZLIB) {
+    uncompress((Bytef*)uncompressedData, (uLongf*)&uncompressedSize, (const Bytef*)compressedData, (uLongf)compressedSize);
+  }
 
   /* Error check the length */
   if (uncompressedBuffer.getByteLength() != uncompressedSize) {

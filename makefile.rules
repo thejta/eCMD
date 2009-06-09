@@ -99,14 +99,14 @@ CFLAGS    := -g -I.
 # *****************************************************************************
 ifeq (${OS},x86)
   GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
-  CC_VER   := 3.4.6
+  CC_VER   := 4.1.2
   CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
   CC_R     := ${CC}
-  CFLAGS   := ${CFLAGS}
+  CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
   LD       := ${CC}
   LD_R     := ${CC_R}
-  LDFLAGS  :=
-  SLDFLAGS := -shared
+  LDFLAGS  := ${LDFLAGS} -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
+  SLDFLAGS := -shared -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
   GPATH    := ${OBJDIR}
   AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
@@ -120,7 +120,7 @@ ifeq (${OS},ppc)
   CFLAGS   := ${CFLAGS} -fPIC
   LD       := ${CC}
   LD_R     := ${CC_R}
-  LDFLAGS  :=
+  LDFLAGS  := ${LDFLAGS}
   SLDFLAGS := -shared
   GPATH    := ${OBJDIR}
   AR       := ar
@@ -131,14 +131,14 @@ endif
 # *****************************************************************************
 ifeq (${OS},aix)
   GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-  CC_VER   := 6.0.0.8
-  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.9003/usr/vacpp/bin/xlC
-  CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.9003/usr/vacpp/bin/xlC_r
-  CFLAGS   := ${CFLAGS}
+  CC_VER   := 7.0.0.2
+  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC
+  CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC_r
+  CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
   LD       := ${CC}
   LD_R     := ${CC_R}
-  LDFLAGS  :=
-  SLDFLAGS := -qmkshrobj -brtl
+  LDFLAGS  := ${LDFLAGS} -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
+  SLDFLAGS := -qmkshrobj -brtl -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
   AR       := /usr/bin/ar
 endif
 

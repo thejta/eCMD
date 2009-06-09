@@ -162,10 +162,22 @@ typedef enum {
  @brief This is the different write modes for writing databuffer into a file
 */
 typedef enum {
-  ECMD_UNKNOWN_MODE,    ///< Default value
-  ECMD_WRITE_MODE,      ///< Overrwrite the data if the file already exists
-  ECMD_APPEND_MODE,     ///< Add databuffer to the end of the file
+  ECMD_WRITE_UNKNOWN_MODE,    ///< Default value
+  ECMD_WRITE_MODE,            ///< Overrwrite the data if the file already exists
+  ECMD_APPEND_MODE,           ///< Add databuffer to the end of the file
 } ecmdWriteMode_t;
+
+/**
+ @brief This is the different write modes for writing databuffer into a file
+*/
+typedef enum {
+  ECMD_COMP_UNKNOWN,            ///< Default value
+  ECMD_COMP_PRD,                ///< Use the PRD compression algorithm, owned by IBM.  The Default mode.
+  ECMD_COMP_ZLIB,               ///< Use the default zlib compression algorithm.
+  ECMD_COMP_ZLIB_SPEED,         ///< Use the best speed zlib compression algorithm.
+  ECMD_COMP_ZLIB_COMPRESSION,   ///< Use the best compression zlib compression algorithm.
+} ecmdCompressionMode_t;
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -1513,7 +1525,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval non-zero on failure
    */   
-  uint32_t compressBuffer();
+  uint32_t compressBuffer(ecmdCompressionMode_t i_mode = ECMD_COMP_PRD);
 
   /**
    * @brief Compress the data in the buffer 
@@ -1571,7 +1583,7 @@ protected:  //data
   /* If iv_NumBits > 63, we actually malloc iv_RealData                    */
   /*   iv_RealData[0] = Error Code.  Stored here for db sharing            */
   /*   iv_RealData[1..X] = Actual user data.  X-1 = iv_Capacity            */
-  /*   iv_RealData[1 + iv_NumWords] = Same footer as above                 */
+  /*   iv_RealData[1 + getNumWords()] = Same footer as above               */
   /*                                                                       */
   /* The internal pointers are then set as such                            */
   /*   iv_RealData -> malloced                                             */
@@ -1579,8 +1591,7 @@ protected:  //data
   /*                                                                       */
   /*************************************************************************/
 
-  uint32_t iv_Capacity;         ///< Actual buffer capacity - always >= iv_NumWords
-  uint32_t iv_NumWords;         ///< Specified buffer size rounded to next word
+  uint32_t iv_Capacity;         ///< Actual buffer capacity - always >= getNumWords()
   uint32_t iv_NumBits;          ///< Specified buffer size in bits
   uint32_t *iv_Data;            ///< Pointer to buffer inside iv_RealData
   uint32_t *iv_RealData;        ///< Real buffer - with header and tail
