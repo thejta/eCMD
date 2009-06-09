@@ -55,6 +55,12 @@ these formats please see the eCMD documentation.
 
         -od             Display data as decimal
 
+If the data you are reading out is databuffer compressed data, you can also uncompress it.
+The 'c' option works on all commands.  Examples below:
+
+        -oxc            Display uncompressed data as hex left aligned
+
+        -obwc           Display uncompressed data as binary words
 
 INPUT FORMATS
 --------------------------------------------------------------------------------

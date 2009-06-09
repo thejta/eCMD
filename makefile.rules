@@ -105,8 +105,8 @@ ifeq (${OS},x86)
   CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
   LD       := ${CC}
   LD_R     := ${CC_R}
-  LDFLAGS  := ${LDFLAGS} -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
-  SLDFLAGS := -shared -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
+  LDFLAGS  := ${LDFLAGS}
+  SLDFLAGS := -shared
   GPATH    := ${OBJDIR}
   AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
@@ -137,8 +137,8 @@ ifeq (${OS},aix)
   CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
   LD       := ${CC}
   LD_R     := ${CC_R}
-  LDFLAGS  := ${LDFLAGS} -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
-  SLDFLAGS := -qmkshrobj -brtl -L/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib -lz
+  LDFLAGS  := ${LDFLAGS}
+  SLDFLAGS := -qmkshrobj -brtl
   AR       := /usr/bin/ar
 endif
 

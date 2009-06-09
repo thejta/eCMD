@@ -198,6 +198,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
   int numCols = 0;
   bool good = true;
+  bool compression = false;
 
   // We have to check for the memory types before we fall into the looping below
   if (i_format.substr(0,3) == "mem") {
@@ -297,6 +298,9 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
 
         curState = ECMD_FORMAT_D;
       }
+      else if (i_format[i] == 'c') {
+        compression = true;
+      }
       else if (isdigit(i_format[i])) {
         numCols *= 10;
         numCols += atoi(&i_format[i]);
@@ -320,6 +324,18 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     ecmdOutputError(printed.c_str());
     printed = "";
     return printed;
+  }
+
+  /* If compression was enabled on the buffer, and the user asked to view it, uncompress the data */
+  if (compression) {
+    if (i_data.isBufferCompressed()) {
+      i_data.uncompressBuffer();
+    } else {
+      printed = "Compressed data option was given on the cmdline, but data wasn't compressed!\n";
+      ecmdOutputError(printed.c_str());
+      printed = "";
+      return printed;
+    }
   }
 
   if (curState == ECMD_FORMAT_X) {
