@@ -214,7 +214,7 @@ public:
    * @post ecmdDataBuffer is initialized and zero'd out
    */
   //STGC01056640 - remove implicit conversion ability. data = 08FF doesn't work
-  explicit ecmdDataBuffer(uint32_t i_numBits); 
+  explicit ecmdDataBuffer(uint64_t i_numBits); 
 
   /**
    * @brief Copy Constructor
@@ -245,37 +245,37 @@ public:
    * @brief Return the length of the buffer in double words
    * @retval Buffer length in double words rounded up
    */
-  uint32_t   getDoubleWordLength() const;
+  uint64_t   getDoubleWordLength() const;
 
   /**
    * @brief Return the length of the buffer in words
    * @retval Buffer length in words rounded up
    */
-  uint32_t   getWordLength() const;
+  uint64_t   getWordLength() const;
 
   /**
    * @brief Return the length of the buffer in half words
    * @retval Buffer length in half words rounded up
    */
-  uint32_t   getHalfWordLength() const;
+  uint64_t   getHalfWordLength() const;
 
   /**
    * @brief Return the length of the buffer in bytes
    * @retval Buffer length in bytes rounded up
    */
-  uint32_t   getByteLength() const;
+  uint64_t   getByteLength() const;
 
   /**
    * @brief Return the length of the buffer in bits
    * @retval Buffer length in bits
    */
-  uint32_t   getBitLength() const;
+  uint64_t   getBitLength() const;
 
   /**
    * @brief Return the actual capacity of the internal buffer in words
    * @retval Actual capacity in words of internal buffer
    */
-  uint32_t   getCapacity() const;
+  uint64_t   getCapacity() const;
 
   /**
    * @brief Reinitialize the Buffer to specified length
@@ -288,7 +288,7 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
-  uint32_t  setDoubleWordLength(uint32_t i_newNumDoubleWords);   
+  uint32_t  setDoubleWordLength(uint64_t i_newNumDoubleWords);   
 
   /**
    * @brief Reinitialize the Buffer to specified length
@@ -301,7 +301,7 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
-  uint32_t  setWordLength(uint32_t i_newNumWords);   
+  uint32_t  setWordLength(uint64_t i_newNumWords);   
 
   /**
    * @brief Reinitialize the Buffer to specified length
@@ -314,7 +314,7 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
-  uint32_t  setHalfWordLength(uint32_t i_newNumHalfWords);   
+  uint32_t  setHalfWordLength(uint64_t i_newNumHalfWords);   
 
   /**
    * @brief Reinitialize the Buffer to specified length
@@ -327,7 +327,7 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
-  uint32_t  setByteLength(uint32_t i_newNumBytes);   
+  uint32_t  setByteLength(uint64_t i_newNumBytes);   
 
   /**
    * @brief Reinitialize the Buffer to specified length
@@ -340,7 +340,7 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    * CAUTION : All data stored in buffer will be lost
    */
-  uint32_t  setBitLength(uint32_t i_newNumBits);
+  uint32_t  setBitLength(uint64_t i_newNumBits);
 
   /**
    * @brief Reinitialize the internal buffer to specified length
@@ -352,7 +352,7 @@ public:
    *
    * CAUTION : All data stored in buffer will be lost
    */
-  uint32_t setCapacity (uint32_t i_newNumWords);
+  uint32_t setCapacity(uint64_t i_newNumWords);
 
   /**
    * @brief Shrink buffer size to a new bit size
@@ -360,7 +360,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @post Internal buffer size is reset but data inside new size is not lost
    */
-  uint32_t shrinkBitLength(uint32_t i_newNumBits);
+  uint32_t shrinkBitLength(uint64_t i_newNumBits);
 
   /**
    * @brief Expand buffer size to a new bit size maintaining current data
@@ -370,7 +370,7 @@ public:
    *
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    */
-  uint32_t growBitLength(uint32_t i_newNumBits);
+  uint32_t growBitLength(uint64_t i_newNumBits);
 
   /**
    * @brief Returns value of iv_BufferOptimizable
@@ -386,7 +386,7 @@ public:
    * @param i_bit Bit in buffer to get
    * @retval true/1 if bit is on, false/0 if bit is off
    */
-  bool getBit(uint32_t i_bit) const;
+  bool getBit(uint64_t i_bit) const;
 
   /**
    * @brief Turn on a bit in buffer
@@ -394,7 +394,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t setBit(uint32_t i_bit);
+  uint32_t setBit(uint64_t i_bit);
 
   /**
    * @brief Turn on a bit in buffer
@@ -403,7 +403,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t setBit(uint32_t i_bit, uint32_t i_len);
+  uint32_t setBit(uint64_t i_bit, uint64_t i_len);
 
   /**
    * @brief Write a bit to specified value in buffer
@@ -412,7 +412,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t writeBit(uint32_t i_bit, uint32_t i_value);
+  uint32_t writeBit(uint64_t i_bit, uint32_t i_value);
 
   /**
    * @brief Set a word of data in buffer
@@ -424,14 +424,14 @@ public:
    * NOTE : If the buffer length != word boundary, when setting the last word 
    *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
-  uint32_t setWord(uint32_t i_wordoffset, uint32_t i_value);
+  uint32_t setWord(uint64_t i_wordoffset, uint32_t i_value);
 
   /**
    * @brief Fetch a word from ecmdDataBuffer
    * @param i_wordoffset Offset of word to fetch
    * @retval Value of word requested
    */
-  uint32_t getWord(uint32_t i_wordoffset) const;
+  uint32_t getWord(uint64_t i_wordoffset) const;
 
   /**
    * @brief Set a byte of data in buffer
@@ -443,7 +443,7 @@ public:
    * NOTE : If the buffer length != byte boundary, when setting the last byte 
    *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
-  uint32_t setByte(uint32_t i_byteoffset, uint8_t i_value);
+  uint32_t setByte(uint64_t i_byteoffset, uint8_t i_value);
 
   /**
    * @brief Fetch a byte from ecmdDataBuffer
@@ -452,7 +452,7 @@ public:
    *
    * NOTE : If offset > buffer length retval = 0 and error printed
    */
-  uint8_t getByte(uint32_t i_byteoffset) const;
+  uint8_t getByte(uint64_t i_byteoffset) const;
 
   /**
    * @brief Set a halfword of data in buffer
@@ -464,14 +464,14 @@ public:
    * NOTE : If the buffer length != half word boundary, when setting the last half word 
    *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
-  uint32_t setHalfWord(uint32_t i_halfwordoffset, uint16_t i_value);
+  uint32_t setHalfWord(uint64_t i_halfwordoffset, uint16_t i_value);
 
   /**
    * @brief Fetch a halfword from ecmdDataBuffer
    * @param i_halfwordoffset Offset of halfword to fetch
    * @retval Value of halfword requested
    */
-  uint16_t getHalfWord(uint32_t i_halfwordoffset) const;
+  uint16_t getHalfWord(uint64_t i_halfwordoffset) const;
 
   /**
    * @brief Set a doubleword of data in buffer
@@ -483,14 +483,14 @@ public:
    * NOTE : If the buffer length != double word boundary, when setting the last double word 
    *        data in i_value past the buffer length is cleared before being stored in the buffer
    */
-  uint32_t setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value);
+  uint32_t setDoubleWord(uint64_t i_doublewordoffset, uint64_t i_value);
 
   /**
    * @brief Fetch a doubleword from ecmdDataBuffer
    * @param i_doublewordoffset Offset of doubleword to fetch
    * @retval Value of doubleword requested
    */
-  uint64_t getDoubleWord(uint32_t i_doublewordoffset) const;
+  uint64_t getDoubleWord(uint64_t i_doublewordoffset) const;
 
   /**
    * @brief Clear a bit in buffer
@@ -498,7 +498,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t clearBit(uint32_t i_bit);
+  uint32_t clearBit(uint64_t i_bit);
   /**
    * @brief Clear multiple bits in buffer
    * @param i_bit Start bit in buffer to turn off
@@ -506,7 +506,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t clearBit(uint32_t i_bit, uint32_t i_len);
+  uint32_t clearBit(uint64_t i_bit, uint64_t i_len);
 
   /**
    * @brief Invert bit
@@ -514,7 +514,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t flipBit(uint32_t i_bit);
+  uint32_t flipBit(uint64_t i_bit);
   /**
    * @brief Invert multiple bits
    * @param i_bit Start bit in buffer to invert
@@ -522,41 +522,41 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
    */
-  uint32_t flipBit(uint32_t i_bit, uint32_t i_len);
+  uint32_t flipBit(uint64_t i_bit, uint64_t i_len);
 
   /**
    * @brief Test if bit is set
    * @param i_bit Bit to test
    * @retval true if bit is set - false if bit is clear
    */
-  bool   isBitSet(uint32_t i_bit) const;
+  bool   isBitSet(uint64_t i_bit) const;
   /**
    * @brief Test if multiple bits are set
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval true if all bits in range are set - false if any bit is clear
    */
-  bool   isBitSet(uint32_t i_bit, uint32_t i_len) const;
+  bool   isBitSet(uint64_t i_bit, uint64_t i_len) const;
   /**
    * @brief Test if bit is clear
    * @param i_bit Bit to test
    * @retval true if bit is clear - false if bit is set
    */
-  bool   isBitClear(uint32_t i_bit) const;
+  bool   isBitClear(uint64_t i_bit) const;
   /**
    * @brief Test if multiple bits are clear
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval true if all bits in range are clear - false if any bit is set
    */
-  bool   isBitClear(uint32_t i_bit, uint32_t i_len) const;
+  bool   isBitClear(uint64_t i_bit, uint64_t i_len) const;
   /**
    * @brief Count number of bits set in a range
    * @param i_bit Start bit to test
    * @param i_len Number of consecutive bits to test
    * @retval Number of bits set in range
    */      
-  uint32_t getNumBitsSet(uint32_t i_bit, uint32_t i_len) const;
+  uint64_t getNumBitsSet(uint64_t i_bit, uint64_t i_len) const;
   //@}
 
 
@@ -570,7 +570,7 @@ public:
    * @post Buffer size is unchanged
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t shiftRight(uint32_t i_shiftnum, uint32_t i_offset = 0);
+  uint32_t shiftRight(uint64_t i_shiftnum, uint64_t i_offset = 0);
   /**
    * @brief Shift data to left
    * @param i_shiftnum Number of bits to shift
@@ -579,7 +579,7 @@ public:
    * @post Buffer size is unchanged
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t shiftLeft(uint32_t i_shiftnum, uint32_t i_offset = 0xFFFFFFFF);
+  uint32_t shiftLeft(uint64_t i_shiftnum, uint64_t i_offset = 0xFFFFFFFF);
   /**
    * @brief Shift data to right - resizing buffer
    * @param i_shiftnum Number of bits to shift
@@ -589,7 +589,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    */
-  uint32_t shiftRightAndResize(uint32_t i_shiftnum, uint32_t i_offset = 0);
+  uint32_t shiftRightAndResize(uint64_t i_shiftnum, uint64_t i_offset = 0);
 
   /**
    * @brief Shift data to left - resizing buffer
@@ -599,7 +599,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
    */
-  uint32_t shiftLeftAndResize(uint32_t i_shiftnum);
+  uint32_t shiftLeftAndResize(uint64_t i_shiftnum);
 
   /**
    * @brief Rotate data to right
@@ -607,7 +607,7 @@ public:
    * @post Bits in buffer are rotated to the right by specified number of bits - data is rotated to the beginning
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t rotateRight(uint32_t i_rotatenum);
+  uint32_t rotateRight(uint64_t i_rotatenum);
 
   /**
    * @brief Rotate data to left
@@ -615,7 +615,7 @@ public:
    * @post Bits in buffer are rotated to the left by specified number of bits - data is rotated to the end
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t rotateLeft(uint32_t i_rotatenum);
+  uint32_t rotateLeft(uint64_t i_rotatenum);
 
   /**
    * @brief Clear entire buffer to 0's
@@ -647,7 +647,7 @@ public:
    * @param i_invByteLen Buffer length provided in bytes
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t applyInversionMask(const uint32_t * i_invMask, uint32_t i_invByteLen);
+  uint32_t applyInversionMask(const uint32_t * i_invMask, uint64_t i_invByteLen);
 
   /**
    * @brief Apply an inversion mask to data inside buffer
@@ -656,7 +656,7 @@ public:
    * @param i_invByteLen Buffer length provided in bytes
    * @retval ECMD_DBUF_SUCCESS on success
    */
-  uint32_t applyInversionMask(const ecmdDataBuffer & i_invMaskBuffer, uint32_t i_invByteLen);
+  uint32_t applyInversionMask(const ecmdDataBuffer & i_invMaskBuffer, uint64_t i_invByteLen);
 
   /**
    * @brief Copy part of another DataBuffer into this one
@@ -669,7 +669,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(const ecmdDataBuffer & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(const ecmdDataBuffer & i_bufferIn, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy part of a uint32_t array into this DataBuffer
@@ -682,7 +682,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(const uint32_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(const uint32_t * i_data, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy part of a uint32_t into the DataBuffer
@@ -695,7 +695,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(uint32_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(uint32_t i_data, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
@@ -709,7 +709,7 @@ public:
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
-  uint32_t insertFromRight(const uint32_t * i_data, uint32_t i_start, uint32_t i_len);
+  uint32_t insertFromRight(const uint32_t * i_data, uint64_t i_start, uint64_t i_len);
 
   /**
    * @brief Copy a right aligned (decimal) uint32_t into the DataBuffer
@@ -721,7 +721,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insertFromRight(uint32_t i_data, uint32_t i_start, uint32_t i_len);
+  uint32_t insertFromRight(uint32_t i_data, uint64_t i_start, uint64_t i_len);
 
   /**
    * @brief Copy part of a uint16_t array into this DataBuffer
@@ -734,7 +734,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(const uint16_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(const uint16_t * i_datain, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy part of a uint16_t into the DataBuffer
@@ -747,7 +747,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(uint16_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(uint16_t i_datain, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy a right aligned (decimal) uint16_t array into this DataBuffer
@@ -761,7 +761,7 @@ public:
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
-  uint32_t insertFromRight(const uint16_t * i_datain, uint32_t i_start, uint32_t i_len);
+  uint32_t insertFromRight(const uint16_t * i_datain, uint64_t i_start, uint64_t i_len);
 
   /**
    * @brief Copy a right aligned (decimal) uint16_t into the DataBuffer
@@ -773,7 +773,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insertFromRight(uint16_t i_datain, uint32_t i_start, uint32_t i_len);
+  uint32_t insertFromRight(uint16_t i_datain, uint64_t i_start, uint64_t i_len);
 
   /**
    * @brief Copy part of a uint8_t array into this DataBuffer 
@@ -786,7 +786,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(const uint8_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(const uint8_t * i_data, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy part of a uint8_t into the DataBuffer
@@ -799,7 +799,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t insert(uint8_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+  uint32_t insert(uint8_t i_datain, uint64_t i_targetStart, uint64_t i_len, uint64_t i_sourceStart = 0);
 
   /**
    * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer 
@@ -813,7 +813,7 @@ public:
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
-  uint32_t insertFromRight(const uint8_t * i_data, uint32_t i_start, uint32_t i_len);
+  uint32_t insertFromRight(const uint8_t * i_data, uint64_t i_start, uint64_t i_len);
 
   /**
    * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer 
@@ -828,7 +828,7 @@ public:
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
 
-  uint32_t insertFromRight(const uint8_t i_datain, uint32_t i_start, uint32_t i_len);
+  uint32_t insertFromRight(const uint8_t i_datain, uint64_t i_start, uint64_t i_len);
 
   /**
    * @brief Copy data from this DataBuffer into another
@@ -841,7 +841,7 @@ public:
 
    * NOTE : The o_bufferOut buffer is resized to the extract length and any data in the buffer is lost
    */
-  uint32_t extract(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extract(ecmdDataBuffer & o_bufferOut, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this DataBuffer into a uint32_t buffer
@@ -852,7 +852,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extract(uint32_t * o_data, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this DataBuffer into a uint16_t buffer
@@ -863,7 +863,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extract(uint16_t * o_data, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extract(uint16_t * o_data, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this DataBuffer into a uint8_t buffer
@@ -874,7 +874,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extract(uint8_t * o_data, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this buffer into another at a given offset, preserving the size and other data in the output buffer
@@ -886,7 +886,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval EMCD_DBUF_BUFFER_OVERFLOW data requested is out of range in one of the 2 buffers
    */
-  uint32_t extractPreserve(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+  uint32_t extractPreserve(ecmdDataBuffer & o_bufferOut, uint64_t i_start, uint64_t i_len, uint64_t i_targetStart = 0) const;
 
   /**
    * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer
@@ -899,7 +899,7 @@ public:
    * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
    * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
    */
-  uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const; 
+  uint32_t extractPreserve(uint32_t * o_data, uint64_t i_start, uint64_t i_len, uint64_t i_targetStart = 0) const; 
 
   /**
    * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer 
@@ -912,7 +912,7 @@ public:
    * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
    * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
    */
-  uint32_t extractPreserve(uint16_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+  uint32_t extractPreserve(uint16_t * o_data, uint64_t i_start, uint64_t i_len, uint64_t i_targetStart = 0) const;
 
   /**
    * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer 
@@ -925,7 +925,7 @@ public:
    * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
    * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
    */
-  uint32_t extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+  uint32_t extractPreserve(uint8_t * o_data, uint64_t i_start, uint64_t i_len, uint64_t i_targetStart = 0) const;
 
   /**
    * @brief Copy data from this DataBuffer into another DataBuffer and right justify
@@ -936,7 +936,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extractToRight(ecmdDataBuffer & o_bufferOut, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this DataBuffer into a uint32_t buffer
@@ -947,7 +947,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extractToRight(uint32_t * o_data, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this DataBuffer into a uint16_t buffer
@@ -958,7 +958,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extractToRight(uint16_t * o_data, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extractToRight(uint16_t * o_data, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Copy data from this DataBuffer into a uint8_t buffer
@@ -969,7 +969,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
+  uint32_t extractToRight(uint8_t * o_data, uint64_t i_start, uint64_t i_len) const;
 
   /**
    * @brief Concatenate 2 DataBuffers into in this one
@@ -1000,7 +1000,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setOr(const ecmdDataBuffer & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setOr(const ecmdDataBuffer & i_bufferIn, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief OR data into DataBuffer
@@ -1011,7 +1011,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setOr(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setOr(const uint32_t * i_data, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief OR data into DataBuffer
@@ -1022,7 +1022,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setOr(uint32_t i_data, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setOr(uint32_t i_data, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief OR data into DataBuffer
@@ -1043,7 +1043,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setXor(const ecmdDataBuffer & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setXor(const ecmdDataBuffer & i_bufferIn, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief XOR data into DataBuffer
@@ -1054,7 +1054,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setXor(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setXor(const uint32_t * i_data, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief XOR data into DataBuffer
@@ -1065,7 +1065,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setXor(uint32_t i_data, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setXor(uint32_t i_data, uint64_t i_startbit, uint64_t i_len);
 
   /* these functions AND the datain into the DataBuffer buffer */
   /**
@@ -1077,7 +1077,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setAnd(const ecmdDataBuffer & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setAnd(const ecmdDataBuffer & i_bufferIn, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief AND data into DataBuffer
@@ -1088,7 +1088,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setAnd(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setAnd(const uint32_t * i_data, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief AND data into DataBuffer
@@ -1099,7 +1099,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setAnd(uint32_t i_data, uint32_t i_startbit, uint32_t i_len);
+  uint32_t setAnd(uint32_t i_data, uint64_t i_startbit, uint64_t i_len);
 
   /**
    * @brief Copy entire contents of this ecmdDataBuffer into o_copyBuffer 
@@ -1128,7 +1128,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyIn(const uint32_t * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t memCopyIn(const uint32_t * i_buf, uint64_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   /**
    * @brief Copy DataBuffer into supplied uint32_t buffer
@@ -1138,7 +1138,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyOut(uint32_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  uint32_t memCopyOut(uint32_t * o_buf, uint64_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   /**
    * @brief Copy buffer into this ecmdDataBuffer
@@ -1149,17 +1149,17 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyIn(const uint16_t * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t memCopyIn(const uint16_t * i_buf, uint64_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   /**
-   * @brief Copy DataBuffer into supplied uint32_t buffer
+   * @brief Copy DataBuffer into supplied uint16_t buffer
    * @param o_buf Buffer to copy into - must be pre-allocated
    * @param i_bytes Byte length to copy
    * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyOut(uint16_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  uint32_t memCopyOut(uint16_t * o_buf, uint64_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   /**
    * @brief Copy buffer into this ecmdDataBuffer
@@ -1170,7 +1170,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyIn(const uint8_t * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t memCopyIn(const uint8_t * i_buf, uint64_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   /**
    * @brief Copy DataBuffer into supplied uint8_t buffer
@@ -1180,7 +1180,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyOut(uint8_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  uint32_t memCopyOut(uint8_t * o_buf, uint64_t i_bytes) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   /**
    * @brief Flatten all the object data into a uint8_t buffer
@@ -1192,7 +1192,7 @@ public:
    * Second Word:     iv_NumBits
    * Remaining Words: Buffer data
    */
-  uint32_t flatten(uint8_t * o_data, uint32_t i_len) const;
+  uint32_t flatten(uint8_t * o_data, uint64_t i_len) const;
 
   /**
    * @brief Unflatten object data from a uint8_t buffer into this DataBuffer
@@ -1204,13 +1204,13 @@ public:
    * Second Word:     iv_NumBits
    * Remaining Words: Buffer data
    */
-  uint32_t unflatten(const uint8_t * i_data, uint32_t i_len);
+  uint32_t unflatten(const uint8_t * i_data, uint64_t i_len);
 
   /**
    * @brief Return number of bytes needed for a buffer to flatten the object
    * @retval Number of bytes needed
    */
-  uint32_t flattenSize(void) const;
+  uint64_t flattenSize(void) const;
 
   //@}
 
@@ -1223,7 +1223,7 @@ public:
    * @param i_stop Stop bit of range
    * @retval 0 or 1 depending on parity of range
    */
-  uint32_t oddParity(uint32_t i_start, uint32_t i_stop) const;
+  uint32_t oddParity(uint64_t i_start, uint64_t i_stop) const;
 
   /**
    * @brief Generate even parity over a range of bits
@@ -1231,7 +1231,7 @@ public:
    * @param i_stop Stop bit of range
    * @retval 0 or 1 depending on parity of range
    */
-  uint32_t evenParity(uint32_t i_start, uint32_t i_stop) const;
+  uint32_t evenParity(uint64_t i_start, uint64_t i_stop) const;
 
   /**
    * @brief Generate odd parity over a range of bits and insert into DataBuffer
@@ -1241,7 +1241,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos);
+  uint32_t oddParity(uint64_t i_start, uint64_t i_stop, uint64_t i_insertpos);
 
   /**
    * @brief Generate even parity over a range of bits and insert into DataBuffer
@@ -1251,7 +1251,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos); 
+  uint32_t evenParity(uint64_t i_start, uint64_t i_stop, uint64_t i_insertpos); 
   //@}
 
 
@@ -1263,7 +1263,7 @@ public:
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genHexLeftStr(uint32_t i_start, uint32_t i_bitlen) const;
+  std::string genHexLeftStr(uint64_t i_start, uint64_t i_bitlen) const;
 
   /**
    * @brief Return Data as a hex right aligned char string
@@ -1271,7 +1271,7 @@ public:
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genHexRightStr(uint32_t i_start, uint32_t i_bitlen) const;
+  std::string genHexRightStr(uint64_t i_start, uint64_t i_bitlen) const;
 
   /**
    * @brief Return Data as a binary char string
@@ -1279,7 +1279,7 @@ public:
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genBinStr(uint32_t i_start, uint32_t i_bitlen) const; 
+  std::string genBinStr(uint64_t i_start, uint64_t i_bitlen) const; 
 
   /**
    * @brief Return Data as an ASCII char string.  If it's out of range, a . is printed.
@@ -1287,7 +1287,7 @@ public:
    * @param i_bitlen Number of consecutive bits to convert
    * @retval String containing requested data
    */
-  std::string genAsciiStr(uint32_t i_start, uint32_t i_bitlen) const; 
+  std::string genAsciiStr(uint64_t i_start, uint64_t i_bitlen) const; 
 
   /**
    * @brief Return Data as an ASCII char string formatted to be put through printf.
@@ -1298,7 +1298,7 @@ public:
    * NOTE: This handles special characters like % that would be eaten by a C printf.  If you are doing a cout or using
    *       printf in perl, you don't need this function.
    */
-  std::string genAsciiPrintStr(uint32_t i_start, uint32_t i_bitlen) const; 
+  std::string genAsciiPrintStr(uint64_t i_start, uint64_t i_bitlen) const; 
 
   /**
    * @brief Return entire buffer as a hex left aligned char string
@@ -1331,7 +1331,7 @@ public:
    * @param i_bitlen Number of consecutive bits to retrieve
    * @retval String containing requested data
    */
-  std::string genXstateStr(uint32_t i_start, uint32_t i_bitlen) const;
+  std::string genXstateStr(uint64_t i_start, uint64_t i_bitlen) const;
 
   /**
    * @brief Retrieve entire Xstate Data buffer
@@ -1355,7 +1355,7 @@ public:
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
-  uint32_t insertFromHexLeft (const char * i_hexChars, uint32_t i_start = 0, uint32_t i_length = 0);
+  uint32_t insertFromHexLeft (const char * i_hexChars, uint64_t i_start = 0, uint64_t i_length = 0);
 
   /**
    * @brief Convert data from a hex left-aligned string and insert it into this data buffer - and set's buffer length to size of data
@@ -1366,7 +1366,7 @@ public:
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
-  uint32_t insertFromHexLeftAndResize (const char * i_hexChars, uint32_t i_start = 0, uint32_t i_length = 0);
+  uint32_t insertFromHexLeftAndResize (const char * i_hexChars, uint64_t i_start = 0, uint64_t i_length = 0);
 
   /**
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer
@@ -1377,7 +1377,7 @@ public:
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
-  uint32_t insertFromHexRight (const char * i_hexChars, uint32_t i_start = 0, uint32_t i_length = 0);
+  uint32_t insertFromHexRight (const char * i_hexChars, uint64_t i_start = 0, uint64_t i_length = 0);
 
   /**
    * @brief Convert data from a hex right-aligned string and insert it into this data buffer - and set's buffer length to size of data
@@ -1388,7 +1388,7 @@ public:
    * @retval ECMD_SUCCESS on success
    * @retval non-zero on failure
    */
-  uint32_t insertFromHexRightAndResize (const char * i_hexChars, uint32_t i_start = 0, uint32_t i_length = 0);
+  uint32_t insertFromHexRightAndResize (const char * i_hexChars, uint64_t i_start = 0, uint64_t i_length = 0);
 
   /**
    * @brief Convert data from a binary string and insert it into this data buffer
@@ -1401,7 +1401,7 @@ public:
    * @retval non-zero on failure
 
    */
-  uint32_t insertFromBin (const char * i_binChars, uint32_t i_start = 0, uint32_t i_length = 0);
+  uint32_t insertFromBin (const char * i_binChars, uint64_t i_start = 0, uint64_t i_length = 0);
 
   /**
    * @brief Convert data from a binary string and insert it into this data buffer - and set's buffer length to size of data
@@ -1414,7 +1414,7 @@ public:
    * @retval non-zero on failure
 
    */
-  uint32_t insertFromBinAndResize (const char * i_binChars, uint32_t i_start = 0, uint32_t i_length = 0);
+  uint32_t insertFromBinAndResize (const char * i_binChars, uint64_t i_start = 0, uint64_t i_length = 0);
 
   /**
    * @brief Convert data from an ascii string and insert it into this data buffer
@@ -1425,7 +1425,7 @@ public:
    * @retval non-zero on failure
 
    */
-  uint32_t insertFromAscii(const char * i_asciiChars, uint32_t i_start = 0);
+  uint32_t insertFromAscii(const char * i_asciiChars, uint64_t i_start = 0);
 
   /**
    * @brief Convert data from an ascii string and insert it into this data buffer - and set's buffer length to size of data
@@ -1436,7 +1436,7 @@ public:
    * @retval non-zero on failure
 
    */
-  uint32_t insertFromAsciiAndResize(const char * i_asciiChars, uint32_t i_start = 0);
+  uint32_t insertFromAsciiAndResize(const char * i_asciiChars, uint64_t i_start = 0);
   //@}
 
 
@@ -1486,7 +1486,7 @@ public:
    * @param i_length Number of consecutive bits to test
    * @retval true if xstate found false if none
    */
-  bool   hasXstate(uint32_t i_start, uint32_t i_length) const; /* check subset */
+  bool   hasXstate(uint64_t i_start, uint64_t i_length) const; /* check subset */
 
   /**
    * @brief Retrieve an Xstate value from the buffer
@@ -1494,7 +1494,7 @@ public:
 
    * NOTE - To retrieve multiple bits use genXstateStr
    */
-  char  getXstate(uint32_t i_bit) const;
+  char  getXstate(uint64_t i_bit) const;
 
   /**
    * @brief Set an Xstate value in the buffer
@@ -1503,7 +1503,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setXstate(uint32_t i_bit, char i_value);
+  uint32_t setXstate(uint64_t i_bit, char i_value);
 
   /**
    * @brief Set an Xstate value in the buffer
@@ -1513,7 +1513,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setXstate(uint32_t i_bit, char i_value, uint32_t i_length);
+  uint32_t setXstate(uint64_t i_bit, char i_value, uint64_t i_length);
 
   /**
    * @brief Set a range of Xstate values in buffer
@@ -1522,7 +1522,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t setXstate(uint32_t i_bitoffset, const char* i_datastr); 
+  uint32_t setXstate(uint64_t i_bitoffset, const char* i_datastr); 
 
   /**
    * @brief Copy buffer into the Xstate data of this ecmdDataBuffer
@@ -1532,7 +1532,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyInXstate(const char * i_buf, uint32_t i_bits); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
+  uint32_t memCopyInXstate(const char * i_buf, uint64_t i_bits); /* Does a memcpy from supplied buffer into ecmdDataBuffer */
 
   /**
    * @brief Copy DataBuffer into supplied char buffer from Xstate data
@@ -1542,7 +1542,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
-  uint32_t memCopyOutXstate(char * o_buf, uint32_t i_bits) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+  uint32_t memCopyOutXstate(char * o_buf, uint64_t i_bits) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
 
   //@}
 #endif /* REMOVE_SIM */
@@ -1734,8 +1734,8 @@ protected:  //data
   /*                                                                       */
   /*************************************************************************/
 
-  uint32_t iv_Capacity;         ///< Actual buffer capacity - always >= getNumWords()
-  uint32_t iv_NumBits;          ///< Specified buffer size in bits
+  uint64_t iv_Capacity;         ///< Actual buffer capacity - always >= getNumWords()
+  uint64_t iv_NumBits;          ///< Specified buffer size in bits
   uint32_t *iv_Data;            ///< Pointer to buffer inside iv_RealData
   uint32_t *iv_RealData;        ///< Real buffer - with header and tail
   uint32_t iv_LocalData[4];     ///< If the buffer is <= 64 bits, we'll store the data locally in the class
@@ -1766,7 +1766,7 @@ class ecmdOptimizableDataBuffer : public ecmdDataBuffer {
      /**
       * @brief Constructor with bit length specified
       */
-     ecmdOptimizableDataBuffer(uint32_t i_numBits);
+     ecmdOptimizableDataBuffer(uint64_t i_numBits);
      
      /**
       * @brief Destructor for ecmdOptimizableDataBuffer class
