@@ -2468,7 +2468,7 @@ std::string ecmdDataBuffer::genAsciiStr() const { return this->genAsciiStr(0, iv
 std::string ecmdDataBuffer::genXstateStr() const { return this->genXstateStr(0, iv_NumBits); }
 #endif /* REMOVE_SIM */
 
-uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
+uint32_t ecmdDataBuffer::insertFromHexLeftAndResize(const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
   if (i_length == 0) {
     i_length = strlen(i_hexChars) * 4;
   }
@@ -2492,7 +2492,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeftAndResize (const char * i_hexChars, ui
   return insertFromHexLeft(i_hexChars, i_start, i_length);
 }
 
-uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
+uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
   int rc = ECMD_DBUF_SUCCESS;
   int i;
 
@@ -2530,7 +2530,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft (const char * i_hexChars, uint32_t i_
   int wordSize = wordLength * 8;
   int loopCount = (wordSize < (int)strlen(i_hexChars) ? wordSize : (int)strlen(i_hexChars));
 
-  for (i = 0; i < loopCount ; i++) {
+  for (i = 0; i < loopCount; i++) {
     if ((i & 0xFFF8) == i)
       number_ptr[i>>3] = 0x0;
     if (!isxdigit(i_hexChars[i])) {
