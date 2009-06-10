@@ -186,6 +186,7 @@ uint32_t decToUInt32(const char *i_decstr);
  @param i_data ecmdDataBuffer where data to format is stored
  @param i_format Flag that tells how to parse the data into a string, e.g., "b" = binary, "x" = hex left
  @param i_address A base address value that can be used in formating certain data- i.e., data from memory
+ @param i_endianMode The endianness with which to print the data
  */
 std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
@@ -194,6 +195,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
  @param i_initCharOffset char offset on screen to start printing
  @param i_blockSize Binary block size (ie. column char size)
  @param i_numCols Number of columns to display
+ @param i_endianMode The endianness with which to print the data
  @param i_maxBitWidth Maximum number of bits to display - this is actual data valid so we don't display more columns then we need
  @return String of formatted data
 */
