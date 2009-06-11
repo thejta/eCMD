@@ -282,7 +282,8 @@ typedef enum {
   ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
   ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
   ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
-  ECMD_DLL_PRODUCT_SYSTEMX      ///< System X projects and products
+  ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
+  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< Z Gryphon Project
 } ecmdDllProduct_t;
 
 /**
@@ -446,7 +447,8 @@ typedef enum {
   ECMD_ARRAYTYPE_DIRECT_ACCESS,         ///< Array is a direct access array
   ECMD_ARRAYTYPE_SIMPLE,                ///< Array is a simple array
   ECMD_ARRAYTYPE_HARDWARE_ASSIST,       ///< Array is a hardware assist array
-  ECMD_ARRAYTYPE_HARDWARE_ASSIST_2,     ///< Array is a hardware assist array
+  ECMD_ARRAYTYPE_HARDWARE_ASSIST_2,     ///< Array is a hardware assist 2 array
+  ECMD_ARRAYTYPE_HARDWARE_ASSIST_3,     ///< Array is a hardware assist 3 array
 } ecmdArrayType_t;
 
 /**
