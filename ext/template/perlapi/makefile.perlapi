@@ -45,15 +45,13 @@ install:
 # *****************************************************************************
 # These have to be two separate targets because the generate include has to be there to build to generated source
 ifeq ($(strip $(DISABLE_AUTOGEN)),)
-  ${GENERATED_INCLUDES}: ${EXTENSION_NAME}ClientPerlapi.H makepm.pl
+  ${GENERATED_INCLUDES}: ${EXTENSION_NAME}ClientPerlapi.H ${ECMD_ROOT}/perlapi/makepm.pl
 	@echo "==== Auto Generating $@"
-	@chmod 777 makepm.pl
-	@./makepm.pl ${EXTENSION_NAME} $@
+	@${ECMD_ROOT}/perlapi/makepm.pl ${EXTENSION_NAME} $@
 
-  ${GENERATED_SOURCE}: ${GENERATED_INCLUDES} makepm.pl
+  ${GENERATED_SOURCE}: ${GENERATED_INCLUDES} ${ECMD_ROOT}/perlapi/makepm.pl
 	@echo "==== Auto Generating $@"
-	@chmod 777 makepm.pl
-	@./makepm.pl ${EXTENSION_NAME} $@
+	@${ECMD_ROOT}/perlapi/makepm.pl ${EXTENSION_NAME} $@
 endif
 
 

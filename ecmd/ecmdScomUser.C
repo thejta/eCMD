@@ -853,18 +853,18 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
      rc = 0;
      while (!done && rc ==0) {
- 
+
        rc = getScom(cuTarget, address, buffer);
        if (rc) {
-     	 printed = "pollscom - Error occured performing getscom on ";
-     	 printed += ecmdWriteTarget(cuTarget);
-     	 printed += "\n";
-     	 ecmdOutputError( printed.c_str() );
+         printed = "pollscom - Error occured performing getscom on ";
+         printed += ecmdWriteTarget(cuTarget);
+         printed += "\n";
+         ecmdOutputError( printed.c_str() );
          coeRc = rc;
          continue;
        }
        else {
-     	 validPosFound = true;
+         validPosFound = true;
        }
 
        /* ------------------------ */
@@ -877,46 +877,46 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
        if (expectFlag) {
 
-     	 if (maskFlag) {
-     	   buffer.setAnd(mask, 0, buffer.getBitLength());
-     	 }
+         if (maskFlag) {
+           buffer.setAnd(mask, 0, buffer.getBitLength());
+         }
 
-	 
-     	 if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
-     	   //mismatches
-     	   if (done || verboseFlag) {
+         if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
-     	     printed = "pollscom - Actual";
-     	     if (maskFlag) {
-     	       printed += " (with mask): ";
-     	     }
-     	     else {
-     	       printed += "	       : ";
-     	     }
+           //mismatches
+           if (done || verboseFlag) {
 
-     	     printed += ecmdWriteDataFormatted(buffer, outputformat);
+             printed = "pollscom - Actual";
+             if (maskFlag) {
+               printed += " (with mask): ";
+             }
+             else {
+               printed += "	       : ";
+             }
 
-     	     printed += "pollscom - Expected	      : ";
-     	     printed += ecmdWriteDataFormatted(expected, outputformat);
+             printed += ecmdWriteDataFormatted(buffer, outputformat);
 
-     	     if (done) {
-     	       sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
-     	       printed = outstr + printed;
-     	       ecmdOutputError( printed.c_str() );
-	       coeRc = ECMD_EXPECT_FAILURE;
+             printed += "pollscom - Expected	      : ";
+             printed += ecmdWriteDataFormatted(expected, outputformat);
+
+             if (done) {
+               sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
+               printed = outstr + printed;
+               ecmdOutputError( printed.c_str() );
+               coeRc = ECMD_EXPECT_FAILURE;
                continue;
-     	     }
-     	     else {
-     	       ecmdOutput( printed.c_str() );
-     	     }
+             }
+             else {
+               ecmdOutput( printed.c_str() );
+             }
 
-     	   }
- 
-     	 }
-     	 else {
-     	   done = 1;  //matches
-     	 }
+           }
+
+         }
+         else {
+           done = 1;  //matches
+         }
 
        } else if (misMatchFlag) {
          if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
@@ -948,51 +948,36 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
        }
        else {
 
-     	 printed = "Actual	      : ";
-     	 printed += ecmdWriteDataFormatted(buffer, outputformat);
+         printed = "Actual	      : ";
+         printed += ecmdWriteDataFormatted(buffer, outputformat);
 
-     	 if (done) {
-     	   printed += ecmdWriteTarget(cuTarget);
-     	   printed += "\tPolling Complete\n";
-     	 }
+         if (done) {
+           printed += ecmdWriteTarget(cuTarget);
+           printed += "\tPolling Complete\n";
+         }
 
-     	 ecmdOutput( printed.c_str() );
+         ecmdOutput( printed.c_str() );
        }
 
        //update poll counters
        if (limitFlag == ITERATIONS_T) {
-     	 numPolls++;
+         numPolls++;
 
-     	 if (intervalFlag == CYCLES_T) {
-#ifndef REMOVE_SIM
-          rc = simclock(interval);
-          if (rc) return rc;
-#endif
-         } else if (intervalFlag == SECONDS_T) {
-          sleep(interval);
-         }
-
-       }
-       else if (limitFlag == CYCLES_T && intervalFlag == CYCLES_T) {
-
-#ifndef REMOVE_SIM
-         numPolls += interval;
-         rc = simclock(interval);
+         rc = ecmdDelay(interval, (interval * 1000));
          if (rc) return rc;
-#endif
 
        }
-       else if (limitFlag == SECONDS_T && intervalFlag == SECONDS_T) {
-         sleep(interval);
+       else if ((limitFlag == CYCLES_T && intervalFlag == CYCLES_T) || (limitFlag == SECONDS_T && intervalFlag == SECONDS_T)) {
+
+         numPolls += interval;
+         rc = ecmdDelay(interval, (interval * 1000));
+         if (rc) return rc;
+
        }
        else {
-
          ecmdOutputError("pollscom - Invalid limit/interval argument pair");
          return ECMD_INVALID_ARGS;
-
        }
-        
-      
      }  //while (!done)
     } /* End cuLooper */
   } /* End PosLooper */
