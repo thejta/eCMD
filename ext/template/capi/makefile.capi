@@ -128,10 +128,9 @@ ${SLIB}: ${SLIB_SOURCE_OBJS}
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
 ifeq ($(strip $(DISABLE_AUTOGEN)),)
-  $(GENERATED_SOURCE) $(GENERATED_INCLUDES): ${EXTENSION_NAME}ClientCapi.H makedll.pl
+  $(GENERATED_SOURCE) $(GENERATED_INCLUDES): ${EXTENSION_NAME}ClientCapi.H ${ECMD_ROOT}/capi/makedll.pl
 	@echo "==== Auto Generating $@"
-	@chmod 777 makedll.pl
-	@./makedll.pl ${EXTENSION_NAME} $@
+	@${ECMD_ROOT}/capi/makedll.pl ${EXTENSION_NAME} $@
 endif
 
 
