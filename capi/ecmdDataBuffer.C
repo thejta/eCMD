@@ -2486,17 +2486,17 @@ uint32_t ecmdDataBuffer::insertFromHexLeftAndResize(const char * i_hexChars, uin
     }
   }
 
-  int rc = setBitLength(i_length);
+  uint32_t rc = setBitLength(i_length);
   if (rc) return rc;
 
   return insertFromHexLeft(i_hexChars, i_start, i_length);
 }
 
 uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
-  int rc = ECMD_DBUF_SUCCESS;
-  int i;
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t i;
 
-  int bitlength = (i_length == 0 ? strlen(i_hexChars) * 4 : i_length);
+  uint32_t bitlength = (i_length == 0 ? strlen(i_hexChars) * 4 : i_length);
 
   /* If the user left the data identifier on the front, remove it */
   if (i_start == 0 && (strlen(i_hexChars)> 3)) {
@@ -2516,7 +2516,9 @@ uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_s
     return rc;
   }
 
-  int wordLength = (bitlength + 31) / 32;
+  /* Allocate all the space requested by the user */
+  /* We init it all to zero so if the input data is less than length, it's padded zero */
+  uint32_t wordLength = (bitlength + 31) / 32;
 
   uint32_t * number_ptr = new uint32_t[wordLength];
   for (i = 0; i < wordLength; i++) {
@@ -2527,10 +2529,16 @@ uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_s
   char nextOne[2];
   nextOne[1] = '\0';
 
-  int wordSize = wordLength * 8;
-  int loopCount = (wordSize < (int)strlen(i_hexChars) ? wordSize : (int)strlen(i_hexChars));
+  /* Now calcualte the number of nibbles we need to looper for */
+  /* We can't exceed the length of the input string, so loop for whatever is less */
+  uint32_t nibbles;
+  if ((strlen(i_hexChars) * 4) < i_length) {
+    nibbles = strlen(i_hexChars);
+  } else {
+    nibbles = (i_length + 3) / 4;
+  }
 
-  for (i = 0; i < loopCount; i++) {
+  for (i = 0; i < nibbles; i++) {
     if ((i & 0xFFF8) == i)
       number_ptr[i>>3] = 0x0;
     if (!isxdigit(i_hexChars[i])) {
@@ -2542,7 +2550,6 @@ uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_s
     number_ptr[i>>3] |= (tmpb32 << (28 - (4 * (i & 0x07))));
   }
 
-
   this->insert(number_ptr, i_start, bitlength);
 
   delete[] number_ptr;
@@ -2550,7 +2557,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_s
   return rc;
 }
 
-uint32_t ecmdDataBuffer::insertFromHexRightAndResize (const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
+uint32_t ecmdDataBuffer::insertFromHexRightAndResize(const char * i_hexChars, uint32_t i_start, uint32_t i_length) {
   if (i_length == 0) {
     i_length = strlen(i_hexChars) * 4;
   }
@@ -2563,16 +2570,16 @@ uint32_t ecmdDataBuffer::insertFromHexRightAndResize (const char * i_hexChars, u
     }
   }
 
-  int rc = setBitLength(i_length);
+  uint32_t rc = setBitLength(i_length);
   if (rc) return rc;
 
   return insertFromHexRight(i_hexChars, i_start, i_length);
 }
 
-uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t i_start, uint32_t i_expectedLength) {
-  int rc = ECMD_DBUF_SUCCESS;
+uint32_t ecmdDataBuffer::insertFromHexRight(const char * i_hexChars, uint32_t i_start, uint32_t i_expectedLength) {
+  uint32_t rc = ECMD_DBUF_SUCCESS;
   ecmdDataBuffer insertBuffer;
-  int bitlength = (i_expectedLength == 0 ? strlen(i_hexChars) * 4 : i_expectedLength);
+  uint32_t bitlength = (i_expectedLength == 0 ? strlen(i_hexChars) * 4 : i_expectedLength);
 
   /* If the user left the data identifier on the front, remove it */
   if (i_start == 0 && (strlen(i_hexChars)> 3)) {
@@ -2614,8 +2621,8 @@ uint32_t ecmdDataBuffer::insertFromHexRight (const char * i_hexChars, uint32_t i
     rc = insertBuffer.shiftLeftAndResize(4 - (bitlength % 4));
     if (rc) return rc;
   }
-  /* Now we have our data insert into ourselves */
 
+  /* Now we have our data insert into ourselves */
   this->insert(insertBuffer, i_start, bitlength);
 
   return rc;
@@ -2672,7 +2679,7 @@ uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t i_star
 }
 
 uint32_t ecmdDataBuffer::insertFromAsciiAndResize(const char * i_asciiChars, uint32_t i_start) {
-  int rc = setBitLength(strlen(i_asciiChars)*8);
+  uint32_t rc = setBitLength(strlen(i_asciiChars)*8);
   if (rc) return rc;
 
   return insertFromAscii(i_asciiChars, i_start);
