@@ -3659,7 +3659,7 @@ Common Hardware Access Programming Interface (eCMD)
 
 This is the documentation of the eCMD C/C++ Programming Api
 
-Last Approved: March 22nd, 2006
+Last Approved: June 11th, 2009
 
 @section inc eCMD Core Include Files
 
@@ -3678,13 +3678,13 @@ To link the client code on AIX, the following is required:
 <ul>
 <li>ecmdClientCapi_aix.a
 <li>libecmd_aix.so
-<li>xlC v6.0.0.8
+<li>xlC 7.0.0.2
 </ul>
 To create Linux x86 binaries, the following is required:
 <ul>
 <li>ecmdClientCapi_x86.a
 <li>libecmd_x86.so
-<li>g++ 3.4.6
+<li>g++ 4.1.2
 </ul>
 
 <hr>
@@ -3793,11 +3793,3 @@ For Makefile and Client examples please go to 'Use eCMD' on the eCMD web page : 
 
 */
 #endif
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
-//
-// End Change Log *****************************************************
