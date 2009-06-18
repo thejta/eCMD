@@ -2979,8 +2979,8 @@ uint32_t ecmdGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdTher
 /**
  @brief Read Clockspeed Sensor Values
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ecmdClockspeedSensorId String that specifies the Clockspeed sensor on the target ("CLOCKSPEEDL_DEFAULT" always supported)
- @param o_clockspeed Clockspeed value returned
+ @param i_ecmdClockSpeedSensorId String that specifies the Clockspeed sensor on the target ("CLOCKSPEEDL_DEFAULT" always supported)
+ @param o_clockSpeed Clockspeed value returned
  @param i_clockspeedUnit enum to control the return unit
  @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
  @retval ECMD_SUCCESS if successful
@@ -2990,7 +2990,7 @@ uint32_t ecmdGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdTher
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetClockspeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockspeedSensorId, uint32_t o_clockspeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetClockSpeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockSpeedSensorId, uint32_t & o_clockSpeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**

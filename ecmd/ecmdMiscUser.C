@@ -1982,7 +1982,7 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
         return ECMD_INVALID_ARGS;
       }
       //get clockspeed sensor
-      rc =  ecmdGetClockspeedSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
+      rc =  ecmdGetClockSpeedSensor(target, sensorId.c_str(), o_data, sensorUnit, readMode);
     }
     else
     {
