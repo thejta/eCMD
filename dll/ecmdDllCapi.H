@@ -389,7 +389,7 @@ uint32_t dllAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint3
 #ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
 uint32_t dllGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdThermalSensorId, uint32_t & o_temperature, ecmdThermalUnit_t i_thermalUnit, ecmdSensorReadMode_t i_sensorReadMode); 
 
-uint32_t dllGetClockspeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockspeedSensorId, uint32_t o_clockspeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+uint32_t dllGetClockSpeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockSpeedSensorId, uint32_t & o_clockSpeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode); 
 
 uint32_t dllGetVoltageSensor(ecmdChipTarget & i_target, const char * i_ecmdVoltageSensorId, uint32_t & o_voltage, ecmdVoltageUnit_t i_voltageUnit, ecmdSensorReadMode_t i_sensorReadMode); 
 
