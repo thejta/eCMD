@@ -68,6 +68,22 @@ uint32_t cmdRunCommand(std::string i_command);
 */
 uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_output);
 
+/**
+ @brief Run the command line command passed in , output goes to stdout and is not returned
+ @param i_file File to parse for commands to pass to interpreter
+ @retval ECMD_SUCCESS if successful load
+ @retval nonzero if unsuccessful
+*/
+uint32_t cmdRunCommandFile(std::string i_file);
+
+/**
+ @brief Run the command line command passed in , stdout is captured and returned
+ @param i_file File to parse for commands to pass to interpreter
+ @param o_output Standard out from running command
+ @retval ECMD_SUCCESS if successful load
+ @retval nonzero if unsuccessful
+*/
+uint32_t cmdRunCommandFileCaptureOutput(std::string i_file, std::string & o_output);
 
 
 #ifndef DOCUMENTATION
