@@ -23,6 +23,9 @@
 //  Includes
 //----------------------------------------------------------------------
 #include <string>
+#include <vector>
+#include <fstream>
+#include <iostream>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -47,6 +50,7 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+uint32_t parseCommandFile(std::string i_string, std::vector<std::string> & o_commands);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -70,18 +74,18 @@ uint32_t cmdInitExtension() {
   cmdInitialized = true;
 
   return rc;
-
 }
 
+#define ERRORBUF_SIZE 200
 
 uint32_t cmdRunCommand(std::string i_command) {
   int c_argc = 0;
   uint32_t rc = ECMD_SUCCESS;
+  char errorbuf[ERRORBUF_SIZE];
 
   char* c_argv[21];
   char* buffer = NULL;
   size_t   commlen;
-  char buf[200];
 
   c_argc = 0;
   c_argv[0] = NULL;
@@ -117,27 +121,43 @@ uint32_t cmdRunCommand(std::string i_command) {
   ecmdPushCommandArgs();
 
   /* We now want to call the command interpreter to handle what the user provided us */
-  if (!rc) rc = ecmdCallInterpreters(c_argc, c_argv);
+  if (!rc) {
+    rc = ecmdCallInterpreters(c_argc, c_argv);
+  }
 
   /* Restore the state of the target args */
   ecmdPopCommandArgs();
 
   if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-    sprintf(buf,"cmdRunCommand -  Unknown Command specified '%s'\n", c_argv[0]);
-    ecmdOutputError(buf);
-  } else if (rc) {
-    std::string parse = ecmdGetErrorMsg(rc, false);
-    if (parse.length() > 0) {
-      /* Display the registered message right away BZ#160 */
-      ecmdOutput(parse.c_str());
-    }
-    parse = ecmdParseReturnCode(rc);
-    sprintf(buf,"cmdRunCommand - '%s' returned with error code %X (%s)\n", c_argv[0], rc, parse.c_str());
-    ecmdOutputError(buf);
+    if (c_argv[0] == NULL)
+      sprintf(errorbuf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
+    else if (strlen(c_argv[0]) < (ERRORBUF_SIZE - 50))
+      sprintf(errorbuf,"ecmd - Unknown Command specified '%s'\n", c_argv[0]);
+    else
+      sprintf(errorbuf,"ecmd - Unknown Command specified \n");
+    ecmdOutputError(errorbuf);
   }
 
+  // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being lost
+  std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
+  /* Display the registered message right away BZ#160 */
+  if (parse.length() > 0) {
+    ecmdOutput(parse.c_str());
+  }
+
+  // If we did get a return code, parse that and print it to the screen
+  if (rc) {
+    parse = ecmdParseReturnCode(rc);
+    if (strlen(c_argv[0]) + parse.length() < (ERRORBUF_SIZE - 50))
+      sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", c_argv[0], rc, parse.c_str());
+    else
+      sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
+    ecmdOutputError(errorbuf);
+  }
+
+  /* Only print to the screen if quietmode isn't on */
   if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-    ecmdOutput((i_command + "\n").c_str());
+    ecmdOutput(i_command.c_str());
   }
 
   return rc;
@@ -153,8 +173,6 @@ uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_outpu
 
   o_output = "";
 
-
-
   /* Create a tmpfile to pipe stdout through */
   tempfile = tmpfile();
 
@@ -169,7 +187,6 @@ uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_outpu
 
   /* Redirect stdout */
   dup2(newstdout, 1);
-
 
   /* Ok, we can call it now */
   rc = cmdRunCommand(i_command);
@@ -195,7 +212,6 @@ uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_outpu
     o_output += buf;
   }    
 
-
   /* Restore stdout */
   dup2(stdoutsave, 1);
 
@@ -205,10 +221,66 @@ uint32_t cmdRunCommandCaptureOutput(std::string i_command, std::string & o_outpu
   return rc;
 }
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************
+uint32_t cmdRunCommandFile(std::string i_file) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::vector<std::string> commands;
+
+  // Get my commands in an easy to use format
+  rc = parseCommandFile(i_file, commands);
+  if (rc) return rc;
+
+  /* Loop through all our commands and execute them */
+  for (uint32_t idx = 0; idx < commands.size(); idx++) {
+    rc = cmdRunCommand(commands[idx]);
+    if (rc) return rc;
+  }
+
+  return rc;
+}
+
+uint32_t cmdRunCommandFileCaptureOutput(std::string i_file, std::string & o_output) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::vector<std::string> commands;
+
+  // The single command interface resets the input var each time, so don't just pass in o_output
+  std::string partialOutput;
+
+  o_output = "";
+
+  // Get my commands in an easy to use format
+  rc = parseCommandFile(i_file, commands);
+  if (rc) return rc;
+
+  /* Loop through all our commands and execute them */
+  for (uint32_t idx = 0; idx < commands.size(); idx++) {
+    rc = cmdRunCommandCaptureOutput(commands[idx], partialOutput);
+    if (rc) return rc;
+    /* Accumulate our output */
+    o_output += partialOutput;
+  }
+
+  return rc;
+}
+
+uint32_t parseCommandFile(std::string i_file, std::vector<std::string> & o_commands) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::string line;
+
+  /* Open it */
+  std::ifstream file(i_file.c_str());
+  if (file.fail()) {
+    ecmdOutputError("Unable to open input file\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /* Loop through it until end of file */
+  while (!file.eof()) {
+    getline(file, line, '\n');
+    o_commands.push_back(line);
+  }
+
+  /* Close it */
+  file.close();
+
+  return rc;
+}
