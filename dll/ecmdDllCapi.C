@@ -76,85 +76,8 @@ struct ecmdLatchHashInfo {
   bool ringFound;
 };
 
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
-
-
-
-/**
- * @brief Used for storing error messages internally to dll
- */
-struct ecmdErrorMsg {
-  uint32_t returnCode;          ///< Numeric error code- see ecmdReturnCodes.H
-  std::string whom;             ///< Function that registered error
-  std::string message;          ///< Message about the error
-  bool accessed;                ///< This message has been accessed
-};
-
-std::list<ecmdErrorMsg> ecmdErrorMsgList;
-
-/**
- * @brief Used for storing error messages internally to dll
- */
-struct ecmdErrorTarget {
-  uint32_t returnCode;          ///< Numeric error code- see ecmdReturnCodes.H
-  ecmdChipTarget target;        ///< The target with the error
-};
-
-std::list<ecmdErrorTarget> ecmdErrorTargetList;
-
-struct ecmdUserInfo {
-
-  std::string cage;
-  std::string node;
-  std::string slot;
-  std::string pos;
-  std::string chipUnitNum;
-  std::string thread;
-
-} ecmdUserArgs;
-
-/* This is used by the ecmdPush/PopCommandArgs functions */
-std::list<ecmdUserInfo> ecmdArgsStack;
-
-//----------------------------------------------------------------------
-//  Constants
-//----------------------------------------------------------------------
-#ifdef ENABLE_MPATROL
-#ifdef _AIX
-/* This is to fix a missing symbol problem when compiling on aix with mpatrol */
-char **p_xargv;
-#endif
-#endif
-
-//----------------------------------------------------------------------
-//  Macros
-//----------------------------------------------------------------------
-
-//----------------------------------------------------------------------
-//  Internal Function Prototypes
-//----------------------------------------------------------------------
-
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
-/* @brief Parse out the scandef for the specified latch name */
-uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
-/* @brief Look up the provided latch name in the scandef hash */
-uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
-/* @brief Returns true if curPos is not in userArgs */
-uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
-/* @brief Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string &str);
-/* @brief used by TargetConfigured/TargetExist functions */
-bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery);
-/* @brief used by QuerySelected/QuerySelectedExist functions */
-uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
-
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to sort latch entries from the scandef */
 bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
-
 
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
@@ -191,13 +114,72 @@ bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 
   return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
 }
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
 
 /* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 std::list<ecmdLatchBufferEntry> latchBuffer;
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
+
+
+/**
+ * @brief Used for storing error messages internally to dll
+ */
+struct ecmdErrorMsg {
+  uint32_t returnCode;          ///< Numeric error code- see ecmdReturnCodes.H
+  std::string whom;             ///< Function that registered error
+  std::string message;          ///< Message about the error
+  bool accessed;                ///< This message has been accessed
+};
+
+std::list<ecmdErrorMsg> ecmdErrorMsgList;
+
+/**
+ * @brief Used for storing error messages internally to dll
+ */
+struct ecmdErrorTarget {
+  uint32_t returnCode;          ///< Numeric error code- see ecmdReturnCodes.H
+  ecmdChipTarget target;        ///< The target with the error
+};
+
+std::list<ecmdErrorTarget> ecmdErrorTargetList;
+
+struct ecmdUserInfo {
+  std::string cage;
+  std::string node;
+  std::string slot;
+  std::string pos;
+  std::string chipUnitNum;
+  std::string thread;
+} ecmdUserArgs;
+
+/* This is used by the ecmdPush/PopCommandArgs functions */
+std::list<ecmdUserInfo> ecmdArgsStack;
+
+//----------------------------------------------------------------------
+//  Constants
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//  Macros
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//  Internal Function Prototypes
+//----------------------------------------------------------------------
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+/* @brief Parse out the scandef for the specified latch name */
+uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
+/* @brief Look up the provided latch name in the scandef hash */
+uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+
+/* @brief Returns true if curPos is not in userArgs */
+uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
+/* @brief Returns true if all chars of str are decimal numbers */
+bool dllIsValidTargetString(std::string &str);
+/* @brief used by TargetConfigured/TargetExist functions */
+bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery);
+/* @brief used by QuerySelected/QuerySelectedExist functions */
+uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -242,7 +224,6 @@ uint32_t ecmdGlobal_cmdLineMode = 0;
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
 uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
   uint32_t rc;
 
@@ -291,7 +272,7 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
   }
 
   rc = dllInitDll();
-  
+
 #ifndef ECMD_STRIP_DEBUG
   ecmdGlobal_DllDebug = debugLevel;
   char printstr[128];
@@ -373,7 +354,6 @@ uint32_t dllExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptyp
 }
 
 uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode) {
-
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipTarget queryTarget;
 
@@ -548,7 +528,7 @@ uint32_t dllExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state
 }
 
 uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode) {
-
+  uint32_t rc = ECMD_SUCCESS;
   const uint8_t CAGE = 0;
   const uint8_t NODE = 1;
   const uint8_t SLOT = 2;
@@ -557,7 +537,6 @@ uint32_t dllLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state, ecm
   const uint8_t THREAD = 5;
   bool done = false;
   uint8_t level = 0;;
-  uint32_t rc = 0;
 
   if (!io_state.initialized) {
     dllOutputError("ecmdConfigLooperNext - Invalid io_state passed, verify ecmdConfigLooperInit was run successfully\n");
@@ -1034,7 +1013,6 @@ uint32_t dllQueryExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_quer
 }
 
 uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode) {
-
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;

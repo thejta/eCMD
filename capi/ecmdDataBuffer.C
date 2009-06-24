@@ -317,7 +317,7 @@ uint32_t ecmdDataBuffer::setBitLength(uint32_t i_newNumBits) {
 
   /* Now call setCapacity to do all the data buffer resizing and setup */
   rc = setCapacity(getWordLength());
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }  
@@ -378,7 +378,7 @@ uint32_t ecmdDataBuffer::setCapacity(uint32_t i_newCapacity) {
   iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
 
   rc = flushTo0();
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }
@@ -1012,15 +1012,15 @@ uint32_t ecmdDataBuffer::shiftRight(uint32_t i_shiftNum, uint32_t i_offset) {
 
   // Get the hunk of data
   rc = extract(shiftData, i_offset, (iv_NumBits - i_offset));
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   // Clear the hole that was opened
   rc = clearBit(i_offset, i_shiftNum);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   // Stick the data back in
   rc = insert(shiftData, (i_offset + i_shiftNum), (shiftData.getBitLength() - i_shiftNum));
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }
@@ -1044,15 +1044,15 @@ uint32_t ecmdDataBuffer::shiftLeft(uint32_t i_shiftNum, uint32_t i_offset) {
 
   // Get the hunk of data
   rc = extract(shiftData, 0, i_offset);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   // Clear the hole that was opened
   rc = clearBit((i_offset - i_shiftNum), i_shiftNum);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   // Stick the data back in
   rc = insert(shiftData, 0, (shiftData.getBitLength() - i_shiftNum), i_shiftNum);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }
@@ -1064,11 +1064,11 @@ uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftNum, uint32_t i_off
 
   /* Make room in the data before we shift right */
   rc = growBitLength((iv_NumBitsOrig + i_shiftNum));
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   /* We have enough room, move our data over */
   rc = shiftRight(i_shiftNum, i_offset);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
  return rc;
 }
@@ -1078,11 +1078,11 @@ uint32_t ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftNum) {
 
   /* Move our data over */
   rc = shiftLeft(i_shiftNum);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   /* Adjust our length based on the shift */
   rc = shrinkBitLength((iv_NumBits - i_shiftNum));
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }
@@ -1096,17 +1096,17 @@ uint32_t ecmdDataBuffer::rotateRight(uint32_t i_rotateNum) {
 
   // Grab the two pieces
   rc = extract(leftPart, 0, (iv_NumBits - i_rotateNum));
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   rc = extract(rightPart, (iv_NumBits - i_rotateNum), i_rotateNum);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   // Stick the two pieces back together in a different order
   rc = insert(rightPart, 0, rightPart.getBitLength());
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   rc = insert(leftPart, rightPart.getBitLength(), leftPart.getBitLength());
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }
@@ -1120,17 +1120,17 @@ uint32_t ecmdDataBuffer::rotateLeft(uint32_t i_rotateNum) {
 
   // Grab the two pieces
   rc = extract(leftPart, 0, i_rotateNum);
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   rc = extract(rightPart, i_rotateNum, (iv_NumBits - i_rotateNum));
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   // Stick the two pieces back together in a different order
   rc = insert(rightPart, 0, rightPart.getBitLength());
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   rc = insert(leftPart, rightPart.getBitLength(), leftPart.getBitLength());
-  if (rc) RETURN_ERROR(rc);
+  if (rc) return rc;
 
   return rc;
 }
@@ -2532,10 +2532,10 @@ uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_s
   /* Now calcualte the number of nibbles we need to looper for */
   /* We can't exceed the length of the input string, so loop for whatever is less */
   uint32_t nibbles;
-  if ((strlen(i_hexChars) * 4) < i_length) {
+  if ((strlen(i_hexChars) * 4) < bitlength) {
     nibbles = strlen(i_hexChars);
   } else {
-    nibbles = (i_length + 3) / 4;
+    nibbles = (bitlength + 3) / 4;
   }
 
   for (i = 0; i < nibbles; i++) {

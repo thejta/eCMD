@@ -397,7 +397,6 @@ typedef enum {
   ECMD_LATCHTYPE_ARRAY          ///< Latch was an Array Latch (8,28)
 } ecmdLatchType_t;
 
-
 /**
  @brief Used by ecmdQueryConfig to specify detail level of query
 */
@@ -1779,13 +1778,13 @@ struct ecmdLatchEntry {
 #endif
 
   // Members
-  std::string    latchName;             ///< Latch name of entry
-  std::string    ringName;              ///< Ring that latch came from
-  ecmdDataBuffer buffer;                ///< Latch data
-  ecmdLatchType_t  latchType;           ///< Specifies what type of latch this is (single bit, multibit, etc..)
-  int            latchStartBit;         ///< Start bit of data inside latch
-  int            latchEndBit;           ///< End bit of data inside latch
-  uint32_t       rc;                    ///< Error code in retrieving this entry
+  std::string      latchName;             ///< Latch name of entry
+  std::string      ringName;              ///< Ring that latch came from
+  ecmdLatchType_t  latchType;             ///< Specifies what type of latch this is (single bit, multibit, etc..)
+  int              latchStartBit;         ///< Start bit of data inside latch
+  int              latchEndBit;           ///< End bit of data inside latch
+  ecmdDataBuffer   buffer;                ///< Latch data
+  uint32_t         rc;                    ///< Error code in retrieving this entry
 };
 
 #ifndef DOCUMENTATION
@@ -1892,8 +1891,7 @@ inline ecmdCacheData::~ecmdCacheData() { }
  @brief Used by ecmdSpyData when returning the latches that are part of a spy
 */
 struct ecmdSpyLatchData {
-
-  std::string   latchName;   ///< The latch name, including the ()'s
+  std::string latchName;     ///< The latch name, including the ()'s
   uint32_t hashKey;          ///< The hashKey for the latchName
   int offset;                ///< The starting bit offset of this latch in the spy
   uint32_t length;           ///< The length in bits of this latch
