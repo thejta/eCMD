@@ -536,7 +536,7 @@ uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
+uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
 
 /**
  @brief Scans ring from the data buffer into the selected chip in the selected ring
@@ -558,7 +558,7 @@ uint32_t getRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
  TARGET STATES : Unused<br>
 
 */
-uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
+uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
@@ -582,7 +582,7 @@ uint32_t putRing (ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBu
  TARGET STATES : Unused<br>
 
 */
-uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
+uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
 
 
 /**
@@ -610,7 +610,7 @@ uint32_t getLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
  TARGET STATES : Unused<br>
 
 */
-uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
+uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
@@ -637,7 +637,7 @@ uint32_t putLatch (ecmdChipTarget & i_target, const char* i_ringName, const char
 
 
 */
-uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
+uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
 /**
  @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address
@@ -664,7 +664,7 @@ uint32_t getRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
 
 
 */
-uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
+uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
 
@@ -693,7 +693,7 @@ uint32_t putRingWithModifier (ecmdChipTarget & i_target, uint32_t i_address, uin
  TARGET DEPTH  : pos, core/chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
+uint32_t getScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
@@ -714,7 +714,7 @@ uint32_t getScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
+uint32_t putScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
 /**
  @brief Perform a read/modify/write scom operation using the mask and data
@@ -736,7 +736,7 @@ uint32_t putScom (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScomUnderMask (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask);
+uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask);
 
 /**
  @brief Do a sequence of reads and writes in one operation
@@ -761,7 +761,7 @@ uint32_t putScomUnderMask (ecmdChipTarget & i_target, uint32_t i_address, ecmdDa
  TARGET STATES : Unused<br>
 
 */
-uint32_t doScomMultiple (ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries);
+uint32_t doScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries);
 
 //@}
 /* End Scom Functions */
@@ -789,7 +789,7 @@ uint32_t doScomMultiple (ecmdChipTarget & i_target, std::list<ecmdScomEntry> & i
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
+uint32_t sendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
 
 //@}
 /* End Jtag Functions */
@@ -816,7 +816,7 @@ uint32_t sendCmd (ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_
  TARGET STATES : Unused<br>
 
 */
-uint32_t getCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
+uint32_t getCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Write data into the selected CFAM register address 
@@ -835,7 +835,7 @@ uint32_t getCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
+uint32_t putCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
 //@}
 /* End FSI Functions */
@@ -866,7 +866,7 @@ uint32_t putCfamRegister (ecmdChipTarget & i_target, uint32_t i_address, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
+uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected spy and returns it's assocaiated enum
@@ -888,7 +888,7 @@ uint32_t getSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuff
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
+uint32_t getSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
 
 /**
  @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
@@ -910,7 +910,7 @@ uint32_t getSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::str
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyEpCheckers (ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask);
+uint32_t getSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask);
 
 /**
  @brief Reads the selected spy and load all the spy groups into provided list
@@ -930,7 +930,7 @@ uint32_t getSpyEpCheckers (ecmdChipTarget & i_target, const char * i_spyEpChecke
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyGroups (ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups);
+uint32_t getSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups);
 
 /**
  @brief Writes the data buffer into the selected spy
@@ -951,7 +951,7 @@ uint32_t getSpyGroups (ecmdChipTarget & i_target, const char * i_spyName, std::l
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
+uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the enum into the selected spy
@@ -971,7 +971,7 @@ uint32_t putSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuff
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
+uint32_t putSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 //@}
 
@@ -1011,7 +1011,7 @@ uint32_t ecmdEnableRingCache(ecmdChipTarget & i_target);
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 */
-uint32_t  ecmdDisableRingCache(ecmdChipTarget & i_target);
+uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target);
 
 /**
  @brief Flush all modified data from the internal cache to the hardware, then remove all rings from cache
@@ -1022,7 +1022,7 @@ uint32_t  ecmdDisableRingCache(ecmdChipTarget & i_target);
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 */
-uint32_t  ecmdFlushRingCache(ecmdChipTarget & i_target);
+uint32_t ecmdFlushRingCache(ecmdChipTarget & i_target);
 
 /**
  @brief Returns true/false to signify if caching is currently enabled
@@ -1033,7 +1033,7 @@ uint32_t  ecmdFlushRingCache(ecmdChipTarget & i_target);
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 */
-bool      ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
+bool ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
 
 //@}
 
@@ -1062,7 +1062,7 @@ bool      ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
+uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads bits from multiple array addresses/elements into the list of data buffers
@@ -1090,7 +1090,7 @@ uint32_t getArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  TARGET STATES : Unused<br>
 
 */
-uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
+uint32_t getArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
 
 /**
  @brief Writes bits from the data buffer into the selected array
@@ -1113,7 +1113,7 @@ uint32_t getArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
+uint32_t putArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
 
 /**
  @brief Writes bits from the list of entries into the selected array
@@ -1140,7 +1140,7 @@ uint32_t putArray (ecmdChipTarget & i_target, const char * i_arrayName, ecmdData
  TARGET STATES : Unused<br>
 
 */
-uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
+uint32_t putArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 //@}
 
@@ -1163,7 +1163,7 @@ uint32_t putArrayMultiple (ecmdChipTarget & i_target, const char * i_arrayName, 
 
 */
 
-uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState);
+uint32_t ecmdQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState);
 
 
 /**
@@ -1186,7 +1186,7 @@ uint32_t ecmdQueryClockState (ecmdChipTarget & i_target, const char * i_clockDom
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
+uint32_t startClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
 /**
  @brief Stop the clocks in the domain specified
@@ -1207,7 +1207,7 @@ uint32_t startClocks (ecmdChipTarget & i_target, const char * i_clockDomain, boo
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t stopClocks (ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
+uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 /**
