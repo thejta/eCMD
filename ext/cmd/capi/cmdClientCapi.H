@@ -46,10 +46,11 @@ extern "C" {
 */
 uint32_t cmdInitExtension();
 
-
-
 //@}
 #endif
+
+/** @name Command Line Execution Functions */
+//@{
 
 /**
  @brief Run the command line command passed in , output goes to stdout and is not returned
@@ -84,7 +85,7 @@ uint32_t cmdRunCommandFile(std::string i_file);
  @retval nonzero if unsuccessful
 */
 uint32_t cmdRunCommandFileCaptureOutput(std::string i_file, std::string & o_output);
-
+//@}
 
 #ifndef DOCUMENTATION
 } /* end extern "c" */
