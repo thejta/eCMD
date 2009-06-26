@@ -2607,9 +2607,9 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
     uint32_t bitsToInsert = i_numBits;
     uint32_t curLatchBit = ECMD_UNSET;          // This is the actual latch bit we are looking for next
     uint32_t curBitsToInsert = bitsToInsert;    // This is the total number of bits left to Insert
-    uint32_t curStartBitToInsert;               // This is the offset into the current entry for insertion
-    uint32_t curStart;
-    uint32_t curEnd;
+    uint32_t curStartBitToInsert = 0;           // This is the offset into the current entry for insertion
+    uint32_t curStart = 0;
+    uint32_t curEnd = 0;
 
     for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
 
