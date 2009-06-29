@@ -4273,9 +4273,18 @@ uint32_t ecmdDataBuffer::compressBuffer(ecmdCompressionMode_t i_mode) {
       level = Z_BEST_SPEED;
     } else if (i_mode == ECMD_COMP_ZLIB_COMPRESSION) {
       level = Z_BEST_COMPRESSION;
+    } else {
+      ETRAC0("**** ERROR : Unknown compression mode passed in!");
+      RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
     }
 
-    compress2((Bytef*)compressedData, (uLongf*)&compressedSize, (const Bytef*)uncompressedData, (uLongf)uncompressedSize, level);
+    /* Create a local compressedSize variable to get around a PFD compile error with -Os*/
+    /* They didn't like it when we did (uLongf*)&compressedSize */
+    uLongf l_compressedSize;
+    /* Do the work */
+    compress2(compressedData, &l_compressedSize, uncompressedData, uncompressedSize, level);
+    /* Assign the value back so we can use it below */
+    compressedSize = l_compressedSize;
   }
 
   /* Now grow the buffer to the size of the compressed data */
@@ -4338,7 +4347,13 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
   if (mode == ECMD_COMP_PRD) {
     PrdfCompressBuffer::uncompressBuffer(compressedData, compressedSize, uncompressedData, uncompressedSize);
   } else if (mode == ECMD_COMP_ZLIB) {
-    uncompress((Bytef*)uncompressedData, (uLongf*)&uncompressedSize, (const Bytef*)compressedData, (uLongf)compressedSize);
+    /* Create a local compressedSize variable to get around a PFD compile error with -Os*/
+    /* They didn't like it when we did (uLongf*)&uncompressedSize */
+    uLongf l_uncompressedSize;
+    /* Do the work */
+    uncompress(uncompressedData, &l_uncompressedSize, compressedData, compressedSize);
+    /* Assign the value back so we can use it below */
+    uncompressedSize = l_uncompressedSize;
   }
 
   /* Error check the length */
