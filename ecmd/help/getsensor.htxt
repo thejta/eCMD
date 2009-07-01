@@ -1,4 +1,4 @@
-Syntax: getsensor <chip.[chipUnit]> <sensorType> <sensorId> <[readMode> <unit> 
+Syntax: getsensor <chip.[chipUnit]> <sensorType> <sensorId> <readMode> <unit> 
         [-k#] [-n#] [-s#] [-p#] [-c#]
 
     ECMD:         Core Common Function
