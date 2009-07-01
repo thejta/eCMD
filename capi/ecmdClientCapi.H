@@ -2401,6 +2401,7 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
+ @param i_bytes Byte length to read
  @param i_image_data Data buffer containing VPD Image
  @param o_keyword_data Data buffer to copy keyword data to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -2414,7 +2415,7 @@ NOTE : The HW is not accessed in this operation. Instead, the keyword data is pu
  TARGET STATES : Unused <br>
 
 */
-uint32_t getModuleVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
+uint32_t getModuleVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
 
 /**
  @brief Put Module VPD Keyword To An Image Interface
