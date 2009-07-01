@@ -1053,16 +1053,20 @@ bool ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_arrayName Name of array to read from
- @param o_data DataBuffer object that holds data read from address
  @param i_address Array Address to read from - length of DataBuffer should be set to length of valid address data
+ @param o_data DataBuffer object that holds data read from address
+ @param i_width Width of array to return
  @see putArray
  @see getArrayMultiple
 
+ NOTE : If i_width = 0, use the default array width.<br> 
+ NOTE : If width < default array width, then truncate data to width.<br>
+ NOTE : If width > default arrady width, then zeroes will be added at the end of the data.<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data);
+uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width = 0);
 
 /**
  @brief Reads bits from multiple array addresses/elements into the list of data buffers
@@ -1075,11 +1079,16 @@ uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataB
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_arrayName Name of array to read from
  @param io_entries list of array entries to fetch
+ @param i_width Width of array to return
  @see putArray
  @see getArray
 
  NOTE : To use this function the io_entries list should be pre-loaded with the addresses to fetch, the associated dataBuffers will be loaded upon return<br>
  NOTE : To fetch all addresses for the specified array pass io_entries as an empty list and it will be populated for you.<br>
+
+ NOTE : If i_width = 0, use the default array width.<br> 
+ NOTE : If width < default array width, then truncate data to width.<br>
+ NOTE : If width > default arrady width, then zeroes will be added at the end of the data.<br>
 
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
@@ -1090,7 +1099,7 @@ uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataB
  TARGET STATES : Unused<br>
 
 */
-uint32_t getArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries);
+uint32_t getArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries,  uint32_t i_width = 0);
 
 /**
  @brief Writes bits from the data buffer into the selected array
