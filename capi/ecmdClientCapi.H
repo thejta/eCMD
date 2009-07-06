@@ -580,10 +580,8 @@ uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
  TARGET STATES : Unused<br>
-
 */
 uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
-
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName
@@ -603,14 +601,34 @@ uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  @param i_mode LatchName search mode
  @param i_startBit Startbit in latchname to insert data
  @param i_numBits Number of bits to insert from startbit
- @param o_matchs Number of latchs found that matched your name and data was inserted
+ @param o_matches Number of latchs found that matched your name and data was inserted
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
  TARGET STATES : Unused<br>
-
 */
-uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode);
+uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode);
+
+/**
+ @brief Writes the data buffer into the all latches matching i_latchName
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to dump
+ @param i_latches The list of latches and their data that go with this ring
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t getRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::list<ecmdLatchEntry> & o_latches);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
@@ -634,8 +652,6 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
           corruption may occur<br>
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
-
-
 */
 uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
@@ -661,8 +677,6 @@ uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
           corruption may occur<br>
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
-
-
 */
 uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS

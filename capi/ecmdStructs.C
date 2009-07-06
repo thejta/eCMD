@@ -6050,25 +6050,3 @@ void  ecmdConnectionData::printStruct() {
 
 }
 #endif
-
-/*
- * The following methods for the ecmdConnectionData struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-uint32_t ecmdRingDumpEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
-  return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-uint32_t ecmdRingDumpEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
-  return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-uint32_t ecmdRingDumpEntry::flattenSize() {
-  return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-#ifndef REMOVE_SIM
-void  ecmdRingDumpEntry::printStruct() {
-  printf("UPDATEME\n");
-}
-#endif
