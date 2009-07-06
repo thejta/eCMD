@@ -101,7 +101,9 @@ uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
 
-uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode); 
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode); 
+
+uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::list<ecmdLatchEntry> & o_latches); 
 
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
@@ -147,9 +149,9 @@ uint32_t dllFlushRingCache(ecmdChipTarget & i_target);
 bool dllIsRingCacheEnabled(ecmdChipTarget & i_target); 
 
 #ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
-uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data); 
+uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width); 
 
-uint32_t dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries); 
+uint32_t dllGetArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries,  uint32_t i_width); 
 
 uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data); 
 
@@ -315,7 +317,7 @@ uint32_t dllGetModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdD
 
 uint32_t dllPutModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
 
-uint32_t dllGetModuleVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data); 
+uint32_t dllGetModuleVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data); 
 
 uint32_t dllPutModuleVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, ecmdDataBuffer & i_keyword_data); 
 

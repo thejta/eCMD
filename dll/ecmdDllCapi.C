@@ -48,20 +48,10 @@
 //----------------------------------------------------------------------
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to hold info out of the scandef for get/putlatch etc. */
-struct ecmdLatchInfo {
-  std::string ringName;                 ///< Name of ring that contains this latch
-  std::string latchName;                ///< Full Latch Name (including any parens)
-  uint32_t fsiRingOffset;               ///< Ring Offset for FSI
-  uint32_t jtagRingOffset;              ///< Ring Offset for JTAG
-  uint32_t length;                      ///< Length of entry
-  uint32_t latchStartBit;               ///< Start bit in latch (comes from parens in latch name) 
-  uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name) 
-
-};
 
 /** @brief Used to buffer scandef data to avoid searching for each chip ec */
 struct ecmdLatchBufferEntry {
-  std::list<ecmdLatchInfo> entry;       ///< Data from Scandef
+  std::list<ecmdLatchEntry> entry;       ///< Data from Scandef
   std::string scandefName;              ///< Name of scandef where data was retrieved
   std::string latchName;                ///< Latch name used to search for this data
   std::string ringName;                 ///< Ring name used to search for this data (empty string if == NULL)
@@ -77,7 +67,7 @@ struct ecmdLatchHashInfo {
 };
 
 /** @brief Used to sort latch entries from the scandef */
-bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
+bool operator< (const ecmdLatchEntry & lhs, const ecmdLatchEntry & rhs) {
 
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
@@ -100,7 +90,7 @@ bool operator< (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
 }
 
 /** @brief Used to sort latch entries from the scandef */
-bool operator!= (const ecmdLatchInfo & lhs, const ecmdLatchInfo & rhs) {
+bool operator!= (const ecmdLatchEntry & lhs, const ecmdLatchEntry & rhs) {
 
   if (lhs.ringName != rhs.ringName)
     return true;
@@ -2265,7 +2255,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   uint32_t rc = 0;
 
   ecmdLatchBufferEntry curEntry;
-  std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdLatchData curLatchData;                           ///< Data to load into return list
   std::list<ecmdRingData> o_ringData;                   ///< Data from QueryRing
   std::string curLatch = "";                            ///< current unique latchname
@@ -2344,11 +2334,17 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   return rc;
 }
 
+uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::list<ecmdLatchEntry> & o_latches) {
+  uint32_t rc = ECMD_FUNCTION_NOT_SUPPORTED;
+
+  return rc;
+}
+
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
   uint32_t rc = 0;
 
   ecmdLatchBufferEntry curEntry;
-  std::list< ecmdLatchInfo >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
   ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
   ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
@@ -2536,7 +2532,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
   uint32_t rc = 0;
   ecmdLatchBufferEntry curEntry;
-  std::list< ecmdLatchInfo >::iterator curLatchInfo;
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
   ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
@@ -2788,8 +2784,8 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
-  std::list<ecmdLatchInfo>::iterator entryIt;
-  std::list<ecmdLatchInfo>::iterator entryIt1;       
+  std::list<ecmdLatchEntry>::iterator entryIt;
+  std::list<ecmdLatchEntry>::iterator entryIt1;       
   std::string scandefFile;                      ///< Full path to scandef file
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
@@ -2851,7 +2847,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
       }
 
       //let's go hunting in the scandef for this register (pattern)
-      ecmdLatchInfo curLatch;
+      ecmdLatchEntry curLatch;
 
       std::string curLine;
       std::vector<std::string> curArgs(4);
@@ -3316,7 +3312,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       }
 
       //let's go hunting in the scandef for this register (pattern)
-      ecmdLatchInfo curLatch;
+      ecmdLatchEntry curLatch;
 
       
       std::string temp;

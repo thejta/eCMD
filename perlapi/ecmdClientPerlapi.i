@@ -88,7 +88,6 @@
 // Templates for vector support - one of these have to be created for every type needed
 // From ecmdStructs.H
 %template(listEcmdThreadData)        std::list<ecmdThreadData>;
-//%template(listEcmdCoreData)          std::list<ecmdCoreData>;
 %template(listEcmdChipUnitData)      std::list<ecmdChipUnitData>;
 %template(listEcmdChipData)          std::list<ecmdChipData>;
 %template(listEcmdSlotData)          std::list<ecmdSlotData>;
@@ -97,7 +96,6 @@
 %template(listString)                std::list<std::string>;
 %template(vectorEcmdDataBuffer)      std::vector<ecmdDataBuffer>;
 %template(listEcmdMemoryEntry)       std::list<ecmdMemoryEntry>;
-// From ecmdClientPerlapi.H
 %template(listEcmdRingData)          std::list<ecmdRingData>;
 %template(listEcmdLatchData)         std::list<ecmdLatchData>;
 %template(listEcmdLatchEntry)        std::list<ecmdLatchEntry>;
@@ -113,6 +111,7 @@
 %template(listEcmdSpyLatchData)      std::list<ecmdSpyLatchData>;
 %template(listEcmdScomData)          std::list<ecmdScomData>;
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
+%template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/

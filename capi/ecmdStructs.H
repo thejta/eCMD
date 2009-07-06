@@ -206,8 +206,8 @@ typedef enum {
   ECMD_PROC_NEST_CLOCK,                 ///< Processor Nest Clock (actual speed of the domain)
   ECMD_MEMCTRL_CLOCK,                   ///< Memory Controller Clock (actual speed of the chip)
   ECMD_IO_REFCLOCK,                     ///< IO Chip reference clock
-  ECMD_IO_CLOCK                         ///< IO Chip Clock (actual speed of the chip)
-  ECMD_GX_REFCLOCK                      ///< GX reference Clock
+  ECMD_IO_CLOCK,                        ///< IO Chip Clock (actual speed of the chip)
+  ECMD_GX_REFCLOCK,                     ///< GX reference Clock
 } ecmdClockType_t;
 
 /**
@@ -1779,11 +1779,14 @@ struct ecmdLatchEntry {
 #endif
 
   // Members
-  std::string      latchName;             ///< Latch name of entry
   std::string      ringName;              ///< Ring that latch came from
+  std::string      latchName;             ///< Latch name of entry
   ecmdLatchType_t  latchType;             ///< Specifies what type of latch this is (single bit, multibit, etc..)
-  int              latchStartBit;         ///< Start bit of data inside latch
-  int              latchEndBit;           ///< End bit of data inside latch
+  uint32_t         fsiRingOffset;         ///< Ring Offset for FSI
+  uint32_t         jtagRingOffset;        ///< Ring Offset for JTAG
+  uint32_t         length;                ///< Length of entry
+  uint32_t         latchStartBit;         ///< Start bit of data inside latch
+  uint32_t         latchEndBit;           ///< End bit of data inside latch
   ecmdDataBuffer   buffer;                ///< Latch data
   uint32_t         rc;                    ///< Error code in retrieving this entry
 };
@@ -1792,6 +1795,9 @@ struct ecmdLatchEntry {
 // ecmdLatchEntry Constructor
 inline ecmdLatchEntry::ecmdLatchEntry():
 latchType(ECMD_LATCHTYPE_UNKNOWN),
+fsiRingOffset(0),
+jtagRingOffset(0),
+length(0),
 latchStartBit(0),
 latchEndBit(0),
 rc(0)
@@ -2093,41 +2099,6 @@ inline ecmdConnectionData::ecmdConnectionData() {
 // ecmdConnectionData Destructor
 inline ecmdConnectionData::~ecmdConnectionData() { }
 #endif
-
-
-/**
- @brief Used by getRingDump function to return data
-*/
-struct ecmdRingDumpEntry {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdRingDumpEntry();
-
-  // Destructor
-  ~ecmdRingDumpEntry();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef REMOVE_SIM
-  void printStruct(void);
-#endif
-#endif
-
-  // Members
-  ecmdLatchEntry latch;         ///< Info about the latch that goes with the data
-  ecmdDataBuffer data;          ///< The data that goes with the latch
-};
-
-#ifndef DOCUMENTATION
-// ecmdLatchEntry Constructor
-inline ecmdRingDumpEntry::ecmdRingDumpEntry() { }
-
-// ecmdLatchEntry Destructor
-inline ecmdRingDumpEntry::~ecmdRingDumpEntry() { }
-#endif
-
 
 /* @name Misc functions */
 //@{
