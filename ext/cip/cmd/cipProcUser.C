@@ -385,6 +385,7 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget subTarget;     ///< Current target with additional fields set, like chipUnitType
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::list<ecmdIndexEntry> entries;    ///< List of vr's to fetch, to use getVrMultiple
@@ -395,6 +396,9 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
   int numEntries = 1;           ///< Number of consecutive entries to retrieve
   int startEntry = 0;           ///< Entry to start on
   char buf[100];                ///< Temporary string buffer
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  std::string sprName = "vr";
+  std::string function = "cipgetvr";
 
   /* get format flag, if it's there */
   std::string format;
@@ -441,24 +445,52 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
     entries.push_back(entry);
   }
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+
+  
+  /* First thing we need to do is find out for this particular target if the SPR is threaded */
+  rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+  if (rc) {
+    printed = function + " - Error occured getting info for ";
+    printed += sprName;
+    printed += " on ";
+    printed += ecmdWriteTarget(target) + "\n";
+    ecmdOutputError( printed.c_str() );
+    return rc;
+  }
+  
+  /* Now setup our chipUnit/thread loop */
+  subTarget = target;
+  if (procInfo.isChipUnitRelated) {
+    if (procInfo.relatedChipUnit != "") {
+      subTarget.chipUnitType = procInfo.relatedChipUnit;
+      subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+    subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    if (procInfo.threadReplicated) {
+      subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+  }
+
+
+
+  rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(subTarget, looperdata) ) {
 
     /* Restore to our initial list */
     entries_copy = entries;
 
 
     /* Actually go fetch the data */
-    rc = cipGetVrMultiple(target, entries_copy);
+    rc = cipGetVrMultiple(subTarget, entries_copy);
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
       printed = "cipgetvr - Error occured performing cipGetVrMultiple on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(subTarget) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
@@ -466,7 +498,7 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-    printed = ecmdWriteTarget(target) + "\n";
+    printed = ecmdWriteTarget(subTarget) + "\n";
     ecmdOutput( printed.c_str() );
     for (std::list<ecmdIndexEntry>::iterator entit = entries_copy.begin(); entit != entries_copy.end(); entit ++) {
 
@@ -495,6 +527,7 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget subTarget;     ///< Current target with additional fields set, like chipUnitType
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
@@ -506,6 +539,9 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  std::string sprName = "vr";
+  std::string function = "cipputvr";
   
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -576,22 +612,46 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
     
   }
+  
+  /* First thing we need to do is find out for this particular target if the SPR is threaded */
+  rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+  if (rc) {
+    printed = function + " - Error occured getting info for ";
+    printed += sprName;
+    printed += " on ";
+    printed += ecmdWriteTarget(target) + "\n";
+    ecmdOutputError( printed.c_str() );
+    return rc;
+  }
+  
+  /* Now setup our chipUnit/thread loop */
+  subTarget = target;
+  if (procInfo.isChipUnitRelated) {
+    if (procInfo.relatedChipUnit != "") {
+      subTarget.chipUnitType = procInfo.relatedChipUnit;
+      subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+    subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    if (procInfo.threadReplicated) {
+      subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+  }
 
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(subTarget, looperdata) ) {
 
 
-    rc = cipGetVr(target, entry, sprBuffer);
+    rc = cipGetVr(subTarget, entry, sprBuffer);
     
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "cipputvr - Error occured performing getvr on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(subTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -622,17 +682,17 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
     if (rc) return rc;
 
 
-    cipPutVr(target, entry, sprBuffer);
+    cipPutVr(subTarget, entry, sprBuffer);
 
     if (rc) {
       printed = "cipputvr - Error occured performing command on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(subTarget) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
 
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
+      printed = ecmdWriteTarget(subTarget) + "\n";
       ecmdOutput(printed.c_str());
     }
 
@@ -950,6 +1010,7 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget subTarget;     ///< Current target with additional fields set, like chipUnitType
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::list<ecmdIndexEntry> entries;    ///< List of vsr's to fetch, to use getVsrMultiple
@@ -960,7 +1021,11 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
   int numEntries = 1;           ///< Number of consecutive entries to retrieve
   int startEntry = 0;           ///< Entry to start on
   char buf[100];                ///< Temporary string buffer
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  std::string sprName = "vsr";
+  std::string function = "cipgetvsr";
 
+ 
   /* get format flag, if it's there */
   std::string format;
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -994,6 +1059,7 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
+  subTarget = target;
 
   /* Walk through the arguments and create our list of vsrs */
   startEntry = atoi(argv[0]);
@@ -1005,24 +1071,50 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
     entry.index = idx;
     entries.push_back(entry);
   }
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+
+
+  
+  /* First thing we need to do is find out for this particular target if the SPR is threaded */
+  rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+  if (rc) {
+    printed = function + " - Error occured getting info for ";
+    printed += sprName;
+    printed += " on ";
+    printed += ecmdWriteTarget(target) + "\n";
+    ecmdOutputError( printed.c_str() );
+    return rc;
+  }
+  
+  /* Now setup our chipUnit/thread loop */
+  subTarget = target;
+  if (procInfo.isChipUnitRelated) {
+    if (procInfo.relatedChipUnit != "") {
+      subTarget.chipUnitType = procInfo.relatedChipUnit;
+      subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+    subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    if (procInfo.threadReplicated) {
+      subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+  }
+
+  rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(subTarget, looperdata) ) {
 
     /* Restore to our initial list */
     entries_copy = entries;
 
-
     /* Actually go fetch the data */
-    rc = cipGetVsrMultiple(target, entries_copy);
+    rc = cipGetVsrMultiple(subTarget, entries_copy);
 
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
       printed = "cipgetvsr - Error occured performing cipGetVsrMultiple on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(subTarget) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
@@ -1030,7 +1122,7 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
       validPosFound = true;     
     }
 
-    printed = ecmdWriteTarget(target) + "\n";
+    printed = ecmdWriteTarget(subTarget) + "\n";
     ecmdOutput( printed.c_str() );
     for (std::list<ecmdIndexEntry>::iterator entit = entries_copy.begin(); entit != entries_copy.end(); entit ++) {
 
@@ -1059,6 +1151,7 @@ uint32_t cipPutVsrUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
+  ecmdChipTarget subTarget;     ///< Current target with additional fields set, like chipUnitType
   std::string inputformat = "x";                ///< Default input format
   std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
   ecmdDataBuffer buffer;        ///< Buffer to store data to write with
@@ -1070,6 +1163,9 @@ uint32_t cipPutVsrUser(int argc, char * argv[]) {
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
   uint32_t numBits = 0;         ///< Number of bits to insert data
   char* dataPtr = NULL;         ///< Pointer to spr data in argv array
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  std::string sprName = "vsr";
+  std::string function = "cipputvsr";
   
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -1141,21 +1237,48 @@ uint32_t cipPutVsrUser(int argc, char * argv[]) {
     
   }
 
+  
+  
+  /* First thing we need to do is find out for this particular target if the SPR is threaded */
+  rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+  if (rc) {
+    printed = function + " - Error occured getting info for ";
+    printed += sprName;
+    printed += " on ";
+    printed += ecmdWriteTarget(target) + "\n";
+    ecmdOutputError( printed.c_str() );
+    return rc;
+  }
+  
+  /* Now setup our chipUnit/thread loop */
+  subTarget = target;
+  if (procInfo.isChipUnitRelated) {
+    if (procInfo.relatedChipUnit != "") {
+      subTarget.chipUnitType = procInfo.relatedChipUnit;
+      subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+    subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    if (procInfo.threadReplicated) {
+      subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+  }
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+
+
+  rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
-  while ( ecmdLooperNext(target, looperdata) ) {
+  while ( ecmdLooperNext(subTarget, looperdata) ) {
 
 
-    rc = cipGetVsr(target, entry, sprBuffer);
+    rc = cipGetVsr(subTarget, entry, sprBuffer);
     
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
       continue;
     }
     else if (rc) {
         printed = "cipputvsr - Error occured performing getvsr on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(subTarget) + "\n";
         ecmdOutputError( printed.c_str() );
         return rc;
     }
@@ -1186,17 +1309,17 @@ uint32_t cipPutVsrUser(int argc, char * argv[]) {
     if (rc) return rc;
 
 
-    cipPutVsr(target, entry, sprBuffer);
+    cipPutVsr(subTarget, entry, sprBuffer);
 
     if (rc) {
       printed = "cipputvsr - Error occured performing command on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(subTarget) + "\n";
       ecmdOutputError( printed.c_str() );
       return rc;
     }
 
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
+      printed = ecmdWriteTarget(subTarget) + "\n";
       ecmdOutput(printed.c_str());
     }
 
