@@ -82,6 +82,18 @@ specify what format you are providing data in.
 
         -id             Data is decimal
 
+If you would like the data you are writing to be compressed before the api is called, you can also do that.
+There are two options:
+         cp             Use the in house I/P PRD data compression algorithm
+ 
+         cz             Use the zlib data compression algorithm
+
+These two options can be added to any of the above -i commands.  Examples below:
+
+        -ixcp           Display is hex left aligned and then compressed using the PRD algorithm.
+
+        -ibcz           Data is binary and then compressed using the ZLIB algorithm
+
 BIT MODIFIERS
 --------------------------------------------------------------------------------
 
