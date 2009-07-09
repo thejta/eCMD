@@ -114,7 +114,11 @@ ${TARGET}: ${CAPI_SOURCE_OBJS}
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
+ifeq (${OS},ppc)
+	$(LD) ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /usr/lib/libz.a
+else
 	$(LD) ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib/libz.a
+endif
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
