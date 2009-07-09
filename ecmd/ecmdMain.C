@@ -198,7 +198,8 @@ int main (int argc, char *argv[])
           }
         } /* tokens loop */
         /* Removing the rc check to prevent the shell from exiting on failing command - JTA 02/16/09 */
-        //if (rc) break;
+        /* MAB D713111 07/08/09 - if in stdinMode (not shellMode) and rc, then break */
+        if (stdinMode && rc) break;
 
         /* Print the prompt again */
         if (shellMode && shellAlive) {
