@@ -123,20 +123,38 @@ TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
 uint32_t ecmdReadDataFormatted(ecmdDataBuffer & o_data, const char * i_dataStr, std::string i_format, int i_expectedLength) {
   uint32_t rc = ECMD_SUCCESS;
 
-  std::string localFormat = i_format;
   uint32_t bitlength;
+  ecmdCompressionMode_t compressMode = ECMD_COMP_UNKNOWN;
 
-  if (localFormat == "x" || localFormat == "xl") {
+  /* Look to see if the user wants his data compressed after it was read in */
+  size_t pos = i_format.find("c");
+
+  if (pos != std::string::npos) {
+    // They gave the compress flag, make sure it's a valid option then setup for it
+    if (i_format[(pos+1)] == 'p') {
+      compressMode = ECMD_COMP_PRD;
+    } else if (i_format[(pos+1)] == 'z') {
+      compressMode = ECMD_COMP_ZLIB;
+    } else {
+      ecmdOutputError(( "Input Data contained an invalid compression mode : '" + i_format + "'!\n").c_str());
+      return ECMD_INVALID_ARGS;
+    }
+
+    // Now cleanup the string so the code below works
+    i_format.erase(pos,2);
+  }
+
+  if (i_format == "x" || i_format == "xl") {
     rc = o_data.insertFromHexLeftAndResize(i_dataStr, 0, i_expectedLength);
   }
-  else if (localFormat == "xr") {
+  else if (i_format == "xr") {
     rc = o_data.insertFromHexRightAndResize(i_dataStr, 0, i_expectedLength);
   }     
-  else if (localFormat == "b") {
+  else if (i_format == "b") {
     rc = o_data.insertFromBinAndResize(i_dataStr, 0, i_expectedLength);
   }
 #ifndef REMOVE_SIM
-  else if (localFormat == "bX") {
+  else if (i_format == "bX") {
     bitlength = strlen(i_dataStr);
     if (i_expectedLength != 0) bitlength = i_expectedLength;
     o_data.enableXstateBuffer();
@@ -144,13 +162,13 @@ uint32_t ecmdReadDataFormatted(ecmdDataBuffer & o_data, const char * i_dataStr, 
     o_data.setXstate(0,i_dataStr);
   }
 #endif
-  else if (localFormat == "a") {
+  else if (i_format == "a") {
     bitlength = strlen(i_dataStr)*8;
     if (i_expectedLength != 0) bitlength = i_expectedLength;
     o_data.setBitLength(bitlength);
     rc = o_data.insertFromAscii(i_dataStr, 0);
   }
-  else if (localFormat == "d") {
+  else if (i_format == "d") {
     if(strlen(i_dataStr) > 10) {
      ecmdOutputError( "Integer overflow. Decimal number should be less that 4G.\n" );
      rc = ECMD_INVALID_ARGS;
@@ -172,11 +190,16 @@ uint32_t ecmdReadDataFormatted(ecmdDataBuffer & o_data, const char * i_dataStr, 
     }
   }   
   else {
-    ecmdOutputError( ("Did not recognize input format string " + localFormat + "\n").c_str() );
+    ecmdOutputError( ("Did not recognize input format string " + i_format + "\n").c_str() );
     rc = ECMD_INVALID_ARGS;
   }
   if (rc == ECMD_DBUF_INVALID_DATA_FORMAT) {
-    ecmdOutputError(( "Input Data contained some invalid characters for format specified : '" + localFormat + "'!\n").c_str());
+    ecmdOutputError(( "Input Data contained some invalid characters for format specified : '" + i_format + "'!\n").c_str());
+  }
+
+  // All done reading in the data, compress it if the use said to earlier
+  if (compressMode != ECMD_COMP_UNKNOWN) {
+    o_data.compressBuffer(compressMode);
   }
 
   return rc;

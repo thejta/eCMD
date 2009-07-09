@@ -284,13 +284,12 @@ typedef enum {
   ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
   ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
   ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
-  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< Z Gryphon Project
+  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
 } ecmdDllProduct_t;
 
 /**
  @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
 */
-
 typedef enum {
   ECMD_DLL_UNKNOWN,             ///< This should never be encountered
   ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
@@ -299,8 +298,7 @@ typedef enum {
   ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
   ECMD_DLL_SCAND,               ///< Running against the ScanD dll owned by Meghna Paruthi
   ECMD_DLL_BML,                 ///< Running against the BML plugin owned by Chris Engel
-  ECMD_DLL_MAMBO                ///< Running against the Mambo plugin owned by Chris Engel
-
+  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin owned by Chris Engel
 } ecmdDllType_t;
 
 /**
