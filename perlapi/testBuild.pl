@@ -48,6 +48,11 @@ if ($data3->genHexLeftStr() eq "18") {
   exit(1);
 }
 
+my $data4 = new ecmd::ecmdDataBuffer(64);
+my $val=736;
+#$val=0x80000;
+$data4->insertFromRight($val,0,28);
+
 my $o_dllInfo = new ecmd::ecmdDllInfo;
 
 # Test loading the plugin

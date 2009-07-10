@@ -723,6 +723,13 @@ public:
    */
   uint32_t insertFromRight(uint32_t i_data, uint32_t i_start, uint32_t i_len);
 
+  // The uint16_t and uint8_t interfaces confuse perl.  Since scalars aren't typed, we want them to always use the uint32_t interface
+  // Swig sees the 736 below and decides it should be a uint16_t.  If you put in a larger number, it assumes 32.
+  //my $data4 = new ecmd::ecmdDataBuffer(64);
+  //my $val=736;
+  //$data4->insertFromRight($val,0,28);
+  // Removing these interfaces keeps the behvavior consistent with previous versions of the perl module - JTA 07/10/09
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy part of a uint16_t array into this DataBuffer
    * @param i_datain uint16_t array to copy into this DataBuffer - data is taken left aligned
@@ -827,8 +834,8 @@ public:
    *
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
-
   uint32_t insertFromRight(const uint8_t i_datain, uint32_t i_start, uint32_t i_len);
+#endif // ECMD_PERLAPI
 
   /**
    * @brief Copy data from this DataBuffer into another
