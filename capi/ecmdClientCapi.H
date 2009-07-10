@@ -622,7 +622,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_ringName Name of ring to dump
- @param i_latches The list of latches and their data that go with this ring
+ @param o_latches The list of latches and their data that go with this ring
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
