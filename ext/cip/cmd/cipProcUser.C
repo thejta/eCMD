@@ -51,7 +51,7 @@
 //---------------------------------------------------------------------
 #ifndef CIP_REMOVE_INSTRUCTION_FUNCTIONS
 uint32_t cipInstructUser(int argc, char * argv[]) {
-  uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
   ecmdChipTarget subTarget;        ///< Current target
@@ -68,7 +68,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   ecmdLoopMode_t loopMode;      ///< The mode in which we will loop over threads
 
   /************************************************************************/
-  /* Parse Common Cmdline Args                                            */
+  /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   if (ecmdParseOption(&argc, &argv, "-v"))
     verbose = true;
@@ -92,9 +92,14 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   if (ecmdParseOption(&argc, &argv, "all"))
     executeAll = true;
 
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -159,7 +164,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
     }
 
     /* Loop through the steps so we step all procs in somewhat sync */
-    for (int step = 0; step < steps; step ++) {
+    for (int step = 0; step < steps; step++) {
 
       //Setup the target that will be used to query the system config 
       target.chipType = ECMD_CHIPT_PROCESSOR;
@@ -194,7 +199,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       }
 
       /* This will get us looping through the cores in forward order */
-      while (ecmdLooperNext(target, looperData) ) {
+      while (ecmdLooperNext(target, looperData)) {
 
         /* On P7, we have to start the threads in reverse order to keep the chip in the proper SMT mode */
         /* This code will accomplish that by looping over cores in order above, but threads in reverse below */
@@ -216,7 +221,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData, loopMode);
         if (rc) return rc;
 
-        while ( ecmdLooperNext(subTarget, subLooperData) ) {
+        while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
 
           if (!strcasecmp(argv[0],"start")) {
             rc = cipStartInstructions(subTarget, thread);
@@ -232,7 +237,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
             printed = "cipinstruct - Error occured performing instruct function on ";
             printed += ecmdWriteTarget(subTarget) + "\n";
             ecmdOutputError( printed.c_str() );
-            return rc;
+            coeRc = rc;
+            continue;
           }
           else {
             validPosFound = true;     
@@ -255,6 +261,9 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
           }
         }
       }
+
+      // coeRc will be the return code from in the loop, coe mode or not.
+      if (coeRc) return coeRc;
 
       if (!validPosFound) {
         //this is an error common across all UI functions
