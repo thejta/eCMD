@@ -83,20 +83,12 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
 
   /* We are going to make sure they didn't expect more data then we had */
   /* We are going to allow for odd bits in a nibble if the user provided data in hex */
-  /* We will just check below that all the extra data was zero's */
   if ((i_data.getBitLength()-1)/4 > (i_expected.getBitLength()-1)/4) {
     ecmdOutputError("ecmdCheckExpected - Not enough expect data provided\n");
     o_mismatchBit = ECMD_UNSET;
     return 0;
   } else if ((i_data.getBitLength()-1)/4 < (i_expected.getBitLength()-1)/4) {
     ecmdOutputError("ecmdCheckExpected - More expect data provided than data that was retrieved\n");
-    o_mismatchBit = ECMD_UNSET;
-    return 0;
-
-    /* Now we are going to check to see if expect bits we specified in any odd nibble bits */
-  } else if ((i_data.getBitLength() < i_expected.getBitLength()) &&
-             (!i_expected.isBitClear(i_data.getBitLength(), i_expected.getBitLength() - i_data.getBitLength()))) {
-    ecmdOutputError("ecmdCheckExpected - More non-zero expect data provided in odd bits of a nibble then data retrieved\n");
     o_mismatchBit = ECMD_UNSET;
     return 0;
   }
