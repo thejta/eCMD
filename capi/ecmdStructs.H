@@ -464,14 +464,9 @@ typedef enum {
 */
 typedef enum {
   ECMD_SCOM_UNKNOWN,            ///< The unknown state for this enum, not a valid output type
-#ifndef DOCUMENTATION
-  ECMD_SCOM_READ,               ///< Do a scom read (getScom)
-  ECMD_SCOM_WRITE,              ///< Do a scom write (putScom)
-  ECMD_SCOM_WRITE_UNDER_MASK,   ///< Do a scome write under mask (putScomUnderMask)
-#endif
-  ECMD_GETSCOM_OP = 1,              ///< Do a getScom operation
-  ECMD_PUTSCOM_OP = 2,              ///< Do a putScom operation
-  ECMD_PUTSCOMUNDERMASK_OP = 3,     ///< Do a putScomUnderMask operation
+  ECMD_GETSCOM_OP,              ///< Do a getScom operation
+  ECMD_PUTSCOM_OP,              ///< Do a putScom operation
+  ECMD_PUTSCOMUNDERMASK_OP,     ///< Do a putScomUnderMask operation
 } ecmdScomMode_t;
 
 /**
@@ -1539,11 +1534,11 @@ struct ecmdScomEntry {
 #endif
 
   // Members
-  uint32_t         address;         ///< The address to read or write
-  ecmdDataBuffer   scomData;        ///< The data to read or write depending on the operation
-  ecmdDataBuffer   scomDataMask;    ///< The mask data, only used on a mask operation
-  ecmdScomMode_t   scomOperation;   ///< SCOM_READ, SCOM_WRITE, SCOM_WRITE_UNDER_MASK
-  uint32_t rc;                      ///< The return code for the operation
+  uint32_t         address;     ///< The address to read or write
+  ecmdDataBuffer   data;        ///< The data to read or write depending on the operation
+  ecmdDataBuffer   dataMask;    ///< The mask data, only used on a mask operation
+  ecmdScomMode_t   operation;   ///< The operation type to do.. getScom, putScom or putScomUnderMask
+  uint32_t rc;                  ///< The return code for the operation
 };
 
 #ifndef DOCUMENTATION

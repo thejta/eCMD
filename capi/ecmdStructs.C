@@ -5816,14 +5816,14 @@ uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
         i_len -= sizeof( address );
 
         // Write the size of "scomData", to check against when unflattening
-        dataBufSize = scomData.flattenSize();
+        dataBufSize = data.flattenSize();
         tmpData32 = htonl( dataBufSize );
         memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
         l_ptr += sizeof( dataBufSize );
         i_len -= sizeof( dataBufSize );
 
-        // Write contents of "scomData" into the output buffer
-        l_rc = scomData.flatten( l_ptr, dataBufSize );
+        // Write contents of "data" into the output buffer
+        l_rc = data.flatten( l_ptr, dataBufSize );
         if ( l_rc != ECMD_DBUF_SUCCESS ) {
             break;
         } else {
@@ -5832,15 +5832,15 @@ uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
         l_ptr += dataBufSize;
         i_len -= dataBufSize;
 
-        // Write the size of "scomDataMask", to check against when unflattening
-        dataBufSize = scomDataMask.flattenSize();
+        // Write the size of "dataMask", to check against when unflattening
+        dataBufSize = dataMask.flattenSize();
         tmpData32 = htonl( dataBufSize );
         memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
         l_ptr += sizeof( dataBufSize );
         i_len -= sizeof( dataBufSize );
 
-        // Write contents of "scomDataMask" into the output buffer
-        l_rc = scomDataMask.flatten( l_ptr, dataBufSize );
+        // Write contents of "dataMask" into the output buffer
+        l_rc = dataMask.flatten( l_ptr, dataBufSize );
         if ( l_rc != ECMD_DBUF_SUCCESS ) {
             break;
         } else {
@@ -5849,8 +5849,8 @@ uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
         l_ptr += dataBufSize;
         i_len -= dataBufSize;
 
-        // "scomOperation" (ecmdScomMode_t, stored as uint32_t)
-        tmpData32 = htonl( (uint32_t) scomOperation );
+        // "operation" (ecmdScomMode_t, stored as uint32_t)
+        tmpData32 = htonl( (uint32_t) operation );
         memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
         l_ptr += sizeof(tmpData32);
         i_len -= sizeof(tmpData32);
@@ -5890,14 +5890,14 @@ uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
         l_ptr += sizeof( tmpData32 );
         i_len -= sizeof( tmpData32 );
 
-        // Get the size of "scomData" to pass to unflatten()
+        // Get the size of "data" to pass to unflatten()
         memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
         dataBufSize = ntohl( dataBufSize );
         l_ptr += sizeof( dataBufSize );
         i_len -= sizeof( dataBufSize );
 
-        // Unflatten "scomData" from the input buffer
-        l_rc = scomData.unflatten( l_ptr, dataBufSize );
+        // Unflatten "data" from the input buffer
+        l_rc = data.unflatten( l_ptr, dataBufSize );
         if ( l_rc != ECMD_DBUF_SUCCESS ) {
             break;
         } else {
@@ -5906,14 +5906,14 @@ uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
         l_ptr += dataBufSize;
         i_len -= dataBufSize;
 
-        // Get the size of "scomDataMask" to pass to unflatten()
+        // Get the size of "dataMask" to pass to unflatten()
         memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
         dataBufSize = ntohl( dataBufSize );
         l_ptr += sizeof( dataBufSize );
         i_len -= sizeof( dataBufSize );
 
-        // Unflatten "scomDataMask" from the input buffer
-        l_rc = scomDataMask.unflatten( l_ptr, dataBufSize );
+        // Unflatten "dataMask" from the input buffer
+        l_rc = dataMask.unflatten( l_ptr, dataBufSize );
         if ( l_rc != ECMD_DBUF_SUCCESS ) {
             break;
         } else {
@@ -5922,9 +5922,9 @@ uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
         l_ptr += dataBufSize;
         i_len -= dataBufSize;
 
-        // "scomOperation" (ecmdScomMode_t, stored as uint32_t)
+        // "operation" (ecmdScomMode_t, stored as uint32_t)
         memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
-        scomOperation = (ecmdScomMode_t) ntohl( tmpData32 );
+        operation = (ecmdScomMode_t) ntohl( tmpData32 );
         l_ptr += sizeof(tmpData32);
         i_len -= sizeof(tmpData32);
 
@@ -5956,13 +5956,13 @@ uint32_t ecmdScomEntry::flattenSize() {
 
         flatSize += sizeof( address );           // Space for member "address"
 
-        flatSize += sizeof( dataBufSize );  // Size of member "scomData"
-        flatSize += scomData.flattenSize();  // Space for "scomData" flattened
+        flatSize += sizeof( dataBufSize );  // Size of member "data"
+        flatSize += data.flattenSize();  // Space for "data" flattened
 
-        flatSize += sizeof( dataBufSize );  // Size of member "scomDataMask"
-        flatSize += scomDataMask.flattenSize();   // Space for "scomDataMask" flattened
+        flatSize += sizeof( dataBufSize );  // Size of member "dataMask"
+        flatSize += dataMask.flattenSize();   // Space for "dataMask" flattened
 
-        flatSize += sizeof(uint32_t);  //  Space for scomOperation, ecmdScomMode_t stored as uint32_t
+        flatSize += sizeof(uint32_t);  //  Space for operation, ecmdScomMode_t stored as uint32_t
         flatSize += sizeof( rc );           // Space for member "rc"
 
     return flatSize;
@@ -5976,15 +5976,15 @@ void ecmdScomEntry::printStruct() {
 
     printf("\t\t\taddress: 0x%x\n", address );
 
-    printf("\t\t\tscomData bitlength: %d\n", scomData.getBitLength() );
-    printf("\t\t\tscomData wordlength: %d\n", scomData.getWordLength() );
-    printf("\t\t\tscomData data: %s\n", scomData.genHexLeftStr().c_str() );
+    printf("\t\t\tdata bitlength: %d\n", data.getBitLength() );
+    printf("\t\t\tdata wordlength: %d\n", data.getWordLength() );
+    printf("\t\t\tdata data: %s\n", data.genHexLeftStr().c_str() );
 
-    printf("\t\t\tscomDataMask bitlength: %d\n", scomDataMask.getBitLength() );
-    printf("\t\t\tscomDataMask wordlength: %d\n", scomDataMask.getWordLength() );
-    printf("\t\t\tscomDataMask data: %s\n", scomDataMask.genHexLeftStr().c_str() );
+    printf("\t\t\tdataMask bitlength: %d\n", dataMask.getBitLength() );
+    printf("\t\t\tdataMask wordlength: %d\n", dataMask.getWordLength() );
+    printf("\t\t\tdataMask data: %s\n", dataMask.genHexLeftStr().c_str() );
 
-    printf("\t\t\tScomOperation: 0x%x\n", (uint32_t) scomOperation );
+    printf("\t\t\toperation: 0x%x\n", (uint32_t) operation );
     printf("\t\t\treturn code (rc): 0x%x\n", rc );
 }
 #endif
