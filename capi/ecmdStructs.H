@@ -296,9 +296,10 @@ typedef enum {
   ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
   ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
   ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
-  ECMD_DLL_SCAND,               ///< Running against the ScanD dll owned by Meghna Paruthi
-  ECMD_DLL_BML,                 ///< Running against the BML plugin owned by Chris Engel
-  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin owned by Chris Engel
+  ECMD_DLL_SCAND,               ///< Running against the ScanD plugin
+  ECMD_DLL_BML,                 ///< Running against the BML plugin
+  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
+  ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
 } ecmdDllType_t;
 
 /**
