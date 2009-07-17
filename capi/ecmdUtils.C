@@ -733,6 +733,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "BML\n";
   else if (info.dllType == ECMD_DLL_MAMBO)
     printed += "MAMBO\n";
+  else if (info.dllType == ECMD_DLL_RISCWATCH)
+    printed += "RiscWatch\n";
   else 
     printed += "Unknown\n";
   ecmdOutput(printed.c_str());
