@@ -112,6 +112,7 @@
 %template(listEcmdScomData)          std::list<ecmdScomData>;
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
 %template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
+%template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/
