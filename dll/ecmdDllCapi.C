@@ -46,28 +46,49 @@
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to hold info out of the scandef for get/putlatch etc. */
-
-/** @brief Used to buffer scandef data to avoid searching for each chip ec */
-struct ecmdLatchBufferEntry {
-  std::list<ecmdLatchEntry> entry;       ///< Data from Scandef
-  std::string scandefName;              ///< Name of scandef where data was retrieved
-  std::string latchName;                ///< Latch name used to search for this data
-  std::string ringName;                 ///< Ring name used to search for this data (empty string if == NULL)
-};
-
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /** @brief Used to hold latchname keys and offsets into the scandef **/
 struct ecmdLatchHashInfo {
   //  uint32_t latchHashKey;                 ///< HashKey for the Latchname in Uppercase
-  uint32_t  latchOffset;                       ///< Offset for the latchname in the scandef file
+  uint32_t latchOffset;                       ///< Offset for the latchname in the scandef file
   uint32_t ringBeginOffset;                   ///< Begin Offset for the latch Ring in the scandef file
   uint32_t ringEndOffset;                     ///< End Offset for the latch Ring in the scandef file
   bool ringFound;
 };
 
+
+/** @brief Used to buffer scandef data to avoid searching for each chip ec */
+struct ecmdLatchBufferEntry {
+  std::list<ecmdLatchEntry> entry;       ///< Data from Scandef
+  std::string latchName;                 ///< Latch name used to search for this data
+  uint32_t    latchNameHashKey;          ///< Latch name used to search for this data
+  std::string ringName;                  ///< Ring name used to search for this data (empty string if == NULL)
+
+  inline int operator==(const ecmdLatchBufferEntry &rhs) const {
+    return (latchNameHashKey==rhs.latchNameHashKey);
+  };
+
+  inline int operator<(const ecmdLatchBufferEntry &rhs) const {
+    return (latchNameHashKey < rhs.latchNameHashKey);
+  };
+};
+
+struct ecmdLatchCacheEntry {
+  uint32_t scandefHashKey;
+  std::list<ecmdLatchBufferEntry> latches;
+
+  inline int operator==(const ecmdLatchCacheEntry &rhs) const {
+    return (scandefHashKey==rhs.scandefHashKey);
+  };
+
+};
+
+/* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
+std::list<ecmdLatchCacheEntry> latchCache;
+
 /** @brief Used to sort latch entries from the scandef */
-bool operator< (const ecmdLatchEntry & lhs, const ecmdLatchEntry & rhs) {
+bool operator<(const ecmdLatchEntry & lhs, const ecmdLatchEntry & rhs) {
 
   if (lhs.ringName != rhs.ringName)
     return lhs.ringName < rhs.ringName;
@@ -104,9 +125,6 @@ bool operator!= (const ecmdLatchEntry & lhs, const ecmdLatchEntry & rhs) {
 
   return (lhs.latchName.substr(0, lhsLeftParen) != rhs.latchName.substr(0,rhsLeftParen));
 }
-
-/* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
-std::list<ecmdLatchBufferEntry> latchBuffer;
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 
@@ -157,19 +175,19 @@ std::list<ecmdUserInfo> ecmdArgsStack;
 //----------------------------------------------------------------------
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /* @brief Parse out the scandef for the specified latch name */
-uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
+uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
 /* @brief Look up the provided latch name in the scandef hash */
-uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
+uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 /* @brief Returns true if curPos is not in userArgs */
-uint8_t dllRemoveCurrentElement(int curPos, std::string userArgs);
+uint8_t removeCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string &str);
+bool isValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
 bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
-uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
+uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -991,18 +1009,18 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
 }
 
 uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {
-  return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, false);
+  return queryConfigExistSelected(i_target, o_queryData, i_looptype, false);
 }
 
 uint32_t dllQueryConfigSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {
-  return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, false);
+  return queryConfigExistSelected(i_target, o_queryData, i_looptype, false);
 }
 
 uint32_t dllQueryExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {
-  return dllQueryConfigExistSelected(i_target, o_queryData, i_looptype, true);
+  return queryConfigExistSelected(i_target, o_queryData, i_looptype, true);
 }
 
-uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode) {
+uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode) {
   uint32_t rc = ECMD_SUCCESS;
 
   uint8_t SINGLE = 0;
@@ -1078,7 +1096,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (ecmdUserArgs.cage.length()) {
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
       if (ecmdUserArgs.cage.find_first_of(patterns) < ecmdUserArgs.cage.length()) {
-        if (!dllIsValidTargetString(ecmdUserArgs.cage)) {
+        if (!isValidTargetString(ecmdUserArgs.cage)) {
           dllOutputError("dllQuerySelected - cage (-k#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
@@ -1087,7 +1105,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       }
 
       /* See if we have a single entry -k1 */
-      else if (dllIsValidTargetString(ecmdUserArgs.cage)) {
+      else if (isValidTargetString(ecmdUserArgs.cage)) {
         i_target.cageState = ECMD_TARGET_FIELD_VALID;
         i_target.cage = (uint32_t)atoi(ecmdUserArgs.cage.c_str());
         cageType = SINGLE;
@@ -1161,7 +1179,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (ecmdUserArgs.node.length()) {
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
       if (ecmdUserArgs.node.find_first_of(patterns) < ecmdUserArgs.node.length()) {
-        if (!dllIsValidTargetString(ecmdUserArgs.node)) {
+        if (!isValidTargetString(ecmdUserArgs.node)) {
           dllOutputError("dllQuerySelected - node (-n#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
@@ -1170,7 +1188,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       }
 
       /* See if we have a single entry -n1 */
-      else if (dllIsValidTargetString(ecmdUserArgs.node)) {
+      else if (isValidTargetString(ecmdUserArgs.node)) {
         i_target.nodeState = ECMD_TARGET_FIELD_VALID;
         i_target.node = (uint32_t)atoi(ecmdUserArgs.node.c_str());
         nodeType = SINGLE;
@@ -1245,7 +1263,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (ecmdUserArgs.slot.length()) {
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
       if (ecmdUserArgs.slot.find_first_of(patterns) < ecmdUserArgs.slot.length()) {
-        if (!dllIsValidTargetString(ecmdUserArgs.slot)) {
+        if (!isValidTargetString(ecmdUserArgs.slot)) {
           dllOutputError("dllQuerySelected - slot (-s#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
@@ -1254,7 +1272,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       }
 
       /* See if we have a single entry -s1 */
-      else if (dllIsValidTargetString(ecmdUserArgs.slot)) {
+      else if (isValidTargetString(ecmdUserArgs.slot)) {
         i_target.slotState = ECMD_TARGET_FIELD_VALID;
         i_target.slot = (uint32_t)atoi(ecmdUserArgs.slot.c_str());
         slotType = SINGLE;
@@ -1329,7 +1347,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (ecmdUserArgs.pos.length()) {
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
       if (ecmdUserArgs.pos.find_first_of(patterns) < ecmdUserArgs.pos.length()) {
-        if (!dllIsValidTargetString(ecmdUserArgs.pos)) {
+        if (!isValidTargetString(ecmdUserArgs.pos)) {
           dllOutputError("dllQuerySelected - pos (-p#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
@@ -1338,7 +1356,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       }
 
       /* See if we have a single entry -p1 */
-      else if (dllIsValidTargetString(ecmdUserArgs.pos)) {
+      else if (isValidTargetString(ecmdUserArgs.pos)) {
         i_target.posState = ECMD_TARGET_FIELD_VALID;
         i_target.pos = (uint32_t)atoi(ecmdUserArgs.pos.c_str());
         posType = SINGLE;
@@ -1412,7 +1430,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (ecmdUserArgs.chipUnitNum.length()) {
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
       if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
-        if (!dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+        if (!isValidTargetString(ecmdUserArgs.chipUnitNum)) {
           dllOutputError("dllQuerySelected - chipUnitNum/core (-c#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
@@ -1421,7 +1439,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       }
 
       /* See if we have a single entry -c1 */
-      else if (dllIsValidTargetString(ecmdUserArgs.chipUnitNum)) {
+      else if (isValidTargetString(ecmdUserArgs.chipUnitNum)) {
         i_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
         i_target.chipUnitNum = (uint32_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
         chipUnitNumType = SINGLE;
@@ -1495,7 +1513,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (ecmdUserArgs.thread.length()) {
       /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
       if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
-        if (!dllIsValidTargetString(ecmdUserArgs.thread)) {
+        if (!isValidTargetString(ecmdUserArgs.thread)) {
           dllOutputError("dllQuerySelected - thread (-t#) argument contained invalid characters\n");
           return ECMD_INVALID_ARGS;
         }
@@ -1504,7 +1522,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       }
 
       /* See if we have a single entry -t1 */
-      else if (dllIsValidTargetString(ecmdUserArgs.thread)) {
+      else if (isValidTargetString(ecmdUserArgs.thread)) {
         i_target.threadState = ECMD_TARGET_FIELD_VALID;
         i_target.thread = (uint32_t)atoi(ecmdUserArgs.thread.c_str());
         threadType = SINGLE;
@@ -1627,7 +1645,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
   }
 #endif
 
-  // Within this loop the first for calls to dllRemoveCurrentElement()
+  // Within this loop the first for calls to removeCurrentElement()
   // generates lint msg 713 & 820: Loss of precision (arg. no. 1) 
   // So disabling that message within this scope (re-enable at end of 
   // loop).      @02a
@@ -1642,7 +1660,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
     if (cageType >= MULTI) {
       /* Is the current element in the list of numbers the user provided, if not remove it */
       if (cageType == MULTI) {
-        if (dllRemoveCurrentElement(curCage->cageId, ecmdUserArgs.cage)) {
+        if (removeCurrentElement(curCage->cageId, ecmdUserArgs.cage)) {
           curCage = o_queryData.cageData.erase(curCage);
           continue;
         }
@@ -1687,7 +1705,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
       if (nodeType >= MULTI) {
         /* Is the current element in the list of numbers the user provided, if not remove it */
         if (nodeType == MULTI) {
-          if (dllRemoveCurrentElement(curNode->nodeId, ecmdUserArgs.node)) {
+          if (removeCurrentElement(curNode->nodeId, ecmdUserArgs.node)) {
             curNode = curCage->nodeData.erase(curNode);
             continue;
           }
@@ -1732,7 +1750,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
         if (slotType >= MULTI) {
           /* Is the current element in the list of numbers the user provided, if not remove it */
           if (slotType == MULTI) {
-            if (dllRemoveCurrentElement(curSlot->slotId, ecmdUserArgs.slot)) {
+            if (removeCurrentElement(curSlot->slotId, ecmdUserArgs.slot)) {
               curSlot = curNode->slotData.erase(curSlot);
               continue;
             }
@@ -1777,7 +1795,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
           if (posType >= MULTI) {
             /* Is the current element in the list of numbers the user provided, if not remove it */
             if (posType == MULTI) {
-              if (dllRemoveCurrentElement(curChip->pos, ecmdUserArgs.pos)) {
+              if (removeCurrentElement(curChip->pos, ecmdUserArgs.pos)) {
                 curChip = curSlot->chipData.erase(curChip);
                 continue;
               }
@@ -1822,7 +1840,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
             if (chipUnitNumType >= MULTI) {
               /* Is the current element in the list of numbers the user provided, if not remove it */
               if (chipUnitNumType == MULTI) {
-                if (dllRemoveCurrentElement(curChipUnit->chipUnitNum, ecmdUserArgs.chipUnitNum)) {
+                if (removeCurrentElement(curChipUnit->chipUnitNum, ecmdUserArgs.chipUnitNum)) {
                   curChipUnit = curChip->chipUnitData.erase(curChipUnit);
                   continue;
                 }
@@ -1867,7 +1885,7 @@ uint32_t dllQueryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & 
               if (threadType >= MULTI) {
                 /* Is the current element in the list of numbers the user provided, if not remove it */
                 if (threadType == MULTI) {
-                  if (dllRemoveCurrentElement(curThread->threadId, ecmdUserArgs.thread)) {
+                  if (removeCurrentElement(curThread->threadId, ecmdUserArgs.thread)) {
                     curThread = curChipUnit->threadData.erase(curThread);
                     continue;
                   }
@@ -2117,7 +2135,7 @@ void dllPopCommandArgs() {
 }
 
 
-uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
+uint8_t removeCurrentElement (int curPos, std::string userArgs) {
   uint8_t l_remove = 1;
   std::string curSubstr;
   size_t curOffset = 0;
@@ -2160,7 +2178,7 @@ uint8_t dllRemoveCurrentElement (int curPos, std::string userArgs) {
 }
 
 /* Returns true if all chars of str are decimal numbers */
-bool dllIsValidTargetString(std::string &str) {
+bool isValidTargetString(std::string &str) {
 
   bool ret = true;
 
@@ -2270,11 +2288,11 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
     return rc;
   }
   if ((i_ringName != NULL) && (i_latchName == NULL)) {
-    rc = dllReadScandefHash(target, i_ringName, i_latchName, curEntry);
+    rc = readScandefHash(target, i_ringName, i_latchName, curEntry);
     if (rc) return rc;
   } else {
     if( i_mode == ECMD_LATCHMODE_FULL) {
-      rc = dllReadScandefHash(target, i_ringName, i_latchName, curEntry);
+      rc = readScandefHash(target, i_ringName, i_latchName, curEntry);
       if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
         return rc;
       }
@@ -2288,7 +2306,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
 
       }
 
-      rc = dllReadScandef(target, i_ringName, i_latchName, i_mode, curEntry);
+      rc = readScandef(target, i_ringName, i_latchName, i_mode, curEntry);
       if (rc) return rc;
 
       if (errorParse.length() > 0) {
@@ -2378,14 +2396,14 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   }
   
   if( i_mode == ECMD_LATCHMODE_FULL) {
-    rc = dllReadScandefHash(i_target, i_ringName, i_latchName, curEntry);
+    rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
     if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc ==
 															  ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
       return rc;
     }
   }
   if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
-    rc = dllReadScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+    rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
     if (rc) return rc;
   }
 
@@ -2576,7 +2594,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   }
 
   if( i_mode == ECMD_LATCHMODE_FULL) {
-    rc = dllReadScandefHash(i_target, i_ringName, i_latchName, curEntry);
+    rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
     if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
       return rc;
     }
@@ -2589,7 +2607,7 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
       errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
 
     }
-    rc = dllReadScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+    rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
     if (rc) return rc;
 
     if (errorParse.length() > 0) {
@@ -2781,24 +2799,27 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
    @param i_mode Mode to search with, full or partial name matchs
    @param o_latchdata Return latch data read from scandef
 */
-uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata) {
+uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata) {
   uint32_t rc = ECMD_SUCCESS;
-  std::list<ecmdLatchBufferEntry>::iterator bufferit;
   std::list<ecmdLatchEntry>::iterator entryIt;
   std::list<ecmdLatchEntry>::iterator entryIt1;       
   std::string scandefFile;                      ///< Full path to scandef file
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
+  std::string ringName = i_ringName;            ///< Ring that caller specified
   std::string curRing;                          ///< Current ring being read in
-  std::string i_ring;                           ///< Ring that caller specified
+  uint32_t latchHashKey;                        ///< Hash Key for i_latchName
+  uint32_t ringHashKey;                         ///< Hash Key for i_ringName
+  std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
+  std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
 
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
+  latchHashKey = ecmdHashString32(latchName.c_str(), 0);
 
-  if (i_ringName != NULL) {
-    i_ring = i_ringName;
-    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), (int(*)(int)) tolower);
-  }
+  /* Transform to lower case for case-insensitive comparisons */
+  transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
+  ringHashKey = ecmdHashString32(latchName.c_str(), 0);
 
   /* single exit point */
   while (1) {
@@ -2808,30 +2829,59 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
     /* find scandef file */
     rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
     if (rc) {
-      dllRegisterErrorMsg(rc, "dllReadScandef", ("Error occured locating scandef file: " + scandefFile + "\n").c_str());
+      dllRegisterErrorMsg(rc, "readScandef", ("Error occured locating scandef file: " + scandefFile + "\n").c_str());
       return rc;
     }
-      
-    for (bufferit = latchBuffer.begin(); bufferit != latchBuffer.end(); bufferit ++) {
-      /* Does the scandeffile and the current latch match to what we have stored ? */
-      if (bufferit->scandefName == scandefFile && bufferit->latchName == latchName) {
+
+    /* Level one */
+    ecmdLatchCacheEntry searchCache;
+    searchCacheIter = latchCache.end();
+
+    /* Set the hashkey for the lookup and then do it */
+    searchCache.scandefHashKey = ecmdHashString32(scandefFile.c_str(), 0);
+
+    searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
+
+    /* If we found something, keep going down */
+    /* Otherwise, add it to the list */
+    if (searchCacheIter != latchCache.end()) {
+
+      /* Level two */
+      /* We found the proper scandef entry, now actually search for the latch we need */
+      ecmdLatchBufferEntry searchLatch;
+      searchLatch.latchNameHashKey = latchHashKey;
+      searchLatchIter = searchCacheIter->latches.end();
+      std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
+
+
+      bool latchFound = false;
+      latchMatchRange = equal_range(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), searchLatch);
+      searchLatchIter = find(latchMatchRange.first, latchMatchRange.second, searchLatch);
+      if (searchLatchIter == latchMatchRange.second) {
+        latchFound = false;
+      }
+
+      if (latchFound) {
         /* If the user passed NULL we have to search entire scandef */
-        if (i_ringName == NULL) {
-          if (bufferit->ringName.length() == 0) {
-            o_latchdata = (*bufferit);
+        if (ringName == "") {
+          if (searchLatchIter->ringName.length() == 0) {
+            o_latchdata = (*searchLatchIter);
             foundit = true;
             break;
           }
         } else {
-          if (bufferit->ringName == i_ring) {
-            o_latchdata = (*bufferit);
+          if (searchLatchIter->ringName == ringName) {
+            o_latchdata = (*searchLatchIter);
             foundit = true;
             break;
           }
         }
-      }
-    } /* End for search loop */
-
+      } /* End for search loop */
+    } else {
+      latchCache.push_front(searchCache);
+      searchCacheIter = latchCache.begin();
+    }
+ 
     /* We're done, get out of here */
     if (foundit) return rc;
 
@@ -2842,7 +2892,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
       std::ifstream ins(scandefFile.c_str());
       if (ins.fail()) {
         rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
-        dllRegisterErrorMsg(rc, "dllReadScandef", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandef", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
         break;
       }
 
@@ -2864,15 +2914,15 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
         if (foundRing) {
 
           if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
-            if (i_ringName != NULL) done = true;
+            if (ringName != "") done = true;
             continue;
           }
-	  else if ((i_ringName == NULL) &&
+	  else if ((ringName == "") &&
                    ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
             ecmdParseTokens(curLine, " \t\n=", curArgs);
             if (curArgs.size() != 2) {
               rc = ECMD_SCANDEF_LOOKUP_FAILURE;
-              dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
+              dllRegisterErrorMsg(rc, "readScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
               break;
             }
             transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
@@ -2890,9 +2940,6 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
           }
           else if (!(i_mode == ECMD_LATCHMODE_FULL) && (curLine.find(latchName) != std::string::npos)) {
 
-            /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
-
             ecmdParseTokens(curLine, " \t\n", curArgs);
             curLatch.length = (uint32_t)atoi(curArgs[0].c_str());
             curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());
@@ -2901,8 +2948,6 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
           }
           else if (i_mode == ECMD_LATCHMODE_FULL) {
 
-            /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
             ecmdParseTokens(curLine, " \t\n", curArgs);
 
             if ((curArgs.size() >= 5) && latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
@@ -2931,7 +2976,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
             if ((colon = temp.find(':')) != std::string::npos) {
               curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
             } else if ((colon = temp.find(',')) != std::string::npos) {
-              dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
+              dllOutputError("readScandef - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
               curLatch.latchEndBit = curLatch.latchStartBit;
@@ -2942,23 +2987,23 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 
         }
         /* The user specified a ring for use to look in */
-        else if ((i_ringName != NULL) &&
+        else if ((ringName != "") &&
 		 ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
           transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
-          if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
+          if ((curArgs.size() >= 2) && curArgs[1] == ringName) {
             foundRing = true;
-            curRing = i_ring;
+            curRing = ringName;
           }
 
           /* The user didn't specify a ring for us, we will search them all */
-        } else if ((i_ringName == NULL) &&
+        } else if ((ringName == "") &&
                    ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           if (curArgs.size() != 2) {
             rc = ECMD_SCANDEF_LOOKUP_FAILURE;
-            dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
+            dllRegisterErrorMsg(rc, "readScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
             break;
           }
           transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
@@ -2971,9 +3016,9 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
       ins.close();
 
       if (!foundRing) {
-        std::string tmp = i_ringName;
+        std::string tmp = ringName;
         rc = ECMD_INVALID_RING;
-        dllRegisterErrorMsg(rc, "dllReadScandef", ("Could not find ring name " + tmp + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandef", ("Could not find ring name " + tmp + "\n").c_str());
         break;
       }
       //Check if latch present in multiple rings
@@ -2985,7 +3030,7 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
 	  for (entryIt1 = o_latchdata.entry.begin(); entryIt1 != o_latchdata.entry.end(); entryIt1++) {
 	    if ( (entryIt1->latchName.substr(0,entryIt1->latchName.find_last_of("(")) == outerLatch) && (entryIt1->ringName != outerRing) ) {
 	      rc = ECMD_SCANDEFHASH_MULT_RINGS;
-	      dllRegisterErrorMsg(rc, "dllReadScandef", ("Same latchname : '" + latchName + "' found in multiple rings in the scandef\nPlease specify a ringname\n").c_str());
+	      dllRegisterErrorMsg(rc, "readScandef", ("Same latchname : '" + latchName + "' found in multiple rings in the scandef\nPlease specify a ringname\n").c_str());
 	      return rc;
 	    }
 	  }
@@ -2995,20 +3040,22 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
       }
       if (o_latchdata.entry.empty()) {
         rc = ECMD_INVALID_LATCHNAME;
-        dllRegisterErrorMsg(rc, "dllReadScandef", ("no registers found that matched " + latchName + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandef", ("no registers found that matched " + latchName + "\n").c_str());
         break;
       }
 
-      o_latchdata.scandefName = scandefFile;
-      if (i_ringName != NULL)
-        o_latchdata.ringName = i_ringName;
-      else
+      if (ringName != "") {
+        o_latchdata.ringName = ringName;
+      } else {
         o_latchdata.ringName = "";
+      }
       o_latchdata.latchName = latchName;
+      o_latchdata.latchNameHashKey = latchHashKey;
       o_latchdata.entry.sort();
 
-      /* Let's push this entry onto the stack */
-      latchBuffer.push_back(o_latchdata);
+      /* Now insert it in proper order */
+      searchLatchIter = lower_bound(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), o_latchdata);
+      searchCacheIter->latches.insert(searchLatchIter, o_latchdata);
 
     } /* end !foundit */
   } /* end single exit point */
@@ -3023,34 +3070,34 @@ uint32_t dllReadScandef(ecmdChipTarget & target, const char* i_ringName, const c
    @param i_latchName latch name to search for in scandef
    @param o_latchdata Return latch data read from scandef
 */
-uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, const char*  i_latchName, ecmdLatchBufferEntry & o_latchdata) {
+uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const char*  i_latchName, ecmdLatchBufferEntry & o_latchdata) {
 
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdLatchBufferEntry>::iterator bufferit;
   std::list< ecmdLatchHashInfo > latchHashDet; ///< List of the LatchHash Keys and their offsets
   std::list< ecmdLatchHashInfo >::iterator latchHashDetIter;  
   ecmdLatchHashInfo curLatchHashInfo;           ///< Current Latch Hash Key, Offset
-  uint32_t latchKeyToLookFor;                   ///< Hash Key for i_latchName
-  uint32_t ringKey=0;				///< Hash Key for i_ringName
   std::string scandefFile;                      ///< Full path to scandef file
   std::string scandefHashFile;                  ///< Full path to scandefhash file
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
+  std::string ringName = i_ringName;            ///< Ring that caller specified
+  uint32_t latchHashKey;                        ///< Hash Key for i_latchName
+  uint32_t ringHashKey;                         ///< Hash Key for i_ringName
   std::string curRing;                          ///< Current ring being read in
-  std::string i_ring;                           ///< Ring that caller specified
-
   std::string curLine;                          ///< Current line in the scandef
-  std::vector<std::string> curArgs(4);          ///< for tokenizing
-      
+  std::vector<std::string> curArgs;             ///< for tokenizing
+  std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
+  std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
+
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
+  latchHashKey = ecmdHashString32(latchName.c_str(), 0);
+      
+  /* Transform to lower case for case-insensitive comparisons */
+  transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
+  ringHashKey = ecmdHashString32(ringName.c_str(), 0);
 
-  if (i_ringName != NULL) {
-    i_ring = i_ringName;
-    transform(i_ring.begin(), i_ring.end(), i_ring.begin(), (int(*)(int)) tolower);
-  }
-
-  
   /* single exit point */
   while (1) {
     /* Let's see if we have already looked up this info */
@@ -3058,29 +3105,58 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
     /* find scandef file */
     rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
     if (rc) {
-      dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured locating scandef file: " + scandefFile + "\n").c_str());
+      dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured locating scandef file: " + scandefFile + "\n").c_str());
       return rc;
     }
 
-    for (bufferit = latchBuffer.begin(); bufferit != latchBuffer.end(); bufferit ++) {
-      /* Does the scandeffile and the current latch match to what we have stored ? */
-      if (bufferit->scandefName == scandefFile && bufferit->latchName == latchName) {
+    /* Level one */
+    ecmdLatchCacheEntry searchCache;
+    searchCacheIter = latchCache.end();
+
+    /* Set the hashkey for the lookup and then do it */
+    searchCache.scandefHashKey = ecmdHashString32(scandefFile.c_str(), 0);
+
+    searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
+
+    /* If we found something, keep going down */
+    /* Otherwise, add it to the list */
+    if (searchCacheIter != latchCache.end()) {
+
+      /* Level two */
+      /* We found the proper scandef entry, now actually search for the latch we need */
+      ecmdLatchBufferEntry searchLatch;
+      searchLatch.latchNameHashKey = latchHashKey;
+      searchLatchIter = searchCacheIter->latches.end();
+      std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
+
+
+      bool latchFound = false;
+      latchMatchRange = equal_range(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), searchLatch);
+      searchLatchIter = find(latchMatchRange.first, latchMatchRange.second, searchLatch);
+      if (searchLatchIter == latchMatchRange.second) {
+        latchFound = false;
+      }
+
+      if (latchFound) {
         /* If the user passed NULL we have to search entire scandef */
-        if (i_ringName == NULL) {
-          if (bufferit->ringName.length() == 0) {
-            o_latchdata = (*bufferit);
-            foundit = true; 
+        if (ringName == "") {
+          if (searchLatchIter->ringName.length() == 0) {
+            o_latchdata = (*searchLatchIter);
+            foundit = true;
             break;
           }
         } else {
-          if (bufferit->ringName == i_ring) {
-            o_latchdata = (*bufferit);
-            foundit = true; 
+          if (searchLatchIter->ringName == ringName) {
+            o_latchdata = (*searchLatchIter);
+            foundit = true;
             break;
           }
         }
-      }
-    } /* End for search loop */
+      } /* End for search loop */
+    } else {
+      latchCache.push_front(searchCache);
+      searchCacheIter = latchCache.begin();
+    }
 
     /* We're done, get out of here */
     if (foundit) return rc;
@@ -3089,20 +3165,17 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
     /* We don't have it already, let's go looking */
     if (!foundit) {
 
-      if (i_ringName != NULL) {
-        ringKey = ecmdHashString32(i_ring.c_str(), 0);
-      }
       /* find scandef hash file */
       rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile);
       if (rc) {
-        dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured locating scandef hash file: " + scandefHashFile + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured locating scandef hash file: " + scandefHashFile + "\n").c_str());
         return rc;
       }
 
       std::ifstream insh(scandefHashFile.c_str());
       if (insh.fail()) {
         rc = ECMD_UNABLE_TO_OPEN_SCANDEFHASH;
-        dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured opening scandef file: " + scandefHashFile + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured opening scandef file: " + scandefHashFile + "\n").c_str());
         break;
       }
       
@@ -3114,10 +3187,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       insh.read((char *)& numRings, 4);
       numRings = htonl(numRings);
 
-      if (!((i_ringName != NULL) && (latchName.size() == 0))) { //Can come from querylatch
-      
-	/* Get the Hash Key for the latchName */
-	latchKeyToLookFor = ecmdHashString32(latchName.c_str(), 0);
+      if (!((ringName != "") && (latchName.size() == 0))) { //Can come from querylatch
       
 	//Get Offset of the end of file
         insh.seekg (0, std::ios::end); 
@@ -3137,9 +3207,9 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	  insh.seekg ( mid*8 );
 	  insh.read( (char *)& curLKey, 4);
 	  curLKey = htonl(curLKey); 
-	  if(latchKeyToLookFor == curLKey) {
+	  if(latchHashKey == curLKey) {
 	    //Goto the first occurence of this latch
-	    while(latchKeyToLookFor == curLKey) {
+	    while(latchHashKey == curLKey) {
               insh.seekg(-12, std::ios::cur);
 	      insh.read( (char *)& curLKey, 4);
 	      curLKey = htonl(curLKey); 
@@ -3148,7 +3218,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
             insh.seekg(4, std::ios::cur);
 	    insh.read( (char *)& curLKey, 4);
 	    curLKey = htonl(curLKey); 
-	    while(latchKeyToLookFor == curLKey) {
+	    while(latchHashKey == curLKey) {
 	      insh.read( (char *)& curLOffset, 4 );
 	      curLOffset = htonl(curLOffset);
 	      curLatchHashInfo.latchOffset = curLOffset;
@@ -3161,7 +3231,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	    }
 	    break;
 	  }
-	  if (latchKeyToLookFor < curLKey)
+	  if (latchHashKey < curLKey)
 	    high = mid - 1;
 	  else
 	    low  = mid + 1;
@@ -3170,7 +3240,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 
 	if (!foundLatch) {
 	  rc = ECMD_INVALID_LATCHNAME;
-	  dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Could not find a Latchname '" + latchName + "'  Key Match in the scandef hash.\n").c_str());
+	  dllRegisterErrorMsg(rc, "readScandefHash", ("Could not find a Latchname '" + latchName + "'  Key Match in the scandef hash.\n").c_str());
 	  break;
 	}
       
@@ -3182,7 +3252,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	std::ifstream ins(scandefFile.c_str());
 	if (ins.fail()) {
 	  rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
-	  dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
+	  dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
 	  break;
 	}
       
@@ -3194,12 +3264,10 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	  ins.seekg(latchHashDetIter->latchOffset);
 	  getline(ins, curLine);
  
-	  /* Transform to upper case */
-	  transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 	  ecmdParseTokens(curLine, " \t\n", curArgs);
 	  if(curArgs.size() != 5) {
 	    rc = ECMD_SCANDEF_LOOKUP_FAILURE;
-	    dllRegisterErrorMsg(rc, "dllReadScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
+	    dllRegisterErrorMsg(rc, "readScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
 	    return rc;
 	  }
 	  //Latch Offset is not pointing to the latch we are looking for-skip this latch
@@ -3217,11 +3285,11 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	      continue;
 	    }
 	    else {
-	      if (i_ringName != NULL) {
+	      if (ringName != "") {
 		latchHashDetIter->ringFound = false; //flag it since latch doesnt fall in the ring bdy, will be removed later
 	      } else {
 		rc = ECMD_SCANDEFHASH_MULT_RINGS;
-		dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Same latchname : '" + latchName + "' found in multiple rings in the scandefhash\nPlease specify a ringname\n").c_str());
+		dllRegisterErrorMsg(rc, "readScandefHash", ("Same latchname : '" + latchName + "' found in multiple rings in the scandefhash\nPlease specify a ringname\n").c_str());
 		return rc;
 	      }
 	    }
@@ -3240,7 +3308,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	
  
 	      if((latchHashDetIter->latchOffset > ringBeginOffset) && (latchHashDetIter->latchOffset < ringEndOffset)) {
-		if ((i_ringName != NULL) && (ringKey != curRingKey)) {
+		if ((ringName != "") && (ringHashKey != curRingKey)) {
 		  //The ring user specified does not match the one looked up in the scandefhash for this latch
 		  latchHashDetIter->ringFound = false;
 		  break;
@@ -3270,7 +3338,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	  ringBeginOffset = htonl(ringBeginOffset);
 	  ringEndOffset = htonl(ringEndOffset);
 	
-	  if (ringKey == curRingKey) {
+	  if (ringHashKey == curRingKey) {
 	    curLatchHashInfo.ringBeginOffset = ringBeginOffset;
 	    curLatchHashInfo.ringEndOffset = ringEndOffset;
 	    curLatchHashInfo.ringFound = true;
@@ -3285,7 +3353,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       
       if (!ringFound) {
         rc = ECMD_INVALID_RING;
-        dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Could not find a ring key match for latch '" + latchName + "'\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandefHash", ("Could not find a ring key match for latch '" + latchName + "'\n").c_str());
         break;
       }
       
@@ -3307,7 +3375,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       std::ifstream ins(scandefFile.c_str());
       if (ins.fail()) {
         rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
-        dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured opening scandef file: " + scandefFile + "\n").c_str());
         break;
       }
 
@@ -3329,23 +3397,23 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       while (getline(ins, curLine) && !foundRing) {
         
         /* The user specified a ring for use to look in */
-        if ((i_ringName != NULL) &&
+        if ((ringName != "") &&
 	    ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           /* Push the ring name to lower case */
           transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
-          if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
+          if ((curArgs.size() >= 2) && curArgs[1] == ringName) {
             foundRing = true;
-            curRing = i_ring;
+            curRing = ringName;
           }
 
           /* The user didn't specify a ring for us, we will search them all */
-        } else if ((i_ringName == NULL) &&
+        } else if ((ringName == "") &&
                    ((curLine[0] == 'N') && (curLine.substr(0,4) == "Name"))) {
           ecmdParseTokens(curLine, " \t\n=", curArgs);
           if (curArgs.size() != 2) {
             rc = ECMD_SCANDEF_LOOKUP_FAILURE;
-            dllRegisterErrorMsg(rc, "dllReadScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
+            dllRegisterErrorMsg(rc, "readScandef", ("Parse failure reading ring name from line : '" + curLine + "'\n").c_str());
             break;
           }
           transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int)) tolower);
@@ -3361,12 +3429,10 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
  
 	    getline(ins, curLine);
  
-	    /* Transform to upper case */
-	    transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 	    ecmdParseTokens(curLine, " \t\n", curArgs);
 	    if(curArgs.size() != 5) {
 	      rc = ECMD_SCANDEF_LOOKUP_FAILURE;
-	      dllRegisterErrorMsg(rc, "dllReadScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
+	      dllRegisterErrorMsg(rc, "readScandef", ("Latch Offset pointer incorrect. Points to : '" + curLine + "'\n").c_str());
 	      break;
 	    }
 	    if (latchName == curArgs[4].substr(0,curArgs[4].find_last_of("("))) {
@@ -3389,7 +3455,7 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
               if ((colon = temp.find(':')) != std::string::npos) {
         	curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
               } else if ((colon = temp.find(',')) != std::string::npos) {
-        	dllOutputError("dllReadScandef - Array's not currently supported with getlatch\n");
+        	dllOutputError("readScandef - Array's not currently supported with getlatch\n");
         	return ECMD_FUNCTION_NOT_SUPPORTED;
               } else {
         	curLatch.latchEndBit = curLatch.latchStartBit;
@@ -3402,8 +3468,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 	} else { //latchname = null for QueryLatch
 	  while (getline(ins, curLine) && (ins.tellg() < (int) latchHashDetIter->ringEndOffset)) {
               
-	    /* Transform to upper case */
-            transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
       	    ecmdParseTokens(curLine, " \t\n", curArgs);
             if(curArgs.size() != 5) {
 	      continue;
@@ -3424,28 +3488,31 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
       ins.close();
 
       if (!foundRing) {
-        std::string tmp = i_ringName;
+        std::string tmp = ringName;
 	rc = ECMD_INVALID_RING;
-        dllRegisterErrorMsg(rc, "dllReadScandefHash", ("Could not find ring name " + tmp + "\n").c_str());
+        dllRegisterErrorMsg(rc, "readScandefHash", ("Could not find ring name " + tmp + "\n").c_str());
         break;
       }
 
       if (o_latchdata.entry.empty()) {
         rc = ECMD_INVALID_LATCHNAME;
-	dllRegisterErrorMsg(rc, "dllReadScandefHash", ("no registers found that matched " + latchName + "\n").c_str());
+	dllRegisterErrorMsg(rc, "readScandefHash", ("no registers found that matched " + latchName + "\n").c_str());
         break;
       }
       
-      o_latchdata.scandefName = scandefFile;
-      if (i_ringName != NULL)
-        o_latchdata.ringName = i_ring;
-      else
+      if (ringName != "") {
+        o_latchdata.ringName = ringName;
+      } else {
         o_latchdata.ringName = "";
+      }
       o_latchdata.latchName = latchName;
+      o_latchdata.latchNameHashKey = latchHashKey;
       o_latchdata.entry.sort();
 
-      /* Let's push this entry onto the stack */
-      latchBuffer.push_back(o_latchdata);
+      /* Now insert it in proper order */
+      searchLatchIter = lower_bound(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), o_latchdata);
+      searchCacheIter->latches.insert(searchLatchIter, o_latchdata);
+
     } /* end !foundit */
   } /* end single exit point */
   return rc;
@@ -3453,7 +3520,6 @@ uint32_t dllReadScandefHash(ecmdChipTarget & target, const char* i_ringName, con
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef REMOVE_SIM
-
 uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
@@ -3681,7 +3747,7 @@ bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryDa
                     ret = true;
                     break;
                   }
-                  
+
                   for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
                     if (ecmdCurChipUnit->chipUnitNum == i_target.chipUnitNum) {
                       if (i_target.threadState == ECMD_TARGET_FIELD_UNUSED) {
@@ -3695,7 +3761,7 @@ bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryDa
                           break;
                         } /* curThreadId == tarThreadId */
                       } /* for ecmdCurThread */
-                        
+
                       if (ret) break;
                     } /* curChipUnitNum == tarChipUnitId */
                   } /* for ecmdCurChipUnit */

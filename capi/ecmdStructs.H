@@ -1455,6 +1455,7 @@ inline ecmdScomData::ecmdScomData():
 address(0),
 length(0),
 isChipUnitRelated(false),
+endianMode(ECMD_UNKNOWN_ENDIAN),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
@@ -1546,6 +1547,7 @@ struct ecmdScomEntry {
 // ecmdScomEntry Constructor
 inline ecmdScomEntry::ecmdScomEntry():
 address(0),
+operation(ECMD_SCOM_UNKNOWN),
 rc(0)
 {
 }
