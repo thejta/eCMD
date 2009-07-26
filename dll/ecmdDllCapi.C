@@ -66,7 +66,7 @@ struct ecmdLatchBufferEntry {
   std::string ringName;                  ///< Ring name used to search for this data (empty string if == NULL)
 
   inline int operator==(const ecmdLatchBufferEntry &rhs) const {
-    return (latchNameHashKey==rhs.latchNameHashKey);
+    return (latchNameHashKey == rhs.latchNameHashKey);
   };
 
   inline int operator<(const ecmdLatchBufferEntry &rhs) const {
@@ -2352,11 +2352,14 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   return rc;
 }
 
+/* getRingDump in ecmdDllCapi.C didn't get done in time for eCMD 11.0, so pulling the interface - JTA 07/26/09 */
+#if 0
 uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::list<ecmdLatchEntry> & o_latches) {
   uint32_t rc = ECMD_FUNCTION_NOT_SUPPORTED;
 
   return rc;
 }
+#endif
 
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
   uint32_t rc = 0;
@@ -2806,7 +2809,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
   std::string scandefFile;                      ///< Full path to scandef file
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
-  std::string ringName = i_ringName;            ///< Ring that caller specified
+  std::string ringName = ((i_ringName == NULL) ? "" : i_ringName);            ///< Ring that caller specified
   std::string curRing;                          ///< Current ring being read in
   uint32_t latchHashKey;                        ///< Hash Key for i_latchName
   uint32_t ringHashKey;                         ///< Hash Key for i_ringName
@@ -2850,15 +2853,14 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
       /* We found the proper scandef entry, now actually search for the latch we need */
       ecmdLatchBufferEntry searchLatch;
       searchLatch.latchNameHashKey = latchHashKey;
-      searchLatchIter = searchCacheIter->latches.end();
       std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
 
 
       bool latchFound = false;
       latchMatchRange = equal_range(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), searchLatch);
       searchLatchIter = find(latchMatchRange.first, latchMatchRange.second, searchLatch);
-      if (searchLatchIter == latchMatchRange.second) {
-        latchFound = false;
+      if (searchLatchIter != latchMatchRange.second) {
+        latchFound = true;
       }
 
       if (latchFound) {
@@ -3081,7 +3083,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   std::string scandefHashFile;                  ///< Full path to scandefhash file
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
-  std::string ringName = i_ringName;            ///< Ring that caller specified
+  std::string ringName = ((i_ringName == NULL) ? "" : i_ringName);            ///< Ring that caller specified
   uint32_t latchHashKey;                        ///< Hash Key for i_latchName
   uint32_t ringHashKey;                         ///< Hash Key for i_ringName
   std::string curRing;                          ///< Current ring being read in
@@ -3126,15 +3128,14 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
       /* We found the proper scandef entry, now actually search for the latch we need */
       ecmdLatchBufferEntry searchLatch;
       searchLatch.latchNameHashKey = latchHashKey;
-      searchLatchIter = searchCacheIter->latches.end();
       std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
 
 
       bool latchFound = false;
       latchMatchRange = equal_range(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), searchLatch);
       searchLatchIter = find(latchMatchRange.first, latchMatchRange.second, searchLatch);
-      if (searchLatchIter == latchMatchRange.second) {
-        latchFound = false;
+      if (searchLatchIter != latchMatchRange.second) {
+        latchFound = true;
       }
 
       if (latchFound) {
