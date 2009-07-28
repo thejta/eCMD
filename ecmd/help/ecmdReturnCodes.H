@@ -84,7 +84,7 @@
 #define ECMD_INVALID_MEMORY_ADDRESS             (ECMD_ERR_ECMD | 0x105D) ///< Memory Address was not on a proper byte boundary
 #define ECMD_RETRY_WITH_VIRTUAL_ADDR            (ECMD_ERR_IP   | 0x105F) ///< Requests that the user retries operation with returned Virtual Address
 #define ECMD_UNABLE_TO_MAP_HASHID		(ECMD_ERR_IP   | 0x1061) ///< Mapping function was unable to match the hashid given by the user
-#define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1053) ///< eCMD was unable to open arraydef file
+#define ECMD_UNABLE_TO_OPEN_ARRAYDEF            (ECMD_ERR_ECMD | 0x1063) ///< eCMD was unable to open arraydef file
 #define ECMD_INVALID_RETURN_DATA                (ECMD_ERR_ECMD | 0x1065) ///< Data returned (if any) is incomplete or invalid... caller beware
 #define ECMD_CHIP_UNKNOWN_FOR_MAPPING           (ECMD_ERR_ECMD | 0x1067) ///< Chip type did not map to a known EDC table
 #define ECMD_INVALID_GP_REGISTER                (ECMD_ERR_ECMD | 0x1069) ///< Invalid GP Register was provided
