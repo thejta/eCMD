@@ -330,6 +330,13 @@ uint32_t ecmdDataBuffer::setCapacity(uint32_t i_newCapacity) {
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
+  /* for case where i_newCapacity is 0 (like in unflatten) use iv_LocalData for iv_RealData */
+  /* This allows for iv_Data, the header, and the tail to be setup right */
+  if (iv_Capacity == 0) { 
+      /* We are using iv_LocalData, so point iv_RealData to the start of that */
+      iv_RealData = iv_LocalData;
+  }
+
   /* only resize to make the capacity bigger */
   if (iv_Capacity < i_newCapacity) {
     iv_Capacity = i_newCapacity;
@@ -352,8 +359,6 @@ uint32_t ecmdDataBuffer::setCapacity(uint32_t i_newCapacity) {
       }
     }
 
-    /* Now setup iv_Data to point into the offset inside of iv_RealData */
-    iv_Data = iv_RealData + EDB_ADMIN_HEADER_SIZE;
 
 #ifndef REMOVE_SIM
     if (iv_XstateEnabled) {
@@ -371,8 +376,12 @@ uint32_t ecmdDataBuffer::setCapacity(uint32_t i_newCapacity) {
 #endif
   }
 
+  /* Now setup iv_Data to point into the offset inside of iv_RealData */
+  iv_Data = iv_RealData + EDB_ADMIN_HEADER_SIZE;
+
   /* We are all setup, now init everything to 0 */
-  /* We want to do this regardless of if the buffer was resized.  This function is meant to be a destructive operation */
+  /* We want to do this regardless of if the buffer was resized. */
+  /* This function is meant to be a destructive operation */
   /* Ok, now setup the header, and tail */
   iv_RealData[EDB_RETURN_CODE] = 0; ///< Reset error code
   iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] = EDB_RANDNUM;
@@ -4248,7 +4257,7 @@ uint32_t ecmdDataBuffer::compressBuffer(ecmdCompressionMode_t i_mode) {
 
   /* Our common variables used in all modes */
   size_t uncompressedSize = this->getByteLength();
-  size_t compressedSize;
+  size_t compressedSize = 0;
   uint8_t* uncompressedData = new uint8_t[uncompressedSize];
   uint8_t* compressedData = NULL;
   /* The data has to be copied into a uint8_t buffer.  If you try to pass in (uint8_t*)this->iv_Data
@@ -4275,6 +4284,8 @@ uint32_t ecmdDataBuffer::compressBuffer(ecmdCompressionMode_t i_mode) {
       level = Z_BEST_COMPRESSION;
     } else {
       ETRAC0("**** ERROR : Unknown compression mode passed in!");
+      delete[] uncompressedData;
+      delete[] compressedData;
       RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
     }
 
