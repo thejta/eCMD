@@ -198,6 +198,12 @@ while (<IN>) {
           $printout .= "     fppCallCount++;\n";
           $printout .= "     myTcount = fppCallCount;\n";
           $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
+
+          # if adding <ext>FunctionParmPrinter()
+          if ($ARGV[0] eq "gip") {
+            $printout .= "     $ARGV[0]FunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,\"$type $orgfuncname(@argnames)\",args);\n";
+          }
+
           $printout .= "     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,\"$orgfuncname\");\n";
           $printout .= "  }\n";
         } # end if there are no args
@@ -331,6 +337,13 @@ while (<IN>) {
           $printout .= "     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,\"$orgfuncname\");\n";
           $" = ","; # So we put commas between the tokens in argnames
           $printout .= "     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
+
+          # if adding <ext>FunctionParmPrinter()
+          if ($ARGV[0] eq "gip") {
+            $printout .= "     $ARGV[0]FunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,\"$type $orgfuncname(@argnames)\",args);\n";
+          }
+
+
           #	    
           $printout .= "   }\n";
         } # end if there are no args
@@ -463,6 +476,11 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
   print OUT "#endif\n\n";
 
   print OUT "#include <ecmdUtils.H>\n\n";
+
+  # if adding <ext>Utils.H/C file for <ext>FunctionParmPrinter()
+  if ($ARGV[0] eq "gip") {
+    print OUT "#include <$ARGV[0]Utils.H>\n\n";
+  }
 
   print OUT "static const char ECMD_DLL_NOT_LOADED_ERROR[] = \": eCMD Function called before DLL has been loaded\\n\";\n";
   print OUT "static const char ECMD_UNABLE_TO_FIND_FUNCTION_ERROR[] = \": Unable to find function, must be an invalid DLL - program aborting\\n\";\n";
