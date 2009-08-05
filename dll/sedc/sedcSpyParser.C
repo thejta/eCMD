@@ -578,16 +578,22 @@ sedcAEIEntry sedcAEIParser(std::ifstream &spyFile, std::vector<std::string> &err
           /* Setup the state info */
           curAEILine.state |= whatsGoingOn;
           /* More length gathering special cases */
-          if (curAEILine.state & SPY_GROUP_BITS)
-            numGroupBits += curAEILine.length;
-          else if (curAEILine.state & SPY_CLOCK_ON)
+          if (curAEILine.state & SPY_GROUP_BITS) {
+            /* Only add up the numGroupBits if this is a ring section */
+            /* The scom section has to be the same length, so don't add it in */
+            /* This part of the fix for the p6 31 problem with the CTRL spy */
+            if (whatsGoingOn & SPY_RING) {
+              numGroupBits += curAEILine.length;
+            }
+          } else if (curAEILine.state & SPY_CLOCK_ON) {
             numClockOnBits += curAEILine.length;
-          else if (curAEILine.state & SPY_CLOCK_IND)
+          } else if (curAEILine.state & SPY_CLOCK_IND) {
             numClockIndBits += curAEILine.length;
-          else if (curAEILine.state & SPY_CLOCK_OFF)
+          } else if (curAEILine.state & SPY_CLOCK_OFF) {
             numClockOffBits += curAEILine.length;
-          else /* The default case */
+          } else { /* The default case */
             returnAEI.length += curAEILine.length;
+          }
         }
       } else { // EDC mode
         /* Setup the state info */
@@ -638,11 +644,6 @@ sedcAEIEntry sedcAEIParser(std::ifstream &spyFile, std::vector<std::string> &err
   /* Group Bits stuff (counted in non-EDC mode only) */
   if (!(runtimeFlags & RTF_EDC_MODE)) {
     if (numGroupBits != 0) {
-      if ((returnAEI.states & (SPY_RING | SPY_SCOM)) == (SPY_RING | SPY_SCOM)) {
-        /* The group bits would get double counted in a case where a group contained a ring and a scome, so we need to cut it in half */
-        /* This fixes the problem gerard salem reported on 3/25/09 where groups spies were twice as long as expected */
-        numGroupBits /= 2;
-      }
       returnAEI.length = numGroupBits;
     }
   }
