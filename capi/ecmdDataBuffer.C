@@ -4291,9 +4291,14 @@ uint32_t ecmdDataBuffer::compressBuffer(ecmdCompressionMode_t i_mode) {
 
     /* Create a local compressedSize variable to get around a PFD compile error with -Os*/
     /* They didn't like it when we did (uLongf*)&compressedSize */
-    uLongf l_compressedSize;
+    uLongf l_compressedSize = compressedSize;
     /* Do the work */
-    compress2(compressedData, &l_compressedSize, uncompressedData, uncompressedSize, level);
+    uint32_t rc = compress2(compressedData, &l_compressedSize, uncompressedData, uncompressedSize, level);
+    if (rc) {
+      ETRAC0("**** ERROR : Error occurred on the zlib compress2 call!");
+      RETURN_ERROR(rc); 
+    }
+
     /* Assign the value back so we can use it below */
     compressedSize = l_compressedSize;
   }
@@ -4360,9 +4365,13 @@ uint32_t ecmdDataBuffer::uncompressBuffer() {
   } else if (mode == ECMD_COMP_ZLIB) {
     /* Create a local compressedSize variable to get around a PFD compile error with -Os*/
     /* They didn't like it when we did (uLongf*)&uncompressedSize */
-    uLongf l_uncompressedSize;
+    uLongf l_uncompressedSize = uncompressedSize;
     /* Do the work */
-    uncompress(uncompressedData, &l_uncompressedSize, compressedData, compressedSize);
+    uint32_t rc = uncompress(uncompressedData, &l_uncompressedSize, compressedData, compressedSize);
+    if (rc) {
+      ETRAC0("**** ERROR : Error occurred on the zlib uncompress call!");
+      RETURN_ERROR(rc); 
+    }
     /* Assign the value back so we can use it below */
     uncompressedSize = l_uncompressedSize;
   }
