@@ -2818,6 +2818,16 @@ uint32_t ecmdSystemPowerOn();
 uint32_t ecmdSystemPowerOff();
 
 /**
+ @brief Queries for the current System Power State
+ @param o_state Enum that contains the current system power state
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+*/
+uint32_t ecmdQuerySystemPower(ecmdPowerState_t & o_state);
+
+
+/**
  @brief Turns power on to the given fru
  @param i_target Struct that contains cage/node/slot/position of device to access
  @param i_smart Dependent fru's will be powered on when smart is true
@@ -2840,6 +2850,17 @@ uint32_t ecmdFruPowerOn(ecmdChipTarget & i_target, bool i_smart = false);
  TARGET STATES : Unused <br>
 */
 uint32_t ecmdFruPowerOff(ecmdChipTarget & i_target, bool i_smart = false);
+
+
+/**
+ @brief Queries for the current Fru Power State
+ @param i_target Struct that contains cage/node/slot/position of device to access
+ @param o_state Enum that contains the current fru power state
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+*/
+uint32_t ecmdQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state);
 
 /**
  @brief Provides the ability to bias a voltage on a per target basis.
