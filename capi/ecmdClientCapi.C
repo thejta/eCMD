@@ -75,7 +75,7 @@ struct ecmdGlobalArgs {
   // Constructor
   ecmdGlobalArgs() {argc = 0; for (int x = 0; x < ECMD_ARG_LIMIT; x++) argv[x] = NULL; }
   // Destructor, deallocate saved args
-  ~ecmdGlobalArgs() { for (int x = 0; x < argc; x ++) delete[] argv[x]; }
+  ~ecmdGlobalArgs() { for (int x = 0; x < argc; x ++) {delete[] argv[x];argv[x]=NULL;} }
 };
 ecmdGlobalArgs g_args;
 
