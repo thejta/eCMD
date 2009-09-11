@@ -25,7 +25,13 @@
 
 
 #include <stdio.h>
+#include <unistd.h>
 #include <string>
+#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+
+
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
@@ -41,6 +47,7 @@ int main (int argc, char *argv[])
 
   std::string cmdSave;
   std::string curCmd;
+  bool isSystemCmd = false;
   char errorbuf[ERRORBUF_SIZE];
   for (int i = 0; i < argc; i++) {
     cmdSave += argv[i];
@@ -88,9 +95,18 @@ int main (int argc, char *argv[])
       size_t   bufflen = 0;
       size_t   commlen;
       bool shellAlive = true;
+      bool pipeMode = false;
+      std::string pipeCmd;
+      bool redirMode = false;
+      std::string redirFile;
+
+      FILE *stream ;
 
       if (shellMode) {
-        //setupEcmds();
+#ifdef ZSERIES_SWITCH
+        setupEcmds();
+#endif
+        ecmdOutput("\n");
         ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
       }
 
@@ -103,6 +119,7 @@ int main (int argc, char *argv[])
 
         /* Walk through individual commands from ecmdParseStdInCommands */
         for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
+          isSystemCmd=false;
           c_argc = 0;
           c_argv[0] = NULL;
 
@@ -112,17 +129,97 @@ int main (int argc, char *argv[])
           } else if (commandIter->length() == 0) {
             continue;
           }
+          // remove leading blanks
+          if (commandIter->length() > 0)
+          {
+            for (unsigned int a=0; a<commandIter->length(); a++)
+            {
+              if (commandIter->at(0)==' ')
+              {
+                commandIter->erase(0,1);
+
+              }
+              else
+                break;
+            }
+          }
           if (shellMode) {
             if ((*commandIter) == "quit" || (*commandIter) == "exit") {
               ecmdOutput("Leaving ecmd shell at users request... \n");
               shellAlive = false;
               break;
             }
+            // ---- catch the cd command ----------
+            if ((commandIter->substr(0,3)) == "cd ")
+            {
+              commandIter->erase(0,3);
+              int cdrc = chdir(&(*commandIter->c_str()));
+              if (cdrc)
+              {
+                ecmdOutput("eCMD bash: No such file or directory");
+              }
+              continue;
+            }
+            // ---- catch the pipe command ----------
+            pipeCmd.clear();
+            pipeMode=false;
+            int pipeStart =0;
+            pipeStart = commandIter->find_first_of('|',0);
+            if (pipeStart != -1)
+            {
+              pipeCmd = commandIter->substr(pipeStart,commandIter->length()-pipeStart);           
+              pipeCmd.erase(0,1);
+              commandIter->erase(pipeStart,commandIter->length()-pipeStart);
+              printf("ecmd snippet CMD :%s \n",commandIter->c_str());
+              if((stream = freopen("ecmdpipe.txt", "w", stdout)) == NULL)
+              {
+                printf("freopen exception !! \n");
+              }
+              else
+              {
+                pipeMode = true;
+              }
+
+            }
+            // ---- catch the redirect to file cmd ----------
+            redirFile.clear();
+            redirMode = false;
+            int redirStart =0;
+            redirStart = commandIter->find_first_of('>',0);
+            if (redirStart != -1)
+            {
+              redirFile = commandIter->substr(redirStart,commandIter->length()-redirStart);           
+              redirFile.erase(0,1);
+              // erase leading blanks in filename
+
+              if (redirFile.length() > 0)
+              {
+                for (unsigned int a=0; a<redirFile.length(); a++)
+                {
+                  if (redirFile.at(0)== ' ')
+                  {
+                    redirFile.erase(0,1);
+                  }
+                  else
+                    break;
+                }
+              }
+              commandIter->erase(redirStart,commandIter->length()-redirStart);
+              if((stream = freopen(redirFile.c_str(), "w", stdout)) == NULL)
+              {
+                printf("freopen redir exception !! \n");
+              }
+              else
+              {
+                redirMode = true;
+              }
+
+            }
           }
 
           /* Create a char buffer to hold the whole command, we will use this to create pointers to each token in the command (like argc,argv) */
           commlen = commandIter->length();
-          if (commlen > bufflen) {
+          if ( commlen > bufflen) {
             if (buffer != NULL) delete[] buffer;
             buffer = new char[commlen + 20];
             bufflen = commlen + 19;
@@ -165,25 +262,38 @@ int main (int argc, char *argv[])
 
           // Before Executing the cmd save it on the Dll side 
           ecmdSetCurrentCmdline(c_argc, c_argv);
+          curCmd = "";
+          for (int j=0 ; j < c_argc ; j++ )
+          {
+            curCmd += c_argv[j];
+            curCmd += " ";
+          }
+          curCmd+="\n";
 
           /* We now want to call the command interpreter to handle what the user provided us */
           rc = ecmdCallInterpreters(c_argc, c_argv);
-          if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-            if (strlen(c_argv[0]) < (ERRORBUF_SIZE - 50))
-              sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+          if ((rc == ECMD_INT_UNKNOWN_COMMAND) || (rc == ECMD_UNKNOWN_HELP_FILE)) {
+            if (strlen(c_argv[0]) < (ERRORBUF_SIZE - 50)){
+              //sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
+              sprintf(errorbuf,"executing system cmd: %s  \n",curCmd.c_str());
+              ecmdOutputError(errorbuf);
+              isSystemCmd=true;
+              (void)system(curCmd.c_str());
+            }
             else
+            {
               sprintf(errorbuf,"ecmd -  Unknown Command specified \n");
-            ecmdOutputError(errorbuf);
-          }
-
-          // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being   lost
-          std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
-          if (parse.length() > 0) {
-            ecmdOutput(parse.c_str());
-          }
+              ecmdOutputError(errorbuf);
+            }
+          } else if (rc) {
+            std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
+            if (parse.length() > 0) {
+              /* Display the registered message right away BZ#160 */
+              ecmdOutput(parse.c_str());
+              ecmdOutput("\n");
+            }
 
           // If we did get a return code, parse that and print it to the screen
-          if (rc) {
             parse = ecmdParseReturnCode(rc);
             if (strlen(c_argv[0]) + parse.length() < (ERRORBUF_SIZE - 50))
               sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", c_argv[0], rc, parse.c_str());
@@ -192,9 +302,64 @@ int main (int argc, char *argv[])
             ecmdOutputError(errorbuf);
             break;
           }
+          if (pipeMode)
+          {
+
+            //  get current tty ..
+            (void)system("tty > ttyfile.txt");
+
+            char str[20];
+            (void)memset(str,0,sizeof(str));
+            std::ifstream file_op("ttyfile.txt");
+            file_op.getline(str,20);
+            file_op.close();
+
+
+            // .. and use it to return control to the current terminal)
+            if((stream = freopen(str, "w", stream)) == NULL)
+            {
+              printf("tty : exception \n");
+            }
+
+            pipeCmd = pipeCmd + (std::string)" ecmdpipe.txt";
+            (void)system(pipeCmd.c_str());
+            // back to normal output
+
+             printf("pipeMode: exited \n");
+             pipeMode=false;
+             
+          }
+          if (redirMode)
+          {
+
+            //  get current tty ..
+            (void)system("tty > ttyfile.txt");
+
+            char str[20];
+            (void)memset(str,0,sizeof(str));
+            std::ifstream file_op("ttyfile.txt");
+            file_op.getline(str,20);
+            file_op.close();
+
+
+            // .. and use it to return control to the current terminal)
+            if((stream = freopen(str, "w", stream)) == NULL)
+            {
+              printf("tty : exception \n");
+            }
+
+            redirMode=false;
+             
+          }
+
 
           if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-            ecmdOutput((*commandIter + "\n").c_str());
+            if (isSystemCmd==false)
+            {
+              ecmdOutput("\n");
+              ecmdOutput((*commandIter).c_str());
+              ecmdOutput("\n");
+            }
           }
         } /* tokens loop */
         /* Removing the rc check to prevent the shell from exiting on failing command - JTA 02/16/09 */
@@ -203,6 +368,8 @@ int main (int argc, char *argv[])
 
         /* Print the prompt again */
         if (shellMode && shellAlive) {
+
+          ecmdOutput("\n");
           ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
         }
       }
@@ -224,7 +391,7 @@ int main (int argc, char *argv[])
         else
           sprintf(errorbuf,"ecmd - Unknown Command specified \n");
         ecmdOutputError(errorbuf);
-      }
+      } else if (rc) {
 
       // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being lost
       std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
@@ -234,7 +401,6 @@ int main (int argc, char *argv[])
       }
 
       // If we did get a return code, parse that and print it to the screen
-      if (rc) {
         parse = ecmdParseReturnCode(rc);
         if (strlen(argv[1]) + parse.length() < (ERRORBUF_SIZE - 50))
           sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", argv[1], rc, parse.c_str());
@@ -247,6 +413,7 @@ int main (int argc, char *argv[])
     /* Only print to the screen if quietmode isn't on */
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       ecmdOutput(cmdSave.c_str());
+      ecmdOutput("\n");
     }
 
     // If you check the rc, don't use the "rc" variable, it will corrupt the return value

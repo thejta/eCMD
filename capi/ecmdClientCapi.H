@@ -2852,6 +2852,7 @@ uint32_t ecmdFruPowerOn(ecmdChipTarget & i_target, bool i_smart = false);
 uint32_t ecmdFruPowerOff(ecmdChipTarget & i_target, bool i_smart = false);
 
 
+
 /**
  @brief Queries for the current Fru Power State
  @param i_target Struct that contains cage/node/slot/position of device to access

@@ -22,6 +22,7 @@
 //  Includes
 //----------------------------------------------------------------------
 #include <inttypes.h>
+#include <dlfcn.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
@@ -153,13 +154,41 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
 #ifdef ECMD_ZSE_EXTENSION_SUPPORT
   /* Z Series Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("zse",argv[0],3))) {
-    rc = zseInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = zseCommandInterpreter(argc, argv);
+    //    rc = zseInitExtension();  moved to zseCommandInterpreter hjh 07/2009
+    // --------------------------------------------------------------
+    // call   rc = zseCommandInterpreter(argc, argv)  dynamically 
+    // --------------------------------------------------------------
+    void * zseInterpreterFunction = NULL;
+    void * soHandle = NULL;
+    const char* soError;
+    char* tmpptr = getenv("ECMD_ZSE_DLL_FILE");
+    std::string zseDllFile = tmpptr;
+
+    soHandle = dlopen(zseDllFile.c_str(), RTLD_LAZY);
+    if (!soHandle) {
+      if ((soError = dlerror()) != NULL) {
+        fprintf(stderr,"ERROR loading zse DLL:  : %s\n",  soError);
+        return ECMD_DLL_LOAD_FAILURE;
+      }
     }
+           
+    zseInterpreterFunction = (void *)dlsym(soHandle, "zseCommandInterpreter");
+    if (zseInterpreterFunction == NULL)
+    {
+      if ((soError = dlerror()) != NULL) {
+        fprintf(stderr,"ERROR: ecmdLoad Function zseCommandInterpreter error:  : %s\n",  soError);
+        return ECMD_DLL_LOAD_FAILURE;
+      }
+  
+    }
+    // fprintf(stderr,"NoERROR: pointer %u \n",  (uint32_t)zseInterpreterFunction);
+    //uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;
+    uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;
+    rc =  (*function)(argc, argv);
+  
+     //   rc = zseCommandInterpreter(argc, argv);
   }
 #endif
-
 #ifdef ECMD_BML_EXTENSION_SUPPORT
   /* BML Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("bml",argv[0],3))) {
@@ -192,9 +221,9 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
     /* Let's handle the '-h' arg right here */
     if (ecmdParseOption(&argc, &argv, "-h")) {
       if (argc == 0)
-        ecmdPrintHelp("ecmd");
+        rc=ecmdPrintHelp("ecmd");
       else
-        ecmdPrintHelp(argv[0]);
+        rc=ecmdPrintHelp(argv[0]);
       return rc;
     }
 

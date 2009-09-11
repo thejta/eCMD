@@ -45,6 +45,7 @@
 #define ECMD_TARGET_NOT_CONFIGURED              (ECMD_ERR_ECMD | 0x100F) ///< Chip target provided was not configured in the system
 #define ECMD_FUNCTION_NOT_SUPPORTED             (ECMD_ERR_ECMD | 0x1011) ///< Returned if a specific Dll instance doesn't support the function you called
 #define ECMD_UNKNOWN_FILE                       (ECMD_ERR_ECMD | 0x1013) ///< ecmdQueryFileLocation was unable to find the file you requested
+#define ECMD_UNKNOWN_HELP_FILE                  (ECMD_ERR_ECMD | 0x1014) ///< Helpfile could not be read
 #define ECMD_INVALID_ARGS                       (ECMD_ERR_ECMD | 0x1015) ///< Not enough arguments provided to the function
 #define ECMD_INVALID_SPY_ENUM                   (ECMD_ERR_ECMD | 0x1017) ///< getSpyEnum or putSpyEnum used an invalid enum
 #define ECMD_SPY_FAILED_ECC_CHECK               (ECMD_ERR_ECMD | 0x1019) ///< getSpy or getSpyEnum failed with invalid ECC detected in the hardware
@@ -99,8 +100,10 @@
 #define ECMD_IRSTAT_NOT_FOUND                   (ECMD_ERR_ECMD | 0x107B) ///< IRSTAT requested was not found
 #define ECMD_WRITING_TO_READ_ONLY_REG           (ECMD_ERR_ECMD | 0x107D) ///< Writing to Read-Only Register
 #define ECMD_READING_FROM_WRITE_ONLY_REG        (ECMD_ERR_ECMD | 0x107F) ///< Reading from Write-Only Register
-#define ECMD_NOT_CHIPUNIT_0                     (ECMD_ERR_ECMD | 0x108a) ///< The item passed in wasn't for chipUnit 0
-
+#define ECMD_INVALID_INIT_ID                    (ECMD_ERR_ECMD | 0x1080) ///< Initialization ID  not found in eng data
+#define ECMD_INVALID_INIT_FILE                  (ECMD_ERR_ECMD | 0x1081) ///< File not found 
+#define ECMD_INVALID_INIT_MODE                  (ECMD_ERR_ECMD | 0x1082) ///< Initialization mode not supported
+#define ECMD_NOT_CHIPUNIT_0                     (ECMD_ERR_ECMD | 0x108a) ///<The  item passed in wasn't for chipUnit 0
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1901)  ///< Command interpreter didn't understand command

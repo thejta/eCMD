@@ -8,7 +8,6 @@
 %include ecmdList.i
 %include ecmdCommon.i
 /*********** End Typemaps ***********/
-
 /*********** Start Applies ***********/
 // These are used to map C types that swig doesn't understand to types swig does understand
 %apply unsigned char { uint8_t };
@@ -57,12 +56,6 @@
   #include "croClientPerlapi.H"
   #include "croClientPerlapiFunc.H"
 #endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  #include "zseStructs.H"
-  #include "zseClientPerlapi.H"
-  #include "zseClientPerlapiFunc.H"
-  #include "zseClientPerlapiIterators.H"
-#endif
 #ifdef ECMD_BML_EXTENSION_SUPPORT
   #include "bmlClientPerlapi.H"
   #include "bmlClientPerlapiFunc.H"
@@ -90,6 +83,7 @@
 // Templates for vector support - one of these have to be created for every type needed
 // From ecmdStructs.H
 %template(listEcmdThreadData)        std::list<ecmdThreadData>;
+//%template(listEcmdCoreData)          std::list<ecmdCoreData>;
 %template(listEcmdChipUnitData)      std::list<ecmdChipUnitData>;
 %template(listEcmdChipData)          std::list<ecmdChipData>;
 %template(listEcmdSlotData)          std::list<ecmdSlotData>;
@@ -98,6 +92,7 @@
 %template(listString)                std::list<std::string>;
 %template(vectorEcmdDataBuffer)      std::vector<ecmdDataBuffer>;
 %template(listEcmdMemoryEntry)       std::list<ecmdMemoryEntry>;
+// From ecmdClientPerlapi.H
 %template(listEcmdRingData)          std::list<ecmdRingData>;
 %template(listEcmdLatchData)         std::list<ecmdLatchData>;
 %template(listEcmdLatchEntry)        std::list<ecmdLatchEntry>;
@@ -113,11 +108,6 @@
 %template(listEcmdSpyLatchData)      std::list<ecmdSpyLatchData>;
 %template(listEcmdScomData)          std::list<ecmdScomData>;
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
-%template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
-%template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
-  %template(listZseI390trcRangeData)   std::list<zseI390trcRangeData>;
-  %template(listUint32_t)              std::list<uint32_t>;
-  %template(listEcmdPchidInfo)         std::list<ecmdPchidInfo>;
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/
@@ -148,12 +138,6 @@
   %include "croClientPerlapi.H"
   %include "croClientPerlapiFunc.H"
   %include "croStructs.H"
-#endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  %include "zseClientPerlapi.H"
-  %include "zseClientPerlapiFunc.H"
-  %include "zseStructs.H"
-  %include "zseReturnCodes.H"
 #endif
 #ifdef ECMD_BML_EXTENSION_SUPPORT
   %include "bmlClientPerlapi.H"

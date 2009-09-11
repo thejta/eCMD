@@ -24,7 +24,7 @@
 //  @02  FW038451 03/30/06  scottw    Add std methods to ecmdI2CCmdEntry
 
 //  @03                05/08/07 hjh       add of the continue on error option -coe
-  
+//  @04  U6037    07/07/09  jaschnei  Oscillator Interface Changes
 /**
   @file ecmdStructs.H
   @brief All the Structures required for the eCMD Capi
@@ -564,6 +564,17 @@ typedef enum {
   ECMD_UTILIZATION_UNIT_dP,           ///< deciPercentage
   ECMD_UTILIZATION_UNIT_P             ///< Percentage
 } ecmdUtilizationUnit_t;
+
+/**
+ @brief Used by ecmdQuerySystemPower() and ecmdQueryFruPower() interface to return the current Power State
+*/
+typedef enum {
+  ECMD_POWER_STATE_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_POWER_STATE_ON,           ///< The selected Target is powered on
+  ECMD_POWER_STATE_OFF,          ///< The selected Target is powered off
+  ECMD_POWER_STATE_TRANSITION    ///< The selected Target is in a power transition state
+  } ecmdPowerState_t;
+
 
 //--------------------------------------------------------------------
 //  Structures                                    

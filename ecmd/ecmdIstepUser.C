@@ -615,6 +615,8 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     clockType = ECMD_IO_REFCLOCK;
   } else if (clocktype == "io_clock") {
     clockType = ECMD_IO_CLOCK;
+  } else if (clocktype == "gx_refclock") {
+    clockType = ECMD_GX_REFCLOCK;
   } else {
     ecmdOutputError("setclockspeed - Unrecognized clocktype! 'setclockspeed -h' for recognized types.\n");
     return ECMD_INVALID_ARGS;
@@ -862,6 +864,8 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     clockType = ECMD_IO_REFCLOCK;
   } else if (clocktype == "io_clock") {
     clockType = ECMD_IO_CLOCK;
+  } else if (clocktype == "gx_refclock") {
+    clockType = ECMD_GX_REFCLOCK;
   } else {
     ecmdOutputError("getclockspeed - Unrecognized clocktype! 'getclockspeed -h' for recognized types.\n");
     return ECMD_INVALID_ARGS;
