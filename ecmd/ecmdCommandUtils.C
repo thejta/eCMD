@@ -54,10 +54,11 @@ void setch(void);
 void resetch(void);
 struct termios oldt;
 
+std::string prompt;
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
-#define MAX_NUM_ECMDS 150
+#define MAX_NUM_ECMDS 250
 #define MAX_CMD_LEN 80
 #define MAX_CMD_HISTORY_LEN 10
 char cmdHistory[MAX_CMD_HISTORY_LEN][MAX_CMD_LEN];
@@ -250,7 +251,7 @@ uint32_t ecmdPrintHelp(const char* i_command) {
   ins.open(file.c_str());
   if (ins.fail()) {
     ecmdOutputError(("Error occured opening help text file: " + file + "\n").c_str());
-    return ECMD_INVALID_ARGS;  //change this
+    return ECMD_UNKNOWN_HELP_FILE;  
   }
 
   while (getline(ins, curLine)) {
@@ -296,24 +297,6 @@ bool ecmdIsAllHex(const char* str) {
 
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
 {
-  std::string buffer;
-
-  o_commands.clear();
-
-  if (!std::cin) {
-    /* We have reached EOF */
-    return ECMD_SUCCESS;
-  } else {
-    getline(std::cin, buffer);
-
-    /* Carve up what we have here */
-    ecmdParseTokens(buffer,"\n;", o_commands);
-
-  }
-  return 1;
-
-/* Pulled by JTA 02/16/09 in order to get 10.3 going */
-#if 0
   std::string buffer;
 
   int x;
@@ -486,7 +469,31 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
             printf("\b");  // backspace
           }
         }
-        else if (((x >= 48) && (x <= 57))||((x >= 97) && (x <= 122)) ||( (x>= 65) && (x<= 90))|| (x==32) || (x==95) || (x==46)|| (x==45)) // alphanumeric values
+        else if (x==9)  //   ***tab***
+        {
+           
+           buffer = getBestEcmd(buffer.substr(0,cp));
+           printf("\r");   // pos 1
+           printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
+           if ((int)buffer.size()<cp)
+           {
+             for (int s=0; s<cp-(int)buffer.size(); s++)
+             {
+               printf("\b \b");
+             }
+           }
+           else 
+           {
+             for (int s=cp; s<(int)buffer.size()+1; s++)
+             {
+               printf("\b");
+             }
+           }
+
+           //cp=buffer.size();
+          
+        }
+        else if (((x >= 48) && (x <= 57))||((x >= 97) && (x <= 122)) ||( (x>= 65) && (x<= 90))|| (x==32) || (x==124)|| (x==62)|| (x==42)||(x==47)||(x==35)||(x==34)|| (x==95) || (x==46)|| (x==45)) // alphanumeric values
         {
           if (buffer.size()>(unsigned)cp)   // always insert mode
           {
@@ -508,28 +515,6 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
 
           cp=cp+1;
           // insert start
-          if (buffer.size()>3)
-          {
-            buffer = getBestEcmd(buffer.substr(0,cp));
-            printf("\r");   // pos 1
-            printf("%s%s ",getEcmdPrompt().c_str(),buffer.c_str()); // write prompt + buffer
-            if ((int)buffer.size()<cp)
-            {
-              for (int s=0; s<cp-(int)buffer.size(); s++)
-              {
-                printf("\b \b");
-              }
-            }
-            else 
-            {
-              for (int s=cp; s<(int)buffer.size()+1; s++)
-              {
-                printf("\b");
-              }
-            }
-
-            //cp=buffer.size();
-          }
           //insert end
         }
 
@@ -573,12 +558,14 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
         }
       }
     }
+    printf("..processing cmd: %s \n", buffer.c_str());
+
+    std::cout << buffer.c_str() ;
     ecmdParseTokens(buffer,"\n;", o_commands);
 
     resetch();
   }
   return 1;
-#endif
 }
 
 uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecmdChipTarget &target, uint8_t &targetFieldType, std::string &targetFieldList) {
@@ -868,7 +855,12 @@ int getch(void)
 
 std::string getEcmdPrompt()
 {
- return "ecmd> ";
+
+ char dirBuffer[80];
+ getcwd(dirBuffer,80);
+ prompt = dirBuffer;
+ prompt = prompt + ">>eCMD>";
+ return prompt;
 }
 
 void setupEcmds(void)
@@ -916,6 +908,8 @@ void setupEcmds(void)
     i=21;
   }
 
+  /*   prequery .. removed for now
+  ----------------------------------------------
   std::list<ecmdRingData> ringDataList;
   ecmdRingData ringData;
 
@@ -997,7 +991,6 @@ void setupEcmds(void)
 
     queryTarget.chipType = chipType.c_str() ;
 
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
     src = ecmdQueryRing(queryTarget,ringDataList,NULL,ECMD_QUERY_DETAIL_HIGH);
 
     if (src==0)
@@ -1021,12 +1014,13 @@ void setupEcmds(void)
     }
     else 
       ecmdOutput( "Unable to get  ecmd ring informaton data"); 
-#endif // ECMD_REMOVE_RING_FUNCTIONS
 
   }
   else {  
     ecmdOutput( "Unable to get  ecmd configuration data"); 
   }
+  -----------------------------------------------
+   End prequery */
 }
 
 
