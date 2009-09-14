@@ -25,4 +25,4 @@ Syntax: initchipfromfile <ChipSelect> [-file filename] [-name idname] [-mode ini
         --------------------------------------------------------------------------------
 
         Examples:       > initchipfromfile nova -file /tmp/my.initfile -mode L -all
-                        > initchipfromfile pu -file /tmp/my.scanbin -id system_1066 -pall
+                        > initchipfromfile pu -file /tmp/my.scanbin -name system_1066 -pall
