@@ -100,9 +100,9 @@
 #define ECMD_IRSTAT_NOT_FOUND                   (ECMD_ERR_ECMD | 0x107B) ///< IRSTAT requested was not found
 #define ECMD_WRITING_TO_READ_ONLY_REG           (ECMD_ERR_ECMD | 0x107D) ///< Writing to Read-Only Register
 #define ECMD_READING_FROM_WRITE_ONLY_REG        (ECMD_ERR_ECMD | 0x107F) ///< Reading from Write-Only Register
-#define ECMD_INVALID_INIT_ID                    (ECMD_ERR_ECMD | 0x1080) ///< Initialization ID  not found in eng data
-#define ECMD_INVALID_INIT_FILE                  (ECMD_ERR_ECMD | 0x1081) ///< File not found 
-#define ECMD_INVALID_INIT_MODE                  (ECMD_ERR_ECMD | 0x1082) ///< Initialization mode not supported
+#define ECMD_INVALID_INIT_ID                    (ECMD_ERR_ECMD | 0x1081) ///< Initialization ID  not found in eng data
+#define ECMD_INVALID_INIT_FILE                  (ECMD_ERR_ECMD | 0x1083) ///< File not found 
+#define ECMD_INVALID_INIT_MODE                  (ECMD_ERR_ECMD | 0x1085) ///< Initialization mode not supported
 #define ECMD_NOT_CHIPUNIT_0                     (ECMD_ERR_ECMD | 0x108a) ///<The  item passed in wasn't for chipUnit 0
 
 /* Return codes for command interpreter */
