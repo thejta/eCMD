@@ -367,9 +367,13 @@ uint32_t dllSystemPowerOn();
 
 uint32_t dllSystemPowerOff(); 
 
+uint32_t dllQuerySystemPower(ecmdPowerState_t & o_state); 
+
 uint32_t dllFruPowerOn(ecmdChipTarget & i_target, bool i_smart); 
 
 uint32_t dllFruPowerOff(ecmdChipTarget & i_target, bool i_smart); 
+
+uint32_t dllQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state); 
 
 uint32_t dllBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait); 
 

@@ -18,4 +18,6 @@ package ecmd::ecmdBit64;
 use overload
     "|" => sub { $_[0]->__or__($_[1])},
     "&" => sub { $_[0]->__and__($_[1])},
+    "<<" => sub { $_[0]->__lshift__($_[1])},
+    ">>" => sub { $_[0]->__rshift__($_[1])},
     "fallback" => 1;

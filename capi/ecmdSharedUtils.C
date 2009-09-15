@@ -380,6 +380,16 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   bool numFound;
   int num=0;        //fix beam error
 
+  /* Set all the target states to unused as a starting point */
+  o_target.cageState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.posState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  o_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
   /* Tokenize my string on colon */
   ecmdParseTokens(i_targetStr, ":", tokens);
 

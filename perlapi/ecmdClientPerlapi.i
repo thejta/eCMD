@@ -45,43 +45,43 @@
 #include "ecmdSharedUtils.H"
 
 #include "ecmdPluginExtensionSupport.H"
+#ifdef ECMD_AIP_EXTENSION_SUPPORT
+  #include "aipClientPerlapi.H"
+  #include "aipClientPerlapiFunc.H"
+#endif
+#ifdef ECMD_BML_EXTENSION_SUPPORT
+  #include "bmlClientPerlapi.H"
+  #include "bmlClientPerlapiFunc.H"
+#endif
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
   #include "cipClientPerlapi.H"
   #include "cipClientPerlapiFunc.H"
+#endif
+#ifdef ECMD_CMD_EXTENSION_SUPPORT
+  #include "cmdClientPerlapi.H"
+  #include "cmdClientPerlapiFunc.H"
+#endif
+#ifdef ECMD_CRO_EXTENSION_SUPPORT
+  #include "croClientPerlapi.H"
+  #include "croClientPerlapiFunc.H"
+#endif
+#ifdef ECMD_EIP_EXTENSION_SUPPORT
+  #include "eipClientPerlapi.H"
+  #include "eipClientPerlapiFunc.H"
 #endif
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
   #include "gipClientPerlapi.H"
   #include "gipClientPerlapiFunc.H"
 #endif
-#ifdef ECMD_CRO_EXTENSION_SUPPORT
-  #include "croClientPerlapi.H"
-  #include "croClientPerlapiFunc.H"
+#ifdef ECMD_MBO_EXTENSION_SUPPORT
+  #include "mboClientPerlapi.H"
+  #include "mboClientPerlapiFunc.H"
 #endif
 #ifdef ECMD_ZSE_EXTENSION_SUPPORT
   #include "zseStructs.H"
   #include "zseClientPerlapi.H"
   #include "zseClientPerlapiFunc.H"
   #include "zseClientPerlapiIterators.H"
-#endif
-#ifdef ECMD_BML_EXTENSION_SUPPORT
-  #include "bmlClientPerlapi.H"
-  #include "bmlClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_MBO_EXTENSION_SUPPORT
-  #include "mboClientPerlapi.H"
-  #include "mboClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_EIP_EXTENSION_SUPPORT
-  #include "eipClientPerlapi.H"
-  #include "eipClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_AIP_EXTENSION_SUPPORT
-  #include "aipClientPerlapi.H"
-  #include "aipClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_CMD_EXTENSION_SUPPORT
-  #include "cmdClientPerlapi.H"
-  #include "cmdClientPerlapiFunc.H"
 #endif
 %}
 /*********** End Insert Code ***********/
@@ -115,9 +115,7 @@
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
 %template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
 %template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
-  %template(listZseI390trcRangeData)   std::list<zseI390trcRangeData>;
-  %template(listUint32_t)              std::list<uint32_t>;
-  %template(listEcmdPchidInfo)         std::list<ecmdPchidInfo>;
+%template(listUint32_t)              std::list<uint32_t>;
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/
@@ -134,50 +132,32 @@
 
 // The extensions
 %include "ecmdPluginExtensionSupport.H"
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
-  %include "cipClientPerlapi.H"
-  %include "cipClientPerlapiFunc.H"
-  %include "cipStructs.H"
-#endif
-#ifdef ECMD_GIP_EXTENSION_SUPPORT
-  %include "gipClientPerlapi.H"
-  %include "gipClientPerlapiFunc.H"
-  %include "gipStructs.H"
-#endif
-#ifdef ECMD_CRO_EXTENSION_SUPPORT
-  %include "croClientPerlapi.H"
-  %include "croClientPerlapiFunc.H"
-  %include "croStructs.H"
-#endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  %include "zseClientPerlapi.H"
-  %include "zseClientPerlapiFunc.H"
-  %include "zseStructs.H"
-  %include "zseReturnCodes.H"
+#ifdef ECMD_AIP_EXTENSION_SUPPORT
+  %include aipClientPerlapi.i
 #endif
 #ifdef ECMD_BML_EXTENSION_SUPPORT
-  %include "bmlClientPerlapi.H"
-  %include "bmlClientPerlapiFunc.H"
-  %include "bmlStructs.H"
+  %include bmlClientPerlapi.i
 #endif
-#ifdef ECMD_MBO_EXTENSION_SUPPORT
-  %include "mboClientPerlapi.H"
-  %include "mboClientPerlapiFunc.H"
-  %include "mboStructs.H"
-#endif
-#ifdef ECMD_EIP_EXTENSION_SUPPORT
-  %include "eipClientPerlapi.H"
-  %include "eipClientPerlapiFunc.H"
-  %include "eipStructs.H"
-#endif
-#ifdef ECMD_AIP_EXTENSION_SUPPORT
-  %include "aipClientPerlapi.H"
-  %include "aipClientPerlapiFunc.H"
-  %include "aipStructs.H"
+#ifdef ECMD_CIP_EXTENSION_SUPPORT
+  %include cipClientPerlapi.i
 #endif
 #ifdef ECMD_CMD_EXTENSION_SUPPORT
-  %include "cmdClientPerlapi.H"
-  %include "cmdClientPerlapiFunc.H"
+  %include cmdClientPerlapi.i
+#endif
+#ifdef ECMD_CRO_EXTENSION_SUPPORT
+  %include croClientPerlapi.i
+#endif
+#ifdef ECMD_EIP_EXTENSION_SUPPORT
+  %include eipClientPerlapi.i
+#endif
+#ifdef ECMD_GIP_EXTENSION_SUPPORT
+  %include gipClientPerlapi.i
+#endif
+#ifdef ECMD_MBO_EXTENSION_SUPPORT
+  %include mboClientPerlapi.i
+#endif
+#ifdef ECMD_ZSE_EXTENSION_SUPPORT
+  %include zseClientPerlapi.i
 #endif
 /*********** End Files to swigify ***********/
 
