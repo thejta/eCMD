@@ -85,6 +85,16 @@ bool ecmdIsAllHex(const char* str);
 */
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands);
 
+
+/**
+ @brief Returns a list of commands that were read from stdin if in shell Mode
+ @param o_commands
+ @retval ECMD_SUCCESS when EOF is reached (list may still contain valid commands
+ @retval list size
+*/
+uint32_t ecmdParseShellCommands(std::vector< std::string > & o_commands);
+
+
 /**
  @brief Parses the specific target field list specified by the user and updates the target States
  @param io_argc Pointer to number of elements in io_argv array
