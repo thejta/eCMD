@@ -18,6 +18,7 @@ package ecmd::ecmdBit64;
 use overload
     "|" => sub { $_[0]->__or__($_[1])},
     "&" => sub { $_[0]->__and__($_[1])},
+    # It seem that SWIG only generates the __lshift__ and __rshift__ functions, but not the operators for them - JTA 09/13/09
     "<<" => sub { $_[0]->__lshift__($_[1])},
     ">>" => sub { $_[0]->__rshift__($_[1])},
     "fallback" => 1;
