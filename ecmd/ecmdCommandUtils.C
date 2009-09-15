@@ -294,8 +294,27 @@ bool ecmdIsAllHex(const char* str) {
 
   return ret;
 }
-
 uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
+{
+  std::string buffer;
+
+  o_commands.clear();
+
+  if (!std::cin) {
+    /* We have reached EOF */
+    return ECMD_SUCCESS;
+  } else {
+    getline(std::cin, buffer);
+
+    /* Carve up what we have here */
+    ecmdParseTokens(buffer,"\n;", o_commands);
+
+  }
+  return 1;
+}
+
+
+uint32_t ecmdParseShellCommands(std::vector< std::string > & o_commands)
 {
   std::string buffer;
 
@@ -315,7 +334,13 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
 
     buffer.clear();
     x = getch();
+    if (x==0xFFFFFFFF) {
 
+      resetch();
+
+      return ECMD_SUCCESS;
+
+    }
     if (x=='$')    // test mode
     {
 

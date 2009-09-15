@@ -114,8 +114,20 @@ int main (int argc, char *argv[])
       /*  each string contains one command (ie 'ecmdquery version')              */
       /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
 
-      while (shellAlive && ecmdParseStdinCommands(commands)) {
-        rc = 0;
+      while (shellAlive ) {
+#ifdef ZSERIES_SWITCH
+        if (shellMode) {
+          rc = ecmdParseShellCommands(commands);
+        }
+        else  // assuming stdinMode
+        {
+          rc = ecmdParseStdinCommands(commands);
+        }
+#else
+        rc = ecmdParseStdinCommands(commands);    // supports both modes for all other plugins
+#endif
+
+        if (!rc) break;
 
         /* Walk through individual commands from ecmdParseStdInCommands */
         for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
