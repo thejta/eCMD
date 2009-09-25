@@ -390,35 +390,47 @@ int main (int argc, char *argv[])
     } else {
       /* Standard command line command */
 
-      // Before Executing the cmd save it on the Dll side 
-      ecmdSetCurrentCmdline(argc-1, argv+1);
-
-      /* We now want to call the command interpreter to handle what the user provided us */
-      rc = ecmdCallInterpreters(argc - 1, argv + 1);
-      if (rc == ECMD_INT_UNKNOWN_COMMAND) {
-        if (argv[1] == NULL)
+      if (argv[1] == NULL)
+      {
           sprintf(errorbuf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
-        else if (strlen(argv[1]) < (ERRORBUF_SIZE - 50))
-          sprintf(errorbuf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
-        else
-          sprintf(errorbuf,"ecmd - Unknown Command specified \n");
-        ecmdOutputError(errorbuf);
-      } else if (rc) {
-
-      // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being lost
-      std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
-      /* Display the registered message right away BZ#160 */
-      if (parse.length() > 0) {
-        ecmdOutput(parse.c_str());
+          ecmdOutputError(errorbuf);
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+          std::string parse = ecmdParseReturnCode(rc);
+          if (parse.length() < (ERRORBUF_SIZE - 50))
+              sprintf(errorbuf,"ecmd - <Null argument> returned with error code 0x%X (%s)\n", rc, parse.c_str());
+          ecmdOutputError(errorbuf);
       }
+      else
+      {
 
-      // If we did get a return code, parse that and print it to the screen
-        parse = ecmdParseReturnCode(rc);
-        if (strlen(argv[1]) + parse.length() < (ERRORBUF_SIZE - 50))
-          sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", argv[1], rc, parse.c_str());
-        else
-          sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
-        ecmdOutputError(errorbuf);
+        // Before Executing the cmd save it on the Dll side 
+        ecmdSetCurrentCmdline(argc-1, argv+1);
+
+        /* We now want to call the command interpreter to handle what the user provided us */
+        rc = ecmdCallInterpreters(argc - 1, argv + 1);
+        if (rc == ECMD_INT_UNKNOWN_COMMAND) {
+          if (strlen(argv[1]) < (ERRORBUF_SIZE - 50))
+            sprintf(errorbuf,"ecmd - Unknown Command specified '%s'\n", argv[1]);
+          else
+            sprintf(errorbuf,"ecmd - Unknown Command specified \n");
+          ecmdOutputError(errorbuf);
+        } else if (rc) {
+
+          // See if any errors are left, regardless of if we have a return code.  This will prevent error messages from being lost
+          std::string parse = ecmdGetErrorMsg(ECMD_GET_ALL_REMAINING_ERRORS, false);
+          /* Display the registered message right away BZ#160 */
+          if (parse.length() > 0) {
+            ecmdOutput(parse.c_str());
+          }
+
+          // If we did get a return code, parse that and print it to the screen
+          parse = ecmdParseReturnCode(rc);
+          if (strlen(argv[1]) + parse.length() < (ERRORBUF_SIZE - 50))
+            sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", argv[1], rc, parse.c_str());
+          else
+            sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
+          ecmdOutputError(errorbuf);
+        }
       }
     }
 
