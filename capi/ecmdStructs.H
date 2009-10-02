@@ -557,6 +557,17 @@ typedef enum {
 } ecmdPowerUnit_t;
 
 /**
+ @brief Used by ecmdSetPowerMode() interface to specify power mode
+*/
+typedef enum {
+  ECMD_POWER_MODE_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_POWER_MODE_NORMAL,       ///< normal power mode
+  ECMD_POWER_MODE_SAVE,         ///< power save mode
+  ECMD_POWER_MODE_TURBO,         ///< turbo mode
+  ECMD_POWER_MODE_PARTIAL_SAVE  ///< part of the target is in power save mode
+} ecmdPowerMode_t;
+
+/**
  @brief Used by ecmdGetUtilizationSensor() interface to specify utilization return value
 */
 typedef enum {
