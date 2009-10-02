@@ -17,7 +17,9 @@ Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<form
 
         KeyWord         VPD Keyword (in quotes) 
 
-        NumBytes        Number of bytes 
+        NumBytes        Number of bytes to read
+                        Note: If NumBytes > actual VPD Keyword size: function will return all data
+                        of the actual VPD Keyword .. No Error is flagged.  
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.

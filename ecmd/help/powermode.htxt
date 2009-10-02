@@ -1,0 +1,17 @@
+
+Syntax: powermode save|turbo|normal|query  
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Get and set powermode of the target 
+
+        Parameters:
+        --------------------------------------------------------------------------------
+	
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > powermode query -k1
+                        > powermode save -k1
