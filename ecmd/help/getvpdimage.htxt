@@ -13,7 +13,9 @@ Syntax: getvpdimage <Chip> <VpdType> <NumBytes> -o<format>
 	
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
-        NumBytes        number of bytes 
+        NumBytes        number of bytes to read from Image
+                        Note: If NumBytes > actual VPD Image size: function will return all data
+                        of the actual VPD Image .. No Error is flagged.  
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Not valid with -f option.
