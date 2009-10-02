@@ -2116,7 +2116,20 @@ uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
  TARGET STATES : Unused
 
 */
+
 uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
+
+/**
+ @brief Synchronizes the firmware chip state database (HOM) with the actual HW states
+ This command is mainly for situations where no automatic firmware re-sync takes place.  
+ This is if a state change  (clock state / chip state) is forced directly via scom/ring accesses (Procedures).
+ @param i_target Target which needs to be updated. 
+ To synchronize all states in HOM all  target state fields have to be set to ECMD_TARGET_FIELD_UNUSED
+ TARGET DEPTH : variable<br>
+ TARGET STATES : set according depth to valid
+
+*/
+uint32_t ecmdFwSync(ecmdChipTarget & i_target);
 
 //@}
 
@@ -2335,7 +2348,8 @@ uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_n
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
- @param i_bytes Byte length to read
+ @param i_bytes Byte length to read. 
+ Note: If if i_bytes > actual VPD keyword size: function will return all data of the actual VPD Keyword  .. No Error is flagged.  
  @param o_data Data buffer to copy data to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
@@ -2369,6 +2383,7 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @brief Read Module VPD Image Interface
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_bytes Byte length to read
+ Note: If if i_bytes > actual VPD Image size: function will return all data of the actual VPD Image .. No Error is flagged.  
  @param o_data Data buffer of data read from module
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
@@ -2452,6 +2467,7 @@ uint32_t putModuleVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_re
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
  @param i_bytes Byte length to read
+ Note: If if i_bytes > actual VPD Keyword size: function will return all data of the actual VPD Keyword .. No Error is flagged.  
  @param o_data Data buffer to copy data to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
@@ -2485,6 +2501,7 @@ uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
  @brief Read Fru VPD Image Interface
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_bytes Byte length to read
+ Note: If if i_bytes > actual VPD Image size: function will return all data of the actual VPD Image .. No Error is flagged.  
  @param o_data Data buffer of data read from fru
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a fru
@@ -2863,6 +2880,29 @@ uint32_t ecmdFruPowerOff(ecmdChipTarget & i_target, bool i_smart = false);
 */
 uint32_t ecmdQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state);
 
+
+
+
+/**
+ @brief Sets the power mode of the target
+ @param i_target Struct that contains cage/node/slot/position od device to access
+ @param i_powerModeEnum Enum that specifies which typ of powermode to set
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+*/
+uint32_t ecmdSetPowerMode(ecmdChipTarget & i_target,ecmdPowerMode_t i_powerModeEnum);   
+
+
+/**
+ @brief Returns the power mode of the target
+ @param i_target Struct that contains cage/node/slot/position od device to access
+ @param o_powerModeEnum Enum that specifies which typ of powermode to set
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+*/
+uint32_t ecmdGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t o_powerModeEnum);
 /**
  @brief Provides the ability to bias a voltage on a per target basis.
  @param i_target Struct that contains cage/node/slot/position of device to access
