@@ -194,6 +194,130 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   return rc;
 }
 
+uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget target;                ///< Current target operating on
+  bool validPosFound = false;           ///< Did the looper find anything to execute on
+  std::string printed;
+  std::string mode;
+  bool smart = false;
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  /* get the smart flag, if it's there */
+  smart = ecmdParseOption(&argc, &argv, "-smart");
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (argc < 2) {
+    ecmdOutputError("powermode - At least one argument ('save', 'normal', 'query', 'turbo') is required for powermode.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  else if (argc > 2) {
+    ecmdOutputError("powermode - Too many arguments to powermode, you probably added a non-supported option.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  if (!strcmp(argv[0], "normal")) {
+    mode = "normal";
+  } else if (!strcmp(argv[0], "save")) {
+    mode = "save";
+  } else if (!strcmp(argv[0], "turbo")) {
+    mode = "turbo";
+  } else if (!strcmp(argv[0], "query")) {
+    mode = "query";
+  } else {
+    ecmdOutputError("powermode - Invalid argument passed to powermode. Accepted arguments: ('save', 'normal', 'query', 'turbo').\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used 
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[1], chipType, chipUnitType);
+  if (chipUnitType != "") {
+    ecmdOutputError("powermode - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  target.chipType = chipType;
+  if (target.chipType == "nochip") {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
+  } else {
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  }
+  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    if (mode == "normal") {
+      printed = "Normal Mode";
+      printed += ecmdWriteTarget(target) + " ..\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_NORMAL);
+    } else if (mode == "save") {
+      printed = "Power Save Mode";
+      printed += ecmdWriteTarget(target) + " ..\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SAVE);
+   } else if (mode == "query") {
+     ecmdPowerMode_t o_mode;
+     rc = ecmdGetPowerMode(target, o_mode);
+     printed = "Query Mode :";
+
+     if (o_mode == ECMD_POWER_MODE_SAVE) {
+       printed += " Save \n";
+     } else  if (o_mode == ECMD_POWER_MODE_NORMAL){
+       printed += " Normal \n";
+     } else  if (o_mode== ECMD_POWER_MODE_TURBO)   {
+       printed += " Turbo \n";
+     } else {
+       printed += " unknown \n";
+     }
+
+     ecmdOutput(printed.c_str());
+   }
+
+    if (rc) {
+      printed = "powermode - Error occurred performing powermode ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("powermode - Unable to find a target to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
 uint32_t ecmdBiasVoltageUser(int argc, char * argv[]) {
 
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;

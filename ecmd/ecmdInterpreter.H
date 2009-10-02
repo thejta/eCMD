@@ -166,6 +166,7 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]);
 uint32_t ecmdEchoUser(int argc, char* argv[]);
 uint32_t ecmdUnitIdUser(int argc, char* argv[]);  
 uint32_t ecmdGetSensorUser(int argc, char* argv[]);
+uint32_t ecmdFwSyncUser(int argc, char* argv[]);
 
 /* ecmdVpdUser.C */
 uint32_t ecmdPutVpdKeywordUser(int argc, char* argv[]);
@@ -188,6 +189,7 @@ uint32_t ecmdPutGpioRegUser(int argc, char* argv[]);
 /* ecmdPowerUser.C */
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
 uint32_t ecmdFruPowerUser(int argc, char * argv[]);
+uint32_t ecmdPowerModeUser(int argc, char * argv[]);
 uint32_t ecmdBiasVoltageUser(int argc, char * argv[]);
 uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]);
 //@}

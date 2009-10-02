@@ -2021,6 +2021,154 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
 }
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 
+//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperData;    ///< Store internal Looper data
+  std::string printed;          ///< Print Buffer
+  int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5, SYSTEM = 0;
+  int depth = 0;                 ///< depth found from Command line parms
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  if (ecmdParseOption(&argc, &argv, "-dk"))             depth = CAGE;
+  else if (ecmdParseOption(&argc, &argv, "-dn"))        depth = NODE;
+  else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
+  else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
+  else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  //Setup the target that will be used to query the system config
+  if (argc > 1) {
+    ecmdOutputError("fwsync - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("fwsync - Type 'reconfig -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  } else if (argc == 1) {
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+
+    /* Error check */
+    if (depth) {
+      if (chipUnitType == "" && depth < POS) {
+        ecmdOutputError("fwsync - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
+        return ECMD_INVALID_ARGS;
+      }
+
+      if (chipUnitType != "" && depth < CHIPUNIT) {
+        ecmdOutputError("fwsync - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
+        return ECMD_INVALID_ARGS;
+      }
+    } else { /* No depth, set on for the code below */
+      if (chipUnitType == "") {
+        depth = POS;
+      } else {
+        depth = CHIPUNIT;
+      }
+    }
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+  } else {
+    if (depth == 0) {
+      depth = CAGE;
+    }
+    if (argc==0) {
+      depth=SYSTEM;
+    }
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+  }
+
+  /* Now set our states based on depth */
+  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  if (depth == POS) {
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == SLOT) {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == NODE) {
+    target.slotState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == CAGE) {
+    target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  } else if (depth == SYSTEM) {
+    target.cageState = ECMD_TARGET_FIELD_UNUSED;
+  }
+  if (depth == SYSTEM) { // no looping required .. target the whole system
+    rc = ecmdFwSync(target);
+    if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+      printed = "fwsync - Error occured performing ecmdFwSync on system target \n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+    }
+    else if (rc) {
+      printed = "fwsyncg - Error occured performing ecmdFwSync on system \n ";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      }else {
+        validPosFound = true;
+      }
+  }
+  else
+  {
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    rc = ecmdExistLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdExistLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+      rc = ecmdFwSync(target);
+      if (rc == ECMD_TARGET_NOT_CONFIGURED) {
+        printed = "fwsync - Error occured performing ecmdConfigureTarget on ";
+        printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      }
+      else if (rc) {
+        printed = "fwsyncg - Error occured performing ecmdConfigureTarget on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        return rc;
+      }
+      else {
+        validPosFound = true;
+      }
+
+      printed = ecmdWriteTarget(target) + "synchronized.\n";
+      ecmdOutput( printed.c_str() );
+    }
+
+  }
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("fwsync - Unable to execute command \n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
