@@ -279,7 +279,7 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
       ecmdOutput(printed.c_str());
       rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SAVE);
    } else if (mode == "query") {
-     ecmdPowerMode_t o_mode;
+     ecmdPowerMode_t o_mode=ECMD_POWER_MODE_UNKNOWN;
      rc = ecmdGetPowerMode(target, o_mode);
      printed = "Query Mode :";
 
