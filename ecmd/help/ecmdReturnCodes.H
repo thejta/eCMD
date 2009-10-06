@@ -93,8 +93,10 @@
 #define ECMD_RING_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106D) ///< Ring requested was not found
 #define ECMD_SCOM_NOT_FOUND                     (ECMD_ERR_ECMD | 0x106F) ///< Scom requested was not found
 #define ECMD_ARRAY_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1071) ///< Array requested was not found
+#define ECMD_ARRAY_INVALID_OBJECT               (ECMD_ERR_ECMD | 0x1072) ///< No array table available for this chip
 #define ECMD_TRACEARRAY_NOT_FOUND               (ECMD_ERR_ECMD | 0x1073) ///< Trace Array requested was not found
 #define ECMD_CFAMREG_NOT_FOUND                  (ECMD_ERR_ECMD | 0x1075) ///< Cfam Register requested was not found
+#define ECMD_CFAMADDRESS_OUT_OF_RANGE           (ECMD_ERR_ECMD | 0x1076) ///< Cfam Address requested was out of scom and scan range
 #define ECMD_GPREG_NOT_FOUND                    (ECMD_ERR_ECMD | 0x1077) ///< GP Register requested was not found
 #define ECMD_SPY_NOT_FOUND                      (ECMD_ERR_ECMD | 0x1079) ///< Spy requested was not found
 #define ECMD_IRSTAT_NOT_FOUND                   (ECMD_ERR_ECMD | 0x107B) ///< IRSTAT requested was not found
@@ -103,7 +105,29 @@
 #define ECMD_INVALID_INIT_ID                    (ECMD_ERR_ECMD | 0x1081) ///< Initialization ID  not found in eng data
 #define ECMD_INVALID_INIT_FILE                  (ECMD_ERR_ECMD | 0x1083) ///< File not found 
 #define ECMD_INVALID_INIT_MODE                  (ECMD_ERR_ECMD | 0x1085) ///< Initialization mode not supported
-#define ECMD_NOT_CHIPUNIT_0                     (ECMD_ERR_ECMD | 0x108a) ///<The  item passed in wasn't for chipUnit 0
+#define ECMD_NOT_CHIPUNIT_0                     (ECMD_ERR_ECMD | 0x108A) ///< The item passed in wasn't for chipUnit 0
+#define ECMD_ARRAY_SCANRING_ERROR               (ECMD_ERR_ECMD | 0x108B) ///< Failed to create scanring object during array access
+#define ECMD_ARRAY_SETUP_CONTROLS_ERROR         (ECMD_ERR_ECMD | 0x108D) ///< Failed to setup array controls
+#define ECMD_ARRAY_CACHE_NOT_OFF_ERROR          (ECMD_ERR_ECMD | 0x108F) ///< Cache must be turned off before accessing an array
+#define ECMD_ARRAY_SCOM_RETRY_ERROR             (ECMD_ERR_ECMD | 0x1091) ///< Read/write done indicator not set after 10 retries during scom 1 or 2 array access
+#define ECMD_SCANRING_ILLEGAL_OPER              (ECMD_ERR_ECMD | 0x1093) ///< Scan/scom access with wrong mode or hw scanring access with cache on
+#define ECMD_SCANRING_INVALID_OBJECT            (ECMD_ERR_ECMD | 0x1095) ///< No proper scan/scom init or wrong ringtype requested
+#define ECMD_SCANRING_ACCESS_FAIL               (ECMD_ERR_ECMD | 0x1097) ///< Scanring access failed with bad return code from i390
+#define ECMD_SCANRING_INVALID_STATE             (ECMD_ERR_ECMD | 0x1099) ///< Scanring shift mode error - selftest still running or clocks running
+#define ECMD_SCANRING_SCAN_PROTECT              (ECMD_ERR_ECMD | 0x109B) ///< Attempt to access scanring although clocks were running
+#define ECMD_SPYDEF_INVALID                     (ECMD_ERR_ECMD | 0x109D) ///< The (binary) spy definition is corrupt
+#define ECMD_SPY_NO_RING_FOUND                  (ECMD_ERR_ECMD | 0x109F) ///< Failed to create scanring object
+#define ECMD_SPY_EXTRACT_DATA_FAIL              (ECMD_ERR_ECMD | 0x10A1) ///< The (binary) spy definition is corrupt
+#define ECMD_SPY_INSERT_DATA_FAIL               (ECMD_ERR_ECMD | 0x10A3) ///< The (binary) spy definition is corrupt
+#define ECMD_SPY_FLIP_BITS_FAIL                 (ECMD_ERR_ECMD | 0x10A5) ///< The (binary) spy definition is corrupt
+#define ECMD_SPY_WRITE_FAIL                     (ECMD_ERR_ECMD | 0x10A7) ///< Spy size vs buffer mismatch or unknown enum
+#define ECMD_SPY_INVALID_READ_OPER              (ECMD_ERR_ECMD | 0x10A9) ///< Spy enum read operation on non-enum or vice versa
+#define ECMD_SPY_INVALID_WRITE_OPER             (ECMD_ERR_ECMD | 0x10AB) ///< Spy enum write op on non-enum or vice versa or write op to non-defined enum for this spy
+#define ECMD_SPY_INVALID_OBJECT                 (ECMD_ERR_ECMD | 0x10AD) ///< Spy not properly initialized
+#define ECMD_SCOM_INVALID_OBJECT                (ECMD_ERR_ECMD | 0x10AF) ///< Scom not properly initialized
+#define ECMD_HREG_ECMDDATABUFFER_ERROR          (ECMD_ERR_ECMD | 0x10B1) ///< Scanring buffer op failed or corrupt scanring binary or memory mgmt issue
+#define ECMD_HREG_ADDRESS_INVALID_PARAM         (ECMD_ERR_ECMD | 0x10B3) ///< Address translation failed due to invalied combination of parameters
+
 
 /* Return codes for command interpreter */
 #define ECMD_INT_UNKNOWN_COMMAND                (ECMD_ERR_ECMD | 0x1901)  ///< Command interpreter didn't understand command
