@@ -527,7 +527,7 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 #ifndef ECMD_REMOVE_POWER_FUNCTIONS
         } else if (!strcmp(argv[0], "powermode")) {
-          rc = ecmdFruPowerUser(argc - 1, argv + 1);
+          rc = ecmdPowerModeUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_POWER_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
