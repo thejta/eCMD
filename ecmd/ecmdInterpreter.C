@@ -168,8 +168,7 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     if (!soHandle) {
       if ((soError = dlerror()) != NULL) {
         fprintf(stderr,"ERROR loading zse DLL:  : %s\n",  soError);
-        dlclose (soHandle);
-        return ECMD_DLL_LOAD_FAILURE;
+        return ECMD_DLL_LOAD_FAILURE;          /* file leak */
       }
     }
            
@@ -178,20 +177,18 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     {
       if ((soError = dlerror()) != NULL) {
         fprintf(stderr,"ERROR: ecmdLoad Function zseCommandInterpreter error:  : %s\n",  soError);
-        dlclose (soHandle);
-        return ECMD_DLL_LOAD_FAILURE;
+        return ECMD_DLL_LOAD_FAILURE;          /* file leak */
       }
   
-    } else {
+    }
      // fprintf(stderr,"NoERROR: pointer %u \n",  (uint32_t)zseInterpreterFunction);
      //uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;
-     uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;
-     rc =  (*function)(argc, argv);
-    }
-    dlclose (soHandle);
+     uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;  
+     rc =  (*function)(argc, argv);   /* null function */
+  
      //   rc = zseCommandInterpreter(argc, argv);
   }
-#endif
+#endif    /* file leak */
 #ifdef ECMD_BML_EXTENSION_SUPPORT
   /* BML Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("bml",argv[0],3))) {
