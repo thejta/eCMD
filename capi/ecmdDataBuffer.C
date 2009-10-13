@@ -4449,17 +4449,17 @@ uint32_t* ecmdDataBufferImplementationHelper::getDataPtr( void* i_buffer ) {
   return buff->iv_Data;
 };
 
+#ifndef REMOVE_SIM
 void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer ) {
   if (i_buffer == NULL) return;
-#ifndef REMOVE_SIM
   ecmdDataBuffer* buff = (ecmdDataBuffer*)i_buffer;
   if (!buff->iv_XstateEnabled) {
     return;
   }
   strcpy(buff->iv_DataStr,buff->genXstateStr().c_str());
-#endif
   return;
 }
+#endif
 
 /********************************************************************************
        These routines belong to derived class ecmdOptimizableDataBuffer

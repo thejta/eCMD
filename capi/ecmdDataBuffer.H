@@ -187,7 +187,9 @@ typedef enum {
 class ecmdDataBufferImplementationHelper {
 public:
   static uint32_t* getDataPtr( void* i_buffer );
+#ifndef REMOVE_SIM
   static void applyRawBufferToXstate( void* i_buffer );
+#endif
 };
 
 
