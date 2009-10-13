@@ -168,7 +168,7 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     if (!soHandle) {
       if ((soError = dlerror()) != NULL) {
         fprintf(stderr,"ERROR loading zse DLL:  : %s\n",  soError);
-        return ECMD_DLL_LOAD_FAILURE;          /* file leak */
+        return ECMD_DLL_LOAD_FAILURE;          /* file leak */                //done by unloadDll
       }
     }
            
@@ -177,7 +177,8 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     {
       if ((soError = dlerror()) != NULL) {
         fprintf(stderr,"ERROR: ecmdLoad Function zseCommandInterpreter error:  : %s\n",  soError);
-        return ECMD_DLL_LOAD_FAILURE;          /* file leak */
+        return ECMD_DLL_LOAD_FAILURE;          /* file leak */       //done by unloadDll
+
       }
   
     }
@@ -188,7 +189,8 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
   
      //   rc = zseCommandInterpreter(argc, argv);
   }
-#endif    /* file leak */
+#endif    /* file leak */                                           
+
 #ifdef ECMD_BML_EXTENSION_SUPPORT
   /* BML Extension */
   if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("bml",argv[0],3))) {
