@@ -308,8 +308,6 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "frupower")) {
           rc = ecmdFruPowerUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_POWER_FUNCTIONS
-        } else if (!strcmp(argv[0], "fwsync")) {
-          rc = ecmdFwSyncUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -648,6 +646,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 	} else if (!strcmp(argv[0], "stopclocks")) {
           rc = ecmdStopClocksUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
+        } else if (!strcmp(argv[0], "syncpluginstatus")) {
+          rc = ecmdSyncPluginStateUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_POWER_FUNCTIONS
         } else if (!strcmp(argv[0], "systempower")) {
           rc = ecmdSystemPowerUser(argc - 1, argv + 1);

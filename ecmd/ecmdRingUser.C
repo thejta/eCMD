@@ -2498,7 +2498,7 @@ uint32_t ecmdRingCacheUser(int argc, char* argv[]) {
 
   // This is an error common across all UI functions
   if (!validPosFound) {
-    ecmdOutputError("getlatch - Unable to find a valid chip to execute command on\n");
+    ecmdOutputError("ringcache - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
