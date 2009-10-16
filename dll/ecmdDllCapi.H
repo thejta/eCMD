@@ -280,6 +280,8 @@ uint32_t dllDelay(uint32_t i_simCycles, uint32_t i_msDelay);
 
 uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout); 
 
+uint32_t dllSyncPluginState(ecmdChipTarget & i_target); 
+
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
 uint32_t dllGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData); 
@@ -374,6 +376,10 @@ uint32_t dllFruPowerOn(ecmdChipTarget & i_target, bool i_smart);
 uint32_t dllFruPowerOff(ecmdChipTarget & i_target, bool i_smart); 
 
 uint32_t dllQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state); 
+
+uint32_t dllSetPowerMode(ecmdChipTarget & i_target,ecmdPowerMode_t i_powerModeEnum); 
+
+uint32_t dllGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t o_powerModeEnum); 
 
 uint32_t dllBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait); 
 

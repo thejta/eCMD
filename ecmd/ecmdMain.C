@@ -103,9 +103,7 @@ int main (int argc, char *argv[])
       FILE *stream ;
 
       if (shellMode) {
-#ifdef ZSERIES_SWITCH
         setupEcmds();
-#endif
         ecmdOutput("\n");
         ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
       }
@@ -114,8 +112,7 @@ int main (int argc, char *argv[])
       /*  each string contains one command (ie 'ecmdquery version')              */
       /* When Ctrl-D or EOF is reached this function will fail to break out of loop */
 
-      while (shellAlive ) {
-#ifdef ZSERIES_SWITCH
+      while (shellAlive) {
         if (shellMode) {
           rc = ecmdParseShellCommands(commands);
         }
@@ -123,9 +120,6 @@ int main (int argc, char *argv[])
         {
           rc = ecmdParseStdinCommands(commands);
         }
-#else
-        rc = ecmdParseStdinCommands(commands);    // supports both modes for all other plugins
-#endif
 
         if (!rc) break;
 

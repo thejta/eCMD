@@ -2024,7 +2024,7 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
 //-----------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------
-uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
+uint32_t ecmdSyncPluginStateUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
   ecmdChipTarget target;        ///< Current target
@@ -2054,8 +2054,8 @@ uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config
   if (argc > 1) {
-    ecmdOutputError("fwsync - Too many arguments specified; you probably added an unsupported option.\n");
-    ecmdOutputError("fwsync - Type 'reconfig -h' for usage.\n");
+    ecmdOutputError("syncpluginstate - Too many arguments specified; you probably added an unsupported option.\n");
+    ecmdOutputError("syncpluginstate - Type 'reconfig -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
@@ -2064,12 +2064,12 @@ uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
     /* Error check */
     if (depth) {
       if (chipUnitType == "" && depth < POS) {
-        ecmdOutputError("fwsync - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
+        ecmdOutputError("syncpluginstate - Invalid Depth parm specified when a chip was specified.  Try with -dp.\n");
         return ECMD_INVALID_ARGS;
       }
 
       if (chipUnitType != "" && depth < CHIPUNIT) {
-        ecmdOutputError("fwsync - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
+        ecmdOutputError("syncpluginstate - Invalid Depth parm specified when a chipUnit was specified.  Try with -dc.\n");
         return ECMD_INVALID_ARGS;
       }
     } else { /* No depth, set on for the code below */
@@ -2112,19 +2112,19 @@ uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
     target.cageState = ECMD_TARGET_FIELD_UNUSED;
   }
   if (depth == SYSTEM) { // no looping required .. target the whole system
-    rc = ecmdFwSync(target);
+    rc = syncPluginState(target);
     if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-      printed = "fwsync - Error occured performing ecmdFwSync on system target \n";
+      printed = "syncpluginstate - Error occured performing ecmdsyncpluginstate on system target \n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
     }
     else if (rc) {
-      printed = "fwsyncg - Error occured performing ecmdFwSync on system \n ";
+      printed = "syncpluginstate - Error occured performing ecmdSyncPluginState on system \n ";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
-      }else {
-        validPosFound = true;
-      }
+    }else {
+      validPosFound = true;
+    }
   }
   else
   {
@@ -2136,16 +2136,16 @@ uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
 
     while (ecmdExistLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
-      rc = ecmdFwSync(target);
+      rc = syncPluginState(target);
       if (rc == ECMD_TARGET_NOT_CONFIGURED) {
-        printed = "fwsync - Error occured performing ecmdConfigureTarget on ";
+        printed = "syncpluginstate - Error occured performing ecmdConfigureTarget on ";
         printed += ecmdWriteTarget(target) + ". Target is not available in the system.\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
       }
       else if (rc) {
-        printed = "fwsyncg - Error occured performing ecmdConfigureTarget on ";
+        printed = "syncpluginstateg - Error occured performing ecmdConfigureTarget on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
@@ -2162,7 +2162,7 @@ uint32_t ecmdFwSyncUser(int argc, char * argv[]) {
   }
   // This is an error common across all UI functions
   if (!validPosFound) {
-    ecmdOutputError("fwsync - Unable to execute command \n");
+    ecmdOutputError("syncpluginstate - Unable to execute command \n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
 
