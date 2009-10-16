@@ -103,8 +103,7 @@ int main (int argc, char *argv[])
       FILE *stream ;
 
       if (shellMode) {
-        setupEcmds();
-        ecmdOutput("\n");
+        //setupEcmds(); /* Removed, not used - JTA 10/15/09 */
         ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
       }
 
@@ -114,10 +113,21 @@ int main (int argc, char *argv[])
 
       while (shellAlive) {
         if (shellMode) {
-          rc = ecmdParseShellCommands(commands);
-        }
-        else  // assuming stdinMode
-        {
+          /* We're going to have to be smart about this */
+          /* AIX: always do the old way (ecmdParseStdinCommands) */
+          /* Linux: If it's a typescript (wm), do it the old way */
+          /* Otherwise, use hans new code that runs system commands, etc.. JTA 10/15/09 */
+#ifdef _AIX
+          rc = ecmdParseStdinCommands(commands);
+#else
+          char * tempptr = getenv("TERM");
+          if (!strcmp(tempptr, "wm")) {
+            rc = ecmdParseStdinCommands(commands);
+          } else {
+            rc = ecmdParseShellCommands(commands);
+          }
+#endif
+        } else {
           rc = ecmdParseStdinCommands(commands);
         }
 
@@ -125,7 +135,7 @@ int main (int argc, char *argv[])
 
         /* Walk through individual commands from ecmdParseStdInCommands */
         for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
-          isSystemCmd=false;
+          isSystemCmd = false;
           c_argc = 0;
           c_argv[0] = NULL;
 
@@ -143,7 +153,6 @@ int main (int argc, char *argv[])
               if (commandIter->at(0)==' ')
               {
                 commandIter->erase(0,1);
-
               }
               else
                 break;
@@ -279,15 +288,12 @@ int main (int argc, char *argv[])
           /* We now want to call the command interpreter to handle what the user provided us */
           rc = ecmdCallInterpreters(c_argc, c_argv);
           if ((rc == ECMD_INT_UNKNOWN_COMMAND) || (rc == ECMD_UNKNOWN_HELP_FILE)) {
-            if (strlen(c_argv[0]) < (ERRORBUF_SIZE - 50)){
-              //sprintf(errorbuf,"ecmd -  Unknown Command specified '%s'\n", c_argv[0]);
-              sprintf(errorbuf,"executing system cmd: %s  \n",curCmd.c_str());
-              ecmdOutputError(errorbuf);
-              isSystemCmd=true;
+            if (strlen(c_argv[0]) < (ERRORBUF_SIZE - 50)) {
+              //sprintf(errorbuf,"executing system cmd: %s  \n",curCmd.c_str());
+              //ecmdOutputError(errorbuf);
+              isSystemCmd = true;
               (void)system(curCmd.c_str());
-            }
-            else
-            {
+            } else {
               sprintf(errorbuf,"ecmd -  Unknown Command specified \n");
               ecmdOutputError(errorbuf);
             }
@@ -299,14 +305,14 @@ int main (int argc, char *argv[])
               ecmdOutput("\n");
             }
 
-          // If we did get a return code, parse that and print it to the screen
+            // If we did get a return code, parse that and print it to the screen
             parse = ecmdParseReturnCode(rc);
             if (strlen(c_argv[0]) + parse.length() < (ERRORBUF_SIZE - 50))
               sprintf(errorbuf,"ecmd - '%s' returned with error code 0x%X (%s)\n", c_argv[0], rc, parse.c_str());
             else
               sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
             ecmdOutputError(errorbuf);
-            break;
+            //break;
           }
           if (pipeMode)
           {
@@ -331,9 +337,9 @@ int main (int argc, char *argv[])
             (void)system(pipeCmd.c_str());
             // back to normal output
 
-             printf("pipeMode: exited \n");
-             pipeMode=false;
-             
+            printf("pipeMode: exited \n");
+            pipeMode=false;
+
           }
           if (redirMode)
           {
@@ -355,14 +361,11 @@ int main (int argc, char *argv[])
             }
 
             redirMode=false;
-             
+
           }
 
-
           if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-            if (isSystemCmd==false)
-            {
-              ecmdOutput("\n");
+            if (isSystemCmd == false) {
               ecmdOutput((*commandIter).c_str());
               ecmdOutput("\n");
             }
@@ -374,8 +377,6 @@ int main (int argc, char *argv[])
 
         /* Print the prompt again */
         if (shellMode && shellAlive) {
-
-          ecmdOutput("\n");
           ecmdOutput(getEcmdPrompt().c_str()); fflush(0);
         }
       }
@@ -384,8 +385,7 @@ int main (int argc, char *argv[])
     } else {
       /* Standard command line command */
 
-      if (argv[1] == NULL)
-      {
+      if (argv[1] == NULL) {
           sprintf(errorbuf,"ecmd - Must specify a command to execute. Run 'ecmd -h' for command list.\n");
           ecmdOutputError(errorbuf);
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -393,9 +393,7 @@ int main (int argc, char *argv[])
           if (parse.length() < (ERRORBUF_SIZE - 50))
               sprintf(errorbuf,"ecmd - <Null argument> returned with error code 0x%X (%s)\n", rc, parse.c_str());
           ecmdOutputError(errorbuf);
-      }
-      else
-      {
+      } else {
 
         // Before Executing the cmd save it on the Dll side 
         ecmdSetCurrentCmdline(argc-1, argv+1);
@@ -431,7 +429,6 @@ int main (int argc, char *argv[])
     /* Only print to the screen if quietmode isn't on */
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
       ecmdOutput(cmdSave.c_str());
-      ecmdOutput("\n");
     }
 
     // If you check the rc, don't use the "rc" variable, it will corrupt the return value

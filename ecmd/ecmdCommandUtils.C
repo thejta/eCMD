@@ -54,7 +54,6 @@ void setch(void);
 void resetch(void);
 struct termios oldt;
 
-std::string prompt;
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -583,7 +582,6 @@ uint32_t ecmdParseShellCommands(std::vector< std::string > & o_commands)
         }
       }
     }
-    printf("..processing cmd: %s \n", buffer.c_str());
 
     std::cout << buffer.c_str() ;
     ecmdParseTokens(buffer,"\n;", o_commands);
@@ -878,14 +876,14 @@ int getch(void)
 }
 
 
-std::string getEcmdPrompt()
-{
+std::string getEcmdPrompt() {
+  //char dirBuffer[80];
+  //getcwd(dirBuffer,80);
+  //prompt = dirBuffer;
+  //prompt = prompt + ">>eCMD>";
+  //return prompt;
 
- char dirBuffer[80];
- getcwd(dirBuffer,80);
- prompt = dirBuffer;
- prompt = prompt + ">>eCMD>";
- return prompt;
+  return "ecmd> ";
 }
 
 void setupEcmds(void)
