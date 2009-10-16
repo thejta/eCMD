@@ -317,7 +317,7 @@ uint32_t ecmdParseShellCommands(std::vector< std::string > & o_commands)
 {
   std::string buffer;
 
-  int x;
+  uint32_t x;
 
   int cp = 0; // cursorpos
   o_commands.clear();
