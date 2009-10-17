@@ -377,9 +377,9 @@ uint32_t dllFruPowerOff(ecmdChipTarget & i_target, bool i_smart);
 
 uint32_t dllQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state); 
 
-uint32_t dllSetPowerMode(ecmdChipTarget & i_target,ecmdPowerMode_t i_powerModeEnum); 
+uint32_t dllSetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t i_powerMode); 
 
-uint32_t dllGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t o_powerModeEnum); 
+uint32_t dllGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t & o_powerMode); 
 
 uint32_t dllBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait); 
 
