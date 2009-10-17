@@ -2886,7 +2886,7 @@ uint32_t ecmdQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state
  @retval non-zero if unsuccessful
 
 */
-uint32_t ecmdSetPowerMode(ecmdChipTarget & i_target,ecmdPowerMode_t i_powerMode);   
+uint32_t ecmdSetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t i_powerMode);   
 
 
 /**
@@ -2897,7 +2897,7 @@ uint32_t ecmdSetPowerMode(ecmdChipTarget & i_target,ecmdPowerMode_t i_powerMode)
  @retval non-zero if unsuccessful
 
 */
-uint32_t ecmdGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t &o_powerMode);
+uint32_t ecmdGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t & o_powerMode);
 
 /**
  @brief Provides the ability to bias a voltage on a per target basis.
