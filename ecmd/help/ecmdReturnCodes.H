@@ -127,6 +127,8 @@
 #define ECMD_SCOM_INVALID_OBJECT                (ECMD_ERR_ECMD | 0x10AF) ///< Scom not properly initialized
 #define ECMD_HREG_ECMDDATABUFFER_ERROR          (ECMD_ERR_ECMD | 0x10B1) ///< Scanring buffer op failed or corrupt scanring binary or memory mgmt issue
 #define ECMD_HREG_ADDRESS_INVALID_PARAM         (ECMD_ERR_ECMD | 0x10B3) ///< Address translation failed due to invalied combination of parameters
+#define ECMD_SENSOR_HUMDITY_NOT_AVAILABLE       (ECMD_ERR_ECMD | 0x10C0) ///< Humidity Sensor data not available
+#define ECMD_SENSOR_AIR_DENSITY_NOT_AVAILABLE   (ECMD_ERR_ECMD | 0x10C1) ///< Air Density Sensor data not available
 
 
 /* Return codes for command interpreter */
