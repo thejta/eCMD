@@ -533,7 +533,8 @@ typedef enum {
 */
 typedef enum {
   ECMD_AIRDENSITY_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
-  ECMD_AIRDENSITY_UNIT_KG_M3         ///< kilogram per qubic meter
+  ECMD_AIRDENSITY_UNIT_KG_M3,         ///< kilogram per qubic meter
+  ECMD_AIRDENSITY_UNIT_H_PA          ///< hekto Pascal
 } ecmdAirDensityUnit_t;
 
 /**
