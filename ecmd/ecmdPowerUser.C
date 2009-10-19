@@ -57,6 +57,7 @@
 #ifndef ECMD_REMOVE_POWER_FUNCTIONS
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
+  ecmdPowerState_t  o_state;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -66,7 +67,7 @@ uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 1) {
-    ecmdOutputError("systempower - At least one argument ('on', 'off') is required for systempower.\n");
+    ecmdOutputError("systempower - At least one argument ('on', 'off', 'query') is required for systempower.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
@@ -80,6 +81,28 @@ uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
   } else if (!strcmp(argv[0], "off")) {
     ecmdOutput("Powering off the system ...\n");
     rc = ecmdSystemPowerOff();
+  } else if (!strcmp(argv[0], "query")) {
+
+
+    rc = ecmdQuerySystemPower(o_state);
+
+    if (rc) {
+      return ECMD_FAILURE;
+    }
+    else {
+      if (o_state==ECMD_POWER_STATE_UNKNOWN) {
+        ecmdOutput("Systempower is unknown ...\n");
+      }
+      else if (o_state==ECMD_POWER_STATE_ON) {
+        ecmdOutput("Systempower is ON ...\n");
+      }
+      else if (o_state==ECMD_POWER_STATE_OFF) {
+        ecmdOutput("Systempower is OFF ...\n");
+      }
+      else if (o_state==ECMD_POWER_STATE_TRANSITION) {
+        ecmdOutput("Systempower is in Transition ...\n");
+      }
+    }
   } else {
     ecmdOutputError("systempower - Invalid argument passed to systempower. Accepted arguments: ('on', 'off').\n");
     return ECMD_INVALID_ARGS;
@@ -169,10 +192,35 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
       printed += ecmdWriteTarget(target) + " ..\n";
       ecmdOutput(printed.c_str());
       rc = ecmdFruPowerOff(target, smart);
+    } else if (state == "query") {
+      printed = "Frupower of ";
+      printed += ecmdWriteTarget(target);
+      ecmdPowerState_t  o_state;
+
+      rc = ecmdQueryFruPower(target,  o_state);
+
+      if (rc==0)  {
+        if (o_state==ECMD_POWER_STATE_UNKNOWN) {
+          printed += " is unknown  \n ";
+          ecmdOutput(printed.c_str());
+        }
+        else if (o_state==ECMD_POWER_STATE_ON) {
+          printed += " is ON  \n ";
+          ecmdOutput(printed.c_str());
+        }
+        else if (o_state==ECMD_POWER_STATE_OFF) {
+          printed += " is OFF  \n ";
+          ecmdOutput(printed.c_str());
+        }
+        else if (o_state==ECMD_POWER_STATE_TRANSITION) {
+          printed += " is in Transition  \n ";
+          ecmdOutput(printed.c_str());
+        }
+      }
     }
 
     if (rc) {
-      printed = "frupower - Error occurred performing frupower on ";
+      printed = "frupower - Error occurred performing frupower function ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
@@ -208,7 +256,7 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   /* get the smart flag, if it's there */
-  smart = ecmdParseOption(&argc, &argv, "-smart");
+  //smart = ecmdParseOption(&argc, &argv, "-smart");
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -219,11 +267,11 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
-  if (argc < 2) {
+  if (argc < 1) {
     ecmdOutputError("powermode - At least one argument ('save', 'normal', 'query', 'turbo') is required for powermode.\n");
     return ECMD_INVALID_ARGS;
   }
-  else if (argc > 2) {
+  else if (argc > 1) {
     ecmdOutputError("powermode - Too many arguments to powermode, you probably added a non-supported option.\n");
     return ECMD_INVALID_ARGS;
   }
@@ -242,21 +290,11 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   }
 
   //Setup the target that will be used 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[1], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("powermode - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
-  }
-  target.chipType = chipType;
-  if (target.chipType == "nochip") {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.posState = ECMD_TARGET_FIELD_UNUSED;
-  } else {
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  }
-  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+  target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+  target.slotState = ECMD_TARGET_FIELD_UNUSED;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 

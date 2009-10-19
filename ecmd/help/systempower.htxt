@@ -1,5 +1,5 @@
 
-Syntax: systempower on|off
+Syntax: systempower on|off|query
         [-quiet] [-quieterror]
 
         ECMD:           Core Common Function
@@ -11,6 +11,8 @@ Syntax: systempower on|off
         on              Turn the target sytem on.  Note: Does not start the isteps
 
         off             Turn the target system off
+
+        query           Returns the current system power state (on, off, transition)
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
