@@ -12,36 +12,36 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        biasvoltage              getringdump              putmemdma                simecho                  
-                                 getscom                  putmemmemctrl            simexit                  
-        cacheflush               getsensor                putmemproc               simexpecttcfac           
-        checkrings               getspr                   putpattern               simgetcurrentcycle       
-                                 getspy                   putscom                  simgetdial               
-        deconfig                 gettracearray            putspr                   simgetfullfacname        
-                                 getvpdimage              putspy                   simgethierarchy          
-        ecmd                     getvpdkeyword            putvpdimage              simgettcfac              
-        ecmdecho                 gpioconfig               putvpdkeyword            siminit                  
-        ecmdquery                                                                  simoutputfusionmessage   
-                                 i2creset                 querybiasstate           simputdial               
-        format                   initchipfromfile                                  simputtcfac              
-        frupower                 istep                    reconfig                 simrestart               
-                                                          ringcache                simstktcfac              
-        getarray                 makespsystemcall                                  simtckinterval           
-        getbits                                           sendcmd                  simunsticktcfac          
-        getcfam                  options                  setclockspeed            startclocks              
-        getclockspeed                                     setconfig                stopclocks               
-        getconfig                pollscom                 simEXPECTFAC             systempower              
-        getfpr                   psi                      simGETFAC                                         
-        getgpiolatch             putarray                 simGETFACX               unitid                   
-        getgpiopin               putbits                  simPUTFAC                
-        getgpioreg               putcfam                  simPUTFACX               
-        getgpr                   putfpr                   simSTKFAC                
-        getgpreg                 putgpiolatch             simSTKFACX               
-        geti2c                   putgpioreg               simSUBCMD                
-        getlatch                 putgpr                   simUNSTICK               
-        getmemdma                putgpreg                 simaet                   
-        getmemmemctrl            puti2c                   simcheckpoint            
-        getmemproc               putlatch                 simclock                 
+        biasvoltage              getmemproc               puti2c                   simcheckpoint            
+                                 getringdump              putlatch                 simclock                 
+        cacheflush               getscom                  putmemdma                simecho                  
+        checkrings               getsensor                putmemmemctrl            simexit                  
+                                 getspr                   putmemproc               simexpecttcfac           
+        deconfig                 getspy                   putpattern               simgetcurrentcycle       
+                                 gettracearray            putscom                  simgetdial               
+        ecmd                     getvpdimage              putspr                   simgetfullfacname        
+        ecmdecho                 getvpdkeyword            putspy                   simgethierarchy          
+        ecmdquery                gpioconfig               putvpdimage              simgettcfac              
+                                                          putvpdkeyword            siminit                  
+        format                   i2creset                                          simoutputfusionmessage   
+        frupower                 initchipfromfile         querybiasstate           simputdial               
+        fwsync                   istep                                             simputtcfac              
+                                                          reconfig                 simrestart               
+        getarray                 makespsystemcall         ringcache                simstktcfac              
+        getbits                                                                    simtckinterval           
+        getcfam                  options                  sendcmd                  simunsticktcfac          
+        getclockspeed                                     setclockspeed            startclocks              
+        getconfig                pollscom                 setconfig                stopclocks               
+        getfpr                   powermode                simEXPECTFAC             systempower              
+        getgpiolatch             psi                      simGETFAC                                         
+        getgpiopin               putarray                 simGETFACX               unitid                   
+        getgpioreg               putbits                  simPUTFAC                
+        getgpr                   putcfam                  simPUTFACX               
+        getgpreg                 putfpr                   simSTKFAC                
+        geti2c                   putgpiolatch             simSTKFACX               
+        getlatch                 putgpioreg               simSUBCMD                
+        getmemdma                putgpr                   simUNSTICK               
+        getmemmemctrl            putgpreg                 simaet                   
 
 
         Cronus/IP Extensions:
@@ -88,6 +88,7 @@ Syntax: ecmd
         croresettap              
         croruninitfile           
         crosetconfig             
+        crosysxcmd               
         crowritecnfg             
 
 
@@ -97,30 +98,30 @@ Syntax: ecmd
         zseactivatefru           zsegetvpdrecords         zsenetdeactivatenetworkfruzserunrpt                
         zseactivatenetworkfru    zsegetvpdtype            zsenetpscnnetinfo        zsesendsw                
         zsealternatepath         zsehdcbactivate          zsenetpscnsetccslave     zsesetcecoscdefaultnestspeed
-        zsececdump               zsehdcbrestoredefault    zsenetpscnversioninfo    zsesetmbastispeed        
-        zsechecketr              zsehdcbsave              zsenetstartmirroring     zseshfinit               
-        zsecheckicbwrap          zsei390trccleartracebufferzsenetupdateccload       zsesimenv                
-        zsecheckservicenetwork   zsei390trcpeektraceentrieszseoscillatorswitchover  zsesimread               
-        zsecheckstatus           zsei390trcresetcpusapcontrolszsepchid                 zsesimwrite              
-        zsechkpscnnetwork        zsei390trcresetcsscontrolszsepppcchillerreadtemper zsestartmirroring        
-        zsecontrolledwarmstart   zsei390trcresetiottcontrolszsepppcchillersetbias    zsesysstatus             
-        zsecsaactivatenode       zsei390trcresettracesettingszsepppcgenericcommand    zsesystempoweroff        
-        zsecsadeactivatenode     zsei390trcresetw1controlszsepppcgetambienttemperaturezsesystempoweron         
-        zsecsadisable            zsei390trcrestoretracedefaultzsepppcgetamdspeed       zsevoltagebiasfru        
-        zsecsaenable             zsei390trcsavetracetofilezsepppcgetamdspeedandambienttemperaturezsewaitforcecsw          
-        zsecsagetstatedump       zsei390trcsetcsscontrols zsepppcgetblowerspeed    zsewaitforwarmstart      
-        zsecsaissueinfolog       zsei390trcsetiottcontrolszsepppcgetbpastate       zsewarmstart             
-        zsecsasetforcedegrade    zsei390trcsetupcomponentszsepppcgetcageinfolog    zsewriteerrorlog         
-        zsecsasetimlmode         zsei390trcsetuptracelevelszsepppcgetnodepowerstate zsewriteeventlog         
-        zsecsasuppresswarninglogszsei390trcsetw1controls  zsepppcmcmreadtemperaturezsewriteinfolog          
-        zsecsaunsetforcedegrade  zseicbconfig             zsepppcmcmreadthermaldatazsexcryptorunmode        
+        zsececdump               zsehdcbrestoredefault    zsenetpscnversioninfo    zseshfinit               
+        zsechecketr              zsehdcbsave              zsenetstartmirroring     zsesimenv                
+        zsecheckicbwrap          zsei390trccleartracebufferzsenetupdateccload       zsesimread               
+        zsecheckservicenetwork   zsei390trcpeektraceentrieszseoscillatorswitchover  zsesimwrite              
+        zsecheckstatus           zsei390trcresetcpusapcontrolszsepchid                 zsestartmirroring        
+        zsechkpscnnetwork        zsei390trcresetcsscontrolszsepppcchillerreadtemper zsesysstatus             
+        zsecontrolledwarmstart   zsei390trcresetiottcontrolszsepppcchillersetbias    zsesystempoweroff        
+        zsecsaactivatenode       zsei390trcresettracesettingszsepppcgenericcommand    zsesystempoweron         
+        zsecsadeactivatenode     zsei390trcresetw1controlszsepppcgetambienttemperaturezsevoltagebiasfru        
+        zsecsadisable            zsei390trcrestoretracedefaultzsepppcgetamdspeed       zsewaitforcecsw          
+        zsecsaenable             zsei390trcsavetracetofilezsepppcgetamdspeedandambienttemperaturezsewaitforwarmstart      
+        zsecsagetstatedump       zsei390trcsetcsscontrols zsepppcgetblowerspeed    zsewarmstart             
+        zsecsaissueinfolog       zsei390trcsetiottcontrolszsepppcgetbpastate       zsewriteerrorlog         
+        zsecsasetforcedegrade    zsei390trcsetupcomponentszsepppcgetcageinfolog    zsewriteeventlog         
+        zsecsasetimlmode         zsei390trcsetuptracelevelszsepppcgetnodepowerstate zsewriteinfolog          
+        zsecsasuppresswarninglogszsei390trcsetw1controls  zsepppcmcmreadtemperaturezsexcryptorunmode        
+        zsecsaunsetforcedegrade  zseicbconfig             zsepppcmcmreadthermaldata
         zsecsehactive            zseiml                   zsepppcreadcurrentdca    
         zsedeactivatefru         zseinpa                  zsepppcreadvoltagedca    
         zsedflogread             zseitemxfer              zsepppcsetamdspeed       
         zseetrnowrap             zsenbbiml                zsepppcsetbackupblowercontroltemp
         zseetrstatus             zsenetacdlsystem         zsepppcsetblowerspeed    
         zsegetallunits           zsenetactivatenetwork    zsepurgelog              
-        zsegetmbastispeed        zsenetactivatenetworkfru zsequerycryptostate      
+        zsegetfilepath           zsenetactivatenetworkfru zsequerycryptostate      
         zsegetpchids             zsenetcctakeover         zsequerylicccfilenames   
         zsegetsysstatus          zsenetcheckservicenetworkzsequeryrefc             
         zsegetvpdkeywordsforrecordzsenetchkpscnnetwork     zseratestate             
