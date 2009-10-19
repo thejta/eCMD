@@ -1,5 +1,5 @@
 
-Syntax: frupower on|off <Chip> [-smart]
+Syntax: frupower on|off|query <Chip> [-smart]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -8,6 +8,13 @@ Syntax: frupower on|off <Chip> [-smart]
 
         Parameters:
         --------------------------------------------------------------------------------
+
+        on              Turns power on the target FRU on.
+
+        off             Turns power on tthe target FRU  off
+
+        query           Returns the current FRU power state (on, off, transition)
+
         Chip            Chip name to power on/off.  If acting at slot level, use "nochip"
 
 	-smart    [opt] If -smart is given, all fru's below given fru will be affected

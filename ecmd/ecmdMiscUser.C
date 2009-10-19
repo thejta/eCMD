@@ -1777,8 +1777,14 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
   ecmdParseChipField(argv[0],chipType,chipUnitType);
 
   target.chipType = chipType;
+  if (target.chipType == "nochip") {
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
+  } else {
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  }
+  target.cageState = target.nodeState = target.slotState =  ECMD_TARGET_FIELD_WILDCARD;
 
   //if chipUnitType was passed, set a chipUnit target
   if(chipUnitType != "")
@@ -1928,6 +1934,11 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
         //kilogram per cubic meter
         sensorUnit = ECMD_AIRDENSITY_UNIT_KG_M3;
       }
+      else if(unit == "hpa")
+      {
+        //hekto pascal
+        sensorUnit = ECMD_AIRDENSITY_UNIT_H_PA;
+      }
       else 
       { 
         ecmdOutputError("getsensor - Invalid unit for airdensity sensor. Type 'getsensor -h' for usage.\n");
@@ -2020,6 +2031,8 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
   return rc;
 }
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
+
+
 
 //-----------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------
