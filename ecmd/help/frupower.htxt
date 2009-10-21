@@ -13,9 +13,9 @@ Syntax: frupower on|off|query <Chip> [-smart]
 
         off             Turns power on tthe target FRU  off
 
-        query           Returns the current FRU power state (on, off, transition)
+        query           Returns the current FRU power state (on, off, transition, unknown)
 
-        Chip            Chip name to power on/off.  If acting at slot level, use "nochip"
+        Chip            Chip name to power on/off/query.  If acting at slot level, use "nochip"
 
 	-smart    [opt] If -smart is given, all fru's below given fru will be affected
                         as well
@@ -26,3 +26,4 @@ Syntax: frupower on|off|query <Chip> [-smart]
 
         Examples:       > frupower on pu -k0 -n1 -p3
                         > frupower off nochip -k1 -n2 -s3452
+                        > frupower query nochip -all -coe
