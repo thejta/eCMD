@@ -2122,7 +2122,7 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
 /**
  @brief Synchronizes the plugin state information with the actual HW states
  This command is intended for situations where no automatic plugin re-sync takes place.  
- This is if a state change  (clock state / chip state) is forced directly via scom/ring accesses.
+ This is if a state change  (clock state / chip state) is forced directly via scom/ring accesses.
  @param i_target Target which needs to be updated. 
  TARGET DEPTH : variable<br>
  TARGET STATES : set according depth to valid
