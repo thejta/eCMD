@@ -104,7 +104,7 @@ uint32_t ecmdSystemPowerUser(int argc, char * argv[]) {
       }
     }
   } else {
-    ecmdOutputError("systempower - Invalid argument passed to systempower. Accepted arguments: ('on', 'off').\n");
+    ecmdOutputError("systempower - Invalid argument passed to systempower. Accepted arguments: ('on', 'off', 'query').\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -138,7 +138,7 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   if (argc < 2) {
-    ecmdOutputError("frupower - At least one argument ('on', 'off') is required for frupower.\n");
+    ecmdOutputError("frupower - At least one argument ('on', 'off', 'query') is required for frupower.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 2) {
@@ -150,8 +150,10 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
     state = "on";
   } else if (!strcmp(argv[0], "off")) {
     state = "off";
+  } else if (!strcmp(argv[0], "query")) {
+    state = "query";
   } else {
-    ecmdOutputError("frupower - Invalid argument passed to frupower. Accepted arguments: ('on', 'off').\n");
+    ecmdOutputError("frupower - Invalid argument passed to frupower. Accepted arguments: ('on', 'off', 'query').\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -195,7 +197,7 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
     } else if (state == "query") {
       printed = "Frupower of ";
       printed += ecmdWriteTarget(target);
-      ecmdPowerState_t  o_state;
+      ecmdPowerState_t  o_state = ECMD_POWER_STATE_UNKNOWN;
 
       rc = ecmdQueryFruPower(target,  o_state);
 
@@ -220,7 +222,8 @@ uint32_t ecmdFruPowerUser(int argc, char * argv[]) {
     }
 
     if (rc) {
-      printed = "frupower - Error occurred performing frupower function ";
+      printed = "frupower - Error occurred performing frupower ";
+      printed += state  + " function ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
