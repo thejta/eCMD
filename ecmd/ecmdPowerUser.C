@@ -253,13 +253,10 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   std::string printed;
   std::string mode;
-  bool smart = false;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
-  /* get the smart flag, if it's there */
-  //smart = ecmdParseOption(&argc, &argv, "-smart");
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
