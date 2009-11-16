@@ -1021,7 +1021,8 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     }
     if (queryRingData.size() != 1) {
       ecmdOutputError("getbits - Too much/little ring information returned from the dll, unable to determine if it is a chipUnit ring\n");
-      return ECMD_DLL_INVALID;
+      coeRc = ECMD_DLL_INVALID;
+      continue;
     }
 
     ringData = queryRingData.begin();
@@ -1272,7 +1273,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     }
     if (queryRingData.size() != 1) {
       ecmdOutputError("putbits - Too much/little ring information returned from the dll, unable to determine if it is a chipUnit ring\n");
-      return ECMD_DLL_INVALID;
+      coeRc = ECMD_DLL_INVALID;
+      continue;
     }
     ringData = queryRingData.begin();
 
