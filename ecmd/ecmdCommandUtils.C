@@ -303,11 +303,16 @@ uint32_t ecmdParseStdinCommands(std::vector< std::string > & o_commands)
     /* We have reached EOF */
     return ECMD_SUCCESS;
   } else {
-    getline(std::cin, buffer);
-
-    /* Carve up what we have here */
-    ecmdParseTokens(buffer,"\n;", o_commands);
-
+    if(getline(std::cin, buffer))
+    {
+      /* Carve up what we have here */
+      ecmdParseTokens(buffer,"\n;", o_commands);
+    }
+    else
+    {
+      /* We have reached EOF */
+      return ECMD_SUCCESS;
+    }
   }
   return 1;
 }

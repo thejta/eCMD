@@ -132,7 +132,11 @@ int main (int argc, char *argv[])
         }
 
         if (!rc) break;
-
+        
+        /*Here rc=1. But we treat rc as success when it is ECMD_SUCCESS(0) in the codes below.
+          so reset rc to ECMD_SUCCESS to avoid break out of code due to its value = 1 */
+        rc = ECMD_SUCCESS;
+        
         /* Walk through individual commands from ecmdParseStdInCommands */
         for (std::vector< std::string >::iterator commandIter = commands.begin(); commandIter != commands.end(); commandIter++) {
           isSystemCmd = false;
