@@ -43,6 +43,7 @@
 #include <sedcCommonParser.H>
 
 #undef ecmdClientSpy_C
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -65,7 +66,6 @@ struct chipSpies{
   std::string spydefName;              ///< Name of spydef where data was retrieved
   std::list<sedcSpyContainer> spies;
 };
-
 
 //----------------------------------------------------------------------
 //  Constants
@@ -94,8 +94,8 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
-
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool &isChipUnitRelated);
+uint32_t dllCheckIfValidScomSpy(ecmdChipTarget & i_target, sedcAEIEntry* spyent);
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -120,7 +120,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
   std::list<sedcAEIEnum>::iterator enumit;
   ecmdSpyData queryData;
   char outstr[200];
-  
+
   if (i_spyName == NULL) {
     rc = dllGetSpiesInfo(i_target, mySpyList);
     if (rc) {
@@ -197,7 +197,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
       }
 
       /* Is this a core spy */
-      rc = dllIsCoreSpy(i_target, queryData.spyName, queryData.isCoreRelated);
+      rc = dllIsCoreSpy(i_target, queryData.spyName, queryData.isChipUnitRelated);
       if (rc) return rc;
 
       /* Does it have ECC ? */
@@ -254,6 +254,27 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
       }
       continue;
     }
+
+//----------------------- scand special ------------------------
+//--------- add the following section to handle ECO (new pu.exe....)
+
+    std::string spyname = i_spyName;
+    transform(spyname.begin(), spyname.end(), spyname.begin(), (int(*)(int))toupper);
+
+    if ((spyname.find("EXP.EC") != std::string::npos) || (spyname.find("EXP.L2") != std::string::npos) || (spyname.find("EXP.NC") != std::string::npos) || (spyname.find("EXP.TP.C1_TRACE_1") != std::string::npos))
+    {
+       queryData.isChipUnitRelated = "true";
+       queryData.relatedChipUnit = "core";
+       queryData.relatedChipUnitShort = "c";
+    }
+    else if (queryData.isChipUnitRelated)
+    {
+       queryData.isChipUnitRelated = "true";
+       queryData.relatedChipUnit = "ex";
+       queryData.relatedChipUnitShort = "ex";
+    }
+//------------------------------------------------------------------
+
     queryData.clockState = ECMD_CLOCKSTATE_UNKNOWN;
     o_queryDataList.push_back(queryData);
   }
@@ -307,7 +328,6 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   sedcSpyContainer mySpy;
   char outstr[200];
 
-
   ecmdChipTarget cacheTarget;
   cacheTarget = i_target;
   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
@@ -339,7 +359,8 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   /* Handle ECC here */
   if (!rc) {
     sedcAEIEntry myAIE = mySpy.getAEIEntry();
-    if (!myAIE.aeiEpcheckers.empty()) {
+    //if (!myAIE.aeiEpcheckers.empty()) {
+    if (0) {
       std::list<std::string>::iterator eccIter;
       ecmdDataBuffer inData, outData, errorMask; // Not used on the cronus interface, just place holders
       eccIter = myAIE.aeiEpcheckers.begin();
@@ -356,10 +377,10 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
       // If we had any errors, total rc will be set and we can return
       if (totalrc)
         return ECMD_SPY_FAILED_ECC_CHECK;
-
     }
   }
   else { return rc; }
+
   
   if (enabledCache) {
     rc = dllDisableRingCache(cacheTarget);
@@ -432,6 +453,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
   if (spyent.states & SPY_CLOCK_ANY)
     rc = dllGetSpyClockDomain(i_target, &spyent, spyDomain);
   if (rc) return rc;
+  rc = dllCheckIfValidScomSpy(i_target, &spyent);
 
   /* Do some error checking with what we have */
   if (data.dataType == SPYDATA_DATA) {
@@ -481,7 +503,11 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
       /* This is a new ring */
       /* Check to see if we are in the right state */
       if (curstate & SPY_CLOCK_ANY) {
-        rc = dllGetRing( i_target, lineit->latchName.c_str(), scan);
+
+        ecmdChipTarget targetCopy = i_target;
+        if (targetCopy.chipUnitType == "core")
+             targetCopy.chipUnitType = "ex";
+        rc = dllGetRing( targetCopy, lineit->latchName.c_str(), scan);
         if (rc) return rc;
       }
 
@@ -753,8 +779,6 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
       dllOutputError(outstr);
       return ECMD_INVALID_SPY_ENUM;
     }
-    
-
   } else if (data.dataType == SPYDATA_GROUPS) {
     *(data.group_data) = groups;
   }
@@ -1636,12 +1660,12 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
 
 }
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool & o_isCoreRelated) {
+uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool & o_isChipUnitRelated) {
 
   sedcSpyContainer myDC;
   sedcEplatchesEntry tempECC;
   uint32_t rc = ECMD_SUCCESS;
-  o_isCoreRelated = false;
+  o_isChipUnitRelated = false;
   std::list<sedcLatchLine>::iterator lineit;
   sedcAEIEntry spyent;
   uint32_t flags = 0x0;
@@ -1679,7 +1703,7 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
       rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str(), detail);
       if (rc) return rc;
       if (!ringQueryData.empty()) {
-        o_isCoreRelated = ringQueryData.begin()->isCoreRelated;
+        o_isChipUnitRelated = ringQueryData.begin()->isChipUnitRelated;
       }
       break;
     } else if (lineit->state == (SPY_SECTION_START | SPY_SCOM)) {
@@ -1695,7 +1719,7 @@ uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool &
       rc = dllQueryScom(i_target, scomQueryData, addr, ECMD_QUERY_DETAIL_LOW);
       if (rc) return rc;
       if (!scomQueryData.empty()) {
-        o_isCoreRelated = scomQueryData.begin()->isCoreRelated;
+        o_isChipUnitRelated = scomQueryData.begin()->isChipUnitRelated;
       }
       break;
     }
@@ -1869,7 +1893,6 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
   }
   return found;
 }
-
 
 #endif
 
