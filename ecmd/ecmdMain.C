@@ -316,7 +316,7 @@ int main (int argc, char *argv[])
             else
               sprintf(errorbuf,"ecmd - Command returned with error code 0x%X (%s)\n", rc, parse.c_str());
             ecmdOutputError(errorbuf);
-            //break;
+            break;
           }
           if (pipeMode)
           {
