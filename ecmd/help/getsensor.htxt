@@ -24,11 +24,13 @@ Syntax: getsensor <chip.[chipUnit]> <sensorType> <sensorId> <readMode> <unit>
 
     readMode   Sensor read modes:
 
-               1ms (instantaneous value, only one supported by z-Extension) 
+               1ms (instantaneous value) 
                8ms
                32ms
                1s
                8s
+               default  (first possible read mode is used...it is depending on the sensor which one actually is used)
+               def      ( .. same as default)
 
     unit       Unit of the output value of the sensor type specified.
                The units for different sensor types are:
@@ -37,8 +39,9 @@ Syntax: getsensor <chip.[chipUnit]> <sensorType> <sensorId> <readMode> <unit>
                power      : uw (microWatt),mw(milliWatt),dw(deciWatt),w(watt)
                voltage    : mv (milliVolt), v (Volt)
                current    : ma (milliAmpere), a (Ampere)
-               humidity   : gm3(gram per cubic meter), p(relative percentage)
-               airdensity : kgm3 (kilogram per cubic meter), hpa (hekto pascal)
+               humidity   : gm3(gram per cubic meter), p(relative percentage), dp(deci relative percentage)
+               airdensity : kgm3 (kilogram per cubic meter), hpa (hekto pascal) , dhpa (deci hekto pascal)
+
                utilization: dp (deciPercentage), p (Percentage)
                clockspeed : mhz (megaHertz), khz(kiloHertz), ps(picosecond)
 
