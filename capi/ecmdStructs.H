@@ -534,7 +534,8 @@ typedef enum {
 typedef enum {
   ECMD_AIRDENSITY_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
   ECMD_AIRDENSITY_UNIT_KG_M3,         ///< kilogram per qubic meter
-  ECMD_AIRDENSITY_UNIT_H_PA          ///< hekto Pascal
+  ECMD_AIRDENSITY_UNIT_H_PA,          ///< hekto Pascal
+  ECMD_AIRDENSITY_UNIT_dH_PA         ///< deci hekto Pascal
 } ecmdAirDensityUnit_t;
 
 /**
@@ -543,7 +544,8 @@ typedef enum {
 typedef enum {
   ECMD_HUMIDITY_UNIT_UNKNOWN,         ///< The unknown state for this enum, not a valid output type
   ECMD_HUMIDITY_UNIT_G_M3,            ///< Absolute humidity in grams per cubic meter
-  ECMD_HUMIDITY_UNIT_REL_PERCENTAGE   ///< Relative humidity in percentage,
+  ECMD_HUMIDITY_UNIT_REL_PERCENTAGE,  ///< Relative humidity in percentage,
+  ECMD_HUMIDITY_UNIT_dREL_PERCENTAGE  ///< Relative humidity in deci percentage,
 } ecmdHumidityUnit_t;
 
 /**
