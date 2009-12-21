@@ -1767,6 +1767,10 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
     readMode = ECMD_SENSOR_READ_MODE_1s;
   }else if(modeStr == "8s"){
     readMode = ECMD_SENSOR_READ_MODE_8s;
+  }else if(modeStr == "default"){              //allow default 
+    readMode = ECMD_SENSOR_READ_MODE_DEFAULT;
+  }else if(modeStr == "def"){
+    readMode = ECMD_SENSOR_READ_MODE_DEFAULT; //allow def
   }else {
     ecmdOutputError("getsensor - Invalid sensor readMode. Type 'getsensor -h' for usage.\n");
     return ECMD_INVALID_ARGS;
@@ -1918,6 +1922,11 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
         //relative percentage
         sensorUnit = ECMD_HUMIDITY_UNIT_REL_PERCENTAGE;
       }
+      else if(unit == "dp")
+      {
+        //deci relative percentage
+        sensorUnit = ECMD_HUMIDITY_UNIT_dREL_PERCENTAGE;
+      }
       else { 
         ecmdOutputError("getsensor - Invalid unit for humidity sensor. Type 'getsensor -h' for usage.\n");
         return ECMD_INVALID_ARGS;
@@ -1938,6 +1947,11 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
       {
         //hekto pascal
         sensorUnit = ECMD_AIRDENSITY_UNIT_H_PA;
+      }
+      else if(unit == "dhpa")
+      {
+        //deci hekto pascal
+        sensorUnit = ECMD_AIRDENSITY_UNIT_dH_PA;
       }
       else 
       { 
