@@ -2348,7 +2348,7 @@ uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_n
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
  @param i_bytes Byte length to read. 
- Note: If if i_bytes > actual VPD keyword size: function will return all data of the actual VPD Keyword  .. No Error is flagged.  
+ Note: If i_bytes > actual VPD keyword size: function will return all data of the actual VPD Keyword  .. No Error is flagged.  
  @param o_data Data buffer to copy data to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a keyword
@@ -2382,7 +2382,7 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  @brief Read Module VPD Image Interface
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_bytes Byte length to read
- Note: If if i_bytes > actual VPD Image size: function will return all data of the actual VPD Image .. No Error is flagged.  
+ Note: If i_bytes > actual VPD Image size: function will return all data of the actual VPD Image .. No Error is flagged.  
  @param o_data Data buffer of data read from module
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
@@ -2418,6 +2418,7 @@ uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
  @param i_record_name Name of VPD Record for given keyword
  @param i_keyword Name of VPD Keyword to Read
  @param i_bytes Byte length to read
+ Note: If i_bytes > actual VPD Keyword size: function will return all data of the actual VPD Keyword .. No Error is flagged.  
  @param i_image_data Data buffer containing VPD Image
  @param o_keyword_data Data buffer to copy keyword data to
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
