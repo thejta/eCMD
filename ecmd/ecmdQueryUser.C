@@ -60,7 +60,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-  if(argv[0] != NULL && strcmp(argv[0], "configd")) {
+  if(argv[0] != NULL && strcmp(argv[0], "configd") && strcmp(argv[0],"exist")) {
    rc = ecmdCommandArgs(&argc, &argv);
    if (rc) return rc;
   }
