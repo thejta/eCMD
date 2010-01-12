@@ -448,6 +448,10 @@ typedef enum {
   ECMD_ARRAYTYPE_HARDWARE_ASSIST,       ///< Array is a hardware assist array
   ECMD_ARRAYTYPE_HARDWARE_ASSIST_2,     ///< Array is a hardware assist 2 array
   ECMD_ARRAYTYPE_HARDWARE_ASSIST_3,     ///< Array is a hardware assist 3 array
+  ECMD_ARRAYTYPE_SCOM_ONE,              ///< Array is a scom one 
+  ECMD_ARRAYTYPE_SCOM_TWO,              ///< Array is a scom two 
+  ECMD_ARRAYTYPE_SCOM_ONE_RETRY,        ///< Array is a scom one with retry attempts
+
 } ecmdArrayType_t;
 
 /**
