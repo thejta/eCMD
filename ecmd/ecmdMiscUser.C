@@ -392,6 +392,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   bool maskFlag = false;
   char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
   char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
+  char* verbosePtr = NULL;                      ///< Pointer to -v[s0,s1] in arg list
   ecmdDataBuffer expected;                      ///< Buffer to store expected data
   ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
   std::string outputformat = "x";               ///< Output Format to display
@@ -399,7 +400,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   ecmdChipTarget target;                        ///< Current target being operated on
   ecmdDataBuffer buffer;                        ///< Buffer to hold Cfam data
   bool validPosFound = false;                   ///< Did the looper find anything?
-  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData looperData;                    ///< Store internal Looper data
   std::string printed;                          ///< Output data
 
   /************************************************************************/
@@ -413,6 +414,19 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
       maskFlag = true;
     }
   }
+  
+  if (ecmdParseOption(&argc, &argv, "-v")) {
+    verbosePtr = "-v";
+  }
+  else if (ecmdParseOption(&argc, &argv, "-vs0")) {
+    verbosePtr = "-vs0";
+  }
+  else if (ecmdParseOption(&argc, &argv, "-vs1")) {
+    verbosePtr = "-vs1";
+  }
+  
+
+
 
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
@@ -484,7 +498,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
 
   }
-  if (argc > 2) { 
+  if (argc > 3) { 
     ecmdOutputError("getcfam - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("getcfam - Type 'getcfam -h' for usage.\n");
     return ECMD_INVALID_ARGS;
@@ -554,6 +568,17 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
       printed = ecmdWriteTarget(target);
       printed += ecmdWriteDataFormatted(buffer, outputformat);
       ecmdOutput( printed.c_str() );
+
+      if ((verbosePtr != NULL) && !expectFlag) {
+      //even if rc returned is non-zero we want to continue to the next chip
+#ifndef ECMD_REMOVE_SEDC_SUPPORT
+        ecmdScomData scomData;   ///< Scom data 
+        scomData.address = address;
+        ecmdDisplayScomData(target, scomData, buffer, verbosePtr);
+#else
+	ecmdOutputWarning("ecmdDisplayScomData is not supported in this getscom implementation (ECMD_REMOVE_SEDC_SUPPORT has been defined)\n");
+#endif
+      }
 
     }
   }
