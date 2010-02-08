@@ -284,6 +284,10 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
     mode = "turbo";
   } else if (!strcmp(argv[0], "query")) {
     mode = "query";
+  } else if (!strcmp(argv[0], "dynamic_save")) {
+    mode = "dynamic_save";
+  } else if (!strcmp(argv[0], "dynamic_save_mp")) {
+    mode = "dynamic_save_mp";
   } else {
     ecmdOutputError("powermode - Invalid argument passed to powermode. Accepted arguments: ('save', 'normal', 'query', 'turbo').\n");
     return ECMD_INVALID_ARGS;
@@ -307,15 +311,30 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (mode == "normal") {
-      printed = "Normal Mode";
-      printed += ecmdWriteTarget(target) + " ..\n";
+      printed = ecmdWriteTarget(target) + ".. ";
+      printed += "Normal Mode\n";
       ecmdOutput(printed.c_str());
       rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_NORMAL);
     } else if (mode == "save") {
-      printed = "Power Save Mode";
-      printed += ecmdWriteTarget(target) + " ..\n";
+      printed = ecmdWriteTarget(target) + ".. ";
+      printed += "Power Save Mode\n";
       ecmdOutput(printed.c_str());
       rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SAVE);
+    } else if (mode == "turbo") {
+      printed = ecmdWriteTarget(target) + ".. ";
+      printed += "Turbo Mode\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_TURBO);
+    } else if (mode == "dynamic_save") {
+      printed = ecmdWriteTarget(target) + ".. ";
+      printed += "Dynamic Powersave Mode\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SAVE_DYNAMIC);
+    } else if (mode == "dynamic_save_mp") {
+      printed = ecmdWriteTarget(target) + ".. ";
+      printed += "Dynamic Powersave Max Performance Mode\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SAVE_DYNAMIC_MP);
    } else if (mode == "query") {
      ecmdPowerMode_t o_mode=ECMD_POWER_MODE_UNKNOWN;
      rc = ecmdGetPowerMode(target, o_mode);
@@ -327,6 +346,12 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
        printed += " Normal \n";
      } else  if (o_mode== ECMD_POWER_MODE_TURBO)   {
        printed += " Turbo \n";
+     } else  if (o_mode== ECMD_POWER_MODE_SAVE_DYNAMIC)   {
+       printed += " Dynamic Powersave \n";
+     } else  if (o_mode== ECMD_POWER_MODE_SAVE_DYNAMIC_MP)   {
+       printed += " Dynamic Powersave Max Performance \n";
+     } else  if (o_mode== ECMD_POWER_MODE_IN_TRANSITION)   {
+       printed += " Transition \n";
      } else {
        printed += " unknown \n";
      }
