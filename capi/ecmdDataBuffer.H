@@ -863,6 +863,7 @@ public:
    */
   uint32_t extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a uint16_t buffer
    * @param o_data uint16_t buffer to copy into - data is placed left aligned - must be pre-allocated
@@ -884,6 +885,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t extract(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Copy data from this buffer into another at a given offset, preserving the size and other data in the output buffer
@@ -910,6 +912,7 @@ public:
    */
   uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const; 
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer 
    * @param o_data Array of data to write into, must be pre-allocated
@@ -935,6 +938,7 @@ public:
    * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
    */
   uint32_t extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Copy data from this DataBuffer into another DataBuffer and right justify
@@ -958,6 +962,7 @@ public:
    */
   uint32_t extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a uint16_t buffer
    * @param o_data uint16_t buffer to copy into - data is placed right aligned - must be pre-allocated
@@ -979,6 +984,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Concatenate 2 DataBuffers into in this one
