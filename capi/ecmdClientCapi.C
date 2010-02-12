@@ -87,7 +87,7 @@ ecmdGlobalArgs g_args;
 uint32_t ecmdLoadDll(std::string i_dllName) {
 
   uint32_t rc = ECMD_SUCCESS;
-
+  std::string loadDllName = i_dllName;
 
 #ifndef ECMD_STATIC_FUNCTIONS
   const char* dlError;
@@ -108,7 +108,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #ifndef ECMD_STRIP_DEBUG
   int myTcount = 0;
   std::vector< void * > args;
-  args.push_back((void*) &i_dllName);
+  args.push_back((void*) &loadDllName);
   if (ecmdClientDebug != 0) {
      fppCallCount++;
      myTcount = fppCallCount;
@@ -128,11 +128,11 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
     /* --------------------- */
     /* load DLL              */
     /* --------------------- */
-  if (i_dllName.size() == 0) {
+  if (loadDllName.size() == 0) {
     /* Let's try to get it from the env var */
     char * tempptr = getenv("ECMD_DLL_FILE");  /* is there a ECMD_DLL_FILE environment variable? */
     if (tempptr != NULL) {
-      i_dllName = tempptr;
+      loadDllName = tempptr;
     } else {
       fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
       return ECMD_INVALID_DLL_FILENAME;
@@ -141,13 +141,13 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) 
-    printf("loadDll: loading %s ...\n", i_dllName.c_str()); 
+    printf("loadDll: loading %s ...\n", loadDllName.c_str()); 
 #endif
-  dlHandle = dlopen(i_dllName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+  dlHandle = dlopen(loadDllName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
   if (!dlHandle) {
     if ((dlError = dlerror()) != NULL) {
-      printf("ERROR: loadDll: Problems loading '%s' : %s\n", i_dllName.c_str(), dlError);
+      printf("ERROR: loadDll: Problems loading '%s' : %s\n", loadDllName.c_str(), dlError);
       return ECMD_DLL_LOAD_FAILURE;
     }
 #ifndef ECMD_STRIP_DEBUG
@@ -183,7 +183,7 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #else
   rc = dllLoadDll(ECMD_CAPI_VERSION, 0);
 #endif
-	    
+        
 
     
 #endif /* ECMD_STATIC_FUNCTIONS */
@@ -197,9 +197,9 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 
     for (int idx = 0; idx < ECMD_ARG_LIMIT; idx++) {
       if (idx < l_argc) {
-	l_argv[idx] = g_args.argv[idx];
+    l_argv[idx] = g_args.argv[idx];
       } else {
-	l_argv[idx] = NULL;
+    l_argv[idx] = NULL;
       }
     }
    
