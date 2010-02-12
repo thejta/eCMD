@@ -54,8 +54,9 @@ int main (int argc, char *argv[])
     cmdSave += " ";
   }
   cmdSave += "\n";
-
-  rc = ecmdLoadDll("");
+  std::string dllToLoadName;
+  dllToLoadName.clear(); // get dllnName from environment variable
+  rc = ecmdLoadDll(dllToLoadName);
   if (rc) {
     ecmdLoadDllRecovery(cmdSave, rc);
   }
@@ -201,12 +202,13 @@ int main (int argc, char *argv[])
 
             }
             // ---- catch the redirect to file cmd ----------
-            redirFile.clear();
-            redirMode = false;
-            int redirStart =0;
-            redirStart = commandIter->find_first_of('>',0);
-            if (redirStart != -1)
+            else if ( commandIter->find_first_of('>',0) != -1)
             {
+              int redirStart =0;
+              redirFile.clear();
+              redirMode = false;
+
+              redirStart = commandIter->find_first_of('>',0);
               redirFile = commandIter->substr(redirStart,commandIter->length()-redirStart);           
               redirFile.erase(0,1);
               // erase leading blanks in filename
@@ -241,16 +243,17 @@ int main (int argc, char *argv[])
           if ( commlen > bufflen) {
             if (buffer != NULL) delete[] buffer;
             buffer = new char[commlen + 20];
-            bufflen = commlen + 19;
+            if (buffer == NULL)
+            {
+               bufflen = 0;
+               break;
+            }
+            else
+               bufflen = commlen + 19;
           }
 
-          // Beam "error" of possible NULL 'buffer' value requires mutually
-          // exclusive conditions (need an argument present to enter 
-          // "commands" FOR loop but commandIter->length = 0 ie. no command).  So
-          // tell beam to ignore NULL pointer message for 'buffer' parm via
-          // comment on next line.
-          //lint -e(668) Ignore passing null, same as above for lint
-          strcpy(buffer, commandIter->c_str()); /*passing null object*/
+
+          strcpy(buffer, commandIter->c_str());
 
           /* Now start carving this thing up */
           bool lookingForStart = true; /* Are we looking for the start of a word ? */
