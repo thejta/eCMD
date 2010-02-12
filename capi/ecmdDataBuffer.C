@@ -730,7 +730,7 @@ uint32_t ecmdDataBuffer::setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_v
 
   if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
     ETRAC2("**** ERROR : ecmdDataBuffer::setDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)"
-	   , i_doublewordoffset, ((getWordLength()+1)/2));
+       , i_doublewordoffset, ((getWordLength()+1)/2));
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -794,7 +794,7 @@ uint64_t ecmdDataBuffer::getDoubleWord(uint32_t i_doublewordoffset) const {
   // Round up to the next word and check length
   if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
     ETRAC2("**** ERROR : ecmdDataBuffer::getDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", 
-	   i_doublewordoffset, ((getWordLength()+1)/2));
+       i_doublewordoffset, ((getWordLength()+1)/2));
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
@@ -2402,7 +2402,7 @@ std::string ecmdDataBuffer::genAsciiStr(uint32_t i_start, uint32_t i_bitLen) con
 
   int numBytes = asciiBuffer.getByteLength();
   for (int i = 0; i < numBytes; i++) { /* byte loop */
-    tempByte = asciiBuffer.getByte(i);  /* grab a byte */  	  
+    tempByte = asciiBuffer.getByte(i);  /* grab a byte */     
     if (tempByte < 32 || tempByte > 126) { /* decimal 32 == space, 127 == DEL */
       ret += ".";  /* non-printing: use a . */
     } else {
@@ -2940,13 +2940,6 @@ uint32_t ecmdDataBuffer::flattenSize() const {
 }
 
 
-/**
- * @brief Initializes the X-state buffer, from then on all changes are reflected in Xstate
- * @post Xstate buffer is created and initialized to value of current raw buffer
- * @retval ECMD_DBUF_SUCCESS on success
- * @retval ECMD_DBUF_INIT_FAIL failure occurred allocating X-state array
- * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
- */
 #ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::enableXstateBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -2994,12 +2987,6 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
 }
 #endif /* REMOVE_SIM */
 
-/**
- * @brief Removes the X-state buffer, from then on no changes are made to Xstate
- * @post Xstate buffer is deallocated
- * @retval ECMD_DBUF_SUCCESS on success
-  * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
-  */
 #ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::disableXstateBuffer() {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -3019,11 +3006,6 @@ uint32_t ecmdDataBuffer::disableXstateBuffer() {
  }
 #endif /* REMOVE_SIM */
 
- /**
-  * @brief Query to find out if this buffer has X-states enabled
-  * @retval true if the Xstate buffer is active
-  * @retval false if the Xstate buffer is not active
-  */
 #ifndef REMOVE_SIM
 bool ecmdDataBuffer::isXstateEnabled() const {
  return iv_XstateEnabled;
@@ -3076,12 +3058,6 @@ bool   ecmdDataBuffer::hasXstate(uint32_t i_start, uint32_t i_length) const {
 }
 #endif /* REMOVE_SIM */
 
-/**
- * @brief Retrieve an Xstate value from the buffer
- * @param i_bit Bit to retrieve
-
- * NOTE - To retrieve multipe bits use genXstateStr
- */
 #ifndef REMOVE_SIM
 char ecmdDataBuffer::getXstate(uint32_t i_bit) const {
   if (!iv_XstateEnabled) {
@@ -3099,10 +3075,6 @@ char ecmdDataBuffer::getXstate(uint32_t i_bit) const {
 }
 #endif /* REMOVE_SIM */
 
-/**
- * @brief Set an Xstate value in the buffer
- * @param i_bit Bit to set
- */
 #ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -3154,11 +3126,6 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_leng
 }
 #endif /* REMOVE_SIM */
 
-/**
- * @brief Set a range of Xstate values in buffer
- * @param i_bitoffset bit in buffer to start inserting
- * @param i_datastr Character value to set bit - can be "0", "1", "X"
- */
 #ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::setXstate(uint32_t i_bitOffset, const char* i_datastr) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
@@ -3545,7 +3512,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
       ins.read((char *)&existingFmt,4); existingFmt = (ecmdFormatType_t)htonl(existingFmt);
       if (existingFmt != i_format) {
         ETRAC0("**** ERROR : Format requested does not match up with the file Format.");
-	RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
+    RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
       }
       ins.seekg(begOffset);
       offsetTableData = new char[totalFileSz-begOffset];
@@ -3589,13 +3556,13 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
     if (i_format == ECMD_SAVE_FORMAT_BINARY) {
       //BIN Hdr
       ops.write("START",8);
-      numBits	  = htonl(numBits);			 ops.write((char *)&numBits,4);//Bit length field
+      numBits     = htonl(numBits);          ops.write((char *)&numBits,4);//Bit length field
       i_format    = (ecmdFormatType_t)htonl(i_format);   ops.write((char*)&i_format,4);//Format field
-      tmphdrfield = htonl(tmphdrfield); 		 ops.write((char*)&tmphdrfield,4);//Leave 1 words extra room here
+      tmphdrfield = htonl(tmphdrfield);          ops.write((char*)&tmphdrfield,4);//Leave 1 words extra room here
       if (i_facName != NULL) {
         memset(propertyStr, '\0', 201);
         strcpy(propertyStr, i_facName);
-	ops.write(propertyStr, 200); // String associated with the data buffer
+    ops.write(propertyStr, 200); // String associated with the data buffer
       }
     }
     else {
@@ -3649,10 +3616,10 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
      }
      if (szcount !=0 ) {
       if((szcount % 256) == 0) {
-  	ops << "\n"; 
+    ops << "\n"; 
       }
       else if((szcount % 32) == 0) {
-  	ops << " ";
+    ops << " ";
       }
      }
      ops << asciidatastr.c_str();
@@ -4112,7 +4079,7 @@ uint32_t ecmdDataBuffer::readFileMultiple(const char * i_filename, ecmdFormatTyp
       ins.width(9);  ins >> hexstr;
       if (((i*32)+32) > numBits) {
         hexstr[strlen(hexstr)] = '\0'; //strip newline char
-	hexbitlen = numBits - (i*32);
+    hexbitlen = numBits - (i*32);
       } else {
         hexbitlen = 32;
       }
@@ -4191,11 +4158,11 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
     uint32_t rc = ECMD_DBUF_SUCCESS;
 
     if(i_sharingBuffer == NULL)
-	return(ECMD_DBUF_INVALID_ARGS);
+    return(ECMD_DBUF_INVALID_ARGS);
     //delete data if currently has any
     if (i_sharingBuffer->iv_RealData != NULL)
     {
-	i_sharingBuffer->clear();
+    i_sharingBuffer->clear();
     }
 
     //copy the buffer called from minus the owner flag
@@ -4465,18 +4432,13 @@ void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer 
        These routines belong to derived class ecmdOptimizableDataBuffer
  ********************************************************************************/
 
-/**
- * @brief Default constructor for ecmdOptimizableDataBuffer class
- */
 ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer()
 {
    iv_BufferOptimizable = true;     
 }
 
-/**
- * @brief Constructor with bit length specified
- */
 ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer(uint32_t i_numBits)
  : ecmdDataBuffer(i_numBits) {
        iv_BufferOptimizable = true;     
 }
+
