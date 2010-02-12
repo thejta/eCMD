@@ -130,6 +130,7 @@ uint32_t ecmdCheckDllVersion(const char* options) {
     rc = (*Function)(options);
   }
 
+  if (dlHandle) dlclose(dlHandle);
   /* The dllCheckDllVersion does an exit so we will never get here */
   return rc;
 }

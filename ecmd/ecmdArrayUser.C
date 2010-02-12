@@ -256,10 +256,7 @@ uint32_t ecmdGetArrayUser(int argc, char * argv[]) {
                   if (coeMode) {       
                     continue;
                   } else {
-                    if (add_buffer) {
-                      delete[] add_buffer;
-                    } 
-
+                    delete[] add_buffer;
                     return ECMD_DATA_OVERFLOW;
                   }
                 }
