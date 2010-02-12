@@ -298,7 +298,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
        if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
 
      	 //@ make this stuff sprintf'd
-     	 char outstr[50];
+     	 char outstr[100];
      	 printed = ecmdWriteTarget(cuTarget);
      	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
      	 printed += outstr;
