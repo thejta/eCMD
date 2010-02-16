@@ -95,35 +95,35 @@ Syntax: ecmd
         Z Series Extensions:
         --------------------------------------------------------------------------------
 
-        zseactivatefru           zsegetvpdrecords         zsenetdeactivatenetworkfruzserunrpt                
-        zseactivatenetworkfru    zsegetvpdtype            zsenetpscnnetinfo        zsesendsw                
-        zsealternatepath         zsehdcbactivate          zsenetpscnsetccslave     zsesetcecoscdefaultnestspeed
-        zsececdump               zsehdcbrestoredefault    zsenetpscnversioninfo    zseshfinit               
-        zsechecketr              zsehdcbsave              zsenetstartmirroring     zsesimenv                
-        zsecheckicbwrap          zsei390trccleartracebufferzsenetupdateccload       zsesimread               
-        zsecheckservicenetwork   zsei390trcpeektraceentrieszseoscillatorswitchover  zsesimwrite              
-        zsecheckstatus           zsei390trcresetcpusapcontrolszsepchid                 zsestartmirroring        
-        zsechkpscnnetwork        zsei390trcresetcsscontrolszsepppcchillerreadtemper zsesysstatus             
-        zsecontrolledwarmstart   zsei390trcresetiottcontrolszsepppcchillersetbias    zsesystempoweroff        
-        zsecsaactivatenode       zsei390trcresettracesettingszsepppcgenericcommand    zsesystempoweron         
-        zsecsadeactivatenode     zsei390trcresetw1controlszsepppcgetambienttemperaturezsevoltagebiasfru        
-        zsecsadisable            zsei390trcrestoretracedefaultzsepppcgetamdspeed       zsewaitforcecsw          
-        zsecsaenable             zsei390trcsavetracetofilezsepppcgetamdspeedandambienttemperaturezsewaitforwarmstart      
-        zsecsagetstatedump       zsei390trcsetcsscontrols zsepppcgetblowerspeed    zsewarmstart             
-        zsecsaissueinfolog       zsei390trcsetiottcontrolszsepppcgetbpastate       zsewriteerrorlog         
-        zsecsasetforcedegrade    zsei390trcsetupcomponentszsepppcgetcageinfolog    zsewriteeventlog         
-        zsecsasetimlmode         zsei390trcsetuptracelevelszsepppcgetnodepowerstate zsewriteinfolog          
-        zsecsasuppresswarninglogszsei390trcsetw1controls  zsepppcmcmreadtemperaturezsexcryptorunmode        
-        zsecsaunsetforcedegrade  zseicbconfig             zsepppcmcmreadthermaldata
-        zsecsehactive            zseiml                   zsepppcreadcurrentdca    
-        zsedeactivatefru         zseinpa                  zsepppcreadvoltagedca    
-        zsedflogread             zseitemxfer              zsepppcsetamdspeed       
-        zseetrnowrap             zsenbbiml                zsepppcsetbackupblowercontroltemp
-        zseetrstatus             zsenetacdlsystem         zsepppcsetblowerspeed    
-        zsegetallunits           zsenetactivatenetwork    zsepurgelog              
-        zsegetfilepath           zsenetactivatenetworkfru zsequerycryptostate      
-        zsegetpchids             zsenetcctakeover         zsequerylicccfilenames   
-        zsegetsysstatus          zsenetcheckservicenetworkzsequeryrefc             
-        zsegetvpdkeywordsforrecordzsenetchkpscnnetwork     zseratestate             
+        zseactivatefru           zsegetvpdkeywordsforrecordzsenetcheckservicenetworkzsepppcsetblowerspeed    
+        zseactivatenetworkfru    zsegetvpdrecords         zsenetchkpscnnetwork     zseppstest               
+        zsealternatepath         zsegetvpdtype            zsenetdeactivatenetworkfruzsepurgelog              
+        zsececdump               zsehdcbactivate          zsenetpscnnetinfo        zsequerycryptostate      
+        zsechecketr              zsehdcbrestoredefault    zsenetpscnsetccslave     zsequerylicccfilenames   
+        zsecheckicbwrap          zsehdcbsave              zsenetpscnversioninfo    zsequeryrefc             
+        zsecheckservicenetwork   zsei390trccleartracebufferzsenetstartmirroring     zseratestate             
+        zsecheckstatus           zsei390trcpeektraceentrieszsenetupdateccload       zserunrpt                
+        zsechkpscnnetwork        zsei390trcresetcpusapcontrolszseoscillatorswitchover  zsesendsw                
+        zsecontrolledwarmstart   zsei390trcresetcsscontrolszsepchid                 zsesetcecoscdefaultnestspeed
+        zsecsaactivatenode       zsei390trcresetiottcontrolszsepppcchillerreadtemper zsesetmcmdebugtemperature
+        zsecsadeactivatenode     zsei390trcresettracesettingszsepppcchillersetbias    zseshfinit               
+        zsecsadisable            zsei390trcresetw1controlszsepppcdisablevtm        zsesimenv                
+        zsecsaenable             zsei390trcrestoretracedefaultzsepppcenablevtm         zsesimread               
+        zsecsagetstatedump       zsei390trcsavetracetofilezsepppcgenericcommand    zsesimwrite              
+        zsecsaissueinfolog       zsei390trcsetcsscontrols zsepppcgetambienttemperaturezsestartmirroring        
+        zsecsasetforcedegrade    zsei390trcsetiottcontrolszsepppcgetamdspeed       zsesysstatus             
+        zsecsasetimlmode         zsei390trcsetupcomponentszsepppcgetamdspeedandambienttemperaturezsesystempoweroff        
+        zsecsasuppresswarninglogszsei390trcsetuptracelevelszsepppcgetblowerspeed    zsesystempoweron         
+        zsecsaunsetforcedegrade  zsei390trcsetw1controls  zsepppcgetbpastate       zsevoltagebiasfru        
+        zsecsehactive            zseicbconfig             zsepppcgetcageinfolog    zsewaitforcecsw          
+        zsedeactivatefru         zseiml                   zsepppcgetnodepowerstate zsewaitforwarmstart      
+        zsedflogread             zseimldiagnostics        zsepppcgetvtmconfig      zsewarmstart             
+        zseetrnowrap             zseinpa                  zsepppcgetvtmstatus      zsewriteerrorlog         
+        zseetrstatus             zseitemxfer              zsepppcmcmreadtemperaturezsewriteeventlog         
+        zsegetallunits           zsenbbiml                zsepppcmcmreadthermaldatazsewriteinfolog          
+        zsegetcsacoolingstatus   zsenetacdlsystem         zsepppcreadcurrentdca    zsexcryptorunmode        
+        zsegetfilepath           zsenetactivatenetwork    zsepppcreadvoltagedca    
+        zsegetpchids             zsenetactivatenetworkfru zsepppcsetamdspeed       
+        zsegetsysstatus          zsenetcctakeover         zsepppcsetbackupblowercontroltemp
 
 
