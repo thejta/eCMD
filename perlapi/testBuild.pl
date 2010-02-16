@@ -12,7 +12,7 @@ if [ "X$ECMDPERLBIN" = "X" ]; then
   export LD_LIBRARY_PATH="ENV{"OBJROOT"}/lib/x86/3.4.6/:$OBJROOT/capi/obj_x86/";
  else
   export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OBJROOT/perlapi/obj_aix/;
-  export LIBPATH="$OBJROOT/capi/obj_x86";
+  export LIBPATH="$OBJROOT/capi/obj_aix";
  fi
 fi
 
