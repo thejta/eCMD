@@ -101,7 +101,7 @@ int main (int argc, char *argv[])
       bool redirMode = false;
       std::string redirFile;
 
-      FILE *stream ;
+      FILE *stream = NULL;
 
       if (shellMode) {
         //setupEcmds(); /* Removed, not used - JTA 10/15/09 */
@@ -202,7 +202,7 @@ int main (int argc, char *argv[])
 
             }
             // ---- catch the redirect to file cmd ----------
-            else if ( commandIter->find_first_of('>',0) != -1)
+            else if ( commandIter->find_first_of('>',0) != std::string::npos)
             {
               int redirStart =0;
               redirFile.clear();
