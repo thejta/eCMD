@@ -52,6 +52,19 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
 */
 uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
+/* STGC01276442 - MKL 03/04/10 */
+/**
+ @brief Uses the buffer i_newData to create the buffers o_data and o_mask based upon the specified i_modifier for length of i_newData
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ @param o_data Output data buffer
+ @param o_mask Output mask buffer
+ @param i_newData Data to use to creat o_data and o_mask based on modifier
+ @param i_startbit Startbit of o_data to begin creation
+ @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
+*/
+uint32_t ecmdCreateDataMaskModifier(ecmdDataBuffer & o_data, ecmdDataBuffer & o_mask, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
+
 /**
  @brief Write help text file for command
  @param i_command Command to lookup help text for
