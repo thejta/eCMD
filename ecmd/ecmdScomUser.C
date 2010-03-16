@@ -366,7 +366,8 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
   uint32_t address;                             ///< Scom address
-  ecmdDataBuffer buffer;                        ///< Container to store read/write data
+  ecmdDataBuffer buffer;                        ///< Container to store write data
+  ecmdDataBuffer mask;                          ///< Container to store write mask
   ecmdDataBuffer cmdlineBuffer;                 ///< Buffer to store data to be inserted
   bool validPosFound = false;                   ///< Did the config looper actually find a chip ?
   std::string printed;                          ///< String for printed data
@@ -558,9 +559,17 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
 
-        rc = getScom(cuTarget, address, buffer);
+        buffer.setBitLength(scomData->length);
+        mask.setBitLength(scomData->length);
+        rc = ecmdCreateDataMaskModifier(buffer, mask, cmdlineBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier, scomData->endianMode);
         if (rc) {
-          printed = "putscom - Error occured performing getscom on ";
+          coeRc = rc;
+          continue;
+        }
+
+        rc = putScomUnderMask(cuTarget, address, buffer, mask);
+        if (rc) {
+          printed = "putscom - Error occured performing putscomundermask on ";
           printed += ecmdWriteTarget(cuTarget);
           printed += "\n";
           ecmdOutputError( printed.c_str() );
@@ -569,25 +578,20 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
         } else {
           validPosFound = true;
         }
+      } else {
 
-        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startbit == ECMD_UNSET ? 0 : startbit), dataModifier, scomData->endianMode);
+        /* My data is all setup, now write it */
+        rc = putScom(cuTarget, address, buffer);
         if (rc) {
+          printed = "putscom - Error occured performing putscom on ";
+          printed += ecmdWriteTarget(cuTarget);
+          printed += "\n";
+          ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;
+        } else {
+          validPosFound = true;
         }
-      }
-
-      /* My data is all setup, now write it */
-      rc = putScom(cuTarget, address, buffer);
-      if (rc) {
-        printed = "putscom - Error occured performing putscom on ";
-        printed += ecmdWriteTarget(cuTarget);
-        printed += "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-      } else {
-        validPosFound = true;
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
