@@ -2107,7 +2107,7 @@ uint32_t ecmdSyncPluginStateUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config
   if (argc > 1) {
     ecmdOutputError("syncpluginstate - Too many arguments specified; you probably added an unsupported option.\n");
-    ecmdOutputError("syncpluginstate - Type 'reconfig -h' for usage.\n");
+    ecmdOutputError("syncpluginstate - Type 'syncpluginstate -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
