@@ -646,7 +646,7 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 	} else if (!strcmp(argv[0], "stopclocks")) {
           rc = ecmdStopClocksUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
-        } else if (!strcmp(argv[0], "syncpluginstatus")) {
+        } else if (!strcmp(argv[0], "syncpluginstate")) {
           rc = ecmdSyncPluginStateUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_POWER_FUNCTIONS
         } else if (!strcmp(argv[0], "systempower")) {
