@@ -556,7 +556,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (coeRc) return coeRc;
 
   // This is an error common across all UI functions
-  if (!validPosFound) {
+  if (!validPosFound && !rc) {
     printLine = cmdlineName + " - Unable to find a valid chip to execute command on\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_TARGET_NOT_CONFIGURED;
