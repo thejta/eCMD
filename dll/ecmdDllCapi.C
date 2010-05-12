@@ -1,3 +1,20 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips730 src/ecmd/fsp/ecmdDllCapi.C 1.20.1.16 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// COPYRIGHT International Business Machines Corp. 2004,2010 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -188,6 +205,10 @@ bool isValidTargetString(std::string &str);
 bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
 uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
+
+/* @brief used by dllCommonCommandArgs when ":" found, sets ecmdUserArgs */
+uint32_t ecmdTargetExpansion(std::string arg_string , const char * input_target);
+
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -2026,6 +2047,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   /*************************************/
   /* Parse command line targeting args */
   /*************************************/
+
   /* This is left in for backwards comptability, preference is to use the option below */
   bool allFound = false;
   if (ecmdParseOption(io_argc, io_argv, "-all")) {
@@ -2050,6 +2072,12 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     allFound = true;
   }
 
+  
+  // Target Short-Hand:  For -k, -n, -s, -p, -c, -t options, look for ':' in case multiple
+  //  target fields were put together in 1 arg
+  uint32_t l_find = 0;
+  std::string l_tmp_string;
+
   //cage - the "-k" was Larry's idea, I just liked it - 
   curArg = ecmdParseOptionWithArgs(io_argc, io_argv, "-k");
   if (curArg) {
@@ -2057,7 +2085,23 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
       dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -k at the same time\n");
       return ECMD_INVALID_ARGS;
     } else  {
-      ecmdUserArgs.cage = curArg;
+      // For target expansion, look for ':'
+      l_tmp_string = curArg;
+      l_find = l_tmp_string.find_first_of(":");
+      if (l_find == std::string::npos) {
+        // No ":" found - just set ecmdUserArgs target directly
+        ecmdUserArgs.cage = curArg;
+      } else {
+        // Found ":"; Make sure there's something before first ':'
+        if (l_find == 0) {
+          dllOutputError("dllCommonCommandArgs - No Target Info Found Before First ':'\n");
+          return ECMD_INVALID_ARGS;
+        } else {
+          // Call Expansion function to process arg with ':'
+          rc = ecmdTargetExpansion(l_tmp_string, "-k");
+          if (rc) return rc;
+        }
+      }
     }
   }
 
@@ -2068,7 +2112,23 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
       dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -n at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
-      ecmdUserArgs.node = curArg;
+      // For target expansion, look for ':'
+      l_tmp_string = curArg;
+      l_find = l_tmp_string.find_first_of(":");
+      if (l_find == std::string::npos) {
+        // No ":" found - just set ecmdUserArgs target directly
+        ecmdUserArgs.node = curArg;
+      } else {
+        // Found ":"; Make sure there's something before first ':'
+        if (l_find == 0) {
+          dllOutputError("dllCommonCommandArgs - No Target Info Found Before First ':'\n");
+          return ECMD_INVALID_ARGS;
+        } else {
+          // Call Expansion function to process arg with ':'
+          rc = ecmdTargetExpansion(l_tmp_string, "-n");
+          if (rc) return rc;
+        }
+      }
     }
   }
 
@@ -2079,7 +2139,23 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
       dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -s at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
-      ecmdUserArgs.slot = curArg;
+      // For target expansion, look for ':'
+      l_tmp_string = curArg;
+      l_find = l_tmp_string.find_first_of(":");
+      if (l_find == std::string::npos) {
+        // No ":" found - just set ecmdUserArgs target directly
+        ecmdUserArgs.slot = curArg;
+      } else {
+        // Found ":"; Make sure there's something before first ':'
+        if (l_find == 0) {
+          dllOutputError("dllCommonCommandArgs - No Target Info Found Before First ':'\n");
+          return ECMD_INVALID_ARGS;
+        } else {
+          // Call Expansion function to process arg with ':'
+          rc = ecmdTargetExpansion(l_tmp_string, "-s");
+          if (rc) return rc;
+        }
+      }
     }
   }
 
@@ -2090,7 +2166,23 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
       dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -p at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
-      ecmdUserArgs.pos = curArg;
+      // For target expansion, look for ':'
+      l_tmp_string = curArg;
+      l_find = l_tmp_string.find_first_of(":");
+      if (l_find == std::string::npos) {
+        // No ":" found - just set ecmdUserArgs target directly
+        ecmdUserArgs.pos = curArg;
+      } else {
+        // Found ":"; Make sure there's something before first ':'
+        if (l_find == 0) {
+          dllOutputError("dllCommonCommandArgs - No Target Info Found Before First ':'\n");
+          return ECMD_INVALID_ARGS;
+        } else {
+          // Call Expansion function to process arg with ':'
+          rc = ecmdTargetExpansion(l_tmp_string, "-p");
+          if (rc) return rc;
+        }
+      }
     }
   }
 
@@ -2101,7 +2193,23 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
       dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -c at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
-      ecmdUserArgs.chipUnitNum = curArg;
+      // For target expansion, look for ':'
+      l_tmp_string = curArg;
+      l_find = l_tmp_string.find_first_of(":");
+      if (l_find == std::string::npos) {
+        // No ":" found - just set ecmdUserArgs target directly
+        ecmdUserArgs.chipUnitNum = curArg;
+      } else {
+        // Found ":"; Make sure there's something before first ':'
+        if (l_find == 0) {
+          dllOutputError("dllCommonCommandArgs - No Target Info Found Before First ':'\n");
+          return ECMD_INVALID_ARGS;
+        } else {
+          // Call Expansion function to process arg with ':'
+          rc = ecmdTargetExpansion(l_tmp_string, "-c");
+          if (rc) return rc;
+        }
+      }
     }
   }
 
@@ -2112,9 +2220,26 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
       dllOutputError("dllCommonCommandArgs - Cannot specify -a target parm and -t at the same time\n");
       return ECMD_INVALID_ARGS;
     } else {
-      ecmdUserArgs.thread = curArg;
+      // For target expansion, look for ':'
+      l_tmp_string = curArg;
+      l_find = l_tmp_string.find_first_of(":");
+      if (l_find == std::string::npos) {
+        // No ":" found - just set ecmdUserArgs target directly
+        ecmdUserArgs.thread = curArg;
+      } else {
+        // Found ":"; Make sure there's something before first ':'
+        if (l_find == 0) {
+          dllOutputError("dllCommonCommandArgs - No Target Info Found Before First ':'\n");
+          return ECMD_INVALID_ARGS;
+        } else {
+          // Call Expansion function to process arg with ':'
+          rc = ecmdTargetExpansion(l_tmp_string, "-t");
+          if (rc) return rc;
+        }
+      }
     }
   }
+
 
   /* Call the dllSpecificFunction */
   rc = dllSpecificCommandArgs(io_argc,io_argv);
@@ -2122,10 +2247,71 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   return rc;
 }
 
+/* @brief used by dllCommonCommandArgs when ":" found, sets ecmdUserArgs */
+uint32_t ecmdTargetExpansion(std::string arg_string , const char * input_target) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::string l_tmp_string;
+
+  // We know curArg has ':', so tokenize the string
+  std::vector<std::string> tokens;
+  std::vector<std::string>::iterator tokit;
+  ecmdParseTokens(arg_string,":", tokens);
+
+  for (tokit = tokens.begin(); tokit != tokens.end(); tokit ++) {
+
+    if (tokit == tokens.begin()) {
+
+      // the first arg belongs to the input_target passed in
+      if (!strcmp(input_target, "-k")) ecmdUserArgs.cage=tokit->c_str();
+      else if (!strcmp(input_target, "-n")) ecmdUserArgs.node=tokit->c_str();
+      else if (!strcmp(input_target, "-s")) ecmdUserArgs.slot=tokit->c_str();
+      else if (!strcmp(input_target, "-p")) ecmdUserArgs.pos=tokit->c_str();
+      else if (!strcmp(input_target, "-c")) ecmdUserArgs.chipUnitNum=tokit->c_str();
+      else if (!strcmp(input_target, "-t")) ecmdUserArgs.thread=tokit->c_str();
+
+    } else {
+
+      // Set this here for string operations below
+      l_tmp_string=tokit->c_str();
+
+      // Look for additional targets
+      // If found, remove first char of l_tmp_string and then set ecmdUserArgs
+
+      if (!strncmp(tokit->c_str(), "k", 1)) {
+        l_tmp_string.erase(0,1);          
+        ecmdUserArgs.cage = l_tmp_string;
+      } else if (!strncmp(tokit->c_str(), "n", 1)) {
+        l_tmp_string.erase(0,1);
+        ecmdUserArgs.node = l_tmp_string;
+      } else if (!strncmp(tokit->c_str(), "s", 1)) {
+        l_tmp_string.erase(0,1);
+        ecmdUserArgs.slot = l_tmp_string;
+      } else if (!strncmp(tokit->c_str(), "p", 1)) {
+        l_tmp_string.erase(0,1);
+        ecmdUserArgs.pos = l_tmp_string;
+      } else if (!strncmp(tokit->c_str(), "c", 1)) {
+        l_tmp_string.erase(0,1);
+        ecmdUserArgs.chipUnitNum = l_tmp_string;
+      } else if (!strncmp(tokit->c_str(), "t", 1)) {
+        l_tmp_string.erase(0,1);
+        ecmdUserArgs.thread = l_tmp_string;
+      } else {
+        dllOutputError("ecmdTargetExpansion - Found non-target data after ':'\n");
+        return ECMD_INVALID_ARGS;
+      }
+    }  // end of if (tokit == tokens.begin() ) check
+  }  // end of tokens for loop
+
+  return rc;
+}
+
+
+
 void dllPushCommandArgs() {
   ecmdArgsStack.push_back(ecmdUserArgs);
   ecmdUserArgs.cage = ecmdUserArgs.node = ecmdUserArgs.slot = ecmdUserArgs.pos = ecmdUserArgs.chipUnitNum = ecmdUserArgs.thread = "";
 }
+
 
 void dllPopCommandArgs() {
   if (!ecmdArgsStack.empty()) {
