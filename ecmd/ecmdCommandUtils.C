@@ -733,6 +733,12 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecm
      ecmdOutputError( printed.c_str() );
      return ECMD_INVALID_ARGS;
    }
+   // Look for ':' in target field, which isn't supported for this function at this time
+   else if (targetFieldList.find_first_of(":") < targetFieldList.length()) {
+     printed = "ecmdParseTargetFields - target fields with ':' are not supported by the calling function\n";
+     ecmdOutputError( printed.c_str() );
+     return ECMD_INVALID_ARGS;
+   }
    else if (targetFieldList.find_first_of(patterns) < targetFieldList.length()) {
      if (!isTargetStringValid(targetFieldList)) {
        printed = (std::string)arg + " argument contained invalid characters\n";
