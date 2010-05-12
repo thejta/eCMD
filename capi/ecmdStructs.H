@@ -2136,4 +2136,10 @@ std::string ecmdGetSharedLibVersion();
 
 //@}
 
+/**
+ Defines for getTraceArrayMultiple 
+*/
+#define ECMD_TRACE_ARRAY_START 0x00000001
+#define ECMD_TRACE_ARRAY_STOP  0x00000002
+
 #endif
