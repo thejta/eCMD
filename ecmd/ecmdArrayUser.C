@@ -701,7 +701,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdLooperData cuLooper;            ///< Store internal Looper data for the chipUnit loop
   uint32_t loop; 			///<loop around the array data
-  bool doStopStart = true;              ///< Do we StopStart trace arrays ?
+  uint32_t doStopStart = 0x0;              ///< Do we StopStart trace arrays ?
   std::list<ecmdTraceArrayData> queryTraceData; ///< Trace Data
   std::list<ecmdTraceArrayData>::iterator queryIt; ///< Trace Data Ietrator
   std::map< std::string, std::list<ecmdNameVectorEntry> > cuArrayMap;        ///< Array data fetched
@@ -719,7 +719,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
-  doStopStart = !ecmdParseOption(&argc, &argv, "-nostopstart");
+  if (ecmdParseOption(&argc, &argv, "-stopstart")) {
+    doStopStart |= ECMD_TRACE_ARRAY_STOP;
+    doStopStart |= ECMD_TRACE_ARRAY_START;
+  } else if (ecmdParseOption(&argc, &argv, "-stop")) {
+    doStopStart |= ECMD_TRACE_ARRAY_STOP;
+  }
 
 
   /************************************************************************/
@@ -807,7 +812,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
     if (nestArrayList.size() > 0) {
 
-      rc = getTraceArrayMultiple(target,  doStopStart, nestArrayList);
+      rc = getTraceArrayMultipleHidden(target,  doStopStart, nestArrayList);
       if (rc) {
         printed = "gettracearray - Error occured performing getTraceArrayMultiple on ";
         printed += ecmdWriteTarget(target) + "\n";
@@ -869,7 +874,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
             lit->buffer.clear();
           }
 
-          rc = getTraceArrayMultiple(cuTarget,  doStopStart, cuArrayMapIter->second);
+          rc = getTraceArrayMultipleHidden(cuTarget,  doStopStart, cuArrayMapIter->second);
           if (rc) {
             printed = "gettracearray - Error occured performing getTraceArray on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";

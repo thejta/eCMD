@@ -1,5 +1,5 @@
 
-Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<format>] [-nostopstart]
+Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<format>] [-stop] [-stopstart]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -18,7 +18,9 @@ Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<forma
         -o<format>[opt] Output Format : default 'xl'
                         Run 'ecmdquery formats' to view available formats
 
-        -nostopstart[o] Don't stop and start the trace arrays while dumping.
+        -stop [opt]     Stop the trace arrays before dumping.
+
+        -stopstart [o]  Stop the trace arrays before dumping and start when finished.
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions

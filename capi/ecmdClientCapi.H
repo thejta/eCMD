@@ -1723,7 +1723,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @brief Dump all entries of specified trace array
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of trace array - names may vary for each product/chip
- @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion, if false client is in control
+ @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
  @param o_data Vector of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
@@ -1733,12 +1733,13 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
+uint32_t getTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
 uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
 
 /**
  @brief Dump all entries of specified trace array
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_doTraceStopStart If true disable trace arrays before logging and renable after completion of all trace arrays dumped, if false client is in control
+ @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
  @param o_data List of trace array data retrieved
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
@@ -1753,6 +1754,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
  TARGET STATES : Unused<br>
 
 */
+uint32_t getTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
 uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 //@}
