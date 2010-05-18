@@ -492,7 +492,7 @@ void ecmdSetTargetDisplayMode(ecmdTargetDisplayMode_t i_displayMode) {
 std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
   std::string printed;
-  char util[10];
+  char util[20];
   bool hexMode = false;
   bool stateMode = false;
   std::string subPrinted;
