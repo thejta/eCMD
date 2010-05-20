@@ -1765,4 +1765,56 @@ uint32_t ecmdSimGetDialUser(int argc, char * argv[]) {
   return rc;
 }
 
+uint32_t ecmdSimRunTestcase(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (argc < 1) {
+    ecmdOutputError("simruntestcase - Too few arguments to simruntestcase, you need at least one testcase.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  /* compile testcase names into a vector of strings */
+  std::vector<std::string> testcaseNames;
+
+  std::string currentTestcase;
+  for (int i = 0; i < argc; i++) {
+    if (strcmp(argv[i], "+") == 0) { // if this is the combining string
+      if (i == 0) { // check if this is the first string
+        ecmdOutputError("simruntestcase - Error parsing testcase names '+' found before a testcase was specified.\n");
+        return ECMD_INVALID_ARGS;
+      } else if (i + 1 < argc) { // combine this with the next string if it exists
+        i++;
+        currentTestcase += std::string(" + ") + argv[i];
+      } else {
+        ecmdOutputError("simruntestcase - Could not combine additional empty testcase name.\n");
+        return ECMD_INVALID_ARGS;
+      }
+    } else { // if this is not a combining string, save the name
+      currentTestcase = argv[i];
+    }
+    /* check if next name is not a combining string */
+    if ((i + 1 < argc) && (strcmp(argv[i + 1], "+") != 0)) {
+      testcaseNames.push_back(currentTestcase);
+      currentTestcase = "";
+    }
+  }
+  testcaseNames.push_back(currentTestcase);
+  currentTestcase = "";
+
+  rc = simRunTestcase(testcaseNames, coeMode);
+
+  return rc;
+}
+
 #endif

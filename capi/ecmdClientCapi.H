@@ -3645,6 +3645,15 @@ uint32_t simGetModelInfo(ecmdSimModelInfo& o_modelInfo);
  @retval non-zero on failure
  */
 uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut = 0, bool i_passive = false); 
+
+/**
+ @brief run the testcases specified in the vector of strings
+ @param i_testcaseNames the filenames of the precomiled testcases
+ @param i_continueOnError continue to the next testcase if the previous one failed
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t simRunTestcase(const std::vector<std::string>& i_testcaseNames, bool i_continueOnError = false);
 //@}
 
 #ifndef ECMD_PERLAPI
