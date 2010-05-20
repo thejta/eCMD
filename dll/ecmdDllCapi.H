@@ -501,6 +501,8 @@ uint32_t dllSimGetModelInfo(ecmdSimModelInfo& o_modelInfo);
 
 uint32_t dllSimWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bitValue, uint64_t i_timeOut, bool i_passive); 
 
+uint32_t dllSimRunTestcase(const std::vector<std::string>& i_testcaseNames, bool i_continueOnError); 
+
 #endif /* ifndef REMOVE_SIM (this comment has to be here for makedll.pl to work */
 void dllPushCommandArgs(); 
 
