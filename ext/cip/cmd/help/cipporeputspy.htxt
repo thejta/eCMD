@@ -1,0 +1,54 @@
+
+Syntax: cipporeputspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] <Data>  [-b<modifier>]
+        [-append | -replace | -noop...] [-scaninit | -scominit] [-coe]
+                              
+        ECMD:           Core Common Function
+
+        Function:       Write data to a spy.  Works with idial, edial and alias spy's.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+        SpyName         Desired spy name, (case insensitive)  
+
+        Start     [opt] Starting bit position within the spy.  Specify with numbits.
+                        Only valid with non-enumerated spy's
+
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits
+                        are not specified, start = 0 and numbits is calculated from
+                        length of data string.
+                        Only valid with non-enumerated spy's
+
+        Data            Data to put into spy, either raw data or enum name.
+                        Format specified by -i<format>
+
+        -i<format>[opt] Specifies the format type of input data 
+                        Default format for non-enumerated spys : 'xl'
+                        Default format for enumerated spys : 'enum'
+                        Run 'ecmdquery formats' to view available formats
+
+        -b<mod>[opt]    Bit modifier to apply to current ring data.
+                        Run 'ecmdquery formats' to view available modifiers
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+
+        -append[opt]    Append spy op as PORE instruction in image (add instruction) - default
+
+        -replace[opt]   Replace spy op PORE instruction in image (search and replace instruction)
+
+        -noop[opt]      No-op all existing spy operations if found
+        
+        -scaninit[opt]  Add PORE instruction to SCANINIT section of the image
+
+        -scominit[opt]  Add PORE instruction to SCOMINIT section of the image - default
+        --------------------------------------------------------------------------------
+
+        Examples:       cipporeputspy pu MYALIAS -ixr feedbeeffeeedbeef -append -scominit
+                        cipporeputspy pu EVERYOTHER 16 4 -ib 1010 -bor -scaninit
+                        cipporeputspy pu MYEDIAL ENUMVALUE -ienum
+

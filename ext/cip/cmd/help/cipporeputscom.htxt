@@ -1,0 +1,49 @@
+
+Syntax: cipporeputscom <Chip[.ChipUnit]> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
+        [-append | -replace | -noop...] [-scaninit | -scominit] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
+        ECMD:            CIP (Cronus/IP) Extension
+
+        Function:       Write the specified data to the specified chip using scancom.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+        ScanCommAddr    Address in right aligned hex.
+
+        Start     [opt] Starting bit position within the scom.  Specify with numbits.
+
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits                         
+                        are not specified, start = 0 and numbits is calculated from
+                        length of data string, rest of Scom register is padded with zeros.
+
+        Data            Data to insert into Scom Register.
+                        Format specified by -i<format>
+
+        -i<format>[opt] Specifies the format type of input data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -b<mod>[opt]    Bit modifier to apply to current ring data.
+                        Run 'ecmdquery formats' to view available modifiers
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+      
+        -append[opt]    Append spy op as PORE instruction in image (add instruction) - default
+
+        -replace[opt]   Replace spy op PORE instruction in image (search and replace instruction)
+
+        -noop[opt]      No-op all existing spy operations if found
+        
+        -scaninit[opt]  Add PORE instruction to SCANINIT section of the image
+
+        -scominit[opt]  Add PORE instruction to SCOMINIT section of the image - default
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipporeputscom pu 600000 deadbeef80000000  -p0,1 -c1 -append
+                        > cipporeputscom memctrl 2010 001001010110 -ib  -bor -scominit 
+                        > cipporeputscom l3 40320 0000800000 -bor -p12 -scaninit -replace

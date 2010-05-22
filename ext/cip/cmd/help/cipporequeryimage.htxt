@@ -1,0 +1,17 @@
+
+Syntax: cipporequeryimage <Chip>  [-a#] [-k#] [-n#] [-s#] [-p#] 
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Query PORE image information 
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        ImageName [opt]  Specify image to be queried
+
+        --------------------------------------------------------------------------------
+
+        Example:        cipporequeryimage  pu -p0,1 
+                        cipporequeryimage  p7p  myimage
+                        cipporequeryimage  memb -all

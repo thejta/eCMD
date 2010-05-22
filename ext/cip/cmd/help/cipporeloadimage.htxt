@@ -1,0 +1,20 @@
+
+Syntax: cipporeloadimage <Chip>  <addr[-a#] [-k#] [-n#] [-s#] [-p#] 
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Load PORE image into mainstore at specified address
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        Address          Mainstore address to load image to
+
+        ImageName [opt]  Specify image to be loaded
+       			 Note: If ImageName is omitted the target info will be used
+                               to build the Imagename.  
+        --------------------------------------------------------------------------------
+
+        Example:        cipporeloadimage  pu FFF00000 -p0
+                        cipporeloadimage  p7p  80000 myporeimage
+                        cipporeloadimage  memb 0 -n0 -p1
