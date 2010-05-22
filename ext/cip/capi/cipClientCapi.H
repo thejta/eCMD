@@ -491,6 +491,180 @@ uint32_t cipPutVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
 //@}
 /* End Memory Functions */
 
+
+//@{
+#ifndef CIP_REMOVE_PORE_FUNCTIONS
+
+/**
+ @brief Scoms bits from the data buffer into the selected address
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_address Scom address to write to
+ @param i_data DataBuffer object that holds data to write into address
+ @param i_type Specify type of SCOM write to perform mode - See the CIP_PORE_xxx defines
+ @retval ECMD_SUCCESS if successful
+ 
+ @see cipPorePutScomUnderMask
+
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+
+*/
+uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, uint32_t i_type);
+
+/**
+ @brief Perform a read/modify/write scom operation using the mask and data
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_address Scom address to write to
+ @param i_data DataBuffer object that holds data to write into address
+ @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
+ @param i_type Specify type of SCOM write to perform mode - See the CIP_PORE_xxx defines
+ @see cipPorePutScom
+
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipPorePutScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_type);
+ 
+/**
+ @brief Writes the data buffer into the selected spy
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_data DataBuffer object that holds data to write into spy
+ @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipPorePutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_type);
+
+/**
+ @brief Writes the enum into the selected spy
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ 2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
+ @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_enumValue String enum value to load into the spy
+ @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipPorePutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_type);
+ 
+
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_sprName Name of spr to write to
+ @param i_data DataBuffer object that holds data to write into spr
+ @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
+
+ TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipPorePutSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & i_data, uint32_t i_type);
+
+/**
+ @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
+ @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
+
+ The return value of this function is set to the first non-zero return code found when
+  writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
+
+ TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipPorePutSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries, uint32_t i_type);
+
+/**
+ @brief Query PORE image information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_poreImageInfo Return struct containing PORE image information
+ @param i_imageName if == NULL i_target is used to build iamge name 
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipPoreQueryImage(ecmdChipTarget & i_target, cipPoreImageInfo & o_poreImageInfo, const char * i_imageName = NULL);
+
+/**
+ @brief Load the PORE image into mainstore
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_baseAddress Mainstore address to load image into
+ @param i_imageName if == NULL i_target is used to build iamge name 
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint32_t & i_baseAddress, const char * i_imageName = NULL);
+
+#endif // CIP_REMOVE_PORE_FUNCTIONS
+//@}
+
 #ifndef DOCUMENTATION
 } /* end extern "c" */
 #endif

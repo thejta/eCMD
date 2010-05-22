@@ -8,7 +8,7 @@ SUBDIR     := ext/${EXTENSION_NAME}/cmd/
 include ../../../makefile.rules
 
 # This is Additional extension for the client api
-SOURCE       := cipProcUser.C
+SOURCE       := cipProcUser.C cipPoreUser.C
 
 # These are additional includes for the client api
 INCLUDES     :=

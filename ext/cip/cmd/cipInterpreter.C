@@ -154,6 +154,18 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "cipputvsr")) {
           rc = cipPutVsrUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_VSR_FUNCTIONS
+#ifndef CIP_REMOVE_PORE_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipporeputscom")) {
+          rc = cipPorePutScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipporeputspy")) {
+          rc = cipPorePutSpyUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipporeputspr")) {
+          rc = cipPorePutSprUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipporequeryimage")) {
+          rc = cipPoreQueryImageUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipporeloadimage")) {
+          rc = cipPoreLoadImageUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_PORE_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
