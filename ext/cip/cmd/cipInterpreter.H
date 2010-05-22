@@ -28,6 +28,7 @@
 #include <inttypes.h>
 
 
+#define ECMD_MAX_DATA_BITS        800000 
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
@@ -74,6 +75,14 @@ uint32_t cipGetVsrUser(int argc, char * argv[]);
 uint32_t cipPutVsrUser(int argc, char * argv[]);
 #endif // CIP_REMOVE_VSR_FUNCTIONS
 
+/* cipPoreUser.C */
+#ifndef CIP_REMOVE_PORE_FUNCTIONS
+uint32_t cipPorePutScomUser(int argc, char * argv[]);
+uint32_t cipPorePutSpyUser(int argc, char * argv[]);
+uint32_t cipPorePutSprUser(int argc, char * argv[]);
+uint32_t cipPoreQueryImageUser(int argc, char * argv[]);
+uint32_t cipPoreLoadImageUser(int argc, char * argv[]);
+#endif // CIP_REMOVE_PORE_FUNCTIONS
 //@}
 
 #endif /* cipInterpreter_h */
