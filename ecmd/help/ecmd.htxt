@@ -27,21 +27,32 @@ Syntax: ecmd
         frupower                 initchipfromfile         querybiasstate           simputdial               
         fwsync                   istep                                             simputtcfac              
                                                           reconfig                 simrestart               
-        getarray                 makespsystemcall         ringcache                simstktcfac              
-        getbits                                                                    simtckinterval           
-        getcfam                  options                  sendcmd                  simunsticktcfac          
-        getclockspeed                                     setclockspeed            startclocks              
-        getconfig                pollscom                 setconfig                stopclocks               
-        getfpr                   powermode                simEXPECTFAC             systempower              
-        getgpiolatch             psi                      simGETFAC                                         
-        getgpiopin               putarray                 simGETFACX               unitid                   
-        getgpioreg               putbits                  simPUTFAC                
-        getgpr                   putcfam                  simPUTFACX               
+        getarray                 makespsystemcall         ringcache                simruntestcase           
+        getbits                                                                    simstktcfac              
+        getcfam                  options                  sendcmd                  simtckinterval           
+        getclockspeed                                     setclockspeed            simunsticktcfac          
+        getconfig                pollscom                 setconfig                startclocks              
+        getfpr                   powermode                simEXPECTFAC             stopclocks               
+        getgpiolatch             psi                      simGETFAC                syncpluginstate          
+        getgpiopin               putarray                 simGETFACX               systempower              
+        getgpioreg               putbits                  simPUTFAC                                         
+        getgpr                   putcfam                  simPUTFACX               unitid                   
         getgpreg                 putfpr                   simSTKFAC                
         geti2c                   putgpiolatch             simSTKFACX               
         getlatch                 putgpioreg               simSUBCMD                
         getmemdma                putgpr                   simUNSTICK               
         getmemmemctrl            putgpreg                 simaet                   
+
+
+        GIP Extensions:
+        --------------------------------------------------------------------------------
+
+        gip2hom                  
+        gipbrkpt                 
+        gipconntest              
+        gipgetmemprocvar         
+        gipputmemprocvar         
+        gipsysinfo               
 
 
         Cronus/IP Extensions:
@@ -52,6 +63,11 @@ Syntax: ecmd
         cipgetvr                 
         cipgetvsr                
         cipinstruct              
+        cipporeloadimage         
+        cipporeputscom           
+        cipporeputspr            
+        cipporeputspy            
+        cipporequeryimage        
         cipputmemproc            
         cipputvr                 
         cipputvsr                
