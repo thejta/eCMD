@@ -157,8 +157,11 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 #ifndef CIP_REMOVE_PORE_FUNCTIONS
         } else if (!strcmp(argv[0], "cipporeputscom")) {
           rc = cipPorePutScomUser(argc - 1, argv + 1);
+
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
         } else if (!strcmp(argv[0], "cipporeputspy")) {
           rc = cipPorePutSpyUser(argc - 1, argv + 1);
+#endif 
         } else if (!strcmp(argv[0], "cipporeputspr")) {
           rc = cipPorePutSprUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "cipporequeryimage")) {

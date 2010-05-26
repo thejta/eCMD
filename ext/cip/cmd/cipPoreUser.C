@@ -20,6 +20,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <ecmdClientCapi.H>
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdUtils.H>
@@ -342,6 +343,7 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
 }
 
 
+#ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t cipPorePutSpyUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
 
@@ -664,6 +666,7 @@ uint32_t cipPorePutSpyUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif
   
 uint32_t cipPorePutSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -921,7 +924,7 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
  ecmdLooperData looperData;     ///< Store internal Looper data
  std::string query;
  cipPoreImageInfo o_imageInfo;
- char * imageName;
+ char * imageName = NULL;
  char printbuffer[100];
  bool validPosFound = false;           ///< Did the looper find anything?
 
@@ -1049,7 +1052,7 @@ uint32_t cipPoreLoadImageUser(int argc, char * argv[]) {
  ecmdLooperData looperData;     ///< Store internal Looper data
  std::string query;
  cipPoreImageInfo o_imageInfo;
- char * imageName;
+ char * imageName = NULL;
  bool validPosFound = false;           ///< Did the looper find anything?
  uint32_t baseAddress;
 
