@@ -941,12 +941,12 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if (argc > 1) {
+  if (argc > 2) {
     ecmdOutputError("cipporequeryimage - Invalid number of args. Too many specified. \n");
     ecmdOutputError("cipporequeryimage - Type 'cipporequeryimage -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-  if (argc < 2) {  //chip + imagename
+  if (argc < 1) {  //chip + imagename
     ecmdOutputError("cipporequeryimage - Too few arguments specified; you need at least a chip.\n");
     ecmdOutputError("cipporequeryimage - Type 'cipporeputscom -h' for usage.\n");
     return ECMD_INVALID_ARGS;
