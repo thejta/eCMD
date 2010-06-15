@@ -967,29 +967,32 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
       printed = "cipporequeryimage - Error occured getting image info for ";
       ecmdOutputError( printed.c_str() );
       sprintf(printbuffer,"%s", imageName); 
-      ecmdOutputError( printbuffer );
-    }
+      ecmdOutput( printbuffer );
+      printed = "\n";
+      ecmdOutput( printed.c_str() );
+    } else {
     
-    printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
-    printed = "PORE Image Information for image = ";
-    ecmdOutput(printed.c_str());
-    ecmdOutput(imageName);
-    printed = "\n"; ecmdOutput(printed.c_str());
-    printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
-    sprintf(printbuffer, "Version       = 0x%x\n", o_imageInfo.version);
-    ecmdOutput(printbuffer);
-    sprintf(printbuffer, "Build Date    = 0x%x\n", o_imageInfo.build_date);
-    ecmdOutput(printbuffer);
-    sprintf(printbuffer, "Build Time    = 0x%x\n", o_imageInfo.build_time);
-    ecmdOutput(printbuffer);
-    sprintf(printbuffer, "Load Date     = 0x%x\n", o_imageInfo.load_date);
-    ecmdOutput(printbuffer);
-    sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
-    ecmdOutput(printbuffer);
-    sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
-    ecmdOutput(printbuffer);
-    printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
-    printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+      printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+      printed = "PORE Image Information for image = ";
+      ecmdOutput(printed.c_str());
+      ecmdOutput(imageName);
+      printed = "\n"; ecmdOutput(printed.c_str());
+      printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+      sprintf(printbuffer, "Version       = 0x%x\n", o_imageInfo.version);
+      ecmdOutput(printbuffer);
+      sprintf(printbuffer, "Build Date    = 0x%x\n", o_imageInfo.build_date);
+      ecmdOutput(printbuffer);
+      sprintf(printbuffer, "Build Time    = 0x%x\n", o_imageInfo.build_time);
+      ecmdOutput(printbuffer);
+      sprintf(printbuffer, "Load Date     = 0x%x\n", o_imageInfo.load_date);
+      ecmdOutput(printbuffer);
+      sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
+      ecmdOutput(printbuffer);
+      sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
+      ecmdOutput(printbuffer);
+      printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
+      printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+    }
 
   } else {
   
@@ -1008,29 +1011,27 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
         continue;
       } else {
         validPosFound = true;     
-      }
       
-      printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
-      printed = "PORE Image Information for target = ";
-      printed += ecmdWriteTarget(target) + "\n";
-      ecmdOutput(printed.c_str());
-      printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
-      sprintf(printbuffer, "Version       = 0x%x\n", o_imageInfo.version);
-      ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Build Date    = 0x%x\n", o_imageInfo.build_date);
-      ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Build Time    = 0x%x\n", o_imageInfo.build_time);
-      ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Load Date     = 0x%x\n", o_imageInfo.load_date);
-      ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
-      ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
-      ecmdOutput(printbuffer);
-      printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
-      printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
-  
-  
+        printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+        printed = "PORE Image Information for target = ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutput(printed.c_str());
+        printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+        sprintf(printbuffer, "Version       = 0x%x\n", o_imageInfo.version);
+        ecmdOutput(printbuffer);
+        sprintf(printbuffer, "Build Date    = 0x%x\n", o_imageInfo.build_date);
+        ecmdOutput(printbuffer);
+        sprintf(printbuffer, "Build Time    = 0x%x\n", o_imageInfo.build_time);
+        ecmdOutput(printbuffer);
+        sprintf(printbuffer, "Load Date     = 0x%x\n", o_imageInfo.load_date);
+        ecmdOutput(printbuffer);
+        sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
+        ecmdOutput(printbuffer);
+        sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
+        ecmdOutput(printbuffer);
+        printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
+        printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
+      }
     }
     // coeRc will be the return code from in the loop, coe mode or not.
     if (coeRc) return coeRc;
