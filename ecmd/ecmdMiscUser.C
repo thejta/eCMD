@@ -1508,6 +1508,58 @@ uint32_t ecmdEchoUser(int argc, char * argv[]) {
 
 }
 
+uint32_t ecmdDelayUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS;
+  uint32_t msDelay = 0;      //holds ms delay
+  uint32_t simCycles = 0;    //holds the sim delay cycles
+  uint32_t delayType = 0;       //temp holder for sim cycles
+  std::string temp   = "";     
+  uint32_t delayValue = 0;
+  size_t strpos;
+
+  if (argc != 1) {
+     ecmdOutputError("ecmddelay - only one Delay type supported.\n");
+     ecmdOutputError("ecmddelay - Type 'ecmddelay -h' for usage.\n");
+     return ECMD_INVALID_ARGS;
+  }
+
+  temp = argv[0];
+  transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
+  if ((strpos = temp.find("cycles")) != std::string::npos)  {
+     delayType = 1;
+  } else if ((strpos = temp.find("ms")) != std::string::npos)  {
+     delayType = 2;
+  } else if ((strpos = temp.find("s")) != std::string::npos)  {
+     delayType = 3;
+  }else{
+     ecmdOutputError("ecmddelay - Delay type is not valid.\n");
+     ecmdOutputError("ecmddelay - Type 'ecmddelay -h' for usage.\n");
+     return ECMD_INVALID_ARGS;
+  }
+  // strpos points to cycles/ms/s after if/else
+  temp.erase(strpos, temp.length()-strpos);
+
+  if (!ecmdIsAllDecimal(temp.c_str())) {
+    ecmdOutputError("ecmddelay - Non-Decimal characters detected in Delay field\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  delayValue= (uint32_t)atoi(temp.c_str());
+  if(delayType == 1)
+    simCycles = delayValue;
+  else if(delayType == 2)
+    msDelay = delayValue;
+  else if(delayType == 3)
+    msDelay = delayValue*1000;
+
+  rc = ecmdDelay(simCycles, msDelay);
+  if (rc != ECMD_SUCCESS)
+     ecmdOutputError("ecmddelay - Error returned from ecmdDelay()\n");
+ 
+  return rc;
+
+}
 
 uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
     

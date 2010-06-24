@@ -165,6 +165,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]);
 uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]);
 uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]);
 uint32_t ecmdEchoUser(int argc, char* argv[]);
+uint32_t ecmdDelayUser(int argc, char* argv[]);
 uint32_t ecmdUnitIdUser(int argc, char* argv[]);  
 uint32_t ecmdGetSensorUser(int argc, char* argv[]);
 uint32_t ecmdSyncPluginStateUser(int argc, char* argv[]);
