@@ -1,0 +1,16 @@
+Syntax: ecmddelay <Delay>
+
+        ECMD:          Core Common Function
+        Function:      Delays a procedure either by running sim clcyes or 
+                       by doing a (milli)second delay.
+        Parameters:
+        ------------------------------------------------------------------------
+        Delay    Delay value specified with any of the following keyword(s) 
+                 preceded by decimal numbers:
+                       'cycles' for number of sim cycles (10cycles)
+                       's' for seconds (90s)
+                       'ms' for milliseconds (100ms)
+        ------------------------------------------------------------------------
+        Examples:      > ecmddelay 10cycles
+                       > ecmddelay 90s
+                       > ecmddelay 100ms
