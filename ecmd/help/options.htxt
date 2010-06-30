@@ -37,15 +37,21 @@ are available:
         et              Do the even targets at a specific level
         ot              Do the odd targets at a specific level
 
+"-all" Support:  By using "-all" on the cmdline, all of the individual targets are set to all.  So "-all" is the equivalent of "-kall -nall -sall -pall -call -tall"
+
+Hex input is also supported for numeric entry.  To use hex, prefix any number with 0x or 0X.  
+
+Multiple target fields can be separated by colons (":") with the same rules as above.
+
+
 Examples:
-       -s2 -pall        Will operate on slot 2 and all positions found behind it
+       -s2 -pall        Will operate on slot 2 and all positions found behind it (on cage0, node 0)
        -aft             Will operate on the very first target in the system.
                         The same as -kft -nft -sft -pft -cft -tft
        -k3 -n2 -p0,2    Will operate positions 0 and 2 in node 2 of cage 3
        -n1 -pet -cot    Will operate on node 1, even postions then odd chipUnits of
-                        those even positions
-   
-Hex input is also supported for numeric entry.  To use hex, prefix any number with 0x or 0X.
+                        those even positions (on cage 0)
+       -k2:n1 -s0x10FF -pall   Will operate on all of the positions of slot 0x10FF (decimal 4351) in node 1 of cage 2   
 
 Print Control
 --------------------------------------------------------------------------------
