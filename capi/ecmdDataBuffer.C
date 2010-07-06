@@ -1837,6 +1837,12 @@ uint32_t ecmdDataBuffer::extractPreserve(uint32_t *o_outBuffer, uint32_t i_start
     RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
   } 
 
+  if(o_outBuffer == NULL)
+  {
+      ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : o_outBuffer of type uint32_t * is not initialized. NULL buffer passed.");
+      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
   rc = tempBuf->setWordLength( numWords );
 
   if ( rc == ECMD_DBUF_SUCCESS ) 
@@ -1869,6 +1875,12 @@ uint32_t ecmdDataBuffer::extractPreserve(uint16_t *o_outBuffer, uint32_t i_start
     RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
   } 
 
+  if(o_outBuffer == NULL)
+  {
+      ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : o_outBuffer of type uint16_t * is not initialized. NULL buffer passed.");
+      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
   rc = tempBuf->setHalfWordLength(numHalfWords);
 
   if ( rc == ECMD_DBUF_SUCCESS ) 
@@ -1897,6 +1909,12 @@ uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uin
     ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : Unable to allocate memory for new databuffer\n");
     RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
   } 
+
+  if(o_data == NULL)
+  {
+      ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : o_data of type uint8_t * is not initialized. NULL buffer passed.");
+      RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
 
   rc = tempBuf->setByteLength( numBytes );
 
