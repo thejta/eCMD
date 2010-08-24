@@ -1080,8 +1080,19 @@ uint32_t cipPoreLoadImageUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
   if (argc == 3)
-   imageName = argv[2];
-  baseAddress = (uint32_t)atoi(argv[1]);
+    imageName = argv[2];
+
+  // Get the address
+  if (!ecmdIsAllHex(argv[1])) { 
+    ecmdOutputError("cipporeloadimage - Non-hex characters detected in address field\n");
+    return ECMD_INVALID_ARGS;
+  }
+  int match = sscanf(argv[1], "%x", &baseAddress);
+  if (match != 1) {
+    ecmdOutputError("Error occurred processing address!\n");
+    return ECMD_INVALID_ARGS;
+  }
+
 
   std::string chipType, chipUnitType;
   ecmdParseChipField(argv[0], chipType, chipUnitType);
