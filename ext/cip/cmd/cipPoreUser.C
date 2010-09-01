@@ -988,7 +988,7 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
       ecmdOutput(printbuffer);
       sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
       ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Base Address  = 0x%llx\n", o_imageInfo.base_address);
+      sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
       ecmdOutput(printbuffer);
       printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
       printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
@@ -1027,7 +1027,7 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
         ecmdOutput(printbuffer);
         sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
         ecmdOutput(printbuffer);
-        sprintf(printbuffer, "Base Address  = 0x%llx\n", o_imageInfo.base_address);
+        sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
         ecmdOutput(printbuffer);
         printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
         printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
