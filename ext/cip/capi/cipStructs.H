@@ -67,7 +67,7 @@ struct cipPoreImageInfo {
     std::string builder;    ///< Image builder name
     uint32_t load_date;     ///< Image load date - YYYYMMDD, e.g. Jan 16, 2011 = 20110116
     uint32_t load_time;     ///< Image load time - 00HHMMSS, e.g. 15:43:17 DST = 00154317
-    uint64_t base_address;  ///< Memory location where image is loaded or going to be loaded
+    uint32_t base_address;  ///< Memory location where image is loaded or going to be loaded
 };
 #endif /* cipStructs_h */
 
