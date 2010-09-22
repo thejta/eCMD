@@ -1848,6 +1848,10 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
     readMode = ECMD_SENSOR_READ_MODE_DEFAULT;
   }else if(modeStr == "def"){
     readMode = ECMD_SENSOR_READ_MODE_DEFAULT; //allow def
+  }else if(modeStr == "min"){
+    readMode = ECMD_SENSOR_READ_MODE_MIN; //allow def
+  }else if(modeStr == "max"){
+    readMode = ECMD_SENSOR_READ_MODE_MAX; //allow def
   }else {
     ecmdOutputError("getsensor - Invalid sensor readMode. Type 'getsensor -h' for usage.\n");
     return ECMD_INVALID_ARGS;
@@ -2085,6 +2089,22 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
       }
       //get clockspeed sensor
       rc =  ecmdGetClockSpeedSensor(target, sensorId.c_str(), o_data, sensorUnit, readMode);
+    }
+    else if (sensorType == "membw")
+    {
+      ecmdBandwidthUnit_t sensorUnit;
+      if(unit == "mrw")
+      {
+        //Mega Read Write
+        sensorUnit = ECMD_BW_UNIT_MRW;
+      }
+      else
+      {
+        ecmdOutputError("getsensor - Invalid unit for bandwidth sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      //get memory bandwidth sensor
+      rc =  ecmdGetBandwidthSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
     }
     else
     {
