@@ -3158,6 +3158,23 @@ uint32_t ecmdGetPowerSensor(ecmdChipTarget & i_target, const char * i_ecmdPowerS
 */
 uint32_t ecmdGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmdUtilizationSensorId, uint32_t & o_utilization, ecmdUtilizationUnit_t i_utilizationUnit=ECMD_UTILIZATION_UNIT_P, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
+/**
+ @brief Read FFDCBW Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdffdcbwSensorId String that specifies the Power sensor on the target ("UTILIZATION_DEFAULT" always supported)
+ @param o_utilization Utilization value returned
+ @param i_utilizationUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetBandwidthSensor(ecmdChipTarget & i_target, const char * i_ecmdBandwidthSensorId, uint32_t & o_bandwidth, ecmdBandwidthUnit_t i_BandwidthUnit=ECMD_BW_UNIT_MRW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+
+
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 //@}
 

@@ -498,6 +498,8 @@ typedef enum {
 typedef enum {
   ECMD_SENSOR_READ_MODE_UNKNOWN,       ///< The unknown state for this enum, not a valid output type
   ECMD_SENSOR_READ_MODE_DEFAULT,       ///< To be used as the default for any Sensor Interface
+  ECMD_SENSOR_READ_MODE_MIN,       ///< To be used as the default for any Sensor Interface
+  ECMD_SENSOR_READ_MODE_MAX,       ///< To be used as the default for any Sensor Interface
   ECMD_SENSOR_READ_MODE_1ms,           ///< 1 miliSecond ('instanteous')
   ECMD_SENSOR_READ_MODE_8ms,           ///< 8 miliSeconds
   ECMD_SENSOR_READ_MODE_32ms,          ///< 32 miliSeconds
@@ -595,6 +597,12 @@ typedef enum {
   ECMD_POWER_STATE_OFF,          ///< The selected Target is powered off
   ECMD_POWER_STATE_TRANSITION    ///< The selected Target is in a power transition state
   } ecmdPowerState_t;
+
+typedef enum {
+  ECMD_BW_UNIT_UNKNOWN,      ///< The unknown state for this enum, not a valid output type
+  ECMD_BW_UNIT_MRW           ///< The selected Target is powered on
+} ecmdBandwidthUnit_t;
+
 
 
 //--------------------------------------------------------------------
