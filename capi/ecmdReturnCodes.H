@@ -132,6 +132,7 @@
 #define ECMD_SENSOR_UNIT_NOT_SUPPORTED          (ECMD_ERR_ECMD | 0x10C5) ///< Unit not supported for sensor
 #define ECMD_SENSOR_ID_NOT_SUPPORTED            (ECMD_ERR_ECMD | 0x10C7) ///< Sensor Id not supported for sensor
 #define ECMD_SENSOR_THERMAL_NOT_SUPPORTED       (ECMD_ERR_ECMD | 0x10C9) ///< Thermal Sensor data not available
+#define ECMD_FATAL_FAILURE                      (ECMD_ERR_ECMD | 0x10CB) ///< Fatal error during plugin load due to library versions mismatch
 
 
 /* Return codes for command interpreter */
