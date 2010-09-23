@@ -260,7 +260,7 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 
     }
 
-    exit(999);
+    return ECMD_FATAL_FAILURE;
   }
 
   /* Now we are going to check the version of the shared lib we loaded */
@@ -280,7 +280,7 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
 
     }
 
-    exit(999);
+    return ECMD_FATAL_FAILURE;
   }
 
   rc = dllInitDll();
