@@ -3161,9 +3161,9 @@ uint32_t ecmdGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmd
 /**
  @brief Read FFDCBW Sensor Values
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ecmdffdcbwSensorId String that specifies the Power sensor on the target ("UTILIZATION_DEFAULT" always supported)
- @param o_utilization Utilization value returned
- @param i_utilizationUnit enum to control the return unit
+ @param i_ecmdBandwidthSensorId String that specifies the Memory BandWidth sensor on the target
+ @param o_bandwidth Memory BandWidth value returned
+ @param i_BandwidthUnit enum to control the return unit
  @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
