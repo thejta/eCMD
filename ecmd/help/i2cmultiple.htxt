@@ -1,0 +1,24 @@
+Syntax: i2cmultiple <Chip> [-a#] [-k#] [-n#] [-s#] [-p#] : <i2c command> :
+        i2cmultiple <Chip> [-a#] [-k#] [-n#] [-s#] [-p#] -fi <filename>
+
+        ECMD:           Core Common Function
+
+        Function:       Run Multiple I2C commands on 1 chip at a time
+
+        Parameters:
+        ------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+
+        : :        	Colon Separated i2c commands- geti2c, i2creset or puti2c
+                        See geti2c, i2creset and puti2c help files for more 
+                        details. 
+
+       -fi <filename>   Specify full path and filename to input file in the 
+                        format of different i2c commands - geti2c, i2creset, or 
+                        puti2c - each on its own line
+
+                        Run 'ecmdquery options' for a list of the global command 
+                        line options and their definitions
+        ------------------------------------------------------------------------
+        Examples:       > i2cmultiple pu -p1 : geti2c 14 0 A0 8 0 2 : i2creset 14 0 :
+                        > i2cmultiple pu -pall -fi /nfs/test/input -o  a  
