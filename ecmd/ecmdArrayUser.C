@@ -719,13 +719,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     format = formatPtr;
   }
 
-  if (ecmdParseOption(&argc, &argv, "-nostopstart")) {
-    printed = "NOTE::NOTE:: \n"; ecmdOutput( printed.c_str() );
-    printed = "NOTE::NOTE:: '-nostopstart' IS DEPRICATED AND WILL BE REMOVED IN eCMD v12.0.\n"; ecmdOutput( printed.c_str() );
-    printed = "NOTE::NOTE:: Please discontinue using it.\n"; ecmdOutput( printed.c_str() );
-    printed = "NOTE::NOTE:: \n"; ecmdOutput( printed.c_str() );
-    // do nothing
-  } else if (ecmdParseOption(&argc, &argv, "-stopstart")) {
+  if (ecmdParseOption(&argc, &argv, "-stopstart")) {
     doStopStart |= ECMD_TRACE_ARRAY_STOP;
     doStopStart |= ECMD_TRACE_ARRAY_START;
   } else if (ecmdParseOption(&argc, &argv, "-stop")) {
