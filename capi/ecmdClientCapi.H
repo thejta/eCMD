@@ -3665,7 +3665,11 @@ uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bi
 
 /**
  @brief run the testcases specified in the vector of strings
- @param i_testcaseNames the filenames of the precomiled testcases
+ @param i_testcaseNames the filenames of the precomiled testcases.
+        testcases may have parameters following the testcase name in the same string.
+        multiple testcases may be run in parallel when the '+' character is used between testcase names in the same string.
+        "TC_NAME1.so TC_PARM1 TC_PARM2 + TC_NAME2.so TC_PARM3"
+        testcases must be compiled with the TC_ENTRY2 macro.
  @param i_continueOnError continue to the next testcase if the previous one failed
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
