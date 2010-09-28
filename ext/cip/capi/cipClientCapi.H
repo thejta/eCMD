@@ -660,7 +660,7 @@ uint32_t cipPoreQueryImage(ecmdChipTarget & i_target, cipPoreImageInfo & o_poreI
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint32_t & i_baseAddress, const char * i_imageName = NULL);
+uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint64_t & i_baseAddress, const char * i_imageName = NULL);
 
 #endif // CIP_REMOVE_PORE_FUNCTIONS
 //@}
