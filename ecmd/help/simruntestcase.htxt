@@ -1,5 +1,5 @@
 
-Syntax: simruntestcase <testcasename> [+ | <testcasename2> ...]
+Syntax: simruntestcase <testcase1.so> [testcase1arg1 ...] [+ | <testcase2.so> [testcase2arg1 ...] ...]
         [-quiet] [-quieterror] [-coe]
         
         ECMD:           Core Common Function
@@ -8,7 +8,11 @@ Syntax: simruntestcase <testcasename> [+ | <testcasename2> ...]
 
         Parameters:
         --------------------------------------------------------------------------------
-        testcasename    name of the precompiled testcase to run
+        testcaseN.so    name of the precompiled testcase to run must end in .so
+                        testcase must be use TC_ENTRY2 macro
+
+        testcaseNargM   argument(s) to the testcase following the testcaseN.so
+                        arguments starting with '-' are not allowed
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
@@ -16,3 +20,4 @@ Syntax: simruntestcase <testcasename> [+ | <testcasename2> ...]
 
         Example:        > simruntestcase A.so
                         > simruntestcase A.so B.so C.so + D.so -coe
+                        > simruntestcase A.so A1 A2 B.so C.so C1 C2 C3 + D.so D1
