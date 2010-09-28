@@ -1795,16 +1795,31 @@ uint32_t ecmdSimRunTestcase(int argc, char * argv[]) {
         return ECMD_INVALID_ARGS;
       } else if (i + 1 < argc) { // combine this with the next string if it exists
         i++;
+        // check if next string is '+' or not ".so"
+        if (strcmp(argv[i], "+") == 0) {
+          ecmdOutputError("simruntestcase - Error parsing testcase names '+ +' found before a testcase was specified.\n");
+          return ECMD_INVALID_ARGS;
+        } else if (strstr(argv[i], ".so\0") == NULL) {
+          ecmdOutputError("simruntestcase - Error parsing testcase names argument without \".so\" found after '+'.\n");
+          return ECMD_INVALID_ARGS;
+        }
         currentTestcase += std::string(" + ") + argv[i];
       } else {
         ecmdOutputError("simruntestcase - Could not combine additional empty testcase name.\n");
         return ECMD_INVALID_ARGS;
       }
-    } else { // if this is not a combining string, save the name
+    } else if (strstr(argv[i], ".so\0") == NULL) { // check if this is an argument to the testcase
+      if (i == 0) { // check if this is the first string
+        ecmdOutputError("simruntestcase - Error parsing testcase names argument without \".so\" found before a testcase was specified.\n");
+        return ECMD_INVALID_ARGS;
+      } else {
+        currentTestcase += std::string(" ") + argv[i];
+      }
+    } else { // if this is not a combining string or an argument, save the name
       currentTestcase = argv[i];
     }
-    /* check if next name is not a combining string */
-    if ((i + 1 < argc) && (strcmp(argv[i + 1], "+") != 0)) {
+    /* check if next name is not a combining string or an argument */
+    if ((i + 1 < argc) && (strcmp(argv[i + 1], "+") != 0) && (strstr(argv[i + 1], ".so\0") != NULL)) {
       testcaseNames.push_back(currentTestcase);
       currentTestcase = "";
     }
