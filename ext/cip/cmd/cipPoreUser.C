@@ -988,7 +988,11 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
       ecmdOutput(printbuffer);
       sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
       ecmdOutput(printbuffer);
-      sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
+#ifdef _LP64
+      sprintf(printbuffer, "Base Address  = 0x%lx\n", o_imageInfo.base_address);
+#else
+      sprintf(printbuffer, "Base Address  = 0x%llx\n", o_imageInfo.base_address);
+#endif
       ecmdOutput(printbuffer);
       printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
       printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
@@ -1027,7 +1031,11 @@ uint32_t cipPoreQueryImageUser(int argc, char * argv[]) {
         ecmdOutput(printbuffer);
         sprintf(printbuffer, "Load Time     = 0x%x\n", o_imageInfo.load_time);
         ecmdOutput(printbuffer);
-        sprintf(printbuffer, "Base Address  = 0x%x\n", o_imageInfo.base_address);
+#ifdef _LP64
+        sprintf(printbuffer, "Base Address  = 0x%lx\n", o_imageInfo.base_address);
+#else
+        sprintf(printbuffer, "Base Address  = 0x%llx\n", o_imageInfo.base_address);
+#endif
         ecmdOutput(printbuffer);
         printed =           "Builder       = "; printed += o_imageInfo.builder;  printed += "\n"; ecmdOutput(printed.c_str());
         printed = "-------------------------------------------------------\n"; ecmdOutput(printed.c_str());
@@ -1055,7 +1063,7 @@ uint32_t cipPoreLoadImageUser(int argc, char * argv[]) {
  cipPoreImageInfo o_imageInfo;
  char * imageName = NULL;
  bool validPosFound = false;           ///< Did the looper find anything?
- uint32_t baseAddress;
+ uint64_t baseAddress;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1087,7 +1095,11 @@ uint32_t cipPoreLoadImageUser(int argc, char * argv[]) {
     ecmdOutputError("cipporeloadimage - Non-hex characters detected in address field\n");
     return ECMD_INVALID_ARGS;
   }
-  int match = sscanf(argv[1], "%x", &baseAddress);
+#ifdef _LP64
+  int match = sscanf(argv[1], "%lx", &baseAddress);
+#else
+  int match = sscanf(argv[1], "%llx", &baseAddress);
+#endif
   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
