@@ -285,12 +285,36 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      if (outputformat == "enum") {
+
+      //if (outputformat == "enum") {
+      //  rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue);
+      //}
+      //else {
+      //  rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
+      //}
+
+
+      if (outputformat == "enum") {              // FW524017  HJH
         rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue);
+        if ( rc == ECMD_SPY_INVALID_READ_OPER) {
+              rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
+              if (rc == 0){   // .. printout warning informing that no enum could be found 
+                  
+                  printed = "getspy - Info: No enum found for Spy \"";
+                  printed += spyName.c_str();
+                  printed += "\" .. returning hex data instead\n";
+                  ecmdOutputError(printed.c_str());
+
+                  outputformat = "x";
+              }
+        }    
       }
-      else {
+      else {     // outputformat = x
         rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
       }
+
+
+
 
       if (rc == ECMD_SPY_FAILED_ECC_CHECK) {
         if (spyData->epCheckers.empty()) {
