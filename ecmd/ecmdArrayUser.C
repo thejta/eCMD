@@ -812,7 +812,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
     if (nestArrayList.size() > 0) {
 
-      rc = getTraceArrayMultipleHidden(target,  doStopStart, nestArrayList);
+      rc = getTraceArrayMultiple(target,  doStopStart, nestArrayList);
       if (rc) {
         printed = "gettracearray - Error occured performing getTraceArrayMultiple on ";
         printed += ecmdWriteTarget(target) + "\n";
@@ -874,7 +874,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
             lit->buffer.clear();
           }
 
-          rc = getTraceArrayMultipleHidden(cuTarget,  doStopStart, cuArrayMapIter->second);
+          rc = getTraceArrayMultiple(cuTarget,  doStopStart, cuArrayMapIter->second);
           if (rc) {
             printed = "gettracearray - Error occured performing getTraceArray on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
