@@ -1733,8 +1733,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t getTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
-uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
+uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
 
 /**
  @brief Dump all entries of specified trace array
@@ -1754,8 +1753,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doT
  TARGET STATES : Unused<br>
 
 */
-uint32_t getTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
-uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
+uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 //@}
 
