@@ -219,13 +219,9 @@ uint32_t dllPutSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
 
 #endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
-uint32_t dllGetTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
+uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
 
-uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, bool i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
-
-uint32_t dllGetTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
-
-uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, bool i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
+uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
 
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 #ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
@@ -416,6 +412,8 @@ uint32_t dllGetHumiditySensor(ecmdChipTarget & i_target, const char * i_ecmdHumi
 uint32_t dllGetPowerSensor(ecmdChipTarget & i_target, const char * i_ecmdPowerSensorId, uint32_t & o_power, ecmdPowerUnit_t i_powerUnit, ecmdSensorReadMode_t i_sensorReadMode); 
 
 uint32_t dllGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmdUtilizationSensorId, uint32_t & o_utilization, ecmdUtilizationUnit_t i_utilizationUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
+uint32_t dllGetBandwidthSensor(ecmdChipTarget & i_target, const char * i_ecmdBandwidthSensorId, uint32_t & o_bandwidth, ecmdBandwidthUnit_t i_BandwidthUnit, ecmdSensorReadMode_t i_sensorReadMode); 
 
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 #ifndef REMOVE_SIM
