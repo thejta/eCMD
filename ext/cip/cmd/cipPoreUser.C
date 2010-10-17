@@ -45,7 +45,7 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
-  uint32_t address;                             ///< Scom address
+  uint64_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store write data
   ecmdDataBuffer mask;                          ///< Container to store write mask
   ecmdDataBuffer cmdlineBuffer;                 ///< Buffer to store data to be inserted
@@ -156,8 +156,7 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  address = ecmdGenB32FromHexRight(&address, argv[1]);
-
+  address = strtoull(argv[1],NULL,16);
 
   /* Did they specify a start/numbits */
   if (argc > 3) {

@@ -182,9 +182,9 @@ void sedcScomdefParser(sedcScomdefEntry &returnScom, std::ifstream &scomdefFile,
          /* Now tokenize on comas and shove onto the list */
          sedcFileLine mySubLine;
          sedcCreateScomdefTokens(tempstr,",",mySubLine);  // Cut each line into tokens seperated on comma
-         uint32_t tempAddress;
+         uint64_t tempAddress;
          for (uint32_t x = 0; x < mySubLine.tokens.size(); x++) {
-           sscanf(mySubLine.tokens[x].c_str(), "%X", &tempAddress);
+           sscanf(mySubLine.tokens[x].c_str(), "%llX", &tempAddress);
            returnScom.addresses.push_back(tempAddress);
          }
          returnScom.states |= SCM_ADDRESS;

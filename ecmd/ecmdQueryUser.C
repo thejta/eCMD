@@ -134,18 +134,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
 
       sprintf(buf,"\nAvailable scoms for %s ec %X:\n", ecmdWriteTarget(target).c_str(), chipdata.chipEc); ecmdOutput(buf);
-      printed = "Scom Address  ChipUnit  Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
-      printed = "------------  --------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
+      printed = "Scom Address       ChipUnit  Length  ClockDomain          ClockState\n"; ecmdOutput(printed.c_str());
+      printed = "-----------------  --------  ------  -------------------  ----------\n"; ecmdOutput(printed.c_str());
 
       for (scomit = scomdata.begin(); scomit != scomdata.end(); scomit ++) {
 
         printed = "";
 
-        sprintf(addrStr, "%8.8X", scomit->address);
+        sprintf(addrStr, "%16.16llX", scomit->address);
         printed += addrStr;
 
         for (size_t i = printed.length(); i <= 13; i++) { 
-          printed += " ";
+          printed += "    ";
         }
 
         if (scomit->isChipUnitRelated) {
@@ -158,7 +158,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           isChipUnit = "N";
         }
 
-        sprintf(buf,"%8s  %-7d %-21s", isChipUnit.c_str() ,scomit->length, scomit->clockDomain.c_str());
+        sprintf(buf,"   %8s  %-7d %-21s", isChipUnit.c_str() ,scomit->length, scomit->clockDomain.c_str());
         printed += (std::string)buf;
 
         if (scomit->clockState == ECMD_CLOCKSTATE_UNKNOWN)

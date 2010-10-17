@@ -1438,7 +1438,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       dataLooper = 0;
       for (std::list<ecmdScomData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
         sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : uint32_t           address  = 0x%X\n",frontFPPTxt, entit->address);
+        sprintf(tempIntStr,"%s\t \t \t value : uint64_t           address  = 0x%llX\n",frontFPPTxt, entit->address);
         debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL      isChipUnitRelated  = ",frontFPPTxt);

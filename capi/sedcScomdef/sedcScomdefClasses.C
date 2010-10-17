@@ -211,7 +211,7 @@ sedcScomdefContainer& sedcScomdefContainer::operator=(const sedcScomdefContainer
   return *this;
 }
 
-void sedcScomdefContainer::insertLatches(uint32_t address, std::vector<sedcLatchLine> &latches) {
+void sedcScomdefContainer::insertLatches(uint64_t address, std::vector<sedcLatchLine> &latches) {
 
   unsigned int x;
   sedcScomdefLatch myScomdefLatch;
@@ -233,7 +233,7 @@ void sedcScomdefContainer::scomdefDumper() {
   std::list<sedcScomdefEntry>::iterator entryIter;
 
   for (entryIter = scomdefEntries.begin(); entryIter != scomdefEntries.end(); entryIter++) {
-    printf("\n\nValid: %d, States: %#08X, Address: %#08X\n", entryIter->valid, entryIter->states, entryIter->addresses[0]);
+    printf("\n\nValid: %d, States: %#08X, Address: %#016llX\n", entryIter->valid, entryIter->states, entryIter->addresses[0]);
     printf("Name: %s\n",entryIter->name.c_str());
     printf("ClockDomain: %s, State: %d\n", entryIter->clkdomain.c_str(), entryIter->clkstate);
     printf("Description:\n");

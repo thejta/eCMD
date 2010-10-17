@@ -4432,11 +4432,17 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 
             // Flatten and store each data member in the ouput buffer
 
-            // "address" (uint32_t)
-            tmpData32 = htonl( address );
+            // "address" (uint64_t) : first part
+            tmpData32 = htonl( address >> 32 );
             memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
-            l_ptr8 += sizeof(address);
-            l_len -= sizeof(address);
+            l_ptr8 += sizeof(tmpData32);
+            l_len -= sizeof(tmpData32);
+
+            // "address" (uint64_t) : second part
+	    tmpData32 = htonl(address);
+	    memcpy(l_ptr8, &tmpData32, sizeof(tmpData32));
+	    l_ptr8 += sizeof(tmpData32);
+	    i_len -= sizeof(tmpData32);
 
             //"length"  (uint32_t)
             tmpData32 = htonl( length );
@@ -4519,12 +4525,22 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
         {
             // Unflatten each data member from the input buffer
 
-            // "address" (uint32_t)
-            memcpy( &address, l_ptr8, sizeof(address) );
-            address = ntohl( address );
-            l_ptr8 += sizeof(address);
-            l_len -= sizeof(address);
+            // "address" (uint64_t)
+	    //first part(uint32_t)
+            uint32_t tmp32_0 = 0, tmp32_1 = 0;
+            memcpy( &tmp32_0, l_ptr8, sizeof(tmp32_0) );
+            tmp32_0 = ntohl( tmp32_0);
+            l_ptr8 += sizeof(tmp32_0);
+            l_len -= sizeof(tmp32_0);
  
+	    //second part(uint32_t)
+            memcpy( &tmp32_1, l_ptr8, sizeof(tmp32_1) );
+            tmp32_1 = ntohl( tmp32_1);
+            l_ptr8 += sizeof(tmp32_1);
+            l_len -= sizeof(tmp32_1);
+            //combine both uint32_t to uint64_t
+	    address = ( ((uint64_t) tmp32_0) << 32) | ( (uint64_t) tmp32_1);
+
             //"length" (uint32_t)
             memcpy( &length, l_ptr8, sizeof(length) );
             length = ntohl( length );
@@ -4620,7 +4636,7 @@ void  ecmdScomData::printStruct()
 
         printf("\n\t--- Scom Data Structure ---\n");
 
-        printf("\tAddress: 0x%08x\n", address );
+        printf("\tAddress: 0x%016llx\n", address );
         printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
@@ -5810,10 +5826,17 @@ uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
         }
 
         // Write "address" into the output buffer
-        tmpData32 = htonl( address );
+        // "address" (uint64_t) : first part
+        tmpData32 = htonl( address >> 32 );
         memcpy( l_ptr, &tmpData32, sizeof(tmpData32) );
-        l_ptr += sizeof( address );
-        i_len -= sizeof( address );
+        l_ptr += sizeof(tmpData32);
+        i_len -= sizeof(tmpData32);
+
+        // "address" (uint64_t) : second part
+	tmpData32 = htonl(address);
+	memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	l_ptr += sizeof(tmpData32);
+	i_len -= sizeof(tmpData32);
 
         // Write the size of "scomData", to check against when unflattening
         dataBufSize = data.flattenSize();
@@ -5885,10 +5908,21 @@ uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
     do {    // Single entry ->
 
         // Get "address" from the input buffer
-        memcpy( &tmpData32, l_ptr, sizeof(tmpData32) );
-        address = ntohl( tmpData32 );
-        l_ptr += sizeof( tmpData32 );
-        i_len -= sizeof( tmpData32 );
+        // "address" (uint64_t)
+	//first part(uint32_t)
+        uint32_t tmp32_0 = 0, tmp32_1 = 0;
+        memcpy( &tmp32_0, l_ptr, sizeof(tmp32_0) );
+        tmp32_0 = ntohl( tmp32_0);
+        l_ptr += sizeof(tmp32_0);
+        i_len -= sizeof(tmp32_0);
+ 
+	//second part(uint32_t)
+        memcpy( &tmp32_1, l_ptr, sizeof(tmp32_1) );
+        tmp32_1 = ntohl( tmp32_1);
+        l_ptr += sizeof(tmp32_1);
+        i_len -= sizeof(tmp32_1);
+        //combine both uint32_t to uint64_t
+	address = ( ((uint64_t) tmp32_0) << 32) | ( (uint64_t) tmp32_1);
 
         // Get the size of "data" to pass to unflatten()
         memcpy( &dataBufSize, l_ptr, sizeof(dataBufSize) );
@@ -5974,7 +6008,7 @@ void ecmdScomEntry::printStruct() {
 
     printf("\n\t\teCMD Scom Entry:\n");
 
-    printf("\t\t\taddress: 0x%x\n", address );
+    printf("\t\t\taddress: 0x%llx\n", address );
 
     printf("\t\t\tdata bitlength: %d\n", data.getBitLength() );
     printf("\t\t\tdata wordlength: %d\n", data.getWordLength() );

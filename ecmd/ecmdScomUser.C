@@ -147,13 +147,13 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   // Check address field in argv[1] is less than 8 chars + NULL terminator since
   //  we are restricting this to a uint32_t
-  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  if ( strlen(argv[1]) > 16 ) // strlen does NOT count NULL terminator
   { 
-    ecmdOutputError("getscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    ecmdOutputError("getscom - Address field is too large (>16 chars). It is restricted to a uint64_t\n");
     return ECMD_INVALID_ARGS;
   }
 
-  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
+  uint64_t  address = strtoull(argv[1],NULL,16);
 
 
   if (expectFlag) {
@@ -300,7 +300,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      	 //@ make this stuff sprintf'd
      	 char outstr[100];
      	 printed = ecmdWriteTarget(cuTarget);
-     	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: %.8X\n", address);
+     	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: %llX\n", address);
      	 printed += outstr;
      	 ecmdOutputError( printed.c_str() );
 
@@ -365,7 +365,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
   std::list<ecmdScomData> queryScomData;        ///< Scom data 
   std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
-  uint32_t address;                             ///< Scom address
+  uint64_t address;                             ///< Scom address
   ecmdDataBuffer buffer;                        ///< Container to store write data
   ecmdDataBuffer mask;                          ///< Container to store write mask
   ecmdDataBuffer cmdlineBuffer;                 ///< Buffer to store data to be inserted
@@ -419,13 +419,13 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
   // Check address field in argv[1] is less than 8 chars + NULL terminator since
   //  we are restricting this to a uint32_t
-  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  if ( strlen(argv[1]) > 16 ) // strlen does NOT count NULL terminator
   {
-    ecmdOutputError("putscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    ecmdOutputError("putscom - Address field is too large (>16 chars). It is restricted to a uint64_t\n");
     return ECMD_INVALID_ARGS;
   }
 
-  address = ecmdGenB32FromHexRight(&address, argv[1]);
+  address = strtoull(argv[1],NULL,16);
 
 
   /* Did they specify a start/numbits */
@@ -773,13 +773,13 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   // Check address field in argv[1] is less than 8 chars + NULL terminator since
   //  we are restricting this to a uint32_t
-  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  if ( strlen(argv[1]) > 16 ) // strlen does NOT count NULL terminator
   {
-    ecmdOutputError("pollscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    ecmdOutputError("pollscom - Address field is too large (>16 chars). It is restricted to a uint64_t\n");
     return ECMD_INVALID_ARGS;
   }
 
-  uint32_t address = ecmdGenB32FromHexRight(&address, argv[1]);
+  uint64_t  address = strtoull(argv[1],NULL,16);
 
 
   /************************************************************************/
@@ -851,7 +851,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      timerStart = time(NULL);
 
      printed = ecmdWriteTarget(cuTarget);
-     sprintf(outstr, "Polling address %.6X...\n", address);
+     sprintf(outstr, "Polling address %llX...\n", address);
      printed += outstr;
      ecmdOutput( printed.c_str()) ;
 
@@ -905,7 +905,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
              printed += ecmdWriteDataFormatted(expected, outputformat);
 
              if (done) {
-               sprintf(outstr, "pollscom - Data miscompare occured at address: %.8X\n", address);
+               sprintf(outstr, "pollscom - Data miscompare occured at address: %llX\n", address);
                printed = outstr + printed;
                ecmdOutputError( printed.c_str() );
                coeRc = ECMD_EXPECT_FAILURE;
@@ -927,7 +927,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
            done = 1; //found a mismatch
            if (verboseFlag){
              printed = "";
-             sprintf(outstr, "pollscom - Data mismatch occurred at 0x%.8X\n", address);
+             sprintf(outstr, "pollscom - Data mismatch occurred at 0x%llX\n", address);
              printed = outstr + printed;
              ecmdOutput( printed.c_str() );
              return 0;
@@ -941,7 +941,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
            }
 
            if (done){
-             sprintf(outstr, "pollscom - Mismatch never occurred at address 0x%.8X\n", address);
+             sprintf(outstr, "pollscom - Mismatch never occurred at address 0x%llX\n", address);
              printed = outstr + printed;
              ecmdOutputError( printed.c_str() );
              coeRc = ECMD_EXPECT_FAILURE;

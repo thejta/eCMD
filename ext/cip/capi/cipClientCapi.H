@@ -518,7 +518,7 @@ uint32_t cipPutVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
 
 
 */
-uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, uint32_t i_type);
+uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, uint32_t i_type);
 
 /**
  @brief Perform a read/modify/write scom operation using the mask and data
@@ -541,7 +541,7 @@ uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataB
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPorePutScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_type);
+uint32_t cipPorePutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_type);
  
 /**
  @brief Writes the data buffer into the selected spy
