@@ -1479,7 +1479,7 @@ struct ecmdScomData {
   bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
 
   // Members
-  uint32_t         address;              ///< (Detail: Low)  Scom Address
+  uint64_t         address;              ///< (Detail: Low)  Scom Address
   uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
   bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
   std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
@@ -1576,7 +1576,7 @@ struct ecmdScomEntry {
 #endif
 
   // Members
-  uint32_t         address;     ///< The address to read or write
+  uint64_t         address;     ///< The address to read or write
   ecmdDataBuffer   data;        ///< The data to read or write depending on the operation
   ecmdDataBuffer   dataMask;    ///< The mask data, only used on a mask operation
   ecmdScomMode_t   operation;   ///< The operation type to do.. getScom, putScom or putScomUnderMask

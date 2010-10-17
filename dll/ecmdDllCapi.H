@@ -76,7 +76,7 @@ uint32_t dllQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_q
 uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName, ecmdQueryDetail_t i_detail); 
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
-uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address, ecmdQueryDetail_t i_detail); 
+uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName, ecmdQueryDetail_t i_detail); 
@@ -110,11 +110,11 @@ uint32_t dllGetRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, u
 uint32_t dllPutRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
-uint32_t dllGetScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
+uint32_t dllGetScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data); 
 
-uint32_t dllPutScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
+uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data); 
 
-uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
+uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
 
 uint32_t dllDoScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries); 
 

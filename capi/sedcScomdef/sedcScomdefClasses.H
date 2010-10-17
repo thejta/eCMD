@@ -67,7 +67,7 @@ class sedcScomdefLatch
      void reset(); ///< Resets all the variables to they state they were in the constructor
 
   public:  // Data
-    uint32_t        address;        ///< The scom address of the entry
+    uint64_t        address;        ///< The scom address of the entry
     sedcLatchLine   sdLine;         ///< The cut up line from parse latch line that has all the stuff I need.
 
   private:  // functions
@@ -136,7 +136,7 @@ class sedcScomdefEntry
   public:  // Data
     bool                           valid;          ///< This scomdef entry is valid
     uint32_t                       states;         ///< The things I found in the scomdef
-    std::vector<uint32_t>          addresses;      ///< The scom address of the entry
+    std::vector<uint64_t>          addresses;      ///< The scom address of the entry
     std::string                    name;           ///< The figtree name of the scom address
     std::list<std::string>         description;    ///< A list of strings for the description section of the scomdef
     std::string                    clkdomain;      ///< For now, a string of the clock domains
@@ -167,7 +167,7 @@ class sedcScomdefContainer
      //int operator==(const sedcScomdefContainer &rhs) const;  ///< Used for finds
 
      /* Other functions */
-     void insertLatches(uint32_t address, std::vector<sedcLatchLine> &latches);
+     void insertLatches(uint64_t address, std::vector<sedcLatchLine> &latches);
 
      void scomdefDumper();  ///< Loop through the valid entries and dump their info
 

@@ -417,7 +417,7 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint32_t i_address = 0xFFFFFFFF, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
@@ -686,7 +686,7 @@ uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
  TARGET DEPTH  : pos, core/chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
+uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
@@ -707,7 +707,7 @@ uint32_t getScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer &
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
+uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data);
 
 /**
  @brief Perform a read/modify/write scom operation using the mask and data
@@ -729,7 +729,7 @@ uint32_t putScom(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer &
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask);
+uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask);
 
 /**
  @brief Do a sequence of reads and writes in one operation
