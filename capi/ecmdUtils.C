@@ -746,6 +746,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "Apollo\n";
   } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHON) {
     printed += "Gryphon\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_PEGASUS) {
+    printed += "Pegasus\n";
   } else {
     printed += "Unknown\n";
   }
