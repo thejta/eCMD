@@ -1031,7 +1031,7 @@ uint32_t putSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, const ecmdDataBuffer & io_ringImage);
+uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, ecmdDataBuffer & io_ringImage);
 
 /**
  @brief Writes the enum into the selected spy within the provided ring image
@@ -1052,7 +1052,7 @@ uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdData
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, const ecmdDataBuffer & io_ringImage);
+uint32_t putSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage);
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 //@}
