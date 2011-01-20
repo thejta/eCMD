@@ -38,7 +38,7 @@
  #include <mpatrol.h>
 #endif
 #ifdef FIPSODE
-#include <tracinterface.H>
+#include <fips_trace.H>
 #elif defined ZSERIES_SWITCH
 #include <yemtraceinterface.h>
 #endif
