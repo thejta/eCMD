@@ -32,7 +32,7 @@
 #include <ecmdDefines.H>
 #include <ecmdClientCapi.H>
 #ifdef FIPSODE
-#include <tracinterface.H>
+#include <fips_trace.H>
 #endif
 
 //----------------------------------------------------------------------
