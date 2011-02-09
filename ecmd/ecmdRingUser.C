@@ -1966,6 +1966,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputError(printed.c_str());   
+            coeRc = rc;
           
             /* Go onto the next one */
             failedRings.push_back(ringlog);
@@ -2156,6 +2157,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             printed += ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputError( printed.c_str() );
             coeRc = rc;
+            failedRings.push_back(ringlog);
             continue;
           }
         }
