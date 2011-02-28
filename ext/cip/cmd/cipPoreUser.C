@@ -148,11 +148,11 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  // Check address field in argv[1] is less than 8 chars + NULL terminator since
-  //  we are restricting this to a uint32_t
-  if ( strlen(argv[1]) > 8 ) // strlen does NOT count NULL terminator
+  // Check address field in argv[1] is less than 16 chars + NULL terminator since
+  //  we are restricting this to a uint64_t
+  if ( strlen(argv[1]) > 16 ) // strlen does NOT count NULL terminator
   {
-    ecmdOutputError("cipporeputscom - Address field is too large (>8 chars). It is restricted to a uint32_t\n");
+    ecmdOutputError("cipporeputscom - Address field is too large (>16 chars). It is restricted to a uint64_t\n");
     return ECMD_INVALID_ARGS;
   }
 
