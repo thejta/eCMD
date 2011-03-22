@@ -461,8 +461,10 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
 
  NOTE : This function calls ecmdQueryConfig and searchs for the specified target<br>
  NOTE : The target State fields must be filled in as either VALID or UNUSED<br>
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
- TARGET STATES : Must be Initialized<br>
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread dependent  on what should be queried<br>
+ TARGET STATES : Must be Initialized. Note: Query depth ends on the first state not set to ECMD_TARGET_FIELD_VALID <br>
+ *For example if slotState is set to ECMD_TARGET_FIELD_UNUSED, but cageState and nodeState are set to ECMD_TARGET_FIELD_VALID
+ * then the function checks whether the specified node is configured independent on the other state settings.
 */
 bool ecmdQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData = NULL);
 
@@ -475,8 +477,10 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_quer
 
  NOTE : This function calls ecmdQueryExist and searchs for the specified target<br>
  NOTE : The target State fields must be filled in as either VALID or UNUSED<br>
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
- TARGET STATES : Must be Initialized<br>
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread dependent  on what should be queried<br>
+ TARGET STATES : Must be Initialized. Note: Check depth ends on the first state not set to ECMD_TARGET_FIELD_VALID <br>
+ *For example if slotState is set to ECMD_TARGET_FIELD_UNUSED, but cageState and nodeState are set to ECMD_TARGET_FIELD_VALID
+ * then the function checks whether the specified node exists independent on the other state settings.
 */
 bool ecmdQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData = NULL);
 
@@ -515,7 +519,13 @@ uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
 //@}
 
 
-/** @name Scan Functions */
+/** @name Scan Functions 
+ @ifnot zseries
+ @n Some functions of this section work with different scanmodes. 
+ @n Using the ecmdSetConfiguration() API allows to change the scanmode different to the default scanmode.
+ *  Please see documentation at ecmdSetConfiguration() for supported scanmodes. 
+ @endif 
+*/
 //@{
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
@@ -612,7 +622,12 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
- @brief Scans the specified number of bits from the selected chip and ring address into the data buffer
+ @brief Scans the specified number of bits from the selected chip and ring address into the data buffer.
+ @if zseries
+ @n Using this function allows on zseries to scan the data with setpulse. If the file
+ @n " /console/data/ecmd_setpulse_ON " exists
+ @n the data is fetched using setpulse otherwise a normal fetch is performed. 
+ @endif 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful
@@ -635,7 +650,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
 uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
 /**
- @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address
+ @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address.
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -2258,9 +2273,14 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
 uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData);
 
 /**
- @brief Set the value of a Configuration Setting
+ @brief Set the value of a supported Configuration Setting like for example scanmode
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
+ @if zseries 
+ <a HREF="https://mcweb.boeblingen.de.ibm.com/ecmd/zapis/configuration/configurationFunctions.html">         z-series definitions of i_Name</a>
+ @else 
+ @n Please see platform documentation for a list of supported strings
+ @endif 
  @param i_validInput Indicator if i_valueAlpha, i_valueNumeric (or both) are valid.
  @param i_valueAlpha Alpha value of setting (if appropriate)
  @param i_valueNumeric Numeric value of setting (if appropriate)
@@ -2273,10 +2293,11 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
+
 uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
 
 /**
- @brief Retrieve the value of a Configuration Setting
+ @brief Set the value of a supported Configuration Setting like for example scanmode
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
  @param i_configData Structure containing the valid data
