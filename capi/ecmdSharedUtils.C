@@ -81,8 +81,8 @@ void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
 
 /**
  * @brief Converts a ecmdChipTargetState_t enum to a std::string
- * @retval The string
- * @param io_argv Array of strings passed in from command line
+ * @retval The string of State enum
+ * @param i_targetState State enum
 
  */
 std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState);

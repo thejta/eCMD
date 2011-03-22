@@ -94,6 +94,8 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
  @brief Print ecmdDataBuffer's for the EFPP
  @param i_data Databuffer to print
  @param i_tabStop Any additional spacing that should be done in display (ie "  \t")
+ @param variableName The Variable 
+ @param variableType The Value
 */
 void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
 
@@ -425,10 +427,10 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
         lastBytes = i_data.genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
         sprintf(tempstr,"%016llX: %08X %08X %08X %s", (unsigned long long)myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
-	i=0;
-	while (i < (4-numLastBytes)) {
-	  strcat(tempstr, "  "); i++;
-	}
+    i=0;
+    while (i < (4-numLastBytes)) {
+      strcat(tempstr, "  "); i++;
+    }
       }
       else {
         sprintf(tempstr,"%016llX: %08X %08X %08X %08X", (unsigned long long)myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
@@ -438,23 +440,23 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
-	  if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+      if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
             sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
-	  }
-	  else {
-	    sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, 128).c_str());
-	  }
+      }
+      else {
+        sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, 128).c_str());
+      }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
-	  if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-	    sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
-	  }
-	  else {
+      if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+        sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+      }
+      else {
             sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
-	  }
+      }
         }
-	printed += tempstr;
+    printed += tempstr;
       }
       printed += "\n";
       myAddr += 16;
@@ -470,17 +472,17 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       while ((uint32_t) wordsDone < i_data.getWordLength()) {
         //last word
         if ( (i_data.getWordLength() == (wordsDone+1)) && (numLastBytes != 0)) {
-	  lastBytes = i_data.genHexLeftStr((wordsDone*32), (numLastBytes*8));
+      lastBytes = i_data.genHexLeftStr((wordsDone*32), (numLastBytes*8));
           sprintf(tempstr," %s", lastBytes.c_str());
-	  i=0;
-	  while (i < (4-numLastBytes)) {
-	   strcat(tempstr, "  "); i++;
-	  }
-	  wordsDone++;
+      i=0;
+      while (i < (4-numLastBytes)) {
+       strcat(tempstr, "  "); i++;
+      }
+      wordsDone++;
         }
-	else {
+    else {
           sprintf(tempstr," %08X",i_data.getWord(wordsDone++));
-	}
+    }
         printed += tempstr;
       }
       // Text printing additions
@@ -491,21 +493,21 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
         }
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
-	  if (numLastBytes) {
-	    sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
-	  }
-	  else {
+      if (numLastBytes) {
+        sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+      }
+      else {
             sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
-	  }
+      }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
-	  if (numLastBytes) {
-	    sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
-	  }
-	  else {
+      if (numLastBytes) {
+        sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+      }
+      else {
             sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
-	  }
+      }
         }
         printed += tempstr;
       }
@@ -548,7 +550,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       //To be used for printing in the byte format
       /*if ( numLastBytes != 0) {
         lastBytes = i_data.genHexLeftStr(((i_data.getWordLength() - 1)*32), (numLastBytes*8));
-	sprintf(tempstr,"D %016X %s\n", myAddr, lastBytes.c_str());
+    sprintf(tempstr,"D %016X %s\n", myAddr, lastBytes.c_str());
       }
       else {
         sprintf(tempstr,"D %016X %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
@@ -748,6 +750,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "Gryphon\n";
   } else if (info.dllProduct == ECMD_DLL_PRODUCT_PEGASUS) {
     printed += "Pegasus\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHONP) {
+    printed += "Artemis (zGr+)\n";
   } else {
     printed += "Unknown\n";
   }
@@ -820,7 +824,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   std::list< std::string >::iterator bitDetIt;
   char bitDesc[1000];
 
-  sprintf(bitDesc,"Name       : %20s%s\nDesc	   : %20s", " ",scomEntry.name.c_str()," ");  
+  sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
   if (o_strData != NULL) {
     *o_strData += bitDesc;
@@ -868,10 +872,10 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
         (verboseBitsClearFlag && (!i_data.getNumBitsSet(beStart, length)))) {
       
       if(definIt->rhsNum == -1) {
-  	sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
+    sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
       }
       else {
-  	sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
+    sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
       }
       sprintf(bitDesc, "%-10s : ",bitDesc);
       ecmdOutput(bitDesc);
@@ -880,12 +884,12 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
       }
 
       if (length <= 8) {
-  	std::string binstr = i_data.genBinStr(beStart, length);
-  	sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
+    std::string binstr = i_data.genBinStr(beStart, length);
+    sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
       }
       else {
-  	std::string hexLeftStr = i_data.genHexLeftStr(beStart, length);
-  	sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
+    std::string hexLeftStr = i_data.genHexLeftStr(beStart, length);
+    sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
       }
       ecmdOutput(bitDesc);
       if (o_strData != NULL) {
@@ -893,15 +897,15 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
       }
       std::string bitDescStr;
       for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
-  	sprintf(bitDesc, "%32s ", " ");
-  	//Would print the entire string no matter how long it is
-  	bitDescStr = (std::string)bitDesc + *bitDetIt;
-  	ecmdOutput(bitDescStr.c_str());
+    sprintf(bitDesc, "%32s ", " ");
+    //Would print the entire string no matter how long it is
+    bitDescStr = (std::string)bitDesc + *bitDetIt;
+    ecmdOutput(bitDescStr.c_str());
         if (o_strData != NULL) {
           *o_strData += bitDescStr;
         }
-	bitDescStr = "\n";// Doing the newline separately cos there maybe control characters at the end of Desc
-	ecmdOutput(bitDescStr.c_str());
+    bitDescStr = "\n";// Doing the newline separately cos there maybe control characters at the end of Desc
+    ecmdOutput(bitDescStr.c_str());
         if (o_strData != NULL) {
           *o_strData += bitDescStr;
         }       
