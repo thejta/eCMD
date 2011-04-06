@@ -133,6 +133,8 @@
 #define ECMD_SENSOR_ID_NOT_SUPPORTED            (ECMD_ERR_ECMD | 0x10C7) ///< Sensor Id not supported for sensor
 #define ECMD_SENSOR_THERMAL_NOT_SUPPORTED       (ECMD_ERR_ECMD | 0x10C9) ///< Thermal Sensor data not available
 #define ECMD_FATAL_FAILURE                      (ECMD_ERR_ECMD | 0x10CB) ///< Fatal error during plugin load due to library versions mismatch
+#define ECMD_WILDCARD_CHAR_NOT_SUPPORTED        (ECMD_ERR_ECMD | 0x10CD) ///< Wildcard 'x' was used with a command that doesn't support it
+#define ECMD_WILDCARD_MISUSE                    (ECMD_ERR_ECMD | 0x10CF) ///< Wildcard 'x' was used incorrectly - i.e. as a chipunit 
 
 
 /* Return codes for command interpreter */
