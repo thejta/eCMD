@@ -142,7 +142,8 @@ void getTargetList(std::string i_userArgs, std::list<uint32_t> &targetList);
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard);
+
 
 /**
  @brief returns the ecmd prompt.. which consists of  the currend working directory  this is used for the ecmd shell
