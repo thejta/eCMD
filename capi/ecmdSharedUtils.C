@@ -81,8 +81,8 @@ void ecmdRemoveNullPointers (int * io_argc, char ** io_argv[]);
 
 /**
  * @brief Converts a ecmdChipTargetState_t enum to a std::string
- * @retval The string of State enum
- * @param i_targetState State enum
+ * @retval The string
+ * @param io_argv Array of strings passed in from command line
 
  */
 std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState);
@@ -411,7 +411,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     }
     if (!numFound && !allFound && !naFound) {
       /* I didn't get a number, - or all, must be a chip */
-      ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType);
+      rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
       if (o_target.chipType == "chipall"){
         o_target.chipType = ""; /* Blank it for clarity */
         o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
@@ -690,19 +690,69 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
   return printed;
 }
 
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool i_supportsWildcard) {
   uint32_t rc = ECMD_SUCCESS;
 
   /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.
-   if it is not, then just return the chipType */
-  uint32_t linePos = i_chipField.find(".");
+     if it is not, then just return the chipType 
+  */
+  uint32_t dotLinePos = i_chipField.find(".");
+  uint32_t wildcardLinePos = i_chipField.find("x");
 
-  if (linePos == std::string::npos) {
-    o_chipType = i_chipField;
+  if (dotLinePos == std::string::npos) {
+    /* chipType was specified without a chipUnitType */
+    o_chipType = i_chipField.substr(0, dotLinePos);
     o_chipUnitType = "";
+    
+    /* If the chipType is 1 char long let's make sure it's the eCMD support wildcard char 'x' */
+    if (i_chipField.size() == 1){
+      if (wildcardLinePos == std::string::npos){
+        /* One char was used for the chipType but it wasn't the eCMD wildcard char */
+        o_chipType = i_chipField;
+        o_chipUnitType = "";
+      } else {
+        if (i_supportsWildcard){
+          o_chipType = "x";
+          o_chipUnitType = "";
+        } else {
+          /* Wildcard found but it's not supported */ 
+          return ECMD_WILDCARD_CHAR_NOT_SUPPORTED;
+        }
+      }
+    }
   } else {
-    o_chipType = i_chipField.substr(0, linePos);
-    o_chipUnitType = i_chipField.substr((linePos+1), i_chipField.length());
+    /* chipUnitType was specified */
+    o_chipType = i_chipField.substr(0, dotLinePos);
+    o_chipUnitType = i_chipField.substr((dotLinePos+1), i_chipField.length());
+
+    /* Split <chipType>.<chipUnitType> into two separate strings */
+    std::string localChipType = o_chipType;
+    std::string localChipUnitType = o_chipUnitType;
+    
+    /* Check the chipType field for eCMD wildcard char */
+    if (localChipType.size() == 1 && localChipType == "x"){
+      if (i_supportsWildcard) {
+        /* Wildcard found in chipType field */
+        o_chipType = "x";
+      } else {
+        /* Wildcard found but it's not supported */ 
+        return ECMD_WILDCARD_CHAR_NOT_SUPPORTED;
+      }
+    }
+
+    /* Check the chipUnitType field for eCMD wildcard char */
+    if (localChipUnitType.size() == 1 && localChipUnitType == "x"){
+    #if 0 
+      if (i_supportsWildcard) {
+        /* Wildcard found in chipUnitType field */
+        o_chipUnitType = "x";
+      } else {
+        /* Wildcard found but it's not supported */ 
+     #endif 
+        return ECMD_WILDCARD_MISUSE;
+     // }
+    }
+
   }
 
   return rc;
