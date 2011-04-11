@@ -219,6 +219,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard = false);
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
+uint32_t ecmdParseChipFieldHidden(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard = false);
 
 #endif /* ecmdSharedUtils_h */
