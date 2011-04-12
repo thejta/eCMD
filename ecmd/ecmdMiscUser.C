@@ -109,7 +109,11 @@ uint32_t ecmdGetConfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if( argc == 2) {
     std::string chipType, chipUnitType;
-    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+    if (rc) { 
+      ecmdOutputError("getconfig - Wildcard character detected however it is not supported by this command.\n");
+      return rc;
+    }
 
     /* Error check */
     if (depth) {
@@ -274,7 +278,11 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if( argc == 3) {
     std::string chipType, chipUnitType;
-    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+    if (rc) { 
+      ecmdOutputError("setconfig - Wildcard character detected however it is not supported by this command.\n");
+      return rc;
+    }
 
     /* Error check */
     if (depth) {
@@ -458,13 +466,26 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  if (rc) { 
+    ecmdOutputError("getcfam - Wildcard character detected however it is not being used correctly.\n");
+    return rc;
+  }
+  bool chipWildcardFound = false;
+
   if (chipUnitType != "") {
     ecmdOutputError("getcfam - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
     return ECMD_INVALID_ARGS;
   }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+
+  if (chipType == "x") {
+    target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    chipWildcardFound = true;
+  } else {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  }
+
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
@@ -643,13 +664,26 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  if (rc) { 
+    ecmdOutputError("putcfam - Wildcard character detected however it is not being used correctly.\n");
+    return rc;
+  }
+  bool chipWildcardFound = false;
+
   if (chipUnitType != "") {
     ecmdOutputError("putcfam - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
     return ECMD_INVALID_ARGS;
   }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+
+  if (chipType == "x") {
+    target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    chipWildcardFound = true;
+  } else {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  }
+
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
@@ -904,7 +938,12 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
-    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) { 
+      ecmdOutputError("deconfig - Wildcard character detected however it is not being used correctly.\n");
+      return rc;
+    }
+    bool chipWildcardFound = false;
 
     /* Error check */
     if (depth) {
@@ -924,9 +963,16 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
         depth = CHIPUNIT;
       }
     }
-    target.chipType = chipType;
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+
+    if (chipType == "x") {
+      target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+      chipWildcardFound = true;
+    } else {
+      target.chipType = chipType;
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+
     if (chipUnitType != "") {
       target.chipUnitType = chipUnitType;
       target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
@@ -1017,7 +1063,12 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
-    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) { 
+      ecmdOutputError("reconfig - Wildcard character detected however it is not being used correctly.\n");
+      return rc;
+    }
+    bool chipWildcardFound = false;
 
     /* Error check */
     if (depth) {
@@ -1037,8 +1088,15 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
         depth = CHIPUNIT;
       }
     }
-    target.chipType = chipType;
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    
+    if (chipType == "x") {
+      target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+      chipWildcardFound = true;
+    } else {
+      target.chipType = chipType;
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
     if (chipUnitType != "") {
       target.chipUnitType = chipUnitType;
@@ -1165,13 +1223,26 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  if (rc) { 
+    ecmdOutputError("getgpreg - Wildcard character detected however it is not being used correctly.\n");
+    return rc;
+  }
+  bool chipWildcardFound = false;
+
   if (chipUnitType != "") {
     ecmdOutputError("getgpreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
     return ECMD_INVALID_ARGS;
   }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+
+  if (chipType == "x") {
+    target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    chipWildcardFound = true;
+  } else {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  }
+
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
@@ -1332,13 +1403,28 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  if (rc) { 
+    ecmdOutputError("putgpreg - Wildcard character detected however it is not being used correctly.\n");
+    return rc;
+  }
+  bool chipWildcardFound = false;
+
   if (chipUnitType != "") {
     ecmdOutputError("putgpreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
     return ECMD_INVALID_ARGS;
   }
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  if (chipType == "x") {
+    target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    chipWildcardFound = true;
+  } else {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  }
+
+
+
+
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
@@ -1859,7 +1945,11 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
 
   //setup target
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0],chipType,chipUnitType);
+  rc = ecmdParseChipField(argv[0],chipType,chipUnitType);
+  if (rc) { 
+    ecmdOutputError("getsensor - Wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
 
   target.chipType = chipType;
   if (target.chipType == "nochip") {
@@ -2183,7 +2273,7 @@ uint32_t ecmdSyncPluginStateUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
-    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType); if (rc) return rc;
 
     /* Error check */
     if (depth) {
