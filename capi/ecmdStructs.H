@@ -286,7 +286,7 @@ typedef enum {
   ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
   ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
   ECMD_DLL_PRODUCT_PEGASUS,     ///< Pegasus Project
-  ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zArtemis Project (zGr+)
+  ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
 } ecmdDllProduct_t;
 
 /**
@@ -721,7 +721,7 @@ struct ecmdChipTarget {
   };
 #endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
-  uint32_t    unitId;		///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
+  uint32_t    unitId;       ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
   ecmdChipTargetState_t nodeState;            ///< node field state
   ecmdChipTargetState_t slotState;            ///< slot field state
@@ -802,7 +802,7 @@ nodeState(ECMD_TARGET_UNKNOWN_STATE),
 slotState(ECMD_TARGET_UNKNOWN_STATE),
 chipTypeState(ECMD_TARGET_UNKNOWN_STATE),
 posState(ECMD_TARGET_UNKNOWN_STATE),
-// The chipUnitTypeState field is init'd differently.  By doing this, we fix this problem: p6.	k0:n0:s0:p00
+// The chipUnitTypeState field is init'd differently.  By doing this, we fix this problem: p6.  k0:n0:s0:p00
 // By setting to UNUSED, the P6 code doesn't have to be touched.  And for P7/Z7 above, people don't have to
 // set the chipUnitTypeState field if not used by their chip.  Setting the chipUnitNumState = UNUSED is still
 // required for chip level queries - JTA 10/21/08
@@ -843,8 +843,8 @@ struct ecmdThreadData {
 #endif
 
   // Members
-  uint8_t   threadId;		///< (Detail: Low) Thread number of this entry
-  uint32_t  unitId;		///< (Detail: High) Unit Id of this entry
+  uint8_t   threadId;       ///< (Detail: Low) Thread number of this entry
+  uint32_t  unitId;     ///< (Detail: High) Unit Id of this entry
   uint32_t  threadFlags;        ///< (Detail: High) Various additional info about the thread - bitmask of defines
 };
 
@@ -883,7 +883,7 @@ struct ecmdCoreData {
   uint32_t flattenSize(void);
   bool operator<(const ecmdCoreData& rhs) const;  ///< Used to sort Core entries in an ecmdCoreData list.
 #ifndef REMOVE_SIM
-	void printStruct(void);
+    void printStruct(void);
 #endif
 #endif
 
