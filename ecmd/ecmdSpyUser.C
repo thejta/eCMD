@@ -123,11 +123,32 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  target.chipType = chipType;
-  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) {
+    ecmdOutputError("getspy - Wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
+  bool chipWildcardFound = false;
+
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+
+  if (chipType == "x") {
+    target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    chipWildcardFound = true;
+  } else {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  }
+
+  /* The chipType was x and a chipUnitType was specified so lets set up the target correcly.  This 
+     will force the queryScom functions to return only those chips with the specified chipUnit.  */
+  if ((chipWildcardFound) && (chipUnitType != "")) {
+    target.chipUnitType = chipUnitType;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  }
 
   //get spy name
   std::string spyName = argv[1];
@@ -592,7 +613,11 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) {
+    ecmdOutputError("putspy - Wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;

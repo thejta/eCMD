@@ -179,7 +179,11 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 	
     //Setup the target that will be used to query the system config
     std::string chipType, chipUnitType;
-    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+    if (rc) { 
+      ecmdOutputError("getringdump - eCMD wildcard character detected however it is not supported by this command.\n");
+      return rc;
+    }
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -573,7 +577,11 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) { 
+    ecmdOutputError("getlatch - eCMD wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -943,7 +951,11 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) { 
+    ecmdOutputError("getbits - eCMD wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -1220,7 +1232,11 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) { 
+    ecmdOutputError("putbits - eCMD wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -1423,7 +1439,11 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) { 
+    ecmdOutputError("putlatch - eCMD wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -1829,7 +1849,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) { 
+    ecmdOutputError("checkrings - eCMD wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -2279,7 +2303,11 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
+  if (rc) { 
+    ecmdOutputError("putpattern - eCMD wildcard character detected however it is not supported by this command.\n");
+    return rc;
+  }
   target.chipType = chipType;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
