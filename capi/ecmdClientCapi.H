@@ -451,6 +451,7 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
+uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string i_version = "default");
 
 /**
  @brief Query if a particular target is configured in the system
@@ -2277,7 +2278,7 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
  @if zseries 
- <a HREF="https://mcweb.boeblingen.de.ibm.com/ecmd/zapis/configuration/configurationFunctions.html">         z-series definitions of i_Name</a>
+ <a HREF="https://mcweb.boeblingen.de.ibm.com/ecmd/zapis/configuration/configurationFunctions.html">         z-series definitions of i_name</a>
  @else 
  @n Please see platform documentation for a list of supported strings
  @endif 
