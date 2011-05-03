@@ -66,6 +66,14 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         version
                             - Display version info about the eCMD Instance you are running
 
+                        scomgroupnames Chip [version]
+                            - Display groupnames for the specified chip
+                            - Use version to specify a specific version of the groupscomdef/hash
+
+                        scomgroup Chip [version]
+                            - Display addrs for the specified scomgroup
+                            - Use version to specify a specific version of the groupscomdef/hash
+
         Addendum Options
 
                         -a#  [optional] Operate on all levels of targeting with same value.
