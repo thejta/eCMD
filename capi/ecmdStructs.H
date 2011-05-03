@@ -315,7 +315,9 @@ typedef enum {
   ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file - target field of ecmdQueryFileLocation is not used for this and just a path is returned
   ECMD_FILE_SCOMDATA,   ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
   ECMD_FILE_SPYDEFHASH,    ///< Hash file for spy definition
-  ECMD_FILE_SCANDEFHASH ///< Hash file for the scandef
+  ECMD_FILE_SCANDEFHASH, ///< Hash file for the scandef
+  ECMD_FILE_GROUPSCOM,    ///< GroupScom definition file
+  ECMD_FILE_GROUPSCOMHASH ///< Hash file for the GroupScom
 } ecmdFileType_t;
 
 /**
@@ -605,11 +607,45 @@ typedef enum {
   ECMD_BW_UNIT_MRW           ///< The selected Target is powered on
 } ecmdBandwidthUnit_t;
 
+typedef enum {
+  PARSED_UNDEFINED,
+  PARSED_NAME,
+  PARSED_CHIPUNIT,
+  PARSED_SIZE,
+  PARSED_ADDR,
+  PARSED_GROUP_DONE,
+} ecmdScomGroupParseStage;
 
 
 //--------------------------------------------------------------------
 //  Structures                                    
 //--------------------------------------------------------------------
+
+struct scomGroupRecord_t {
+  std::string scomGroup_name;
+  uint32_t lineNumofName;
+  uint32_t filepos;
+  std::string scomGroup_chipUnit;
+  std::vector<uint64_t> scomGroup_listOfAddrs;
+  std::vector<uint32_t> scomGroup_indexOfAddr;
+};
+struct groupHashEntry {
+  uint32_t key;             ///< 32 bit hash key generated off the groupname
+  uint32_t filepos;         ///< line of the file where the groupname is at
+  int operator<(const groupHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
+};
+struct sectionHashEntry {
+  uint32_t key;             ///< 32 bit hash key generated off the groupname
+  uint32_t filepos;         ///< line of the file where the groupname is at
+  int operator<(const sectionHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
+};
+
+struct addrHashEntry {
+  uint64_t key;              ///< 32 bit hash key generated off the 64 bit addr, of the actual 32bit addr
+  uint32_t indexOfAddrInGroup; //< index of adder within the list of addrs
+  uint32_t groupNameHash;    ///< 32 bit hash key generated off the groupname
+  int operator<(const addrHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
+};
 
 /**
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with

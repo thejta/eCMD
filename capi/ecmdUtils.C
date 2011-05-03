@@ -2308,3 +2308,163 @@ void ecmdResetExtensionInitState() {
     *(*ptrit) = false;
   }
 }
+
+/**
+ @brief opens the groupscomdef parses the file
+ @param i_filename file to open
+ @param o_total_scomGroupRecord list of scomgroups that is returned
+ @param use_filepos indicate a single scomgroup wanted, the scomgroup starts at this pos
+ @param uniqueFilepos use this filepos if use_filepos is true
+
+ */
+uint32_t parse_groupscomdef_file(const std::string i_filename, std::list<scomGroupRecord_t> &o_total_scomGroupRecord, bool use_filepos, uint32_t uniqueFilepos ){
+  uint32_t rc = 0;
+  std::list<uint64_t>::iterator iterListOfAddrs;
+  scomGroupRecord_t local_scomGroupRecord;
+  char buf[300];
+
+  bool doneReadingFile = false;
+  std::vector<std::string> variableTokens;
+  std::string line;
+  uint32_t line_count = 0;
+  uint32_t getcurrentfilepos = 0;
+  uint32_t total_addrs_in_group = 0;
+  ecmdScomGroupParseStage current_stage = PARSED_UNDEFINED;
+
+
+  std::ifstream scomgroupFile;
+  scomgroupFile.open(i_filename.c_str());
+  if (scomgroupFile.fail()) {
+    sprintf(buf,"parse_groupscomdef_file - Unable to open scomgroup file: %s\n", i_filename.c_str());
+    ecmdOutputError(buf);
+    return ECMD_UNKNOWN_FILE;
+  }
+  if (use_filepos) {
+    scomgroupFile.seekg(uniqueFilepos);
+  }
+
+
+  while (!doneReadingFile){
+    if (scomgroupFile.eof()){
+      doneReadingFile = true;
+      //check the stage
+    } else if ((use_filepos) && (current_stage == PARSED_GROUP_DONE) ) {
+      doneReadingFile = true;
+    } else {
+      getcurrentfilepos = scomgroupFile.tellg();
+
+      getline(scomgroupFile,line,'\n'); line_count++;
+      if ( (line[0] == '#') || (line.size() == 0) ){
+        continue;
+      }
+
+      if ( line.substr(0,4) == "Name" ) {
+        if ((current_stage != PARSED_UNDEFINED) && (current_stage != PARSED_GROUP_DONE)) {
+          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
+          ecmdOutputError(buf);
+          return ECMD_FAILURE;
+        } else {
+          ecmdParseTokens(line, " \t=", variableTokens);
+          if (variableTokens.size() < 2) {
+            sprintf(buf,"parse_groupscomdef_file Did Not find a valid scomgroup after Name on line:%d\n", line_count);
+            ecmdOutputError(buf);
+            return ECMD_FAILURE;
+          } else {
+            local_scomGroupRecord.scomGroup_name = variableTokens[1].c_str();
+            transform(local_scomGroupRecord.scomGroup_name.begin(), local_scomGroupRecord.scomGroup_name.end(), local_scomGroupRecord.scomGroup_name.begin(), (int(*)(int)) toupper);
+            local_scomGroupRecord.lineNumofName = line_count;
+            local_scomGroupRecord.filepos = getcurrentfilepos;
+          }
+        }
+        current_stage = PARSED_NAME;
+      } else if ( line.substr(0,8) == "ChipUnit" ) {
+        if (current_stage != PARSED_NAME) {
+          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
+          ecmdOutputError(buf);
+          return ECMD_FAILURE;
+        } else {
+          ecmdParseTokens(line, " \t=", variableTokens);
+          if (variableTokens.size() < 2) {
+            sprintf(buf,"parse_groupscomdef_file Did Not find a chipUnit after ChipUnit on line:%d\n", line_count);
+            ecmdOutputError(buf);
+            return ECMD_FAILURE;
+          } else {
+            local_scomGroupRecord.scomGroup_chipUnit = variableTokens[1].c_str();
+          }
+        }
+        current_stage = PARSED_CHIPUNIT;
+      } else if ( line.substr(0,4) == "Size" ) {
+        if (current_stage != PARSED_CHIPUNIT) {
+          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
+          ecmdOutputError(buf);
+          return ECMD_FAILURE;
+        } else {
+          ecmdParseTokens(line, " \t=", variableTokens);
+          if (variableTokens.size() < 2) {
+            sprintf(buf,"parse_groupscomdef_file Did Not find a number after Size on line:%d\n", line_count);
+            ecmdOutputError(buf);
+            return ECMD_FAILURE;
+          } else {
+            total_addrs_in_group = atoi(variableTokens[1].c_str());
+          }
+        }
+        current_stage = PARSED_SIZE;
+      } else if ( line.substr(0,2) == "0x" ) {
+        if ( (current_stage != PARSED_SIZE) && (current_stage != PARSED_ADDR)) {
+          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
+          ecmdOutputError(buf);
+          return ECMD_FAILURE;
+        } else {
+          ecmdParseTokens(line, " x#", variableTokens);
+          if (variableTokens.size() < 2) {
+            sprintf(buf,"parse_groupscomdef_file Invalid addr line on line:%d\n", line_count);
+            ecmdOutputError(buf);
+            return ECMD_FAILURE;
+          } else if (variableTokens[1].size()*4 > 64) {
+            sprintf(buf,"parse_groupscomdef_file Addr bigger than 64bits on line:%d\n", line_count);
+            ecmdOutputError(buf);
+            return ECMD_FAILURE;
+          } else {
+            ecmdDataBuffer tmp_buffer(64);
+            rc = tmp_buffer.insertFromHexRight(variableTokens[1].c_str(), (64 - (variableTokens[1].size()*4)) );
+            if (rc) {
+              sprintf(buf,"parse_groupscomdef_file Non Hex addr found on line:%d\n", line_count);
+              ecmdOutputError(buf);
+              return ECMD_FAILURE;
+            }
+            local_scomGroupRecord.scomGroup_listOfAddrs.push_back(tmp_buffer.getDoubleWord(0));
+            local_scomGroupRecord.scomGroup_indexOfAddr.push_back(local_scomGroupRecord.scomGroup_indexOfAddr.size());
+          }
+        }
+        current_stage = PARSED_ADDR;
+        if ( local_scomGroupRecord.scomGroup_listOfAddrs.size() == total_addrs_in_group) {
+          //printf("parsed group done, size:%d\n", total_addrs_in_group); 
+          //push it onto total_scomGroupRecord
+          //clear out the local_scom_group
+          o_total_scomGroupRecord.push_back(local_scomGroupRecord);
+          local_scomGroupRecord.scomGroup_listOfAddrs.clear();
+          local_scomGroupRecord.scomGroup_indexOfAddr.clear();
+          local_scomGroupRecord.scomGroup_chipUnit = "";
+          local_scomGroupRecord.scomGroup_name = "";
+          local_scomGroupRecord.lineNumofName = 0;
+          local_scomGroupRecord.filepos = 0;
+          total_addrs_in_group = 0;
+
+          current_stage = PARSED_GROUP_DONE;
+        }
+      } else {
+        sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, should be blank or a comment\n", line_count);
+        ecmdOutputError(buf);
+        return ECMD_FAILURE;
+      }
+    } // end else not end of file
+  }// end while
+
+  scomgroupFile.close();
+  if (current_stage != PARSED_GROUP_DONE) {
+    sprintf(buf,"parse_groupscomdef_file scomgroupdef ended with an incomplete group, make sure it has a complete Name, ChipUnit, Size, 0x<addresses>\n");
+    ecmdOutputError(buf);
+    return ECMD_FAILURE;
+  }
+  return rc;
+}

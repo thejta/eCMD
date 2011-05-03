@@ -260,6 +260,16 @@ void ecmdResetExtensionInitState();
 
 #endif
 
+/**
+ @brief opens the groupscomdef parses the file
+ @param i_filename file to open
+ @param o_total_scomGroupRecord list of scomgroups that is returned
+ @param use_filepos indicate a single scomgroup wanted, the scomgroup starts at this pos
+ @param uniqueFilepos use this filepos if use_filepos is true
+
+ */
+uint32_t parse_groupscomdef_file(const std::string i_filename, std::list<scomGroupRecord_t> &o_total_scomGroupRecord, bool use_filepos = false, uint32_t uniqueFilepos = 0 );
+
 /***** END INTERNAL eCMD UTILITY FUNCTIONS NOT FOR CLIENT USE ******/
 
 

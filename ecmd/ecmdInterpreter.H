@@ -92,6 +92,7 @@ uint32_t ecmdPutArrayUser(int argc, char* argv[]);
 uint32_t ecmdGetScomUser(int argc, char* argv[]);
 uint32_t ecmdPutScomUser(int argc, char* argv[]);
 uint32_t ecmdPollScomUser(int argc, char* argv[]);
+uint32_t ecmdGetScomgroupUser(int argc, char* argv[]);
 
 /* ecmdSpyUser.C */
 uint32_t ecmdGetSpyUser(int argc, char* argv[]);

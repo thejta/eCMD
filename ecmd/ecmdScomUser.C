@@ -1061,6 +1061,176 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   return rc;
 }
 
+uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  uint32_t e_rc = ECMD_SUCCESS;                 ///< Expect rc
+
+  std::string outputformat = "x";               ///< Output Format to display
+  ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
+  ecmdDataBuffer scombuf;                       ///< Buffer to hold scom data
+  ecmdDataBuffer buffer;                        ///< Data requested by the user
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  ecmdLooperData looperData;                    ///< Store internal Looper data
+  ecmdLooperData cuLooper;                      ///< Store internal Looper data for the chipUnit loop
+  std::string printed;                          ///< Output data
+  uint8_t oneLoop = 0;                              ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+
+  ecmdScomData queryData;
+  std::list<ecmdScomEntry> groupScomEntries;
+
+  std::list<ecmdScomData>::iterator scomData;   ///< Scom data 
+
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {  //chip + address
+    ecmdOutputError("getscomgroup - Too few arguments specified; you need at least a chip and a scomGroupName.\n");
+    ecmdOutputError("getscomgroup - Type 'getscomgroup -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  //get the scomGroupName and version
+  std::string scomGroupName = argv[1];
+  bool use_version = false;
+  //std::string version = "";
+  char * version = NULL;
+  if (argc > 2) {
+    use_version = true;
+    version = argv[2];
+  }
+
+  
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+    
+    if (use_version) {
+      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
+    } else {
+      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries);
+    }
+    if (rc) {
+      printed = "getscomgroup - Error occurred performing queryscom on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+
+    if (groupScomEntries.size() == 0) {
+      printed = "getscomgroup - Did not find any scoms for this scomGroupName:";
+      printed += scomGroupName;
+      printed += "\n";
+      ecmdOutputError(printed.c_str());
+      rc = ECMD_INVALID_ARGS;
+      continue;
+    }
+
+    /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+    if (queryData.isChipUnitRelated) {
+      /* Error check the chipUnit returned */
+      if (!queryData.isChipUnitMatch(chipUnitType)) {
+        printed = "getscomgroup - Provided chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" doesn't match chipUnit returned by queryScomgroup \"";
+        printed += queryData.relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (chipUnitType != "") {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the chipUnit loop */
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      if (rc) break;
+    } else { // !scomData->isChipUnitRelated
+      if (chipUnitType != "") {
+        printed = "getscomgroup - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit scom address.\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
+    }
+
+    /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((queryData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+      rc = doScomMultiple(cuTarget, groupScomEntries); if (rc) return rc;
+
+      if (rc) {
+        printed = "getscomgroup - Error occured performing doScomMultiple on ";
+        printed += ecmdWriteTarget(cuTarget);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      } else {
+        validPosFound = true;
+      }
+
+      //printed = ecmdWriteTarget(cuTarget);
+      //printed += ecmdWriteDataFormatted(buffer, outputformat, 0, queryData.endianMode);
+      //printed += ecmdWriteDataFormatted(buffer, outputformat, 0, ECMD_BIG_ENDIAN);
+      //ecmdOutput( printed.c_str() );
+
+    } /* End cuLooper */
+  } /* End PosLooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("getscomgroup - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  /* If we failed an expect let's return that */
+  if (e_rc) return e_rc;
+
+  return rc;
+}
 
 
 // Change Log *********************************************************
