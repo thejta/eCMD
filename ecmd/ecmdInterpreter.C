@@ -379,6 +379,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
         } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getscomgroup")) {
+          rc = ecmdGetScomgroupUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
         } else if (!strcmp(argv[0], "getspr")) {
           rc = ecmdGetSprUser(argc - 1, argv + 1);

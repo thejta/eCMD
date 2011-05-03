@@ -27,7 +27,7 @@ my $STRING = 2;
 my $BOOL = 3;
 
 #functions to ignore in parsing ecmdClientCapi.H because they don't get implemented in the dll, client only functions in ecmdClientCapi.C
-my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdFunctionTimer);
+my @ignores = qw( ecmdLoadDll ecmdUnloadDll ecmdCommandArgs ecmdSetup ecmdDisplayDllInfo InitExtension cmdRunCommand ecmdFunctionTimer ecmdQueryScomGroup getScomGroup);
 my $ignore_re = join '|', @ignores;
 # Allow exceptions to be specified so the general match above doesn't match longer file names
 my @ignore_exceptions = qw( ecmdLoadDllRecovery);

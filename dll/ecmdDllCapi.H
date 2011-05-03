@@ -84,6 +84,8 @@ uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayD
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
 
+uint32_t dllQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string i_version); 
+
 bool dllQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData); 
 
 bool dllQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData); 
@@ -133,9 +135,17 @@ uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpChec
 
 uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups); 
 
+uint32_t dllGetSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, ecmdDataBuffer & o_data); 
+
+uint32_t dllGetSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue); 
+
 uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
 
 uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 
+
+uint32_t dllPutSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, ecmdDataBuffer & io_ringImage); 
+
+uint32_t dllPutSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage); 
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllEnableRingCache(ecmdChipTarget & i_target); 

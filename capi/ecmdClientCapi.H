@@ -419,6 +419,38 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
+
+/**
+ @brief Query Scomgroup information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_scomGroupName Name of the scomgroup to look up in the hash
+ @param o_queryData Return data from query
+ @param o_entries list of scomsEntrys within the groupscomname
+ @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If omitted (i.e, set to NULL) the latest version of the
+                                file will be read and io_scomGroupFileVersion will be set to the version number.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData &o_queryData, std::list<ecmdScomEntry> &o_entries, char * io_scomGroupFileVersion = NULL);
+
+/**
+ @brief Does the query and the doScomMultiple in one function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_scomGroupName Name of the scomgroup to look up in the hash
+ @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If omitted (i.e, set to NULL) the latest version of the
+                                file will be read and io_scomGroupFileVersion will be set to the version number.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, char * io_scomGroupFileVersion = NULL);
+
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
  @brief Query Trace Array information from the DLL
@@ -651,7 +683,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
 uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
 /**
- @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address.
+ @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
  @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
@@ -2275,13 +2307,15 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
 
 /**
  @brief Set the value of a supported Configuration Setting like for example scanmode
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_name Name of setting as defined by eCMD Api
+  @param i_target Struct that specifies the target to operate on (see target depth and states below)
+  @param i_name Name of setting as defined by eCMD Api
  @if zseries 
- <a HREF="https://mcweb.boeblingen.de.ibm.com/ecmd/zapis/configuration/configurationFunctions.html">         z-series definitions of i_name</a>
+ <a HREF="https://mcweb.boeblingen.de.ibm.com/ecmd/zapis/configuration/configurationFunctions.html">         z-series definitions of i_Name</a>
  @else 
  @n Please see platform documentation for a list of supported strings
  @endif 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_name Name of setting as defined by eCMD Api
  @param i_validInput Indicator if i_valueAlpha, i_valueNumeric (or both) are valid.
  @param i_valueAlpha Alpha value of setting (if appropriate)
  @param i_valueNumeric Numeric value of setting (if appropriate)
@@ -2294,7 +2328,6 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
-
 uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
 
 /**

@@ -1723,6 +1723,145 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* We will just print this from the format helpfile */
     return ecmdPrintHelp("options");
 
+    /* ---------- */
+    /* scomgroup    */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"scomgroup")) {
+    if (argc < 3) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for scomgroup; you need at least a query scomgroup <chipname> and groupName.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+    ecmdScomData queryData;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    std::string scomGroupName = argv[2];
+    bool use_version = false;
+    char * version = NULL;
+    if (argc > 3) {
+      use_version = true;
+      version = argv[3];
+    }
+
+
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    char buf[200];
+
+    while (ecmdLooperNext(target, looperData)) {
+      std::list<ecmdScomEntry> groupScomEntries;
+      std::list<ecmdScomEntry>::iterator groupScomEntriesItr;
+
+      if (use_version) {
+        rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
+      } else {
+        rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries);
+      }
+      if (rc) {
+        printed = "ecmdquery scomgroup - Error occurred performing queryscom on ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        continue;
+      }
+
+      if (groupScomEntries.size() == 0) {
+        printed = "ecmdquery scomgroup - Did not find any scoms for this scomGroupName:";
+        printed += scomGroupName;
+        printed += "\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        continue;
+      }
+
+      /* Ok, display what we got */
+      ecmdOutput(   "*******************************************************\n");
+      printed =     "Target           : " + ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
+      if (queryData.isChipUnitRelated) {
+        printed =     "Chip Unit        : " + queryData.relatedChipUnit + "\n"; ecmdOutput(printed.c_str());
+      } else {
+        printed =     "Chip Unit        : NONE\n"; ecmdOutput(printed.c_str());
+      }
+      for (groupScomEntriesItr = groupScomEntries.begin(); groupScomEntriesItr != groupScomEntries.end(); groupScomEntriesItr++) {
+        sprintf(buf,  "Chip Addr        : 0x%016llX\n", groupScomEntriesItr->address); ecmdOutput(buf);
+      }
+      ecmdOutput(   "*******************************************************\n");
+    }
+    /* ---------- */
+    /* scomgroupnames    */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"scomgroupnames")) {
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for scomgroupnames; you need at least a query scomgroupnames <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    ecmdChipData chipdata;
+    ecmdScomData queryData;
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    bool use_version = false;
+    char * version = NULL;
+    if (argc > 2) {
+      use_version = true;
+      version = argv[2];
+    }
+
+
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData)) {
+      std::string scomgroup_filename;
+      std::list<scomGroupRecord_t> scomGroupRecord;
+      if (!use_version) {
+        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename); if (rc) return rc;
+      } else {
+        std::string str_version = version;
+        rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+      }
+      rc = parse_groupscomdef_file(scomgroup_filename, scomGroupRecord); if (rc) return rc;
+
+      char buf[200];
+
+      std::list<scomGroupRecord_t>::iterator scomGroupIter;
+      //print all the data we read to the screen
+      if (scomGroupRecord.empty()) {
+        printed = "ecmdquery scomgroupnames, Did not find any groupScomNames for ";
+        printed += ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        return ECMD_INVALID_ARGS;
+      } else {
+        ecmdOutput(   "*******************************************************\n");
+        sprintf(buf,  "Position Node:%d Pos:%d\n", target.node, target.pos); ecmdOutput(buf);
+        for (scomGroupIter = scomGroupRecord.begin(); scomGroupIter != scomGroupRecord.end(); scomGroupIter++) {
+          if (scomGroupIter->scomGroup_chipUnit == "NONE") {
+            sprintf(buf,  "Target: %-20s  GroupName: %s\n", target.chipType.c_str(), scomGroupIter->scomGroup_name.c_str() ); ecmdOutput(buf);
+          } else {
+            char combo_name[40];
+            sprintf(combo_name, "%s.%s", target.chipType.c_str(), scomGroupIter->scomGroup_chipUnit.c_str() );
+            sprintf(buf, "Target: %-20s  GroupName: %s\n", combo_name, scomGroupIter->scomGroup_name.c_str() ); ecmdOutput(buf);
+          }
+        }
+        ecmdOutput(   "*******************************************************\n");
+      }
+    }
+
   } else {
     /* Invalid Query Mode */
     ecmdOutputError("ecmdquery - Invalid Query Mode.\n");
