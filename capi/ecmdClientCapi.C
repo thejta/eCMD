@@ -28,6 +28,7 @@
 #include <fstream>
 #include <netinet/in.h>
 #include <ecmdSharedUtils.H>
+#include <algorithm>
 
 #include <ecmdClientCapi.H>
 #include <ecmdUtils.H>
