@@ -1,0 +1,24 @@
+
+Syntax: getscomgroup <Chip[.ChipUnit]> <groupName> [groupscomdefVerNum] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
+        ECMD:           Core Common Function
+
+        Function:       Gets Scan Communications registers.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+        groupName       name of group to get.
+
+        grpscomdefVerNum  [opt] specific version of groupscomdef/hash to use
+        
+                        Run 'ecmdquery scomgroupnames <chip>' for a list of the groupScoms
+                        available for this chip
+        --------------------------------------------------------------------------------
+
+        Examples:       > getscomgroup p7 P7_80000X -p0,1 
+                        > getscomgroup p7.ex P7_ex 1.3
