@@ -435,7 +435,7 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData &o_queryData, std::list<ecmdScomEntry> &o_entries, char * io_scomGroupFileVersion = NULL);
+uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData & o_queryData, std::list<ecmdScomEntry> & o_entries, char * io_scomGroupFileVersion = NULL);
 
 /**
  @brief Does the query and the doScomMultiple in one function
