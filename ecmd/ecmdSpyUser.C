@@ -209,7 +209,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
     /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
     if (outputformat != "enum") {
-      if (argc > 2) {
+      if(argc == 3)
+      {
+          ecmdOutputError("getspy - Too few arguments specified; Specify both startbit and numbits\n");
+          rc = ECMD_INVALID_ARGS;
+          break;
+      }
+
+      if (argc > 3) {
         if (!ecmdIsAllDecimal(argv[2])) {
           ecmdOutputError("getspy - Non-decimal numbers detected in startbit field\n");
           rc = ECMD_INVALID_ARGS;
@@ -222,14 +229,21 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       }
 
       if (argc > 3) {
+        if (!ecmdIsAllDecimal(argv[2])) {
+          ecmdOutputError("getspy - Non-decimal numbers detected in startbit field\n");
+          rc = ECMD_INVALID_ARGS;
+          break;
+        }
         if (!ecmdIsAllDecimal(argv[3])) {
           ecmdOutputError("getspy - Non-decimal numbers detected in numbits field\n");
           rc = ECMD_INVALID_ARGS;
           break;
         }
+        startBit = (uint32_t)atoi(argv[2]);
         numBits = (uint32_t)atoi(argv[3]);
       }
       else {
+        startBit = 0x0;
         numBits = ECMD_UNSET;
       }
 
@@ -541,7 +555,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
 
-  if (!validPosFound) {
+  if (!validPosFound && !rc) {
     ecmdOutputError("getspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
@@ -827,7 +841,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
 
-  if (!validPosFound) {
+  if (!validPosFound && !rc) {
     ecmdOutputError("putspy - Unable to find a valid chip to execute command on\n");
     return ECMD_TARGET_NOT_CONFIGURED;
   }
