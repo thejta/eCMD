@@ -135,6 +135,8 @@
 #define ECMD_FATAL_FAILURE                      (ECMD_ERR_ECMD | 0x10CB) ///< Fatal error during plugin load due to library versions mismatch
 #define ECMD_WILDCARD_CHAR_NOT_SUPPORTED        (ECMD_ERR_ECMD | 0x10CD) ///< Wildcard 'x' was used with a command that doesn't support it
 #define ECMD_WILDCARD_MISUSE                    (ECMD_ERR_ECMD | 0x10CF) ///< Wildcard 'x' was used incorrectly - i.e. as a chipunit 
+#define ECMD_UNABLE_TO_OPEN_SPYDEF              (ECMD_ERR_ECMD | 0x10CD) ///< eCMD was unable to open the spydef
+
 
 
 /* Return codes for command interpreter */
@@ -142,6 +144,7 @@
 #define ECMD_EXPECT_FAILURE                     (ECMD_ERR_ECMD | 0x1903)  ///< An expect was performed and a miscompare was found
 #define ECMD_SCANDEF_LOOKUP_FAILURE             (ECMD_ERR_ECMD | 0x1905)  ///< An Error occurred trying to process the scandef file
 #define ECMD_DATA_BOUNDS_OVERFLOW               (ECMD_ERR_ECMD | 0x1907)  ///< The user specified to get/put data that was larger then ECMD_MAX_DATA_BITS
+#define ECMD_SPYDEF_LOOKUP_FAILURE              (ECMD_ERR_ECMD | 0x1909)  ///< An Error occurred trying to process the scandef file
 
 /* dataBuffer specific return codes */
 #ifndef ECMD_DBUF_SUCCESS
