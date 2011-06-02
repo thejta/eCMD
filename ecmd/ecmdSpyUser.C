@@ -848,5 +848,490 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
   return rc;
 }
+uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+  bool expectFlag = false;
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
+  std::string outputformat = "default"; ///< Output format - default to 'enum' if enumerated
+                                        ///  otherwise 'x'
+  std::string inputformat = "default";  ///< Expect data input format
+  std::string ringImageFormat = "b";    ///< By Default the ring image format is Binary.
+  std::string expectArg;                ///< String containing expect data
+  ecmdDataBuffer spyBuffer;             ///< Buffer to hold entire spy contents
+  ecmdDataBuffer buffer;                ///< Buffer to hold user requested part of spy
+  ecmdDataBuffer expectedRaw;           ///< Buffer to hold Raw expected data
+  std::string expectedEnum;             ///< Buffer to hold enum expected data
+  bool validPosFound = false;           ///< Did the looper find something?
+  std::string printed;                  ///< Output string data
+  std::string enumValue;                ///< The enum value returned
+  ecmdChipTarget target;                ///< Current target being operated on
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnits
+  std::list<ecmdSpyData> spyDataList;   ///< Spy information returned by ecmdQuerySpy
+  std::list<ecmdSpyData>::iterator spyData;   ///< spy data
+  std::list<ecmdSpyGroupData> spygroups; ///< Spygroups information returned by GetSpyGroups
+  ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
+  uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  //expect and mask flags check
+  char * expectArgTmp = ecmdParseOptionWithArgs(&argc, &argv, "-exp");
+  if (expectArgTmp != NULL) {
+    expectFlag = true;
+    expectArg = expectArgTmp;
+  }
+
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-fi");
+  if (formatPtr != NULL) {
+    ringImageFormat = formatPtr;
+  }
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /* Now done with args, do an error check */
+  if (argc < 3) {  //chip + spyname + ringIname
+    ecmdOutputError("getspyimage - Too few arguments specified; you need at least a chip, spyname and ringimage.\n");
+    ecmdOutputError("getspyimage - Type 'getspyimage -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  //Setup the target that will be used to query the system config
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+ target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  //get spy name
+  std::string spyName = argv[1];
+  char *  ringImagefile = argv[2];
+  ecmdDataBuffer ringImage;
+  // Check if the user specified ring image format is correct
+  if(ringImageFormat == "a" )
+  {
+     //  input is ASCII and hence reading it in  ASCII Format
+     rc = ringImage.readFile(ringImagefile, ECMD_SAVE_FORMAT_ASCII);
+  }
+  else if(ringImageFormat == "b")
+  {
+     // User Input is Binary
+     // Checking if it is  ASCII
+     // if the image is ASCII, we error out
+     // If it is not ASCII, we go ahead and read it as BINARY Format.
+     rc = ringImage.readFile(ringImagefile, ECMD_SAVE_FORMAT_ASCII);
+     if(!rc)
+     {
+       ecmdOutputError("getspyimage - Input Specified is Binary but image format is ASCII ");
+       ecmdOutputError("getspyimage - Type 'getspyimage -h' for usage.\n");
+       rc = ECMD_DBUF_INVALID_DATA_FORMAT;
+     }
+     else
+       rc = ringImage.readFile(ringImagefile, ECMD_SAVE_FORMAT_BINARY_DATA);
+  }
+  // If specified ring image format is neither "a" nor "b",then error out.
+  else
+  {
+    // If the user option is not -fia or fib , we error out.
+    ecmdOutputError("getspyimage - Invalid ring image format.\n");
+    ecmdOutputError("getspyimage - Type 'getspyimage -h' for usage.\n");
+    rc=ECMD_INVALID_ARGS;
+  }
+  if(rc) return rc;
+  uint32_t startBit = 0x0;
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), detail);
+    if (rc || spyDataList.empty()) {
+      printed = "getspyimage - Error occured looking up data on spy " + spyName + " on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    spyData = spyDataList.begin();
+     /* Make sure the user didn't request enum output on an ispy */
+    if (((outputformat == "enum") || (inputformat == "enum")) && !spyData->isEnumerated) {
+      ecmdOutputError("getspyimage - Spy doesn't support enumerations, can't use -ienum or -oenum\n");
+      rc = ECMD_INVALID_ARGS;
+      break;
+    }
+ /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
+    if ((outputformat == "default") || (inputformat == "default")) {
+      if (spyData->isEnumerated) {
+        if (outputformat == "default") outputformat = "enum";
+        if (inputformat == "default") inputformat = "enum";
+      } else {
+        if (outputformat == "default") outputformat = "x";
+        if (inputformat == "default") inputformat = "x";
+      }
+    }
+    if ((outputformat == "enum") && (inputformat != "enum")) {
+      /* We can't do an expect on non-enumerated when they want a fetch of enumerated */
+      ecmdOutputError("getspyimage - When reading enumerated spy's both input and output format's must be of type 'enum'\n");
+      rc = ECMD_INVALID_ARGS;
+      break;
+    }
+    if (expectFlag) {
+      if (inputformat != "enum") {
+        rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
+        if (rc) break;
+      } else {
+        expectedEnum = expectArg;
+      }
+    }
+ /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+    if (spyData->isChipUnitRelated) {
+      /* Error check the chipUnit returned */
+      if (!spyData->isChipUnitMatch(chipUnitType)) {
+        printed = "getspyimage - Provided chipUnit \"";
+        printed += chipUnitType;
+        printed += "\"doesn't match chipUnit returned by querySpy \"";
+        printed += spyData->relatedChipUnit + "\"\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+       if (chipUnitType != "") {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the chipUnit loop */
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      if (rc) break;
+    } else { // !spyData->isChipUnitRelated
+      if (chipUnitType != "") {
+        printed = "getspyimage - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit spy\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+ // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
+    }
+
+    /* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+      if(outputformat == "enum") {
+        rc = getSpyEnumImage(cuTarget, spyName.c_str(),ringImage, enumValue);
+        if ( rc ) {
+          rc = getSpyImage(cuTarget, spyName.c_str(),ringImage, spyBuffer);
+          if (rc == 0){   // .. printout warning informing that no enum could be found
+            printed = "getspyimage - Info: No enum found for Spy \"";
+            printed += spyName.c_str();
+            printed += "\" .. returning hex data instead\n";
+            ecmdOutputError(printed.c_str());
+            outputformat = "x";
+          }
+        }
+      }
+      else {
+        rc = getSpyImage(cuTarget, spyName.c_str(), ringImage,spyBuffer);
+      }
+      if (rc) {
+        printed = "getspyimage - Error occured performing getspyimage on ";
+        printed += ecmdWriteTarget(cuTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      }
+      validPosFound = true;
+
+      printed = ecmdWriteTarget(cuTarget) + " " + spyName;
+
+      if (outputformat == "enum") {
+ if (!expectFlag) {
+          printed += "\n" + enumValue + "\n";
+          ecmdOutput( printed.c_str() );
+        } else {
+          if (expectedEnum != enumValue) {
+            printed =  "getspyimage - Mismatch found on spy : " + spyName + "\n";
+            ecmdOutputError( printed.c_str() );
+            printed =  "getspyimage - Actual                : " + enumValue + "\n";
+            ecmdOutputError( printed.c_str() );
+            printed =  "getspyimage - Expected              : " + expectedEnum + "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = ECMD_EXPECT_FAILURE;
+            continue;
+          }
+        }
+      }
+      else {
+        uint32_t bitsToFetch = 0x0;
+        bitsToFetch = spyBuffer.getBitLength() - startBit;
+        buffer.setBitLength(bitsToFetch);
+        spyBuffer.extract(buffer, startBit, bitsToFetch);
+        char outstr[200];
+        if (!expectFlag) {
+
+          sprintf(outstr, "(%d:%d)", startBit, startBit + bitsToFetch - 1);
+          printed += outstr;
+
+          std::string dataStr = ecmdWriteDataFormatted(buffer, outputformat);
+          if (dataStr[0] != '\n') {
+            printed += "\n";
+          }
+          printed += dataStr;
+          ecmdOutput( printed.c_str() );
+        }
+        else {
+
+          uint32_t mismatchBit = 0;
+          if (!ecmdCheckExpected(buffer, expectedRaw, mismatchBit)) {
+            printed =  "getspyimage - Mismatch found on spy : " + spyName + "\n";
+            ecmdOutputError( printed.c_str() );
+
+            if (mismatchBit != ECMD_UNSET) {
+              sprintf(outstr, "First bit mismatch found at bit %d\n",startBit + mismatchBit);
+              ecmdOutputError( outstr );
+            }
+            printed =  "getspyimage - Actual                : ";
+            printed += ecmdWriteDataFormatted(buffer, outputformat);
+            ecmdOutputError( printed.c_str() );
+
+            printed =  "getspyimage - Expected              : ";
+            printed += ecmdWriteDataFormatted(expectedRaw, outputformat);
+            ecmdOutputError( printed.c_str() );
+            coeRc =  ECMD_EXPECT_FAILURE;
+            continue;
+          }
+        }
+      }
+    } /* End cuLooper */
+
+  } /* End poslooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound && !rc ) {
+    ecmdOutputError("getspyimage - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  return rc;
+}
+
+uint32_t ecmdPutSpyImageUser(int argc, char * argv[]) {
+
+  uint32_t rc = ECMD_SUCCESS , coeRc = ECMD_SUCCESS;
+  ecmdLooperData looperData;            ///< Store internal Looper data
+  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
+  std::string inputformat = "default";  ///< Input data format,default xl
+  std::string ringformat = "b";         ///< ring image format ,default binary
+  ecmdDataBuffer buffer;                ///< Buffer to hold input data
+  ecmdDataBuffer spyBuffer;             ///< Buffer to hold current spy data
+  ecmdChipTarget target;                ///< Current target
+  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnits
+  bool validPosFound = false;           ///< Did the looper find anything?
+  std::string printed;                  ///< Output data
+  std::list<ecmdSpyData> spyDataList;           ///< Spy information returned by ecmdQuerySpy
+  std::list<ecmdSpyData>::iterator spyData;     ///< Spy information returned by ecmdQuerySpy
+  uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-fi");
+  if (formatPtr != NULL) {
+    ringformat = formatPtr;
+  }
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+   /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+if (argc < 4 ) {  //chip + spy + ringimage +data
+    ecmdOutputError("putspyimage - Too few arguments specified; you need at least a chip, a spy,ring image and data.\n");
+    ecmdOutputError("putspyimage - Type 'putspyimage -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  if(argc > 4 )
+  {
+    ecmdOutputError("putspyimage - Too many  arguments specified; you need  chip, a spy,ring image and data or input file.\n");
+    ecmdOutputError("putspyimage - Type 'putspyimage -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config
+  std::string chipType, chipUnitType;
+  ecmdParseChipField(argv[0], chipType, chipUnitType);
+  target.chipType = chipType;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  //get spy name
+  std::string spyName = argv[1];
+  char * ringImagefile = argv[2];
+  ecmdDataBuffer ringImage;
+  // Check if the user specified ring image format is correct
+  if(ringformat == "a" )
+  {
+     // Your input is ASCII and hence reading it as ASCII Format
+     rc = ringImage.readFile(ringImagefile, ECMD_SAVE_FORMAT_ASCII);
+  }
+  else if(ringformat == "b")
+  {
+     // User Input is Binary
+     // Checking if it is  ASCII
+     // if the image is ASCII, we error out
+     // If it is not ASCII, we go ahead and read it as BINARY Format.
+     rc = ringImage.readFile(ringImagefile, ECMD_SAVE_FORMAT_ASCII);
+     if(!rc)
+     {
+       ecmdOutputError("putspyimage - invalid ring image format.\n");
+       ecmdOutputError("putspyimage - Type 'getspyimage -h' for usage.\n");
+       rc = ECMD_DBUF_INVALID_DATA_FORMAT;
+     }
+     else
+       rc = ringImage.readFile(ringImagefile, ECMD_SAVE_FORMAT_BINARY_DATA);
+  }
+  else
+  {
+     ecmdOutputError("putspyimage - Invalid ring image format.\n");
+     ecmdOutputError("putspyimage - Type 'getspyimage -h' for usage.\n");
+     rc =  ECMD_INVALID_ARGS;
+  }
+  if(rc) return rc;
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+  if (rc) return rc;
+  while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+  /* Ok, we need to find out what type of spy we are dealing with here, to find out how to output */
+    rc = ecmdQuerySpy(target, spyDataList, spyName.c_str(), ECMD_QUERY_DETAIL_LOW);
+    if (rc || spyDataList.empty()) {
+      printed = "putspyimage - Error occured looking up data on spy " + spyName + " on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+
+    spyData = spyDataList.begin();
+    if (spyData->isEnumerated) {
+      if (inputformat == "default") inputformat = "enum";
+    } else {
+      if (inputformat == "default") inputformat = "x";
+    }
+
+    /* Now that we know whether it is enumerated or not, we can finally finish our arg parsing */
+    if (inputformat != "enum") {
+           rc = ecmdReadDataFormatted(buffer, argv[3], inputformat, spyData->bitLength);
+        if (rc) {
+          ecmdOutputError("putspyimage - Problems occurred parsing input data, must be an invalid format\n");
+          break;
+        }
+    }
+    /* Setup our chipUnit looper if needed */
+    cuTarget = target;
+ if (spyData->isChipUnitRelated) {
+      /* Error check the chipUnit returned */
+      if (!spyData->isChipUnitMatch(chipUnitType)) {
+        printed = "putspyimage - Provided chipUnit \"";
+        printed += chipUnitType;
+        printed += "\"doesn't match chipUnit returned by querySpy \"";
+        printed += spyData->relatedChipUnit + "\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+      /* If we have a chipUnit, set the state fields properly */
+      if (chipUnitType != "") {
+        cuTarget.chipUnitType = chipUnitType;
+        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+      /* Init the chipUnit loop */
+      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+      if (rc) break;
+    } else { // !spyData->isChipUnitRelated
+      if (chipUnitType != "") {
+        printed = "putspyimage - A chipUnit \"";
+        printed += chipUnitType;
+        printed += "\" was given on a non chipUnit spy\n";
+        ecmdOutputError(printed.c_str());
+        rc = ECMD_INVALID_ARGS;
+        break;
+      }
+ // Setup the variable oneLoop variable for this non-chipUnit case
+      oneLoop = 1;
+    }
+/* If this isn't a chipUnit spy we will fall into while loop and break at the end, if it is we will call run through configloopernext */
+    while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+        if (inputformat == "enum") {
+          rc = putSpyEnumImage(cuTarget, spyName.c_str(),argv[3], ringImage );
+        } else {
+        rc = putSpyImage(cuTarget, spyName.c_str(),buffer, ringImage);
+        }
+        if (rc) {
+          printed = "putspyimage - Error occured performing putspyimage on ";
+          printed += ecmdWriteTarget(cuTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          coeRc = rc;
+          continue;
+        } else {
+          if(ringformat== "a" )
+          {
+            rc = ringImage.writeFile(argv[2], ECMD_SAVE_FORMAT_ASCII);
+          }
+          else if(ringformat == "b")
+          {
+            rc = ringImage.writeFile(argv[2], ECMD_SAVE_FORMAT_BINARY_DATA);
+          }
+          if(rc) return rc;
+          validPosFound = true;
+        }
+        if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+          printed = ecmdWriteTarget(cuTarget) + "\n";
+          ecmdOutput(printed.c_str());
+        }
+     } /* End cuLooper */
+ } /* End poslooper */
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  if (!validPosFound && !rc) {
+    ecmdOutputError("putspyimage - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  return rc;
+}
+
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 

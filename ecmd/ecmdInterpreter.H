@@ -97,6 +97,8 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]);
 /* ecmdSpyUser.C */
 uint32_t ecmdGetSpyUser(int argc, char* argv[]);
 uint32_t ecmdPutSpyUser(int argc, char* argv[]);
+uint32_t ecmdGetSpyImageUser(int argc, char* argv[]);
+uint32_t ecmdPutSpyImageUser(int argc, char* argv[]);
 
 /* ecmdMemUser.C */
 uint32_t ecmdCacheFlushUser(int argc, char* argv[]);

@@ -388,6 +388,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
         } else if (!strcmp(argv[0], "getspy")) {
           rc = ecmdGetSpyUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getspyimage")) {
+          rc = ecmdGetSpyImageUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
         } else if (!strcmp(argv[0], "gettracearray")) {
@@ -520,6 +522,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
         } else if (!strcmp(argv[0], "putspy")) {
           rc = ecmdPutSpyUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "putspyimage")) {
+          rc = ecmdPutSpyImageUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 #ifndef ECMD_REMOVE_VPD_FUNCTIONS
         } else if (!strcmp(argv[0], "putvpdkeyword")) {

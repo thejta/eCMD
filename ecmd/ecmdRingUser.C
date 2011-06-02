@@ -36,20 +36,6 @@
 //  User Types
 //----------------------------------------------------------------------
 
-/** @brief Used to hold info out of the scandef for getringdump */
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
-struct ecmdLatchDataEntry {
-  std::string ringName;                 ///< Name of ring that contains this latch
-  std::string latchName;                ///< Full Latch Name (including any parens)
-  uint32_t fsiRingOffset;               ///< Ring Offset for FSI
-  uint32_t jtagRingOffset;              ///< Ring Offset for JTAG
-  uint32_t length;                      ///< Length of entry
-  uint32_t latchStartBit;               ///< Start bit in latch (comes from parens in latch name) 
-  uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name)
-  ecmdLatchType_t  latchType;           ///< Specifies what type of latch this is (single bit, multibit, etc..)
-};
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 struct ecmdCheckRingData {
   std::string ringName;                 ///< Name of ring
