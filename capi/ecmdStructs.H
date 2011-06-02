@@ -1967,6 +1967,18 @@ isChipUnitRelated(false)
 inline ecmdCacheData::~ecmdCacheData() { }
 #endif
 
+// This Structure is moved here from  ecmdRingUser.C
+struct ecmdLatchDataEntry {
+  std::string ringName;                 ///< Name of ring that contains this latch
+  std::string latchName;                ///< Full Latch Name (including any parens)
+  uint32_t fsiRingOffset;               ///< Ring Offset for FSI
+  uint32_t jtagRingOffset;              ///< Ring Offset for JTAG
+  uint32_t length;                      ///< Length of entry
+  uint32_t latchStartBit;               ///< Start bit in latch (comes from parens in latch name)
+  uint32_t latchEndBit;                 ///< End bit in latch (comes from parens in latch name)
+  ecmdLatchType_t  latchType;           ///< Specifies what type of latch this is (single bit, multibit, etc..)
+};
+
 
 /**
  @brief Used by ecmdSpyData when returning the latches that are part of a spy
