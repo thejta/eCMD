@@ -1,0 +1,37 @@
+
+Syntax: putspyimage <Chip[.ChipUnit]> <SpyName> <ringImage> <data> -fi<format> [-i<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+                              
+        ECMD:           Core Common Function
+
+        Function:       Write data in to a ringimage. 
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip               Specifies the chip to operate on.
+        ChipUnit [opt]     If you are using ChipUnits, you also specify your ChipUnit
+                           w/o  ChipUnit: pu
+                           with ChipUnit: pu.mc
+
+        SpyName            Desired spy name, (case insensitive)  
+        ringImage          Desired ringImage, (case insensitive)  
+
+        Data               Spy Data to put into ringImage .
+                           Format specified by -i<format>
+
+        -fi<format>        Specifies the format type of input ringImage
+                           Default : Binary.
+                           Formats : 'fib'[binary]
+                                     'fia'[ASCII]
+        -i<format>[opt]    Specifies the format type of data
+                           Default format for non-enumerated spys : 'xl'
+                           Default format for enumerated spys : 'enum'
+                           Run 'ecmdquery formats' to view available formats
+        --------------------------------------------------------------------------------
+
+        Examples:       putspyimage  pu MYALIAS ringImage B -fib
+                        putspyimage  pu MYALIAS ringImage -ib 111 -fia
+                        putspyimage  pu MYALIAS -fia ringImage -ib 111
+                        putspyimage  pu MYALIAS -fib ringImage A 
+                       
+
