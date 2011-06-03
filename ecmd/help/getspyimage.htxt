@@ -1,0 +1,36 @@
+
+Syntax: getspyimage <Chip[.ChipUnit]> <SpyName> <ringImage> -fi<format> [-i<format>] [-o<format>]  
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+                                                                  
+        ECMD:              Core Common Function
+
+        Function:          Displays Spy details from ring image.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip               Specifies the chip to operate on.
+        ChipUnit [opt]     If you are using ChipUnits, you also specify your ChipUnit
+                           w/o  ChipUnit: pu
+                           with ChipUnit: pu.mc
+
+        SpyName            Desired spy name. (case insensitive)  
+        ringImage          Desired Ring Image (case insensitive)  
+
+        -fi<format>        Specifies the format type of input ringImage.
+                           Default : binary
+                           Formats : 'fib'[binary]
+                                     'fia'[ASCII]
+        -i<format>[opt]    Specifies the format type of expect data
+                           Default format for non-enumerated spys : 'xl'
+                           Default format for enumerated spys : 'enum'
+                           Run 'ecmdquery formats' to view available formats
+        -o<format>[opt]    Specifies the format type of the output
+                           Default format for non-enumerated spys : 'xl'
+                           Default format for enumerated spys : 'enum'
+                           Run 'ecmdquery formats' to view available formats
+        --------------------------------------------------------------------------------
+
+        
+        Examples:          getspyimage pu MYALIAS testRingImage -fib
+                           getspyimage pu MYALIAS testRingImage -ia -fib
+                           getspyimage pu MYALIAS testRingImage -ia -ob -fia
