@@ -2295,22 +2295,18 @@ void debugFunctionOuput(const char* outbuf) {
  */
 static std::list<bool*> g_initPtrs;
 void ecmdRegisterExtensionInitState(bool* i_initState) {
-//  printf("ecmd Register size = %d\n",g_initPtrs.size()); 
   if (find(g_initPtrs.begin(), g_initPtrs.end(), i_initState) == g_initPtrs.end()) {
     g_initPtrs.push_back(i_initState);
   }
-//  printf("Register size (2) = %d\n",g_initPtrs.size()); 
 }
 
 /**
  @brief Reset Extension initstate pointer to uninitialized
 */
 void ecmdResetExtensionInitState() {
- // printf("ecmd Reset size  = %d\n",g_initPtrs.size()); 
-  //for (std::list<bool*>::iterator ptrit = g_initPtrs.begin(); ptrit != g_initPtrs.end(); ptrit ++) {
-  //JFDEBUG  *(*ptrit) = false;
-  //}
-  //printf("Reset size (2) = %d\n",g_initPtrs.size()); 
+  for (std::list<bool*>::iterator ptrit = g_initPtrs.begin(); ptrit != g_initPtrs.end(); ptrit ++) {
+    *(*ptrit) = false;
+  }
 }
 
 /**
