@@ -76,7 +76,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
   if (!strcmp(argv[0], "scoms")) {
 
     std::string isChipUnit = "N";
-    uint32_t address =0xFFFFFFFF;
+    uint64_t address =0xFFFFFFFFFFFFFFFFull;
     char addrStr[20];
 
     std::list<ecmdScomData> scomdata;
@@ -107,7 +107,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     char buf[200];
     if (argv[2] != NULL) {
-      address = strtoul(argv[2], NULL, 16);
+      address = strtoull(argv[2], NULL, 16);
     }
     while (ecmdLooperNext(target, looperData)) {
 
