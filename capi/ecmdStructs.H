@@ -285,7 +285,7 @@ typedef enum {
   ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
   ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
   ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
-  ECMD_DLL_PRODUCT_PEGASUS,     ///< Pegasus Project
+  ECMD_DLL_PRODUCT_P8S1,        ///< P8/S1 Project
   ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
 } ecmdDllProduct_t;
 
