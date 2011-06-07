@@ -5,7 +5,7 @@
 SUBDIR     := capi/
 include ../makefile.rules
 
-CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H  prdfCompressBuffer.H
+CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H  prdfCompressBuffer.H
 INT_INCLUDES  := ecmdDllCapi.H
 CAPI_SOURCE   := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE   := ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
