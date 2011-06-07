@@ -3819,6 +3819,17 @@ uint32_t simWaitUntil(const char* i_facName, uint32_t i_bitNumber, uint32_t i_bi
 uint32_t simRunTestcase(const std::vector<std::string>& i_testcaseNames, bool i_continueOnError = false);
 //@}
 
+
+
+
+
+
+
+
+uint32_t ecmdRunSo(ecmdChipTarget & i_target, const std::string & i_sharedObjectName);
+//uint32_t ecmdRunSo/WithArgs(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> & i_sharedObjectArgs,  uint32_t i_sharedObjectEntryPointType = 0x0);
+
+
 #ifndef ECMD_PERLAPI
 /* These are defined down here so that the simulation functions don't get put at the top of the doxygen because they have defines in them */
 /** @name Simulation Functions */
