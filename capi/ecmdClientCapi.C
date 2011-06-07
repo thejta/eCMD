@@ -38,14 +38,6 @@
 # include <ecmdDllCapi.H>
 #endif
 
-
- 
-/* Need these includes to make fapi objects visible in ecmdRunSoWithArgs */
-//#include <fapiTarget.H>
-//#include <fapiReturnCode.H>
-
-
-
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -285,7 +277,7 @@ uint32_t ecmdUnloadDll() {
 #endif
 
   /* Go reset all the extensions so they know we have been unloaded */
-  //JFDEBUG HACK To get procedure to work ecmdResetExtensionInitState();
+  ecmdResetExtensionInitState();
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
@@ -885,63 +877,3 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
 
   return rc;
 }
-#if 0
-uint32_t ecmdRunSoWithArgs(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs, uint32_t i_sharedObjectEntryPointType){
-
-  ecmdChipTarget * i_targetPtr;
-  i_targetPtr = &i_target;
-   
-   //if (debug.isOn('F','T'))
-   printf("ecmdRunSoWithArgs::Opening %s...\n", i_sharedObjectName.c_str());
-   void* handle = dlopen(i_sharedObjectName.c_str(), RTLD_NOW | RTLD_GLOBAL);
-
-    
-   if (!handle) {
-     printf("ecmdRunSoWithArgs::Cannot open library: %s\n", dlerror()); //JFDEBUG
-     /*std::string errorStr;
-     errorStr = "Cannot open library " + err;
-     errorStr += "\n";
-     ecmdOutputError(errorStr.c_str());*/
-     return 1;  //JF FIXME
-    }
-    
-   // load the symbol
-   //if (debug.isOn('F','T'))
-   printf("ecmdRunSoWithArgs::Loading symbol %s...\n", i_sharedObjectName.c_str());
-
-   if (i_sharedObjectEntryPointType == 0){
-     /* FAPI ext based .so entry point was selected */
-     typedef fapi::ReturnCode (*fapi_ring_t)(fapi::Target, std::list<uint64_t>);
-   
-     // reset errors
-     dlerror();
-     fapi_ring_t func = (fapi_ring_t) dlsym(handle, i_sharedObjectEntryPoint.c_str());
-     const char *dlsym_error = dlerror();
-     if (dlsym_error) {
-       printf("Cannot load symbol '%s'\n", i_sharedObjectEntryPoint.c_str());
-       //cerr << "Cannot load symbol 'hwProcEntryPointWithArgs': " << dlsym_error << '\n';
-       dlclose(handle);
-       return 1;
-     }
-    
-     // use it to do the calculation
-     //ecmdOutput("Calling hwProcEntryPoint...\n");
-     printf("Calling '%s'\n", i_sharedObjectEntryPoint.c_str());
-     fapi::Target myFapiTarget;
-     myFapiTarget.set((uint32_t)i_targetPtr);
-     fapi::ReturnCode fapiRc = func( myFapiTarget, i_sharedObjectArgs);
-    
-     // close the library
-     printf("Closing '%s'\n", i_sharedObjectName.c_str());
-     dlclose(handle);
- 
-     return uint32_t(fapiRc);
-
-   } else {   
-     /* eCMD based (no fapi ext) .so entry point was selected */
-     ecmdOutputError("Invalid mode!!!");
-     return 1;  
-   }
-
-}
-#endif
