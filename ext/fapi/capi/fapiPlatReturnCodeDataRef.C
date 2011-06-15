@@ -1,7 +1,7 @@
 // IBM_PROLOG_BEGIN_TAG 
 // This is an automatically generated prolog. 
 //  
-// fipsrefactordoc src/hwpf/plat/fapiPlatReturnCodeDataRef.C 1.2 
+// fipsrefactordoc src/hwpf/plat/fapiPlatReturnCodeDataRef.C 1.3 
 //  
 // IBM CONFIDENTIAL 
 //  
@@ -29,10 +29,12 @@
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created.
+ *                          camvanng	05/31/2011	Added debug trace
  *
  */
 
 #include <fapiReturnCodeDataRef.H>
+#include <fapiPlatTrace.H>
 
 namespace fapi
 {
@@ -42,13 +44,15 @@ namespace fapi
 //******************************************************************************
 void ReturnCodeDataRef::deleteData()
 {
-    
-    FAPI_DBG("ReturnCodeDataRef::deleteData");
+	FAPI_DBG("ReturnCodeDataRef::deleteData");
+
     // If platform does not attach ReturnCodeData to a ReturnCode then it can
     // do nothing (this function will never be called), but if it does then it
     // must be deleted with the correct type.
 
-    // farrugia - do nothing in ecmd/cronus delete (reinterpret_cast<TYPE *>(const_cast<void *>(iv_pData)));
+   
+    // In the eCMD fapi extention we'll do nothing for now - farrugia
+    //    delete (reinterpret_cast<TYPE *>(const_cast<void *>(iv_pData)));
 }
 
 }
