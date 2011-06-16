@@ -1,12 +1,12 @@
 /**
- * @file fapiClientCapi.H
+ * @file fapiHwAccess.H
  * @brief Hardware Procedure Framework (fapi) eCMD Extension
 
  * Extension Owner : John Farrugia
 */
 
-#ifndef fapiClientCapi_H 
-#define fapiClientCapi_H
+#ifndef fapiHwAccess_H 
+#define fapiHwAccess_H
 
 #include <stdint.h>
 #include <list>
