@@ -57,6 +57,11 @@
 /* The CommandLine Extension */
 //#define ECMD_CMD_EXTENSION_SUPPORT
 
+/* The FAPI (Hardware Procedure Framework) Extension */
+//#define ECMD_FAPI_EXTENSION_SUPPORT
+
+
+
 #endif /* ecmdPluginExtensionSupport_h */
 
 // Change Log *********************************************************
