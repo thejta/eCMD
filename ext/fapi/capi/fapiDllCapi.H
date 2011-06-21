@@ -26,9 +26,12 @@ fapi::ReturnCode dllFapiGetRing(const fapi::Target& i_handle, const uint32_t i_a
 
 fapi::ReturnCode dllFapiPutRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & i_data); 
 
-fapi::ReturnCode dllFapiGetFunctionalChiplets(const fapi::Target& i_handle, const fapi::TargetType & i_chiplet, std::list<fapi::Target> & o_entries); 
+fapi::ReturnCode dllFapiGetFunctionalChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> & o_chiplets); 
 
-fapi::ReturnCode dllFapiGetExistingChiplets(const fapi::Target& i_handle, const fapi::TargetType & i_chiplet, std::list<fapi::Target> &o_entries); 
+fapi::ReturnCode dllFapiGetExistingChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> &o_chiplets); 
+
+uint32_t dllHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs);
+
 
 } //extern C
 
