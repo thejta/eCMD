@@ -31,6 +31,8 @@
 #include <ecmdUtils.H>
 
 #include <fapiClientCapi.H>
+#include <fapiHwAccess.H> 
+#include <fapiSystemConfig.H>
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
 #include <fapiStructs.H>
