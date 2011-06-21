@@ -97,4 +97,5 @@ uint32_t dllFapiInitExtension (const char * i_clientVersion) {
 #endif
 
   return dllFapiInitExtensionInPlugin();
+
 }
