@@ -33,4 +33,22 @@
 
 #define ECMD_FAPI_CAPI_VERSION "1.0"          ///< eCMD FAPI Extension version
 
+
+
+namespace fapi
+{
+
+/**
+ * @brief Enumeration of fapi file types
+ */
+typedef enum {
+    FAPI_FILE_UNKNOWN,       ///< Default for not initialized
+    FAPI_FILE_HWP
+} FileType_t;
+
+} //namespace
 #endif 
+
+
+
+

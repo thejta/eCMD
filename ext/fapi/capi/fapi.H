@@ -39,7 +39,7 @@
 #include <fapiHwAccess.H>
 #include <fapiSystemConfig.H>
 #include <fapiPlatTrace.H>
-//JFDEBUG Temp remove until supported #include <fapiPlatHwpExecutor.H>
+#include <fapiPlatHwpExecutor.H>
 //JFDEBUG Temp remove util  supported #include <fapiAttributeService.H>
 //JFDEBUGX #include <fapiHwpReturnCodes.H> // Generated file
 //JFDEBUGX #include <fapiAttributeIds.H>   // Generated file

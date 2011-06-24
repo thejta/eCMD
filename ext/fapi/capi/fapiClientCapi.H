@@ -16,6 +16,8 @@
 #include <ecmdStructs.H>  // needed for HwpInvoker
 #include <ecmdDataBufferBase.H>
 
+#include <fapiStructs.H>  
+
 namespace fapi
 {
 
@@ -59,8 +61,6 @@ ReturnCode RunSo(const Target & i_target, const char * i_sharedObjectName, const
  */
 ReturnCode RunSoWithArgs(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint,  std::list<uint64_t> & i_sharedObjectArgs);
 
-
-
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
  * @param i_target  Input target
@@ -70,11 +70,26 @@ ReturnCode RunSoWithArgs(const Target & i_target, const char * i_sharedObjectNam
  * @return Return code from shared object
  */
 uint32_t HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs);
-}
+
+/**
+ @brief Query the location of a specific HWP
+ @param i_fileType Enum that specifies which type of file you are looking for (see fapiStructs.H)
+ @param i_fileName Name of file you are looking for 
+ @param o_fileLocation Return string with full path and filename to location 
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_UNKNOWN_FILE if unable to find requested file
+ @retval nonzero if unsuccessful
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t QueryFileLocation(FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version = "default");
+
 //@}
 
 
 }
-
+}
 
 #endif

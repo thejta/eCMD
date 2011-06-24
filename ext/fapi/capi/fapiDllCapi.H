@@ -10,7 +10,7 @@
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBufferBase.H>
-#include <fapi.H>
+#include <fapi.H> //jfdebug 
 
 
 #include <fapiStructs.H>
@@ -31,6 +31,10 @@ fapi::ReturnCode dllFapiGetFunctionalChiplets(const fapi::Target& i_target, cons
 fapi::ReturnCode dllFapiGetExistingChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> &o_chiplets); 
 
 uint32_t dllHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs);
+
+uint32_t dllFapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version);
+
+
 
 
 } //extern C

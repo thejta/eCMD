@@ -31,8 +31,8 @@
 #include <ecmdUtils.H>
 
 #include <fapiClientCapi.H>
-#include <fapiHwAccess.H> 
-#include <fapiSystemConfig.H>
+#include <fapiHwAccess.H> //JFDEBUGy
+#include <fapiSystemConfig.H> //JFDEBUGy
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
 #include <fapiStructs.H>
@@ -359,7 +359,8 @@ ReturnCode fapi::PutScom(const Target& i_target, const uint32_t i_address,  ecmd
 
   return rc;
 }
-
+#if 0
+// re-add when ready to support this 
 ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask) {
 
   ReturnCode rc;
@@ -420,7 +421,7 @@ ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ ui
   return rc;
 }
 
-
+#endif
 
 ReturnCode fapi::GetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
 
@@ -663,6 +664,72 @@ uint32_t fapi::HwpInvoker(ecmdChipTarget & i_target, const std::string & i_share
 
   return uint32_t(fapiRc);
 }
+
+
+
+uint32_t fapi::QueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName,  std::string & o_fileLocation, std::string i_version) {
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiQueryFileLocation%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_fileType);
+     args.push_back((void*) &i_fileName);
+     args.push_back((void*) &o_fileLocation);
+     args.push_back((void*) &i_version);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi::QueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::QueryFileLocation");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiQueryFileLocation(i_fileType, i_fileName, o_fileLocation, i_version);
+#else
+  if (DllFnTable[ECMD_FAPIQUERYFILELOCATION] == NULL) {
+     DllFnTable[ECMD_FAPIQUERYFILELOCATION] = (void*)dlsym(dlHandle, "dllFapiQueryFileLocation");
+     if (DllFnTable[ECMD_FAPIQUERYFILELOCATION] == NULL) {
+       fprintf(stderr,"dllFapiQueryFileLocation%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(fapi::FileType_t,  std::string &, std::string &,  std::string) = 
+      (uint32_t(*)(fapi::FileType_t,  std::string &, std::string &,  std::string))DllFnTable[ECMD_FAPIQUERYFILELOCATION];
+  rc =    (*Function)(i_fileType, i_fileName, o_fileLocation, i_version);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::QueryFileLocation");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi::QueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+
+
+
 
 #if 0
 
