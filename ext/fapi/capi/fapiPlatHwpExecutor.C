@@ -1,0 +1,97 @@
+// Copyright ***********************************************************
+//                                                                      
+// File fapiPlatHwpExecuter.C                                   
+//                                                                      
+// IBM Confidential                                                     
+// OCO Source Materials                                                 
+// 9400 Licensed Internal Code                                          
+// (C) COPYRIGHT IBM CORP. 1996                                         
+//                                                                      
+// The source code for this program is not published or otherwise       
+// divested of its trade secrets, irrespective of what has been         
+// deposited with the U.S. Copyright Office.                            
+//                                                                      
+// End Copyright *******************************************************
+
+//----------------------------------------------------------------------
+//  Includes
+//----------------------------------------------------------------------
+#include <dlfcn.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string>
+// Included ecmd headers for query function - temp jfdebug
+#include <ecmdClientCapi.H>  //temp
+#include <ecmdStructs.H>  //temp
+#include <ecmdDllCapi.H> // temp
+#include <ecmdClientCapi.H>  //temp
+// Included ecmd headers for query function - temp jfdebug
+
+#include <fapiStructs.H>
+#include <fapiReturnCodes.H>
+#include <fapiDllCapi.H> 
+
+// these should be in the fapi namespace, right?
+
+
+
+    
+// dlopens a shared library and returns the handle
+int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
+{
+    uint32_t rc = fapi::FAPI_RC_SUCCESS;
+    std::string sharedLibPath;
+
+#ifdef LINUX
+    std::string tmp = (i_libName + "_x86.so");
+#else
+    std::string tmp = (i_libName + "_aix.so");
+#endif 
+
+#ifdef ECMD_STATIC_FUNCTIONS
+    rc = fapi::QueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath);
+#else 
+    rc = dllFapiQueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
+#endif 
+    if  (rc){
+      printf ("fapiQueryFileLocation failed withe rc = %x\n", rc);
+      return rc;
+    }
+    
+    //sharedLibPath += (i_libName + "_x86.so");
+    o_pLibHandle = dlopen(sharedLibPath.c_str(), RTLD_LAZY);
+
+    if (o_pLibHandle == NULL)
+    {
+        printf ("dlopen error '%s'\n", dlerror());
+        return -1;
+    }
+
+    return 0;
+}
+
+// Gets a function symbol address from a dlopened shared library
+int getSymAddr(char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr)
+{
+    o_pSymAddr = dlsym(i_pLibHandle, i_pFuncName);
+
+    if (o_pSymAddr == NULL)
+    {
+        printf ("dlsym error '%s'\n", dlerror());
+        return -1;
+    }
+
+    return 0;
+}
+
+// dlcloses a shared library
+void closeSharedLib(void * i_pLibHandle)
+{
+    int l_res = dlclose(i_pLibHandle);
+
+    if (l_res)
+    {
+        printf ("dlclose error '%s'\n", dlerror());
+    }
+}
