@@ -17,6 +17,10 @@ DEFINES      :=
 CFLAGS       := ${CFLAGS} -I../capi -I../dll
 SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi -I../dll -DECMD_PERLAPI
 
+# Don't want to include the fapi extension, there isn't one
+EXTENSIONS   := $(subst fapi,,${EXTENSIONS})
+
+
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi:../ext/${ext}/perlapi)
 VPATH := $(subst ${space},,${VPATH})
