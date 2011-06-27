@@ -205,6 +205,16 @@ bmlperlapi:
 	@echo " "
 
 ########################
+# fapi Extension
+########################
+fapi: fapicapi 
+
+fapicapi: ecmdcapi
+	@echo "fapi Extension C-API ..."
+	@cd ext/fapi/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
 # CMD Extension
 ########################
 cmd: cmdcapi cmdperlapi

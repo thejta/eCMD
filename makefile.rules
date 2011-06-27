@@ -8,7 +8,7 @@ MAKEFILE_RULES   := y
 
 # Build all extension if not otherwise specified
 ifeq ($(strip $(EXTENSIONS)),)
-  EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd
+  EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi
   export EXTENSIONS
 endif
 
