@@ -17,7 +17,8 @@ INCLUDES     :=
 EXTENSIONS := $(subst cmd,,${EXTENSIONS})
 # Strip the scand extension, it doesn't have a commandline
 EXTENSIONS := $(subst scand,,${EXTENSIONS})
-
+# Strip the fapi extension, it doesn't have a commandline
+EXTENSIONS := $(subst fapi,,${EXTENSIONS})
 
 VPATH        := ${VPATH}:${OBJROOT}/ecmd/${OBJDIR}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../../${ext}/capi:../../${ext}/cmd)
 # We need to tack on a seperator to get the vpath right in makefile.capi
