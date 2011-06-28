@@ -31,6 +31,10 @@
 #include <ecmdSharedUtils.H>
 
 /* Extension Interpreters */
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+#include <fapiClientCapi.H>
+#endif
+
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
  #include <cipInterpreter.H>
  #include <cipClientCapi.H>
@@ -426,6 +430,11 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         if (!strcmp(argv[0], "initchipfromfile")) {
           rc = ecmdInitChipFromFileUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "istep")) {
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+          rc = fapi::fapiInitExtension(); if (rc) return rc;
+          fprintf(stderr,"ERROR loading fapi extension from istep:  : 0x%x\n",  rc);
+          return ECMD_FAILURE; 
+#endif
           rc = ecmdIstepUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
         } else if (!strcmp(argv[0], "i2cmultiple")) {
