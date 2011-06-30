@@ -21,21 +21,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string>
-// Included ecmd headers for query function - temp jfdebug
-#include <ecmdClientCapi.H>  //temp
-#include <ecmdStructs.H>  //temp
-#include <ecmdDllCapi.H> // temp
-#include <ecmdClientCapi.H>  //temp
-// Included ecmd headers for query function - temp jfdebug
-
 #include <fapiStructs.H>
 #include <fapiReturnCodes.H>
 #include <fapiDllCapi.H> 
 
-// these should be in the fapi namespace, right?
-
-
-
+// these should be in the fapi namespace, right? -farrugia JFDEBUG
     
 // dlopens a shared library and returns the handle
 int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
@@ -50,7 +40,7 @@ int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
 #endif 
 
 #ifdef ECMD_STATIC_FUNCTIONS
-    rc = fapi::QueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath);
+    rc = fapi::QueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
 #else 
     rc = dllFapiQueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
 #endif 
