@@ -34,6 +34,10 @@ uint32_t dllHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedOb
 
 uint32_t dllFapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version);
 
+fapi::ReturnCode dllFapiGetFunctionalDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms);
+fapi::ReturnCode dllFapiGetExistingDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms);
+
+
 
 
 
