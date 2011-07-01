@@ -36,8 +36,6 @@
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
 
-namespace fapi 
-{
 
 extern "C"
 {
@@ -52,7 +50,7 @@ extern "C"
  *
  * @return ReturnCode. Zero on success, else error
  */
-fapi::ReturnCode GetFunctionalChiplets(const fapi::Target& i_target,
+fapi::ReturnCode fapiGetFunctionalChiplets(const fapi::Target& i_target,
                                        const fapi::TargetType i_chipletType,
                                        std::vector<fapi::Target> & o_chiplets);
 
@@ -66,7 +64,7 @@ fapi::ReturnCode GetFunctionalChiplets(const fapi::Target& i_target,
  *
  * @return ReturnCode. Zero on success, else error
  */
-fapi::ReturnCode GetExistingChiplets(const fapi::Target& i_target,
+fapi::ReturnCode fapiGetExistingChiplets(const fapi::Target& i_target,
                                      const fapi::TargetType i_chipletType,
                                      std::vector<fapi::Target> & o_chiplets);
 
@@ -79,7 +77,7 @@ fapi::ReturnCode GetExistingChiplets(const fapi::Target& i_target,
  *
  * @return ReturnCode. Zero on success, else error
  */
-fapi::ReturnCode GetFunctionalDimms(const fapi::Target& i_target,
+fapi::ReturnCode fapiGetFunctionalDimms(const fapi::Target& i_target,
                                     std::vector<fapi::Target> & o_dimms);
 
 /**
@@ -91,10 +89,9 @@ fapi::ReturnCode GetFunctionalDimms(const fapi::Target& i_target,
  *
  * @return ReturnCode. Zero on success, else error
  */
-fapi::ReturnCode GetExistingDimms(const fapi::Target& i_target,
+fapi::ReturnCode fapiGetExistingDimms(const fapi::Target& i_target,
                                   std::vector<fapi::Target> & o_dimms);
 
 } // extern "C"
-} // namespace fapi
 
 #endif // FAPISYSTEMCONFIG_H_
