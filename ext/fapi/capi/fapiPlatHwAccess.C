@@ -6,7 +6,6 @@
 #include <ecmdSharedUtils.H>
 #include <fapiClientCapi.H>
 #include <fapiHwAccess.H> 
-#include <fapiSystemConfig.H>
 #ifndef ECMD_STATIC_FUNCTIONS
 #include <fapiClientEnums.H>
 #include <fapiTarget.H>
@@ -43,7 +42,7 @@ extern bool ecmdDebugOutput;
 #endif
 
 
-ReturnCode fapi::GetRing(const Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data) {
+ReturnCode fapiGetRing(const Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data) {
 
   ReturnCode rc;
 
@@ -102,7 +101,7 @@ ReturnCode fapi::GetRing(const Target& i_handle, const uint32_t i_address, ecmdD
   return rc;
 }
 
-ReturnCode fapi::PutRing(const Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & i_data) {
+ReturnCode fapiPutRing(const Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & i_data) {
 
   ReturnCode rc;
 
@@ -161,184 +160,3 @@ ReturnCode fapi::PutRing(const Target& i_handle, const uint32_t i_address, ecmdD
   return rc;
 }
 
-
-fapi::ReturnCode fapi::GetFunctionalChiplets(const fapi::Target & i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> & o_chiplets) {
-
-  ReturnCode rc;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllFapiGetFunctionalChiplets%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-  if (!fapiInitialized) {
-    fprintf(stderr,"dllFapiGetFunctionalChiplets: eCMD Extension not initialized before function called\n");
-    fprintf(stderr,"dllFapiGetFunctionalChiplets: OR eCMD fapi Extension not supported by plugin\n");
-    exit(ECMD_DLL_INVALID);
-  }
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &i_target);
-     args.push_back((void*) &i_chipletType);
-     args.push_back((void*) &o_chiplets);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::GetFunctionalChiplets(const Target& i_target, const TargetType & i_chipletType, std::vector<Target> & o_chiplets)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::GetFunctionalChiplets");
-  }
-#endif
-
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllFapiGetFunctionalChiplets(i_target, i_chipletType, o_chiplets);
-#else
-  if (fapiDllFnTable[ECMD_FAPIGETFUNCTIONALCHIPLETS] == NULL) {
-     fapiDllFnTable[ECMD_FAPIGETFUNCTIONALCHIPLETS] = (void*)dlsym(dlHandle, "dllFapiGetFunctionalChiplets");
-     if (fapiDllFnTable[ECMD_FAPIGETFUNCTIONALCHIPLETS] == NULL) {
-       fprintf(stderr,"dllFapiGetFunctionalChiplets%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  ReturnCode (*Function)(const Target&,  const TargetType ,  std::vector<Target> &) = 
-      (ReturnCode(*)(const Target&,  const TargetType,  std::vector<Target> &))fapiDllFnTable[ECMD_FAPIGETFUNCTIONALCHIPLETS];
-  rc =    (*Function)(i_target, i_chipletType, o_chiplets);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::GetFunctionalChiplets");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::GetFunctionalChiplets(const Target& i_handle, const TargetType & i_chiplet, std::vector<Target> & o_entries)",args);
-   }
-#endif
-
-  return rc;
-}
-
-ReturnCode fapi::GetExistingChiplets(const Target& i_handle, const TargetType  i_chiplet, std::vector<Target> &o_entries) {
-
-  ReturnCode rc;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllFapiGetExistingChiplets%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-  if (!fapiInitialized) {
-    fprintf(stderr,"dllFapiGetExistingChiplets: eCMD Extension not initialized before function called\n");
-    fprintf(stderr,"dllFapiGetExistingChiplets: OR eCMD fapi Extension not supported by plugin\n");
-    exit(ECMD_DLL_INVALID);
-  }
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &i_handle);
-     args.push_back((void*) &i_chiplet);
-     args.push_back((void*) &o_entries);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::GetExistingChiplets(const Target& i_handle, const TargetType & i_chiplet, std::vector<Target> &o_entries)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::GetExistingChiplets");
-  }
-#endif
-
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllFapiGetExistingChiplets(i_handle, i_chiplet, o_entries);
-#else
-  if (fapiDllFnTable[ECMD_FAPIGETEXISTINGCHIPLETS] == NULL) {
-     fapiDllFnTable[ECMD_FAPIGETEXISTINGCHIPLETS] = (void*)dlsym(dlHandle, "dllFapiGetExistingChiplets");
-     if (fapiDllFnTable[ECMD_FAPIGETEXISTINGCHIPLETS] == NULL) {
-       fprintf(stderr,"dllFapiGetExistingChiplets%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  ReturnCode (*Function)(const Target&,  const TargetType,  std::vector<Target> &) = 
-      (ReturnCode(*)(const Target&,  const TargetType,  std::vector<Target> &))fapiDllFnTable[ECMD_FAPIGETEXISTINGCHIPLETS];
-  rc =    (*Function)(i_handle, i_chiplet, o_entries);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::GetExistingChiplets");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::GetExistingChiplets(const Target& i_handle, const TargetType & i_chiplet, std::vector<Target> &o_entries)",args);
-   }
-#endif
-
-  return rc;
-}
-#if 0
-
-ReturnCode fapi::GetCoreTargets(const Target& i_handle, uint32_t& o_count, Target* o_targets) {
-
-  ReturnCode rc;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllFapiGetCoreTargets%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-  if (!fapiInitialized) {
-    fprintf(stderr,"dllFapiGetCoreTargets: eCMD Extension not initialized before function called\n");
-    fprintf(stderr,"dllFapiGetCoreTargets: OR eCMD fapi Extension not supported by plugin\n");
-    exit(ECMD_DLL_INVALID);
-  }
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &i_handle);
-     args.push_back((void*) &o_count);
-     args.push_back((void*) &o_targets);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::GetCoreTargets(const Target& i_handle, uint32_t& o_count, Target* o_targets)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::GetCoreTargets");
-  }
-#endif
-
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllFapiGetCoreTargets(i_handle, o_count, o_targets);
-#else
-  if (fapiDllFnTable[ECMD_FAPIGETCORETARGETS] == NULL) {
-     fapiDllFnTable[ECMD_FAPIGETCORETARGETS] = (void*)dlsym(dlHandle, "dllFapiGetCoreTargets");
-     if (fapiDllFnTable[ECMD_FAPIGETCORETARGETS] == NULL) {
-       fprintf(stderr,"dllFapiGetCoreTargets%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  ReturnCode (*Function)(const Target&,  uint32_t&,  Target*) = 
-      (ReturnCode(*)(const Target&,  uint32_t&,  Target*))fapiDllFnTable[ECMD_FAPIGETCORETARGETS];
-  rc =    (*Function)(i_handle, o_count, o_targets);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::GetCoreTargets");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::GetCoreTargets(const Target& i_handle, uint32_t& o_count, Target* o_targets)",args);
-   }
-#endif
-
-  return rc;
-}
-
-#endif 
-/* The previous has been auto-generated by makedll.pl */
