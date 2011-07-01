@@ -1,7 +1,3 @@
-/* NOTE : This file has been generated from the eCMD extension temp-late */
-/* DO NOT EDIT THISFILE (unless you are editing the temp-late */
-
-
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -139,73 +135,6 @@ uint32_t fapiInitExtension() {
   return rc;
 }
 
-ReturnCode fapiRunSo(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint){
-   
-   printf("fapi::RunSo Opening %s...\n", i_sharedObjectName);
-   void* handle = dlopen(i_sharedObjectName, RTLD_NOW | RTLD_GLOBAL);
-    
-   if (!handle) {
-     printf("fapi::RunSo::Cannot open library: %s", dlerror()); //JFDEBUG
-     return 1;  //JF FIXME
-    }
-    
-   // load the symbol
-   printf("fapi::RunSo Loading symbol %s...\n", i_sharedObjectEntryPoint);
-   typedef fapi::ReturnCode (*fapi_ring_t)(fapi::Target);
-
-   
-    // reset errors
-    dlerror();
-    fapi_ring_t func = (fapi_ring_t) dlsym(handle, i_sharedObjectEntryPoint);
-    const char *dlsym_error = dlerror();
-    if (dlsym_error) {
-        printf("Cannot load symbol: %s\n", dlsym_error);
-        dlclose(handle);
-        return 1;
-    }
-    
-    fapi::ReturnCode fapiRc = func( i_target );
-    
-    // close the library
-    printf("fapi::RunSo::Closing library...\n");
-    dlclose(handle);
-
-  return  fapiRc;
-}
-
-ReturnCode fapiRunSoWithArgs(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint, std::list<uint64_t> & i_sharedObjectArgs){
-   
-   printf("fapi::RunSoWithArgs Opening %s...\n", i_sharedObjectName);
-   void* handle = dlopen(i_sharedObjectName, RTLD_NOW | RTLD_GLOBAL);
-    
-   if (!handle) {
-     printf("fapi::RunSoWithArgs::Cannot open library: %s", dlerror()); //JFDEBUG
-     return 1;  //JF FIXME
-    }
-    
-   // load the symbol
-   printf("fapi::RunSoWithArgs Loading symbol %s...\n", i_sharedObjectEntryPoint);
-   typedef fapi::ReturnCode (*fapi_ring_t)(fapi::Target, std::list<uint64_t>);
-
-   
-    // reset errors
-    dlerror();
-    fapi_ring_t func = (fapi_ring_t) dlsym(handle, i_sharedObjectEntryPoint);
-    const char *dlsym_error = dlerror();
-    if (dlsym_error) {
-        printf("Cannot load symbol: %s\n", dlsym_error);
-        dlclose(handle);
-        return 1;
-    }
-    
-    fapi::ReturnCode fapiRc = func( i_target, i_sharedObjectArgs);
-    
-    // close the library
-    printf("fapi::RunSoWithArgs::Closing library...\n");
-    dlclose(handle);
-
-  return  fapiRc;
-}
 
 /* These functions were auto-generated then modified  - farrugia */
 ReturnCode fapiGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
@@ -587,24 +516,6 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
   }
 #endif
 
-#if 0
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllHwpInvoker(i_target, i_sharedObjectName, i_sharedObjectEntryPoint, &i_sharedObjectArgs);
-#else
-  if (DllFnTable[ECMD_HWPINVOKER] == NULL) {
-     DllFnTable[ECMD_HWPINVOKER] = (void*)dlsym(dlHandle, "dllHwpInvoker");
-     if (DllFnTable[ECMD_HWPINVOKER] == NULL) {
-       fprintf(stderr,"dllHwpInvoker%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  uint32_t (*Function)(ecmdChipTarget &,  const std::string &,  const std::string &,  std::list<uint64_t>) = 
-      (uint32_t(*)(ecmdChipTarget &,  const std::string &,  const std::string &,  std::list<uint64_t>))DllFnTable[ECMD_HWPINVOKER];
-  rc =    (*Function)(i_target, i_sharedObjectName, i_sharedObjectEntryPoint, i_sharedObjectArgs);
-#endif
-#endif 
   ecmdChipTarget * i_targetPtr;
   i_targetPtr = &i_target;
 
@@ -617,6 +528,7 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
      errorStr += "\n";
      ecmdOutputError(errorStr.c_str());*/
      rc = 1;  //JF FIXME
+     return rc;
     }
     
    // load the symbol
@@ -688,8 +600,8 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
      args.push_back((void*) &i_version);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi::QueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::QueryFileLocation");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiQueryFileLocation");
   }
 #endif
 
@@ -713,8 +625,8 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::QueryFileLocation");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi::QueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiQueryFileLocation");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version)",args);
    }
 #endif
 
@@ -726,64 +638,3 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
 
   return rc;
 }
-
-
-
-
-
-#if 0
-
-
-uint32_t fapi::HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs){
-
-
-  ecmdChipTarget * i_targetPtr;
-  i_targetPtr = &i_target;
-   
-   //if (debug.isOn('F','T'))
-   printf("hwpInvoker::Opening %s...\n", i_sharedObjectName.c_str());
-   void* handle = dlopen(i_sharedObjectName.c_str(), RTLD_NOW | RTLD_GLOBAL);
-
-    
-   if (!handle) {
-     printf("hwpInvoker::Cannot open library: %s\n", dlerror()); //JFDEBUG
-     /*std::string errorStr;
-     errorStr = "Cannot open library " + err;
-     errorStr += "\n";
-     ecmdOutputError(errorStr.c_str());*/
-     return 1;  //JF FIXME
-    }
-    
-   // load the symbol
-   //if (debug.isOn('F','T'))
-   printf("hwpInvoker::Loading symbol %s...\n", i_sharedObjectName.c_str());
-
-     /* FAPI ext based .so entry point was selected */
-     typedef fapi::ReturnCode (*fapi_ring_t)(fapi::Target, std::list<uint64_t>);
-   
-     // reset errors
-     dlerror();
-     fapi_ring_t func = (fapi_ring_t) dlsym(handle, i_sharedObjectEntryPoint.c_str());
-     const char *dlsym_error = dlerror();
-     if (dlsym_error) {
-       printf("Cannot load symbol '%s'\n", i_sharedObjectEntryPoint.c_str());
-       //cerr << "Cannot load symbol 'hwProcEntryPointWithArgs': " << dlsym_error << '\n';
-       dlclose(handle);
-       return 1;
-     }
-    
-     // use it to do the calculation
-     //ecmdOutput("Calling hwProcEntryPoint...\n");
-     printf("Calling '%s'\n", i_sharedObjectEntryPoint.c_str());
-     fapi::Target myFapiTarget;
-     myFapiTarget.set(i_targetPtr);
-     fapi::ReturnCode fapiRc = func( myFapiTarget, i_sharedObjectArgs);
-    
-     // close the library
-     printf("Closing '%s'\n", i_sharedObjectName.c_str());
-     dlclose(handle);
- 
-     return uint32_t(fapiRc);
-
-}
-#endif

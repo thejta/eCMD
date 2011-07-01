@@ -38,27 +38,8 @@ extern "C" {
  uint32_t fapiInitExtension();  
 //@}
 
-/** @name Misc Functions (NOTE: Available only in this beta release - may not be available when the HWPF is officially released)*/
+/** @name Misc Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation)*/
 //@{
-/**
- * @brief Run a shared object from within a fapi HW procedures
- * @param i_target  Input target
- * @param i_sharedObjectName  Shared library to open 
- * @param i_sharedObjectEntryPoint  Shared library entry point
- * @return Return code from shared object
- */
-fapi::ReturnCode fapiRunSo(const fapi::Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint);
-
-/**
- * @brief Run a shared object from within a fapi HW procedures with args
- * @param i_target  Input target
- * @param i_sharedObjectName Shared library to open 
- * @param i_sharedObjectEntryPoint Shared library entry point
- * @param i_sharedObjectArgs List of uint64_t's to pass to shared lib 
- * @return Return code from shared object
- */
-fapi::ReturnCode fapiRunSoWithArgs(const fapi::Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint,  std::list<uint64_t> & i_sharedObjectArgs);
-
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
  * @param i_target  Input target
