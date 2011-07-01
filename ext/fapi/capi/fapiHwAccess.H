@@ -15,8 +15,6 @@
 
 #include <ecmdDataBufferBase.H>
 
-namespace fapi
-{
 
 // Miscellaneous constants
 #define MAX_NUM_CORES 32
@@ -26,8 +24,6 @@ namespace fapi
 //------------------------------------------------------------------------------
 
 extern "C" {
- 
-
 /** @name Processor Functions */
 //@{
 
@@ -39,7 +35,7 @@ extern "C" {
  @param i_address Address of ring to read from
  @param o_data DataBuffer object that holds data read from ring
 */
-ReturnCode GetRing(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data);
+fapi::ReturnCode fapiGetRing(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data);
 
 /**
  @brief Scans ring from the data buffer into the selected chip in the selected ring
@@ -49,7 +45,7 @@ ReturnCode GetRing(const Target& i_target, const uint32_t i_address, ecmdDataBuf
  @param i_address Address of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
 */
-ReturnCode PutRing(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
+fapi::ReturnCode fapiPutRing(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
 
 /**
  @brief Scoms bits from the selected address into the data buffer
@@ -61,7 +57,7 @@ ReturnCode PutRing(const Target& i_target, const uint32_t i_address, ecmdDataBuf
 
  NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure
 */
-ReturnCode GetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data);
+fapi::ReturnCode fapiGetScom(const fapi::Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
@@ -74,7 +70,7 @@ ReturnCode GetScom(const Target& i_target, const uint64_t i_address, ecmdDataBuf
  NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure
 
 */
-ReturnCode PutScom(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
+fapi::ReturnCode fapiPutScom(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
 
 /**
  @brief Perform a read/modify/write scom operation using the mask and data
@@ -87,7 +83,7 @@ ReturnCode PutScom(const Target& i_target, const uint32_t i_address, ecmdDataBuf
 
  NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
 */
-ReturnCode PutScomUnderMask(const Target& i_target, /* JFDEBUG const */ uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask);
+fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target, /* JFDEBUG const */ uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask);
 
 
 /**
@@ -98,7 +94,7 @@ ReturnCode PutScomUnderMask(const Target& i_target, /* JFDEBUG const */ uint64_t
  @param i_address CFAM address to read from
  @param o_data DataBuffer object that holds data read from address
 */
-ReturnCode GetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data);
+fapi::ReturnCode fapiGetCfamRegister(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data);
 
 /**
  @brief Write data into the selected CFAM register address
@@ -108,12 +104,11 @@ ReturnCode GetCfamRegister(const Target& i_target, const uint32_t i_address, ecm
  @param i_address CFAM address to write to
  @param i_data DataBuffer object that holds data to write into address
 */
-ReturnCode PutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
+fapi::ReturnCode fapiPutCfamRegister(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
 
 } // extern c
 
 
-} // namespace fapi
 
 
 /*** -------------------------------------- ***/
