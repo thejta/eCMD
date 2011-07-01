@@ -31,8 +31,8 @@
 #include <ecmdUtils.H>
 
 #include <fapiClientCapi.H>
-#include <fapiHwAccess.H> //JFDEBUGy
-#include <fapiSystemConfig.H> //JFDEBUGy
+#include <fapiHwAccess.H> 
+#include <fapiSystemConfig.H>
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
 #include <fapiStructs.H>
@@ -88,7 +88,7 @@ extern bool ecmdDebugOutput;
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-uint32_t fapi::fapiInitExtension() {
+uint32_t fapiInitExtension() {
 
   int rc = ECMD_SUCCESS;
 
@@ -139,7 +139,7 @@ uint32_t fapi::fapiInitExtension() {
   return rc;
 }
 
-ReturnCode fapi::RunSo(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint){
+ReturnCode fapiRunSo(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint){
    
    printf("fapi::RunSo Opening %s...\n", i_sharedObjectName);
    void* handle = dlopen(i_sharedObjectName, RTLD_NOW | RTLD_GLOBAL);
@@ -173,7 +173,7 @@ ReturnCode fapi::RunSo(const Target & i_target, const char * i_sharedObjectName,
   return  fapiRc;
 }
 
-ReturnCode fapi::RunSoWithArgs(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint, std::list<uint64_t> & i_sharedObjectArgs){
+ReturnCode fapiRunSoWithArgs(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint, std::list<uint64_t> & i_sharedObjectArgs){
    
    printf("fapi::RunSoWithArgs Opening %s...\n", i_sharedObjectName);
    void* handle = dlopen(i_sharedObjectName, RTLD_NOW | RTLD_GLOBAL);
@@ -208,7 +208,7 @@ ReturnCode fapi::RunSoWithArgs(const Target & i_target, const char * i_sharedObj
 }
 
 /* These functions were auto-generated then modified  - farrugia */
-ReturnCode fapi::GetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
+ReturnCode fapiGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
   ReturnCode rc;
 
   ecmdChipTarget   ecmdTarget;
@@ -287,7 +287,7 @@ ReturnCode fapi::GetScom(const Target& i_target, const uint64_t i_address, ecmdD
 
 
 
-ReturnCode fapi::PutScom(const Target& i_target, const uint32_t i_address,  ecmdDataBufferBase & i_data) {
+ReturnCode fapiPutScom(const Target& i_target, const uint32_t i_address,  ecmdDataBufferBase & i_data) {
 
   ReturnCode rc;
 
@@ -423,7 +423,7 @@ ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ ui
 
 #endif
 
-ReturnCode fapi::GetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
+ReturnCode fapiGetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
 
   ReturnCode rc; 
 
@@ -492,7 +492,7 @@ ReturnCode fapi::GetCfamRegister(const Target& i_target, const uint32_t i_addres
 }
 
 
-ReturnCode fapi::PutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data){
+ReturnCode fapiPutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data){
 
   ReturnCode rc;
   
@@ -561,7 +561,7 @@ ReturnCode fapi::PutCfamRegister(const Target& i_target, const uint32_t i_addres
 }
 
 
-uint32_t fapi::HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs) {
+uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs) {
 
   uint32_t rc;
 
@@ -667,7 +667,7 @@ uint32_t fapi::HwpInvoker(ecmdChipTarget & i_target, const std::string & i_share
 
 
 
-uint32_t fapi::QueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName,  std::string & o_fileLocation, std::string i_version) {
+uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName,  std::string & o_fileLocation, std::string i_version) {
 
   uint32_t rc;
 

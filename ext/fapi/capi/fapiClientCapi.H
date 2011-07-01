@@ -12,14 +12,11 @@
 #include <list>
 #include <fapiTarget.H>
 #include <fapiReturnCode.H>
-
-#include <ecmdStructs.H>  // needed for HwpInvoker
-#include <ecmdDataBufferBase.H>
-
 #include <fapiStructs.H>  
 
-namespace fapi
-{
+#include <ecmdStructs.H>  
+#include <ecmdDataBufferBase.H>
+
 
 // Miscellaneous constants
 #define MAX_NUM_CORES 32
@@ -29,6 +26,7 @@ namespace fapi
 //------------------------------------------------------------------------------
 
 extern "C" {
+
  
 /** @name Load/Unload Functions */
 //@{
@@ -49,7 +47,7 @@ extern "C" {
  * @param i_sharedObjectEntryPoint  Shared library entry point
  * @return Return code from shared object
  */
-ReturnCode RunSo(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint);
+fapi::ReturnCode fapiRunSo(const fapi::Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint);
 
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
@@ -59,7 +57,7 @@ ReturnCode RunSo(const Target & i_target, const char * i_sharedObjectName, const
  * @param i_sharedObjectArgs List of uint64_t's to pass to shared lib 
  * @return Return code from shared object
  */
-ReturnCode RunSoWithArgs(const Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint,  std::list<uint64_t> & i_sharedObjectArgs);
+fapi::ReturnCode fapiRunSoWithArgs(const fapi::Target & i_target, const char * i_sharedObjectName, const char * i_sharedObjectEntryPoint,  std::list<uint64_t> & i_sharedObjectArgs);
 
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
@@ -69,7 +67,7 @@ ReturnCode RunSoWithArgs(const Target & i_target, const char * i_sharedObjectNam
  * @param i_sharedObjectArgs List of uint64_t's to pass to shared lib 
  * @return Return code from shared object
  */
-uint32_t HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs);
+uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs);
 
 /**
  @brief Query the location of a specific HWP
@@ -84,12 +82,10 @@ uint32_t HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjec
  TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t QueryFileLocation(FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version = "default");
+uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version = "default");
 
 //@}
 
-
-}
-}
+} //extern c
 
 #endif
