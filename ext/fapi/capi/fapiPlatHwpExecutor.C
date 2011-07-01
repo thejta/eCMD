@@ -39,12 +39,8 @@ int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
     std::string tmp = (i_libName + "_aix.so");
 #endif 
 
-#ifdef ECMD_STATIC_FUNCTIONS
-    rc = fapi::QueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
-#else 
     rc = dllFapiQueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
-#endif 
-    if  (rc){
+    if(rc) {
       printf ("fapiQueryFileLocation failed withe rc = %x\n", rc);
       return rc;
     }
