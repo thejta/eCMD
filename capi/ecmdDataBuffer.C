@@ -462,7 +462,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
 #ifndef REMOVE_SIM
     char* temp = NULL;
     if (iv_XstateEnabled) {
-      temp = new char[prevbitsize+42];
+      temp = new char[(iv_Capacity*32)+42];
       if (temp == NULL) {
         ETRAC0("**** ERROR : ecmdDataBuffer::growBitLength : Unable to allocate temp X-State buffer");
         RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
@@ -2972,7 +2972,7 @@ uint32_t ecmdDataBuffer::enableXstateBuffer() {
 
   if (iv_NumBits > 0) {
     /* Check for null here to satisfy lint, but should always be NULL coming into this */
-    if (iv_DataStr == NULL) iv_DataStr = new char[iv_NumBits + 42];
+    if (iv_DataStr == NULL) iv_DataStr = new char[(iv_Capacity*32)+42];
     if (iv_DataStr == NULL) {
       ETRAC0("**** ERROR : ecmdDataBuffer::enableXstateBuffer : Unable to allocate Xstate memory for new databuffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
