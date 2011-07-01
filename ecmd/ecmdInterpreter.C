@@ -431,7 +431,7 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdInitChipFromFileUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "istep")) {
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
-          rc = fapi::fapiInitExtension(); if (rc) {
+          rc = fapiInitExtension(); if (rc) {
             fprintf(stderr,"ERROR loading fapi extension from istep:  : 0x%x\n",  rc);
             return ECMD_FAILURE; 
           }
