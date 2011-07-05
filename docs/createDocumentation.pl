@@ -56,10 +56,28 @@ if ($rc) { return $rc; }
 # Now copy over all of the extension file headers that are available
 my @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
 for (my $x = 0; $x <= $#extensions; $x++) {
-  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
-  if ($rc) { return $rc; }
+
+  #if ($extensions[$x] ne "fapi"){
+    #$rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
+    #if ($rc) { return $rc; }
+  #}
+
   $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Capi/.");
   if ($rc) { return $rc; }
+
+  # fapi specific stuff
+  if ($extensions[$x] eq "fapi"){
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]HwAccess.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SystemConfig.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Target.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCode.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCodes.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+  }
 }
 
 # Update the version strings
@@ -104,12 +122,18 @@ if ($rc) { return $rc; }
 # Now copy over all of the extension file headers that are available
 my @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
 for (my $x = 0; $x <= $#extensions; $x++) {
-  $rc = system("cd $cvsBase/ext/$extensions[$x]/perlapi/;$cvsBase/perlapi/makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
-  if ($rc) { return $rc; }
-  # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
-  # in the comments that is different from the actual file
-  $rc = system("cat $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapiFunc.H | grep -v $extensions[$x]ClientPerlapiFunc.H > $outputDirectory/Perlapi/$extensions[$x]ClientPerlapi.H");
-  if ($rc) { return $rc; }
+  if ($extensions[$x] ne "fapi"){
+    $rc = system("cd $cvsBase/ext/$extensions[$x]/perlapi/;$cvsBase/perlapi/makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
+    if ($rc) { return $rc; }
+    # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
+    # in the comments that is different from the actual file
+    $rc = system("cat $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapiFunc.H | grep -v $extensions[$x]ClientPerlapiFunc.H > $outputDirectory/Perlapi/$extensions[$x]ClientPerlapi.H");
+    if ($rc) { return $rc; }
+  } else {
+    printf("fapi extension found - skipping perl stuff\n"); 
+    printf("fapi extension found - skipping perl stuff\n"); 
+    printf("fapi extension found - skipping perl stuff\n"); 
+  }
 }
 
 # Open up all the .H files and modify source to change the C variables to perl variables
