@@ -25,16 +25,15 @@ using namespace fapi;
 /* This is from ecmdClientCapiFunc.C */
  extern void * dlHandle;
  extern void * fapiDllFnTable[FAPI_NUMFUNCTIONS];
- extern bool fapiInitialized; 
+
 #else
 
  #include <fapiDllCapi.H>
 
 #endif
 
+extern bool fapiInitialized; 
 
-/* Our initialization flag */
- bool fapiInitialized = false;
 #ifndef ECMD_STRIP_DEBUG
 extern int ecmdClientDebug;
 extern int fppCallCount;
