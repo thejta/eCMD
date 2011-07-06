@@ -120,7 +120,7 @@ public:
     /**
      * @brief Assignment Operator.
      *
-     * @param[in] i_rc Reference to rcValue to assign
+     * @param[in] i_rcValue Reference to rcValue to assign
      *
      * @return Reference to 'this' ReturnCode
      */

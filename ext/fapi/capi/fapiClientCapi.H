@@ -55,6 +55,7 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
  @param i_fileType Enum that specifies which type of file you are looking for (see fapiStructs.H)
  @param i_fileName Name of file you are looking for 
  @param o_fileLocation Return string with full path and filename to location 
+ @param i_version String to specify a version (e.g., 1.1, 710.4, default).  "default" is default
  @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
