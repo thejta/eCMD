@@ -57,10 +57,8 @@ if ($rc) { return $rc; }
 my @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
 for (my $x = 0; $x <= $#extensions; $x++) {
 
-  #if ($extensions[$x] ne "fapi"){
-    #$rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
-    #if ($rc) { return $rc; }
-  #}
+  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
+  if ($rc) { return $rc; }
 
   $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Capi/.");
   if ($rc) { return $rc; }
