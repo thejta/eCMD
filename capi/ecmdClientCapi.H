@@ -4013,16 +4013,15 @@ Include files :
 
 
 @subsection fapi FAPI (Hardware Procedure Framework) Extension
-This extension provides fapi only interfaces.<br>
+This extension provides fapi only interfaces.  More information about writing fapi procedure can be found here: http://w3.tap.ibm.com/w3ki/display/Cronus/HW+Procedure+Framework+%28fapi%29 <br>
 Include files :
 <ul>
-<li> fapiClientCapi.H needed for eCMD client code only - not actual fapi procedures what will be consumed by FW</li>
-<li> fapiStructs.H needed for eCMD client code only - not actual fapi procedures what will be consumed by FW</li>
+<li> fapiClientCapi.H   NOTE: This is needed only in eCMD code, not actual fapi procedure that will be consumed by FW/li>
+<li> fapiStructs.H      NOTE: This is needed only in eCMD code, not actual fapi procedure that will be consumed by FW/li>
 <li> fapi.H </li>
 <li> Library : fapiClientCapi_x86.a</li>
+<li> Library : libfapi_x86.so</li>
 </ul>
-
-
 
 
 <hr>
