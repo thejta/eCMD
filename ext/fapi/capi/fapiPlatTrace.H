@@ -16,7 +16,7 @@
 //  
 // IBM_PROLOG_END_TAG 
 /**
- *  @file platTrace.H
+ *  @file fapiPlatTrace.H
  *
  *  @brief Defines the FAPI trace macros.
  *
