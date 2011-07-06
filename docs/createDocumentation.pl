@@ -44,6 +44,8 @@ $rc = system("cp $cvsBase/capi/ecmdStructs.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
 $rc = system("cp $cvsBase/capi/ecmdDataBuffer.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdDataBufferBase.H $outputDirectory/Capi/.");
+if ($rc) { return $rc; }
 $rc = system("cp $cvsBase/capi/ecmdReturnCodes.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
 $rc = system("cp $cvsBase/capi/ecmdUtils.H $outputDirectory/Capi/.");
@@ -74,6 +76,8 @@ for (my $x = 0; $x <= $#extensions; $x++) {
     $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCode.H $outputDirectory/Capi/.");
     if ($rc) { return $rc; }
     $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCodes.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x].H $outputDirectory/Capi/.");
     if ($rc) { return $rc; }
   }
 }
