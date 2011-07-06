@@ -4011,6 +4011,20 @@ Include files :
 <li> Library : mboClientCapi_aix.a / mboClientCapi_x86.a</li>
 </ul>
 
+
+@subsection fapi FAPI (Hardware Procedure Framework) Extension
+This extension provides fapi only interfaces.<br>
+Include files :
+<ul>
+<li> fapiClientCapi.H needed for eCMD client code only - not actual fapi procedures what will be consumed by FW</li>
+<li> fapiStructs.H needed for eCMD client code only - not actual fapi procedures what will be consumed by FW</li>
+<li> fapi.H </li>
+<li> Library : fapiClientCapi_x86.a</li>
+</ul>
+
+
+
+
 <hr>
 @section dllv DLL Version
 The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
