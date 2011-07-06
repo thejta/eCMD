@@ -40,9 +40,9 @@
 #include <fapiSystemConfig.H>
 #include <fapiPlatTrace.H>
 #include <fapiPlatHwpExecutor.H>
+#include <ecmdDataBufferBase.H>
+
 //JFDEBUG Temp remove util  supported #include <fapiAttributeService.H>
 //JFDEBUGX #include <fapiHwpReturnCodes.H> // Generated file
 //JFDEBUGX #include <fapiAttributeIds.H>   // Generated file
-#include <ecmdDataBufferBase.H> //JFDEBUGX
-
 #endif // FAPI_H_
