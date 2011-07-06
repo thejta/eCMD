@@ -44,7 +44,7 @@ extern "C"
  * @brief Gets the functional chiplets that are children of the supplied target
  *
  * @param[in]  i_target     Parent target
- * @param[in]  i_targetType Type of chiplet required
+ * @param[in]  i_chipletType Type of chiplet required
  * @param[out] o_chiplets   Reference to vector that is filled in with the
  *                          result chiplets
  *
@@ -58,7 +58,7 @@ fapi::ReturnCode fapiGetFunctionalChiplets(const fapi::Target& i_target,
  * @brief Gets the existing chiplets that are children of the supplied target
  *
  * @param[in]  i_target     Parent target
- * @param[in]  i_targetType Type of chiplet required
+ * @param[in]  i_chipletType Type of chiplet required
  * @param[out] o_chiplets   Reference to vector that is filled in with the
  *                          result chiplets
  *

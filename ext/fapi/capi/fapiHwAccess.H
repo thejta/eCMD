@@ -111,24 +111,5 @@ fapi::ReturnCode fapiPutCfamRegister(const fapi::Target& i_target, const uint32_
 
 
 
-/*** -------------------------------------- ***/
-/*** The following is doxygen documentation ***/
-/*** -------------------------------------- ***/
-
-/**
- * @mainpage
-
-
-@section int Hardware Procedure Framework (fapi) eCMD Extension BETA 
-
-Click on any of the tabs above to peruse the fapi extension.  Start with 'Files' then 'fapi.H'
-
-Contact John Farrugia with comments, questions, suggestions
-
-<br>
-Last Approved: 
-<hr>
-
-*/
 
 #endif
