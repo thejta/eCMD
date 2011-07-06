@@ -79,6 +79,12 @@ for (my $x = 0; $x <= $#extensions; $x++) {
     if ($rc) { return $rc; }
     $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x].H $outputDirectory/Capi/.");
     if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Util.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatTrace.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatHwpExecutor.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
   }
 }
 
