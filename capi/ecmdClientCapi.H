@@ -4013,7 +4013,7 @@ Include files :
 
 
 @subsection fapi FAPI (Hardware Procedure Framework) Extension
-This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found <b><a href="http://w3.tap.ibm.com/w3ki/display/Cronus/HW+Procedure+Framework+%28fapi%29"> here </a></b><br>
+This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found here (link will be added later).
 <ul>
 <li> eCMD specific headers</li>
   <p><b>NOTE: These are needed in eCMD procedures ONLY not actual fapi procedures that will be consumed by FW</b></p>
