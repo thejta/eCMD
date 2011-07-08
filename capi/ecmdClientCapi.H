@@ -4016,7 +4016,7 @@ Include files :
 This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found <b><a href="http://w3.tap.ibm.com/w3ki/display/Cronus/HW+Procedure+Framework+%28fapi%29"> here </a></b><br>
 <ul>
 <li> eCMD specific headers</li>
-  <p><b>NOTE: These are needed in eCMD procedure ONLY not actual fapi procedures that will be consumed by FW</b></p>
+  <p><b>NOTE: These are needed in eCMD procedures ONLY not actual fapi procedures that will be consumed by FW</b></p>
     <ul>
     <li> fapiClientCapi.H</li>
     <li> fapiStructs.H</li>
