@@ -4013,12 +4013,20 @@ Include files :
 
 
 @subsection fapi FAPI (Hardware Procedure Framework) Extension
-This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found here: http://w3.tap.ibm.com/w3ki/display/Cronus/HW+Procedure+Framework+%28fapi%29 <br>
+This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found here:http://w3.tap.ibm.com/w3ki/display/Cronus/HW+Procedure+Framework+%28fapi%29<br>
 Include files :
 <ul>
-<li> fapiClientCapi.H   NOTE: This is needed only in eCMD code, not actual fapi procedure that will be consumed by FW </li>
-<li> fapiStructs.H      NOTE: This is needed only in eCMD code, not actual fapi procedure that will be consumed by FW </li>
-<li> fapi.H </li>
+<li> fapiClientCapi.H	NOTE: This is needed only in eCMD code, not actual fapi procedure that will be consumed by FW </li>
+<li> fapiStructs.H	NOTE: This is needed only in eCMD code, not actual fapi procedure that will be consumed by FW </li>
+<li> fapi.H 		NOTE: This header includes all the headers below.  You should include this header in a fapi Hardware Procedure (HWP)</li>
+<li>	fapiTarget.H </li> 
+<li>    fapiReturnCode.H</li>
+<li>	fapiUtil.H</li>
+<li>	fapiHwAccess.H</li>
+<li>	fapiSystemConfig.H</li>
+<li>	fapiPlatTrace.H</li>
+<li>	fapiPlatHwpExecutor.H</li>
+<li>	ecmdDataBufferBase.H</li>
 <li> Library : fapiClientCapi_x86.a</li>
 <li> Library : libfapi_x86.so</li>
 </ul>
