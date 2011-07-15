@@ -181,6 +181,7 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     {
       if ((soError = dlerror()) != NULL) {
         fprintf(stderr,"ERROR: ecmdLoad Function zseCommandInterpreter error:  : %s\n",  soError);
+	dlclose(soHandle);
         return ECMD_DLL_LOAD_FAILURE;          /* file leak */       //done by unloadDll
 
       }
@@ -192,6 +193,8 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
      rc =  (*function)(argc, argv);   /* null function */
   
      //   rc = zseCommandInterpreter(argc, argv);
+    if(soHandle != NULL)
+	dlclose(soHandle);
   }
 #endif    /* file leak */                                           
 

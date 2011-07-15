@@ -931,9 +931,10 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
 	   l_rc = ECMD_INVALID_ARGS;
 	}
         argv_temp.clear();
+	delete [] argv_temp_helper;     //beam 
+	argv_temp_helper = NULL;
 	if(l_rc){
 	   l_rc = ECMD_SUCCESS;
-       delete [] argv_temp_helper;     //beam
 	   continue;		//If error then continue looking for the next cmd in the input File.
 	}
 	else{			//else push back in the cmd list
