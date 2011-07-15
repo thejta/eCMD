@@ -1840,6 +1840,8 @@ uint32_t ecmdDataBuffer::extractPreserve(uint32_t *o_outBuffer, uint32_t i_start
   if(o_outBuffer == NULL)
   {
       ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : o_outBuffer of type uint32_t * is not initialized. NULL buffer passed.");
+      delete tempBuf;
+      tempBuf = NULL;
       RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -1878,6 +1880,8 @@ uint32_t ecmdDataBuffer::extractPreserve(uint16_t *o_outBuffer, uint32_t i_start
   if(o_outBuffer == NULL)
   {
       ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : o_outBuffer of type uint16_t * is not initialized. NULL buffer passed.");
+      delete tempBuf;
+      tempBuf = NULL;
       RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -1913,6 +1917,8 @@ uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uin
   if(o_data == NULL)
   {
       ETRAC0("**** ERROR : ecmdDataBuffer::extractPreserve : o_data of type uint8_t * is not initialized. NULL buffer passed.");
+      delete tempBuf;
+      tempBuf = NULL;
       RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -3735,7 +3741,11 @@ uint32_t ecmdDataBuffer::writeFileStream(std::ostream & o_filestream) {
   
   buffer = new uint32_t[getWordLength()];
   rc = memCopyOut(buffer, numBytes);
-  if (rc) return rc;
+  if (rc){ 
+    delete [] buffer;
+    buffer = NULL;
+    return rc;
+  }
   
   int len=0;
   //Convert into Network Byte order-Big Endian before writing
