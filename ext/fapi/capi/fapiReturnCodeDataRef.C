@@ -32,6 +32,7 @@
 
 #include <fapiReturnCodeDataRef.H>
 #include <fapiUtil.H>
+#include <fapiPlatTrace.H>
 
 namespace fapi
 {
