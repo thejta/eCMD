@@ -25,7 +25,7 @@
 extern "C" {
 
  
-/** @name Load/Unload Functions <b><font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font></b>*/
+/** @name Load/Unload Functions <font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font>*/
 //@{
 /**
  @brief Initialize the FAPI extention - This call is required by eCMD programs
@@ -35,7 +35,7 @@ extern "C" {
  uint32_t fapiInitExtension();  
 //@}
 
-/** @name Misc Functions <b><font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font></b>*/
+/** @name Misc Functions <font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font>*/
 //@{
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
