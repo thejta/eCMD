@@ -18,9 +18,6 @@
 #include <ecmdDataBufferBase.H>
 
 
-// Miscellaneous constants
-#define MAX_NUM_CORES 32
-
 //------------------------------------------------------------------------------
 // HW Communication Functions
 //------------------------------------------------------------------------------
@@ -28,7 +25,7 @@
 extern "C" {
 
  
-/** @name Load/Unload Functions */
+/** @name Load/Unload Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation)*/
 //@{
 /**
  @brief Initialize the FAPI extention - This call is required by eCMD programs
@@ -60,11 +57,40 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
 
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
- TARGET STATES : Unused<br>
 */
 uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version = "default");
+
+/**
+ @brief Retrieve the value of an Attribute Setting
+ @param i_target Struct that specifies the target to operate on
+ @param i_id ID of attribute to query
+ @param o_configData Structure containing the valid data
+ @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+
+ NOTE - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
+      - HwPs should call the FAPI_ATTR_GET macro to read an attribute (see fapiAttributeService.H)
+
+*/
+uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
+
+
+/**
+ @brief Set the value of an Attribute 
+ @param i_target Struct that specifies the target to operate on
+ @param i_id ID of attribute to query
+ @param i_configData Structure containing the valid data
+ @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+
+ NOTE - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
+      - HWPs should call the FAPI_ATTR_SET macro to set an attribute (see fapiAttributeService.H)
+
+*/
+uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
+
 
 //@}
 

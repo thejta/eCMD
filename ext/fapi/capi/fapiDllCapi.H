@@ -10,10 +10,11 @@
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBufferBase.H>
-#include <fapi.H> //jfdebug 
 
-
+#include <fapiReturnCode.H>
+#include <fapiTarget.H>
 #include <fapiStructs.H>
+
 extern "C" {
 
 /* Extension initialization function - verifies version */
@@ -35,7 +36,13 @@ uint32_t dllHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedOb
 uint32_t dllFapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version);
 
 fapi::ReturnCode dllFapiGetFunctionalDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms);
+
 fapi::ReturnCode dllFapiGetExistingDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms);
+
+uint32_t dllFapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
+uint32_t dllFapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
+
+
 
 
 

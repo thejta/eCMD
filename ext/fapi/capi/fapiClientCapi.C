@@ -135,368 +135,13 @@ uint32_t fapiInitExtension() {
   return rc;
 }
 
-
-/* These functions were auto-generated then modified  - farrugia */
-ReturnCode fapiGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
-  ReturnCode rc;
-
-  ecmdChipTarget   ecmdTarget;
-  ecmdChipTarget * ecmdTargetPtr;
-  ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
-  ecmdTarget = (*ecmdTargetPtr);                
-
-/*
-  ecmdDataBuffer *dummy;
-  dummy = o_data.getBuff();
- */ 
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllGetScom%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &ecmdTarget);
-     args.push_back((void*) &i_address);
-     args.push_back((void*) &o_data);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & o_data)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getScom");
-  }
-#endif
-
-   ecmdChipTarget cacheTarget;
-   cacheTarget = ecmdTarget;
-   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllGetScom(ecmdTarget, i_address, o_data);
-#else
-  if (DllFnTable[ECMD_GETSCOM] == NULL) {
-     DllFnTable[ECMD_GETSCOM] = (void*)dlsym(dlHandle, "dllGetScom");
-     if (DllFnTable[ECMD_GETSCOM] == NULL) {
-       fprintf(stderr,"dllGetScom%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &))DllFnTable[ECMD_GETSCOM];
-  rc =    (*Function)(ecmdTarget, i_address, o_data);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getScom");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & o_data)",args);
-   }
-#endif
-
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
-    std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-    if (errorString.size()) ecmdOutput(errorString.c_str());
-  }
-
-   /* Copy the data over */
-   /*
-   if (rc.ok())
-     o_data.setBuff(dummy);
-   */  
-
-  return rc;
-}
-
-
-
-ReturnCode fapiPutScom(const Target& i_target, const uint32_t i_address,  ecmdDataBufferBase & i_data) {
-
-  ReturnCode rc;
-
-  ecmdChipTarget   ecmdTarget;
-  ecmdChipTarget * ecmdTargetPtr;
-  ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
-  ecmdTarget = (*ecmdTargetPtr);                
-
-/*
-  ecmdDataBuffer *dummy;
-  dummy = i_data.getBuff();
-*/
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllPutScom%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &ecmdTarget);
-     args.push_back((void*) &i_address);
-     args.push_back((void*) &i_data);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & i_data)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putScom");
-  }
-#endif
-
-   ecmdChipTarget cacheTarget;
-   cacheTarget = ecmdTarget;
-   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutScom(ecmdTarget, i_address, i_data);
-#else
-  if (DllFnTable[ECMD_PUTSCOM] == NULL) {
-     DllFnTable[ECMD_PUTSCOM] = (void*)dlsym(dlHandle, "dllPutScom");
-     if (DllFnTable[ECMD_PUTSCOM] == NULL) {
-       fprintf(stderr,"dllPutScom%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOM];
-  rc =    (*Function)(ecmdTarget, i_address, i_data);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putScom");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & i_data)",args);
-   }
-#endif
-
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
-    std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-    if (errorString.size()) ecmdOutput(errorString.c_str());
-  }
-
-  return rc;
-}
-#if 0
-// re-add when ready to support this 
-ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask) {
-
-  ReturnCode rc;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllPutScomUnderMask%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-  if (!fapiInitialized) {
-    fprintf(stderr,"dllPutScomUnderMask: eCMD Extension not initialized before function called\n");
-    fprintf(stderr,"dllPutScomUnderMask: OR eCMD fapi Extension not supported by plugin\n");
-    exit(ECMD_DLL_INVALID);
-  }
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &i_handle);
-     args.push_back((void*) &i_address);
-     args.push_back((void*) &i_data);
-     args.push_back((void*) &i_mask);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, /* JFDEBUG const */DataBuffer & i_data, const DataBuffer & i_mask)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::PutScomUnderMask");
-  }
-#endif
-
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutScomUnderMask(i_handle, i_address, i_data, i_mask);
-#else
-  if (DllFnTable[ECMD_PUTSCOMUNDERMASK] == NULL) {
-     DllFnTable[ECMD_PUTSCOMUNDERMASK] = (void*)dlsym(dlHandle, "dllPutScomUnderMask");
-     if (DllFnTable[ECMD_PUTSCOMUNDERMASK] == NULL) {
-       fprintf(stderr,"dllPutScomUnderMask%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  ReturnCode (*Function)(const Target&,  /* JFDEBUG const */ uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &) = 
-      (ReturnCode(*)(const Target&,  /* JFDEBUG const */ uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
-  rc =    (*Function)(i_handle, i_address, i_data, i_mask);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::PutScomUnderMask");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, /* JFDEBUG const */DataBuffer & i_data, const DataBuffer & i_mask)",args);
-   }
-#endif
-
-  return rc;
-}
-
-#endif
-
-ReturnCode fapiGetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
-
-  ReturnCode rc; 
-
-  ecmdChipTarget   ecmdTarget;
-  ecmdChipTarget * ecmdTargetPtr;
-  ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
-  ecmdTarget = (*ecmdTargetPtr);                
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllGetCfamRegister%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &ecmdTarget);
-     args.push_back((void*) &i_address);
-     args.push_back((void*) &o_data);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBufferBase & o_data)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getCfamRegister");
-  }
-#endif
-
-   ecmdChipTarget cacheTarget;
-   cacheTarget = ecmdTarget;
-   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllGetCfamRegister(ecmdTarget, i_address, o_data);
-#else
-  if (DllFnTable[ECMD_GETCFAMREGISTER] == NULL) {
-     DllFnTable[ECMD_GETCFAMREGISTER] = (void*)dlsym(dlHandle, "dllGetCfamRegister");
-     if (DllFnTable[ECMD_GETCFAMREGISTER] == NULL) {
-       fprintf(stderr,"dllGetCfamRegister%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &))DllFnTable[ECMD_GETCFAMREGISTER];
-  rc =    (*Function)(ecmdTarget, i_address, o_data);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getCfamRegister");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBufferBase & o_data)",args);
-   }
-#endif
-
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
-    std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-    if (errorString.size()) ecmdOutput(errorString.c_str());
-  }
-
-  return rc;
-}
-
-
-ReturnCode fapiPutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data){
-
-  ReturnCode rc;
-  
-  ecmdChipTarget   ecmdTarget;
-  ecmdChipTarget * ecmdTargetPtr;
-  ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
-  ecmdTarget = (*ecmdTargetPtr);                
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllPutCfamRegister%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &ecmdTarget);
-     args.push_back((void*) &i_address);
-     args.push_back((void*) &i_data);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBuffer & i_data)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putCfamRegister");
-  }
-#endif
-
-   ecmdChipTarget cacheTarget;
-   cacheTarget = ecmdTarget;
-   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutCfamRegister(ecmdTarget, i_address, i_data);
-#else
-  if (DllFnTable[ECMD_PUTCFAMREGISTER] == NULL) {
-     DllFnTable[ECMD_PUTCFAMREGISTER] = (void*)dlsym(dlHandle, "dllPutCfamRegister");
-     if (DllFnTable[ECMD_PUTCFAMREGISTER] == NULL) {
-       fprintf(stderr,"dllPutCfamRegister%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &))DllFnTable[ECMD_PUTCFAMREGISTER];
-  rc =    (*Function)(ecmdTarget, i_address, i_data);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putCfamRegister");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBuffer & i_data)",args);
-   }
-#endif
-
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
-    std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-    if (errorString.size()) ecmdOutput(errorString.c_str());
-  }
-
-  return rc;
-}
-
-
 uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs) {
 
   uint32_t rc;
 
 #ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
-    fprintf(stderr,"dllHwpInvoker%s",ECMD_DLL_NOT_LOADED_ERROR);
+    fprintf(stderr,"fapiHwpInvoker%s",ECMD_DLL_NOT_LOADED_ERROR);
     exit(ECMD_DLL_INVALID);
   }
 #endif
@@ -511,60 +156,48 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
      args.push_back((void*) &i_sharedObjectArgs);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"HwpInvoker");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiHwpInvoker");
   }
 #endif
 
   ecmdChipTarget * i_targetPtr;
   i_targetPtr = &i_target;
 
-   //printf("hwpInvoker::Opening %s...\n", i_sharedObjectName.c_str());
    void* handle = dlopen(i_sharedObjectName.c_str(), RTLD_NOW | RTLD_GLOBAL);
    if (!handle) {
-   //  printf("hwpInvoker::Cannot open library: %s\n", dlerror()); //JFDEBUG
-     /*std::string errorStr;
-     errorStr = "Cannot open library " + err;
-     errorStr += "\n";
-     ecmdOutputError(errorStr.c_str());*/
-     rc = 1;  //JF FIXME
-     return rc;
+     const char *dlopen_error = dlerror();
+     printf("ERROR: fapiHwpInvoker: Problems opening '%s' : %s\n", i_sharedObjectName.c_str(), dlopen_error);
+     return ECMD_FAILURE;
     }
     
    // load the symbol
-   printf("HwpInvoker::Loading symbol %s...\n", i_sharedObjectName.c_str());
-     /* FAPI ext based .so entry point was selected */
-     typedef fapi::ReturnCode (*fapi_ring_t)(fapi::Target, std::list<uint64_t>);
-   
-     // reset errors
-     dlerror();
-     fapi_ring_t func = (fapi_ring_t) dlsym(handle, i_sharedObjectEntryPoint.c_str());
-     const char *dlsym_error = dlerror();
-     if (dlsym_error) {
-       printf("Cannot load symbol '%s'\n", i_sharedObjectEntryPoint.c_str());
-       //cerr << "Cannot load symbol 'hwProcEntryPointWithArgs': " << dlsym_error << '\n';
-       dlclose(handle);
-       rc = 1;
-     }
-    
-     // use it to do the calculation
-     //ecmdOutput("Calling hwProcEntryPoint...\n");
-     printf("HwpInvoker::Calling '%s'\n", i_sharedObjectEntryPoint.c_str());
-     fapi::Target myFapiTarget;
-     myFapiTarget.set(i_targetPtr);
-     fapi::ReturnCode fapiRc = func( myFapiTarget, i_sharedObjectArgs);
-    
-     // close the library
-     printf("HwpInvoker::Closing '%s'\n", i_sharedObjectName.c_str());
+   typedef fapi::ReturnCode (*fapi_ring_t)(fapi::Target, std::list<uint64_t>);
+   // reset errors
+   dlerror();
+   fapi_ring_t func = (fapi_ring_t) dlsym(handle, i_sharedObjectEntryPoint.c_str());
+   const char *dlsym_error = dlerror();
+   if (dlsym_error) {
+     printf("ERROR: fapiHwpInvoker::Cannot load symbol '%s': %s\n", i_sharedObjectEntryPoint.c_str(), dlsym_error);
      dlclose(handle);
-
-
+     return ECMD_FAILURE;
+   }
+    
+   // use it to do the calculation
+   // printf("fapiHwpInvoker::Calling '%s'\n", i_sharedObjectEntryPoint.c_str());
+   fapi::Target myFapiTarget;
+   myFapiTarget.set(i_targetPtr);
+   fapi::ReturnCode fapiRc = func( myFapiTarget, i_sharedObjectArgs);
+    
+   // close the library
+   //printf("fapiHwpInvoker::Closing '%s'\n", i_sharedObjectName.c_str());
+   dlclose(handle);
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"HwpInvoker");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t HwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiHwpInvoker");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs)",args);
    }
 #endif
 
@@ -638,3 +271,122 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
 
   return rc;
 }
+
+uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data){
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiGetAttribute%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_id);
+     args.push_back((void*) &o_data);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiGetAttribute");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiGetAttribute(i_target, i_id, o_data);
+#else
+  if (fapiDllFnTable[ECMD_FAPIGETATTRIBUTE] == NULL) {
+     fapiDllFnTable[ECMD_FAPIGETATTRIBUTE] = (void*)dlsym(dlHandle, "dllFapiGetAttribute");
+     if (fapiDllFnTable[ECMD_FAPIGETATTRIBUTE] == NULL) {
+       fprintf(stderr,"dllFapiGetAttribute%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(const fapi::Target &, const uint32_t,  fapi::AttributeData &) = 
+      (uint32_t(*)(const fapi::Target &, const uint32_t,  fapi::AttributeData &))fapiDllFnTable[ECMD_FAPIGETATTRIBUTE];
+  rc =    (*Function)(i_target, i_id, o_data);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiGetAttribute");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data){
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiSetAttribute%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_id);
+     args.push_back((void*) &i_data);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdGetConfigurationComplex(const fapi::Target & i_target, const uint32_t i_id, ecmdConfigData & i_data)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"ecmdGetConfigurationComplex");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiSetAttribute(i_target, i_id, i_data);
+#else
+  if (fapiDllFnTable[ECMD_FAPISETATTRIBUTE] == NULL) {
+     fapiDllFnTable[ECMD_FAPISETATTRIBUTE] = (void*)dlsym(dlHandle, "dllFapiSetAttribute");
+     if (fapiDllFnTable[ECMD_FAPISETATTRIBUTE] == NULL) {
+       fprintf(stderr,"dllFapiSetAttribute%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(const fapi::Target &, const uint32_t,  fapi::AttributeData &) = 
+      (uint32_t(*)(const fapi::Target &, const uint32_t,  fapi::AttributeData &))fapiDllFnTable[ECMD_FAPISETATTRIBUTE];
+  rc =    (*Function)(i_target, i_id, i_data);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiSetAttribute");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
