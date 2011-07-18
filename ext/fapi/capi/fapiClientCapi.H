@@ -25,7 +25,7 @@
 extern "C" {
 
  
-/** @name Load/Unload Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation)*/
+/** @name Load/Unload Functions <b><font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font></b>*/
 //@{
 /**
  @brief Initialize the FAPI extention - This call is required by eCMD programs
@@ -35,7 +35,7 @@ extern "C" {
  uint32_t fapiInitExtension();  
 //@}
 
-/** @name Misc Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation)*/
+/** @name Misc Functions <b><font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font></b>*/
 //@{
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
@@ -69,8 +69,11 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 
- NOTE - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
-      - HwPs should call the FAPI_ATTR_GET macro to read an attribute (see fapiAttributeService.H)
+ <b>
+ NOTE:
+ - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
+ - HWPs should call the FAPI_ATTR_GET macro to read an attribute (see fapiAttributeService.H)
+ </b>
 
 */
 uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
@@ -85,8 +88,11 @@ uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 
- NOTE - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
-      - HWPs should call the FAPI_ATTR_SET macro to set an attribute (see fapiAttributeService.H)
+ <b>
+ NOTE
+ - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
+ - HWPs should call the FAPI_ATTR_SET macro to set an attribute (see fapiAttributeService.H)
+ </b>
 
 */
 uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
