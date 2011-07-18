@@ -31,7 +31,8 @@
  *
  */
 
-#include <fapi.H>
+#include <fapiReturnCode.H>
+#include <fapiTarget.H>
 #include <ecmdReturnCodes.H>
 
 namespace fapi
