@@ -4020,6 +4020,7 @@ This extension provides HWPF fapi only interfaces.  More information about writi
     <ul>
     <li> fapiClientCapi.H</li>
     <li> fapiStructs.H</li>
+    <li>fapiSharedUtils.H</li>
     </ul>
 
 <li>Hardware Procedure Framework (HWPF) specific headers</li>
