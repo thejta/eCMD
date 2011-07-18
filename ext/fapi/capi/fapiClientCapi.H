@@ -64,7 +64,7 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
  @brief Retrieve the value of an Attribute Setting
  @param i_target Struct that specifies the target to operate on
  @param i_id ID of attribute to query
- @param o_configData Structure containing the valid data
+ @param o_data Structure containing the valid data
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -80,7 +80,7 @@ uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
  @brief Set the value of an Attribute 
  @param i_target Struct that specifies the target to operate on
  @param i_id ID of attribute to query
- @param i_configData Structure containing the valid data
+ @param i_data Structure containing the valid data
  @retval ECMD_INVALID_CONFIG_NAME Name specified is not valid
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
