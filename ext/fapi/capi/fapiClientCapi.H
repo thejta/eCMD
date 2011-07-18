@@ -25,7 +25,7 @@
 extern "C" {
 
  
-/** @name Load/Unload Functions <font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font>*/
+/** @name Load/Unload Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)*/
 //@{
 /**
  @brief Initialize the FAPI extention - This call is required by eCMD programs
@@ -35,7 +35,7 @@ extern "C" {
  uint32_t fapiInitExtension();  
 //@}
 
-/** @name Misc Functions <font color=#E800000>(NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)</font>*/
+/** @name Misc Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)*/
 //@{
 /**
  * @brief Run a shared object from within a fapi HW procedures with args
@@ -70,10 +70,13 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
  @retval ECMD_SUCCESS if successful
 
  <b>
- NOTE:
- - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
- - HWPs should call the FAPI_ATTR_GET macro to read an attribute (see fapiAttributeService.H)
- </b>
+ NOTE: </b>
+ <b>
+   <ul>
+   <li>Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW. </li>
+   <li>HWPs should call the FAPI_ATTR_GET macro to read an attribute (see fapiAttributeService.H)</li>
+  </ul>
+</b>
 
 */
 uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
@@ -89,11 +92,12 @@ uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
  @retval ECMD_SUCCESS if successful
 
  <b>
- NOTE
- - Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW.
- - HWPs should call the FAPI_ATTR_SET macro to set an attribute (see fapiAttributeService.H)
+ NOTE </b>
+ <b>
+   <li>Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW. </li>
+   <li>HWPs should call the FAPI_ATTR_SET macro to set an attribute (see fapiAttributeService.H) </li>
+   </u>
  </b>
-
 */
 uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
 
