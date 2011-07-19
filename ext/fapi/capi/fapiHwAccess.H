@@ -16,9 +16,6 @@
 #include <ecmdDataBufferBase.H>
 
 
-// Miscellaneous constants
-#define MAX_NUM_CORES 32
-
 //------------------------------------------------------------------------------
 // HW Communication Functions
 //------------------------------------------------------------------------------
