@@ -94,9 +94,10 @@ uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
  <b>
  NOTE </b>
  <b>
+   <ul>
    <li>Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW. </li>
    <li>HWPs should call the FAPI_ATTR_SET macro to set an attribute (see fapiAttributeService.H) </li>
-   </u>
+   </ul>
  </b>
 */
 uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
