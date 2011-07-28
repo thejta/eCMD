@@ -39,8 +39,6 @@ void fapiTargetToEcmdTarget(fapi::Target i_fapiTarget, ecmdChipTarget & o_ecmdTa
   o_ecmdTarget = (*ecmdTargetPtr);
 }
 
-/*
-fapi::Target convertEcmdTargetFapiTarget(ecmdChipTarget & i_ecmdTarget){
-  return fapi::Target;
+void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi::Target & o_fapiTarget){
+  o_fapiTarget.set(reinterpret_cast<void *> (&i_ecmdTarget));
 }
-*/

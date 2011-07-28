@@ -46,9 +46,14 @@
 */
 void fapiTargetToEcmdTarget(fapi::Target i_fapiTarget, ecmdChipTarget & o_ecmdTarget);
 
+/**
+ * @brief Turns an eCMD chip target (ecmdChipTarget) into a fapi target (fapi::Target)
+ * @param i_ecmdTarget ecmdChipTarget to convert
+ * @param o_fapiTarget generated fapi::Target
+*/
+void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi::Target & o_fapiTarget);
+
 //@}
 
-
-//fapi::Target convertEcmdTargetFapiTarget(ecmdChipTarget & i_ecmdTarget);
 
 #endif /* fapiSharedUtils_h */
