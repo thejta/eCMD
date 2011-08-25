@@ -43,10 +43,13 @@ uint32_t dllFapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id,
 uint32_t dllFapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
 
 
+void dllFapiOutputError(const char* i_message); 
 
+void dllFapiOutputInfo(const char* i_message); 
 
+void dllFapiOutputImportant(const char* i_message); 
 
-
+void dllFapiOutputDebug(const char* i_message); 
 
 } //extern C
 

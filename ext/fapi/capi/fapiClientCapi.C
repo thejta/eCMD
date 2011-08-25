@@ -390,3 +390,115 @@ uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
   return rc;
 }
 
+
+void fapiOutputError(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiOutputError%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapiOutputError(i_message);
+#else
+  if (DllFnTable[ECMD_FAPIOUTPUTERROR] == NULL) {
+     DllFnTable[ECMD_FAPIOUTPUTERROR] = (void*)dlsym(dlHandle, "dllFapiOutputError");
+     if (DllFnTable[ECMD_FAPIOUTPUTERROR] == NULL) {
+       fprintf(stderr,"dllFapiOutputError%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))DllFnTable[ECMD_FAPIOUTPUTERROR];
+   (*Function)(i_message);
+#endif
+
+}
+
+void fapiOutputInfo(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiOutputInfo%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapiOutputInfo(i_message);
+#else
+  if (DllFnTable[ECMD_FAPIOUTPUTINFO] == NULL) {
+     DllFnTable[ECMD_FAPIOUTPUTINFO] = (void*)dlsym(dlHandle, "dllFapiOutputInfo");
+     if (DllFnTable[ECMD_FAPIOUTPUTINFO] == NULL) {
+       fprintf(stderr,"dllFapiOutputInfo%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))DllFnTable[ECMD_FAPIOUTPUTINFO];
+   (*Function)(i_message);
+#endif
+
+}
+
+void fapiOutputImportant(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiOutputImportant%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapiOutputImportant(i_message);
+#else
+  if (DllFnTable[ECMD_FAPIOUTPUTIMPORTANT] == NULL) {
+     DllFnTable[ECMD_FAPIOUTPUTIMPORTANT] = (void*)dlsym(dlHandle, "dllFapiOutputImportant");
+     if (DllFnTable[ECMD_FAPIOUTPUTIMPORTANT] == NULL) {
+       fprintf(stderr,"dllFapiOutputImportant%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))DllFnTable[ECMD_FAPIOUTPUTIMPORTANT];
+   (*Function)(i_message);
+#endif
+
+}
+
+void fapiOutputDebug(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiOutputDebug%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapiOutputDebug(i_message);
+#else
+  if (DllFnTable[ECMD_FAPIOUTPUTDEBUG] == NULL) {
+     DllFnTable[ECMD_FAPIOUTPUTDEBUG] = (void*)dlsym(dlHandle, "dllFapiOutputDebug");
+     if (DllFnTable[ECMD_FAPIOUTPUTDEBUG] == NULL) {
+       fprintf(stderr,"dllFapiOutputDebug%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))DllFnTable[ECMD_FAPIOUTPUTDEBUG];
+   (*Function)(i_message);
+#endif
+
+}

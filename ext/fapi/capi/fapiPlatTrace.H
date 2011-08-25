@@ -39,17 +39,30 @@
 #define PLATTRACE_H_
 
 #include <stdio.h>
+#include "fapiClientCapi.H"
 
 // Information traces (standard flight recorder that can wrap often)
-#define FAPI_INF(_fmt_, _args_...) printf("FAPI TRC>: "_fmt_"\n", ##_args_)
+#define FAPI_INF(_fmt_, _args_...) \
+{ char local_str[250]; \
+snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
+fapiOutputInfo(local_str); } 
 
 // Important traces (should not wrap often)
-#define FAPI_IMP(_fmt_, _args_...) printf("FAPI IMP>: "_fmt_"\n", ##_args_)
+#define FAPI_IMP(_fmt_, _args_...) \
+{ char local_str[250]; \
+snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
+fapiOutputImportant(local_str); } 
 
 // Error traces (should not wrap often)
-#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)
+#define FAPI_ERR(_fmt_, _args_...) \
+{ char local_str[250]; \
+snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
+fapiOutputError(local_str); } 
 
 // Debug traces (can wrap often)
-#define FAPI_DBG(_fmt_, _args_...) printf("FAPI DBG>: "_fmt_"\n", ##_args_)
+#define FAPI_DBG(_fmt_, _args_...) \
+{ char local_str[250]; \
+snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
+fapiOutputDebug(local_str); } 
 
 #endif // PLATTRACE_H_
