@@ -199,9 +199,9 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
    }
 #endif
 
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+  if (uint32_t(fapiRc) && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
     std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    errorString = ecmdGetErrorMsg(uint32_t(fapiRc), false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
