@@ -193,7 +193,7 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
+     args.push_back((void*) &fapiRc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiHwpInvoker");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs)",args);
    }
