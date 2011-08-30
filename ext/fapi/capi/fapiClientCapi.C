@@ -137,8 +137,6 @@ uint32_t fapiInitExtension() {
 
 uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs) {
 
-  uint32_t rc;
-
 #ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
     fprintf(stderr,"fapiHwpInvoker%s",ECMD_DLL_NOT_LOADED_ERROR);

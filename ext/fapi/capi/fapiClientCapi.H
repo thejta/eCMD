@@ -105,8 +105,6 @@ uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
 
 //@}
 
-} //extern c
-
 /**
  @brief Output a message related to an error
  @param i_message String to output
@@ -134,5 +132,7 @@ void fapiOutputImportant(const char* i_message);
 
 */
 void fapiOutputDebug(const char* i_message);
+
+} //extern c
 
 #endif
