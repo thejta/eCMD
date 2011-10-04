@@ -42,7 +42,7 @@
 #include <fapiPlatHwpExecutor.H>
 #include <ecmdDataBufferBase.H>
 
-include <fapiAttributeService.H>
+#include <fapiAttributeService.H>
 //JFDEBUGX #include <fapiHwpReturnCodes.H> // Generated file
 #include <fapiAttributeIds.H>   // Generated file
 #endif // FAPI_H_
