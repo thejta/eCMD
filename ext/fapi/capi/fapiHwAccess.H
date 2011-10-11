@@ -25,26 +25,6 @@ extern "C" {
 //@{
 
 /**
- @brief Scans the ring from the selected chip into the data buffer
- @retval FAPI_SUCCESS if successful
- @retval nonzero if unsuccessful
- @param i_target Opaque struct that specifies the target to operate on
- @param i_address Address of ring to read from
- @param o_data DataBuffer object that holds data read from ring
-*/
-fapi::ReturnCode fapiGetRing(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data);
-
-/**
- @brief Scans ring from the data buffer into the selected chip in the selected ring
- @retval FAPI_SUCCESS if successful
- @retval nonzero if unsuccessful
- @param i_target Opaque struct that specifies the target to operate on
- @param i_address Address of ring to write to
- @param i_data DataBuffer object that holds data to write into ring
-*/
-fapi::ReturnCode fapiPutRing(const fapi::Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data);
-
-/**
  @brief Scoms bits from the selected address into the data buffer
  @retval FAPI_SUCCESS if successful
  @retval nonzero if unsuccessful
