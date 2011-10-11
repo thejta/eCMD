@@ -49,7 +49,7 @@ extern int fppCallCount;
 extern bool ecmdDebugOutput;
 #endif
 
-
+#if 0
 ReturnCode fapiGetRing(const Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data) {
 
   ReturnCode rc;
@@ -167,7 +167,7 @@ ReturnCode fapiPutRing(const Target& i_handle, const uint32_t i_address, ecmdDat
 
   return rc;
 }
-
+#endif
 
 ReturnCode fapiGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
   ReturnCode rc;
