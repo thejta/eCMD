@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/plat/fapiPlatTarget.C 1.2 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file platTarget.C
  *
@@ -36,6 +19,7 @@
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created. Based on Hlava prototype
+ *                          mjjones     09/06/2011  Added toString
  *
  */
 
@@ -71,5 +55,15 @@ void Target::deleteHandle()
 {
     // Intentionally does nothing. The component must not be deleted
 }
+
+#if 0
+//******************************************************************************
+// Get the ECMD String
+//******************************************************************************
+void Target::toString(char (&o_ecmdString)[MAX_ECMD_STRING_LEN]) const
+{
+    // Platform to add code
+}
+#endif
 
 }
