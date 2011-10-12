@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/fapi/fapiTarget.H 1.4 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file fapiTarget.H
  *
@@ -27,7 +10,10 @@
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created. Based on Hlava prototype
- *
+ *                          mjjones     06/29/2011  Removed incorrect MSB from 2 enums
+ *                          mjjones     07/05/2011  Removed const from handle
+ *                          mjjones     08/29/2011  Updated toString function
+ *                          mjjones     09/12/2011  Added isChip and isChiplet
  */
 
 #ifndef FAPITARGET_H_
@@ -51,14 +37,33 @@ enum TargetType
     TARGET_TYPE_MEMBUF_CHIP = 0x00000008,
     TARGET_TYPE_EX_CHIPLET  = 0x00000010,
     TARGET_TYPE_MBA_CHIPLET = 0x00000020,
-    TARGET_TYPE_MBS_CHIPLET = 0x80000040,
-    TARGET_TYPE_MCS_CHIPLET = 0x80000080,
+    TARGET_TYPE_MBS_CHIPLET = 0x00000040,
+    TARGET_TYPE_MCS_CHIPLET = 0x00000080,
 };
 
 /**
  * @brief Typedef used when passing multiple TargetType values
  */
 typedef uint32_t TargetTypes_t;
+
+/**
+ * @brief Enumeration of target state values (bitmask values)
+ */
+enum TargetState
+{
+    TARGET_STATE_PRESENT    = 0x00000001,
+    TARGET_STATE_FUNCTIONAL = 0x00000002,
+};
+
+/**
+ * @brief Typedef used when passing multiple TargetState values
+ */
+typedef uint32_t TargetStates_t;
+
+/**
+ * @brief ECMD constants
+ */
+const uint32_t MAX_ECMD_STRING_LEN = 64;
 
 /**
  * @class Target
@@ -90,7 +95,7 @@ public:
      * @param[in] i_pHandle Pointer to platform specific Target handle
      */
     Target(const TargetType i_type,
-           const void * i_pHandle);
+           void * i_pHandle);
 
     /**
      * @brief Copy Constructor
@@ -147,7 +152,7 @@ public:
      *
      * @param[in] i_pHandle Pointer to platform specific handle
      */
-    void set(const void * i_pHandle);
+    void set(void * i_pHandle);
 
     /**
      * @brief Get the target type
@@ -164,17 +169,31 @@ public:
     void setType(const TargetType i_type);
 
     /**
+     * @brief Returns if the target is a chip
+     *
+     * @return boolean. true if chip else fase
+     */
+    bool isChip() const;
+
+    /**
+     * @brief Returns if the target is a chiplet
+     *
+     * @return boolean. true if chiplet else fase
+     */
+    bool isChiplet() const;
+
+    /**
      * @brief Convert a target to an ecmd-format target string
+     *
+     * This is used in order to trace the target in the common SCAN trace
      *
      * @note Implemented by platform code
      *
-     * @return A pointer to a c-string. If the object cannot be converted to a
-     *         valid ecmd string, a NULL pointer is returned.
-     *
-     * IMPORTANT: It is the caller's responsibility to free the returned string
-     * when done with it by calling "free(char*)".
+     * @param[out] o_ecmdString. Reference to a character array of length
+     *                           MAX_ECMD_STRING_LEN. This is filled in with the
+     *                           null terminated ECMD string.
      */
-    const char * toString() const;
+    void toString(char (&o_ecmdString)[MAX_ECMD_STRING_LEN]) const;
 
 private:
 
@@ -212,7 +231,7 @@ private:
     TargetType iv_type;
 
     // Pointer to platform specific Target Handle
-    const void * iv_pHandle;
+    void * iv_pHandle;
 };
 
 }

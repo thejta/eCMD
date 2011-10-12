@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/fapi/fapiTarget.C 1.4 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file fapiTarget.C
  *
@@ -26,7 +9,8 @@
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created. Based on Hlava prototype
- *
+ *                          mjjones     07/05/2011  Removed const from handle
+ *                          mjjones     09/12/2011  Added isChip and isChiplet
  */
 
 #include <fapiTarget.H>
@@ -47,7 +31,7 @@ Target::Target() :
 // Constructor.
 //******************************************************************************
 Target::Target(const TargetType i_type,
-               const void * i_pHandle) :
+               void * i_pHandle) :
     iv_type(i_type), iv_pHandle(i_pHandle)
 {
 
@@ -113,13 +97,13 @@ bool Target::operator!=(const Target & i_right) const
 //******************************************************************************
 void * Target::get() const
 {
-    return const_cast<void *>(iv_pHandle);
+    return iv_pHandle;
 }
 
 //******************************************************************************
 // Set the handle.
 //******************************************************************************
-void Target::set(const void * i_pHandle)
+void Target::set(void * i_pHandle)
 {
     iv_pHandle = i_pHandle;
 }
@@ -138,6 +122,26 @@ TargetType Target::getType() const
 void Target::setType(const TargetType i_type)
 {
     iv_type = i_type;
+}
+
+//******************************************************************************
+// Is the target a chip?
+//******************************************************************************
+bool Target::isChip() const
+{
+    return ((iv_type == TARGET_TYPE_PROC_CHIP) ||
+            (iv_type == TARGET_TYPE_MEMBUF_CHIP));
+}
+
+//******************************************************************************
+// Is the target a chiplet?
+//******************************************************************************
+bool Target::isChiplet() const
+{
+    return ((iv_type == TARGET_TYPE_EX_CHIPLET) ||
+            (iv_type == TARGET_TYPE_MBA_CHIPLET) ||
+            (iv_type == TARGET_TYPE_MBS_CHIPLET) ||
+            (iv_type == TARGET_TYPE_MCS_CHIPLET));
 }
 
 }
