@@ -15,7 +15,7 @@ CAPI_SOURCE  := fapiDllCapi.C fapiPlatHwAccess.C fapiPlatHwpExecutor.C fapiPlatS
 CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnCode.H  fapiReturnCodeDataRef.H  \
                      ../../../capi/ecmdDataBufferBase.H fapiReturnCodes.H fapiDllCapi.H fapiClientEnums.H \
                      fapiUtil.H fapiHwAccess.H fapiSystemConfig.H \
-                     fapi.H fapiPlatHwpExecutor.H  fapiPlatAttributeService.H fapiPlatAttributeService.C
+                     fapiAttributeIds.H fapi.H fapiPlatHwpExecutor.H  fapiAttributeService.H fapiPlatAttributeService.H fapiPlatAttributeService.C
 
 # Additional Source files for the Shared Lib
 SLIB_SOURCE  := fapiTarget.C fapiPlatTarget.C fapiPlatUtil.C fapiPlatReturnCodeDataRef.C \
