@@ -78,7 +78,7 @@ ReturnCodeDataRef::~ReturnCodeDataRef()
     if (iv_refCount != 0)
     {
         FAPI_ERR("ReturnCodeDataRef. Bug. Destruct with refcount");
-        fapiAssert(false);
+        //fapiAssert(false);
     }
     else
     {
@@ -106,7 +106,7 @@ bool ReturnCodeDataRef::decRefCountCheckZero()
     if (iv_refCount == 0)
     {
         FAPI_ERR("ReturnCodeDataRef. Bug. Dec with zero refcount");
-        fapiAssert(false);
+        //fapiAssert(false);
     }
     else
     {
