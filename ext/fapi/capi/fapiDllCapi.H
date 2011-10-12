@@ -24,10 +24,10 @@ uint32_t dllFapiInitExtension(const char * i_version);
 uint32_t dllFapiInitExtensionInPlugin();
 
 fapi::ReturnCode dllFapiGetRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data); 
-
 fapi::ReturnCode dllFapiPutRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & i_data); 
 
-fapi::ReturnCode dllFapiGetFunctionalChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> & o_chiplets); 
+fapi::ReturnCode dllFapiGetChildChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> & o_chiplets, const fapi::TargetState i_state); 
+fapi::ReturnCode dllFapiGetParentChip(const fapi::Target& i_chiplet, fapi::Target & o_chip); 
 
 fapi::ReturnCode dllFapiGetExistingChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> &o_chiplets); 
 
@@ -35,13 +35,10 @@ uint32_t dllHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedOb
 
 uint32_t dllFapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version);
 
-fapi::ReturnCode dllFapiGetFunctionalDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms);
-
-fapi::ReturnCode dllFapiGetExistingDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms);
+fapi::ReturnCode dllFapiGetAssociatedDimms(const fapi::Target& i_target, std::vector<fapi::Target> & o_dimms, const fapi::TargetState i_state);
 
 uint32_t dllFapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
 uint32_t dllFapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
-
 
 void dllFapiOutputError(const char* i_message); 
 
@@ -50,6 +47,7 @@ void dllFapiOutputInfo(const char* i_message);
 void dllFapiOutputImportant(const char* i_message); 
 
 void dllFapiOutputDebug(const char* i_message); 
+uint32_t dllFapiDelay(uint64_t i_nanoSeconds, uint64_t i_simCycles); 
 
 } //extern C
 
