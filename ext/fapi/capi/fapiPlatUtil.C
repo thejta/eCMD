@@ -1,7 +1,7 @@
 // IBM_PROLOG_BEGIN_TAG 
 // This is an automatically generated prolog. 
 //  
-// fipsrefactordoc src/hwsv/server/hwpf/plat/fapiPlatUtil.C 1.1 
+// fipsrefactordoc src/hwpf/plat/fapiPlatUtil.C 1.3 
 //  
 // IBM CONFIDENTIAL 
 //  
@@ -30,38 +30,20 @@
  *                          mjjones     04/13/2011  Created.
  *
  */
-
+#include <stdio.h>
+#include <fapiReturnCodes.H>
 #include <fapiReturnCode.H>
-#include <fapiTarget.H>
-#include <ecmdReturnCodes.H>
-
-namespace fapi
-{
-
 //******************************************************************************
 // fapiAssert
 //******************************************************************************
+using namespace fapi;
 void fapiAssert(bool i_expression)
 {
-
+  //if (!i_expression) exit(FAPI_RC_ASSERT);
+  if (!i_expression) exit(0);
 }
 
-//******************************************************************************
-// fapiLockHardware
-//******************************************************************************
-ReturnCode fapiLockHardware(const Target& i_target)
-{
-  ReturnCode rc;
-  rc = ECMD_FUNCTION_NOT_SUPPORTED;
-  return rc;
+ReturnCode fapiDelay(uint64_t i_nanoSeconds, uint64_t, uint64_t i_simCycles){
+  return 0;
 }
 
-//******************************************************************************
-// fapiUnlockHardware
-//******************************************************************************
-ReturnCode fapiUnlockHardware(const Target& i_target)
-{
-  return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-}
