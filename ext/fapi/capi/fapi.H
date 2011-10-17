@@ -39,7 +39,7 @@
 #include <fapiHwAccess.H>
 #include <fapiSystemConfig.H>
 #include <fapiPlatTrace.H>
-#include <fapiPlatHwpExecutor.H>
+#include <fapiHwpExecutor.H>
 #include <ecmdDataBufferBase.H>
 
 #include <fapiAttributeService.H>
