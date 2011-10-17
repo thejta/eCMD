@@ -49,20 +49,12 @@
 using namespace fapi;
 
 
-typedef int (*libfunc1_FP_t)(uint32_t);
-typedef fapi::ReturnCode (*Hwp_FP_t)(fapi::Target, std::list<uint64_t> &);
-typedef fapi::ReturnCode (*Hwp1_FP_t)(fapi::Target);
-
-
-//#define FAPI_EXEC_HWP(RC, FUNC, _args_...) RC = FUNC(_args_)
-
-
 
 // Macro to execute an arbitrary function with an arbitray number of arguments. The
 // function is in a shared lib that must be dlopened. All that is required is that
 // there is a typedef for the function pointer available that is called <FUNC>_FP_t
 // i.e. if the function is called foo, then the typedef is called foo_FP_t
-#define FAPI_EXEC_HWP(RC, FUNC, _args_...) \
+#define FAPI_PLAT_EXEC_HWP(RC, FUNC, _args_...) \
 {\
     void * l_pLibHandle = NULL; \
     void * l_pSymAddr = NULL; \
