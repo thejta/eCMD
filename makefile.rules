@@ -20,9 +20,11 @@ ifeq (${OS},Linux)
     OS := ppc
   else
     OS := x86
+    DEFINES := ${DEFINES} -DLINUX
   endif
 else
     OS := aix
+    DEFINES := ${DEFINES} -DAIX
 endif
 
 # Setup the ECMD_ROOT
