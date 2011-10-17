@@ -24,6 +24,7 @@
 #include <fapiStructs.H>
 #include <fapiReturnCodes.H>
 #include <fapiDllCapi.H> 
+#include <fapiClientCapi.H>
 
 // these should be in the fapi namespace, right? -farrugia JFDEBUG
     
@@ -39,7 +40,11 @@ int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
     std::string tmp = (i_libName + "_aix.so");
 #endif 
 
+#if defined(ECMD_STATIC_FUNCTIONS) || defined(FAPIARCHIVE)
+    rc = fapiQueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
+#else 
     rc = dllFapiQueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
+#endif 
     if(rc) {
       printf ("fapiQueryFileLocation failed withe rc = %x\n", rc);
       return rc;
