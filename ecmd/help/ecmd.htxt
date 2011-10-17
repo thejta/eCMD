@@ -89,6 +89,7 @@ Syntax: ecmd
         crodmarandtest           
         crodmaxer                
         croeditcnfg              
+        crofilesys               
         crogetconfig             
         crogetl2                 
         crogetl2data             
