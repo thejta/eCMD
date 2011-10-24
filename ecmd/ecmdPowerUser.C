@@ -564,7 +564,7 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]) {
 
     rc = ecmdQueryBiasState(target, voltageLevel, currentVoltage, targetVoltage, timeLeft);
     if (rc) {
-      printed = "querybiasstate - Error occured performing getcfam on ";
+      printed = "querybiasstate - Error occured performing ecmdQueryBiasState on ";
       printed += ecmdWriteTarget(target);
       printed += "\n";
       ecmdOutputError( printed.c_str() );
