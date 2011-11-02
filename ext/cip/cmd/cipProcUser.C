@@ -448,6 +448,9 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
   if (argc > 1) {
     numEntries = atoi(argv[1]);
   }
+
+  //set the register size to 4 words as the VR register is of 128 bits.
+  entry.buffer.setWordLength(4);  
   
   for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
     entry.index = idx;
@@ -649,6 +652,10 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
 
   rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
+
+//set the register size to 4 words as the VR register is of 128 bits.
+
+  sprBuffer.setWordLength(4);
 
   while ( ecmdLooperNext(subTarget, looperdata) ) {
 
