@@ -14,7 +14,10 @@
  *                          mjjones     07/05/2011  Removed rogue tab
  *                          camvanng    09/06/2011  Added fapiLogError
  *                          mjjones     09/14/2011  Prepended fapi to delay
- *
+ *                          mjjones     10/05/2011  Added fapiCheckType
+ *                          mjjones     10/13/2011  Added extern "C" to functions
+ *                          camvanng    10/14/2011  Added fapiLoadInitFile &
+ *                                                  fapiUnloadInitFile
  */
 
 #ifndef FAPIUTIL_H_
@@ -22,11 +25,13 @@
 
 #include <stdint.h>
 #include <stddef.h>
-//#include <fapi.H> //JFDEBUG manual remove
-#include <fapiReturnCode.H> //JFDEBUG manual add
+#include <fapiReturnCode.H>
 
-namespace fapi
+// It is an eCMD requirement that these functions have a "C" symbol
+// because they may be used from a dynamically linked shared library
+extern "C"
 {
+
 /**
  * @brief Assert that an expression is true. Aborting the process if false.
  *
@@ -86,7 +91,7 @@ fapi::ReturnCode fapiDelay(uint64_t i_nanoSeconds, uint64_t i_simCycles);
  *     FAPI_EXEC_HWP(l_rc, function2, i_target)
  *     return rc;
  */
-void fapiLogError(ReturnCode & io_rc);
+void fapiLogError(fapi::ReturnCode & io_rc);
 
 /**  @brief This function answers the question, is scand tracing turned on?
  *   The implementation of this function is specific to the platform.
@@ -101,7 +106,56 @@ bool platIsScanTraceEnabled();
  *   @param[in] True to enable or false to disable scan trace.
  *   @return  void
  */
-void platSetScanTrace( bool i_enable );
+void platSetScanTrace(bool i_enable);
+
+/**  @brief Load the initfile
+ *
+ * This function can be called by a HWP to load an initfile.
+ *
+ * @note Implemented by platform code.  Platform code is
+ * responsible for allocating any memory needed to load 
+ * the initfile.
+ *
+ * @param[in]  the .if filename:  <initfile>.if
+ * @param[out] address in memory where initfile is loaded
+ * @param[out] size of memory allocated for initfile
+ *
+ * @return ReturnCode. Zero on success, else platform specified error.
+ */
+
+fapi::ReturnCode fapiLoadInitFile(const char * i_file, const char *& o_addr, 
+    size_t & o_size);
+
+/**  @brief Unload the initfile
+ *
+ * This function can be called by a HWP to unload an initfile.
+ *
+ * @note Implemented by platform code.  Platform code is
+ * responsible for deleting any allocated memory.
+ *
+ * @param[in] the .if filename:  <initfile>.if
+ * @param[in,out] address in memory where initfile is loaded
+ *                set to NULL on exit
+ * @param[in,out] size of memory allocated for initfile
+ *                set to 0 on exit
+ *
+ * @return ReturnCode. Zero on success, else platform specified error.
+ */
+fapi::ReturnCode fapiUnloadInitFile(const char * i_file, const char *& io_addr, 
+    size_t & io_size);
+
+}
+
+namespace fapi
+{
+
+/**
+ * @brief Check the type of a variable
+ *
+ * This function can be called to check that a variable type is as expected
+ */
+template<typename T>
+void fapiCheckType(const T &) {}
 
 }
 
