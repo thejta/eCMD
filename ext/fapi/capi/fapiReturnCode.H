@@ -36,6 +36,26 @@
 #include <stddef.h>
 #include <fapiReturnCodes.H>
 
+
+/**
+ * @brief Set HWP Error macro
+ *
+ * This macro should be used by a HWP to set an error code if there is
+ * associated Error Information (in the Error Information XML file) that
+ * needs to be processed
+ */
+#define FAPI_SET_HWP_ERROR(RC, ERROR) \
+    printf("eCMD doesn't support this function yet (0x%d)\n", (uint32_t)RC);\
+    /*
+    RC.resetError(fapi::ERROR); \
+    ERROR##_CALL_FUNC_TO_ANALYZE_ERROR(RC); \
+    ERROR##_CALL_FUNCS_TO_COLLECT_FFDC(RC); \
+    ERROR##_ADD_ERROR_INFO(RC)
+    */
+
+
+
+
 namespace fapi
 {
 
