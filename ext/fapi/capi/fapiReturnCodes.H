@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/fapi/fapiReturnCodes.H 1.4 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file fapiReturnCodes.H
  *
@@ -27,7 +10,11 @@
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created.
  *                          mjjones     06/07/2011  Add FAPI_RC_NOT_IMPLEMENTED
- *
+ *                          mjjones     06/30/2011  Add FAPI_RC_ATTR_UNIT_TEST_FAIL
+ *                          mjjones     08/10/2011  Add FAPI_RC_FFDC_HWP_NOT_FOUND
+ *                          mjjones     09/23/2011  Remove FAPI_RC_FFDC_HWP_NOT_FOUND
+ *                          mjjones     10/07/2011  Add FAPI_RC_INVALID_ATTR_GET
+ *                          mjjones     10/28/2011  Trim FAPI/PLAT errors
  */
 
 #ifndef FAPIRETURNCODES_H_
@@ -52,12 +39,10 @@ enum
     FAPI_RC_ECMD_MASK = ECMD_ERR_ECMD, // ECMD generated error (0x01000000)
 
     // FAPI generated return codes
-    FAPI_RC_NOT_IMPLEMENTED = FAPI_RC_FAPI_MASK | 0x01,
+    FAPI_RC_INVALID_ATTR_GET = FAPI_RC_FAPI_MASK | 0x01,
 
     // PLAT generated return codes
-    FAPI_RC_PLAT_ERR_SEE_DATA    = FAPI_RC_PLAT_MASK | 0x01,
-      // Error details in attached ReturnCodeData
-    FAPI_RC_PLAT_NOT_IMPLEMENTED = FAPI_RC_PLAT_MASK | 0x02,
+    FAPI_RC_PLAT_ERR_SEE_DATA = FAPI_RC_PLAT_MASK | 0x01,
 };
 
 }
