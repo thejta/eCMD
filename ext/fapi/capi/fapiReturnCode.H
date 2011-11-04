@@ -45,7 +45,7 @@
  * needs to be processed
  */
 #define FAPI_SET_HWP_ERROR(RC, ERROR) \
-    printf("eCMD doesn't support this function yet (0x%d)\n", (uint32_t)RC);\
+    FAPI_INF("eCMD does not support the FAPI_SET_HWP_ERROR() function yet (0x%d). Continuing...", (uint32_t)RC);\
     /*
     RC.resetError(fapi::ERROR); \
     ERROR##_CALL_FUNC_TO_ANALYZE_ERROR(RC); \
