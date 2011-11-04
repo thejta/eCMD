@@ -49,6 +49,8 @@ extern int fppCallCount;
 extern bool ecmdDebugOutput;
 #endif
 
+extern "C"  {
+
 #if 0
 ReturnCode fapiGetRing(const Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data) {
 
@@ -169,7 +171,7 @@ ReturnCode fapiPutRing(const Target& i_handle, const uint32_t i_address, ecmdDat
 }
 #endif
 
-ReturnCode fapiGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
+ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
   ReturnCode rc;
 
   ecmdChipTarget   ecmdTarget;
@@ -232,7 +234,8 @@ ReturnCode fapiGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
   }
   return rc;
 }
-ReturnCode fapiPutScom(const Target& i_target, const uint32_t i_address,  ecmdDataBufferBase & i_data) {
+
+ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDataBufferBase & i_data) {
 
   ReturnCode rc;
 
@@ -240,11 +243,6 @@ ReturnCode fapiPutScom(const Target& i_target, const uint32_t i_address,  ecmdDa
   ecmdChipTarget * ecmdTargetPtr;
   ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
   ecmdTarget = (*ecmdTargetPtr);                
-
-/*
-  ecmdDataBuffer *dummy;
-  dummy = i_data.getBuff();
-*/
 
 #ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
@@ -304,11 +302,14 @@ ReturnCode fapiPutScom(const Target& i_target, const uint32_t i_address,  ecmdDa
 
   return rc;
 }
-#if 0
-// re-add when ready to support this 
-ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask) {
 
+ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_address, ecmdDataBufferBase & i_data, ecmdDataBufferBase & i_mask) {
   ReturnCode rc;
+
+  ecmdChipTarget   ecmdTarget;
+  ecmdChipTarget * ecmdTargetPtr;
+  ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
+  ecmdTarget = (*ecmdTargetPtr);  
 
 #ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
@@ -327,19 +328,19 @@ ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ ui
   int myTcount;
   std::vector< void * > args;
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &i_handle);
+     args.push_back((void*) &ecmdTarget);
      args.push_back((void*) &i_address);
      args.push_back((void*) &i_data);
      args.push_back((void*) &i_mask);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, /* JFDEBUG const */DataBuffer & i_data, const DataBuffer & i_mask)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle, const uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi::PutScomUnderMask");
   }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutScomUnderMask(i_handle, i_address, i_data, i_mask);
+  rc = dllPutScomUnderMask(ecmdTarget, i_address, i_data, i_mask);
 #else
   if (DllFnTable[ECMD_PUTSCOMUNDERMASK] == NULL) {
      DllFnTable[ECMD_PUTSCOMUNDERMASK] = (void*)dlsym(dlHandle, "dllPutScomUnderMask");
@@ -350,25 +351,24 @@ ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ ui
      }
   }
 
-  ReturnCode (*Function)(const Target&,  /* JFDEBUG const */ uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &) = 
-      (ReturnCode(*)(const Target&,  /* JFDEBUG const */ uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
-  rc =    (*Function)(i_handle, i_address, i_data, i_mask);
+  uint32_t (*Function)(const ecmdChipTarget&, const uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &) = 
+      (uint32_t(*)(const ecmdChipTarget&,  const uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
+  rc =    (*Function)(ecmdTarget, i_address, i_data, i_mask);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::PutScomUnderMask");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle, /* JFDEBUG const */ uint64_t i_address, /* JFDEBUG const */DataBuffer & i_data, const DataBuffer & i_mask)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle,  const uint64_t i_address,  const ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
    }
 #endif
 
   return rc;
 }
 
-#endif
 
-ReturnCode fapiGetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
+ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
 
   ReturnCode rc; 
 
@@ -437,7 +437,7 @@ ReturnCode fapiGetCfamRegister(const Target& i_target, const uint32_t i_address,
 }
 
 
-ReturnCode fapiPutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data){
+ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data){
 
   ReturnCode rc;
   
@@ -505,4 +505,8 @@ ReturnCode fapiPutCfamRegister(const Target& i_target, const uint32_t i_address,
   return rc;
 }
 
-
+ReturnCode platModifyCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data, const fapi::ChipOpModifyMode i_modifyMode){
+    fprintf(stderr,"dllModifyCfamRegister%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+}
+}
