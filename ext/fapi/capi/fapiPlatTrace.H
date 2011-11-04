@@ -65,4 +65,14 @@ fapiOutputError(local_str); }
 snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
 fapiOutputDebug(local_str); } 
 
+
+// Common SCAN traces for hardware access 
+//#define FAPI_SCAN(_fmt_, _args_...) printf("SCAN>: "_fmt_"\n", ##_args_)
+#define FAPI_SCAN(_fmt_, _args_...) \
+{ char local_str[250]; \
+snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
+fapiOutputScanTrace(local_str); } 
+
+
+
 #endif // PLATTRACE_H_
