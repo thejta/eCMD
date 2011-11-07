@@ -133,6 +133,15 @@ void fapiOutputImportant(const char* i_message);
 */
 void fapiOutputDebug(const char* i_message);
 
+
+/**
+ @brief Output a message in the scan trace - matches fw's scan trace
+ @param i_message String to output
+
+*/
+void fapiOutputScanTrace(const char* i_message);
+
+
 } //extern c
 
 #endif
