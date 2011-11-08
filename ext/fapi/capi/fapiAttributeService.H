@@ -12,6 +12,11 @@
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     06/06/2011  Created.
  *                          mjjones     06/22/2011  Major updates
+ *                          mjjones     09/06/2011  Remove support for strings
+ *                          mjjones     09/22/2011  Fixed example
+ *                          mjjones     10/13/2011  Added fapiGetInitFileAttr
+ *                          camvanng    10/20/2011  Changed i_pTarget to "const"
+ *                                                  ptr
  */
 
 #ifndef FAPIATTRIBUTESERVICE_H_
@@ -23,32 +28,19 @@
 /**
  * @brief Macros called by user to get/set attributes
  *
- * @note The user must use these macros rather than any AttributeService
- *       functions.
- *
  * Code must have a pointer to a Target and an attribute ID (from XML file):
  *   fapi::ReturnCode l_rc;
  *   fapi::Target * l_pTarget = ????;
- *   AttributeId l_id = ????;
- *
- * To get a copy of a string attribute
- *   char * l_pString = NULL;
- *   l_rc = FAPI_ATTR_GET(l_id, l_pTarget, l_pString);
- *   delete[] l_pString; // When finished with the attribute
- *
- * To set a string attribute
- *   l_rc = FAPI_ATTR_SET(l_id, l_pTarget, "string-literal");
- *   l_rc = FAPI_ATTR_SET(l_id, l_pTarget, l_pString);
  *
  * To get a copy of an integer attribute and set the attribute
  *   uint64_t l_val = 0;
- *   l_rc = FAPI_ATTR_GET(l_id, l_pTarget, l_val);
- *   l_rc = FAPI_ATTR_SET(l_id, l_pTarget, l_val);
+ *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_val);
+ *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_val);
  *
  * To get a copy of an integer array attribute and set the attribute
  *   uint32_t l_pVal[4] = {0};
- *   l_rc = FAPI_ATTR_GET(l_id, l_pTarget, l_pVal);
- *   l_rc = FAPI_ATTR_SET(l_id, l_pTarget, l_pVal);
+ *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_pVal);
+ *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_pVal);
  *
  * The first part of these macros is a call to checkIdType that will cause a
  * compile failure if the ID or VAL parameters are incorrect.
@@ -58,29 +50,52 @@
  * attribute.
  */
 #define FAPI_ATTR_GET(ID, PTARGET, VAL) \
-    (fapi::AttributeCheck::checkIdType<fapi::ID##_Type>(fapi::ID, VAL), \
+    (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
      ID##_GETMACRO(ID, PTARGET, VAL))
 #define FAPI_ATTR_SET(ID, PTARGET, VAL) \
-    (fapi::AttributeCheck::checkIdType<fapi::ID##_Type>(fapi::ID, VAL), \
+    (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
      ID##_SETMACRO(ID, PTARGET, VAL))
 
 namespace fapi
 {
 
-namespace AttributeCheck
-{
+/**
+ * @brief Get an InitFile attribute
+ *
+ * This function gets a copy of an attribute. In the case of an array attribute,
+ * The value in the specified index is retrieved. This should be used by the
+ * InitFile HWP only, that HWP processes a binary InitFile and therefore needs
+ * to read a variable ID of a variable data type. Standard HWPs should use the
+ * FAPI_ATTR_GET macro which automatically checks the type for correct usage.
+ *
+ * If there are ever attributes with more than 4 dimensions then this function
+ * will need to be updated.
+ *
+ * @param[in]  i_id          AttributeID
+ * @param[in]  i_pTarget     Pointer to fapi::Target (can be NULL for system)
+ * @param[out] o_val         Reference to uint64_t where attribute value is set
+ * @param[in]  i_arrayIndex1 If array attribute then index1
+ * @param[in]  i_arrayIndex2 If at least 2D array attribute then index2
+ * @param[in]  i_arrayIndex3 If at least 3D array attribute then index3
+ * @param[in]  i_arrayIndex4 If at least 4D array attribute then index4
+ *
+ * @return ReturnCode. Zero if success
+ */
+ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
+                               const Target * i_pTarget,
+                               uint64_t & o_val,
+                               const uint32_t i_arrayIndex1 = 0,
+                               const uint32_t i_arrayIndex2 = 0,
+                               const uint32_t i_arrayIndex3 = 0,
+                               const uint32_t i_arrayIndex4 = 0);
 
 /**
- * @brief Check the ID and VAL
+ * @brief Check the ID and TYPE
  *
- * This is called by FAPI_ATTR_GET/SET to check at compile time that the ID and
- * VAL macro parameters are correct. If the ID is not an AttributeId or the VAL
- * is not the type specified in the attribute XML file then no function will be
- * found.
+ * This is called by FAPI code to check at compile time that a FAPI attribute
+ * access is using the correct data type and a valid AttributeId
  */
-template<typename T> void checkIdType(AttributeId, T &) {}
-
-}
+template<typename T> void fapiCheckIdType(AttributeId, T &) {}
 
 }
 
