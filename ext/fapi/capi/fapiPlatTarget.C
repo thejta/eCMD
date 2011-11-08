@@ -64,7 +64,12 @@ void Target::deleteHandle()
 void Target::toString(char (&o_ecmdString)[MAX_ECMD_STRING_LEN]) const
 {
    ecmdChipTarget * ptr = reinterpret_cast<ecmdChipTarget *> (iv_pHandle);
+#ifdef AIX
+   memcpy(o_ecmdString, "BLANK" , sizeof(o_ecmdString));
+#else
    memcpy(o_ecmdString, ecmdWriteTarget(*ptr).c_str(), sizeof(o_ecmdString));
+#endif
+
 }
 
 }
