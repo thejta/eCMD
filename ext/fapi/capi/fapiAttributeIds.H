@@ -24,58 +24,639 @@ enum AttributeId
     ATTR_SCRATCH_UINT32_ARRAY_2,
     ATTR_SCRATCH_UINT64_ARRAY_1,
     ATTR_SCRATCH_UINT64_ARRAY_2,
+    ATTR_DUMMY_SCRATCH_PLAT_INIT_UINT8,
+    ATTR_EFF_NUM_RANKS_PER_DIMM,
+    ATTR_EFF_DIMM_TYPE,
+    ATTR_EFF_DRAM_GEN,
+    ATTR_EFF_ODT_RD,
+    ATTR_EFF_ODT_WR,
+    ATTR_EFF_DRAM_RON,
+    ATTR_EFF_DRAM_RTT_NOM,
+    ATTR_EFF_DRAM_RTT_WR,
+    ATTR_EFF_DRAM_WR_VREF,
+    ATTR_EFF_CEN_DRV_IMP_DQ_DQS,
+    ATTR_EFF_CEN_DRV_IMP_CMD,
+    ATTR_EFF_CEN_DRV_IMP_CNTL,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS,
+    ATTR_EFF_CEN_SLEW_RATE_DQ,
+    ATTR_EFF_CEN_SLEW_RATE_DQS,
+    ATTR_EFF_CEN_SLEW_RATE_CMD,
+    ATTR_EFF_CEN_SLEW_RATE_CNTL,
+    ATTR_EFF_CEN_RD_VREF,
+    ATTR_EFF_DIMM_SIZE,
+    ATTR_EFF_DRAM_DENSITY,
+    ATTR_EFF_DRAM_BL,
+    ATTR_EFF_DRAM_CL,
+    ATTR_EFF_DRAM_AL,
+    ATTR_EFF_DRAM_CWL,
+    ATTR_EFF_DRAM_RBT,
+    ATTR_EFF_DRAM_TM,
+    ATTR_EFF_DRAM_DLL_RESET,
+    ATTR_EFF_DRAM_WR,
+    ATTR_EFF_DRAM_DLL_PPD,
+    ATTR_EFF_DRAM_DLL_ENABLE,
+    ATTR_EFF_DRAM_TDQS,
+    ATTR_EFF_DRAM_WR_LVL_ENABLE,
+    ATTR_EFF_DRAM_OUTPUT_BUFFER,
+    ATTR_EFF_DRAM_PASR,
+    ATTR_EFF_DRAM_ASR,
+    ATTR_EFF_DRAM_SRT,
+    ATTR_EFF_MPR_LOC,
+    ATTR_EFF_MPR_MODE,
+    ATTR_EFF_DIMM_RCD_CNTL_WORD_0_15,
+    ATTR_IS_SIMULATION,
+    ATTR_MSS_EFF_PRIMARY_RANK,
 };
 
 /**
  * @brief Attribute Information
  */
-// ATTR_SCRATCH_UINT8_1: Scratch uint8_t attribute 1
+/* ATTR_SCRATCH_UINT8_1: Scratch uint8_t attribute 1 */
 typedef uint8_t ATTR_SCRATCH_UINT8_1_Type;
 #define ATTR_SCRATCH_UINT8_1_PLATINIT false
 
-// ATTR_SCRATCH_UINT8_2: Scratch uint8_t attribute 2
+/* ATTR_SCRATCH_UINT8_2: Scratch uint8_t attribute 2 */
 typedef uint8_t ATTR_SCRATCH_UINT8_2_Type;
 #define ATTR_SCRATCH_UINT8_2_PLATINIT false
 
-// ATTR_SCRATCH_UINT32_1: Scratch uint32_t attribute 1
+/* ATTR_SCRATCH_UINT32_1: Scratch uint32_t attribute 1 */
 typedef uint32_t ATTR_SCRATCH_UINT32_1_Type;
 #define ATTR_SCRATCH_UINT32_1_PLATINIT false
 
-// ATTR_SCRATCH_UINT32_2: Scratch uint32_t attribute 2
+/* ATTR_SCRATCH_UINT32_2: Scratch uint32_t attribute 2 */
 typedef uint32_t ATTR_SCRATCH_UINT32_2_Type;
 #define ATTR_SCRATCH_UINT32_2_PLATINIT false
 
-// ATTR_SCRATCH_UINT64_1: Scratch uint64_t attribute 1
+/* ATTR_SCRATCH_UINT64_1: Scratch uint64_t attribute 1 */
 typedef uint64_t ATTR_SCRATCH_UINT64_1_Type;
 #define ATTR_SCRATCH_UINT64_1_PLATINIT false
 
-// ATTR_SCRATCH_UINT64_2: Scratch uint64_t attribute 2
+/* ATTR_SCRATCH_UINT64_2: Scratch uint64_t attribute 2 */
 typedef uint64_t ATTR_SCRATCH_UINT64_2_Type;
 #define ATTR_SCRATCH_UINT64_2_PLATINIT false
+enum ATTR_SCRATCH_UINT64_2_Enum
+{
+    ATTR_SCRATCH_UINT64_2_VAL_A = 3,
+    ATTR_SCRATCH_UINT64_2_VAL_B = 5,
+    ATTR_SCRATCH_UINT64_2_VAL_C = 0x23,
+};
 
-// ATTR_SCRATCH_UINT8_ARRAY_1: Scratch uint8_t array ([32]) attribute 1
+/* ATTR_SCRATCH_UINT8_ARRAY_1: Scratch uint8_t array ([32]) attribute 1 */
 typedef uint8_t ATTR_SCRATCH_UINT8_ARRAY_1_Type[32];
 #define ATTR_SCRATCH_UINT8_ARRAY_1_PLATINIT false
 
-// ATTR_SCRATCH_UINT8_ARRAY_2: Scratch uint8_t array ([2][3][4]) attribute 2
+/* ATTR_SCRATCH_UINT8_ARRAY_2: Scratch uint8_t array ([2][3][4]) attribute 2 */
 typedef uint8_t ATTR_SCRATCH_UINT8_ARRAY_2_Type[2][3][4];
 #define ATTR_SCRATCH_UINT8_ARRAY_2_PLATINIT false
 
-// ATTR_SCRATCH_UINT32_ARRAY_1: Scratch uint32_t array ([8]) attribute 1
+/* ATTR_SCRATCH_UINT32_ARRAY_1: Scratch uint32_t array ([8]) attribute 1 */
 typedef uint32_t ATTR_SCRATCH_UINT32_ARRAY_1_Type[8];
 #define ATTR_SCRATCH_UINT32_ARRAY_1_PLATINIT false
 
-// ATTR_SCRATCH_UINT32_ARRAY_2: Scratch uint32_t array ([2][3]) attribute 2
+/* ATTR_SCRATCH_UINT32_ARRAY_2: Scratch uint32_t array ([2][3]) attribute 2 */
 typedef uint32_t ATTR_SCRATCH_UINT32_ARRAY_2_Type[2][3];
 #define ATTR_SCRATCH_UINT32_ARRAY_2_PLATINIT false
 
-// ATTR_SCRATCH_UINT64_ARRAY_1: Scratch uint64_t array ([4]) attribute 1
+/* ATTR_SCRATCH_UINT64_ARRAY_1: Scratch uint64_t array ([4]) attribute 1 */
 typedef uint64_t ATTR_SCRATCH_UINT64_ARRAY_1_Type[4];
 #define ATTR_SCRATCH_UINT64_ARRAY_1_PLATINIT false
 
-// ATTR_SCRATCH_UINT64_ARRAY_2: Scratch uint64_t array ([2][2]) attribute 2
+/* ATTR_SCRATCH_UINT64_ARRAY_2: Scratch uint64_t array ([2][2]) attribute 2 */
 typedef uint64_t ATTR_SCRATCH_UINT64_ARRAY_2_Type[2][2];
 #define ATTR_SCRATCH_UINT64_ARRAY_2_PLATINIT false
+enum ATTR_SCRATCH_UINT64_ARRAY_2_Enum
+{
+    ATTR_SCRATCH_UINT64_ARRAY_2_VAL_A,
+    ATTR_SCRATCH_UINT64_ARRAY_2_VAL_B,
+    ATTR_SCRATCH_UINT64_ARRAY_2_VAL_C,
+};
+
+/* ATTR_DUMMY_SCRATCH_PLAT_INIT_UINT8: Dummy plat init uint8 attribute used for testing */
+typedef uint8_t ATTR_DUMMY_SCRATCH_PLAT_INIT_UINT8_Type[1][3][5];
+#define ATTR_DUMMY_SCRATCH_PLAT_INIT_UINT8_PLATINIT true
+
+/* ATTR_EFF_NUM_RANKS_PER_DIMM: Number of ranks in each DIMM. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_NUM_RANKS_PER_DIMM_Type[3][2];
+#define ATTR_EFF_NUM_RANKS_PER_DIMM_PLATINIT false
+
+/* ATTR_EFF_DIMM_TYPE: Type of DIMM: CDIMM, RDIMM, UDIMM, LRDIMM. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DIMM_TYPE_Type[3][2];
+#define ATTR_EFF_DIMM_TYPE_PLATINIT false
+enum ATTR_EFF_DIMM_TYPE_Enum
+{
+    ATTR_EFF_DIMM_TYPE_CDIMM = 0,
+    ATTR_EFF_DIMM_TYPE_RDIMM = 1,
+    ATTR_EFF_DIMM_TYPE_UDIMM = 2,
+    ATTR_EFF_DIMM_TYPE_LRDIMM = 3,
+};
+
+/* ATTR_EFF_DRAM_GEN: Generation of memory: DDR3, DDR4. Used in various locations and is computed in mss_eff_cnfg. 
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_GEN_Type[3][2];
+#define ATTR_EFF_DRAM_GEN_PLATINIT false
+enum ATTR_EFF_DRAM_GEN_Enum
+{
+    ATTR_EFF_DRAM_GEN_EMPTY = 0,
+    ATTR_EFF_DRAM_GEN_DDR3 = 1,
+    ATTR_EFF_DRAM_GEN_DDR4 = 2,
+};
+
+/* ATTR_EFF_ODT_RD: Read ODT. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_ODT_RD_Type[3][2][3];
+#define ATTR_EFF_ODT_RD_PLATINIT false
+
+/* ATTR_EFF_ODT_WR: Write ODT. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_ODT_WR_Type[3][2][3];
+#define ATTR_EFF_ODT_WR_PLATINIT false
+
+/* ATTR_EFF_DRAM_RON: DRAM Ron. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_RON_Type[3][2];
+#define ATTR_EFF_DRAM_RON_PLATINIT false
+enum ATTR_EFF_DRAM_RON_Enum
+{
+    ATTR_EFF_DRAM_RON_OHM34 = 34,
+    ATTR_EFF_DRAM_RON_OHM40 = 40,
+};
+
+/* ATTR_EFF_DRAM_RTT_NOM: DRAM Rtt_Nom. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_RTT_NOM_Type[3][2][3];
+#define ATTR_EFF_DRAM_RTT_NOM_PLATINIT false
+enum ATTR_EFF_DRAM_RTT_NOM_Enum
+{
+    ATTR_EFF_DRAM_RTT_NOM_DISABLED = 0,
+    ATTR_EFF_DRAM_RTT_NOM_OHM20 = 20,
+    ATTR_EFF_DRAM_RTT_NOM_OHM30 = 30,
+    ATTR_EFF_DRAM_RTT_NOM_OHM34 = 34,
+    ATTR_EFF_DRAM_RTT_NOM_OHM40 = 40,
+    ATTR_EFF_DRAM_RTT_NOM_OHM48 = 48,
+    ATTR_EFF_DRAM_RTT_NOM_OHM60 = 60,
+    ATTR_EFF_DRAM_RTT_NOM_OHM80 = 80,
+    ATTR_EFF_DRAM_RTT_NOM_OHM120 = 120,
+    ATTR_EFF_DRAM_RTT_NOM_OHM240 = 240,
+};
+
+/* ATTR_EFF_DRAM_RTT_WR: DRAM Rtt_WR. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_RTT_WR_Type[3][2][3];
+#define ATTR_EFF_DRAM_RTT_WR_PLATINIT false
+enum ATTR_EFF_DRAM_RTT_WR_Enum
+{
+    ATTR_EFF_DRAM_RTT_WR_DISABLED = 0,
+    ATTR_EFF_DRAM_RTT_WR_OHM60 = 60,
+    ATTR_EFF_DRAM_RTT_WR_OHM120 = 120,
+};
+
+/* ATTR_EFF_DRAM_WR_VREF: DRAM Write Vref. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint32_t ATTR_EFF_DRAM_WR_VREF_Type[3][2];
+#define ATTR_EFF_DRAM_WR_VREF_PLATINIT false
+enum ATTR_EFF_DRAM_WR_VREF_Enum
+{
+    ATTR_EFF_DRAM_WR_VREF_VDD420 = 420,
+    ATTR_EFF_DRAM_WR_VREF_VDD425 = 425,
+    ATTR_EFF_DRAM_WR_VREF_VDD430 = 430,
+    ATTR_EFF_DRAM_WR_VREF_VDD435 = 435,
+    ATTR_EFF_DRAM_WR_VREF_VDD440 = 440,
+    ATTR_EFF_DRAM_WR_VREF_VDD445 = 445,
+    ATTR_EFF_DRAM_WR_VREF_VDD450 = 450,
+    ATTR_EFF_DRAM_WR_VREF_VDD455 = 455,
+    ATTR_EFF_DRAM_WR_VREF_VDD460 = 460,
+    ATTR_EFF_DRAM_WR_VREF_VDD465 = 465,
+    ATTR_EFF_DRAM_WR_VREF_VDD470 = 470,
+    ATTR_EFF_DRAM_WR_VREF_VDD475 = 475,
+    ATTR_EFF_DRAM_WR_VREF_VDD480 = 480,
+    ATTR_EFF_DRAM_WR_VREF_VDD485 = 485,
+    ATTR_EFF_DRAM_WR_VREF_VDD490 = 490,
+    ATTR_EFF_DRAM_WR_VREF_VDD495 = 495,
+    ATTR_EFF_DRAM_WR_VREF_VDD500 = 500,
+    ATTR_EFF_DRAM_WR_VREF_VDD505 = 505,
+    ATTR_EFF_DRAM_WR_VREF_VDD510 = 510,
+    ATTR_EFF_DRAM_WR_VREF_VDD515 = 515,
+    ATTR_EFF_DRAM_WR_VREF_VDD520 = 520,
+    ATTR_EFF_DRAM_WR_VREF_VDD525 = 525,
+    ATTR_EFF_DRAM_WR_VREF_VDD530 = 530,
+    ATTR_EFF_DRAM_WR_VREF_VDD535 = 535,
+    ATTR_EFF_DRAM_WR_VREF_VDD540 = 540,
+    ATTR_EFF_DRAM_WR_VREF_VDD545 = 545,
+    ATTR_EFF_DRAM_WR_VREF_VDD550 = 550,
+    ATTR_EFF_DRAM_WR_VREF_VDD555 = 555,
+    ATTR_EFF_DRAM_WR_VREF_VDD560 = 560,
+    ATTR_EFF_DRAM_WR_VREF_VDD565 = 565,
+    ATTR_EFF_DRAM_WR_VREF_VDD570 = 570,
+    ATTR_EFF_DRAM_WR_VREF_VDD575 = 575,
+};
+
+/* ATTR_EFF_CEN_DRV_IMP_DQ_DQS: Centaur DQ and DQS Drive Impedance Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_DRV_IMP_DQ_DQS_Type[3];
+#define ATTR_EFF_CEN_DRV_IMP_DQ_DQS_PLATINIT false
+enum ATTR_EFF_CEN_DRV_IMP_DQ_DQS_Enum
+{
+    ATTR_EFF_CEN_DRV_IMP_DQ_DQS_OHM24 = 24,
+    ATTR_EFF_CEN_DRV_IMP_DQ_DQS_OHM30 = 30,
+    ATTR_EFF_CEN_DRV_IMP_DQ_DQS_OHM34 = 34,
+    ATTR_EFF_CEN_DRV_IMP_DQ_DQS_OHM40 = 40,
+};
+
+/* ATTR_EFF_CEN_DRV_IMP_CMD: Centaur Command Drive Impedance Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_DRV_IMP_CMD_Type[3];
+#define ATTR_EFF_CEN_DRV_IMP_CMD_PLATINIT false
+enum ATTR_EFF_CEN_DRV_IMP_CMD_Enum
+{
+    ATTR_EFF_CEN_DRV_IMP_CMD_OHM15 = 15,
+    ATTR_EFF_CEN_DRV_IMP_CMD_OHM20 = 20,
+    ATTR_EFF_CEN_DRV_IMP_CMD_OHM30 = 30,
+    ATTR_EFF_CEN_DRV_IMP_CMD_OHM40 = 40,
+};
+
+/* ATTR_EFF_CEN_DRV_IMP_CNTL: Centaur Control Drive Impedance Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_DRV_IMP_CNTL_Type[3][2];
+#define ATTR_EFF_CEN_DRV_IMP_CNTL_PLATINIT false
+enum ATTR_EFF_CEN_DRV_IMP_CNTL_Enum
+{
+    ATTR_EFF_CEN_DRV_IMP_CNTL_OHM15 = 15,
+    ATTR_EFF_CEN_DRV_IMP_CNTL_OHM20 = 20,
+    ATTR_EFF_CEN_DRV_IMP_CNTL_OHM30 = 30,
+    ATTR_EFF_CEN_DRV_IMP_CNTL_OHM40 = 40,
+};
+
+/* ATTR_EFF_CEN_RCV_IMP_DQ_DQS: Centaur DQ and DQS Receiver Impedance Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_RCV_IMP_DQ_DQS_Type[3];
+#define ATTR_EFF_CEN_RCV_IMP_DQ_DQS_PLATINIT false
+enum ATTR_EFF_CEN_RCV_IMP_DQ_DQS_Enum
+{
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM15 = 15,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM20 = 20,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM30 = 30,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM40 = 40,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM48 = 48,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM60 = 60,
+    ATTR_EFF_CEN_RCV_IMP_DQ_DQS_OHM120 = 120,
+};
+
+/* ATTR_EFF_CEN_SLEW_RATE_DQ: Centaur DQ Slew Rate Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_SLEW_RATE_DQ_Type[3];
+#define ATTR_EFF_CEN_SLEW_RATE_DQ_PLATINIT false
+enum ATTR_EFF_CEN_SLEW_RATE_DQ_Enum
+{
+    ATTR_EFF_CEN_SLEW_RATE_DQ_SLOW = 0x00,
+    ATTR_EFF_CEN_SLEW_RATE_DQ_FAST = 0x01,
+};
+
+/* ATTR_EFF_CEN_SLEW_RATE_DQS: Centaur DQS Slew Rate Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_SLEW_RATE_DQS_Type[3];
+#define ATTR_EFF_CEN_SLEW_RATE_DQS_PLATINIT false
+enum ATTR_EFF_CEN_SLEW_RATE_DQS_Enum
+{
+    ATTR_EFF_CEN_SLEW_RATE_DQS_SLOW = 0x00,
+    ATTR_EFF_CEN_SLEW_RATE_DQS_FAST = 0x01,
+};
+
+/* ATTR_EFF_CEN_SLEW_RATE_CMD: Centaur Command Slew Rate Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_SLEW_RATE_CMD_Type[3];
+#define ATTR_EFF_CEN_SLEW_RATE_CMD_PLATINIT false
+enum ATTR_EFF_CEN_SLEW_RATE_CMD_Enum
+{
+    ATTR_EFF_CEN_SLEW_RATE_CMD_SLOW = 0x00,
+    ATTR_EFF_CEN_SLEW_RATE_CMD_FAST = 0x01,
+};
+
+/* ATTR_EFF_CEN_SLEW_RATE_CNTL: Centaur Control Slew Rate Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_CEN_SLEW_RATE_CNTL_Type[3];
+#define ATTR_EFF_CEN_SLEW_RATE_CNTL_PLATINIT false
+enum ATTR_EFF_CEN_SLEW_RATE_CNTL_Enum
+{
+    ATTR_EFF_CEN_SLEW_RATE_CNTL_SLOW = 0x00,
+    ATTR_EFF_CEN_SLEW_RATE_CNTL_FAST = 0x01,
+};
+
+/* ATTR_EFF_CEN_RD_VREF: Centaur Read Vref. Used in various locations and is computed in mss_eff_cnfg_termination. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg. 
+creator: mss_eff_cnfg_termination
+consumer: various
+firmware notes: none */
+typedef uint32_t ATTR_EFF_CEN_RD_VREF_Type[3][2];
+#define ATTR_EFF_CEN_RD_VREF_PLATINIT false
+enum ATTR_EFF_CEN_RD_VREF_Enum
+{
+    ATTR_EFF_CEN_RD_VREF_VDD40375 = 40375,
+    ATTR_EFF_CEN_RD_VREF_VDD41750 = 41750,
+    ATTR_EFF_CEN_RD_VREF_VDD43125 = 43125,
+    ATTR_EFF_CEN_RD_VREF_VDD44500 = 44500,
+    ATTR_EFF_CEN_RD_VREF_VDD45875 = 45875,
+    ATTR_EFF_CEN_RD_VREF_VDD47250 = 47250,
+    ATTR_EFF_CEN_RD_VREF_VDD48625 = 48625,
+    ATTR_EFF_CEN_RD_VREF_VDD50000 = 50000,
+    ATTR_EFF_CEN_RD_VREF_VDD51375 = 51375,
+    ATTR_EFF_CEN_RD_VREF_VDD52750 = 52750,
+    ATTR_EFF_CEN_RD_VREF_VDD54125 = 54125,
+    ATTR_EFF_CEN_RD_VREF_VDD55500 = 55500,
+    ATTR_EFF_CEN_RD_VREF_VDD56875 = 56875,
+    ATTR_EFF_CEN_RD_VREF_VDD58250 = 58250,
+    ATTR_EFF_CEN_RD_VREF_VDD59625 = 59625,
+    ATTR_EFF_CEN_RD_VREF_VDD61000 = 61000,
+    ATTR_EFF_CEN_RD_VREF_VDD60375 = 60375,
+    ATTR_EFF_CEN_RD_VREF_VDD61750 = 61750,
+    ATTR_EFF_CEN_RD_VREF_VDD63125 = 63125,
+    ATTR_EFF_CEN_RD_VREF_VDD64500 = 64500,
+    ATTR_EFF_CEN_RD_VREF_VDD65875 = 65875,
+    ATTR_EFF_CEN_RD_VREF_VDD67250 = 67250,
+    ATTR_EFF_CEN_RD_VREF_VDD68625 = 68625,
+    ATTR_EFF_CEN_RD_VREF_VDD70000 = 70000,
+    ATTR_EFF_CEN_RD_VREF_VDD71375 = 71375,
+    ATTR_EFF_CEN_RD_VREF_VDD72750 = 72750,
+    ATTR_EFF_CEN_RD_VREF_VDD74125 = 74125,
+    ATTR_EFF_CEN_RD_VREF_VDD75500 = 75500,
+    ATTR_EFF_CEN_RD_VREF_VDD76875 = 76875,
+    ATTR_EFF_CEN_RD_VREF_VDD78250 = 78250,
+    ATTR_EFF_CEN_RD_VREF_VDD79625 = 79625,
+    ATTR_EFF_CEN_RD_VREF_VDD81000 = 81000,
+};
+
+/* ATTR_EFF_DIMM_SIZE: DIMM Size.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DIMM_SIZE_Type[3][2];
+#define ATTR_EFF_DIMM_SIZE_PLATINIT false
+
+/* ATTR_EFF_DRAM_DENSITY: DRAM Density.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_DENSITY_Type[3][2];
+#define ATTR_EFF_DRAM_DENSITY_PLATINIT false
+
+/* ATTR_EFF_DRAM_BL: Burst Length.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_BL_Type[3][2];
+#define ATTR_EFF_DRAM_BL_PLATINIT false
+enum ATTR_EFF_DRAM_BL_Enum
+{
+    ATTR_EFF_DRAM_BL_BL8 = 0,
+    ATTR_EFF_DRAM_BL_OTF = 1,
+    ATTR_EFF_DRAM_BL_BC4 = 2,
+};
+
+/* ATTR_EFF_DRAM_CL: CAS Latency.  Used in various locations and is computed in mss_eff_cnfg_timing. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg_timing
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_CL_Type[3][2];
+#define ATTR_EFF_DRAM_CL_PLATINIT false
+
+/* ATTR_EFF_DRAM_AL: Additive Latency.  Used in various locations and is computed in mss_eff_cnfg_timing. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg_timing
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_AL_Type[3][2];
+#define ATTR_EFF_DRAM_AL_PLATINIT false
+enum ATTR_EFF_DRAM_AL_Enum
+{
+    ATTR_EFF_DRAM_AL_DISABLE = 0,
+    ATTR_EFF_DRAM_AL_CL_MINUS_1 = 1,
+    ATTR_EFF_DRAM_AL_CL_MUNUS_2 = 2,
+};
+
+/* ATTR_EFF_DRAM_CWL: CAS Write Latency.  Used in various locations and is computed in mss_eff_cnfg_timing. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg_timing
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_CWL_Type[3][2];
+#define ATTR_EFF_DRAM_CWL_PLATINIT false
+
+/* ATTR_EFF_DRAM_RBT: Read Burst Type.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_RBT_Type[3][2];
+#define ATTR_EFF_DRAM_RBT_PLATINIT false
+enum ATTR_EFF_DRAM_RBT_Enum
+{
+    ATTR_EFF_DRAM_RBT_SEQUENTIAL = 0,
+    ATTR_EFF_DRAM_RBT_INTERLEAVE = 1,
+};
+
+/* ATTR_EFF_DRAM_TM: Test Mode.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_TM_Type[3][2];
+#define ATTR_EFF_DRAM_TM_PLATINIT false
+enum ATTR_EFF_DRAM_TM_Enum
+{
+    ATTR_EFF_DRAM_TM_NORMAL= 0,
+    ATTR_EFF_DRAM_TM_TEST = 1,
+};
+
+/* ATTR_EFF_DRAM_DLL_RESET: DLL Reset.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_DLL_RESET_Type[3][2];
+#define ATTR_EFF_DRAM_DLL_RESET_PLATINIT false
+enum ATTR_EFF_DRAM_DLL_RESET_Enum
+{
+    ATTR_EFF_DRAM_DLL_RESET_NO = 0,
+    ATTR_EFF_DRAM_DLL_RESET_YES = 1,
+};
+
+/* ATTR_EFF_DRAM_WR: Write Recovery.  Used in various locations and is computed in mss_eff_cnfg_timing. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg_timing
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_WR_Type[3][2];
+#define ATTR_EFF_DRAM_WR_PLATINIT false
+
+/* ATTR_EFF_DRAM_DLL_PPD: DLL Precharge PD.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_DLL_PPD_Type[3][2];
+#define ATTR_EFF_DRAM_DLL_PPD_PLATINIT false
+enum ATTR_EFF_DRAM_DLL_PPD_Enum
+{
+    ATTR_EFF_DRAM_DLL_PPD_SLOWEXIT = 0,
+    ATTR_EFF_DRAM_DLL_PPD_FASTEXIT = 1,
+};
+
+/* ATTR_EFF_DRAM_DLL_ENABLE: DLL Enable.  Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_DLL_ENABLE_Type[3][2];
+#define ATTR_EFF_DRAM_DLL_ENABLE_PLATINIT false
+enum ATTR_EFF_DRAM_DLL_ENABLE_Enum
+{
+    ATTR_EFF_DRAM_DLL_ENABLE_ENABLE = 0,
+    ATTR_EFF_DRAM_DLL_ENABLE_DISABLE = 1,
+};
+
+/* ATTR_EFF_DRAM_TDQS: TDQS. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_TDQS_Type[3][2];
+#define ATTR_EFF_DRAM_TDQS_PLATINIT false
+enum ATTR_EFF_DRAM_TDQS_Enum
+{
+    ATTR_EFF_DRAM_TDQS_DISABLE = 0,
+    ATTR_EFF_DRAM_TDQS_ENABLE = 1,
+};
+
+/* ATTR_EFF_DRAM_WR_LVL_ENABLE: Write Level Enable. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_WR_LVL_ENABLE_Type[3][2];
+#define ATTR_EFF_DRAM_WR_LVL_ENABLE_PLATINIT false
+enum ATTR_EFF_DRAM_WR_LVL_ENABLE_Enum
+{
+    ATTR_EFF_DRAM_WR_LVL_ENABLE_DISABLE = 0,
+    ATTR_EFF_DRAM_WR_LVL_ENABLE_ENABLE = 1,
+};
+
+/* ATTR_EFF_DRAM_OUTPUT_BUFFER: Burst Length. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_OUTPUT_BUFFER_Type[3][2];
+#define ATTR_EFF_DRAM_OUTPUT_BUFFER_PLATINIT false
+enum ATTR_EFF_DRAM_OUTPUT_BUFFER_Enum
+{
+    ATTR_EFF_DRAM_OUTPUT_BUFFER_ENABLE = 0,
+    ATTR_EFF_DRAM_OUTPUT_BUFFER_DISABLE = 1,
+};
+
+/* ATTR_EFF_DRAM_PASR: Partial Array Self-Refresh. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_PASR_Type[3][2];
+#define ATTR_EFF_DRAM_PASR_PLATINIT false
+enum ATTR_EFF_DRAM_PASR_Enum
+{
+    ATTR_EFF_DRAM_PASR_FULL = 0,
+    ATTR_EFF_DRAM_PASR_FIRST_HALF = 1,
+    ATTR_EFF_DRAM_PASR_FIRST_QUARTER = 2,
+    ATTR_EFF_DRAM_PASR_FIRST_EIGHTH = 3,
+    ATTR_EFF_DRAM_PASR_LAST_THREE_FOURTH = 4,
+    ATTR_EFF_DRAM_PASR_LAST_HALF = 5,
+    ATTR_EFF_DRAM_PASR_LAST_QUARTER = 6,
+    ATTR_EFF_DRAM_PASR_LAST_EIGHTH = 7,
+};
+
+/* ATTR_EFF_DRAM_ASR: Auto Self-Refresh. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_ASR_Type[3][2];
+#define ATTR_EFF_DRAM_ASR_PLATINIT false
+enum ATTR_EFF_DRAM_ASR_Enum
+{
+    ATTR_EFF_DRAM_ASR_SRT = 0,
+    ATTR_EFF_DRAM_ASR_ASR = 1,
+};
+
+/* ATTR_EFF_DRAM_SRT: Self-Refresh Temperature Range. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_DRAM_SRT_Type[3][2];
+#define ATTR_EFF_DRAM_SRT_PLATINIT false
+enum ATTR_EFF_DRAM_SRT_Enum
+{
+    ATTR_EFF_DRAM_SRT_NORMAL = 0,
+    ATTR_EFF_DRAM_SRT_EXTEND = 1,
+};
+
+/* ATTR_EFF_MPR_LOC: Multi Purpose Register Location. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_MPR_LOC_Type[3][2];
+#define ATTR_EFF_MPR_LOC_PLATINIT false
+
+/* ATTR_EFF_MPR_MODE: Multi Purpose Register Mode. Used in various locations and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: various
+firmware notes: none */
+typedef uint8_t ATTR_EFF_MPR_MODE_Type[3][2];
+#define ATTR_EFF_MPR_MODE_PLATINIT false
+enum ATTR_EFF_MPR_MODE_Enum
+{
+    ATTR_EFF_MPR_MODE_DISABLE = 0,
+    ATTR_EFF_MPR_MODE_ENABLE = 1,
+};
+
+/* ATTR_EFF_DIMM_RCD_CNTL_WORD_0_15: RCD Control Word. Used in mss_dram_init and is computed in mss_eff_cnfg. Can be overwritten by ODM vendors if done from the PNOR or odm_eff_cnfg.  Each memory channel will have a value.
+creator: mss_eff_cnfg
+consumer: mss_dram_init
+firmware notes: none */
+typedef uint64_t ATTR_EFF_DIMM_RCD_CNTL_WORD_0_15_Type[3][2];
+#define ATTR_EFF_DIMM_RCD_CNTL_WORD_0_15_PLATINIT false
+
+/* ATTR_IS_SIMULATION: 1 if the hardware environment is the hardware simulator (not simics). Else 0. */
+typedef uint8_t ATTR_IS_SIMULATION_Type;
+#define ATTR_IS_SIMULATION_PLATINIT true
+#define ATTR_IS_SIMULATION_SETMACRO ATTRIBUTE_NOT_WRITABLE
+
+/* ATTR_MSS_EFF_PRIMARY_RANK: The effective rank group on each port (0 to 3) for each group 0-3 
+creator: mss_eff_cnfg 
+consumer: mss_dram_init_training 
+firmware notes: nothing needs to be done by firmware - this is a procedure to procedure attribute 
+     */
+typedef uint8_t ATTR_MSS_EFF_PRIMARY_RANK_Type[4][4];
+#define ATTR_MSS_EFF_PRIMARY_RANK_PLATINIT false
+#define ATTR_MSS_EFF_PRIMARY_RANK_SETMACRO ATTRIBUTE_NOT_WRITABLE
 
 }
 
