@@ -507,6 +507,6 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
 
 ReturnCode platModifyCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data, const fapi::ChipOpModifyMode i_modifyMode){
     fprintf(stderr,"dllModifyCfamRegister%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
+    return (ECMD_DLL_INVALID);
 }
 }
