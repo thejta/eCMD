@@ -1,0 +1,189 @@
+/**
+ *  @file fapiErrorInfo.H
+ *
+ *  @brief Defines the Error Information structures and classes
+ */
+
+/*
+ * Change Log ******************************************************************
+ * Flag     Defect/Feature  User        Date        Description
+ * ------   --------------  ----------  ----------- ----------------------------
+ *                          mjjones     08/09/2011  Created.
+ *                          mjjones     08/24/2011  Added ErrorInfoGard.
+ *                          mjjones     09/22/2011  Major updates
+ */
+
+#ifndef FAPIERRORINFO_H_
+#define FAPIERRORINFO_H_
+
+#include <stdint.h>
+#include <vector>
+#include <fapiTarget.H>
+
+namespace fapi
+{
+
+/**
+ * @class ErrorInfoFfdc
+ *
+ * This class contains a copy of some FFDC data
+ */
+class ErrorInfoFfdc
+{
+public:
+    /**
+     * @brief Constructor
+     *
+     * @param[in] i_pFfdc Pointer to the FFDC to copy
+     * @param[in] i_size  Size of the FFDC to copy
+     */
+    ErrorInfoFfdc(const void * i_pFfdc,
+                  const uint32_t i_size);
+
+    /**
+     * @brief Copy Constructor
+     *
+     * @param[in] i_right Reference to ErrorInfoFfdc to copy from
+     */
+    ErrorInfoFfdc(const ErrorInfoFfdc & i_right);
+
+    /**
+     * @brief Destructor
+     */
+    ~ErrorInfoFfdc();
+
+    /**
+     * @brief Assignment Operator
+     *
+     * @param[in] i_right Reference to ErrorInfoFfdc to assign from
+     *
+     * @return ErrorInfoFfdc &. Reference to this ErrorInfoFfdc
+     */
+    ErrorInfoFfdc & operator=(const ErrorInfoFfdc & i_right);
+
+    /**
+     * @brief Get a pointer to the FfdcData
+     *
+     * @param[out] o_size Reference to uint32_t that is filled in with the FFDC
+     *                    size
+     *
+     * @return void *. Pointer to the FFDC
+     */
+    const void * getData(uint32_t & o_size) const;
+
+private:
+
+    // Pointer to the FFDC
+    uint8_t * iv_pFfdc;
+
+    // Size of the FFDC
+    uint32_t iv_size;
+};
+
+/**
+ * @enum CalloutPriority
+ *
+ * This enumeration defines the possible callout priorities
+ */
+enum CalloutPriority
+{
+    PRI_HIGH = 1,
+    PRI_MEDIUM = 2,
+    PRI_LOW = 3,
+};
+
+/**
+ * @struct ErrorInfoCallout
+ *
+ * This struct contains a target to callout
+ */
+struct ErrorInfoCallout
+{
+    /**
+     * @brief Constructor.
+     *
+     * @param[in] i_target   Reference to the target to callout
+     * @param[in] i_priority The priority of the callout
+     */
+    ErrorInfoCallout(const Target & i_target,
+                     const CalloutPriority i_priority);
+
+    // The target to call out
+    Target iv_target;
+
+    // The priority of the callout
+    CalloutPriority iv_priority;
+};
+
+/**
+ * @struct ErrorInfoDeconfig
+ *
+ * This struct contains a target to deconfigure
+ */
+struct ErrorInfoDeconfig
+{
+    /**
+     * @brief Constructor.
+     *
+     * @param[in] i_target Reference to the target to deconfigure
+     */
+    ErrorInfoDeconfig(const Target & i_target);
+
+    // The target to deconfigure
+    Target iv_target;
+};
+
+/**
+ * @struct ErrorInfoGard
+ *
+ * This struct contains a target to create a GARD record for
+ */
+struct ErrorInfoGard
+{
+    /**
+     * @brief Constructor.
+     *
+     * @param[in] i_target Reference to the target to create a GARD record for
+     */
+    ErrorInfoGard(const Target & i_target);
+
+    // The target to create a GARD record for
+    Target iv_target;
+};
+
+/**
+ * @struct ErrorInfo
+ *
+ * This struct defines the error information
+ */
+struct ErrorInfo
+{
+    /**
+     * @brief Destructor.
+     */
+    ~ErrorInfo();
+
+    // Vector of FFDC Data
+    std::vector<ErrorInfoFfdc *> iv_ffdcs;
+    typedef std::vector<ErrorInfoFfdc *>::iterator ErrorInfoFfdcItr_t;
+    typedef std::vector<ErrorInfoFfdc *>::const_iterator ErrorInfoFfdcCItr_t;
+
+    // Vector of targets to callout
+    std::vector<ErrorInfoCallout *> iv_callouts;
+    typedef std::vector<ErrorInfoCallout *>::iterator ErrorInfoCalloutItr_t;
+    typedef std::vector<ErrorInfoCallout *>::const_iterator ErrorInfoCalloutCItr_t;
+
+    // Vector of targets to deconfigure
+    std::vector<ErrorInfoDeconfig *> iv_deconfigs;
+    typedef std::vector<ErrorInfoDeconfig *>::iterator ErrorInfoDeconfigItr_t;
+    typedef std::vector<ErrorInfoDeconfig *>::const_iterator ErrorInfoDeconfigCItr_t;
+
+    // Vector of targets to create a GARD record for
+    std::vector<ErrorInfoGard *> iv_gards;
+    typedef std::vector<ErrorInfoGard *>::iterator ErrorInfoGardItr_t;
+    typedef std::vector<ErrorInfoGard *>::const_iterator ErrorInfoGardCItr_t;
+};
+
+}
+
+#endif // FAPIERRORINFO_H_
