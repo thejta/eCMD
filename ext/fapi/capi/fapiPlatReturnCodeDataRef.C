@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/plat/fapiPlatReturnCodeDataRef.C 1.3 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file platReturnCodeDataRef.C
  *
@@ -30,8 +13,12 @@
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created.
  *                          camvanng	05/31/2011	Added debug trace
- *
+ *                          mjjones     07/05/2011. Removed const from data
+ *                          mjjones     08/11/2011  class name change
+ *                          mjjones     09/26/2011  Another func name update
  */
+
+
 
 #include <fapiReturnCodeDataRef.H>
 
@@ -55,9 +42,9 @@ namespace fapi
 //******************************************************************************
 // deleteData function
 //******************************************************************************
-void ReturnCodeDataRef::deleteData()
+void ReturnCodeDataRef::deletePlatData()
 {
-	FAPI_DBG("ReturnCodeDataRef::deleteData");
+	FAPI_DBG("ReturnCodeDataRef::deletePlatData");
 
     // If platform does not attach ReturnCodeData to a ReturnCode then it can
     // do nothing (this function will never be called), but if it does then it
