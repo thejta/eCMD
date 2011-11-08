@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/fapi/fapiReturnCodeDataRef.C 1.3 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file fapiReturnCodeDataRef.C
  *
@@ -27,11 +10,16 @@
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created.
  *                          camvanng	05/31/2011  Added debug traces
- *
+ *                          mjjones     06/30/2011  Added #include
+ *                          mjjones     07/05/2011  Removed const from data
+ *                          mjjones     07/25/2011  Added support for FFDC
+ *                          mjjones     09/22/2100  Added support for Error Info
  */
 
+#include <string.h>
 #include <fapiReturnCodeDataRef.H>
-#include <fapiUtil.H>
+//JFDEBUG #include <fapiUtil.H>
+//JFDEBUG see comment below #include <fapiPlatTrace.H>
 
 /* *****************************************************************************/
 /* Note:                                                                       */
@@ -64,8 +52,10 @@ namespace fapi
 //******************************************************************************
 // Constructor
 //******************************************************************************
-ReturnCodeDataRef::ReturnCodeDataRef(const void * i_pData) :
-    iv_refCount(1), iv_pData(i_pData)
+ReturnCodeDataRef::ReturnCodeDataRef()
+: iv_refCount(1),
+  iv_pPlatData(NULL),
+  iv_pErrorInfo(NULL)
 {
 
 }
@@ -77,14 +67,15 @@ ReturnCodeDataRef::~ReturnCodeDataRef()
 {
     if (iv_refCount != 0)
     {
-        FAPI_ERR("ReturnCodeDataRef. Bug. Destruct with refcount");
+        FAPI_ERR("ReturnCodeDataRef. Bug. Destruct with refcount: %d",
+                 iv_refCount);
         //fapiAssert(false);
+        exit(false);
     }
-    else
-    {
-        // Call platform implemented deleteData
-        (void) deleteData();
-    }
+
+    deletePlatData();
+    delete iv_pErrorInfo;
+    iv_pErrorInfo = NULL;
 }
 
 //******************************************************************************
@@ -92,7 +83,8 @@ ReturnCodeDataRef::~ReturnCodeDataRef()
 //******************************************************************************
 void ReturnCodeDataRef::incRefCount()
 {
-	FAPI_DBG("ReturnCodeDataRef::incRefCount: iv_refCount = %i on entry", iv_refCount);
+	FAPI_DBG("ReturnCodeDataRef::incRefCount: iv_refCount = %d on entry",
+             iv_refCount);
     iv_refCount++;
 }
 
@@ -101,12 +93,14 @@ void ReturnCodeDataRef::incRefCount()
 //******************************************************************************
 bool ReturnCodeDataRef::decRefCountCheckZero()
 {
-	FAPI_DBG("ReturnCodeDataRef::decRefCountCheckZero: iv_refCount = %i on entry", iv_refCount);
+	FAPI_DBG("ReturnCodeDataRef::decRefCountCheckZero: iv_refCount = %d on "
+             "entry", iv_refCount);
 
     if (iv_refCount == 0)
     {
         FAPI_ERR("ReturnCodeDataRef. Bug. Dec with zero refcount");
         //fapiAssert(false);
+        exit(false);
     }
     else
     {
@@ -116,21 +110,57 @@ bool ReturnCodeDataRef::decRefCountCheckZero()
 }
 
 //******************************************************************************
-// getData function
+// setPlatData function
 //******************************************************************************
-const void * ReturnCodeDataRef::getData() const
+void ReturnCodeDataRef::setPlatData(void * i_pPlatData)
 {
-    return iv_pData;
+    // Delete any current PlatData
+    if (iv_pPlatData)
+    {
+        FAPI_ERR("ReturnCodeDataRef. setPlatData when existing data");
+        deletePlatData();
+    }
+
+    iv_pPlatData = i_pPlatData;
 }
 
 //******************************************************************************
-// releaseData function
+// getPlatData function
 //******************************************************************************
-const void * ReturnCodeDataRef::releaseData()
+void * ReturnCodeDataRef::getPlatData() const
 {
-    const void * l_pData = iv_pData;
-    iv_pData = NULL;
-    return l_pData;
+    return iv_pPlatData;
+}
+
+//******************************************************************************
+// releasePlatData function
+//******************************************************************************
+void * ReturnCodeDataRef::releasePlatData()
+{
+    void * l_pPlatData = iv_pPlatData;
+    iv_pPlatData = NULL;
+    return l_pPlatData;
+}
+
+//******************************************************************************
+// getErrorInfo function
+//******************************************************************************
+ErrorInfo * ReturnCodeDataRef::getErrorInfo()
+{
+    return iv_pErrorInfo;
+}
+
+//******************************************************************************
+// getCreateErrorInfo function
+//******************************************************************************
+ErrorInfo & ReturnCodeDataRef::getCreateErrorInfo()
+{
+    if (iv_pErrorInfo == NULL)
+    {
+        iv_pErrorInfo = new ErrorInfo();
+    }
+
+    return *iv_pErrorInfo;
 }
 
 }

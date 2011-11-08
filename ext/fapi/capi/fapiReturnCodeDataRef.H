@@ -1,25 +1,8 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/fapi/fapiReturnCodeDataRef.H 1.2 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file fapiReturnCodeDataRef.H
  *
- *  @brief Defines the ReturnCodeDataRef class that provides a pointer and a
- *         reference count to a platform specific ReturnCodeData object.
+ *  @brief Defines the ReturnCodeDataRef class that manages the data associated
+ *         with a ReturnCode
  */
 
 /*
@@ -27,7 +10,9 @@
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created.
- *
+ *                          mjjones     07/05/2011. Removed const from data
+ *                          mjjones     07/25/2011  Added support for FFDC
+ *                          mjjones     09/22/2100  Added support for Error Info
  */
 
 #ifndef FAPIRETURNCODEDATAREF_H_
@@ -35,6 +20,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <fapiErrorInfo.H>
 
 namespace fapi
 {
@@ -42,15 +28,13 @@ namespace fapi
 /**
  * @class ReturnCodeDataRef
  *
- * This class contains a pointer to platform specific ReturnCodeData and a
- * reference count recording how many ReturnCodes have a pointer to itself.
- *
- * It is used exclusively by the ReturnCode class. Multiple copies of a
- * ReturnCode will all point to the same ReturnCodeDataRef. The ReturnCodes
- * maintain the reference count, the last ReturnCode to remove its reference
- * will delete the ReturnCodeDataRef which in turn deletes the ReturnCodeData.
- * The ReturnCodeData pointer is maintained in this class so that releasing the
- * data releases it from all ReturnCode copies.
+ * This class manages the data associated with a ReturnCode. A ReturnCode
+ * contains a pointer to a ReturnCodeDataRef. When a ReturnCode is copied or
+ * assigned, both ReturnCodes point to the same ReturnCodeDataRef (the data is
+ * not copied) and the ReturnCodeDataRef reference count is incremented. When a
+ * ReturnCode is destructed, the ReturnCodeDataRef reference count is
+ * decremented and if zero, the ReturnCodeDataRef is deleted which deletes the
+ * the data
  *
  * A ReturnCodeDataRef object is not thread safe, multiple threads must not use
  * the same ReturnCodeDataRef object concurrently.
@@ -61,15 +45,13 @@ public:
 
     /**
      * @brief Constructor
-     *
-     * @param[in] i_pData Pointer to platform specific ReturnCodeData
      */
-    explicit ReturnCodeDataRef(const void * i_pData);
+    ReturnCodeDataRef();
 
     /**
      * @brief Destructor
      */
-    ~ReturnCodeDataRef();
+    virtual ~ReturnCodeDataRef();
 
     /**
      * @brief Increments the ref count
@@ -84,46 +66,69 @@ public:
     bool decRefCountCheckZero();
 
     /**
-     * @brief Get a pointer to ReturnCodeData. ReturnCodeDataRef is still
+     * @brief Associate heap based PlatData (use-case is platform error log)
+     *
+     * Any existing PlatData is deleted
+     *
+     * @param[in] i_pPlatData Pointer to PlatData to associate
+     */
+    void setPlatData(void * i_pPlatData);
+
+    /**
+     * @brief Get a pointer to any PlatData. ReturnCodeDataRef is still
      *        responsible for deletion of the data. The caller must not delete
      *
      * The pointer is only meaningful to platform code.
      *
-     * @return void *. Pointer to ReturnCodeData. If NULL then no data (must
-     *                 have been released)
+     * @return void *. Pointer to PlatData. If NULL then no data
      */
-    const void * getData() const;
+    void * getPlatData() const;
 
     /**
-     * @brief Get a pointer to any ReturnCodeData and release ownership from
+     * @brief Get a pointer to any PlatData and release ownership from
      *        ReturnCodeDataRef. The caller is responsible for deletion.
      *
      * The pointer is only meaningful to platform code.
      *
-     * @return void *. Pointer to ReturnCodeData. If NULL then no data (must
-     *                 have been released)
+     * @return void *. Pointer to PlatData. If NULL then no data
      */
-    const void * releaseData();
+    void * releasePlatData();
+
+    /**
+     * @brief Get a pointer to any ErrorInfo
+     *
+     * @return ErrorInfo *. Pointer to ErrorInfo. If NULL then no info
+     */
+    ErrorInfo * getErrorInfo();
+
+    /**
+     * @brief Get a reference to the ErrorInfo. If there is no info then
+     *        it is created (empty)
+     *
+     * @return ErrorInfo &. Reference to ErrorInfo.
+     */
+    ErrorInfo & getCreateErrorInfo();
 
 private:
+
+    /**
+     * @brief Delete any associated PlatData. Implemented by platform code
+     *        because only platform code knows the type of the data.
+     */
+    void deletePlatData();
 
     // Copy constructor and assignment operator disabled
     ReturnCodeDataRef(const ReturnCodeDataRef & i_right);
     ReturnCodeDataRef & operator=(const ReturnCodeDataRef & i_right);
 
-    /**
-     * @brief Deletes the ReturnCodeData
-     *
-     * @note Implemented by platform code because only platform code knows the
-     *       type of the data and how to delete it.
-     */
-    void deleteData();
-
     // The reference count (how many ReturnCodes are pointing to this object)
     uint32_t iv_refCount;
 
-    // Pointer to platform specific ReturnCodeData
-    const void * iv_pData;
+    // Pointer to associated PlatData
+    void * iv_pPlatData;
+
+    // Pointer to HWP Error Information 
+    ErrorInfo * iv_pErrorInfo;
 };
 
 }
