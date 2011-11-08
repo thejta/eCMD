@@ -27,7 +27,7 @@
 #include <fapiReturnCodes.H>
 #include <fapiErrorInfo.H>
 //#include <fapiHwpErrorInfo.H> //JFDEBUG Commented out
-#include <fapiPlatTrace.H>  
+//#include <fapiPlatTrace.H>   //JFDEBUG commented out to avoid collisions with locally defined macros 
 
 
 /**

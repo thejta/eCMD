@@ -21,7 +21,22 @@
 
 #include <fapiReturnCode.H>
 #include <fapiReturnCodeDataRef.H>
-#include <fapiPlatTrace.H>
+//JFDEBUG #include <fapiPlatTrace.H>
+
+/* *****************************************************************************/
+/* Note:                                                                       */
+/* I manually added these macros, added the stdio.h include, and commented out */
+/* the fapiPlatTrace.H include because the macros that are defined in          */
+/* fapiPlatTrace.H call the fapiOutput*() APIs.  These APIs are in the archive */
+/* and this file is in the shared lib and therefore causes undefined symbols in*/
+/* the shared lib (ie libfapi.so)                                              */
+/* -farrugia 08.25.2011                                                        */
+/* *****************************************************************************/
+#include <stdio.h>
+// Error traces (should not wrap often)
+#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)
+
+
 
 namespace fapi
 {
