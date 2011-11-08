@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <fapiAttributeIds.H>
 #include <fapiPlatAttributeService.H>
+#include <fapiPlatTrace.H>
 
 /**
  * @brief Macros called by user to get/set attributes

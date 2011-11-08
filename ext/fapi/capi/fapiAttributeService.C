@@ -7,7 +7,7 @@ namespace fapi
 {
 
 ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
-                               Target * i_pTarget,
+                               const Target * i_pTarget,
                                uint64_t & o_val,
                                const uint32_t i_arrayIndex1,
                                const uint32_t i_arrayIndex2,
@@ -94,13 +94,7 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_DUMMY_SCRATCH_PLAT_INIT_UINT8, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
     }
-    else if (i_id == ATTR_IS_SIMULATION)
-    {
-        ATTR_IS_SIMULATION_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_IS_SIMULATION, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    if (i_id == ATTR_EFF_NUM_RANKS_PER_DIMM)
+    else if (i_id == ATTR_EFF_NUM_RANKS_PER_DIMM)
     {
         ATTR_EFF_NUM_RANKS_PER_DIMM_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_NUM_RANKS_PER_DIMM, i_pTarget, l_attr);
@@ -117,102 +111,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         ATTR_EFF_DRAM_GEN_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_GEN, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
-    }
-    else if (i_id == ATTR_EFF_PRIMARY_RANK_GROUP0)
-    {
-        ATTR_EFF_PRIMARY_RANK_GROUP0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_PRIMARY_RANK_GROUP0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_PRIMARY_RANK_GROUP1)
-    {
-        ATTR_EFF_PRIMARY_RANK_GROUP1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_PRIMARY_RANK_GROUP1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_PRIMARY_RANK_GROUP2)
-    {
-        ATTR_EFF_PRIMARY_RANK_GROUP2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_PRIMARY_RANK_GROUP2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_PRIMARY_RANK_GROUP3)
-    {
-        ATTR_EFF_PRIMARY_RANK_GROUP3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_PRIMARY_RANK_GROUP3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_SECONDARY_RANK_GROUP0)
-    {
-        ATTR_EFF_SECONDARY_RANK_GROUP0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_SECONDARY_RANK_GROUP0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_SECONDARY_RANK_GROUP1)
-    {
-        ATTR_EFF_SECONDARY_RANK_GROUP1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_SECONDARY_RANK_GROUP1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_SECONDARY_RANK_GROUP2)
-    {
-        ATTR_EFF_SECONDARY_RANK_GROUP2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_SECONDARY_RANK_GROUP2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_SECONDARY_RANK_GROUP3)
-    {
-        ATTR_EFF_SECONDARY_RANK_GROUP3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_SECONDARY_RANK_GROUP3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_TERTIARY_RANK_GROUP0)
-    {
-        ATTR_EFF_TERTIARY_RANK_GROUP0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_TERTIARY_RANK_GROUP0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_TERTIARY_RANK_GROUP1)
-    {
-        ATTR_EFF_TERTIARY_RANK_GROUP1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_TERTIARY_RANK_GROUP1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_TERTIARY_RANK_GROUP2)
-    {
-        ATTR_EFF_TERTIARY_RANK_GROUP2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_TERTIARY_RANK_GROUP2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_TERTIARY_RANK_GROUP3)
-    {
-        ATTR_EFF_TERTIARY_RANK_GROUP3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_TERTIARY_RANK_GROUP3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_QUATERNARY_RANK_GROUP0)
-    {
-        ATTR_EFF_QUATERNARY_RANK_GROUP0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_QUATERNARY_RANK_GROUP0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_QUATERNARY_RANK_GROUP1)
-    {
-        ATTR_EFF_QUATERNARY_RANK_GROUP1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_QUATERNARY_RANK_GROUP1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_QUATERNARY_RANK_GROUP2)
-    {
-        ATTR_EFF_QUATERNARY_RANK_GROUP2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_QUATERNARY_RANK_GROUP2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_QUATERNARY_RANK_GROUP3)
-    {
-        ATTR_EFF_QUATERNARY_RANK_GROUP3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_QUATERNARY_RANK_GROUP3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_EFF_ODT_RD)
     {
@@ -445,7 +343,8 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     else
     {
         FAPI_ERR("fapiGetInitFileAttr: Unrecognized attr: %d", i_id);
-        l_rc = FAPI_RC_INVALID_ATTR_GET;
+        //ReturnCodeFfdc::addEIFfdc(l_rc, static_cast<uint32_t>(i_id));        l_rc = FAPI_RC_INVALID_ATTR_GET;
+              l_rc = FAPI_RC_INVALID_ATTR_GET;
     }
 
     if (l_rc)
