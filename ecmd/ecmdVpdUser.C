@@ -459,7 +459,7 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
     }
   } else  {
     //container to store data
-    rc = ecmdReadDataFormatted(data, argv[1], inputformat);
+    rc = ecmdReadDataFormatted(data, argv[2], inputformat);
     if (rc) {
       ecmdOutputError("putvpdimage - Problems occurred parsing input data, must be an invalid format\n");
       return rc;
