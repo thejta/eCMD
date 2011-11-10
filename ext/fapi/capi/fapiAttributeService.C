@@ -343,8 +343,7 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     else
     {
         FAPI_ERR("fapiGetInitFileAttr: Unrecognized attr: %d", i_id);
-        //ReturnCodeFfdc::addEIFfdc(l_rc, static_cast<uint32_t>(i_id));        l_rc = FAPI_RC_INVALID_ATTR_GET;
-              l_rc = FAPI_RC_INVALID_ATTR_GET;
+        ReturnCodeFfdc::addEIFfdc(l_rc, static_cast<uint32_t>(i_id));        l_rc = FAPI_RC_INVALID_ATTR_GET;
     }
 
     if (l_rc)
