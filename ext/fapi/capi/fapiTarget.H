@@ -189,7 +189,7 @@ public:
      *
      * @note Implemented by platform code
      *
-     * @param[out] o_ecmdString. Reference to a character array of length
+     * @param[out] o_ecmdString  Reference to a character array of length
      *                           MAX_ECMD_STRING_LEN. This is filled in with the
      *                           null terminated ECMD string.
      */

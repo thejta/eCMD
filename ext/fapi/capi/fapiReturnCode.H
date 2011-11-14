@@ -119,7 +119,7 @@ public:
     /**
      * @brief Assignment Operator.
      *
-     * @param[in] i_rc rcValue to assign
+     * @param[in] i_rcValue rcValue to assign
      *
      * If FAPI_RC_SUCCESS (zero) is assigned then any associated data is deleted
      *
@@ -130,7 +130,7 @@ public:
     /**
      * @brief Any associated data is deleted and the specified rcValue is set
      *
-     * @param[in] i_rc rcValue to set
+     * @param[in] i_rcValue rcValue to set
      */
     void resetError(const uint32_t i_rcValue);
 
