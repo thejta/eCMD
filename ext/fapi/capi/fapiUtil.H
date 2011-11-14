@@ -76,20 +76,20 @@ fapi::ReturnCode fapiDelay(uint64_t i_nanoSeconds, uint64_t i_simCycles);
  *
  * @note Implemented by platform code
  *
- * @param[io_rc] Reference to ReturnCode (Any references to data and error
+ * @param[in,out] io_rc Reference to ReturnCode (Any references to data and error
  *            target are removed and rc value is set to success after
  *            function ends.)
  *
- * Example usage:
- *     fapi::ReturnCode l_rc;
- *     FAPI_EXEC_HWP(l_rc, function1, i_target);
- *     if (!l_rc)
- *     {
- *         fapiLogError(l_rc);
- *     }
+ * Example usage: <br>
+ *     fapi::ReturnCode l_rc; <br>
+ *     FAPI_EXEC_HWP(l_rc, function1, i_target); <br>
+ *     if (!l_rc) <br>
+ *     { <br>
+ *         fapiLogError(l_rc); <br>
+ *     } <br>
  *
- *     FAPI_EXEC_HWP(l_rc, function2, i_target)
- *     return rc;
+ *     FAPI_EXEC_HWP(l_rc, function2, i_target) <br>
+ *     return rc; <br>
  */
 void fapiLogError(fapi::ReturnCode & io_rc);
 
@@ -116,7 +116,7 @@ void platSetScanTrace(bool i_enable);
  * responsible for allocating any memory needed to load 
  * the initfile.
  *
- * @param[in]  i_file the .if filename:  <initfile>.if
+ * @param[in]  i_file the .if filename:  \<initfile\>.if
  * @param[out] o_addr address in memory where initfile is loaded
  * @param[out] o_size size of memory allocated for initfile
  *
@@ -133,7 +133,7 @@ fapi::ReturnCode fapiLoadInitFile(const char * i_file, const char *& o_addr,
  * @note Implemented by platform code.  Platform code is
  * responsible for deleting any allocated memory.
  *
- * @param[in] i_file the .if filename:  <initfile>.if
+ * @param[in] i_file the .if filename:  \<initfile\>.if
  * @param[in,out] io_addr address in memory where initfile is loaded
  *                set to NULL on exit
  * @param[in,out] io_size size of memory allocated for initfile
