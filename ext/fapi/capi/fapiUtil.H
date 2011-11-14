@@ -76,7 +76,7 @@ fapi::ReturnCode fapiDelay(uint64_t i_nanoSeconds, uint64_t i_simCycles);
  *
  * @note Implemented by platform code
  *
- * @param[io] Reference to ReturnCode (Any references to data and error
+ * @param[io_rc] Reference to ReturnCode (Any references to data and error
  *            target are removed and rc value is set to success after
  *            function ends.)
  *
@@ -103,7 +103,7 @@ bool platIsScanTraceEnabled();
 /**  @brief Alter the state of scand tracing.
  *   The implementation of this function is specific to the platform.
  *
- *   @param[in] True to enable or false to disable scan trace.
+ *   @param[in] i_enable True to enable or false to disable scan trace.
  *   @return  void
  */
 void platSetScanTrace(bool i_enable);
@@ -116,9 +116,9 @@ void platSetScanTrace(bool i_enable);
  * responsible for allocating any memory needed to load 
  * the initfile.
  *
- * @param[in]  the .if filename:  <initfile>.if
- * @param[out] address in memory where initfile is loaded
- * @param[out] size of memory allocated for initfile
+ * @param[in]  i_file the .if filename:  <initfile>.if
+ * @param[out] o_addr address in memory where initfile is loaded
+ * @param[out] o_size size of memory allocated for initfile
  *
  * @return ReturnCode. Zero on success, else platform specified error.
  */
@@ -133,10 +133,10 @@ fapi::ReturnCode fapiLoadInitFile(const char * i_file, const char *& o_addr,
  * @note Implemented by platform code.  Platform code is
  * responsible for deleting any allocated memory.
  *
- * @param[in] the .if filename:  <initfile>.if
- * @param[in,out] address in memory where initfile is loaded
+ * @param[in] i_file the .if filename:  <initfile>.if
+ * @param[in,out] io_addr address in memory where initfile is loaded
  *                set to NULL on exit
- * @param[in,out] size of memory allocated for initfile
+ * @param[in,out] io_size size of memory allocated for initfile
  *                set to 0 on exit
  *
  * @return ReturnCode. Zero on success, else platform specified error.
