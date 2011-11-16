@@ -87,6 +87,8 @@ for (my $x = 0; $x <= $#extensions; $x++) {
     if ($rc) { return $rc; }
     $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SharedUtils.H $outputDirectory/Capi/.");
     if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]AttributeService.H $outputDirectory/Capi/.");
+    if ($rc) { return $rc; }
   }
 }
 
