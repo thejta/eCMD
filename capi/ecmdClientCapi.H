@@ -4035,6 +4035,7 @@ This extension provides HWPF fapi only interfaces.  More information about writi
        <li>fapiSystemConfig.H</li>
        <li>fapiPlatTrace.H</li>
        <li>fapiPlatHwpExecutor.H</li>
+       <li>fapiAttributeService.H</li>
        <li>ecmdDataBufferBase.H</li>
        </ul>
     </ul>
