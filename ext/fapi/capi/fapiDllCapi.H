@@ -60,7 +60,7 @@ void dllPlatSetScanTrace(bool i_enable);
 
 void dllFapiLogError(fapi::ReturnCode & io_rc);
 
-fapi::ReturnCode dllFapiLoadInitFile(const char * i_file, const char *& o_addr, size_t & o_size);
+fapi::ReturnCode dllFapiLoadInitFile(const fapi::Target &, const char * i_file, const char *& o_addr, size_t & o_size);
 
 fapi::ReturnCode dllFapiUnloadInitFile(const char * i_file, const char *& io_addr, size_t & io_size);
 

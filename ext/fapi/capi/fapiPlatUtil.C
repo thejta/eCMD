@@ -336,7 +336,7 @@ if (!fapiInitialized) {
 }
 
 
-fapi::ReturnCode fapiLoadInitFile(const char * i_file, const char *& o_addr, size_t & o_size){
+fapi::ReturnCode fapiLoadInitFile(const fapi::Target & i_Target, const char * i_file, const char *& o_addr, size_t & o_size){
   fapi::ReturnCode rc;
 
 #ifndef ECMD_STATIC_FUNCTIONS
@@ -357,18 +357,19 @@ if (!fapiInitialized) {
   int myTcount;
   std::vector< void * > args;
   if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_Target);
      args.push_back((void*) &i_file);
      args.push_back((void*) &o_addr);
      args.push_back((void*) &o_size );
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"fapi::ReturnCode fapiLoadInitFile(const char * i_file, const char *& o_addr, size_t & o_size)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"fapi::ReturnCode fapiLoadInitFile(const fapi::Target & i_Target, const char * i_file, const char *& o_addr, size_t & o_size)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiLoadInitFile");
   }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllFapiLoadInitFile(i_file, o_addr, o_size);
+  rc = dllFapiLoadInitFile(i_Target, i_file, o_addr, o_size);
 #else
   if (fapiDllFnTable[ECMD_FAPILOADINITFILE] == NULL) {
      fapiDllFnTable[ECMD_FAPILOADINITFILE] = (void*)dlsym(dlHandle, "dllFapiLoadInitFile");
@@ -379,9 +380,9 @@ if (!fapiInitialized) {
      }
   }
 
-  ReturnCode (*Function)(const char *,  const char *&, size_t&) = 
-      (ReturnCode(*)(const char *,  const char *&, size_t&))fapiDllFnTable[ECMD_FAPILOADINITFILE];
-  rc =    (*Function)(i_file, o_addr, o_size);
+  ReturnCode (*Function)(const fapi::Target &, const char *,  const char *&, size_t&) = 
+      (ReturnCode(*)(const fapi::Target &, const char *,  const char *&, size_t&))fapiDllFnTable[ECMD_FAPILOADINITFILE];
+  rc =    (*Function)(i_Target, i_file, o_addr, o_size);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG

@@ -1,3 +1,25 @@
+//  IBM_PROLOG_BEGIN_TAG
+//  This is an automatically generated prolog.
+//
+//  $Source$
+//
+//  IBM CONFIDENTIAL
+//
+//  COPYRIGHT International Business Machines Corp. 2011
+//
+//  p1
+//
+//  Object Code Only (OCO) source materials
+//  Licensed Internal Code Source Materials
+//  IBM HostBoot Licensed Internal Code
+//
+//  The source code for this program is not published or other-
+//  wise divested of its trade secrets, irrespective of what has
+//  been deposited with the U.S. Copyright Office.
+//
+//  Origin: 30
+//
+//  IBM_PROLOG_END
 /**
  *  @file fapiUtil.H
  *
@@ -18,6 +40,8 @@
  *                          mjjones     10/13/2011  Added extern "C" to functions
  *                          camvanng    10/14/2011  Added fapiLoadInitFile &
  *                                                  fapiUnloadInitFile
+ *                          camvanng    11/15/2011  Pass target to fapiLoadInitFile;
+ *                                                  Needed by Cronus
  */
 
 #ifndef FAPIUTIL_H_
@@ -116,15 +140,15 @@ void platSetScanTrace(bool i_enable);
  * responsible for allocating any memory needed to load 
  * the initfile.
  *
+ * @param[in]  i_Target reference to the target
  * @param[in]  i_file the .if filename:  \<initfile\>.if
  * @param[out] o_addr address in memory where initfile is loaded
  * @param[out] o_size size of memory allocated for initfile
  *
  * @return ReturnCode. Zero on success, else platform specified error.
  */
-
-fapi::ReturnCode fapiLoadInitFile(const char * i_file, const char *& o_addr, 
-    size_t & o_size);
+fapi::ReturnCode fapiLoadInitFile(const fapi::Target & i_Target,
+    const char * i_file, const char *& o_addr, size_t & o_size);
 
 /**  @brief Unload the initfile
  *
