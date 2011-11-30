@@ -13,7 +13,7 @@ CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}Cl
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
 
 #DEFINES      := 
-CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../ecmd/
+CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../ecmd/ -I../../../dll
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
