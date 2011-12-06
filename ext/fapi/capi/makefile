@@ -26,7 +26,6 @@ CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeS
 SLIB_SOURCE  := fapiErrorInfo.C fapiTarget.C fapiPlatTarget.C fapiPlatReturnCodeDataRef.C \
  		fapiReturnCode.C fapiReturnCodeDataRef.C fapiSharedUtils.C
 
-
 # Include the common extension makefile to do all the work
  include ../../template/capi/makefile.capi
 
