@@ -52,13 +52,23 @@ typedef enum {
 #define FAPI_ATTRIBUTE_TYPE_UINT8       0x40000000
 #define FAPI_ATTRIBUTE_TYPE_UINT32      0x20000000
 #define FAPI_ATTRIBUTE_TYPE_UINT64      0x10000000
-#define FAPI_ATTRIBUTE_TYPE_UINT8ARY    0x08000000
-#define FAPI_ATTRIBUTE_TYPE_UINT32ARY   0x04000000
-#define FAPI_ATTRIBUTE_TYPE_UINT64ARY   0x02000000
+#define FAPI_ATTRIBUTE_TYPE_UINT8ARY    0x04000000
+#define FAPI_ATTRIBUTE_TYPE_UINT32ARY   0x02000000
+#define FAPI_ATTRIBUTE_TYPE_UINT64ARY   0x01000000
 /**
  @brief Used by the get/set configuration functions to return the data
 */
 struct AttributeData {
+  // Constructor
+  AttributeData();
+
+  // Destructor 
+  ~AttributeData();
+
+  // Methods  
+  void printStruct(void);
+
+  // Members
   uint32_t              faValidMask;  ///< Indicates which of the fields in this structure are valid
   char *                faString;     ///< If the output data is a char *, will be populated
   uint8_t               faUint8;      ///< If the output data is a uint8_t, will be populated
@@ -67,8 +77,35 @@ struct AttributeData {
   uint8_t *             faUint8ary;   ///< If the output data is a uint8_t array, will be populated
   uint32_t *            faUint32ary;  ///< If the output data is a uint32_t array, will be populated
   uint64_t *            faUint64ary;  ///< If the output data is a uint64_t array, will be populated
+  std::string           faName;       ///< Name of attribute (use sparingly).    
+  bool                  faEnumUsed;   ///< Indicates if an enum was used or not
+  uint8_t               faNumOfArrayDim; //< Indicates how many dimensions the array is (4 max currently)
+  uint8_t               faSizeOfArrayDimW; //< Indicates how large dimension W is
+  uint8_t               faSizeOfArrayDimX; //< Indicates how large dimension X is
+  uint8_t               faSizeOfArrayDimY; //< Indicates how large dimension Y is
+  uint8_t               faSizeOfArrayDimZ; //< Indicates how large dimension Z is
 };
 
+inline AttributeData::AttributeData():
+// mask
+faValidMask(0x0), 
+// char * 
+faString("blah"),   
+// integers
+faUint8(0x0),         faUint32(0x0),       faUint64(0x0),  
+// arrays
+faUint8ary(NULL),     faUint32ary(NULL),   faUint64ary(NULL),
+// name of attribute in string form
+faName("blah"),       
+// enum 
+faEnumUsed(false), 
+// array information
+faNumOfArrayDim(0),
+faSizeOfArrayDimW(0), faSizeOfArrayDimX(0),
+faSizeOfArrayDimY(0), faSizeOfArrayDimZ(0)
+{}
+
+inline AttributeData::~AttributeData() {}
 
 } //namespace
 #endif 
