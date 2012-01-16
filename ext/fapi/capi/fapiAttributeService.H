@@ -28,27 +28,27 @@
 
 /**
  * @brief Macros called by user to get/set attributes
+ * <br>
+ * Code must have a pointer to a Target and an attribute ID (from XML file): <br>
+ *   fapi::ReturnCode l_rc; <br>
+ *   fapi::Target * l_pTarget = ????; <br>
+ * <br>
+ * To get a copy of an integer attribute and set the attribute <br>
+ *   uint64_t l_val = 0; <br>
+ *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_val); <br>
+ *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_val); <br>
+ * <br>
+ * To get a copy of an integer array attribute and set the attribute <br>
+ *   uint32_t l_pVal[4] = {0}; <br>
+ *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_pVal); <br>
+ *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_pVal); <br>
  *
- * Code must have a pointer to a Target and an attribute ID (from XML file):
- *   fapi::ReturnCode l_rc;
- *   fapi::Target * l_pTarget = ????;
- *
- * To get a copy of an integer attribute and set the attribute
- *   uint64_t l_val = 0;
- *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_val);
- *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_val);
- *
- * To get a copy of an integer array attribute and set the attribute
- *   uint32_t l_pVal[4] = {0};
- *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_pVal);
- *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_pVal);
- *
- * The first part of these macros is a call to checkIdType that will cause a
- * compile failure if the ID or VAL parameters are incorrect.
- *
- * The second part of these macros calls a macro named <ID>_GET/SETMACRO. This
- * macro is defined by PLAT and must do the work of getting/setting the
- * attribute.
+ * The first part of these macros is a call to checkIdType that will cause a <br>
+ * compile failure if the ID or VAL parameters are incorrect. <br>
+ * <br>
+ * The second part of these macros calls a macro named <ID>_GET/SETMACRO. This <br>
+ * macro is defined by PLAT and must do the work of getting/setting the <br>
+ * attribute. <br>
  */
 #define FAPI_ATTR_GET(ID, PTARGET, VAL) \
     (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
