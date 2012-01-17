@@ -94,6 +94,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_DUMMY_SCRATCH_PLAT_INIT_UINT8, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
     }
+    else if (i_id == ATTR_FSI_GP_REG_SCOM_ACCESS)
+    {
+        ATTR_FSI_GP_REG_SCOM_ACCESS_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_FSI_GP_REG_SCOM_ACCESS, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MSS_VOLT)
     {
         ATTR_MSS_VOLT_Type l_attr;
