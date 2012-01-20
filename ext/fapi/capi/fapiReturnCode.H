@@ -38,7 +38,10 @@
  * needs to be processed
  */
 #define FAPI_SET_HWP_ERROR(RC, ERROR) \
-    FAPI_INF("eCMD does not support the FAPI_SET_HWP_ERROR() function yet (0x%d). Continuing...", (uint32_t)RC);\
+    RC.resetError(fapi::ERROR); \
+    FAPI_INF("FAPI_SET_HWP_ERROR::eCMD does not fully support the FAPI_SET_HWP_ERROR() macro"); \
+    FAPI_INF("FAPI_SET_HWP_ERROR::eCMD does not analyze errors, collect FFDC, etc."); \
+    FAPI_INF("FAPI_SET_HWP_ERROR::Setting RC = 0x%08d and continuing...", (uint32_t)RC);
 /* 
     //JFDEBUG commented out since eCMD doesnt support all of these features (yet)
     RC.resetError(fapi::ERROR); \
