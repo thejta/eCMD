@@ -1,3 +1,20 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips760 src/ecmd/import/ecmdStructs.C 1.34.1.27 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// COPYRIGHT International Business Machines Corp. 2004,2012 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -4442,7 +4459,7 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 	    tmpData32 = htonl(address);
 	    memcpy(l_ptr8, &tmpData32, sizeof(tmpData32));
 	    l_ptr8 += sizeof(tmpData32);
-	    i_len -= sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32); // @nk typo fix
 
             //"length"  (uint32_t)
             tmpData32 = htonl( length );
@@ -6061,15 +6078,200 @@ void  ecmdSimModelInfo::printStruct() {
  * get the flattened size of the struct.
  */
 uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) {
-  return ECMD_FUNCTION_NOT_SUPPORTED;
+  uint32_t tmpData32 = 0;
+  uint32_t l_rc = ECMD_SUCCESS;
+
+  int l_len = (int)i_len;   // use a local copy to decrement
+  uint8_t *l_ptr8 = o_buf;  // pointer to the output buffer
+
+  do      // Single entry ->
+  {
+      // Check for buffer overflow conditions.
+      if (this->flattenSize() > i_len)
+      {
+        // Generate an error for buffer overflow conditions.
+	ETRAC2("ECMD: Buffer overflow occurred in "
+		      "ecmdConnectionData::flatten(), "
+		      "structure size = %d; input length = %d",
+		      this->flattenSize(), i_len);
+	l_rc = ECMD_DATA_OVERFLOW;
+	break;
+      }
+
+      // Flatten and store each data member in the ouput buffer
+      // Write the size of "target", to check against when unflattening
+      uint32_t dataBufSize = targetA.flattenSize();
+      tmpData32 = htonl( dataBufSize );
+      memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+      l_ptr8 += sizeof( dataBufSize );
+      l_len -= sizeof( dataBufSize );
+
+      // Write targetA into the output buffer
+      l_rc = targetA.flatten( l_ptr8, dataBufSize );
+      if ( l_rc != ECMD_DBUF_SUCCESS ) {
+	      break;
+      } else {
+	      l_rc = ECMD_SUCCESS;
+      }
+      l_ptr8 += dataBufSize;
+      l_len -= dataBufSize;
+
+      //portA
+      memcpy(l_ptr8, portA.c_str(), portA.size() + 1);
+      l_ptr8 += (portA.size() + 1);
+      l_len  -= (portA.size() + 1);
+
+      //connectionType
+      memcpy(l_ptr8, connectionType.c_str(), connectionType.size() + 1);
+      l_ptr8 += (connectionType.size() + 1);
+      l_len  -= (connectionType.size() + 1);
+
+
+      // "portB" (std::string)
+      memcpy( l_ptr8, portB.c_str(), portB.size() + 1 );
+      l_ptr8 += (portB.size() + 1);
+      l_len  -= (portB.size() + 1);
+
+      // Write the size of "targetB", to check against when unflattening
+      dataBufSize = targetB.flattenSize();
+      tmpData32 = htonl( dataBufSize );
+      memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+      l_ptr8 += sizeof( dataBufSize );
+      l_len -= sizeof( dataBufSize );
+
+      // Write targetB into the output buffer
+      l_rc = targetB.flatten( l_ptr8, dataBufSize );
+      if ( l_rc != ECMD_DBUF_SUCCESS ) {
+	      break;
+      } else {
+	      l_rc = ECMD_SUCCESS;
+      }
+      l_ptr8 += dataBufSize;
+      l_len -= dataBufSize;
+
+      // Final check: if the length isn't 0, something went wrong
+      if (l_len < 0)
+      {
+         // Generate an error for buffer overflow conditions.
+	 ETRAC3("ECMD: Buffer overflow occurred in "
+		      "ecmdConnectionData::flatten(), struct size= %d; "
+		      "input length= %d; over-length size= %d\n",
+		      this->flattenSize(), i_len, l_len);
+	 l_rc = ECMD_DATA_OVERFLOW;
+	 break;
+      }
+
+      if (l_len > 0)
+      {
+	  // Generate an error for buffer underflow conditions.
+	  ETRAC3("ECMD: Buffer underflow occurred in "
+		      "ecmdConnectionData::flatten() struct size= %d; "
+		      "input length= %d; remainder= %d\n",
+		      this->flattenSize(), i_len, l_len);
+	  l_rc = ECMD_DATA_UNDERFLOW;
+	  break;
+      }
+  } while (false);   // <- single exit
+  return l_rc;
 }
 
 uint32_t ecmdConnectionData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
-  return ECMD_FUNCTION_NOT_SUPPORTED;
+   uint32_t l_rc = ECMD_SUCCESS;
+   int l_len = (int)i_len;         // use a local copy to decrement
+   const uint8_t *l_ptr8 = i_buf;  // pointer to the input buffer
+
+   do    // Single entry ->
+   {
+	// Unflatten each data member from the input buffer
+
+	uint32_t dataBufSize = 0;
+	// Get the size of "targetA" to pass to unflatten()
+	memcpy( &dataBufSize, l_ptr8, sizeof(dataBufSize) );
+	dataBufSize = ntohl( dataBufSize );
+	l_ptr8 += sizeof( dataBufSize );
+	l_len -= sizeof( dataBufSize );
+	
+	// Unflatten "targetA" from the input buffer
+	l_rc = targetA.unflatten( l_ptr8, dataBufSize );
+	if ( l_rc != ECMD_DBUF_SUCCESS ) {
+		break;
+	} else {
+		l_rc = ECMD_SUCCESS;
+	}
+	l_ptr8 += dataBufSize;
+	l_len -= dataBufSize;
+            
+	//portA
+	std::string l_portA = (const char *) l_ptr8;  //maybe this can be 1 line?
+	portA = l_portA;
+	l_ptr8 += l_portA.size() + 1;
+	l_len -= l_portA.size() + 1;
+	
+	//connectionType
+	std::string l_connectionType = (const char *) l_ptr8;
+	connectionType = l_connectionType;
+	l_ptr8 += l_connectionType.size() + 1;
+	l_len -= l_connectionType.size() + 1;
+
+	//portB
+	std::string l_portB = (const char *) l_ptr8;  //maybe this can be 1 line?
+	portB = l_portB;
+	l_ptr8 += l_portB.size() + 1;
+	l_len -= l_portB.size() + 1;
+
+	// Get the size of "targetB" to pass to unflatten()
+	memcpy( &dataBufSize, l_ptr8, sizeof(dataBufSize) );
+	dataBufSize = ntohl( dataBufSize );
+	l_ptr8 += sizeof( dataBufSize );
+	l_len -= sizeof( dataBufSize );
+
+	// Unflatten "targetB" from the input buffer
+	l_rc = targetB.unflatten( l_ptr8, dataBufSize );
+	if ( l_rc != ECMD_DBUF_SUCCESS ) {
+		break;
+	} else {
+		l_rc = ECMD_SUCCESS;
+	}
+	l_ptr8 += dataBufSize;
+	l_len -= dataBufSize;
+
+	// Final check: if the length isn't 0, something went wrong
+	if (l_len < 0)
+	{
+	   // Generate an error for buffer overflow conditions.
+	   ETRAC3("ECMD: Buffer overflow occurred in "
+			   "ecmdConnectionData::unflatten(), struct size= %d; "
+			   "input length= %d; over-length size= %d\n",
+			   this->flattenSize(), i_len, l_len);
+	   l_rc = ECMD_DATA_OVERFLOW;
+	   break;
+	}
+	if (l_len > 0)
+	{
+	   // Generate an error for buffer underflow conditions.
+	   ETRAC3("ECMD: Buffer underflow occurred in "
+			   "ecmdConnectionData::unflatten() struct size= %d; "
+			   "input length= %d; remainder= %d\n",
+			   this->flattenSize(), i_len, l_len);
+	   l_rc = ECMD_DATA_UNDERFLOW;
+	   break;
+	}
+   } while (false);   // <- single exit
+   
+   return l_rc;
 }
 
 uint32_t ecmdConnectionData::flattenSize() {
-  return ECMD_FUNCTION_NOT_SUPPORTED;
+  uint32_t flatSize = 0;
+  uint32_t dataBufSize = 0;
+  // Calculate the size needed to store the flattened struct
+  flatSize = sizeof(dataBufSize)+ targetA.flattenSize()
+	  + portA.size()+1
+	  + connectionType.size() + 1
+	  + portB.size() + 1
+	  + sizeof(dataBufSize)+ targetB.flattenSize();
+
+  return flatSize;
 }
 
 #ifndef REMOVE_SIM
