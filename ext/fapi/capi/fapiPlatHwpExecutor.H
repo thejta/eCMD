@@ -70,6 +70,34 @@ using namespace fapi;
         closeSharedLib(l_pLibHandle); \
     }\
 }
+/*
+ *  The macro below should be used when we remove the ReturnCode function that
+ *  allows integer to be directly assigned to ReturnCodes.  
+ *  This should be done after the eCMD12.3 release.
+ *  -farrugia 01.27.12
+
+#define FAPI_PLAT_EXEC_HWP(RC, FUNC, _args_...) \
+{\
+    void * l_pLibHandle = NULL; \
+    void * l_pSymAddr = NULL; \
+    uint32_t l_rc = ECMD_SUCCESS; \
+    l_rc = openSharedLib(#FUNC, l_pLibHandle); \
+    RC.setEcmdError(l_rc); \
+    if (RC == 0) \
+    { \
+        l_rc = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
+        RC.setEcmdError(l_rc); \
+        if (RC == 0) \
+        { \
+            FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
+            l_rc = l_pFunc(_args_); \
+            RC.setEcmdError(l_rc); \
+        } \
+        closeSharedLib(l_pLibHandle); \
+    }\
+}
+
+*/
 
 
 int openSharedLib(const std::string & i_libName, void * & o_pLibHandle);
