@@ -25,6 +25,8 @@
 #include <fapiReturnCodes.H>
 #include <fapiDllCapi.H> 
 #include <fapiClientCapi.H>
+#include <ecmdReturnCodes.H>
+#include <fapiPlatTrace.H>
 
 // these should be in the fapi namespace, right? -farrugia JFDEBUG
     
@@ -45,21 +47,20 @@ int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
 #else 
     rc = dllFapiQueryFileLocation(fapi::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
 #endif 
-    if(rc) {
-      printf ("fapiQueryFileLocation failed withe rc = %x\n", rc);
-      return rc;
+    if (rc)
+    {
+        FAPI_ERR("fapiQueryFileLocation failed with rc = 0x%x\n", rc);
+        return rc;
     }
     
-    //sharedLibPath += (i_libName + "_x86.so");
     o_pLibHandle = dlopen(sharedLibPath.c_str(), RTLD_LAZY);
-
     if (o_pLibHandle == NULL)
     {
-        printf ("dlopen error '%s'\n", dlerror());
-        return -1;
+        FAPI_ERR("dlopen error '%s'\n", dlerror());
+        return ECMD_FAILURE;
     }
 
-    return 0;
+    return rc;
 }
 
 // Gets a function symbol address from a dlopened shared library
@@ -69,11 +70,11 @@ int getSymAddr(char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr)
 
     if (o_pSymAddr == NULL)
     {
-        printf ("dlsym error '%s'\n", dlerror());
-        return -1;
+        FAPI_ERR("dlsym error '%s'\n", dlerror());
+        return ECMD_FAILURE;
     }
 
-    return 0;
+    return fapi::FAPI_RC_SUCCESS;
 }
 
 // dlcloses a shared library
@@ -83,6 +84,6 @@ void closeSharedLib(void * i_pLibHandle)
 
     if (l_res)
     {
-        printf ("dlclose error '%s'\n", dlerror());
+        FAPI_ERR("dlclose error '%s'\n", dlerror());
     }
 }
