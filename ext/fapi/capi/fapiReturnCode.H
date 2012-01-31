@@ -1,3 +1,25 @@
+//  IBM_PROLOG_BEGIN_TAG
+//  This is an automatically generated prolog.
+//
+//  $Source$
+//
+//  IBM CONFIDENTIAL
+//
+//  COPYRIGHT International Business Machines Corp. 2011
+//
+//  p1
+//
+//  Object Code Only (OCO) source materials
+//  Licensed Internal Code Source Materials
+//  IBM HostBoot Licensed Internal Code
+//
+//  The source code for this program is not published or other-
+//  wise divested of its trade secrets, irrespective of what has
+//  been deposited with the U.S. Copyright Office.
+//
+//  Origin: 30
+//
+//  IBM_PROLOG_END
 /**
  *  @file fapiReturnCode.H
  *
@@ -15,6 +37,8 @@
  *                          camvanng    09/06/2011  Added function template for
  *                                                  setHwpFfdc
  *                          mjjones     09/22/2011  Added ErrorInfo Support
+ *                          mjjones     11/10/2011  Use ecmdDataBufferBase
+ *                          mjjones     01/12/2012  Enforce correct usage
  */
 
 #ifndef FAPIRETURNCODE_H_
@@ -26,9 +50,9 @@
 #include <fapiTarget.H>
 #include <fapiReturnCodes.H>
 #include <fapiErrorInfo.H>
-//#include <fapiHwpErrorInfo.H> //JFDEBUG Commented out
-//#include <fapiPlatTrace.H>   //JFDEBUG commented out to avoid collisions with locally defined macros 
-
+#include <fapiHwpErrorInfo.H>
+//#include <fapiPlatTrace.H> JFDEBUG
+#include <fapiHwpReturnCodes.H>
 
 /**
  * @brief Set HWP Error macro
@@ -38,17 +62,11 @@
  * needs to be processed
  */
 #define FAPI_SET_HWP_ERROR(RC, ERROR) \
-    RC.resetError(fapi::ERROR); \
-    FAPI_INF("FAPI_SET_HWP_ERROR::eCMD does not fully support the FAPI_SET_HWP_ERROR() macro"); \
-    FAPI_INF("FAPI_SET_HWP_ERROR::eCMD does not analyze errors, collect FFDC, etc."); \
-    FAPI_INF("FAPI_SET_HWP_ERROR::Setting RC = 0x%08d and continuing...", (uint32_t)RC);
-/* 
-    //JFDEBUG commented out since eCMD doesnt support all of these features (yet)
-    RC.resetError(fapi::ERROR); \
+    RC._setHwpError(fapi::ERROR); \
     ERROR##_CALL_FUNC_TO_ANALYZE_ERROR(RC); \
     ERROR##_CALL_FUNCS_TO_COLLECT_FFDC(RC); \
     ERROR##_ADD_ERROR_INFO(RC)
-*/
+
 namespace fapi
 {
 
@@ -59,13 +77,17 @@ class ReturnCodeDataRef;
  * @class ReturnCode
  *
  * This class provides a generic return code. It contains the rcValue (return
- * code value) which is of type uint32_t. A user can treat a ReturnCode just
- * as if it were a uint32_t.
+ * code value) which is of type uint32_t.
  *
- * FAPI, PLAT and HWP code can all create a ReturnCode.
- * PLAT can associate PlatData to it (use-case is an error log).
- * HWPs can add ErrorInfo to it (via FAPI_SET_HWP_ERROR macro).
- * FFDC HWPs can add FFDC ErrorInfo to it (via addEIFfdc member function)
+ * FAPI can set an error in the ReturnCode by calling setFapiError.
+ * PLAT can set an error in the ReturnCode by calling setPlatError, this
+ *      function associates heap based PlatData to the ReturnCode (use-case is
+ *      an error log).
+ * HWP  can set an error in the ReturnCode by calling FAPI_SET_HWP_ERROR, this
+ *      macro adds any error information associated with the HWP error to the
+ *      ReturnCode (error information is documented in an error XML file).
+ * FAPI/PLAT/HWP can set an ecmdDataBufferBase error in the ReturnCode by
+ *               calling setEcmdError
  *
  * A ReturnCode is copyable and assignable. Therefore, it cannot be subclassed.
  *
@@ -88,15 +110,13 @@ public:
     /**
      * @brief Constructor. Sets rcValue to the specified value
      *
-     * @note This allows an implicit conversion between a uint32_t and a
-     *       ReturnCode. A user is allowed to return a uint32_t from a function
-     *       that returns a ReturnCode or is allowed to pass a uint32_t to a
-     *       function that expects a ReturnCode and in both cases, the uint32_t
-     *       will be automatically converted to a ReturnCode.
+     * @note This allows an implicit conversion from a value from the
+     *       ReturnCodes enumeration and a ReturnCode. This is provided so that
+     *       a function can do "return FAPI_RC_SUCCESS;"
      *
      * @param[in] i_rcValue The rcValue to set
      */
-    ReturnCode(const uint32_t i_rcValue);
+    ReturnCode(const ReturnCodes i_rcValue);
 
     /**
      * @brief Copy Constructor
@@ -120,22 +140,19 @@ public:
     ReturnCode & operator=(const ReturnCode & i_right);
 
     /**
-     * @brief Assignment Operator.
+     * @brief ***DEPRECATED*** Assignment Operator.
      *
-     * @param[in] i_rcValue rcValue to assign
+     * TODO
+     * This function will be deleted to prevent invalid usage of ReturnCode
+     * Use setFapiError, setPlatError, setEcmdError or FAPI_SET_HWP_ERROR
+     *
+     * @param[in] i_rc rcValue to assign
      *
      * If FAPI_RC_SUCCESS (zero) is assigned then any associated data is deleted
      *
      * @return Reference to 'this' ReturnCode
      */
     ReturnCode & operator=(const uint32_t i_rcValue);
-
-    /**
-     * @brief Any associated data is deleted and the specified rcValue is set
-     *
-     * @param[in] i_rcValue rcValue to set
-     */
-    void resetError(const uint32_t i_rcValue);
 
     /**
      * @brief Returns if the return code indicates success
@@ -150,21 +167,57 @@ public:
      * @note This allows a user to directly compare:
      *       1/ ReturnCode to uint32_t (ReturnCode converted to uint32_t)
      *       2/ ReturnCode to ReturnCode (Both ReturnCode converted to uint32_t)
+     *       This allows a user to test if a ReturnCode is bad (if (l_rc){})
      */
     operator uint32_t() const;
 
     /**
-     * @brief Associates heap based PlatData with the ReturnCode. The ReturnCode
-     *        object takes responsibility for deleting the data (platform code
-     *        actually implements the delete function and must know the type and
-     *        how to delete it). Any existing PlatData is deleted.
+     * @brief Sets a FAPI error. Sets the rcValue to the supplied value (from
+     *        the ReturnCodes enumeration) and deletes any associated data.
+     *
+     * This is called by FAPI code to generate an error.
+     *
+     * @param[in] i_rcValue Error value to set
+     */
+    void setFapiError(const ReturnCodes i_rcValue);
+
+    /**
+     * @brief Sets an ecmd error. Sets the rcValue to the supplied value and
+     *        deletes any associated data.
+     *
+     * This is called by FAPI/PLAT/HWP code to generate an error when an
+     * ecmdDataBufferBase call returns non zero. This can also be used by PLAT
+     * code that reports errors with ecmd return codes.
+     *
+     * @param[in] i_rcValue ecmdDataBufferBase error value to set
+     */
+    void setEcmdError(const uint32_t i_rcValue);
+
+    /**
+     * @brief Sets a PLAT error. Sets the rcValue to FAPI_RC_PLAT_ERR_SEE_DATA,
+     *        deletes any associated data and associates the supplied heap based
+     *        PlatData with the ReturnCode. The ReturnCode object takes
+     *        responsibility for deleting the data (platform code implements the
+     *        delete function and must know the type and how to delete it).
      *
      * This is called by PLAT. The expected use-case is to associate a platform
      * error log with the ReturnCode.
      *
      * @param[in] i_pData Pointer to PlatData (on the heap)
      */
-    void setPlatData(void * i_pData);
+    void setPlatError(void * i_pData);
+
+    /**
+     * @brief Sets a HWP error. Sets the rcValue to the supplied value (from
+     *        the HwpReturnCode enumeration) and deletes any associated data.
+     *
+     * HWP code must call the FAPI_SET_HWP_ERROR macro rather than this function
+     * directly to generate an error so that any error information is
+     * automatically added to the ReturnCode
+     *
+     * @param[in] i_rcValue Error value to set
+     */
+    void _setHwpError(const HwpReturnCode i_rcValue);
 
     /**
      * @brief Get a pointer to any PlatData. ReturnCode is still responsible for
@@ -411,10 +464,17 @@ namespace ReturnCodeFfdc
     inline void addEIFfdc<ecmdDataBufferBase>(ReturnCode & o_rc,
                                               const ecmdDataBufferBase & i_ffdc)
     {
-        // TODO. When real ecmdDataBufferBase is available
-        //FAPI_ERR("Adding ecmdDataBufferBase as FFDC TBD");
-        // JFDEBUG FAPI_ERR is expanding to fapiOutputError and it's not found.  Changing to printf
-        printf("Adding ecmdDataBufferBase as FFDC TBD");
+        uint32_t * l_pData = new uint32_t[i_ffdc.getWordLength()];
+
+        // getWordLength rounds up to the next 32bit boundary, ensure that after
+        // extracting, any unset bits are zero
+        l_pData[i_ffdc.getWordLength() - 1] = 0;
+
+        // Deliberately not checking return code from extract to save code space
+        i_ffdc.extract(l_pData, 0, i_ffdc.getBitLength());
+
+        o_rc.addEIFfdc(l_pData, (i_ffdc.getWordLength() * 4));
+        delete [] l_pData;
     }
 
     /**

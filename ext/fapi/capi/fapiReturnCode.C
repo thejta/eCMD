@@ -1,3 +1,25 @@
+//  IBM_PROLOG_BEGIN_TAG
+//  This is an automatically generated prolog.
+//
+//  $Source$
+//
+//  IBM CONFIDENTIAL
+//
+//  COPYRIGHT International Business Machines Corp. 2011
+//
+//  p1
+//
+//  Object Code Only (OCO) source materials
+//  Licensed Internal Code Source Materials
+//  IBM HostBoot Licensed Internal Code
+//
+//  The source code for this program is not published or other-
+//  wise divested of its trade secrets, irrespective of what has
+//  been deposited with the U.S. Copyright Office.
+//
+//  Origin: 30
+//
+//  IBM_PROLOG_END
 /**
  *  @file fapiReturnCode.C
  *
@@ -17,6 +39,7 @@
  *                                                  FAPI_RC_SUCCESS is assigned to
  *                                                  ReturnCode
  *                          mjjones     09/22/2011  Added ErrorInfo Support
+ *                          mjjones     01/12/2012  Enforce correct usage
  */
 
 #include <fapiReturnCode.H>
@@ -37,7 +60,6 @@
 #define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)
 
 
-
 namespace fapi
 {
 
@@ -53,7 +75,7 @@ ReturnCode::ReturnCode() :
 //******************************************************************************
 // Constructor
 //******************************************************************************
-ReturnCode::ReturnCode(const uint32_t i_rcValue) :
+ReturnCode::ReturnCode(const ReturnCodes i_rcValue) :
     iv_rcValue(i_rcValue), iv_pDataRef(NULL)
 {
 
@@ -112,26 +134,13 @@ ReturnCode & ReturnCode::operator=(const ReturnCode & i_right)
 //******************************************************************************
 ReturnCode & ReturnCode::operator=(const uint32_t i_rcValue)
 {
-    iv_rcValue = i_rcValue;
-
-    if (iv_rcValue == FAPI_RC_SUCCESS)
-    {
-        // Forget about any associated data
-        forgetData();
-    }
-
-    return *this;
-}
-
-//******************************************************************************
-// resetError function
-//******************************************************************************
-void ReturnCode::resetError(const uint32_t i_rcValue)
-{
+    FAPI_ERR("Using deprecated ReturnCode function to assign integer");
     iv_rcValue = i_rcValue;
 
     // Forget about any associated data
     forgetData();
+
+    return *this;
 }
 
 //******************************************************************************
@@ -151,12 +160,50 @@ ReturnCode::operator uint32_t() const
 }
 
 //******************************************************************************
-// setPlatData function
+// setFapiError function
 //******************************************************************************
-void ReturnCode::setPlatData(void * i_pData)
+void ReturnCode::setFapiError(const ReturnCodes i_rcValue)
 {
+    iv_rcValue = i_rcValue;
+
+    // Forget about any associated data (this is a new error)
+    forgetData();
+}
+
+//******************************************************************************
+// setEcmdError function
+//******************************************************************************
+void ReturnCode::setEcmdError(const uint32_t i_rcValue)
+{
+    iv_rcValue = i_rcValue;
+
+    // Forget about any associated data (this is a new error)
+    forgetData();
+}
+
+//******************************************************************************
+// setPlatError function
+//******************************************************************************
+void ReturnCode::setPlatError(void * i_pData)
+{
+    iv_rcValue = FAPI_RC_PLAT_ERR_SEE_DATA;
+
+    // Forget about any associated data (this is a new error)
+    forgetData();
+
     ensureDataRefExists();
     iv_pDataRef->setPlatData(i_pData);
+}
+
+//******************************************************************************
+// _setHwpError function
+//******************************************************************************
+void ReturnCode::_setHwpError(const HwpReturnCode i_rcValue)
+{
+    iv_rcValue = i_rcValue;
+
+    // Forget about any associated data (this is a new error)
+    forgetData();
 }
 
 //******************************************************************************
