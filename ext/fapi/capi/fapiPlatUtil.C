@@ -61,6 +61,7 @@ extern void * dlHandle;
 /* These are from fapiClientCapiFunc.C */
 extern void * fapiDllFnTable[FAPI_NUMFUNCTIONS];
 #endif
+
 extern bool fapiInitialized;
 
 using namespace fapi;
@@ -85,14 +86,16 @@ void fapiAssert(bool i_expression)
 {
   //if (!i_expression) exit(FAPI_RC_ASSERT);
   if (!i_expression){ 
-    FAPI_ERR("**** ASSERT condition hit ****");
+    //FAPI_ERR("**** ASSERT condition hit ****"); // JFDEBUG this probably should be added back in. -farrugia
     exit(ECMD_FAILURE);
   }
 }
 
 ReturnCode fapiDelay(uint64_t i_nanoSeconds, uint64_t i_simCycles){
 
-  uint32_t rc;
+  uint32_t rc = ECMD_SUCCESS;
+  ReturnCode l_fapiRc;
+  l_fapiRc.setEcmdError(ECMD_SUCCESS);
 
 #ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
@@ -152,7 +155,8 @@ if (!fapiInitialized) {
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
-  return rc;
+  l_fapiRc.setEcmdError(rc);
+  return l_fapiRc;
 }
 
 
