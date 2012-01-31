@@ -173,6 +173,7 @@ ReturnCode fapiPutRing(const Target& i_handle, const uint32_t i_address, ecmdDat
 
 ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDataBufferBase & o_data) {
   ReturnCode rc;
+  uint32_t l_ecmdRc;
 
   ecmdChipTarget   ecmdTarget;
   fapiTargetToEcmdTarget(i_target, ecmdTarget); 
@@ -201,9 +202,12 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
    ecmdChipTarget cacheTarget;
    cacheTarget = ecmdTarget;
    ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
+   if (ecmdIsRingCacheEnabled(cacheTarget)) {
+      rc.setEcmdError(ECMD_RING_CACHE_ENABLED);
+      return rc;
+   }
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllGetScom(ecmdTarget, i_address, o_data);
+  l_ecmdRc = dllGetScom(ecmdTarget, i_address, o_data); rc.setEcmdError(l_ecmdRc); 
 #else
   if (DllFnTable[ECMD_GETSCOM] == NULL) {
      DllFnTable[ECMD_GETSCOM] = (void*)dlsym(dlHandle, "dllGetScom");
@@ -216,20 +220,21 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
 
   uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &) = 
       (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &))DllFnTable[ECMD_GETSCOM];
-  rc =    (*Function)(ecmdTarget, i_address, o_data);
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, o_data);
+  rc.setEcmdError(l_ecmdRc); 
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
+     args.push_back((void*) &l_ecmdRc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getScom");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & o_data)",args);
    }
 #endif
 
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+  if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
     std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
   return rc;
@@ -238,6 +243,7 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
 ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDataBufferBase & i_data) {
 
   ReturnCode rc;
+  uint32_t l_ecmdRc;
 
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
@@ -268,9 +274,12 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
    ecmdChipTarget cacheTarget;
    cacheTarget = ecmdTarget;
    ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
+   if (ecmdIsRingCacheEnabled(cacheTarget)){
+     rc.setEcmdError(ECMD_RING_CACHE_ENABLED);
+     return rc;
+   }
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutScom(ecmdTarget, i_address, i_data);
+  l_ecmdRc = dllPutScom(ecmdTarget, i_address, i_data); rc.setEcmdError(l_ecmdRc);
 #else
   if (DllFnTable[ECMD_PUTSCOM] == NULL) {
      DllFnTable[ECMD_PUTSCOM] = (void*)dlsym(dlHandle, "dllPutScom");
@@ -283,20 +292,21 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
 
   uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &) = 
       (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOM];
-  rc =    (*Function)(ecmdTarget, i_address, i_data);
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, i_data);
+  rc.setEcmdError(l_ecmdRc);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
+     args.push_back((void*) &l_ecmdRc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putScom");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & i_data)",args);
    }
 #endif
 
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+  if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
     std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
@@ -305,7 +315,7 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
 
 ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_address, ecmdDataBufferBase & i_data, ecmdDataBufferBase & i_mask) {
   ReturnCode rc;
-
+  uint32_t l_ecmdRc;
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
   ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
@@ -340,7 +350,7 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutScomUnderMask(ecmdTarget, i_address, i_data, i_mask);
+  l_ecmdRc = dllPutScomUnderMask(ecmdTarget, i_address, i_data, i_mask); rc.setEcmdError(l_ecmdRc);
 #else
   if (DllFnTable[ECMD_PUTSCOMUNDERMASK] == NULL) {
      DllFnTable[ECMD_PUTSCOMUNDERMASK] = (void*)dlsym(dlHandle, "dllPutScomUnderMask");
@@ -353,12 +363,13 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
 
   uint32_t (*Function)(const ecmdChipTarget&, const uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &) = 
       (uint32_t(*)(const ecmdChipTarget&,  const uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
-  rc =    (*Function)(ecmdTarget, i_address, i_data, i_mask);
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, i_data, i_mask);
+  rc.setEcmdError(l_ecmdRc);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
+     args.push_back((void*) &l_ecmdRc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi::PutScomUnderMask");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle,  const uint64_t i_address,  const ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
    }
@@ -371,6 +382,7 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
 ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data){
 
   ReturnCode rc; 
+  uint32_t l_ecmdRc;
 
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
@@ -401,9 +413,12 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
    ecmdChipTarget cacheTarget;
    cacheTarget = ecmdTarget;
    ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
+   if (ecmdIsRingCacheEnabled(cacheTarget)){
+     rc.setEcmdError(ECMD_RING_CACHE_ENABLED);
+     return rc;
+   }
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllGetCfamRegister(ecmdTarget, i_address, o_data);
+  l_ecmdRc = dllGetCfamRegister(ecmdTarget, i_address, o_data); rc.setEcmdError(l_ecmdRc);
 #else
   if (DllFnTable[ECMD_GETCFAMREGISTER] == NULL) {
      DllFnTable[ECMD_GETCFAMREGISTER] = (void*)dlsym(dlHandle, "dllGetCfamRegister");
@@ -416,20 +431,21 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
 
   uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &) = 
       (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &))DllFnTable[ECMD_GETCFAMREGISTER];
-  rc =    (*Function)(ecmdTarget, i_address, o_data);
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, o_data);
+  rc.setEcmdError(l_ecmdRc);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
+     args.push_back((void*) &l_ecmdRc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getCfamRegister");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBufferBase & o_data)",args);
    }
 #endif
 
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+  if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
     std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
@@ -440,6 +456,7 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
 ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data){
 
   ReturnCode rc;
+  uint32_t l_ecmdRc;
   
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
@@ -470,9 +487,12 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
    ecmdChipTarget cacheTarget;
    cacheTarget = ecmdTarget;
    ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
-   if (ecmdIsRingCacheEnabled(cacheTarget)) return ECMD_RING_CACHE_ENABLED;
+   if (ecmdIsRingCacheEnabled(cacheTarget)){
+     rc.setEcmdError(ECMD_RING_CACHE_ENABLED);
+     return rc;
+   }
 #ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllPutCfamRegister(ecmdTarget, i_address, i_data);
+  l_ecmdRc = dllPutCfamRegister(ecmdTarget, i_address, i_data); rc.setEcmdError(l_ecmdRc);
 #else
   if (DllFnTable[ECMD_PUTCFAMREGISTER] == NULL) {
      DllFnTable[ECMD_PUTCFAMREGISTER] = (void*)dlsym(dlHandle, "dllPutCfamRegister");
@@ -485,20 +505,21 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
 
   uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &) = 
       (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &))DllFnTable[ECMD_PUTCFAMREGISTER];
-  rc =    (*Function)(ecmdTarget, i_address, i_data);
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, i_data);
+  rc.setEcmdError(l_ecmdRc);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
+     args.push_back((void*) &l_ecmdRc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putCfamRegister");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBuffer & i_data)",args);
    }
 #endif
 
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+  if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
     std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
@@ -507,6 +528,8 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
 
 ReturnCode platModifyCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & i_data, const fapi::ChipOpModifyMode i_modifyMode){
     fprintf(stderr,"dllModifyCfamRegister%s",ECMD_DLL_NOT_LOADED_ERROR);
-    return (ECMD_DLL_INVALID);
+    ReturnCode rc;
+    rc.setEcmdError(ECMD_DLL_INVALID);
+    return rc;
 }
 }
