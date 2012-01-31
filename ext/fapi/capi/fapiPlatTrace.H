@@ -26,52 +26,62 @@
  *  provide an alternate implementation if needed.
  */
 
-/*
- * Change Log ******************************************************************
- * Flag     Defect/Feature  User        Date        Description
- * ------   --------------  ----------  ----------- ----------------------------
- *                          mjjones     04/13/2011  Created.
- *                          camvanng	05/31/2011  Added debug trace macro
- *
- */
 
 #ifndef PLATTRACE_H_
 #define PLATTRACE_H_
 
 #include <stdio.h>
 #include "fapiClientCapi.H"
+#include "fapiDllCapi.H"
 
 // Information traces (standard flight recorder that can wrap often)
 #define FAPI_INF(_fmt_, _args_...) \
-{ char local_str[250]; \
-snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
-fapiOutputInfo(local_str); } 
+{ char user_str[255]; \
+char sum_str[512];  \
+snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(user_str, 255, "" _fmt_"\n", ##_args_); \
+strncat(sum_str, user_str, 255); \
+fapiOutputInfo(sum_str); } 
 
 // Important traces (should not wrap often)
 #define FAPI_IMP(_fmt_, _args_...) \
-{ char local_str[250]; \
-snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
-fapiOutputImportant(local_str); } 
+{ char user_str[255]; \
+char sum_str[512];  \
+snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
+strncat(sum_str, user_str, 255); \
+fapiOutputImportant(sum_str); } 
+
+#if defined(ECMD_STATIC_FUNCTIONS) || defined(FAPIARCHIVE)
+  #define err fapiOutputError(sum_str)
+#else
+  #define err dllFapiOutputError(sum_str)
+#endif 
 
 // Error traces (should not wrap often)
 #define FAPI_ERR(_fmt_, _args_...) \
-{ char local_str[250]; \
-snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
-fapiOutputError(local_str); } 
+{ char user_str[255]; \
+char sum_str[512];  \
+snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
+strncat(sum_str, user_str, 255); \
+err; } 
 
 // Debug traces (can wrap often)
 #define FAPI_DBG(_fmt_, _args_...) \
-{ char local_str[250]; \
-snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
-fapiOutputDebug(local_str); } 
+{ char user_str[255]; \
+char sum_str[512];  \
+snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
+strncat(sum_str, user_str, 255); \
+fapiOutputDebug(sum_str); } 
 
 
 // Common SCAN traces for hardware access 
-//#define FAPI_SCAN(_fmt_, _args_...) printf("SCAN>: "_fmt_"\n", ##_args_)
 #define FAPI_SCAN(_fmt_, _args_...) \
-{ char local_str[250]; \
-snprintf(local_str, 250, ""_fmt_"\n", ##_args_); \
-fapiOutputScanTrace(local_str); } 
+{ char user_str[255]; \
+snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
+fapiOutputScanTrace(user_str); } 
 
 
 
