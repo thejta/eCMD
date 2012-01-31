@@ -1,3 +1,25 @@
+//  IBM_PROLOG_BEGIN_TAG
+//  This is an automatically generated prolog.
+//
+//  $Source$
+//
+//  IBM CONFIDENTIAL
+//
+//  COPYRIGHT International Business Machines Corp. 2011
+//
+//  p1
+//
+//  Object Code Only (OCO) source materials
+//  Licensed Internal Code Source Materials
+//  IBM HostBoot Licensed Internal Code
+//
+//  The source code for this program is not published or other-
+//  wise divested of its trade secrets, irrespective of what has
+//  been deposited with the U.S. Copyright Office.
+//
+//  Origin: 30
+//
+//  IBM_PROLOG_END
 /**
  *  @file fapiReturnCodes.H
  *
@@ -15,20 +37,25 @@
  *                          mjjones     09/23/2011  Remove FAPI_RC_FFDC_HWP_NOT_FOUND
  *                          mjjones     10/07/2011  Add FAPI_RC_INVALID_ATTR_GET
  *                          mjjones     10/28/2011  Trim FAPI/PLAT errors
+ *                          mjjones     11/10/2011  Use ecmdDataBufferBase
+ *                          mjjones     01/13/2012  Name enumeration
  */
 
 #ifndef FAPIRETURNCODES_H_
 #define FAPIRETURNCODES_H_
 
-#include <ecmdDataBuffer.H>
+#include <ecmdDataBufferBase.H>
 
 namespace fapi
 {
 
 /**
  * @brief Enumeration of return codes
+ *
+ * @note HWP return codes are in the HwpReturnCode enumeration in the
+ *       generated fapiHwpReturnCodes.H file
  */
-enum
+enum ReturnCodes
 {
     FAPI_RC_SUCCESS = 0,
 
