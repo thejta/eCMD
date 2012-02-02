@@ -124,7 +124,7 @@ ${TARGET}: ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo "Linking Shared Library ..."
-	$(LD) ${SLDFLAGS} -lecmd_${OS} -L../../../lib -L../../../capi/obj_${OS} -o ${OBJPATH}${SLIB} $^
+	$(LD) ${SLDFLAGS} -lecmd_${OS} -L../../../lib -L ${OBJPATH} -o ${OBJPATH}${SLIB} $^
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
@@ -154,4 +154,5 @@ endif
 # *****************************************************************************
 debug:
 	@echo ${ECMD_ROOT}
+	@echo ${OBJPATH}
 	@echo ${SUBDIR}
