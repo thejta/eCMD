@@ -27,5 +27,8 @@ SLIB_SOURCE  := fapiErrorInfo.C fapiTarget.C fapiPlatTarget.C fapiPlatReturnCode
  		fapiReturnCode.C fapiReturnCodeDataRef.C fapiSharedUtils.C
 
 # Include the common extension makefile to do all the work
- include ../../template/capi/makefile.capi
+# include ../../template/capi/makefile.capi
+
+# For this extension we're including a local makefile since it needed to be modified to link to libecmd
+ include makefile.capi
 
