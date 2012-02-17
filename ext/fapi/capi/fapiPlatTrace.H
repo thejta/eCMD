@@ -52,12 +52,6 @@ snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
 strncat(sum_str, user_str, 255); \
 fapiOutputImportant(sum_str); } 
 
-#if defined(ECMD_STATIC_FUNCTIONS) || defined(FAPIARCHIVE)
-  #define err fapiOutputError(sum_str)
-#else
-  #define err dllFapiOutputError(sum_str)
-#endif 
-
 // Error traces (should not wrap often)
 #define FAPI_ERR(_fmt_, _args_...) \
 { char user_str[255]; \
@@ -65,7 +59,7 @@ char sum_str[512];  \
 snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
 snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
 strncat(sum_str, user_str, 255); \
-err; } 
+fapiOutputError(sum_str); } 
 
 // Debug traces (can wrap often)
 #define FAPI_DBG(_fmt_, _args_...) \
