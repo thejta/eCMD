@@ -37,14 +37,55 @@
 
 
 /* Defines for the various PORE puts */
+#define CIP_PORE_OP_MASK            0x000000FF    ///< Mask off just the operation type
+#define CIP_PORE_LOC_MASK           0x0000FF00    ///< Mask off just the image location
+
+/* Commands for PORE puts */
 #define CIP_PORE_UNKNOWN            0x00000000    ///< 
 #define CIP_PORE_APPEND             0x00000001    ///< Append PORE instruction in image (add instruction)
 #define CIP_PORE_REPLACE            0x00000002    ///< Replace PORE instruction in image (search and replace instruction)
 #define CIP_PORE_NOOP               0x00000004    ///< No-op all existing scom operations if found
 #define CIP_PORE_OVERLAY_OR         0x00000008    ///< Overlay PORE instruction onto existing by bitwise OR if found
 #define CIP_PORE_OVERLAY_AND        0x00000010    ///< Overlay PORE instruction onto existing by bitwise AND if found
-#define CIP_PORE_SCANINIT_SECTION   0x00000020    ///< Add PORE instruction to SCANINIT section of the image
-#define CIP_PORE_SCOMINIT_SECTION   0x00000040    ///< Add PORE instruction to SCOMINIT section of the image
+
+/* Options for PORE puts */
+#define CIP_PORE_IMAGE_ONLY         0x00010000    ///< Update the image only, do not do operations to hardware
+
+/* Locations for PORE puts */
+#define CIP_PORE_UNKNOWN_SECTION            0x00000000 ///<
+#define CIP_PORE_SCANINIT_SECTION           0x00000100 ///< Add PORE instruction to SCANINIT section of the image
+#define CIP_PORE_SCANINIT_SCOM_EX_SECTION   0x00000100 ///< Alias for CIP_PORE_SCANINIT_SECTION
+#define CIP_PORE_SCOMINIT_SECTION           0x00000200 ///< Add PORE instruction to SCOMINIT section of the image, software will chose proper scom section
+#define CIP_PORE_SCOMINIT_SCOM_EX_SECTION   0x00000300 ///< Add PORE instruction to SCOMINIT SCOM EX section of the image
+#define CIP_PORE_SCOMINIT_SCOM_CORE_SECTION 0x00000400 ///< Add PORE instruction to SCOMINIT SCOM CORE section of the image
+
+#define CIP_PORE_FSP_SCOM_EX_SECTION        0x00000500 ///< Add PORE instruction to FSP SCOM EX section of the image
+#define CIP_PORE_FSP_SCOM_CORE_SECTION      0x00000600 ///< Add PORE instruction to FSP SCOM CORE section of the image
+#define CIP_PORE_FSP_SCOM_L2DEL_SECTION     0x00000700 ///< Add PORE instruction to FSP SCOM L2DEL section of the image
+#define CIP_PORE_FSP_SCOM_L3DEL_SECTION     0x00000800 ///< Add PORE instruction to FSP SCOM L3DEL section of the image
+
+#define CIP_PORE_PHYP_SCOM_EX_SECTION       0x00000900 ///< Add PORE instruction to PHYP SCOM EX section of the image
+#define CIP_PORE_PHYP_SCOM_CORE_SECTION     0x00000A00 ///< Add PORE instruction to PHYP SCOM CORE section of the image
+
+#define CIP_PORE_TPMD_SCOM_EX_SECTION       0x00000B00 ///< Add PORE instruction to TPMD SCOM EX section of the image
+#define CIP_PORE_TPMD_SCOM_CORE_SECTION     0x00000C00 ///< Add PORE instruction to TPMD SCOM CORE section of the image
+
+#define CIP_PORE_SCOM_CPM_MODE0_SECTION     0x00001000 ///< Add PORE instruction to SCOM CPM MODE0 section of the image
+#define CIP_PORE_SCOM_CPM_MODE1_SECTION     0x00001100 ///< Add PORE instruction to SCOM CPM MODE1 section of the image
+#define CIP_PORE_SCOM_CPM_MODE2_SECTION     0x00001200 ///< Add PORE instruction to SCOM CPM MODE2 section of the image
+#define CIP_PORE_SCOM_CPM_MODE3_SECTION     0x00001300 ///< Add PORE instruction to SCOM CPM MODE3 section of the image
+#define CIP_PORE_SCOM_CPM_MODE4_SECTION     0x00001400 ///< Add PORE instruction to SCOM CPM MODE4 section of the image
+#define CIP_PORE_SCOM_CPM_MODE5_SECTION     0x00001500 ///< Add PORE instruction to SCOM CPM MODE5 section of the image
+#define CIP_PORE_SCOM_CPM_MODE6_SECTION     0x00001600 ///< Add PORE instruction to SCOM CPM MODE6 section of the image
+#define CIP_PORE_SCOM_CPM_MODE7_SECTION     0x00001700 ///< Add PORE instruction to SCOM CPM MODE7 section of the image
+#define CIP_PORE_SCOM_CPM_MODE8_SECTION     0x00001800 ///< Add PORE instruction to SCOM CPM MODE8 section of the image
+#define CIP_PORE_SCOM_CPM_MODE9_SECTION     0x00001900 ///< Add PORE instruction to SCOM CPM MODE9 section of the image
+#define CIP_PORE_SCOM_CPM_MODEA_SECTION     0x00001A00 ///< Add PORE instruction to SCOM CPM MODEA section of the image
+#define CIP_PORE_SCOM_CPM_MODEB_SECTION     0x00001B00 ///< Add PORE instruction to SCOM CPM MODEB section of the image
+#define CIP_PORE_SCOM_CPM_MODEC_SECTION     0x00001C00 ///< Add PORE instruction to SCOM CPM MODEC section of the image
+#define CIP_PORE_SCOM_CPM_MODED_SECTION     0x00001D00 ///< Add PORE instruction to SCOM CPM MODED section of the image
+#define CIP_PORE_SCOM_CPM_MODEE_SECTION     0x00001E00 ///< Add PORE instruction to SCOM CPM MODEE section of the image
+#define CIP_PORE_SCOM_CPM_MODEF_SECTION     0x00001F00 ///< Add PORE instruction to SCOM CPM MODEF section of the image
 
 /**
  @brief Used by setBreakpoint to specify what type of breakpoint to set
