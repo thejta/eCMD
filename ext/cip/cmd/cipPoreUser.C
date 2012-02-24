@@ -78,22 +78,22 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
   }
   if (ecmdParseOption(&argc, &argv, "-replace")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_REPLACE;
   } 
   if (ecmdParseOption(&argc, &argv, "-noop")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_NOOP;
   } 
   if (dataModifier == "and"){
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_OVERLAY_AND;
   } 
   if (dataModifier == "or"){
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_OVERLAY_OR;
   }
   
@@ -106,7 +106,7 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
   argCount = 0; //reset
   if (ecmdParseOption(&argc, &argv, "-scaninit")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFBF;   // turn off scominit 
+    poreWriteType &= ~CIP_PORE_LOC_MASK;    // turn off scominit 
     poreWriteType |= CIP_PORE_SCANINIT_SECTION;
   } 
   if (ecmdParseOption(&argc, &argv, "-scominit")) {
@@ -386,22 +386,22 @@ uint32_t cipPorePutSpyUser(int argc, char * argv[]) {
   }
   if (ecmdParseOption(&argc, &argv, "-replace")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_REPLACE;
   } 
   if (ecmdParseOption(&argc, &argv, "-noop")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_NOOP;
   } 
   if (dataModifier == "and"){
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_OVERLAY_AND;
   } 
   if (dataModifier == "or"){
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_OVERLAY_OR;
   }
   
@@ -414,7 +414,7 @@ uint32_t cipPorePutSpyUser(int argc, char * argv[]) {
   argCount = 0; //reset
   if (ecmdParseOption(&argc, &argv, "-scaninit")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFBF;   // turn off scominit 
+    poreWriteType &= ~CIP_PORE_LOC_MASK;    // turn off scominit
     poreWriteType |= CIP_PORE_SCANINIT_SECTION;
   } 
   if (ecmdParseOption(&argc, &argv, "-scominit")) {
@@ -709,22 +709,22 @@ uint32_t cipPorePutSprUser(int argc, char * argv[]) {
   }
   if (ecmdParseOption(&argc, &argv, "-replace")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_REPLACE;
   } 
   if (ecmdParseOption(&argc, &argv, "-noop")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_NOOP;
   } 
   if (dataModifier == "and"){
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_OVERLAY_AND;
   } 
   if (dataModifier == "or"){
     argCount++;
-    poreWriteType &= 0xFFFFFFE0;   // turn off append
+    poreWriteType &= ~CIP_PORE_OP_MASK; // turn off append
     poreWriteType |= CIP_PORE_OVERLAY_OR;
   }
   
@@ -737,7 +737,7 @@ uint32_t cipPorePutSprUser(int argc, char * argv[]) {
   argCount = 0; //reset
   if (ecmdParseOption(&argc, &argv, "-scaninit")) {
     argCount++;
-    poreWriteType &= 0xFFFFFFBF;   // turn off scominit 
+    poreWriteType &= ~CIP_PORE_LOC_MASK;    // turn off scominit
     poreWriteType |= CIP_PORE_SCANINIT_SECTION;
   } 
   if (ecmdParseOption(&argc, &argv, "-scominit")) {
