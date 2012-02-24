@@ -662,6 +662,20 @@ uint32_t cipPoreQueryImage(ecmdChipTarget & i_target, cipPoreImageInfo & o_poreI
 */
 uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint64_t & i_baseAddress, const char * i_imageName = NULL);
 
+/**
+ @brief Fill specified section of Pore image with return instructions
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_section Specify section of Pore image to fill with return instructions - See the CIP_PORE_xxx defines
+ @retval ECMD_SUCCESS if successful
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipPoreFillReturn(ecmdChipTarget & i_target, uint32_t i_section);
+
 #endif // CIP_REMOVE_PORE_FUNCTIONS
 //@}
 
