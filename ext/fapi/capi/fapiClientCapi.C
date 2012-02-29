@@ -31,6 +31,7 @@
 #include <fapiSystemConfig.H>
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
+#include <fapiSharedUtils.H>
 #include <fapiStructs.H>
 #ifndef ECMD_STATIC_FUNCTIONS
 #include <fapiClientEnums.H>
@@ -159,9 +160,8 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
   }
 #endif
 
-  ecmdChipTarget * i_targetPtr;
-  i_targetPtr = &i_target;
-
+   fapi::Target myFapiTarget;
+   ecmdTargetToFapiTarget(i_target, myFapiTarget);
    void* handle = dlopen(i_sharedObjectName.c_str(), RTLD_NOW | RTLD_GLOBAL);
    if (!handle) {
      const char *dlopen_error = dlerror();
@@ -183,8 +183,6 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
     
    // use it to do the calculation
    // printf("fapiHwpInvoker::Calling '%s'\n", i_sharedObjectEntryPoint.c_str());
-   fapi::Target myFapiTarget;
-   myFapiTarget.set(i_targetPtr);
    fapi::ReturnCode fapiRc = func( myFapiTarget, i_sharedObjectArgs);
     
    // close the library
