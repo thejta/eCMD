@@ -999,7 +999,7 @@ typedef uint32_t ATTR_EFF_DRAM_TRFI_Type;
 #define ATTR_EFF_DRAM_TRFI_PLATINIT false
 
 /* ATTR_EFF_DRAM_TRFC */
-typedef uint8_t ATTR_EFF_DRAM_TRFC_Type;
+typedef uint32_t ATTR_EFF_DRAM_TRFC_Type;
 #define ATTR_EFF_DRAM_TRFC_PLATINIT false
 
 /* ATTR_EFF_DRAM_TWTR */
