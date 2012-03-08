@@ -39,9 +39,12 @@ Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswri
 
         -pattern1 [opt] Perform a test with a 1's heavy pattern of 0110101
 
+        -pattern  <32-bit hex value> Perform a test with specified pattern
+
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        checkrings pu all -p0,1 -c0
                         checkrings memctrl int -pall
+                        checkrings pu all -v -pattern feedb0b0

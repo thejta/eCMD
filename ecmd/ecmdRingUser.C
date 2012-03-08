@@ -1758,6 +1758,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool flush1;
   bool pattern0;
   bool pattern1;
+  bool pattern;
   // Does the user want to force a broadside read or write of the data
   bool bsRead = false;
   bool bsWrite = false;
@@ -1765,6 +1766,9 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   std::string bsModifiedState;
   uint32_t configNum;
   ecmdConfigValid_t configValid;
+  ecmdDataBuffer passedPattern;
+  char* patternptr = NULL; 
+  std::string inputformat = "x";
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1781,8 +1785,22 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
   pattern1 = ecmdParseOption(&argc, &argv, "-pattern1");
 
+
+  if ((patternptr = ecmdParseOptionWithArgs(&argc, &argv, "-pattern")) != NULL) 
+  {
+     pattern = true;
+     rc = ecmdReadDataFormatted(passedPattern, patternptr, inputformat);
+     if (rc) 
+     {
+       ecmdOutputError("Checkrings - Problems occurred parsing expected data, must be an invalid format\n");
+       return rc;
+     }
+  }
+
+  
+
   /* If none of the options were specified, turn them all on */
-  if ((flush0 + flush1 + pattern0 + pattern1) == 0) {
+  if ((flush0 + flush1 + pattern0 + pattern1 + pattern) == 0) {
     flush0 = true;
     flush1 = true;
     pattern0 = true;
@@ -1987,7 +2005,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         ringBuffer.setBitLength(curRingData->bitLength);
         foundProblem = false;
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
 
           if (i == 0) {
             if (!flush0) {
@@ -2025,6 +2043,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             }
             // repeating pattern of 0110101s
             repPattern = "0110101";
+            printf(" ringBuffer.getBitLength = %d \n", ringBuffer.getBitLength());
             for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
               ringBuffer.clearBit(y++);
               if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
@@ -2033,6 +2052,23 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
               if (y<ringBuffer.getBitLength()) {ringBuffer.clearBit(y++);}
               if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
+            }
+          }
+          else if (i == 4) {
+            if (!pattern) {
+              continue;
+            }
+
+            uint32_t curOffset = 0;
+            uint32_t numBitsToInsert = 0;
+            uint32_t numBitsInRing = ringBuffer.getBitLength();
+            ringBuffer.setBitLength(numBitsInRing);
+            while (curOffset < numBitsInRing) {
+              numBitsToInsert = (32 < (numBitsInRing - curOffset)) ? 32 : (numBitsInRing - curOffset);
+              //printf("numBitsInRing =%d, curOffset = %d numBitsToInsert = %d \n", numBitsInRing, curOffset, numBitsToInsert);
+              rc = ringBuffer.insert(passedPattern, curOffset, numBitsToInsert);
+              if (rc) break;
+              curOffset += numBitsToInsert;
             }
           }
 
@@ -2088,8 +2124,15 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
             if (rc) return rc;
           }
-
-          printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
+  
+          if(pattern)
+          {
+            printed = "Performing  " + passedPattern.genHexLeftStr() + "'s test on " + ringName + " ...\n";
+          }
+          else
+          {
+            printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
+          }
           ecmdOutput(printed.c_str());
           rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
           if (rc) {
@@ -2371,7 +2414,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
       uint32_t numBitsInRing = queryRingData.front().bitLength;
       ringBuffer.setBitLength(numBitsInRing);
       while (curOffset < numBitsInRing) {
-        numBitsToInsert = (32 < numBitsInRing - curOffset) ? 32 : numBitsInRing - curOffset;
+        numBitsToInsert = (32 < (numBitsInRing - curOffset)) ? 32 : (numBitsInRing - curOffset);
         rc = ringBuffer.insert(buffer, curOffset, numBitsToInsert);
         if (rc) break;
         curOffset += numBitsToInsert;
