@@ -1060,6 +1060,162 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_CHIP_UNIT_POS, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_PM_PPT_TIMER_MATCH_VALUE)
+    {
+        ATTR_PM_PPT_TIMER_MATCH_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PPT_TIMER_MATCH_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PPT_TIMER_TICK)
+    {
+        ATTR_PM_PPT_TIMER_TICK_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PPT_TIMER_TICK, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PMC_HANGPULSE_DIVIDER)
+    {
+        ATTR_PM_PMC_HANGPULSE_DIVIDER_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PMC_HANGPULSE_DIVIDER, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PVSAFE_PSTATE)
+    {
+        ATTR_PM_PVSAFE_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PVSAFE_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SPIVID_CLOCK_DIVIDER)
+    {
+        ATTR_PM_SPIVID_CLOCK_DIVIDER_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SPIVID_CLOCK_DIVIDER, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SPIVID_INTER_RETRY_DELAY_VALUE)
+    {
+        ATTR_PM_SPIVID_INTER_RETRY_DELAY_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SPIVID_INTER_RETRY_DELAY_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_OCC_HEARTBEAT_TIME)
+    {
+        ATTR_PM_OCC_HEARTBEAT_TIME_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_OCC_HEARTBEAT_TIME, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERUP_CORE_DELAY0_VALUE)
+    {
+        ATTR_PM_PFET_POWERUP_CORE_DELAY0_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERUP_CORE_DELAY0_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERUP_CORE_DELAY1_VALUE)
+    {
+        ATTR_PM_PFET_POWERUP_CORE_DELAY1_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERUP_CORE_DELAY1_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERDOWN_CORE_DELAY0_VALUE)
+    {
+        ATTR_PM_PFET_POWERDOWN_CORE_DELAY0_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERDOWN_CORE_DELAY0_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERDOWN_CORE_DELAY1_VALUE)
+    {
+        ATTR_PM_PFET_POWERDOWN_CORE_DELAY1_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERDOWN_CORE_DELAY1_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERUP_ECO_DELAY0_VALUE)
+    {
+        ATTR_PM_PFET_POWERUP_ECO_DELAY0_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERUP_ECO_DELAY0_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERUP_ECO_DELAY1_VALUE)
+    {
+        ATTR_PM_PFET_POWERUP_ECO_DELAY1_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERUP_ECO_DELAY1_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERDOWN_ECO_DELAY0_VALUE)
+    {
+        ATTR_PM_PFET_POWERDOWN_ECO_DELAY0_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERDOWN_ECO_DELAY0_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PFET_POWERDOWN_ECO_DELAY1_VALUE)
+    {
+        ATTR_PM_PFET_POWERDOWN_ECO_DELAY1_VALUE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PFET_POWERDOWN_ECO_DELAY1_VALUE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_PSTATE0_FREQUENCY)
+    {
+        ATTR_PM_PSTATE0_FREQUENCY_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_PSTATE0_FREQUENCY, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SAFE_PSTATE)
+    {
+        ATTR_PM_SAFE_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SAFE_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_RESONANT_CLOCK_FULL_CSB_PSTATE)
+    {
+        ATTR_PM_RESONANT_CLOCK_FULL_CSB_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_RESONANT_CLOCK_FULL_CSB_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_RESONANT_CLOCK_LFRLOW_PSTATE)
+    {
+        ATTR_PM_RESONANT_CLOCK_LFRLOW_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_RESONANT_CLOCK_LFRLOW_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_RESONANT_CLOCK_LFRUPPER_PSTATE)
+    {
+        ATTR_PM_RESONANT_CLOCK_LFRUPPER_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_RESONANT_CLOCK_LFRUPPER_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_RESONANT_CLOCK_HFRLOW_PSTATE)
+    {
+        ATTR_PM_RESONANT_CLOCK_HFRLOW_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_RESONANT_CLOCK_HFRLOW_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_RESONANT_CLOCK_HFRHIGH_PSTATE)
+    {
+        ATTR_PM_RESONANT_CLOCK_HFRHIGH_PSTATE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_RESONANT_CLOCK_HFRHIGH_PSTATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SPIPSS_OUT_COUNT)
+    {
+        ATTR_PM_SPIPSS_OUT_COUNT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SPIPSS_OUT_COUNT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SPIPSS_IN_COUNT)
+    {
+        ATTR_PM_SPIPSS_IN_COUNT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SPIPSS_IN_COUNT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SPIPSS_CLOCK_DIVIDER)
+    {
+        ATTR_PM_SPIPSS_CLOCK_DIVIDER_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SPIPSS_CLOCK_DIVIDER, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SPIPSS_INTER_FRAME_DELAY_SETTING)
+    {
+        ATTR_PM_SPIPSS_INTER_FRAME_DELAY_SETTING_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SPIPSS_INTER_FRAME_DELAY_SETTING, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else
     {
         FAPI_ERR("fapiGetInitFileAttr: Unrecognized attr: %d", i_id);
