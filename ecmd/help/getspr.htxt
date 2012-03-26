@@ -1,5 +1,5 @@
 
-Syntax: getspr <SprName> [<SprName> ...] [-o<format>]
+Syntax: getspr [Chip[.ChipUnit]] <SprName> [<SprName> ...] [-o<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
@@ -8,6 +8,11 @@ Syntax: getspr <SprName> [<SprName> ...] [-o<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
+
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.core
 
         SprName         Name of SPR to fetch, multiple SPR's can be listed
 
@@ -18,4 +23,4 @@ Syntax: getspr <SprName> [<SprName> ...] [-o<format>]
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Examples:       > getspr pu nia msr -p0,1 
+        Examples:       > getspr pu nia msr -p0,1

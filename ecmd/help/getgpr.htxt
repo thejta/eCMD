@@ -1,5 +1,5 @@
 
-Syntax: getgpr <GprStartNum> [<numEntries>] [-o<format>]
+Syntax: getgpr [Chip[.ChipUnit]] <GprStartNum> [<numEntries>] [-o<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
@@ -8,6 +8,11 @@ Syntax: getgpr <GprStartNum> [<numEntries>] [-o<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
+
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.core
 
         GprNum          Gpr Entry to read (Decimal)
 
@@ -20,5 +25,5 @@ Syntax: getgpr <GprStartNum> [<numEntries>] [-o<format>]
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Examples:       > getgpr 6 -p0,1 
+        Examples:       > getgpr 6 -p0,1
                         > getgpr 0 32 -p10, -t1 -c1
