@@ -1,14 +1,19 @@
 
-Syntax: putgpr <GprNum> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>] 
+Syntax: putgpr [Chip[.ChipUnit]] <GprNum> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
 
-        Function:       Write the specified data to a Processor GPR 
+        Function:       Write the specified data to a Processor GPR
                         (General Purpose Register)
 
         Parameters:
         --------------------------------------------------------------------------------
+
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.core
 
         GprNum          Gpr Entry to write (Decimal)
 

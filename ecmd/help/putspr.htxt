@@ -1,19 +1,25 @@
 
-Syntax: putspr <SprName> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
+Syntax: putspr [Chip[.ChipUnit]] <SprName> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           Core Common Function
 
-        Function:       Write the specified data to a Processor SPR 
+        Function:       Write the specified data to a Processor SPR
                         (Special Purpose Register).
 
         Parameters:
         --------------------------------------------------------------------------------
+
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.core
+
         SprName         Name of SPR to write
 
         Start     [opt] Starting bit position.  Specify with numbits.
 
-        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits 
+        Numbits   [opt] Number of bits to insert. Specify with Start. If Start and Numbits
                         are not specified, start = 0 and numbits is calculated from
                         length of data string, rest of register is padded with zeros.
 

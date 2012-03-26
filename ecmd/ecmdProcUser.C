@@ -54,6 +54,37 @@
 //---------------------------------------------------------------------
 
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
+
+bool ecmdIsValidChip(const char * pcChipName, ecmdChipTarget &iTarget)
+{
+  bool bValidChipFound = false;
+  std::string strChipName = pcChipName, strChipUnitType;
+  size_t startPos = strChipName.find(".");
+  if(startPos != std::string::npos)
+  {
+     iTarget.chipType = strChipName.substr(0, startPos);
+     strChipUnitType = strChipName.substr(startPos+1);
+     iTarget.chipUnitType = strChipUnitType;
+     iTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+     iTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  }
+  else
+  {
+     iTarget.chipType = pcChipName;
+  }
+  if( ecmdQueryTargetExist(iTarget))
+  {
+     bValidChipFound = true;
+  }
+  else
+  {
+    iTarget.chipType = ECMD_CHIPT_PROCESSOR;
+  }
+  return bValidChipFound;
+}
+
+
+
 uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
@@ -72,9 +103,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   ecmdLooperData cuLooperData;          ///< Store internal Looper data
   ecmdChipTarget threadTarget;          ///< Current thread target
   ecmdLooperData threadLooperData;      ///< Store internal thread Looper data
-  int idx;
+  int idx = 0;
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
   std::string sprName;
+  bool validChipFound = false;
+  std::string chipType, chipUnitType;
 
   /* get format flag, if it's there */
   std::string format;
@@ -111,6 +144,23 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
 
+  validChipFound = ecmdIsValidChip(argv[0], target);
+  if(validChipFound)
+  {
+    if (argc < 2) {
+       ecmdOutputError("getspr - Too few arguments specified; you need at least one spr.\n");
+       ecmdOutputError("getspr - Type 'getspr -h' for usage.\n");
+       return ECMD_INVALID_ARGS;
+    }
+    idx = 1;  //sprname starts from first index
+    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) {
+        ecmdOutputError("Wildcard character detected.\n");
+        return rc;
+    }
+    
+  }
+
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
@@ -123,7 +173,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
     /* Walk through the arguments and create our list of sprs */
     /* We have to re-establish this list on each position because one position may be dd2.0 and another 3.0 and the spr state changed */
-    for (idx = 0; idx < argc; idx ++) {
+    for (; idx < argc; idx ++) {
       sprName = argv[idx];
 
       /* First thing we need to do is find out for this particular target if the SPR is threaded */
@@ -198,7 +248,10 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         /* Setup our target */
         cuTarget = target;
         if (cuEntryIter->first != "") {
-          cuTarget.chipUnitType = cuEntryIter->first;
+          if(validChipFound && chipUnitType != "")
+             cuTarget.chipUnitType = chipUnitType;
+          else
+             cuTarget.chipUnitType = cuEntryIter->first;
           cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
         cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
@@ -246,7 +299,10 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         /* Setup our target */
         threadTarget = target;
         if (threadEntryIter->first != "") {
-          threadTarget.chipUnitType = threadEntryIter->first;  //@SJ-fixed with defect 649018
+          if(validChipFound && chipUnitType != "")
+             threadTarget.chipUnitType = chipUnitType;
+          else
+             threadTarget.chipUnitType = threadEntryIter->first;  //@SJ-fixed with defect 649018
           threadTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
         }
         threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
@@ -320,6 +376,9 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
   char* cmdlinePtr = NULL;            ///< Pointer to data in argv array
+  bool validChipFound = false;
+  std::string chipType, chipUnitType;
+  int idx = 0;
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -356,31 +415,47 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  sprName = argv[0];
+  validChipFound = ecmdIsValidChip(argv[0], target);
+  if(validChipFound)
+  {
+    if (argc < 3) {
+       ecmdOutputError("putspr - Too few arguments specified; you need at least an sprName  and some data.\n");
+       ecmdOutputError("putspr - Type 'putspr -h' for usage.\n");
+       return ECMD_INVALID_ARGS;
+    }
+    idx = 1;  //sprname starts from first index
+    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) {
+        ecmdOutputError("Wildcard character detected.\n");
+        return rc;
+    }
+    
+  }
+  sprName = argv[0 + idx];
 
-  if (argc == 4) {
-    if (!ecmdIsAllDecimal(argv[1])) {
+  if (argc == (4 + idx)) {
+    if (!ecmdIsAllDecimal(argv[1 + idx])) {
       ecmdOutputError("putspr - Non-decimal numbers detected in startbit field\n");
       return ECMD_INVALID_ARGS;
     }
-    startBit = (uint32_t)atoi(argv[1]);
+    startBit = (uint32_t)atoi(argv[1 + idx]);
 
-    if (!ecmdIsAllDecimal(argv[2])) {
+    if (!ecmdIsAllDecimal(argv[2 + idx])) {
       ecmdOutputError("putspr - Non-decimal numbers detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numBits = (uint32_t)atoi(argv[2]);
+    numBits = (uint32_t)atoi(argv[2 + idx]);
 
 
-    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3 + idx], inputformat);
     if (rc) {
       printed = "putspr - Problems occurred parsing input data, must be an invalid format\n";
       ecmdOutputError(printed.c_str());
       return rc;
     }
-  } else if (argc == 2) {
+  } else if (argc == (2 + idx)) {
 
-    cmdlinePtr = argv[1];
+    cmdlinePtr = argv[1 + idx];
 
   } else {
     ecmdOutputError("putspr - Too many arguments specified; you probably added an option that wasn't recognized.\n");
@@ -506,7 +581,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget subTarget;        ///< Current target
   ecmdLooperData subLooperdata;            ///< Store internal Looper data
-  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  bool validPosFound = false, validChipFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;          ///< Print Buffer
   std::list<ecmdIndexEntry> entries;    ///< List of gpr's to fetch, to use getGprMultiple
   std::list<ecmdIndexEntry> entries_copy;    ///< List of gpr's to fetch, to use getGprMultiple
@@ -518,6 +593,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   char buf[100];                ///< Temporary string buffer
   std::string sprName;
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
+  std::string chipType, chipUnitType;
 
   /* get format flag, if it's there */
   std::string format;
@@ -564,11 +640,38 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   /* Walk through the arguments and create our list of gprs */
-  startEntry = atoi(argv[0]);
-  if (argc > 1) {
-    numEntries = atoi(argv[1]);
+  validChipFound = ecmdIsAllDecimal(argv[0]) ? false : ecmdIsValidChip(argv[0], target);
+  if(!validChipFound && ecmdIsAllDecimal(argv[0]))
+  {
+     startEntry = atoi(argv[0]);
+     if (argc > 1) {
+       numEntries = atoi(argv[1]);
+     }  
   }
-
+  else
+  {
+     if (argc < 2) {
+        printed = function + " - Too few arguments specified; you need at least one gpr/fpr.\n";
+        ecmdOutputError(printed.c_str());
+        printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+        ecmdOutputError(printed.c_str());
+        return ECMD_INVALID_ARGS;
+     }
+     else
+     {
+         //Setup the target
+         //target.chipType = argv[0];
+         startEntry = atoi(argv[1]);
+         if (argc > 2) {
+           numEntries = atoi(argv[2]);
+         }
+          rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+          if (rc) {
+             ecmdOutputError("Wildcard character detected.\n");
+             return rc;
+          }
+     }
+  }
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
@@ -691,6 +794,9 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   std::string sprName;
   char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  bool validChipFound = false;
+  std::string chipType, chipUnitType;
+  int idx = 0;
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -705,10 +811,10 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
   // Set commandline name based up on the type
   if (daType == ECMD_GPR) {
-    function = "getgpr";
+    function = "putgpr";
     sprName = "gpr";
   } else {
-    function = "getfpr";
+    function = "putfpr";
     sprName = "fpr";
   }
 
@@ -738,23 +844,42 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  entry = (uint32_t)atoi(argv[0]);
+  validChipFound = ecmdIsValidChip(argv[0], target);
+  if(validChipFound)
+  {
+    if (argc < 3) {
+       printed = function + " - Too few arguments specified; you need at least an gpr/fpr Name  and some data.\n";
+       ecmdOutputError(printed.c_str());
+       printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+       ecmdOutputError(printed.c_str());
+       return ECMD_INVALID_ARGS;
+    }
+    idx = 1;  //gpr starts from first index
+    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) {
+        ecmdOutputError("Wildcard character detected.\n");
+        return rc;
+    }
 
-  if (argc == 4) {
+  }
 
-    if (!ecmdIsAllDecimal(argv[1])) {
+  entry = (uint32_t)atoi(argv[0 + idx]);
+
+  if (argc == (4 + idx)) {
+
+    if (!ecmdIsAllDecimal(argv[1 + idx])) {
       printed = function + " - Non-decimal numbers detected in startbit field\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    startBit = (uint32_t)atoi(argv[1]);
+    startBit = (uint32_t)atoi(argv[1 + idx]);
 
-    if (!ecmdIsAllDecimal(argv[2])) {
+    if (!ecmdIsAllDecimal(argv[2 + idx])) {
       printed = function + " - Non-decimal numbers detected in numbits field\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    numBits = (uint32_t)atoi(argv[2]);
+    numBits = (uint32_t)atoi(argv[2 + idx]);
     
     rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
     if (rc) {
@@ -762,9 +887,9 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       ecmdOutputError(printed.c_str());
       return rc;
     }
-  } else if (argc == 2) {
+  } else if (argc == (2 + idx)) {
 
-    cmdlinePtr = argv[1];
+    cmdlinePtr = argv[1 + idx];
 
   } else {
     printed = function + " - Too many arguments specified; you probably added an option that wasn't recognized.\n";
