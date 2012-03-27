@@ -83,6 +83,15 @@ uint32_t cipPorePutSprUser(int argc, char * argv[]);
 uint32_t cipPoreQueryImageUser(int argc, char * argv[]);
 uint32_t cipPoreLoadImageUser(int argc, char * argv[]);
 #endif // CIP_REMOVE_PORE_FUNCTIONS
+
+/* cipProcUser.C */
+#ifndef CIP_REMOVE_RW_FUNCTIONS
+uint32_t cipRWReadCacheUser(int argc, char * argv[]);
+uint32_t cipRWReadTLBUser(int argc, char * argv[]);
+uint32_t cipRWReadMemUser(int argc, char * argv[]);
+uint32_t cipRWWriteMemUser(int argc, char * argv[]);
+#endif // CIP_REMOVE_RW_FUNCTIONS
+
 //@}
 
 #endif /* cipInterpreter_h */
