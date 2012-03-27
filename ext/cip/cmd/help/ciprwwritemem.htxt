@@ -1,0 +1,43 @@
+
+Syntax: ciprwwritemem <Chip[.ChipUnit]> <MemAddress> <Data> <MemType> [-i<format>]
+        ciprwwritemem <Chip[.ChipUnit]> <MemAddress> <MemType> -fb<filename>
+        ciprwwritemem <Chip[.ChipUnit]> <AddressOffset> <MemType> -fd<filename>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Use RISCWatch to modify the contents of mainstore.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.occ
+
+        MemAddress      32 Bit address to write to (Hex-Right). Not valid with -fd option
+
+        MemType         I, D, or P. I or D use RISCWatch. P uses a hardware procedure.
+
+        -fd <filename>  Specify full path and filename to file in D-Card format to load
+                        to system
+                        You can optionally specify AddressOffset which will be added
+                        to the addresses in the dcardfile
+
+        -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+        Data            Data to write into mainstore. Not valid with -f option
+                        Format specified by -i<format>
+
+        -i<format>[opt] Specifies the format type of input data : default 'xl'
+                        Not valid with -f option
+                        Run 'ecmdquery formats' to view available formats
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > ciprwwritemem 10000 deadbeef80000000 P  -p0,1
+                        > ciprwwritemem 10000 P -fb datafile
+                        > ciprwwritemem 0 P -fd dcardfile
