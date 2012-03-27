@@ -679,6 +679,76 @@ uint32_t cipPoreFillReturn(ecmdChipTarget & i_target, uint32_t i_section);
 #endif // CIP_REMOVE_PORE_FUNCTIONS
 //@}
 
+//@{
+#ifndef CIP_REMOVE_RW_FUNCTIONS
+
+/**
+ @brief Read entries from cache via RISCWatch
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_startline cache line to start reading from
+ @param i_count number of cache lines to read
+ @param o_records list of cache line records read
+ @param i_mode i-cache = 0, d-cache = 1
+ @retval ECMD_SUCCESS if successful
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipRWReadCache(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWCacheRec> & o_records, uint32_t i_mode);
+
+/**
+ @brief Read entries from TLB via RISCWatch
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_startline TLB line to start reading from
+ @param i_count number of TLB records to read
+ @param o_records list of TLB records read
+ @retval ECMD_SUCCESS if successful
+
+*/
+uint32_t cipRWReadTLB(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWTLBRec> & o_records);
+
+/**
+ @brief Reads memory associated with chip via RISCWatch or HW Procedure
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/chipunit information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+ @param i_mode i-mem = 0, d-mem = 1, HW procedure=2 (default)
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipRWReadMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 2);
+
+/**
+ @brief Writes memory associated with chip via RISCWatch or HW Procedure
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/chipunit information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param i_data DataBuffer object that holds data to write to memory
+ @param i_mode i-mem = 0, d-mem = 1, HW procedure=2 (default)
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipRWWriteMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 2);
+
+#endif // CIP_REMOVE_RW_FUNCTIONS
+//@}
+
+
 #ifndef DOCUMENTATION
 } /* end extern "c" */
 #endif
