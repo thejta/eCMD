@@ -1,0 +1,34 @@
+
+Syntax: ciprwreadcache <Chip[.ChipUnit]> <StartLine> <Count> <CacheType>
+        [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Displays full cache line of cache data.
+
+        Note:           Data is displayed in hex as follows:
+
+                        tag word0 word1 word2 word3 word4 word5 word6 word7 valid LRU dirty
+                        ...
+
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.occ
+
+        StartLine       Cache line to start retrieving from.
+
+        Count           Number of lines to retrieve.
+
+        CacheType       I or D.
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > ciprwreadcache pu.occ 0 8 I -p0
+                        > ciprwreadcache pu.occ 8 8 D -p4
+

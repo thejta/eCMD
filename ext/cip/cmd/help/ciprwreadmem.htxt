@@ -1,0 +1,52 @@
+
+Syntax: ciprwreadmem <Chip[.ChipUnit]> <MemAddress> <NumBytes> <MemType> [-o<format> | -f[d|b]<filename>]
+        ciprwreadmem <Chip[.ChipUnit]> <MemAddress> <NumBytes> <MemType> [-exp <data> [-i<format>] [-mask <data>]]
+        ciprwreadmem <Chip[.ChipUnit]> <MemAddress> <MemType> [-exp -f[d|b]<filename>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Use RISCWatch to display the contents of mainstore.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.occ
+
+        MemAddress      32 Bit address to read from (Hex-Right)
+
+        NumBytes        Number of bytes to fetch (Decimal).
+
+        MemType         I, D, or P. I or D use RISCWatch. P uses a hardware procedure.
+
+        -o<format>[opt] Specifies the format type of the output : default 'mem'
+                        Not valid with -f option.
+                        Run 'ecmdquery formats' to view available formats
+
+        -fd <filename>  Specify full path and filename to file in D-Card format to write
+                        data from system
+                        Not valid with -o or -i option.
+
+        -fb <filename>  Specify full path and filename to binary file to write data from
+                        system
+                        Not valid with -o or -i option.
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+        -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -exp [optional] Provide expected data.  Returns error if expected != actual.  No
+                        error/no data returned if expected == actual.
+
+        -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
+                        Not valid with '-exp -f[d|b]'
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > ciprwreadmem 1000 128 P -p0
+                        > ciprwreadmem 1000 128 P -fb datafile
+                        > ciprwreadmem 1000 P -exp -fb datafile
