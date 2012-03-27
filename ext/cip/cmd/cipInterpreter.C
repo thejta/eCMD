@@ -176,6 +176,29 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         break;
 
 
+        /************************/
+        /* The R's              */
+        /************************/
+      case 'r':
+
+#ifndef CIP_REMOVE_RW_FUNCTIONS
+        if (!strcmp(argv[0], "ciprwreadcache")) {
+          rc = cipRWReadCacheUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ciprwreadtlb")) {
+          rc = cipRWReadTLBUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ciprwreadmem")) {
+          rc = cipRWReadMemUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ciprwwritemem")) {
+          rc = cipRWWriteMemUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+#else
+        rc = ECMD_INT_UNKNOWN_COMMAND;
+#endif // CIP_REMOVE_RW_FUNCTIONS
+        break;
+
 
       default:
         /* We don't understand this function, let's let the caller know */

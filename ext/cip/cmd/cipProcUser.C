@@ -25,6 +25,7 @@
 #include <ecmdSharedUtils.H>
 #include <ecmdCommandUtils.H>
 #include <stdio.h>
+#include <fstream>
 
 //----------------------------------------------------------------------
 //  User Types
@@ -1351,3 +1352,835 @@ uint32_t cipPutVsrUser(int argc, char * argv[]) {
   return rc;
 }
 #endif // CIP_REMOVE_VSR_FUNCTIONS
+
+#ifndef CIP_REMOVE_RW_FUNCTIONS
+uint32_t cipRWReadCacheUser(int argc, char * argv[])
+{
+    uint32_t l_rc = ECMD_SUCCESS;
+
+    ecmdChipTarget l_target;        ///< Current target
+    ecmdLooperData l_looperdata;    ///< Store internal Looper data
+    bool l_validPosFound = false;   ///< Did we find something to actually execute on ?
+    std::list<cipRWCacheRec> l_records; ///< Cache records from the occ
+    std::string printed;
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+
+    l_rc = ecmdCommandArgs(&argc, &argv);
+    if (l_rc) return l_rc;
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+    if (argc < 4)
+    {
+        ecmdOutputError("ciprwreadcache - Too few arguments specified\n");
+        ecmdOutputError("ciprwreadcache - Type 'ciprwreadcache -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string l_chipType, l_chipUnitType;
+    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    if (l_rc) {
+        ecmdOutputError("ciprwreadcache - Wildcard character detected however it is not being used correctly.\n");
+        return l_rc;
+    }
+
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.chipUnitTypeState = l_target.chipUnitNumState = l_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (l_chipType == "x") {
+        l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    } else {
+        l_target.chipType = l_chipType;
+        l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    if (l_chipUnitType != "") {
+        l_target.chipUnitType = l_chipUnitType;
+        l_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        l_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+
+    l_rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_looperdata);
+    if (l_rc) return l_rc;
+
+    // ciprwreadcache <target> <startline> <count> <I|D>
+
+    /* argv[1] = startline */
+    if (!ecmdIsAllDecimal(argv[1]))
+    {
+        ecmdOutputError("ciprwreadcache - Non-decimal characters detected in startline field\n");
+        return ECMD_INVALID_ARGS;
+    }
+    uint32_t l_startline = atoi(argv[1]);
+
+    /* argv[2] = count*/
+    if (!ecmdIsAllDecimal(argv[2]))
+    {
+        ecmdOutputError("ciprwreadcache - Non-decimal characters detected in count field\n");
+        return ECMD_INVALID_ARGS;
+    }
+    uint32_t l_count = atoi(argv[2]);
+
+    /* argv[3] = mode */
+    char l_memoryModeChar = argv[3][0];
+    uint32_t l_memoryMode = 0;
+    // convert memory mode to int
+    if ((l_memoryModeChar == 'i') || (l_memoryModeChar == 'I'))
+    {
+        l_memoryMode = 0;
+    }
+    else if ((l_memoryModeChar == 'd') || (l_memoryModeChar == 'D'))
+    {
+        l_memoryMode = 1;
+    }
+    else
+    {
+        ecmdOutputError("ciprwreadcache - Error invalid memory mode specified!\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    while (ecmdLooperNext(l_target, l_looperdata))
+    {
+        /* Display Header */
+        printed = ecmdWriteTarget(l_target);
+        printed += "\n";
+        ecmdOutput(printed.c_str());
+        printed = "Tag        Data     1        2        3        4        5        6        7         Valid   LRU     Dirty\n";
+        //         00000000   00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000  00      00      00
+        ecmdOutput(printed.c_str());
+
+        l_rc = cipRWReadCache(l_target, l_startline, l_count, l_records, l_memoryMode);
+
+        if (l_rc == ECMD_TARGET_NOT_CONFIGURED)
+        {
+            continue;
+        }
+        else
+        {
+            l_validPosFound = true;
+            std::list<cipRWCacheRec>::iterator l_recordsIter = l_records.begin();
+            while (l_recordsIter != l_records.end())
+            {
+                char buf[200];
+                snprintf(buf, 200, "%08X   %08X %08X %08X %08X %08X %08X %08X %08X  %02X      %02X      %02X\n",
+                         l_recordsIter->tag, l_recordsIter->data[0], l_recordsIter->data[1],
+                         l_recordsIter->data[2], l_recordsIter->data[3],
+                         l_recordsIter->data[4], l_recordsIter->data[5],
+                         l_recordsIter->data[6], l_recordsIter->data[7],
+                         l_recordsIter->valid, l_recordsIter->lru, l_recordsIter->dirty);
+                ecmdOutput(buf);
+                l_recordsIter++;
+            }
+        }
+    }
+
+    return l_rc;
+}
+
+uint32_t cipRWReadTLBUser(int argc, char * argv[])
+{
+    uint32_t l_rc = ECMD_SUCCESS;
+
+    ecmdChipTarget l_target;        ///< Current target
+    ecmdLooperData l_looperdata;    ///< Store internal Looper data
+    bool l_validPosFound = false;   ///< Did we find something to actually execute on ?
+    std::list<cipRWTLBRec> l_records; ///< Cache records from the occ
+    std::string printed;
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+
+    l_rc = ecmdCommandArgs(&argc, &argv);
+    if (l_rc) return l_rc;
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+    if (argc < 3)
+    {
+        ecmdOutputError("ciprwreadtlb - Too few arguments specified\n");
+        ecmdOutputError("ciprwreadtlb - Type 'ciprwreadtlb -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string l_chipType, l_chipUnitType;
+    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    if (l_rc) {
+        ecmdOutputError("ciprwreadtlb - Wildcard character detected however it is not being used correctly.\n");
+        return l_rc;
+    }
+
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.chipUnitTypeState = l_target.chipUnitNumState = l_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (l_chipType == "x") {
+        l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    } else {
+        l_target.chipType = l_chipType;
+        l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    if (l_chipUnitType != "") {
+        l_target.chipUnitType = l_chipUnitType;
+        l_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        l_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+
+    l_rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_looperdata);
+    if (l_rc) return l_rc;
+
+    // ciprwreadtlb <target> <startline> <count>
+
+    /* argv[1] = startline */
+    if (!ecmdIsAllDecimal(argv[1]))
+    {
+        ecmdOutputError("ciprwreadtlb - Non-decimal characters detected in startline field\n");
+        return ECMD_INVALID_ARGS;
+    }
+    uint32_t l_startline = atoi(argv[1]);
+
+    /* argv[2] = count*/
+    if (!ecmdIsAllDecimal(argv[2]))
+    {
+        ecmdOutputError("ciprwreadtlb - Non-decimal characters detected in count field\n");
+        return ECMD_INVALID_ARGS;
+    }
+    uint32_t l_count = atoi(argv[2]);
+
+    while (ecmdLooperNext(l_target, l_looperdata))
+    {
+        /* Display Header */
+        printed = ecmdWriteTarget(l_target);
+        printed += "\n";
+        ecmdOutput(printed.c_str());
+        printed = "EPN      RPN      size ebit kbit valid tid par0 par1 ex wr zsel wimg\n";
+        //         00000000 00000000 00   00   00   00    00  00   00   00 00 00   00
+        ecmdOutput(printed.c_str());
+
+        l_rc = cipRWReadTLB(l_target, l_startline, l_count, l_records);
+
+        if (l_rc == ECMD_TARGET_NOT_CONFIGURED)
+        {
+            continue;
+        }
+        else
+        {
+            l_validPosFound = true;
+            std::list<cipRWTLBRec>::iterator l_recordsIter = l_records.begin();
+            while (l_recordsIter != l_records.end())
+            {
+                char buf[100];
+                snprintf(buf, 100, "%08X %08X %02X   %02X   %02X   %02X    %02X  %02X   %02X   %02X %02X %02X   %02X\n",
+                         l_recordsIter->epn, l_recordsIter->rpn, l_recordsIter->size,
+                         l_recordsIter->ebit, l_recordsIter->kbit, l_recordsIter->valid,
+                         l_recordsIter->tid, l_recordsIter->par[0], l_recordsIter->par[1],
+                         l_recordsIter->ex, l_recordsIter->wr, l_recordsIter->zsel, l_recordsIter->wimg);
+                ecmdOutput(buf);
+                l_recordsIter++;
+            }
+        }
+    }
+
+    return l_rc;
+}
+
+uint32_t cipRWReadMemUser(int argc, char * argv[])
+{
+    uint32_t l_rc = ECMD_SUCCESS, l_coeRc = ECMD_SUCCESS;
+    ecmdChipTarget l_target;                ///< Current target
+    bool l_validPosFound = false;           ///< Did we find something to actually execute on ?
+
+    ecmdLooperData l_looperdata;            ///< Store internal Looper data
+    std::string l_outputformat = "mem";     ///< Output format - default to 'mem'
+    ecmdDataBuffer l_returnData;            ///< Buffer to hold return data from memory
+
+    bool l_expectFlag = false;              ///< Are we doing an expect?
+    bool l_maskFlag = false;                ///< Are we masking our expect data?
+    char* l_expectPtr = NULL;               ///< Pointer to expected data in arg list
+    char* l_maskPtr = NULL;                 ///< Pointer to mask data in arg list
+    ecmdDataBuffer l_expected;              ///< Buffer to store expected data
+    ecmdDataBuffer l_mask;                  ///< Buffer for mask of expected data
+    std::string l_inputformat = "x";        ///< Input format of data
+
+    uint32_t l_address;                     ///< The address from the command line
+    uint32_t l_numBytes = ECMD_UNSET;       ///< Number of bytes from the command line
+    int l_match;                            ///< For sscanf
+    char l_memoryModeChar;                  ///< Which memory to access from the command line
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+
+    /* get format flag, if it's there */
+    char * l_outputFormatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+    if (l_outputFormatPtr != NULL)
+    {
+        l_outputformat = l_outputFormatPtr;
+    }
+    char * l_inputFormatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+    if (l_inputFormatPtr != NULL) {
+        l_inputformat = l_inputFormatPtr;
+    }
+
+    /* Get the filename if -fb is specified */
+    char * l_filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
+
+    /* Get the filename if -fd is specified */
+    char * l_dcardfilename = ecmdParseOptionWithArgs(&argc, &argv, "-fd");
+
+    if (((l_filename != NULL) || (l_dcardfilename != NULL)) &&
+       ((l_outputFormatPtr != NULL) || (l_inputFormatPtr != NULL)))
+    {
+        ecmdOutputError("ciprwreadmem - Options -f and -o/-i can't be specified together for format. Specify either one.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    if ((l_dcardfilename != NULL) && (l_filename != NULL))
+    {
+        ecmdOutputError("ciprwreadmem - Options -fb and -fd can't be specified together for format. Specify either one.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //expect and mask flags check
+    if (l_filename == NULL && l_dcardfilename == NULL)
+    {
+        if ((l_expectPtr = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL)
+        {
+            l_expectFlag = true;
+
+            if ((l_maskPtr = ecmdParseOptionWithArgs(&argc, &argv, "-mask")) != NULL)
+            {
+                l_maskFlag = true;
+            }
+        }
+    }
+    else
+    {
+        // If we are passing in data with a file, just look for -exp
+        l_expectFlag = ecmdParseOption(&argc, &argv, "-exp");
+    }
+
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    l_rc = ecmdCommandArgs(&argc, &argv);
+    if (l_rc) return l_rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool l_coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    // Read in the expect data
+    if (l_expectFlag)
+    {
+        if ((l_filename == NULL) && (l_dcardfilename == NULL))
+        {
+
+            l_rc = ecmdReadDataFormatted(l_expected, l_expectPtr, l_inputformat);
+            if (l_rc)
+            {
+                ecmdOutputError("ciprwreadmem - Problems occurred parsing expected data, must be an invalid format\n");
+                return l_rc;
+            }
+
+            if (l_maskFlag)
+            {
+                l_rc = ecmdReadDataFormatted(l_mask, l_maskPtr, l_inputformat);
+                if (l_rc)
+                {
+                    ecmdOutputError("ciprwreadmem - Problems occurred parsing mask data, must be an invalid format\n");
+                    return l_rc;
+                }
+            }
+        }
+        else
+        {
+            // Read from a file
+            if (l_filename != NULL)
+            {
+                l_rc = l_expected.readFile(l_filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+                if (l_rc)
+                {
+                    std::string printed;
+                    printed = "ciprwreadmem - Problems occurred parsing expected data from file ";
+                    printed += l_filename;
+                    printed += ", must be an invalid format\n";
+                    ecmdOutputError(printed.c_str());
+                    return l_rc;
+                }
+            }
+            else
+            {
+                ecmdOutputError("ciprwreadmem - Currently Dcard support is not supported with -exp\n");
+                return ECMD_INVALID_ARGS;
+
+            }
+            // Let's pull the length from the file
+            l_numBytes = l_expected.getByteLength();
+        }
+    }
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+    // ciprwreadmem <target> <address> <numbytes> <I|D|P>
+    if ((l_numBytes == ECMD_UNSET) && (argc < 4)) //target + address + bytes + mode
+    {
+        ecmdOutputError("ciprwreadmem - Too few arguments specified; you need at least a target, address, number of bytes, and mode.\n");
+        ecmdOutputError("ciprwreadmem - Type 'ciprwreadmem -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    else if (argc < 3)
+    {
+        ecmdOutputError("ciprwreadmem - Too few arguments specified; you need at least a target, address, and mode.\n");
+        ecmdOutputError("ciprwreadmem - Type 'ciprwreadmem -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string l_chipType, l_chipUnitType;
+    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    if (l_rc) {
+        ecmdOutputError("ciprwreadmem - Wildcard character detected however it is not being used correctly.\n");
+        return l_rc;
+    }
+
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.chipUnitTypeState = l_target.chipUnitNumState = l_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (l_chipType == "x") {
+        l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    } else {
+        l_target.chipType = l_chipType;
+        l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    if (l_chipUnitType != "") {
+        l_target.chipUnitType = l_chipUnitType;
+        l_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        l_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+
+    // Get the address
+    if (!ecmdIsAllHex(argv[1]))
+    {
+        ecmdOutputError("ciprwreadmem - Non-hex characters detected in address field\n");
+        return ECMD_INVALID_ARGS;
+    }
+    l_match = sscanf(argv[1], "%lx", (unsigned long *) &l_address);
+    if (l_match != 1)
+    {
+        ecmdOutputError("ciprwreadmem - Error occurred processing address!\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    // get Instruction, Data, or Physical memory
+    if (l_numBytes == ECMD_UNSET)
+    {
+        l_memoryModeChar = argv[3][0];
+    }
+    else
+    {
+        l_memoryModeChar = argv[2][0];
+    }
+
+    uint32_t l_memoryMode = 0;
+    // convert memory mode to int
+    if ((l_memoryModeChar == 'i') || (l_memoryModeChar == 'I'))
+    {
+        l_memoryMode = 0;
+    }
+    else if ((l_memoryModeChar == 'd') || (l_memoryModeChar == 'D'))
+    {
+        l_memoryMode = 1;
+    }
+    else if ((l_memoryModeChar == 'p') || (l_memoryModeChar == 'P'))
+    {
+        l_memoryMode = 2;
+    }
+    else
+    {
+        ecmdOutputError("ciprwreadmem - Error invalid memory mode specified!\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+
+    // Get the number of bytes
+    if (l_numBytes == ECMD_UNSET)
+    {
+        l_numBytes = (uint32_t)atoi(argv[2]);
+    }
+
+    // do not allow l_numBytes >= 512MB
+    if (l_numBytes >= 0x20000000)
+    {
+        ecmdOutputError("ciprwreadmem - Number of bytes must be < 512MB\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    l_rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_looperdata);
+    if (l_rc) return l_rc;
+
+    while (ecmdLooperNext(l_target, l_looperdata) && (!l_coeRc || l_coeMode))
+    {
+
+        l_rc = cipRWReadMem(l_target, l_address, l_numBytes, l_returnData, l_memoryMode);
+        if (l_rc)
+        {
+            std::string printed;
+            printed = "ciprwreadmem - Error occured performing ciprwreadmem on ";
+            printed += ecmdWriteTarget(l_target) + "\n";
+            ecmdOutputError(printed.c_str());
+            l_coeRc = l_rc;
+            continue;
+        }
+        else
+        {
+            l_validPosFound = true;
+        }
+
+        std::string printLine = ecmdWriteTarget(l_target);
+        if (l_expectFlag)
+        {
+            uint32_t l_mismatchBit = 0;
+
+            if (l_maskFlag)
+            {
+                l_returnData.setAnd(l_mask, 0, l_returnData.getBitLength());
+            }
+
+            if (!ecmdCheckExpected(l_returnData, l_expected, l_mismatchBit))
+            {
+
+                //@ make this stuff sprintf'd
+                char outstr[300];
+                std::string printed;
+                printed = ecmdWriteTarget(l_target) + "\n";
+                ecmdOutputError( printed.c_str() );
+                if (l_mismatchBit != ECMD_UNSET)
+                {
+                    sprintf(outstr, "ciprwreadmem - Data miscompare occured at (address %lX) (bit %d) (byte %d:0x%X bit %d)\n",
+                            (unsigned long)l_address, l_mismatchBit, l_mismatchBit/8,
+                            l_mismatchBit/8, l_mismatchBit%8);
+                    ecmdOutputError( outstr );
+                }
+                l_coeRc = ECMD_EXPECT_FAILURE;
+                continue;
+            }
+        }
+        else
+        {
+            if (l_filename != NULL)
+            {
+	            l_rc = l_returnData.writeFile(l_filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+
+	            if (l_rc)
+                {
+                    std::string printed;
+	                printed = "ciprwreadmem - Problems occurred writing data into file";
+                    printed += l_filename;
+                    printed +=  +"\n";
+	                ecmdOutputError(printed.c_str());
+                    break;
+	            }
+	            ecmdOutput( printLine.c_str() );
+            }
+            else if (l_dcardfilename != NULL)
+            {
+	            std::string dataStr = ecmdWriteDataFormatted(l_returnData, "memd", l_address);
+	            std::ofstream ops;
+	            ops.open(l_dcardfilename);
+	            if (ops.fail()) {
+	                char mesg[1000];
+	                sprintf(mesg, "Unable to open file : %s for write", l_dcardfilename);
+	                ecmdOutputError(mesg);
+	                return ECMD_DBUF_FOPEN_FAIL;
+	            }
+	            if (dataStr[0] != '\n')
+                {
+	                printLine += "\n";
+	            }
+	            printLine += dataStr;
+	            ops << printLine.c_str();
+	            ops.close();
+
+            }
+            else
+            {
+
+	            std::string dataStr = ecmdWriteDataFormatted(l_returnData, l_outputformat, l_address);
+	            if (dataStr[0] != '\n')
+                {
+	                printLine += "\n";
+	            }
+	            printLine += dataStr;
+	            ecmdOutput( printLine.c_str() );
+            }
+        }
+    }
+    // l_coeRc will be the return code from in the loop, coe mode or not.
+    if (l_coeRc) return l_coeRc;
+
+    // This is an error common across all UI functions
+    if (!l_validPosFound)
+    {
+        ecmdOutputError("ciprwreadmem - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return l_rc;
+}
+
+uint32_t cipRWWriteMemUser(int argc, char * argv[])
+{
+    // ciprwwritemem <address> <data> <I|D|P>
+
+    uint32_t l_rc = ECMD_SUCCESS, l_coeRc = ECMD_SUCCESS;
+
+    ecmdLooperData l_looperdata;            ///< Store internal Looper data
+    std::string l_inputformat = "x";          ///< Input format - default to 'x'
+    ecmdDataBuffer l_inputData;             ///< Buffer to hold the data intended for memory
+    std::list<ecmdMemoryEntry> l_memdata;   ///< Data from the D-Card format file
+    std::list<ecmdMemoryEntry>::iterator l_memdataIter; ///< to iterate on l_memdata list
+    ecmdMemoryEntry l_memEntry;             ///< to store data from the user
+    bool l_validPosFound = false;           ///< Did the looper find anything?
+    ecmdChipTarget l_target;                ///< Current target being operated on
+    uint32_t l_address = 0;                 ///< The address from the command line
+    int l_match;                            ///< For sscanf
+    char l_memoryModeChar;                  ///< Which memory to access from the command line
+    std::string printLine;                  ///< Output data
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+    /* get format flag, if it's there */
+    char * l_formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+    if (l_formatPtr != NULL)
+    {
+        l_inputformat = l_formatPtr;
+    }
+    /* Get the filename if -fb is specified */
+    char * l_filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
+
+    /* Get the filename to file in D-Card format */
+    char *l_dcardfilename = ecmdParseOptionWithArgs(&argc, &argv, "-fd");
+
+    if (((l_filename != NULL) || (l_dcardfilename != NULL)) && (l_formatPtr != NULL) )
+    {
+        ecmdOutputError("ciprwwritemem - Options -f and -i can't be specified together for format. Specify either one.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if ((l_dcardfilename != NULL) && (l_filename != NULL))
+    {
+        ecmdOutputError("ciprwwritemem - Options -fb and -fd can't be specified together for format. Specify either one.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    l_rc = ecmdCommandArgs(&argc, &argv);
+    if (l_rc) return l_rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool l_coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    if ((argc < 4) && ((l_filename == NULL) && (l_dcardfilename == NULL))) //target + address + data + mode
+    {
+        ecmdOutputError("ciprwwritemem - Too few arguments specified; you need at least a target, address, data to write, and mode.\n");
+        ecmdOutputError("ciprwwritemem - Type 'ciprwwritemem -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    else if((argc < 3) && (l_filename != NULL))
+    {
+        ecmdOutputError("ciprwwritemem - Too few arguments specified; you need at least a target, address, input data file, and mode.\n");
+        ecmdOutputError("ciprwwritemem - Type 'ciprwwritemem -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    else if(((argc > 4) && ((l_filename == NULL) && (l_dcardfilename == NULL))) || ((argc > 3) && (l_filename != NULL)))
+    {
+        ecmdOutputError("ciprwwritemem - Too many arguments specified; you only need a target, address, input data|file, and mode.\n");
+        ecmdOutputError("ciprwwritemem - Type 'ciprwwritemem -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    else if((argc > 3) && (l_dcardfilename != NULL))
+    {
+        ecmdOutputError("ciprwwritemem - Too many arguments specified; you only need a target, an address offset, a dcard file, and mode.\n");
+        ecmdOutputError("ciprwwritemem - Type 'ciprwwritemem -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string l_chipType, l_chipUnitType;
+    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    if (l_rc) {
+        ecmdOutputError("ciprwreadmem - Wildcard character detected however it is not being used correctly.\n");
+        return l_rc;
+    }
+
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.chipUnitTypeState = l_target.chipUnitNumState = l_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (l_chipType == "x") {
+        l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+    } else {
+        l_target.chipType = l_chipType;
+        l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    if (l_chipUnitType != "") {
+        l_target.chipUnitType = l_chipUnitType;
+        l_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+        l_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+
+    // Get the address
+    if ((l_dcardfilename == NULL) || (l_dcardfilename != NULL && argv[1] != NULL))
+    {
+        if (!ecmdIsAllHex(argv[1]))
+        {
+            ecmdOutputError("ciprwwritemem - Non-hex characters detected in address field\n");
+            return ECMD_INVALID_ARGS;
+        }
+        l_match = sscanf(argv[1], "%lx", (unsigned long *) &l_address);
+        if (l_match != 1)
+        {
+            ecmdOutputError("Error occurred processing address!\n");
+            return ECMD_INVALID_ARGS;
+        }
+    }
+
+    // get Instruction, Data, or Physical memory
+    if(l_filename == NULL && l_dcardfilename == NULL)
+    {
+        l_memoryModeChar = argv[3][0];
+    }
+    else
+    {
+        l_memoryModeChar = argv[2][0];
+    }
+
+    uint32_t l_memoryMode = 0;
+    // convert memory mode to int
+    if ((l_memoryModeChar == 'i') || (l_memoryModeChar == 'I'))
+    {
+        l_memoryMode = 0;
+    }
+    else if ((l_memoryModeChar == 'd') || (l_memoryModeChar == 'D'))
+    {
+        l_memoryMode = 1;
+    }
+    else if ((l_memoryModeChar == 'p') || (l_memoryModeChar == 'P'))
+    {
+        l_memoryMode = 2;
+    }
+    else
+    {
+        ecmdOutputError("ciprwwritemem - Error invalid memory mode specified!\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    // Read in the input data
+    if(l_filename != NULL) {
+        l_rc = l_inputData.readFile(l_filename, ECMD_SAVE_FORMAT_BINARY_DATA);
+        if (l_rc)
+        {
+            printLine = "ciprwwritemem - Problems occurred parsing input data from file ";
+            printLine += l_filename;
+            printLine += ", must be an invalid format\n";
+            ecmdOutputError(printLine.c_str());
+            return l_rc;
+        }
+        l_memEntry.address = l_address;
+        l_memEntry.data = l_inputData;
+        l_memdata.push_back(l_memEntry);
+
+    }
+    else if(l_dcardfilename != NULL)
+    {
+        l_rc = ecmdReadDcard(l_dcardfilename, l_memdata, l_address);
+        if (l_rc)
+        {
+            printLine = "ciprwwritemem - Problems occurred parsing input data from file ";
+            printLine += l_dcardfilename;
+            printLine += ", must be an invalid format\n";
+            ecmdOutputError(printLine.c_str());
+            return l_rc;
+        }
+    }
+    else
+    {
+        l_rc = ecmdReadDataFormatted(l_inputData, argv[2] , l_inputformat);
+        if (l_rc)
+        {
+            ecmdOutputError("ciprwwritemem - Problems occurred parsing input data, must be an invalid format\n");
+            return l_rc;
+        }
+        l_memEntry.address = l_address;
+        l_memEntry.data = l_inputData;
+        l_memdata.push_back(l_memEntry);
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    l_rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_looperdata);
+    if (l_rc) return l_rc;
+
+    while (ecmdLooperNext(l_target, l_looperdata) && (!l_coeRc || l_coeMode))
+    {
+        for (l_memdataIter = l_memdata.begin(); l_memdataIter != l_memdata.end(); l_memdataIter++)
+        {
+
+            /* Let's verify we have an even byte length of data */
+            if (l_memdataIter->data.getBitLength() != (l_memdataIter->data.getByteLength() * 8)) {
+                ecmdOutputError("ciprwwritemem - Invalid data, must specify an even byte length of data\n");
+                l_rc = ECMD_INVALID_ARGS;
+                break;
+            }
+            else if (l_memdataIter->data.getByteLength() == 0)
+            {
+                ecmdOutputError("ciprwwritemem - Invalid data, byte length of zero detected on incoming data\n");
+                l_rc = ECMD_INVALID_ARGS;
+                break;
+            }
+
+            l_rc = cipRWWriteMem(l_target, l_memdataIter->address, l_memdataIter->data.getByteLength(), l_memdataIter->data, l_memoryMode);
+            if (l_rc)
+            {
+                printLine = "ciprwwritemem - Error occured performing ciprwwritemem on ";
+                printLine += ecmdWriteTarget(l_target) + "\n";
+                ecmdOutputError( printLine.c_str() );
+                l_coeRc = l_rc;
+                continue;
+            }
+            else
+            {
+                l_validPosFound = true;
+            }
+        }
+
+        // Write out who we wrote too
+        if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+            printLine = ecmdWriteTarget(l_target) + "\n";
+            ecmdOutput(printLine.c_str());
+        }
+    }
+    // l_coeRc will be the return code from in the loop, coe mode or not.
+    if (l_coeRc) return l_coeRc;
+
+    // This is an error common across all UI functions
+    if (!l_validPosFound && !l_rc) {
+        ecmdOutputError("ciprwwritemem - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return l_rc;
+}
+#endif // CIP_REMOVE_RW_FUNCTIONS
