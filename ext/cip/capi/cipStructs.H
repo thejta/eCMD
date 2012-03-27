@@ -110,6 +110,38 @@ struct cipPoreImageInfo {
     uint32_t load_time;     ///< Image load time - 00HHMMSS, e.g. 15:43:17 DST = 00154317
     uint64_t base_address;  ///< Memory location where image is loaded or going to be loaded
 };
+
+/**
+ @brief Used by cipRWReadCache function to return cache record data
+*/
+struct cipRWCacheRec
+{
+   uint32_t tag;      // data/instr tag
+   uint32_t data[32]; // data/instr data
+   uint8_t  valid;    // data/instr valid bit
+   uint8_t  lru;      // data/instr LRU bit
+   uint8_t  dirty;    // data dirty bits
+};
+
+/**
+ @brief Used by cipRWReadTLB function to return TLB record data
+*/
+struct cipRWTLBRec
+{
+   uint32_t epn;      // Effective Page Number
+   uint32_t rpn;      // Real Page Number
+   uint8_t  size;     // page size
+   uint8_t  ebit;     // Endian bit
+   uint8_t  kbit;     // Compressed bit
+   uint8_t  valid;    // TLB valid bit
+   uint8_t  tid;      // TLB id #
+   uint8_t  par[2];   // parity data for each word read
+   uint8_t  ex;       // EXecute bit
+   uint8_t  wr;       // WRite bit
+   uint8_t  zsel;     // Zone Select
+   uint8_t  wimg;     // WIMG storage attributes bits
+};
+
 #endif /* cipStructs_h */
 
 // Change Log *********************************************************
