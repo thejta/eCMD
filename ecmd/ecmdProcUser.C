@@ -104,6 +104,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   ecmdChipTarget threadTarget;          ///< Current thread target
   ecmdLooperData threadLooperData;      ///< Store internal thread Looper data
   int idx = 0;
+  int idxStart = 0;
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
   std::string sprName;
   bool validChipFound = false;
@@ -152,7 +153,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
        ecmdOutputError("getspr - Type 'getspr -h' for usage.\n");
        return ECMD_INVALID_ARGS;
     }
-    idx = 1;  //sprname starts from first index
+    idxStart = 1;  //sprname starts from first index
     rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
     if (rc) {
         ecmdOutputError("Wildcard character detected.\n");
@@ -173,7 +174,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
     /* Walk through the arguments and create our list of sprs */
     /* We have to re-establish this list on each position because one position may be dd2.0 and another 3.0 and the spr state changed */
-    for (; idx < argc; idx ++) {
+    for (idx = idxStart; idx < argc; idx ++) {
       sprName = argv[idx];
 
       /* First thing we need to do is find out for this particular target if the SPR is threaded */
