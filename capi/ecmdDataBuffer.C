@@ -4470,3 +4470,4 @@ ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer(uint32_t i_numBits)
        iv_BufferOptimizable = true;     
 }
 
+ecmdOptimizableDataBuffer::~ecmdOptimizableDataBuffer(){}
