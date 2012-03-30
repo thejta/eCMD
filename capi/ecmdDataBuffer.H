@@ -1786,7 +1786,7 @@ class ecmdOptimizableDataBuffer : public ecmdDataBuffer {
      /**
       * @brief Destructor for ecmdOptimizableDataBuffer class
       */
-     ~ecmdOptimizableDataBuffer() {}
+     ~ecmdOptimizableDataBuffer();
 };
 
   //@}
