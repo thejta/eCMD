@@ -1,5 +1,5 @@
 
-Syntax: cipinstruct start|sreset|stop|step [<steps>] [all] [-v]
+Syntax: cipinstruct [Chip[.ChipUnit]] start|sreset|stop|step [<steps>] [all] [-v]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
         ECMD:           CIP (Cronus/IP) Extension
@@ -10,11 +10,17 @@ Syntax: cipinstruct start|sreset|stop|step [<steps>] [all] [-v]
 
         Parameters:
         --------------------------------------------------------------------------------
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.core
+
         start/stop/step/sreset Start, stop, or step the processors.  
 
         steps     [opt] Number of steps to execute
 
-	all  [optional] Start/Stop all processors configured in system
+        all  [optional] Start/Stop all processors configured in system. May not be used
+                        when Chip is specified on command line.
 
         -v   [optional] Print out IAR after each instruction step
 
