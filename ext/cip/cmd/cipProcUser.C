@@ -42,6 +42,9 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+#ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
+bool ecmdIsValidChip(const char * pcChipName, ecmdChipTarget &iTarget);
+#endif
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -111,9 +114,32 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  // check if first argument is a chip
+  int argOffset = 0;
+  ecmdChipTarget validTarget;
+  validTarget.chipUnitTypeState = validTarget.chipUnitNumState = validTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+  bool validChipFound = ecmdIsValidChip(argv[0], validTarget);
+  if (validChipFound == true)
+  {
+    // if all is selected chip can not be set on command line
+    if (executeAll == true)
+    {
+      ecmdOutputError("cipinstruct - all option cannot be used when chip target is specified\n");
+      ecmdOutputError("cipinstruct - Type 'cipinstruct -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+    argOffset = 1;
+  }
+
+  if (argc < (1 + argOffset)) {
+    ecmdOutputError("cipinstruct - Too few arguments specified; you need at least start/stop/step after chip.\n");
+    ecmdOutputError("cipinstruct - Type 'cipinstruct -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
   /* Grab the number of steps */
-  if (argc > 1) {
-    steps = atoi(argv[1]);
+  if (argc > (1 + argOffset)) {
+    steps = atoi(argv[1 + argOffset]);
   }
 
   /* Run the all functions */
@@ -174,6 +200,12 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       if (p6Mode == true) {
         target.coreState = ECMD_TARGET_FIELD_WILDCARD;
         target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      } else if (validChipFound == true) {
+        target.chipType = validTarget.chipType;
+        target.chipUnitType = validTarget.chipUnitType;
+        target.chipUnitTypeState = validTarget.chipUnitTypeState;
+        target.chipUnitNumState = validTarget.chipUnitNumState;
+        target.threadState = ECMD_TARGET_FIELD_UNUSED;
       } else {
         target.chipUnitType = "core";
         target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
@@ -184,13 +216,13 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
       if (rc) return rc;
 
-      if (!strcasecmp(argv[0],"start")) {
+      if (!strcasecmp(argv[0 + argOffset],"start")) {
         ecmdOutput("Starting processor instructions ...\n");
-      } else if (!strcasecmp(argv[0], "sreset")) {
+      } else if (!strcasecmp(argv[0 + argOffset], "sreset")) {
         ecmdOutput("Starting processor instructions via S-Reset ...\n");
-      } else if (!strcasecmp(argv[0], "stop")) {
+      } else if (!strcasecmp(argv[0 + argOffset], "stop")) {
         ecmdOutput("Stopping processor instructions ...\n");
-      } else if (!strcasecmp(argv[0], "step")) {
+      } else if (!strcasecmp(argv[0 + argOffset], "step")) {
         char buf[100];
         sprintf(buf,"Stepping processor instructions (%d)  ...\n",step+1);
         ecmdOutput(buf);
@@ -205,14 +237,15 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         /* On P7, we have to start the threads in reverse order to keep the chip in the proper SMT mode */
         /* This code will accomplish that by looping over cores in order above, but threads in reverse below */
         /* And, of course, we don't loop over threads in P6, so this stays the same - JTA 01/17/09 */
-        if (p6Mode) {
+        /* Added hack for occ chipunit for p8 - MKL 04/10/2012 */
+        if (p6Mode || (target.chipUnitType == "occ")) {
           subTarget = target;
           loopMode = ECMD_DYNAMIC_LOOP;
         } else {
           subTarget = target;
           subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
           // We only want to loop backwards over the start/sreset, the rest need to go forwards like normal
-          if (!strcasecmp(argv[0],"start") || !strcasecmp(argv[0],"sreset")) {
+          if (!strcasecmp(argv[0 + argOffset],"start") || !strcasecmp(argv[0 + argOffset],"sreset")) {
             loopMode = ECMD_DYNAMIC_REVERSE_LOOP;
           } else {
             loopMode = ECMD_DYNAMIC_LOOP;
@@ -224,13 +257,13 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
         while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
 
-          if (!strcasecmp(argv[0],"start")) {
+          if (!strcasecmp(argv[0 + argOffset],"start")) {
             rc = cipStartInstructions(subTarget, thread);
-          } else if (!strcasecmp(argv[0], "sreset")) {
+          } else if (!strcasecmp(argv[0 + argOffset], "sreset")) {
             rc = cipStartInstructionsSreset(subTarget, thread);
-          } else if (!strcasecmp(argv[0], "stop")) {
+          } else if (!strcasecmp(argv[0 + argOffset], "stop")) {
             rc = cipStopInstructions(subTarget, thread);
-          } else if (!strcasecmp(argv[0], "step")) {
+          } else if (!strcasecmp(argv[0 + argOffset], "step")) {
             rc = cipStepInstructions(subTarget, 1, thread);
           }
 
