@@ -1,5 +1,5 @@
 
-Syntax: powermode save|turbo|normal|query|dynamic_save|dynamic_save_mp 
+Syntax: powermode save|turbo|normal|query|dynamic_save|dynamic_save_mp|super_turbo
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
