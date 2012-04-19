@@ -161,7 +161,9 @@ typedef enum {
   ECMD_CLOCK_POWERSAVE_PERCENT_UP,   ///< Clock speed specified in % above powersave value
   ECMD_CLOCK_POWERSAVE_PERCENT_DOWN, ///< Clock speed specified in % below powersave value
   ECMD_CLOCK_TURBO_PERCENT_UP,       ///< Clock speed specified in % above turbo value  
-  ECMD_CLOCK_TURBO_PERCENT_DOWN      ///< Clock speed specified in % below turbo value  
+  ECMD_CLOCK_TURBO_PERCENT_DOWN,      ///< Clock speed specified in % below turbo value  
+  ECMD_CLOCK_SUPER_TURBO_PERCENT_UP,   ///< Clock speed specified in % above super turbo value  
+  ECMD_CLOCK_SUPER_TURBO_PERCENT_DOWN ///< Clock speed specified in % below super turbo value  
 } ecmdClockSpeedType_t;
 
 /**
@@ -577,6 +579,7 @@ typedef enum {
   ECMD_POWER_MODE_NORMAL,       ///< normal power mode
   ECMD_POWER_MODE_SAVE,         ///< power save mode
   ECMD_POWER_MODE_TURBO,         ///< turbo mode
+  ECMD_POWER_MODE_SUPER_TURBO,   ///< super turbo mode
   ECMD_POWER_MODE_PARTIAL_SAVE,  ///< part of the target is in power save mode
   ECMD_POWER_MODE_IN_TRANSITION, ///< target is in transition mode
   ECMD_POWER_MODE_SAVE_DYNAMIC,  ///< target is in dynamic power save mode
