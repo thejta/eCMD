@@ -36,6 +36,8 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         'pspd' for power save percentage down (2pspu)
 		        'tpu' for turbo percentage up (2tpu)
 		        'tpd' for turbo percentage down (4tpd)
+                        'sptu' for super turbo percentage up (2stpu)
+                        'sptd' for super turbo percentage down (4sptu)
                         'mult' AND 'div' -- MUST have both, with mult first --
                             for multiplier and divider (100mult 10div)
 

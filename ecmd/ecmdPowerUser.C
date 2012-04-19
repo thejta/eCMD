@@ -268,7 +268,7 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
   if (argc < 1) {
-    ecmdOutputError("powermode - At least one argument ('save', 'normal', 'query', 'turbo') is required for powermode.\n");
+    ecmdOutputError("powermode - At least one argument ('save', 'normal', 'query', 'turbo', 'super_turbo') is required for powermode.\n");
     return ECMD_INVALID_ARGS;
   }
   else if (argc > 1) {
@@ -280,6 +280,8 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
     mode = "normal";
   } else if (!strcmp(argv[0], "save")) {
     mode = "save";
+  } else if (!strcmp(argv[0], "super_turbo")) {
+    mode = "super_turbo";
   } else if (!strcmp(argv[0], "turbo")) {
     mode = "turbo";
   } else if (!strcmp(argv[0], "query")) {
@@ -289,7 +291,7 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
   } else if (!strcmp(argv[0], "dynamic_save_mp")) {
     mode = "dynamic_save_mp";
   } else {
-    ecmdOutputError("powermode - Invalid argument passed to powermode. Accepted arguments: ('save', 'normal', 'query', 'turbo').\n");
+    ecmdOutputError("powermode - Invalid argument passed to powermode. Accepted arguments: ('save', 'normal', 'query', 'super_turbo', 'turbo').\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -320,6 +322,11 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
       printed += "Power Save Mode\n";
       ecmdOutput(printed.c_str());
       rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SAVE);
+    } else if (mode == "super_turbo") {
+      printed = ecmdWriteTarget(target) + ".. ";
+      printed += "Super Turbo Mode\n";
+      ecmdOutput(printed.c_str());
+      rc = ecmdSetPowerMode(target, ECMD_POWER_MODE_SUPER_TURBO);
     } else if (mode == "turbo") {
       printed = ecmdWriteTarget(target) + ".. ";
       printed += "Turbo Mode\n";
@@ -344,6 +351,8 @@ uint32_t ecmdPowerModeUser(int argc, char * argv[]) {
        printed += " Save \n";
      } else  if (o_mode == ECMD_POWER_MODE_NORMAL){
        printed += " Normal \n";
+     } else  if (o_mode == ECMD_POWER_MODE_SUPER_TURBO){
+       printed += " Super Turbo\n";
      } else  if (o_mode== ECMD_POWER_MODE_TURBO)   {
        printed += " Turbo \n";
      } else  if (o_mode== ECMD_POWER_MODE_SAVE_DYNAMIC)   {
