@@ -14,6 +14,9 @@
  *                          mjjones     07/05/2011  Removed const from handle
  *                          mjjones     08/29/2011  Updated toString function
  *                          mjjones     09/12/2011  Added isChip and isChiplet
+ *                          mjjones     02/07/2012  Remove MBS_CHIPLET
+ *                                                  Add XBUS_ENDPOINT ABUS_ENDPOINT
+ *                          mjjones     02/21/2012  Add high performance toEcmdString
  */
 
 #ifndef FAPITARGET_H_
@@ -30,15 +33,16 @@ namespace fapi
  */
 enum TargetType
 {
-    TARGET_TYPE_NONE        = 0x00000000,
-    TARGET_TYPE_SYSTEM      = 0x00000001,
-    TARGET_TYPE_DIMM        = 0x00000002,
-    TARGET_TYPE_PROC_CHIP   = 0x00000004,
-    TARGET_TYPE_MEMBUF_CHIP = 0x00000008,
-    TARGET_TYPE_EX_CHIPLET  = 0x00000010,
-    TARGET_TYPE_MBA_CHIPLET = 0x00000020,
-    TARGET_TYPE_MBS_CHIPLET = 0x00000040,
-    TARGET_TYPE_MCS_CHIPLET = 0x00000080,
+    TARGET_TYPE_NONE          = 0x00000000,
+    TARGET_TYPE_SYSTEM        = 0x00000001,
+    TARGET_TYPE_DIMM          = 0x00000002,
+    TARGET_TYPE_PROC_CHIP     = 0x00000004,
+    TARGET_TYPE_MEMBUF_CHIP   = 0x00000008,
+    TARGET_TYPE_EX_CHIPLET    = 0x00000010,
+    TARGET_TYPE_MBA_CHIPLET   = 0x00000020,
+    TARGET_TYPE_MCS_CHIPLET   = 0x00000040,
+    TARGET_TYPE_XBUS_ENDPOINT = 0x00000080,
+    TARGET_TYPE_ABUS_ENDPOINT = 0x00000100,
 };
 
 /**
@@ -178,24 +182,38 @@ public:
     /**
      * @brief Returns if the target is a chiplet
      *
-     * @return boolean. true if chiplet else fase
+     * This includes all chip units (e.g. XBUS, ABUS)
+     *
+     * @return boolean. true if chiplet else false
      */
     bool isChiplet() const;
 
     /**
      * @brief Convert a target to an ecmd-format target string
      *
-     * This is used in order to trace the target in the common SCAN trace
+     * This is used by HWP/FAPI code to trace the target.
+     *
+     * @return Pointer to NULL terminated character string. The caller must use
+     *         the string before the Target object is destructed.
+     */
+    const char * toEcmdString() const;
+
+private:
+
+    /**
+     * @brief Convert a target to an ecmd-format target string
+     *
+     * This is a private function called by toEcmdString to load the ecmd-format
+     * string into the Target object. Subsequent calls of toEcmdString are high
+     * performance and just return a pointer to the internal string.
      *
      * @note Implemented by platform code
      *
-     * @param[out] o_ecmdString  Reference to a character array of length
+     * @param[out] o_ecmdString. Reference to a character array of length
      *                           MAX_ECMD_STRING_LEN. This is filled in with the
      *                           null terminated ECMD string.
      */
     void toString(char (&o_ecmdString)[MAX_ECMD_STRING_LEN]) const;
-
-private:
 
     /**
      * @brief Compare the handle
@@ -232,6 +250,9 @@ private:
 
     // Pointer to platform specific Target Handle
     void * iv_pHandle;
+
+    // Pointer to the ecmd-format string representing the Target
+    mutable char * iv_pEcmdString;
 };
 
 }
