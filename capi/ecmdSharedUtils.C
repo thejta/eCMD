@@ -404,10 +404,15 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     // If it is all numbers after the first letter, assume it is a k/c/s/p/c/t arg and not a chip name
     // We will have problems with something like p7, but if they use pu we will be okay.
     // This will fix p5ioc2, which was broke under the previous sscanf only method - JTA 04/28/08
-    else if (tokens[x].find_first_not_of("0123456789",1) == std::string::npos) {
+
+
+    // FIXME FIXME - big p8 HACK JFDEBUG -farrugia 
+
+    else if ((tokens[x].find_first_not_of("0123456789",1) == std::string::npos) && (tokens[x] != "p8")) {
       sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
       numFound = true;
     }
+
     if (!numFound && !allFound && !naFound) {
       /* I didn't get a number, - or all, must be a chip */
       rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
