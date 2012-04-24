@@ -60,23 +60,20 @@ void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi::Target & o_fapi
       {
          o_fapiTarget.setType(fapi::TARGET_TYPE_MBA_CHIPLET);
       } 
-      else if (i_ecmdTarget.chipUnitType == "mbs") 
-      {
-         o_fapiTarget.setType(fapi::TARGET_TYPE_MBS_CHIPLET);
-      } 
-      // Need TargetTypes for the follow chipUnits 
       else if (i_ecmdTarget.chipUnitType == "xbus") 
       {
-         //o_fapiTarget.setType(fapi::TARGET_TYPE_MBS_CHIPLET);
+         o_fapiTarget.setType(fapi::TARGET_TYPE_XBUS_ENDPOINT);
       } 
       else if (i_ecmdTarget.chipUnitType == "abus") 
       {
-         //o_fapiTarget.setType(fapi::TARGET_TYPE_MBS_CHIPLET);
+         o_fapiTarget.setType(fapi::TARGET_TYPE_ABUS_ENDPOINT);
       } 
+      /*
       else if (i_ecmdTarget.chipUnitType == "occ") 
       {
-         //o_fapiTarget.setType(fapi::TARGET_TYPE_MBS_CHIPLET);
+         o_fapiTarget.setType(fapi::TARGET_TYPE_MBS_CHIPLET);
       } 
+      */
       else 
       {
          // do nothing for now.  Maybe we should error out?
