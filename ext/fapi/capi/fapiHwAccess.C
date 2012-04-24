@@ -1,25 +1,3 @@
-//  IBM_PROLOG_BEGIN_TAG
-//  This is an automatically generated prolog.
-//
-//  $Source$
-//
-//  IBM CONFIDENTIAL
-//
-//  COPYRIGHT International Business Machines Corp. 2011
-//
-//  p1
-//
-//  Object Code Only (OCO) source materials
-//  Licensed Internal Code Source Materials
-//  IBM HostBoot Licensed Internal Code
-//
-//  The source code for this program is not published or other-
-//  wise divested of its trade secrets, irrespective of what has
-//  been deposited with the U.S. Copyright Office.
-//
-//  Origin: 30
-//
-//  IBM_PROLOG_END
 /**
  *  @file fapiHwAccess.C
  *
@@ -38,6 +16,8 @@
  *                          mjjones     09/14/2011  Prepended fapi to functions
  *                                                  and enabled all functions
  *                          mjjones     10/13/2011  util namespace change
+ *                          mjjones     02/21/2012  Use high performance Target
+ *                                                  toEcmdString
  */
 
 #include <fapi.H>
@@ -59,14 +39,15 @@ fapi::ReturnCode fapiGetScom(const fapi::Target& i_target,
     // call the platform implementation
     l_rc = platGetScom( i_target, i_address, o_data );
 
+    if (l_rc)
+    {
+        FAPI_ERR("fapiGetScom failed - Target %s, Addr %.16llX", i_target.toEcmdString(), i_address);
+    }
+
     if( l_traceit )
     {
-        // get the string representation of the target
-        char l_string[fapi::MAX_ECMD_STRING_LEN] = {0};
-        i_target.toString(l_string);
-
         FAPI_SCAN( "TRACE : GETSCOM     : %s : %.16llX %.16llX", 
-                   l_string,
+                   i_target.toEcmdString(),
                    i_address,
                    o_data.getDoubleWord( 0 ) ); 
     }
@@ -85,17 +66,18 @@ fapi::ReturnCode fapiPutScom(const fapi::Target& i_target,
     fapi::ReturnCode l_rc;
     bool l_traceit = platIsScanTraceEnabled(); 
 
-    // call the platform implemenation  
+    // call the platform implementation
     l_rc = platPutScom( i_target, i_address, i_data );
+
+    if (l_rc)
+    {
+        FAPI_ERR("fapiPutScom failed - Target %s, Addr %.16llX", i_target.toEcmdString(), i_address);
+    }
 
     if( l_traceit )
     {
-        // get the string representation of the target
-        char l_string[fapi::MAX_ECMD_STRING_LEN] = {0};
-        i_target.toString(l_string);
-
         FAPI_SCAN( "TRACE : PUTSCOM     : %s : %.16llX %.16llX",
-                   l_string,
+                   i_target.toEcmdString(),
                    i_address,
                    i_data.getDoubleWord( 0 )  );
     }
@@ -117,14 +99,15 @@ fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target,
     // call the platform implementation
     l_rc = platPutScomUnderMask( i_target, i_address, i_data, i_mask );
 
+    if (l_rc)
+    {
+        FAPI_ERR("fapiPutScomUnderMask failed - Target %s, Addr %.16llX", i_target.toEcmdString(), i_address);
+    }
+
     if( l_traceit )
     {
-        // get the string representation of the target
-        char l_string[fapi::MAX_ECMD_STRING_LEN] = {0};
-        i_target.toString(l_string);
-
         FAPI_SCAN( "TRACE : PUTSCOMMASK : %s : %.16llX %.16llX %.16llX",
-               l_string,
+               i_target.toEcmdString(),
                i_address,
                i_data.getDoubleWord(0),
                i_mask.getDoubleWord(0));
@@ -146,16 +129,17 @@ fapi::ReturnCode fapiGetCfamRegister(const fapi::Target& i_target,
     // call the platform implementation
     l_rc = platGetCfamRegister( i_target, i_address, o_data );
 
+    if (l_rc)
+    {
+        FAPI_ERR("fapiGetCfamRegister failed - Target %s, Addr %.8X", i_target.toEcmdString(), i_address);
+    }
+
     if( l_traceit )
     {
-        // get the string representation of the target
-        char l_string[fapi::MAX_ECMD_STRING_LEN] = {0};
-        i_target.toString(l_string);
-
-        FAPI_SCAN( "TRACE : GETCFAMREG  : %s : %.8X %.16llX", 
-               l_string,
+        FAPI_SCAN( "TRACE : GETCFAMREG  : %s : %.8X %.8X",
+               i_target.toEcmdString(),
                i_address,
-               o_data.getDoubleWord(0) ); 
+               o_data.getWord(0) );
     }
 
     return l_rc;
@@ -174,16 +158,17 @@ fapi::ReturnCode fapiPutCfamRegister(const fapi::Target& i_target,
     // call the platform implementation
     l_rc = platPutCfamRegister( i_target, i_address, i_data );
 
+    if (l_rc)
+    {
+        FAPI_ERR("platPutCfamRegister failed - Target %s, Addr %.8X", i_target.toEcmdString(), i_address);
+    }
+
     if( l_traceit )
     {
-        // get the string representation of the target
-        char l_string[fapi::MAX_ECMD_STRING_LEN] = {0};
-        i_target.toString(l_string);
-
-        FAPI_SCAN( "TRACE : PUTCFAMREG  : %s : %.8X %.16llX",
-               l_string,
+        FAPI_SCAN( "TRACE : PUTCFAMREG  : %s : %.8X %.8X",
+               i_target.toEcmdString(),
                i_address,
-               i_data.getDoubleWord(0) );
+               i_data.getWord(0) );
     }
 
     return l_rc;
@@ -203,12 +188,13 @@ fapi::ReturnCode fapiModifyCfamRegister(const fapi::Target& i_target,
     // call the platform implementation
     l_rc = platModifyCfamRegister( i_target, i_address, i_data, i_modifyMode );
 
+    if (l_rc)
+    {
+        FAPI_ERR("platModifyCfamRegister failed - Target %s, Addr %.8X", i_target.toEcmdString(), i_address);
+    }
+
     if( l_traceit )
     {
-        // get the string representation of the target
-        char l_string[fapi::MAX_ECMD_STRING_LEN] = {0};
-        i_target.toString(l_string);
-
         // get string representation of the modify mode
         const char * l_pMode = NULL;
 
@@ -229,10 +215,10 @@ fapi::ReturnCode fapiModifyCfamRegister(const fapi::Target& i_target,
             l_pMode = "?";
         }
 
-        FAPI_SCAN( "TRACE : MODCFAMREG  : %s : %.8X %.16llX %s",
-               l_string,
+        FAPI_SCAN( "TRACE : MODCFAMREG  : %s : %.8X %.8X %s",
+               i_target.toEcmdString(),
                i_address,
-               i_data.getDoubleWord(0),
+               i_data.getWord(0),
                l_pMode );
     }
 
