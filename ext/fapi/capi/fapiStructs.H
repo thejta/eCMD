@@ -84,6 +84,7 @@ struct AttributeData {
   uint8_t               faSizeOfArrayDimX; //< Indicates how large dimension X is
   uint8_t               faSizeOfArrayDimY; //< Indicates how large dimension Y is
   uint8_t               faSizeOfArrayDimZ; //< Indicates how large dimension Z is
+  uint32_t              faMode; //< Indicates a specific mode this attribute is in
 };
 
 inline AttributeData::AttributeData():
@@ -102,7 +103,8 @@ faEnumUsed(false),
 // array information
 faNumOfArrayDim(0),
 faSizeOfArrayDimW(0), faSizeOfArrayDimX(0),
-faSizeOfArrayDimY(0), faSizeOfArrayDimZ(0)
+faSizeOfArrayDimY(0), faSizeOfArrayDimZ(0),
+faMode(0x0)
 {}
 
 inline AttributeData::~AttributeData() {}
