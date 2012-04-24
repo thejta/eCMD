@@ -55,13 +55,14 @@ ReturnCode _get<char *> (const AttributeId i_id,
 
    o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_STRING;
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
-   if (l_fapi_rc)
-   { 
-     return l_fapi_rc;
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
    }
-
-   o_value = o_data.faString;
+   else 
+   {
+     o_value = o_data.faString;
+   }
    return l_fapi_rc;
 }
 
@@ -79,13 +80,14 @@ ReturnCode _get<uint8_t> (const AttributeId i_id,
 
    o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
-   if (l_fapi_rc)
-   { 
-     return l_fapi_rc;
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
    }
-
-   o_value = o_data.faUint8;
+   else 
+   {
+     o_value = o_data.faUint8;
+   }
    return l_fapi_rc;
 }
 
@@ -103,13 +105,14 @@ ReturnCode _get<uint32_t> (const AttributeId i_id,
 
    o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32;
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
-   if (l_fapi_rc)
+   if (l_ecmd_rc)
    { 
-     return l_fapi_rc;
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   } 
+   else 
+   {
+     o_value = o_data.faUint32;
    }
-
-   o_value = o_data.faUint32;
    return l_fapi_rc;
 }
 
@@ -127,13 +130,14 @@ ReturnCode _get<uint64_t> (const AttributeId i_id,
 
    o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64;
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
-   if (l_fapi_rc)
-   { 
-     return l_fapi_rc;
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
    }
-
-   o_value = o_data.faUint64;
+   else
+   {
+     o_value = o_data.faUint64;
+   }
    return l_fapi_rc;
 }
 
@@ -152,7 +156,10 @@ ReturnCode _getAttributeArrayShort(const AttributeId i_id,
    o_data.faUint8ary = o_pValues;
 
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -171,7 +178,10 @@ ReturnCode _getAttributeArrayWord(const AttributeId i_id,
    o_data.faUint32ary = o_pValues;
 
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -190,7 +200,10 @@ ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
    o_data.faUint64ary = o_pValues;
 
    l_ecmd_rc = fapiGetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -210,7 +223,10 @@ ReturnCode _set<uint8_t> (const AttributeId i_id,
    i_data.faUint8 = i_value;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, i_data);
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -230,7 +246,10 @@ ReturnCode _set<uint32_t> (const AttributeId i_id,
    i_data.faUint32 = i_value;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, i_data);
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -250,7 +269,10 @@ ReturnCode _set<uint64_t> (const AttributeId i_id,
    i_data.faUint64 = i_value;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, i_data);
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -269,7 +291,10 @@ ReturnCode _setAttributeArrayShort(const AttributeId i_id,
    i_data.faUint8ary = i_pValues;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, i_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -288,7 +313,10 @@ ReturnCode _setAttributeArrayWord(const AttributeId i_id,
    i_data.faUint32ary = i_pValues;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, i_data);
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -307,7 +335,10 @@ ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id,
    i_data.faUint64ary = i_pValues;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, i_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
@@ -327,7 +358,10 @@ ReturnCode _set<char *> (const AttributeId i_id,
    o_data.faString = i_value;
 
    l_ecmd_rc = fapiSetAttribute(*(i_pTarget), i_id, o_data); 
-   l_fapi_rc.setEcmdError(l_ecmd_rc);
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
    return l_fapi_rc;
 }
 
