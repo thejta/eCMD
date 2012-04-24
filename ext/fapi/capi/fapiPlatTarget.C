@@ -27,6 +27,7 @@
 #include <ecmdStructs.H>
 #include <ecmdSharedUtils.H>
 
+
 namespace fapi
 {
 
@@ -58,9 +59,6 @@ void Target::deleteHandle()
     // Intentionally does nothing. The component must not be deleted
 }
 
-//******************************************************************************
-// Get the ECMD String
-//******************************************************************************
 void Target::toString(char (&o_ecmdString)[MAX_ECMD_STRING_LEN]) const
 {
    ecmdChipTarget * ptr = reinterpret_cast<ecmdChipTarget *> (iv_pHandle);
