@@ -531,8 +531,10 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
   uint32_t iv_mult=0;                              ///< Multiplier value, if present 
   uint32_t iv_div=0;                           ///< Divider value, if present
+  uint32_t iv_fmin=0;                              ///< Frequency Minimum value, if present 
+  uint32_t iv_fmax=0;                           ///< Frequency Maximum value, if present
   int32_t endOffet = 0;                         ///< The location where the required args in the arg list end
-
+  uint32_t iv_speedoption = 0;                  ///0-setclockspeed, 1 - mult/divider 2-fmin, fmax
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -668,6 +670,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     clockspeed.erase(strpos, clockspeed.length()-strpos);
   } else if ((strpos = clockspeed.find("mult")) != std::string::npos) {
 
+    iv_speedoption = 1;
     // get mult and divider value from cmdline
     clockspeed.erase(strpos, clockspeed.length()-strpos);
 
@@ -706,6 +709,49 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
+  } else if ((strpos = clockspeed.find("fmin")) != std::string::npos) {
+    iv_speedoption = 2;
+    // get fmin and fmax value from cmdline
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
+
+    if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+      ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'fmin' parm\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    iv_fmin = (uint32_t)atoi(clockspeed.c_str());
+    if (iv_fmin == 0) {
+      ecmdOutputError("setclockspeed - 'fmin' value cannot be equal to 0\n");
+      return ECMD_INVALID_ARGS;
+    }
+    
+    // frequency maximum is the next parm
+    clockspeed = argv[endOffet + 1];
+    transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
+
+    if ((strpos = clockspeed.find("fmax")) != std::string::npos) {
+      clockspeed.erase(strpos, clockspeed.length()-strpos);
+      if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+        ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'fmax' parm\n");
+        return ECMD_INVALID_ARGS;
+      }
+
+      iv_fmax = (uint32_t)atoi(clockspeed.c_str());
+      if ( iv_fmax == 0 ) {
+        ecmdOutputError("setclockspeed - 'fmax' value cannot be equal to 0\n");
+        return ECMD_INVALID_ARGS;
+      }else if (iv_fmax < iv_fmin) {
+        ecmdOutputError("setclockspeed - 'fmax' value cannot be less than fmin \n");
+        return ECMD_INVALID_ARGS;
+      }
+      endOffet = endOffet + 1;//add for fmax also
+      clockspeed = "0"; //clockspeed of zero in case of fmin and fmax
+    } else {
+      // this is supposed to be 'fmax'
+      ecmdOutputError("setclockspeed - 'fmax' parm needs to come after 'fmin' parm\n");
+      ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
 
 
   } else {
@@ -736,12 +782,16 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
 
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
-    if (iv_mult==0) {
-      rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
-    } else { 
+    if( iv_speedoption == 1 ) {
       rc = ecmdSetClockMultDiv(target, clockType, iv_mult, iv_div);
     }
+    else if( iv_speedoption == 2 ) {
+      rc = ecmdSetClockMinMax(target, clockType, iv_fmin, iv_fmax);
+    }
+    else { 
+      rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
+    }
+
     if (rc) {
       printed = "setclockspeed - Error occured performing setclockspeed on ";
       printed += ecmdWriteTarget(target);
