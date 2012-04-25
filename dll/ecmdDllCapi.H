@@ -181,6 +181,8 @@ uint32_t dllSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uin
 
 uint32_t dllSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider); 
 
+uint32_t dllSetClockMinMax(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_fMin, uint32_t i_fMax); 
+
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t dllIStepsByNumber(ecmdDataBuffer & i_steps); 
 
