@@ -579,11 +579,11 @@ typedef enum {
   ECMD_POWER_MODE_NORMAL,       ///< normal power mode
   ECMD_POWER_MODE_SAVE,         ///< power save mode
   ECMD_POWER_MODE_TURBO,         ///< turbo mode
-  ECMD_POWER_MODE_SUPER_TURBO,   ///< super turbo mode
   ECMD_POWER_MODE_PARTIAL_SAVE,  ///< part of the target is in power save mode
   ECMD_POWER_MODE_IN_TRANSITION, ///< target is in transition mode
   ECMD_POWER_MODE_SAVE_DYNAMIC,  ///< target is in dynamic power save mode
   ECMD_POWER_MODE_SAVE_DYNAMIC_MP,  ///< target is in dynamic power save max performance mode
+  ECMD_POWER_MODE_SUPER_TURBO   ///< super turbo mode
 } ecmdPowerMode_t;
 
 /**
