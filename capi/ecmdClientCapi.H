@@ -1395,6 +1395,21 @@ uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ui
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
+
+/**
+ @brief Change a system clock speed without adjusting system initialization settings using speed value
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_type Clock type to change in system
+ @param i_fMin clock frequency minimum
+ @param i_fMax clock frequency maximum
+ 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : cage, core/chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+uint32_t ecmdSetClockMinMax(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_fMin, uint32_t i_fMax);
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 //@}
 
