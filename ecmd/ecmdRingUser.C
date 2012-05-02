@@ -2043,7 +2043,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             }
             // repeating pattern of 0110101s
             repPattern = "0110101";
-            printf(" ringBuffer.getBitLength = %d \n", ringBuffer.getBitLength());
             for (uint32_t y=0; y<ringBuffer.getBitLength(); ) {
               ringBuffer.clearBit(y++);
               if (y<ringBuffer.getBitLength()) {ringBuffer.setBit(y++);  }
