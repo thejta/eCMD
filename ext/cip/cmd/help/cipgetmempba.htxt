@@ -1,0 +1,45 @@
+
+Syntax: cipgetmempba <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
+        cipgetmempba <MemAddress> <NumBytes> [-exp <data> [-i<format>] [-mask <data>]]
+        cipgetmempba <MemAddress>  [-exp -f[d|b]<filename>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Display the contents of mainstore using the processor
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        MemAddress      64 Bit address to read from (Hex-Right)
+
+        NumBytes        Number of bytes to fetch (Decimal).
+
+        -o<format>[opt] Specifies the format type of the output : default 'mem'
+                        Not valid with -f option.
+                        Run 'ecmdquery formats' to view available formats
+
+        -fd <filename>  Specify full path and filename to file in D-Card format to write
+                        data from system
+                        Not valid with -o or -i option.
+
+        -fb <filename>  Specify full path and filename to binary file to write data from
+                        system
+                        Not valid with -o or -i option.
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+        -i<format>[opt] Specifies the format type of expect and mask data : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+        
+        -exp [optional] Provide expected data.  Returns error if expected != actual.  No
+                        error/no data returned if expected == actual.
+
+        -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
+                        Not valid with '-exp -f[d|b]'
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipgetmempba 1000 128 -p0
+                        > cipgetmempba 1000 128 -fb datafile
+                        > cipgetmempba 1000 -exp -fb datafile

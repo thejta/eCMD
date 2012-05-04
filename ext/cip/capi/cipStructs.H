@@ -87,6 +87,9 @@
 #define CIP_PORE_SCOM_CPM_MODEE_SECTION     0x00001E00 ///< Add PORE instruction to SCOM CPM MODEE section of the image
 #define CIP_PORE_SCOM_CPM_MODEF_SECTION     0x00001F00 ///< Add PORE instruction to SCOM CPM MODEF section of the image
 
+#define CIP_PBA_MODE_LCO    0x00000001  ///< Use LCO mode with cipPutMemPba
+#define CIP_PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with cipPutMemPba
+
 /**
  @brief Used by setBreakpoint to specify what type of breakpoint to set
 */
