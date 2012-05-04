@@ -1,0 +1,39 @@
+
+Syntax: cipputmempba <MemAddress> <Data> [-i<format>]
+        cipputmempba <MemAddress> -fb<filename>
+        cipputmempba [AddressOffset] -fd<filename>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+        [-mode <PbaMode>]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Write the specified data to mainstore using the Processor 
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        MemAddress      64 Bit address to write to (Hex-Right). Not valid with -fd option
+
+        -mode <PbaMode> Specify witch mode to use: 'lco' or 'inj' : default 'lco'
+
+        -fd <filename>  Specify full path and filename to file in D-Card format to load
+                        to system
+                        You can optionally specify AddressOffset which will be added
+                        to the addresses in the dcardfile
+
+        -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+        Data            Data to write into mainstore. Not valid with -f option
+                        Format specified by -i<format>
+
+        -i<format>[opt] Specifies the format type of input data : default 'xl'
+                        Not valid with -f option
+                        Run 'ecmdquery formats' to view available formats
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipputmempba 10000 deadbeef80000000  -p0,1 
+                        > cipputmempba 10000 -fb datafile
+                        > cipputmempba -fd dcardfile

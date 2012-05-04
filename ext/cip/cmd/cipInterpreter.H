@@ -68,6 +68,8 @@ uint32_t cipPutVrUser(int argc, char * argv[]);
 #ifndef CIP_REMOVE_MEMORY_FUNCTIONS
 uint32_t ecmdCipGetMemProcUser(int argc, char * argv[]);
 uint32_t ecmdCipPutMemProcUser(int argc, char * argv[]);
+uint32_t cipGetMemPbaUser(int argc, char * argv[]);
+uint32_t cipPutMemPbaUser(int argc, char * argv[]);
 #endif // CIP_REMOVE_MEMORY_FUNCTIONS
 
 #ifndef CIP_REMOVE_VSR_FUNCTIONS

@@ -401,6 +401,47 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
 
 */
 uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memorySpareBits, ecmdDataBuffer & i_memoryErrorInject);
+
+/**
+ @brief Reads System Mainstore through the processor chip using PBA
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_memoryData DataBuffer object that holds data read from memory
+
+ TARGET DEPTH  : Pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipGetMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+/**
+ @brief Writes System Mainstore through the processor chip using PBA
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information 
+ @param i_address Starting address to write to
+ @param i_bytes Number of bytes to write
+ @param i_memoryData DataBuffer object that holds data to write into memory
+ @param i_mode CIP_PBA_MODE_LCO or CIP_PBA_MODE_INJECT
+
+ NOTE : When CIP_PBA_MODE_LCO mode is used, i_target must have ex chipunit<br>
+
+ TARGET DEPTH  : Pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipPutMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode);
 #endif // CIP_REMOVE_MEMORY_FUNCTIONS
 
 #ifndef CIP_REMOVE_VSR_FUNCTIONS
