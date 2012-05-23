@@ -414,7 +414,7 @@ uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
  @param i_target Struct that contains chip and cage/node/slot/position information
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
- @param o_memoryData DataBuffer object that holds data read from memory
+ @param o_data DataBuffer object that holds data read from memory
 
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
@@ -433,7 +433,7 @@ uint32_t cipGetMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i
  @param i_target Struct that contains chip and cage/node/slot/position information 
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
- @param i_memoryData DataBuffer object that holds data to write into memory
+ @param i_data DataBuffer object that holds data to write into memory
  @param i_mode CIP_PBA_MODE_LCO or CIP_PBA_MODE_INJECT
 
  NOTE : When CIP_PBA_MODE_LCO mode is used, i_target must have ex chipunit<br>
