@@ -146,7 +146,7 @@ public:
      * This function will be deleted to prevent invalid usage of ReturnCode
      * Use setFapiError, setPlatError, setEcmdError or FAPI_SET_HWP_ERROR
      *
-     * @param[in] i_rc rcValue to assign
+     * @param[in] i_rcValue rcValue to assign
      *
      * If FAPI_RC_SUCCESS (zero) is assigned then any associated data is deleted
      *

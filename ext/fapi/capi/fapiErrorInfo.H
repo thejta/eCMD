@@ -87,9 +87,15 @@ private:
  */
 enum CalloutPriority
 {
+#ifdef AIX
+    PRI_HIGH = 1,
+    PRI_MEDIUM = 2,
+//JFDEBUG     PRI_LOW = 3, HACK 
+#else
     PRI_HIGH = 1,
     PRI_MEDIUM = 2,
     PRI_LOW = 3,
+#endif
 };
 
 /**
