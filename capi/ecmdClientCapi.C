@@ -721,7 +721,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
 }
 
 // does the queryScomgroup and the doScomMultiple all in one
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> io_groupScomEntries, char * io_scomGroupFileVersion) {
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, char * io_scomGroupFileVersion) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomGroupName;
   ecmdScomData queryData;
