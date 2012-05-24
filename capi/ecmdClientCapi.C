@@ -611,8 +611,6 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
   int total_num_groups = 0;
 
 // we have the chip target and version number get the groupscomdef and the hash
-  //std::string scomgroup_filename = "/afs/rchland.ibm.com/usr8/bwieman/public/scomgroup/p7_dd10.groupscomdef";
-  //std::string scomgroupHash_filename = "/afs/rchland.ibm.com/usr8/bwieman/public/scomgroup/p7_dd10.groupscomdef.hash";
   std::string scomgroup_filename;
   std::string scomgroupHash_filename;
   ecmdChipTarget target = i_target;
@@ -723,19 +721,18 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
 }
 
 // does the queryScomgroup and the doScomMultiple all in one
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, char * io_scomGroupFileVersion) {
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> io_groupScomEntries, char * io_scomGroupFileVersion) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomGroupName;
   ecmdScomData queryData;
-  std::list<ecmdScomEntry> groupScomEntries;
   std::string printed;
   ecmdChipTarget target = i_target;
 
 
   if (io_scomGroupFileVersion != NULL) {
-    rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, groupScomEntries, io_scomGroupFileVersion);
+    rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, io_groupScomEntries, io_scomGroupFileVersion);
   } else {
-    rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, groupScomEntries);
+    rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, io_groupScomEntries);
   }
   if (rc) {
     printed = "getScomGroup - Error occurred performing queryscom on ";
@@ -744,7 +741,7 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
     return ECMD_FAILURE;
   }
 
-  if (groupScomEntries.size() == 0) {
+  if (io_groupScomEntries.size() == 0) {
     printed = "getScomGroup - Did not find any scoms for this scomGroupName:";
     printed += i_scomGroupName;
     printed += "\n";
@@ -771,7 +768,7 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
     }
   }
 
-  rc = doScomMultiple(target, groupScomEntries); if (rc) return rc;
+  rc = doScomMultiple(target, io_groupScomEntries); if (rc) return rc;
   if (rc) {
     printed = "getScomGroup - Error occured performing doScomMultiple on ";
     printed += ecmdWriteTarget(target);

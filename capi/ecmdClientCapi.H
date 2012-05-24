@@ -441,6 +441,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  @brief Does the query and the doScomMultiple in one function
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_scomGroupName Name of the scomgroup to look up in the hash
+ @param io_groupScomEntries this will be populated and returned
  @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If omitted (i.e, set to NULL) the latest version of the
                                 file will be read and io_scomGroupFileVersion will be set to the version number.
  @retval ECMD_SUCCESS if successful
@@ -449,7 +450,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, char * io_scomGroupFileVersion = NULL);
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> io_groupScomEntries, char * io_scomGroupFileVersion = NULL);
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
