@@ -450,7 +450,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> io_groupScomEntries, char * io_scomGroupFileVersion = NULL);
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, char * io_scomGroupFileVersion = NULL);
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
