@@ -1758,7 +1758,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool flush1;
   bool pattern0;
   bool pattern1;
-  bool pattern;
+  bool pattern = false;
   // Does the user want to force a broadside read or write of the data
   bool bsRead = false;
   bool bsWrite = false;
