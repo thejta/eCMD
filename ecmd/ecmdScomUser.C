@@ -1139,7 +1139,7 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
     if (use_version) {
       rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
     } else {
-      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries);
+      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, "default");
     }
     if (rc) {
       printed = "getscomgroup - Error occurred performing queryscom on ";
