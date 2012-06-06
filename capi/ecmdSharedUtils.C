@@ -408,7 +408,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
 
     // FIXME FIXME - big p8 HACK JFDEBUG -farrugia 
 
-    else if ((tokens[x].find_first_not_of("0123456789",1) == std::string::npos) && (tokens[x] != "p8")) {
+    else if ((tokens[x].find_first_not_of("0123456789",1) == std::string::npos) && (tokens[x] != "p8") && (tokens[x] != "s1")) {
       sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
       numFound = true;
     }
