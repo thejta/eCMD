@@ -614,15 +614,14 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
   std::string scomgroup_filename;
   std::string scomgroupHash_filename;
   ecmdChipTarget target = i_target;
-  if (io_scomGroupFileVersion == NULL) {
-    rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename); if (rc) return rc;
-    rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename); if (rc) return rc;
-  } else {
-    std::string str_version = io_scomGroupFileVersion;
-    rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
-    rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
-  }
+  std::string str_version = io_scomGroupFileVersion;
+  rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+  //if str_version was default, then it should have been changed here
+  rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
 
+  if ( strcmp(io_scomGroupFileVersion, "default") == 0) {
+    sprintf(io_scomGroupFileVersion,"%s", str_version.c_str());
+  }
   std::ifstream scomgroupHashFile;
   scomgroupHashFile.open(scomgroupHash_filename.c_str());
   if (scomgroupHashFile.fail()) {
@@ -729,11 +728,7 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
   ecmdChipTarget target = i_target;
 
 
-  if (io_scomGroupFileVersion != NULL) {
-    rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, io_groupScomEntries, io_scomGroupFileVersion);
-  } else {
-    rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, io_groupScomEntries);
-  }
+  rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, io_groupScomEntries, io_scomGroupFileVersion);
   if (rc) {
     printed = "getScomGroup - Error occurred performing queryscom on ";
     printed += ecmdWriteTarget(target) + "\n";

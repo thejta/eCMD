@@ -426,7 +426,7 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  @param i_scomGroupName Name of the scomgroup to look up in the hash
  @param o_queryData Return data from query
  @param o_entries list of scomsEntrys within the groupscomname
- @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If omitted (i.e, set to NULL) the latest version of the
+ @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If set to "default" the latest version of the
                                 file will be read and io_scomGroupFileVersion will be set to the version number.
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
@@ -435,14 +435,14 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData & o_queryData, std::list<ecmdScomEntry> & o_entries, char * io_scomGroupFileVersion = NULL);
+uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData & o_queryData, std::list<ecmdScomEntry> & o_entries, char * io_scomGroupFileVersion);
 
 /**
  @brief Does the query and the doScomMultiple in one function
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_scomGroupName Name of the scomgroup to look up in the hash
  @param io_groupScomEntries this will be populated and returned
- @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If omitted (i.e, set to NULL) the latest version of the
+ @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If set to "default" the latest version of the
                                 file will be read and io_scomGroupFileVersion will be set to the version number.
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
@@ -450,7 +450,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, char * io_scomGroupFileVersion = NULL);
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, char * io_scomGroupFileVersion);
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
@@ -484,7 +484,7 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
-uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string i_version = "default");
+uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version);
 
 /**
  @brief Query if a particular target is configured in the system
