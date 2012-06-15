@@ -435,7 +435,7 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData & o_queryData, std::list<ecmdScomEntry> & o_entries, char * io_scomGroupFileVersion);
+uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData & o_queryData, std::list<ecmdScomEntry> & o_entries, std::string & io_scomGroupFileVersion);
 
 /**
  @brief Does the query and the doScomMultiple in one function
@@ -450,7 +450,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, char * io_scomGroupFileVersion);
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion);
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**

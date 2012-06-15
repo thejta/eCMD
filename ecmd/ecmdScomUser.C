@@ -1121,11 +1121,12 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
   std::string scomGroupName = argv[1];
   bool use_version = false;
   //std::string version = "";
-  char * version = NULL;
+  std::string version = "";
   if (argc > 2) {
     use_version = true;
     version = argv[2];
   }
+  std::string printName;
 
   
   /************************************************************************/
@@ -1136,11 +1137,12 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
-    if (use_version) {
-      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
-    } else {
-      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, "default");
+    groupScomEntries.clear();
+    if (!use_version) {
+      version = "default";
     }
+    rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
+    printName = version;
     if (rc) {
       printed = "getscomgroup - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
@@ -1210,10 +1212,24 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
         validPosFound = true;
       }
 
-      //printed = ecmdWriteTarget(cuTarget);
-      //printed += ecmdWriteDataFormatted(buffer, outputformat, 0, queryData.endianMode);
-      //printed += ecmdWriteDataFormatted(buffer, outputformat, 0, ECMD_BIG_ENDIAN);
-      //ecmdOutput( printed.c_str() );
+      std::list<ecmdScomEntry>::iterator groupScomEntIter;
+      printed = ecmdWriteTarget(cuTarget);
+      printed += "\ngroupscomdef version: ";
+      printed += printName.c_str();
+      printed += "\naddr                 data\n";
+      ecmdOutput( printed.c_str() );
+      for (groupScomEntIter = groupScomEntries.begin(); groupScomEntIter != groupScomEntries.end(); groupScomEntIter++)
+      {
+        //printed += ecmdWriteDataFormatted(groupScomEntIter->address, outputformat);
+        buffer.setBitLength(64);
+        buffer.setDoubleWord(0, groupScomEntIter->address);
+        //printed = ecmdWriteDataFormatted(buffer, outputformat, 0, queryData.endianMode);
+        char tempstr[400];
+        sprintf(tempstr,"0x%s   ", buffer.genHexLeftStr().c_str());
+        printed = tempstr;
+        printed += ecmdWriteDataFormatted(groupScomEntIter->data, outputformat, 0, queryData.endianMode);
+        ecmdOutput( printed.c_str() );
+      }
 
     } /* End cuLooper */
   } /* End PosLooper */
