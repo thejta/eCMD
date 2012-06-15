@@ -1745,7 +1745,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     std::string scomGroupName = argv[2];
     bool use_version = false;
-    char * version = NULL;
+    std::string version = "";
     if (argc > 3) {
       use_version = true;
       version = argv[3];
@@ -1761,11 +1761,11 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       std::list<ecmdScomEntry> groupScomEntries;
       std::list<ecmdScomEntry>::iterator groupScomEntriesItr;
 
-      if (use_version) {
-        rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
-      } else {
-        rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, "default");
+      groupScomEntries.clear();
+      if (!use_version) {
+        version = "default";
       }
+      rc = ecmdQueryScomGroup(target, scomGroupName, queryData, groupScomEntries, version);
       if (rc) {
         printed = "ecmdquery scomgroup - Error occurred performing queryscom on ";
         printed += ecmdWriteTarget(target) + "\n";
