@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/fapi/fapi.H 1.4 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /**
  *  @file fapi.H
  *
@@ -27,7 +10,10 @@
  * ------   --------------  ----------  ----------- ----------------------------
  *                          mjjones     04/13/2011  Created.
  *                          mjjones     06/07/2011  Added new includes.
- *
+ *                          mjjones     08/08/2011  Updated Executor include
+ *                          mjjones     09/23/2011  Added fapiHwpErrorInfo.H
+ *                          mjjones     11/10/2011  Use ecmdDataBufferBase
+ *                          mjjones     04/16/2012  Added fapiChipEcFeature.H
  */
 
 #ifndef FAPI_H_
@@ -40,9 +26,11 @@
 #include <fapiSystemConfig.H>
 #include <fapiPlatTrace.H>
 #include <fapiHwpExecutor.H>
+#include <fapiAttributeService.H>
+#include <fapiChipEcFeature.H>
+#include <fapiHwpReturnCodes.H> // Generated file
+#include <fapiHwpErrorInfo.H>   // Generated file
+#include <fapiAttributeIds.H>   // Generated file
 #include <ecmdDataBufferBase.H>
 
-#include <fapiAttributeService.H>
-#include <fapiHwpReturnCodes.H> // Generated file
-#include <fapiAttributeIds.H>   // Generated file
 #endif // FAPI_H_
