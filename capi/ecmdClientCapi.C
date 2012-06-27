@@ -763,7 +763,7 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
     }
   }
 
-  rc = doScomMultiple(target, io_groupScomEntries); if (rc) return rc;
+  rc = doScomMultiple(target, io_groupScomEntries);
   if (rc) {
     printed = "getScomGroup - Error occured performing doScomMultiple on ";
     printed += ecmdWriteTarget(target);
