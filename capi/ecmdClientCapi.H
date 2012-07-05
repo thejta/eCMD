@@ -2284,6 +2284,14 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
 */
 uint32_t syncPluginState(ecmdChipTarget & i_target);
 
+/**
+ @brief Synchronizes the ipl mode between fsp and
+ *      hostboot b/w normal and debug modes
+
+*/
+uint32_t syncIplMode(int i_unused);
+
+
 //@}
 
 
