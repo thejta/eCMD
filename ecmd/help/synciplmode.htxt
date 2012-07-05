@@ -1,0 +1,13 @@
+
+Syntax: synciplmode 
+
+        ECMD:       Core Common Function
+
+        Function:   Synchronizes IPL mode to match that of the current IPL 
+
+        Parameters:
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
+
+        Example:       > synciplmode
+                         
