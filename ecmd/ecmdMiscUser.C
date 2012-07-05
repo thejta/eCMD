@@ -2383,6 +2383,23 @@ uint32_t ecmdSyncPluginStateUser(int argc, char * argv[]) {
   return rc;
 }
 
+//Synchronizes the ipl mode between fsp and
+// hostboot b/w normal and debug modes
+uint32_t ecmdSyncIplModeUser(int argc, char * argv[]) 
+{
+  uint32_t rc = ECMD_SUCCESS;
+  std::string printed;          //Print Buffer
+  int l_unused = 0;
+
+  rc = syncIplMode(l_unused);
+  if(rc)
+  {
+    printed = "synciplmode - Error occured performing ipl mode synchronization\n";
+    ecmdOutputError( printed.c_str() );
+  }
+  return rc;
+}
+
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       
