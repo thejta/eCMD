@@ -39,7 +39,7 @@ Syntax: ecmd
         getgpr                   psi                      simEXPECTFAC             stopclocks               
         getgpreg                 putarray                 simGETFAC                syncpluginstate          
         geti2c                   putbits                  simGETFACX               systempower              
-        getlatch                 putcfam                  simPUTFAC                                         
+        getlatch                 putcfam                  simPUTFAC                synciplmode                         
         getmemdma                putfpr                   simPUTFACX               unitid                   
         getmemmemctrl            putgpiolatch             simSTKFAC                
 
