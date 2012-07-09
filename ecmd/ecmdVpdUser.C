@@ -69,6 +69,8 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   ecmdLooperData looperdata1;           ///< looper to do the real work
   char targetStr[50];                   ///< target postfix for the filename incase of multi positions
   int targetCount=0;                    ///< counts the number of targets user specified
+  int rid = -1;                         ///< rid of device to operate on
+  int match;                            ///< For sscanf
   
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -103,38 +105,54 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if (argc < 5) {  
-    ecmdOutputError("getvpdkeyword - Too few arguments specified; you need at least a chip, vpdtype, recordname, keyword and numbytes.\n");
+    ecmdOutputError("getvpdkeyword - Too few arguments specified; you need at least a chip/rid, vpdtype, recordname, keyword and numbytes.\n");
     ecmdOutputError("getvpdkeyword - Type 'getvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if (argc > 5) {
-    ecmdOutputError("getvpdkeyword - Too many arguments specified; you only need chip, vpdtype, recordname, keyword and numbytes.\n");
+    ecmdOutputError("getvpdkeyword - Too many arguments specified; you only need chip/rid, vpdtype, recordname, keyword and numbytes.\n");
     ecmdOutputError("getvpdkeyword - Type 'getvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("getvpdkeyword - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
+  //Check to see if rid was passed in instead of a target
+  if (ecmdIsAllHex(argv[0])) {
+    match = sscanf(argv[0], "%x", &rid);
+    if (match != 1) {
+      ecmdOutputError("Error occurred processing rid!\n");
+      return ECMD_INVALID_ARGS;
+    }
   }
-  target.chipType = chipType;
-  if (target.chipType == "nochip") {
-    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-    target.posState = ECMD_TARGET_FIELD_UNUSED;
-  } else {
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  }
-  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-  target1 = target; //Created for the second looper needed for -fb case with multiple positions
+  //Setup target if rid is not used
+  if (rid == -1) {
+    //Setup the target that will be used to query the system config
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    if (chipUnitType != "") {
+      ecmdOutputError("getvpdkeyword - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+      return ECMD_INVALID_ARGS;
+    }
+    target.chipType = chipType;
+    if (target.chipType == "nochip") {
+      target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+      target.posState = ECMD_TARGET_FIELD_UNUSED;
+    } else {
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+      target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+    target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    target1 = target; //Created for the second looper needed for -fb case with multiple positions
+  }
 
   char *vpdType = argv[1];
   if (!strcasecmp(vpdType, "MOD") && !strcasecmp(vpdType, "FRU")) {
     ecmdOutputError("getvpdkeyword - You have to specify either mod or fru for the vpd type\n");
+    return ECMD_INVALID_ARGS;
+  }
+  if ((rid != -1) && strcasecmp(vpdType, "FRU")) {
+    ecmdOutputError("getvpdkeyword - rid may only be specified with fru for the vpd type\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -148,67 +166,98 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   
   uint32_t numBytes = (uint32_t)atoi(argv[4]);
   
-  //Run the loop to Check the number of targets
-  if (filename != NULL) {
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-    if (rc) return rc;
+  if (rid == -1) {
+    //Run the loop to Check the number of targets
+    if (filename != NULL) {
+      rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+      if (rc) return rc;
  
-    while ( ecmdLooperNext(target, looperdata) ) {
-      targetCount++;
+      while ( ecmdLooperNext(target, looperdata) ) {
+        targetCount++;
+      }
     }
-  }
   
-  //Looper to do the actual work
-  rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
-  if (rc) return rc;
+    //Looper to do the actual work
+    rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
+    if (rc) return rc;
               
 
-  while (ecmdLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
 
-    if (!strcasecmp(vpdType, "MOD")) {
-      rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
-    } else {
-      rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
-    }
-    if (rc) {
-      printed = "getvpdkeyword - Error occurred performing ";
-      printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdKeyword" : "getFruVpdKeyword");
-      printed += " on " + ecmdWriteTarget(target1) + "\n";
-      ecmdOutputError( printed.c_str() );
-      coeRc = rc;
-      continue;
-      //return rc;
-
-    }
-    else {
-      validPosFound = true;     
-    }
-
-    printed = ecmdWriteTarget(target1) + "\n";
-    if (filename != NULL) {
-      if (targetCount > 1) {
-        sprintf(targetStr, "k%dn%ds%dp%d", target1.cage, target1.node, target1.slot, target1.pos); 
-        newFilename = (std::string)filename+"."+(std::string)targetStr;
+      if (!strcasecmp(vpdType, "MOD")) {
+        rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
+      } else {
+        rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
       }
-      else { newFilename = (std::string)filename; }
-      
-      rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
-     
       if (rc) {
-       printed += "getvpdkeyword - Problems occurred writing data into file " + newFilename + "\n";
-       ecmdOutputError(printed.c_str()); 
-       return rc;
+        printed = "getvpdkeyword - Error occurred performing ";
+        printed += (!strcasecmp(vpdType, "MOD") ? "getModuleVpdKeyword" : "getFruVpdKeyword");
+        printed += " on " + ecmdWriteTarget(target1) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+        //return rc;
+
       }
-      ecmdOutput( printed.c_str() );
+      else {
+        validPosFound = true;     
+      }
+
+      printed = ecmdWriteTarget(target1) + "\n";
+      if (filename != NULL) {
+        if (targetCount > 1) {
+          sprintf(targetStr, "k%dn%ds%dp%d", target1.cage, target1.node, target1.slot, target1.pos); 
+          newFilename = (std::string)filename+"."+(std::string)targetStr;
+        }
+        else { newFilename = (std::string)filename; }
       
-      ops.close();
-    } 
-    else {
-      std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
-      printed += dataStr;
-      ecmdOutput( printed.c_str() );
-    } 
+        rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
+     
+        if (rc) {
+         printed += "getvpdkeyword - Problems occurred writing data into file " + newFilename + "\n";
+         ecmdOutputError(printed.c_str()); 
+         return rc;
+        }
+        ecmdOutput( printed.c_str() );
+      
+        ops.close();
+      } 
+      else {
+        std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
+        printed += dataStr;
+        ecmdOutput( printed.c_str() );
+      } 
     
+    }
+  } else {
+      if (!strcasecmp(vpdType, "MOD")) {
+         // ERROR
+      } else {
+        rc = getFruVpdKeywordWithRid(rid, recordName, keyWord, numBytes, data);
+        validPosFound = true;     
+      }
+
+      printed = argv[0];
+      printed += "\n";
+      if (filename != NULL) {
+        newFilename = (std::string)filename;
+
+        rc = data.writeFile(newFilename.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA);
+
+        if (rc) {
+         printed += "getvpdkeyword - Problems occurred writing data into file " + newFilename + "\n";
+         ecmdOutputError(printed.c_str());
+         return rc;
+        }
+        ecmdOutput( printed.c_str() );
+
+        ops.close();
+      }
+      else {
+        std::string dataStr = ecmdWriteDataFormatted(data, outputformat);
+        printed += dataStr;
+        ecmdOutput( printed.c_str() );
+      }
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
@@ -231,6 +280,9 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   ecmdDataBuffer data;                  ///< buffer for the Data to write into the module vpd keyword
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool inputformatflag = false;
+  int rid = -1;                         ///< rid of device to operate on
+  int match;                            ///< For sscanf
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -265,44 +317,60 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
   if ((argc < 5) && (filename == NULL)) {  
-    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, vpdtype, recordname, keyword and data.\n");
+    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip/rid, vpdtype, recordname, keyword and data.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if ((argc < 4) && (filename != NULL)) {
-    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip, vpdtype, recordname, keyword and input file.\n");
+    ecmdOutputError("putvpdkeyword - Too few arguments specified; you need at least a chip/rid, vpdtype, recordname, keyword and input file.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if ((argc > 4) && (filename != NULL)) {
-    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, vpdtype, recordname, keyword and input file.\n");
+    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip/rid, vpdtype, recordname, keyword and input file.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   } else if ((argc > 5) && (filename == NULL)) {
-    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip, vpdtype, recordname, keyword and data.\n");
+    ecmdOutputError("putvpdkeyword - Too many arguments specified; you need a chip/rid, vpdtype, recordname, keyword and data.\n");
     ecmdOutputError("putvpdkeyword - Type 'putvpdkeyword -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
 
-  //Setup the target that will be used to query the system config 
-  std::string chipType, chipUnitType;
-  ecmdParseChipField(argv[0], chipType, chipUnitType);
-  if (chipUnitType != "") {
-    ecmdOutputError("getvpdkeyword - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
-    return ECMD_INVALID_ARGS;
+  //Check to see if rid was passed in instead of a target
+  if (ecmdIsAllHex(argv[0])) {
+    match = sscanf(argv[0], "%x", &rid);
+    if (match != 1) {
+      ecmdOutputError("Error occurred processing rid!\n");
+      return ECMD_INVALID_ARGS;
+    }
   }
-  target.chipType = chipType;
+
+  //Setup target if rid is not used
+  if (rid == -1) {
+    //Setup the target that will be used to query the system config 
+    std::string chipType, chipUnitType;
+    ecmdParseChipField(argv[0], chipType, chipUnitType);
+    if (chipUnitType != "") {
+      ecmdOutputError("getvpdkeyword - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+      return ECMD_INVALID_ARGS;
+    }
+    target.chipType = chipType;
   if (target.chipType == "nochip") {
-    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-    target.posState = ECMD_TARGET_FIELD_UNUSED;
-  } else {
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.posState = ECMD_TARGET_FIELD_WILDCARD;
+      target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+      target.posState = ECMD_TARGET_FIELD_UNUSED;
+    } else {
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+      target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+    target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   }
-  target.cageState = target.nodeState = target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   char *vpdType = argv[1];
   if (!strcasecmp(vpdType, "MOD") && !strcasecmp(vpdType, "FRU")) {
     ecmdOutputError("putvpdkeyword - You have to specify either mod or fru for the vpd type\n");
+    return ECMD_INVALID_ARGS;
+  }
+  if ((rid != -1) && strcasecmp(vpdType, "FRU")) {
+    ecmdOutputError("putvpdkeyword - rid may only be specified with fru for the vpd type\n");
     return ECMD_INVALID_ARGS;
   }
 
@@ -325,35 +393,62 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     }
   }
   
-  /************************************************************************/
-  /* Kickoff Looping Stuff                                                */
-  /************************************************************************/
+  if (rid == -1) {
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
 
-  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
-  if (rc) return rc;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+    if (rc) return rc;
   
-  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
+      if (!strcasecmp(vpdType, "MOD")) {
+        rc = putModuleVpdKeyword(target, recordName, keyWord, data);
+      } else {
+        rc = putFruVpdKeyword(target, recordName, keyWord, data);
+      }
+      if (rc) {
+        printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword ";
+        printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdKeyword" : "putFruVpdKeyword");
+        printed += " on " + ecmdWriteTarget(target) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+        //return rc;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(target) + "\n";
+        ecmdOutput(printed.c_str());
+      }
+    }
+  } else {
     if (!strcasecmp(vpdType, "MOD")) {
-      rc = putModuleVpdKeyword(target, recordName, keyWord, data);
+       // ERROR
     } else {
-      rc = putFruVpdKeyword(target, recordName, keyWord, data);
+      rc = putFruVpdKeywordWithRid(rid, recordName, keyWord, data);
+      validPosFound = true;
     }
     if (rc) {
       printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword ";
       printed += (!strcasecmp(vpdType, "MOD") ? "putModuleVpdKeyword" : "putFruVpdKeyword");
-      printed += " on " + ecmdWriteTarget(target) + "\n";
+      printed += " with rid ";
+      printed += argv[0];
+      printed += "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
-      continue;
-      //return rc;
     }
     else {
       validPosFound = true;     
     }
 
     if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-      printed = ecmdWriteTarget(target) + "\n";
+      printed = argv[0];
+      printed += "\n";
       ecmdOutput(printed.c_str());
     }
   }

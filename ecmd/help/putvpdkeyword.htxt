@@ -1,6 +1,6 @@
 
-Syntax: putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <Data> [-i<format>]
-        putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> -fb<filename> 
+Syntax: putvpdkeyword <Chip|RID> <VpdType> <RecordName> <Keyword> <Data> [-i<format>]
+        putvpdkeyword <Chip|RID> <VpdType> <RecordName> <Keyword> -fb<filename> 
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -10,10 +10,11 @@ Syntax: putvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <Data> [-i<format>
         Parameters:
         --------------------------------------------------------------------------------
         Chip            Chip to write the VPD data into,  "nochip" for targeting by cage, node, slot
-	
+        RID             RID of device to write VPD record contents into. Works only with fru VpdType.
+
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
-	RecordName      VPD Record Name (in quotes) 
+        RecordName      VPD Record Name (in quotes) 
 
         Keyword         VPD Keyword (in quotes) 
 
