@@ -1,6 +1,6 @@
 
-Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<format>    
-        getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -fb<filename>
+Syntax: getvpdkeyword <Chip|RID> <VpdType> <RecordName> <Keyword> <NumBytes> -o<format>    
+        getvpdkeyword <Chip|RID> <VpdType> <RecordName> <Keyword> <NumBytes> -fb<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -9,7 +9,8 @@ Syntax: getvpdkeyword <Chip> <VpdType> <RecordName> <Keyword> <NumBytes> -o<form
 
         Parameters:
         --------------------------------------------------------------------------------
-	Chip            Chip to get the module VPD record contents from,  "nochip" for targeting by cage, node, slot 
+        Chip            Chip to get the module VPD record contents from,  "nochip" for targeting by cage, node, slot 
+        RID             RID of device to get VPD record contents from. Works only with fru VpdType.
 
         VpdType         "mod" for Module vpd, "fru" for FRU vpd 
 
