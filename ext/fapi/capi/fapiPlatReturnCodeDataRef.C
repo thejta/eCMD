@@ -44,7 +44,7 @@ namespace fapi
 //******************************************************************************
 void ReturnCodeDataRef::deletePlatData()
 {
-	FAPI_DBG("ReturnCodeDataRef::deletePlatData");
+    //JFDEBUG 	FAPI_DBG("ReturnCodeDataRef::deletePlatData");
 
     // If platform does not attach ReturnCodeData to a ReturnCode then it can
     // do nothing (this function will never be called), but if it does then it
