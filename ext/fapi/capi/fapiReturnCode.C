@@ -257,7 +257,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             {
                 // This is a regular FFDC data object that can be directly
                 // memcopied
-                FAPI_ERR("addErrorInfo: Adding FFDC, size: %d", l_size);
+                //JFDEBUG FAPI_ERR("addErrorInfo: Adding FFDC, size: %d", l_size);
                 addEIFfdc(l_pObject, l_size);
             }
             else
@@ -266,7 +266,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 if (l_size == ReturnCodeFfdc::EI_FFDC_SIZE_ECMDDB)
                 {
                     // The FFDC is a ecmdDataBufferBase
-                    FAPI_ERR("addErrorInfo: Adding ecmdDB FFDC");
+                    //JFDEBUG FAPI_ERR("addErrorInfo: Adding ecmdDB FFDC");
                     const ecmdDataBufferBase * l_pDb =
                         static_cast<const ecmdDataBufferBase *>(l_pObject);
                     ReturnCodeFfdc::addEIFfdc(*this, *l_pDb);
@@ -286,7 +286,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 static_cast<CalloutPriority>(i_pEntries[i].iv_data1);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding callout, pri: %d", l_pri);
+            //JFDEBUG FAPI_ERR("addErrorInfo: Adding callout, pri: %d", l_pri);
             addEICallout(*l_pTarget, l_pri);
         }
         else if (i_pEntries[i].iv_type == EI_TYPE_DECONF)
@@ -295,7 +295,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             const Target * l_pTarget = static_cast<const Target *>(l_pObject);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding deconfigure");
+            //JFDEBUG FAPI_ERR("addErrorInfo: Adding deconfigure");
             addEIDeconfigure(*l_pTarget);
         }
         else if (i_pEntries[i].iv_type == EI_TYPE_GARD)
@@ -304,7 +304,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             const Target * l_pTarget = static_cast<const Target *>(l_pObject);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding GARD");
+            //JFDEBUG FAPI_ERR("addErrorInfo: Adding GARD");
             addEIGard(*l_pTarget);
         }
         else
@@ -322,7 +322,7 @@ void ReturnCode::addEIFfdc(const void * i_pFfdc,
                            const uint32_t i_size)
 {
     // Create a ErrorInfoFfdc object and add it to the Error Information
-    FAPI_ERR("addEIFfdc: Adding FFDC, size: %d", i_size);
+    //JFDEBUG FAPI_ERR("addEIFfdc: Adding FFDC, size: %d", i_size);
     ensureDataRefExists();
     ErrorInfoFfdc * l_pFfdc = new ErrorInfoFfdc(i_pFfdc, i_size);
     iv_pDataRef->getCreateErrorInfo().iv_ffdcs.push_back(l_pFfdc);

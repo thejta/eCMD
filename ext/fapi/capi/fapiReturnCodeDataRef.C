@@ -83,8 +83,7 @@ ReturnCodeDataRef::~ReturnCodeDataRef()
 //******************************************************************************
 void ReturnCodeDataRef::incRefCount()
 {
-	FAPI_DBG("ReturnCodeDataRef::incRefCount: iv_refCount = %d on entry",
-             iv_refCount);
+    //JFDEBUG	FAPI_DBG("ReturnCodeDataRef::incRefCount: iv_refCount = %d on entry", iv_refCount);
     iv_refCount++;
 }
 
@@ -93,8 +92,7 @@ void ReturnCodeDataRef::incRefCount()
 //******************************************************************************
 bool ReturnCodeDataRef::decRefCountCheckZero()
 {
-	FAPI_DBG("ReturnCodeDataRef::decRefCountCheckZero: iv_refCount = %d on "
-             "entry", iv_refCount);
+    //JFDEBUG 	FAPI_DBG("ReturnCodeDataRef::decRefCountCheckZero: iv_refCount = %d on " "entry", iv_refCount);
 
     if (iv_refCount == 0)
     {
