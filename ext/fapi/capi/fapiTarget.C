@@ -14,6 +14,7 @@
  *                          mjjones     02/07/2012  Remove MBS_CHIPLET
  *                                                  Add XBUS_ENDPOINT ABUS_ENDPOINT
  *                          mjjones     02/21/2012  Add high performance toEcmdString
+ *                          mjjones     07/11/2012  Clear iv_pEcmdString on set
  */
 
 #include <fapiTarget.H>
@@ -112,6 +113,8 @@ void * Target::get() const
 void Target::set(void * i_pHandle)
 {
     iv_pHandle = i_pHandle;
+    delete [] iv_pEcmdString;
+    iv_pEcmdString = NULL;
 }
 
 //******************************************************************************
