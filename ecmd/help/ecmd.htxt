@@ -37,11 +37,11 @@ Syntax: ecmd
         getgpiopin               pollscom                 setclockspeed            simunsticktcfac          
         getgpioreg               powermode                setconfig                startclocks              
         getgpr                   psi                      simEXPECTFAC             stopclocks               
-        getgpreg                 putarray                 simGETFAC                syncpluginstate          
-        geti2c                   putbits                  simGETFACX               systempower              
-        getlatch                 putcfam                  simPUTFAC                synciplmode                         
-        getmemdma                putfpr                   simPUTFACX               unitid                   
-        getmemmemctrl            putgpiolatch             simSTKFAC                
+        getgpreg                 putarray                 simGETFAC                synciplmode              
+        geti2c                   putbits                  simGETFACX               syncpluginstate          
+        getlatch                 putcfam                  simPUTFAC                systempower              
+        getmemdma                putfpr                   simPUTFACX                                        
+        getmemmemctrl            putgpiolatch             simSTKFAC                unitid                   
 
 
         GIP Extensions:
@@ -59,6 +59,7 @@ Syntax: ecmd
         --------------------------------------------------------------------------------
 
         cipbreakpoint            
+        cipgetmempba             
         cipgetmemproc            
         cipgetvr                 
         cipgetvsr                
@@ -68,6 +69,7 @@ Syntax: ecmd
         cipporeputspr            
         cipporeputspy            
         cipporequeryimage        
+        cipputmempba             
         cipputmemproc            
         cipputvr                 
         cipputvsr                
@@ -108,6 +110,7 @@ Syntax: ecmd
         croregencnfg             
         croresettap              
         croruninitfile           
+        crorwprobe               
         crosetconfig             
         crosysxcmd               
         crowritecnfg             
