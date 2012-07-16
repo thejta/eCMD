@@ -22,9 +22,9 @@ uint32_t dllFapiInitExtension(const char * i_version);
 /* Extension Specific load function - used by Cronus/GFW to see if extension is supported */
 uint32_t dllFapiInitExtensionInPlugin();
 
-fapi::ReturnCode dllFapiGetRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data); 
+fapi::ReturnCode dllFapiGetRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & o_data, const uint32_t i_ringMode); 
 
-fapi::ReturnCode dllFapiPutRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & i_data); 
+fapi::ReturnCode dllFapiPutRing(const fapi::Target& i_handle, const uint32_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode); 
 
 fapi::ReturnCode dllFapiGetChildChiplets(const fapi::Target& i_target, const fapi::TargetType i_chipletType, std::vector<fapi::Target> & o_chiplets, const fapi::TargetState i_state); 
 
