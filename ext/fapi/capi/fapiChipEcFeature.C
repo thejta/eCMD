@@ -4,12 +4,13 @@
 
 #include <fapiChipEcFeature.H>
 #include <fapiAttributeService.H>
+#include <fapiPlatTrace.H>
 
 namespace fapi
 {
 
 fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
-                                        fapi::Target * i_pTarget,
+                                        const fapi::Target * i_pTarget,
                                         uint8_t & o_hasFeature)
 {
     o_hasFeature = false;
@@ -38,10 +39,10 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
             case ATTR_CHIP_EC_FEATURE_TEST1:
                 if (
                     ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
-                     (l_chipEc == 10))
+                     (l_chipEc == 0x10))
                 ||
                     ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
-                     (l_chipEc > 30))
+                     (l_chipEc > 0x30))
                    )
                 {
                     o_hasFeature = true;
@@ -50,7 +51,7 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
             case ATTR_CHIP_EC_FEATURE_TEST2:
                 if (
                     ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc < 20))
+                     (l_chipEc < 0x20))
                    )
                 {
                     o_hasFeature = true;
