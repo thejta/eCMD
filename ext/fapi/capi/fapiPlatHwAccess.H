@@ -24,6 +24,9 @@
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          monte       8sep2011    new
+ *                          mjjones     11/10/2011  Use ecmdDataBufferBase
+ *          836579          thi         May 22,2012 Spy/Ring supports
+ *                          mjjones     07/12/2012  Add Pulse mode option to Ring funcs
  */
 
 #ifndef FAPIPLATHWACCESS_H_
@@ -33,8 +36,6 @@
 #include <ecmdDataBufferBase.H>
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
-#include <fapiHwAccess.H>
-#include <fapiUtil.H>
 
 
 extern "C"
@@ -138,6 +139,120 @@ fapi::ReturnCode platModifyCfamRegister(const fapi::Target& i_target,
                                   ecmdDataBufferBase & i_data,
                                   const fapi::ChipOpModifyMode i_modifyMode);
 
+
+/**
+ * @brief Platform-level implementation called by fapiGetRing()
+ * Hardware procedures writers will not call this function.
+ * 
+ * @param[in] i_target  Target to operate on
+ * @param[in] i_address Ring address to read from
+ * @param[out] o_data   ecmdDataBufferBase object that holds data read from
+ *                      address
+ * @param[in] i_ringMode Any number of mode options from fapi::RingMode ORed
+ * @return ReturnCode. Zero on success, else platform specified error
+ */
+fapi::ReturnCode platGetRing(const fapi::Target& i_target,
+                             const uint32_t i_address,
+                             ecmdDataBufferBase & o_data,
+                             const uint32_t i_ringMode);
+
+
+/**
+ * @brief Platform-level implementation called by fapiPutRing()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in] i_target  Target to operate on
+ * @param[in] i_address Ring address to write to
+ * @param[in] i_data    ecmdDataBufferBase object that holds data to write into
+ *                      address
+ * @param[in] i_ringMode Any number of mode options from fapi::RingMode ORed
+ * @return ReturnCode. Zero on success, else platform specified error
+ */
+fapi::ReturnCode platPutRing(const fapi::Target& i_target,
+                             const uint32_t i_address,
+                             ecmdDataBufferBase & i_data,
+                             const uint32_t i_ringMode);
+
+
+/**
+ * @brief Platform-level implementation called by fapiModifyRing()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in] i_target  Target to operate on
+ * @param[in] i_address Ring address to modify
+ * @param[in] i_data    ecmdDataBufferBase object that holds data to write into
+ *                      address
+ * @param[in] i_ringMode Any number of mode options from fapi::RingMode ORed
+ * @return ReturnCode. Zero on success, else platform specified error
+ */
+fapi::ReturnCode platModifyRing(const fapi::Target& i_target,
+                                const uint32_t i_address,
+                                ecmdDataBufferBase & i_data,
+                                const fapi::ChipOpModifyMode i_modifyMode,
+                                const uint32_t i_ringMode);
+
+// --------------------------------------------------------------------------
+// NOTE:
+// These spy access interfaces are only used in FSP.
+// HB does not allow spy access
+
+#ifndef _NO_SPY_ACCESS
+/**
+ * @brief Platform-level implementation called by fapiGetSpy()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in] i_target              Target to read spy from
+ * @param[in] i_spyId               The spy's id
+ * @param[out] o_data               Storage for output data
+ *
+ * @return ReturnCode. Zero on success, else platform specified error
+ */
+fapi::ReturnCode platGetSpy(const fapi::Target& i_target,
+                            const uint32_t i_spyId,
+                            ecmdDataBufferBase & o_data);
+
+/**
+ * @brief Platform-level implementation called by fapiPutSpy()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in] i_target  Target to operate on
+ * @param[in] i_spyId   The spy's id
+ * @param[in] i_data    ecmdDataBufferBase object that holds data to write into
+ *                      address
+ *
+ * @return ReturnCode. Zero on success, else platform specified error
+ */
+fapi::ReturnCode platPutSpy(const fapi::Target& i_target,
+                            const uint32_t i_spyId,
+                            ecmdDataBufferBase & i_data);
+
+/**
+ * @brief Platform-level implementation called by fapiGetSpyEnum()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in] i_target         Target to read spy enum from
+ * @param[in] i_spyId          The spy's id
+ * @param[out] o_enumVal       Spy enum value
+ *
+ * @return ReturnCode. Zero on success, else platform specified error
+ */
+fapi::ReturnCode platGetSpyEnum(const fapi::Target& i_target,
+                                const uint32_t i_spyId,
+                                uint32_t& o_enumVal);
+
+/**
+ * @brief Platform-level implementation called by fapiPutSpyEnum()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in] i_target             The chip or logical unit target
+ * @param[in] i_spyId              The spy's id
+ * @param[in] i_enumVal            Spy enum value to write
+ */
+fapi::ReturnCode platPutSpyEnum(const fapi::Target& i_target,
+                                const uint32_t i_spyId,
+                                const uint32_t i_enumVal);
+
+#endif
 
 } // extern "C"
 
