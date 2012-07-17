@@ -40,8 +40,6 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         'sptd' for super turbo percentage down (4sptu)
                         'mult' AND 'div' -- MUST have both, with mult first --
                             for multiplier and divider (100mult 10div)
-                        'fmin' AND 'fmax' -- MUST have both, with fmin first --
-                            for frequency minimum and maximum (3400fmin 3600fmax)
 
         -steer [opt]    Steer to new value.  Default is to move in one operation.
 
@@ -56,5 +54,4 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         > setclockspeed pu.core pu_coreclock 2700mhz
                         > setclockspeed pu pu_coreclock 5npu
                         > setclockspeed pu pu_coreclock 10cpd
-                        > setclockspeed pu pu_coreclock 3400fmin 3600fmax
 
