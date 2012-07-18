@@ -719,7 +719,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 
 
-    std::string procRegName = argv[2];
+    std::string procRegName;
+    if (argc >= 3) {
+      procRegName = argv[2];
+    }
 
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
