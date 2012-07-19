@@ -33,6 +33,7 @@
 /* Extension Interpreters */
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
 #include <fapiClientCapi.H>
+#include <fapiInterpreter.H>
 #endif
 
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
@@ -214,6 +215,16 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
     rc = mboInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = mboCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+  /* Fapi Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("fapi",argv[0],4))) {
+    rc = fapiInitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = fapiCommandInterpreter(argc, argv);
     }
   }
 #endif

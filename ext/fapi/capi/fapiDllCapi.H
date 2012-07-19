@@ -13,6 +13,7 @@
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
 #include <fapiStructs.H>
+#include <fapiAttributeIds.H>
 
 extern "C" {
 
@@ -41,6 +42,12 @@ fapi::ReturnCode dllFapiGetAssociatedDimms(const fapi::Target& i_target, std::ve
 uint32_t dllFapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
 
 uint32_t dllFapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & i_data);
+
+uint32_t dllFapiAttributeDataToString(fapi::AttributeId i_attrId, const fapi::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format);
+
+uint32_t dllFapiAttributeStringToId(std::string i_attrString, fapi::AttributeId & o_attrId);
+
+uint32_t dllFapiGetAttrInfo(fapi::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
 
 void dllFapiOutputError(const char* i_message); 
 

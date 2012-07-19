@@ -212,6 +212,7 @@ fapi: fapicapi
 fapicapi: ecmdcapi
 	@echo "fapi Extension C-API ..."
 	@cd ext/fapi/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/fapi/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################

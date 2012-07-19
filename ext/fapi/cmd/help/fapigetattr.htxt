@@ -1,0 +1,50 @@
+
+Syntax: fapigetattr [<Chip[.ChipUnit]>] <AttributeName> [-o<format>] [-dk | -dn | -ds | -dp | -dc]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
+        ECMD:           FAPI Extension
+
+        Function:       Read the specified attribute and display to screen
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+        AttributeName   Name of attribute to fetch
+
+        -o<format>[opt] Output Format : default 'x'. Only valid with numeric data
+                        Run 'ecmdquery formats' to view available formats
+
+        -dk  [optional] Specify cage depth to loop on. When no Chip specified
+                        -dk is default
+
+        -dn  [optional] Specify node depth to loop on. 
+
+        -ds  [optional] Specify slot depth to loop on. 
+
+        -dp  [optional] Specify pos depth to loop on. When Chip specified
+                        -dp is default
+
+        -dc  [optional] Specify core/chipUnit depth to loop on.
+ 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > fapigetattr centaur.mba ATTR_EFF_CEN_DRV_IMP_CMD -oenum
+                          centaur.mba     k0:n0:s0:p00:c0    
+                          ATTR_EFF_CEN_DRV_IMP_CMD = ENUM_ATTR_EFF_CEN_DRV_IMP_CMD_OHM15
+                        > fapigetattr pu ATTR_PROC_HA_SIZE         
+                          s1      k0:n0:s0:p00       
+                          ATTR_PROC_HA_SIZE = [8]
+                          [0] = 0x0000000000000000
+                          [1] = 0x0000000000000000
+                          [2] = 0x0000000000000000
+                          [3] = 0x0000000000000000
+                          [4] = 0x0000000000000000
+                          [5] = 0x0000000000000000
+                          [6] = 0x0000000000000000
+                          [7] = 0x0000000000000000

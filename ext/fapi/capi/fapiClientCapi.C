@@ -386,6 +386,185 @@ uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
   return rc;
 }
 
+uint32_t fapiAttributeDataToString(fapi::AttributeId i_attrId, const fapi::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format){
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiAttributeDataToString%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_attrId);
+     args.push_back((void*) &i_attrData);
+     args.push_back((void*) &o_attrDataString);
+     args.push_back((void*) &i_fullData);
+     args.push_back((void*) &i_format);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiAttributeDataToString(fapi::AttributeId i_attrId, const fapi::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiAttributeDataToString");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiAttributeDataToString(i_attrId, i_attrData, o_attrDataString, i_fullData, i_format);
+#else
+  if (fapiDllFnTable[ECMD_FAPIATTRIBUTEDATATOSTRING] == NULL) {
+     fapiDllFnTable[ECMD_FAPIATTRIBUTEDATATOSTRING] = (void*)dlsym(dlHandle, "dllFapiAttributeDataToString");
+     if (fapiDllFnTable[ECMD_FAPIATTRIBUTEDATATOSTRING] == NULL) {
+       fprintf(stderr,"dllFapiAttributeDataToString%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(fapi::AttributeId, const fapi::AttributeData &, std::string &, bool, const char *) = 
+      (uint32_t(*)(fapi::AttributeId, const fapi::AttributeData &, std::string &, bool, const char *))fapiDllFnTable[ECMD_FAPIATTRIBUTEDATATOSTRING];
+  rc =    (*Function)(i_attrId, i_attrData, o_attrDataString, i_fullData, i_format);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiAttributeDataToString");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiAttributeDataToString(fapi::AttributeId i_attrId, const fapi::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+uint32_t fapiAttributeStringToId(std::string i_attrString, fapi::AttributeId & o_attrId){
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiAttributeStringToId%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_attrString);
+     args.push_back((void*) &o_attrId);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiAttributeStringToId(std::string i_attrString, fapi::AttributeId & o_attrId)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiAttributeStringToId");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiAttributeStringToId(i_attrString, o_attrId);
+#else
+  if (fapiDllFnTable[ECMD_FAPIATTRIBUTESTRINGTOID] == NULL) {
+     fapiDllFnTable[ECMD_FAPIATTRIBUTESTRINGTOID] = (void*)dlsym(dlHandle, "dllFapiAttributeStringToId");
+     if (fapiDllFnTable[ECMD_FAPIATTRIBUTESTRINGTOID] == NULL) {
+       fprintf(stderr,"dllFapiAttributeStringToId%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(std::string, fapi::AttributeId &) = 
+      (uint32_t(*)(std::string, fapi::AttributeId &))fapiDllFnTable[ECMD_FAPIATTRIBUTESTRINGTOID];
+  rc =    (*Function)(i_attrString, o_attrId);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiAttributeStringToId");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiAttributeStringToId(std::string i_attrString, fapi::AttributeId & o_attrId)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+uint32_t fapiGetAttrInfo(fapi::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum){
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiGetAttrInfo%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_attrId);
+     args.push_back((void*) &o_attrType);
+     args.push_back((void*) &o_numOfEntries);
+     args.push_back((void*) &o_numOfBytes);
+     args.push_back((void*) &o_attrEnum);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiAttributeStringToId(fapi::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiAttributeStringToId");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiGetAttrInfo(i_attrId, o_attrType, o_numOfEntries, o_numOfBytes, o_attrEnum);
+#else
+  if (fapiDllFnTable[ECMD_FAPIGETATTRINFO] == NULL) {
+     fapiDllFnTable[ECMD_FAPIGETATTRINFO] = (void*)dlsym(dlHandle, "dllFapiGetAttrInfo");
+     if (fapiDllFnTable[ECMD_FAPIGETATTRINFO] == NULL) {
+       fprintf(stderr,"dllFapiGetAttrInfo%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(fapi::AttributeId, uint32_t &, uint32_t &, uint32_t &, bool &) = 
+      (uint32_t(*)(fapi::AttributeId, uint32_t &, uint32_t &, uint32_t &, bool &))fapiDllFnTable[ECMD_FAPIGETATTRINFO];
+  rc =    (*Function)(i_attrId, o_attrType, o_numOfEntries, o_numOfBytes, o_attrEnum);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiAttributeStringToId");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiAttributeStringToId(fapi::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
 
 void fapiOutputError(const char* i_message) {
 
