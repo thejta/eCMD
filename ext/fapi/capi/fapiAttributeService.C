@@ -78,6 +78,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_L3_W_EPS, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_POS)
+    {
+        ATTR_POS_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_POS, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_ID)
     {
         ATTR_CHIP_ID_Type l_attr;
@@ -1872,6 +1878,24 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_MEM_MC_IN_GROUP, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
     }
+    else if (i_id == ATTR_MSS_MCS_GROUP)
+    {
+        ATTR_MSS_MCS_GROUP_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_MCS_GROUP, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
+    }
+    else if (i_id == ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR)
+    {
+        ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE)
+    {
+        ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_FREQ_CORE)
     {
         ATTR_FREQ_CORE_Type l_attr;
@@ -2080,6 +2104,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_PNOR_I2C_ADDRESS_BYTES_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_PNOR_I2C_ADDRESS_BYTES, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_SELECT_CLOCK_MUX_MODE)
+    {
+        ATTR_PROC_SELECT_CLOCK_MUX_MODE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_SELECT_CLOCK_MUX_MODE, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else

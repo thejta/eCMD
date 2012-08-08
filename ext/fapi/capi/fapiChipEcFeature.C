@@ -57,6 +57,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     o_hasFeature = true;
                 }
                 break;
+            case ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                     (l_chipEc == 0x10))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
             default:
                 FAPI_ERR("fapiQueryChipEcFeature: Unknown feature 0x%x",
                     i_id);
