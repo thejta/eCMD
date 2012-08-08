@@ -14,6 +14,7 @@
 #include <fapiTarget.H>
 #include <fapiStructs.H>
 #include <fapiAttributeIds.H>
+#include <fapiMvpdAccess.H>
 
 extern "C" {
 
@@ -70,6 +71,12 @@ void dllFapiLogError(fapi::ReturnCode & io_rc);
 fapi::ReturnCode dllFapiLoadInitFile(const fapi::Target &, const char * i_file, const char *& o_addr, size_t & o_size);
 
 fapi::ReturnCode dllFapiUnloadInitFile(const char * i_file, const char *& io_addr, size_t & io_size);
+
+fapi::ReturnCode dllFapiGetMvpdField(const fapi::MvpdRecord i_record,
+                                  const fapi::MvpdKeyword i_keyword,
+                                  const fapi::Target &i_procTarget,
+                                  uint8_t * const i_pBuffer,
+                                  uint32_t &io_fieldSize);
 
 } //extern C
 

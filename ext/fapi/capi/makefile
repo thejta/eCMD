@@ -17,10 +17,10 @@ CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnC
                      ../../../capi/ecmdDataBufferBase.H fapiReturnCodes.H fapiDllCapi.H fapiClientEnums.H \
                      fapiUtil.H fapiHwAccess.H fapiSystemConfig.H fapiPlatHwAccess.H \
                      fapiErrorInfo.H fapiPlatHwpExecutor.H  fapiHwpReturnCodes.H fapiHwpErrorInfo.H \
-                     fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H \
+                     fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H fapiMvpdAccess.H \
 
 # These files are needed by the client code
-CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C   fapiAttributeService.C \
+CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C fapiAttributeService.C fapiChipEcFeature.H \
 
 # Additional Source files for the Shared Lib
 SLIB_SOURCE  := fapiErrorInfo.C fapiTarget.C fapiPlatTarget.C fapiPlatReturnCodeDataRef.C \
