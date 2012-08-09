@@ -108,7 +108,7 @@ uint32_t fapiGetAttributeUser(int argc, char * argv[]) {
     ecmdOutputError("fapigetattr - Too many arguments specified; you probably added an unsupported option.\n");
     ecmdOutputError("fapigetattr - Type 'fapigetattr -h' for usage.\n");
     return ECMD_INVALID_ARGS;
-  } else if( argc == 2) {
+  } else if (argc == 2) {
     std::string chipType, chipUnitType;
     rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
     if (rc) { 
@@ -195,10 +195,19 @@ uint32_t fapiGetAttributeUser(int argc, char * argv[]) {
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == SLOT) {
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == NODE) {
     target.slotState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == CAGE) {
     target.nodeState = ECMD_TARGET_FIELD_UNUSED;
+    target.slotState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   }
 
   /************************************************************************/
@@ -213,7 +222,13 @@ uint32_t fapiGetAttributeUser(int argc, char * argv[]) {
     fapi::Target fapiTarget;
     ecmdTargetToFapiTarget(target, fapiTarget);
 
-    rc = fapiGetAttribute(fapiTarget, attributeId, attributeData);
+    if (fapiTarget.getType() == fapi::TARGET_TYPE_SYSTEM) {
+      fapi::Target * fapiSystemTargetPtr = NULL;
+      fapi::Target & fapiSystemTargetRef = *fapiSystemTargetPtr;
+      rc = fapiGetAttribute(fapiSystemTargetRef, attributeId, attributeData);
+    } else {
+      rc = fapiGetAttribute(fapiTarget, attributeId, attributeData);
+    }
     if (rc) {
       printed = "fapigetattr - Error occured performing fapiGetAttribute on ";
       printed += ecmdWriteTarget(target) + "\n";
