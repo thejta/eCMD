@@ -173,6 +173,7 @@ fapi::ReturnCode fapiPutRing(const fapi::Target& i_target,
  * @param[in] i_address Ring address to modify
  * @param[in] i_data    ecmdDataBufferBase object that holds data to write into
  *                      address
+ * @param[in] i_modifyMode The modify mode (or/and/xor)
  * @param[in] i_ringMode Any number of mode options from fapi::RingMode ORed
  * @return ReturnCode. Zero on success, else platform specified error
  */
