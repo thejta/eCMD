@@ -109,7 +109,7 @@ uint32_t fapiSetAttribute(const fapi::Target & i_target, const uint32_t i_id, fa
  @param i_attrData Data that we want printed out
  @param o_attrDataString Data transformed into a string
  @param i_fullData If True full array data is printed. If false only size of array printed.
- @param i_format Requested format of data: enum, x, d, b
+ @param i_format Requested format of data: enum, x, d, b, file
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_ARGS if unknown format
 */
@@ -133,6 +133,15 @@ uint32_t fapiAttributeStringToId(std::string i_attrString, fapi::AttributeId & o
  @retval ECMD_SUCCESS if successful
 */
 uint32_t fapiGetAttrInfo(fapi::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
+
+/**
+ @brief Retrieve a list of attributes based upon their TargetType and AttributeSource
+ @param i_targetTypes An ored value of requested TargetType
+ @param i_attributeSources An ored value of requested AttributeSource
+ @param o_attributeIds A list of AttributeId based upon the requested types
+ @retval ECMD_SUCCESS if successful
+*/
+uint32_t fapiGetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi::AttributeId> & o_attributeIds);
 
 //@}
 

@@ -50,6 +50,8 @@ uint32_t dllFapiAttributeStringToId(std::string i_attrString, fapi::AttributeId 
 
 uint32_t dllFapiGetAttrInfo(fapi::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
 
+uint32_t dllFapiGetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi::AttributeId> & o_attributeIds);
+
 void dllFapiOutputError(const char* i_message); 
 
 void dllFapiOutputInfo(const char* i_message); 

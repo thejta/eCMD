@@ -80,6 +80,19 @@ uint32_t fapiCommandInterpreter(int argc, char* argv[]) {
     switch (argv[0][4]) {
 
         /************************/
+        /* The D's              */
+        /************************/
+      case 'd':
+
+        if (!strcmp(argv[0], "fapidumpattr")) {
+          rc = fapiDumpAttributeUser(argc - 1, argv + 1);
+        } else {
+          /* We don't understand this function, let's let the caller know */
+          rc = ECMD_INT_UNKNOWN_COMMAND;
+        }
+        break;
+
+        /************************/
         /* The G's              */
         /************************/
       case 'g':
