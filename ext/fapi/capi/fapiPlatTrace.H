@@ -38,7 +38,7 @@
 #define FAPI_INF(_fmt_, _args_...) \
 { char user_str[255]; \
 char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
 snprintf(user_str, 255, "" _fmt_"\n", ##_args_); \
 strncat(sum_str, user_str, 255); \
 fapiOutputInfo(sum_str); } 
@@ -47,7 +47,7 @@ fapiOutputInfo(sum_str); }
 #define FAPI_IMP(_fmt_, _args_...) \
 { char user_str[255]; \
 char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
 snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
 strncat(sum_str, user_str, 255); \
 fapiOutputImportant(sum_str); } 
@@ -56,7 +56,7 @@ fapiOutputImportant(sum_str); }
 #define FAPI_ERR(_fmt_, _args_...) \
 { char user_str[255]; \
 char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
 snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
 strncat(sum_str, user_str, 255); \
 fapiOutputError(sum_str); } 
@@ -65,7 +65,7 @@ fapiOutputError(sum_str); }
 #define FAPI_DBG(_fmt_, _args_...) \
 { char user_str[255]; \
 char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%d: ", __FUNCTION__, __LINE__); \
+snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
 snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
 strncat(sum_str, user_str, 255); \
 fapiOutputDebug(sum_str); } 
