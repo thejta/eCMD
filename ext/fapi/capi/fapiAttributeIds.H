@@ -44,6 +44,7 @@ enum AttributeId
     ATTR_FREQ_PB = 0x76c06c3,
     ATTR_FREQ_A = 0x244778d,
     ATTR_FREQ_X = 0x3908b77,
+    ATTR_FREQ_PCIE = 0x1d63d98,
     ATTR_MVPD_IVRM_CALIBRATION = 0x467109f,
     ATTR_MVPD_CPM_CALIBRATION = 0x73d5768,
     ATTR_PM_POWER_PROXY_TRACE_TIMER = 0x4afbe91,
@@ -241,6 +242,8 @@ enum AttributeId
     ATTR_EFF_QUATERNARY_RANK_GROUP3 = 0xdf5311f,
     ATTR_EFF_ODT_RD = 0x879a181,
     ATTR_EFF_ODT_WR = 0x918b433,
+    ATTR_EFF_CKE_MAP = 0x18a9dee,
+    ATTR_EFF_DIMM_SPARE = 0x5471c19,
     ATTR_EFF_DRAM_RON = 0x196cc98,
     ATTR_EFF_DRAM_RTT_NOM = 0x5401f38,
     ATTR_EFF_DRAM_RTT_WR = 0xf8cf41a,
@@ -292,6 +295,11 @@ enum AttributeId
     ATTR_EFF_SCHMOO_MODE = 0x91d7136,
     ATTR_EFF_SCHMOO_TEST_VALID = 0x116cac3,
     ATTR_EFF_SCHMOO_PARAM_VALID = 0x384985b,
+    ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN = 0x1002327,
+    ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN = 0x3a69cd0,
+    ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN = 0xa76dd9d,
+    ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN = 0x7953864,
+    ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN = 0xe1d2a90,
     ATTR_EFF_MEMCAL_INTERVAL = 0x9a89c30,
     ATTR_EFF_ZQCAL_INTERVAL = 0x6cb09a8,
     ATTR_EFF_IBM_TYPE = 0x9618454,
@@ -300,7 +308,6 @@ enum AttributeId
     ATTR_EFF_NUM_MASTER_RANKS_PER_DIMM = 0xa0ffe42,
     ATTR_EFF_NUM_PACKAGES_PER_RANK = 0x8305498,
     ATTR_EFF_NUM_DIES_PER_PACKAGE = 0xf19b41c,
-    ATTR_MSS_SPARE_BYTE = 0x34e7494,
     ATTR_MSS_THROTTLE_NUMERATOR = 0x6c5a1be,
     ATTR_MSS_THROTTLE_DENOMINATOR = 0x42cfe04,
     ATTR_MSS_THROTTLE_CHANNEL_NUMERATOR = 0xb321dc7,
@@ -324,10 +331,16 @@ enum AttributeId
     ATTR_MSS_CLEANER_ENABLE = 0x6097329,
     ATTR_MSS_LAB_OVERRIDE_FOR_MEM_PLL = 0x5689d95,
     ATTR_MSS_MEM_MC_IN_GROUP = 0x95abe21,
+    ATTR_MSS_MCS_GROUP_32 = 0x80d2291,
     ATTR_MSS_MCS_GROUP = 0xb463137,
     ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR = 0x55ca724,
+    ATTR_MSS_CAL_STEP_ENABLE = 0xf2e501b,
+    ATTR_MSS_MEM_IPL_COMPLETE = 0xbf464ef,
     ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE = 0x7ef345b,
     ATTR_FREQ_CORE = 0xcd23d9e,
+    ATTR_PROC_EPS_GB_PERCENTAGE = 0x0a991b8,
+    ATTR_PROC_EPS_GB_DIRECTION = 0xf22fe2c,
+    ATTR_PROC_FABRIC_ASYNC_SAFE_MODE = 0x8ec3a1c,
     ATTR_PROC_PCIE_NOT_F_LINK = 0x5bfae6d,
     ATTR_PROC_L3_BAR1_REG = 0x6aa8527,
     ATTR_PROC_L3_BAR2_REG = 0x5afe609,
@@ -371,25 +384,25 @@ enum AttributeId
 /* ATTR_L2_R_T0_EPS */
 typedef uint32_t ATTR_L2_R_T0_EPS_Type;
 const bool ATTR_L2_R_T0_EPS_Privileged = false;
-const TargetTypes_t ATTR_L2_R_T0_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L2_R_T0_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L2_R_T0_EPS_PlatInit = false;
 
 /* ATTR_L2_R_T1_EPS */
 typedef uint32_t ATTR_L2_R_T1_EPS_Type;
 const bool ATTR_L2_R_T1_EPS_Privileged = false;
-const TargetTypes_t ATTR_L2_R_T1_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L2_R_T1_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L2_R_T1_EPS_PlatInit = false;
 
 /* ATTR_L2_R_T2_EPS */
 typedef uint32_t ATTR_L2_R_T2_EPS_Type;
 const bool ATTR_L2_R_T2_EPS_Privileged = false;
-const TargetTypes_t ATTR_L2_R_T2_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L2_R_T2_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L2_R_T2_EPS_PlatInit = false;
 
 /* ATTR_L2_FORCE_R_T2_EPS */
 typedef uint8_t ATTR_L2_FORCE_R_T2_EPS_Type;
 const bool ATTR_L2_FORCE_R_T2_EPS_Privileged = false;
-const TargetTypes_t ATTR_L2_FORCE_R_T2_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L2_FORCE_R_T2_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L2_FORCE_R_T2_EPS_PlatInit = false;
 enum ATTR_L2_FORCE_R_T2_EPS_Enum
 {
@@ -400,31 +413,31 @@ enum ATTR_L2_FORCE_R_T2_EPS_Enum
 /* ATTR_L2_W_EPS */
 typedef uint32_t ATTR_L2_W_EPS_Type;
 const bool ATTR_L2_W_EPS_Privileged = false;
-const TargetTypes_t ATTR_L2_W_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L2_W_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L2_W_EPS_PlatInit = false;
 
 /* ATTR_L3_R_T0_EPS */
 typedef uint32_t ATTR_L3_R_T0_EPS_Type;
 const bool ATTR_L3_R_T0_EPS_Privileged = false;
-const TargetTypes_t ATTR_L3_R_T0_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L3_R_T0_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L3_R_T0_EPS_PlatInit = false;
 
 /* ATTR_L3_R_T1_EPS */
 typedef uint32_t ATTR_L3_R_T1_EPS_Type;
 const bool ATTR_L3_R_T1_EPS_Privileged = false;
-const TargetTypes_t ATTR_L3_R_T1_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L3_R_T1_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L3_R_T1_EPS_PlatInit = false;
 
 /* ATTR_L3_R_T2_EPS */
 typedef uint32_t ATTR_L3_R_T2_EPS_Type;
 const bool ATTR_L3_R_T2_EPS_Privileged = false;
-const TargetTypes_t ATTR_L3_R_T2_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L3_R_T2_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L3_R_T2_EPS_PlatInit = false;
 
 /* ATTR_L3_FORCE_R_T2_EPS */
 typedef uint8_t ATTR_L3_FORCE_R_T2_EPS_Type;
 const bool ATTR_L3_FORCE_R_T2_EPS_Privileged = false;
-const TargetTypes_t ATTR_L3_FORCE_R_T2_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L3_FORCE_R_T2_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L3_FORCE_R_T2_EPS_PlatInit = false;
 enum ATTR_L3_FORCE_R_T2_EPS_Enum
 {
@@ -435,7 +448,7 @@ enum ATTR_L3_FORCE_R_T2_EPS_Enum
 /* ATTR_L3_W_EPS */
 typedef uint32_t ATTR_L3_W_EPS_Type;
 const bool ATTR_L3_W_EPS_Privileged = false;
-const TargetTypes_t ATTR_L3_W_EPS_TargetTypes = TARGET_TYPE_EX_CHIPLET;
+const TargetTypes_t ATTR_L3_W_EPS_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_L3_W_EPS_PlatInit = false;
 
 /* ATTR_POS */
@@ -586,21 +599,24 @@ typedef uint32_t ATTR_FREQ_PB_Type;
 const bool ATTR_FREQ_PB_Privileged = false;
 const TargetTypes_t ATTR_FREQ_PB_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_FREQ_PB_PlatInit = false;
-#define ATTR_FREQ_PB_SETMACRO ATTRIBUTE_NOT_WRITABLE
 
 /* ATTR_FREQ_A */
 typedef uint32_t ATTR_FREQ_A_Type;
 const bool ATTR_FREQ_A_Privileged = false;
 const TargetTypes_t ATTR_FREQ_A_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_FREQ_A_PlatInit = false;
-#define ATTR_FREQ_A_SETMACRO ATTRIBUTE_NOT_WRITABLE
 
 /* ATTR_FREQ_X */
 typedef uint32_t ATTR_FREQ_X_Type;
 const bool ATTR_FREQ_X_Privileged = false;
 const TargetTypes_t ATTR_FREQ_X_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_FREQ_X_PlatInit = false;
-#define ATTR_FREQ_X_SETMACRO ATTRIBUTE_NOT_WRITABLE
+
+/* ATTR_FREQ_PCIE */
+typedef uint32_t ATTR_FREQ_PCIE_Type;
+const bool ATTR_FREQ_PCIE_Privileged = false;
+const TargetTypes_t ATTR_FREQ_PCIE_TargetTypes = TARGET_TYPE_SYSTEM;
+const bool ATTR_FREQ_PCIE_PlatInit = false;
 
 /* ATTR_MVPD_IVRM_CALIBRATION */
 typedef uint32_t ATTR_MVPD_IVRM_CALIBRATION_Type[32][4];
@@ -2209,6 +2225,25 @@ const bool ATTR_EFF_ODT_WR_Privileged = false;
 const TargetTypes_t ATTR_EFF_ODT_WR_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
 const bool ATTR_EFF_ODT_WR_PlatInit = false;
 
+/* ATTR_EFF_CKE_MAP */
+typedef uint8_t ATTR_EFF_CKE_MAP_Type[2][2][4];
+const bool ATTR_EFF_CKE_MAP_Privileged = false;
+const TargetTypes_t ATTR_EFF_CKE_MAP_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_CKE_MAP_PlatInit = false;
+
+/* ATTR_EFF_DIMM_SPARE */
+typedef uint8_t ATTR_EFF_DIMM_SPARE_Type[2][2][4];
+const bool ATTR_EFF_DIMM_SPARE_Privileged = false;
+const TargetTypes_t ATTR_EFF_DIMM_SPARE_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_DIMM_SPARE_PlatInit = false;
+enum ATTR_EFF_DIMM_SPARE_Enum
+{
+    ENUM_ATTR_EFF_DIMM_SPARE_NO_SPARE = 0,
+    ENUM_ATTR_EFF_DIMM_SPARE_LOW_NIBBLE = 1,
+    ENUM_ATTR_EFF_DIMM_SPARE_HIGH_NIBBLE = 2,
+    ENUM_ATTR_EFF_DIMM_SPARE_FULL_BYTE = 3,
+};
+
 /* ATTR_EFF_DRAM_RON */
 typedef uint8_t ATTR_EFF_DRAM_RON_Type[2][2];
 const bool ATTR_EFF_DRAM_RON_Privileged = false;
@@ -2746,6 +2781,36 @@ const bool ATTR_EFF_SCHMOO_PARAM_VALID_Privileged = false;
 const TargetTypes_t ATTR_EFF_SCHMOO_PARAM_VALID_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
 const bool ATTR_EFF_SCHMOO_PARAM_VALID_PlatInit = false;
 
+/* ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN */
+typedef uint8_t ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN_Type;
+const bool ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN_Privileged = false;
+const TargetTypes_t ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN_PlatInit = false;
+
+/* ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN */
+typedef uint8_t ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN_Type;
+const bool ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN_Privileged = false;
+const TargetTypes_t ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN_PlatInit = false;
+
+/* ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN */
+typedef uint8_t ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN_Type;
+const bool ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN_Privileged = false;
+const TargetTypes_t ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN_PlatInit = false;
+
+/* ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN */
+typedef uint8_t ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN_Type;
+const bool ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN_Privileged = false;
+const TargetTypes_t ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN_PlatInit = false;
+
+/* ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN */
+typedef uint8_t ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN_Type;
+const bool ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN_Privileged = false;
+const TargetTypes_t ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN_PlatInit = false;
+
 /* ATTR_EFF_MEMCAL_INTERVAL */
 typedef uint32_t ATTR_EFF_MEMCAL_INTERVAL_Type;
 const bool ATTR_EFF_MEMCAL_INTERVAL_Privileged = false;
@@ -2842,19 +2907,6 @@ typedef uint8_t ATTR_EFF_NUM_DIES_PER_PACKAGE_Type[2][2];
 const bool ATTR_EFF_NUM_DIES_PER_PACKAGE_Privileged = false;
 const TargetTypes_t ATTR_EFF_NUM_DIES_PER_PACKAGE_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
 const bool ATTR_EFF_NUM_DIES_PER_PACKAGE_PlatInit = false;
-
-/* ATTR_MSS_SPARE_BYTE */
-typedef uint8_t ATTR_MSS_SPARE_BYTE_Type;
-const bool ATTR_MSS_SPARE_BYTE_Privileged = false;
-const TargetTypes_t ATTR_MSS_SPARE_BYTE_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
-const bool ATTR_MSS_SPARE_BYTE_PlatInit = false;
-enum ATTR_MSS_SPARE_BYTE_Enum
-{
-    ENUM_ATTR_MSS_SPARE_BYTE_NONE =0,
-    ENUM_ATTR_MSS_SPARE_BYTE_X4_SPARE=1,
-    ENUM_ATTR_MSS_SPARE_BYTE_X4_X2_SPARE = 2,
-    ENUM_ATTR_MSS_SPARE_BYTE_X8_SPARE = 3,
-};
 
 /* ATTR_MSS_THROTTLE_NUMERATOR */
 typedef uint32_t ATTR_MSS_THROTTLE_NUMERATOR_Type[2][2];
@@ -3021,6 +3073,12 @@ const bool ATTR_MSS_MEM_MC_IN_GROUP_Privileged = false;
 const TargetTypes_t ATTR_MSS_MEM_MC_IN_GROUP_TargetTypes = TARGET_TYPE_PROC_CHIP;
 const bool ATTR_MSS_MEM_MC_IN_GROUP_PlatInit = false;
 
+/* ATTR_MSS_MCS_GROUP_32 */
+typedef uint32_t ATTR_MSS_MCS_GROUP_32_Type[16][16];
+const bool ATTR_MSS_MCS_GROUP_32_Privileged = false;
+const TargetTypes_t ATTR_MSS_MCS_GROUP_32_TargetTypes = TARGET_TYPE_PROC_CHIP;
+const bool ATTR_MSS_MCS_GROUP_32_PlatInit = false;
+
 /* ATTR_MSS_MCS_GROUP */
 typedef uint8_t ATTR_MSS_MCS_GROUP_Type[16][16];
 const bool ATTR_MSS_MCS_GROUP_Privileged = false;
@@ -3032,6 +3090,18 @@ typedef uint8_t ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR_Type;
 const bool ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR_Privileged = false;
 const TargetTypes_t ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
 const bool ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR_PlatInit = false;
+
+/* ATTR_MSS_CAL_STEP_ENABLE */
+typedef uint8_t ATTR_MSS_CAL_STEP_ENABLE_Type;
+const bool ATTR_MSS_CAL_STEP_ENABLE_Privileged = false;
+const TargetTypes_t ATTR_MSS_CAL_STEP_ENABLE_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_MSS_CAL_STEP_ENABLE_PlatInit = false;
+
+/* ATTR_MSS_MEM_IPL_COMPLETE */
+typedef uint8_t ATTR_MSS_MEM_IPL_COMPLETE_Type;
+const bool ATTR_MSS_MEM_IPL_COMPLETE_Privileged = false;
+const TargetTypes_t ATTR_MSS_MEM_IPL_COMPLETE_TargetTypes = TARGET_TYPE_PROC_CHIP;
+const bool ATTR_MSS_MEM_IPL_COMPLETE_PlatInit = false;
 
 /* ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE */
 typedef uint8_t ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE_Type;
@@ -3046,6 +3116,34 @@ typedef uint32_t ATTR_FREQ_CORE_Type;
 const bool ATTR_FREQ_CORE_Privileged = false;
 const TargetTypes_t ATTR_FREQ_CORE_TargetTypes = TARGET_TYPE_SYSTEM;
 const bool ATTR_FREQ_CORE_PlatInit = false;
+
+/* ATTR_PROC_EPS_GB_PERCENTAGE */
+typedef uint8_t ATTR_PROC_EPS_GB_PERCENTAGE_Type;
+const bool ATTR_PROC_EPS_GB_PERCENTAGE_Privileged = false;
+const TargetTypes_t ATTR_PROC_EPS_GB_PERCENTAGE_TargetTypes = TARGET_TYPE_SYSTEM;
+const bool ATTR_PROC_EPS_GB_PERCENTAGE_PlatInit = false;
+
+/* ATTR_PROC_EPS_GB_DIRECTION */
+typedef uint8_t ATTR_PROC_EPS_GB_DIRECTION_Type;
+const bool ATTR_PROC_EPS_GB_DIRECTION_Privileged = false;
+const TargetTypes_t ATTR_PROC_EPS_GB_DIRECTION_TargetTypes = TARGET_TYPE_SYSTEM;
+const bool ATTR_PROC_EPS_GB_DIRECTION_PlatInit = false;
+enum ATTR_PROC_EPS_GB_DIRECTION_Enum
+{
+    ENUM_ATTR_PROC_EPS_GB_DIRECTION_POSITIVE = 0x0,
+    ENUM_ATTR_PROC_EPS_GB_DIRECTION_NEGATIVE = 0x1,
+};
+
+/* ATTR_PROC_FABRIC_ASYNC_SAFE_MODE */
+typedef uint8_t ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_Type;
+const bool ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_Privileged = false;
+const TargetTypes_t ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_TargetTypes = TARGET_TYPE_SYSTEM;
+const bool ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_PlatInit = false;
+enum ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_Enum
+{
+    ENUM_ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_PERFORMANCE_MODE = 0x0,
+    ENUM_ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_SAFE_MODE = 0x1,
+};
 
 /* ATTR_PROC_PCIE_NOT_F_LINK */
 typedef uint8_t ATTR_PROC_PCIE_NOT_F_LINK_Type[2];

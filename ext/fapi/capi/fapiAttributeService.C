@@ -198,6 +198,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_FREQ_X, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_FREQ_PCIE)
+    {
+        ATTR_FREQ_PCIE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_FREQ_PCIE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MVPD_IVRM_CALIBRATION)
     {
         ATTR_MVPD_IVRM_CALIBRATION_Type l_attr;
@@ -1380,6 +1386,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_EFF_ODT_WR, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
     }
+    else if (i_id == ATTR_EFF_CKE_MAP)
+    {
+        ATTR_EFF_CKE_MAP_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_CKE_MAP, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
+    }
+    else if (i_id == ATTR_EFF_DIMM_SPARE)
+    {
+        ATTR_EFF_DIMM_SPARE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_DIMM_SPARE, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
+    }
     else if (i_id == ATTR_EFF_DRAM_RON)
     {
         ATTR_EFF_DRAM_RON_Type l_attr;
@@ -1686,6 +1704,36 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_EFF_SCHMOO_PARAM_VALID, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN)
+    {
+        ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_SCHMOO_WR_EYE_MIN_MARGIN, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN)
+    {
+        ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_SCHMOO_RD_EYE_MIN_MARGIN, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN)
+    {
+        ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_SCHMOO_DQS_CLK_MIN_MARGIN, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN)
+    {
+        ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_SCHMOO_RD_GATE_MIN_MARGIN, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN)
+    {
+        ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_EFF_SCHMOO_ADDR_CMD_MIN_MARGIN, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_EFF_MEMCAL_INTERVAL)
     {
         ATTR_EFF_MEMCAL_INTERVAL_Type l_attr;
@@ -1733,12 +1781,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         ATTR_EFF_NUM_DIES_PER_PACKAGE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_NUM_DIES_PER_PACKAGE, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
-    }
-    else if (i_id == ATTR_MSS_SPARE_BYTE)
-    {
-        ATTR_MSS_SPARE_BYTE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_SPARE_BYTE, i_pTarget, l_attr);
-        o_val = l_attr;
     }
     else if (i_id == ATTR_MSS_THROTTLE_NUMERATOR)
     {
@@ -1878,6 +1920,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_MEM_MC_IN_GROUP, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
     }
+    else if (i_id == ATTR_MSS_MCS_GROUP_32)
+    {
+        ATTR_MSS_MCS_GROUP_32_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_MCS_GROUP_32, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
+    }
     else if (i_id == ATTR_MSS_MCS_GROUP)
     {
         ATTR_MSS_MCS_GROUP_Type l_attr;
@@ -1890,6 +1938,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MSS_CAL_STEP_ENABLE)
+    {
+        ATTR_MSS_CAL_STEP_ENABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_CAL_STEP_ENABLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MSS_MEM_IPL_COMPLETE)
+    {
+        ATTR_MSS_MEM_IPL_COMPLETE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_MEM_IPL_COMPLETE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE)
     {
         ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE_Type l_attr;
@@ -1900,6 +1960,24 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_FREQ_CORE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_FREQ_CORE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_EPS_GB_PERCENTAGE)
+    {
+        ATTR_PROC_EPS_GB_PERCENTAGE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_EPS_GB_PERCENTAGE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_EPS_GB_DIRECTION)
+    {
+        ATTR_PROC_EPS_GB_DIRECTION_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_EPS_GB_DIRECTION, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_FABRIC_ASYNC_SAFE_MODE)
+    {
+        ATTR_PROC_FABRIC_ASYNC_SAFE_MODE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_FABRIC_ASYNC_SAFE_MODE, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_PROC_PCIE_NOT_F_LINK)
