@@ -1820,6 +1820,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
     bool use_version = false;
     char * version = NULL;
+     std::string str_version = "default";
     if (argc > 2) {
       use_version = true;
       version = argv[2];
@@ -1833,10 +1834,10 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       std::string scomgroup_filename;
       std::list<scomGroupRecord_t> scomGroupRecord;
       if (!use_version) {
-        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename); if (rc) return rc;
+        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
       } else {
-        std::string str_version = version;
-        rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+        str_version = version;
+        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
       }
       rc = parse_groupscomdef_file(scomgroup_filename, scomGroupRecord); if (rc) return rc;
 

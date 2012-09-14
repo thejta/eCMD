@@ -154,7 +154,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
        return ECMD_INVALID_ARGS;
     }
     idxStart = 1;  //sprname starts from first index
-    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
     if (rc) {
         ecmdOutputError("Wildcard character detected.\n");
         return rc;
@@ -425,7 +425,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
        return ECMD_INVALID_ARGS;
     }
     idx = 1;  //sprname starts from first index
-    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
     if (rc) {
         ecmdOutputError("Wildcard character detected.\n");
         return rc;
@@ -666,7 +666,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
          if (argc > 2) {
            numEntries = atoi(argv[2]);
          }
-          rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+          rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
           if (rc) {
              ecmdOutputError("Wildcard character detected.\n");
              return rc;
@@ -856,7 +856,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
        return ECMD_INVALID_ARGS;
     }
     idx = 1;  //gpr starts from first index
-    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
     if (rc) {
         ecmdOutputError("Wildcard character detected.\n");
         return rc;

@@ -2598,11 +2598,11 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t curRingKey;
   uint32_t ringBeginOffset = 0;
   bool foundRing = false;
-      
+  std::string l_version = "default";    
       
   while(1) {
     /* Find the ring offset from the scandefhash file */
-    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile);
+    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile, l_version);
     if (rc) {
       break;
     }
@@ -2642,7 +2642,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   }
   rc = 0;
   /* find scandef file */
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile, l_version);
   if (rc) {
     printed = "readScandefFile - Error occured locating scandef file: " + scandefFile + "\n";
     ecmdOutputError(printed.c_str());

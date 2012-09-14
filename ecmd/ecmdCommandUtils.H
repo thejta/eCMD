@@ -139,11 +139,11 @@ void getTargetList(std::string i_userArgs, std::list<uint32_t> &targetList);
  @param i_chipField The chip field from the command line to be parsed
  @param o_chipType The chip type from the field
  @param o_chipUnitType The chipUnit type from the field (if one was found)
+ @param supportsWildCard Pass in true if calling code support the wildcard character
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
-uint32_t ecmdParseChipFieldHidden(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard);
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard);
 
 
 /**

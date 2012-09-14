@@ -466,7 +466,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
   if (rc) { 
     ecmdOutputError("getcfam - Wildcard character detected however it is not being used correctly.\n");
     return rc;
@@ -664,7 +664,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
   if (rc) { 
     ecmdOutputError("putcfam - Wildcard character detected however it is not being used correctly.\n");
     return rc;
@@ -938,7 +938,7 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
-    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
     if (rc) { 
       ecmdOutputError("deconfig - Wildcard character detected however it is not being used correctly.\n");
       return rc;
@@ -1063,7 +1063,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } else if (argc == 1) {
     std::string chipType, chipUnitType;
-    rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
     if (rc) { 
       ecmdOutputError("reconfig - Wildcard character detected however it is not being used correctly.\n");
       return rc;
@@ -1223,7 +1223,7 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
   if (rc) { 
     ecmdOutputError("getgpreg - Wildcard character detected however it is not being used correctly.\n");
     return rc;
@@ -1403,7 +1403,7 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
   if (rc) { 
     ecmdOutputError("putgpreg - Wildcard character detected however it is not being used correctly.\n");
     return rc;
