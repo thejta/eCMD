@@ -326,9 +326,10 @@ uint32_t ecmdPrintHelp(const char* i_command) {
   ecmdChipTarget target;
   std::ifstream ins;
   std::string curLine;
+  std::string l_version = "default";
 
   /* Get the path to the help text files */
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_HELPTEXT, file);
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_HELPTEXT, file, l_version);
   if (rc) return rc;
 
   file += i_command; file += ".htxt";
