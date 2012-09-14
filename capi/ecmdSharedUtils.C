@@ -694,11 +694,7 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
   return printed;
 }
 
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType) {
- return ecmdParseChipFieldHidden(i_chipField, o_chipType, o_chipUnitType, false);
-}
-
-uint32_t ecmdParseChipFieldHidden(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool i_supportsWildcard) {
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool i_supportsWildcard) {
   uint32_t rc = ECMD_SUCCESS;
 
   /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.

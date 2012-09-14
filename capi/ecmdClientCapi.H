@@ -475,6 +475,7 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
  @param o_fileLocation Return string with full path and filename to location 
+ @param io_version Specify version number of file; set to version number by plugin
  @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
@@ -483,8 +484,7 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation);
-uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version);
+uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version);
 
 /**
  @brief Query if a particular target is configured in the system
