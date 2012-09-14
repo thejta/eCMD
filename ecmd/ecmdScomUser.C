@@ -133,7 +133,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */); 
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */); 
   if (rc) { 
     ecmdOutputError("getscom - Wildcard character detected however it is not being used correctly.\n");
     return rc;
@@ -436,7 +436,7 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType, true /* supports wildcard usage */); 
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */); 
   if (rc) { 
     ecmdOutputError("putscom - Wildcard character detected however it is not being used correctly.\n");
     return rc;
@@ -819,7 +819,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   //Setup the target that will be used to query the system config 
   std::string chipType, chipUnitType;
-  rc = ecmdParseChipFieldHidden(argv[0], chipType, chipUnitType);
+  rc = ecmdParseChipField(argv[0], chipType, chipUnitType);
   if (rc) { 
     ecmdOutputError("pollscom - Wildcard character detected however it is not supported by this command.\n");
     return rc;
