@@ -216,10 +216,10 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target);
  @param i_chipField The chip field from the command line to be parsed
  @param o_chipType The chip type from the field
  @param o_chipUnitType The chipUnit type from the field (if one was found)
+ @param supportsWildCard default to fault, set to true if wildcard is supported.
  @retval ECMD_SUCCESS if successful
  @retval nonzero if failure
 */
-uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType);
-uint32_t ecmdParseChipFieldHidden(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard = false);
+uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, std::string &o_chipUnitType, bool supportsWildCard = false);
 
 #endif /* ecmdSharedUtils_h */

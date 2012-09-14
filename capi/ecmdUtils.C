@@ -786,6 +786,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
   std::string printed;                          ///< Output data
   std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
+  std::string l_version;
 
   if ((std::string)i_format == "-v") {
     verboseFlag = true;
@@ -796,7 +797,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr);
+  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr, l_version);
   if (rc) {
     printed = "ecmdDisplayScomData - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());

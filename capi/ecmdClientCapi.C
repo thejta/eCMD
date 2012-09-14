@@ -615,9 +615,9 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
   std::string scomgroupHash_filename;
   ecmdChipTarget target = i_target;
   std::string str_version = io_scomGroupFileVersion;
-  rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
   //if str_version was default, then it should have been changed here but the groupscomdef and hash should have the exact same number
-  rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
 
   if ( io_scomGroupFileVersion == "default") {
     io_scomGroupFileVersion = str_version;
