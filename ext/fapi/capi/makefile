@@ -14,13 +14,13 @@ CAPI_SOURCE  := fapiDllCapi.C fapiPlatUtil.C fapiHwAccess.C fapiPlatHwAccess.C f
 
 # Added for fapiTarget.H, etc
 CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnCode.H  fapiReturnCodeDataRef.H  \
-                     ../../../capi/ecmdDataBufferBase.H fapiReturnCodes.H fapiDllCapi.H fapiClientEnums.H \
+                     fapiReturnCodes.H fapiDllCapi.H fapiClientEnums.H \
                      fapiUtil.H fapiHwAccess.H fapiSystemConfig.H fapiPlatHwAccess.H \
                      fapiErrorInfo.H fapiPlatHwpExecutor.H  fapiHwpReturnCodes.H fapiHwpErrorInfo.H \
                      fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H fapiMvpdAccess.H \
 
 # These files are needed by the client code
-CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C fapiAttributeService.C fapiChipEcFeature.H \
+CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C fapiAttributeService.C fapiChipEcFeature.H fapiChipEcFeature.C \
 
 # Additional Source files for the Shared Lib
 SLIB_SOURCE  := fapiErrorInfo.C fapiTarget.C fapiPlatTarget.C fapiPlatReturnCodeDataRef.C \
