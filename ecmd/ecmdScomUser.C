@@ -253,34 +253,54 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
+    bool isCuRelatedOverride = false;
     if (scomData->isChipUnitRelated) {
-        /* Error check the chipUnit returned */
-        if (!scomData->isChipUnitMatch(chipUnitType)) {
-          printed = "getscom - Provided chipUnit \"";
-          printed += chipUnitType;
-          printed += "\" doesn't match chipUnit returned by queryScom \"";
-          printed += scomData->relatedChipUnit + "\"\n";
-          ecmdOutputError(printed.c_str());
-          rc = ECMD_INVALID_ARGS;
-          break;
-        }
-      if (!chipWildcardFound){
-         /* If we have a chipUnit, set the state fields properly - but only do this if the wildcard 
-         char wasnt used.   If the wildcard is used then cuTarget should already be setup for chipUnit
-         looping
-         */
-        if (chipUnitType != "") {
-          cuTarget.chipUnitType = chipUnitType;
-          cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-        }
-        cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-        cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
-        /* Init the chipUnit loop */
-        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
-        if (rc) break;
-      } else {
-        oneLoop = 1;
-      }
+
+	// check if the user provided a chipUnitType
+	if (chipUnitType == "" )
+	{
+	    // This means the user is using a chipUnit address with a chip target. This is valid so no error.
+	    oneLoop = 1;
+	    isCuRelatedOverride = false;
+	}
+	else 
+	{
+	    if (!scomData->isChipUnitMatch(chipUnitType)) 
+	    {
+		printed = "getscom - Provided chipUnit \"";
+		printed += chipUnitType;
+		printed += "\" doesn't match chipUnit returned by queryScom \"";
+		printed += scomData->relatedChipUnit + "\"\n";
+		ecmdOutputError(printed.c_str());
+		rc = ECMD_INVALID_ARGS;
+		break;
+	    } 
+	    else 
+	    {
+		isCuRelatedOverride = true;
+		if (!chipWildcardFound)
+		{
+		    // If we have a chipUnit, set the state fields properly - but only do this if the wildcard 
+		    // char wasnt used.   If the wildcard is used then cuTarget should already be setup for chipUnit
+		    // looping
+
+		    if (chipUnitType != "") 
+		    {
+			cuTarget.chipUnitType = chipUnitType;
+			cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+		    }
+		    cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+		    cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+		    // Init the chipUnit loop
+		    rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+		    if (rc) break;
+		} 
+		else 
+		{
+		    oneLoop = 1;
+		}
+	    }
+	}
     } else { // !scomData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getscom - A chipUnit \"";
@@ -298,7 +318,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     /* Also,  if the wildcard char is used and a chipUnit was specified we will fall into the while and break.  The previous looper will handle 
        looping on cu's 
     */
-    while ((scomData->isChipUnitRelated && !chipWildcardFound ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    //while ((scomData->isChipUnitRelated && !chipWildcardFound ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isCuRelatedOverride && !chipWildcardFound ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      rc = getScom(cuTarget, address, scombuf);
      if (rc) {
@@ -568,53 +589,73 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
+    bool isCuRelatedOverride = false;
     if (scomData->isChipUnitRelated) {
-      /* Error check the chipUnit returned */
-      if (!scomData->isChipUnitMatch(chipUnitType)) {
-        printed = "putscom - Provided chipUnit \"";
-        printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryScom \"";
-        printed += scomData->relatedChipUnit + "\"\n";
-        ecmdOutputError(printed.c_str());
-        rc = ECMD_INVALID_ARGS;
-        break;
-      }
-      if (!chipWildcardFound){
-         /* If we have a chipUnit, set the state fields properly - but only do this if the wildcard 
-         char wasnt used.   If the wildcard is used then cuTarget should already be setup for chipUnit
-         looping
-         */
-        if (chipUnitType != "") {
-          cuTarget.chipUnitType = chipUnitType;
-          cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-        }
-        cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-        cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
-  
-        /* Init the chipUnit loop */
-        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
-        if (rc) break;
-      } else {
-        oneLoop = 1;
-      }
+	// check if the user provided a chipUnitType
+	if (chipUnitType == "" )
+	{
+	    // This means the user is using a chipUnit address with a chip target. This is valid so no error.
+	    oneLoop = 1;
+	    isCuRelatedOverride = false;
+	}
+	else 
+	{
+	    if (!scomData->isChipUnitMatch(chipUnitType)) 
+	    {
+		printed = "putscom - Provided chipUnit \"";
+		printed += chipUnitType;
+		printed += "\" doesn't match chipUnit returned by queryScom \"";
+		printed += scomData->relatedChipUnit + "\"\n";
+		ecmdOutputError(printed.c_str());
+		rc = ECMD_INVALID_ARGS;
+		break;
+	    } 
+	    else 
+	    {
+		isCuRelatedOverride = true;
+		if (!chipWildcardFound)
+		{
+		    // If we have a chipUnit, set the state fields properly - but only do this if the wildcard 
+		    // char wasnt used.   If the wildcard is used then cuTarget should already be setup for chipUnit
+		    // looping
+
+		    if (chipUnitType != "") 
+		    {
+			cuTarget.chipUnitType = chipUnitType;
+			cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+		    }
+		    cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+		    cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+		    // Init the chipUnit loop
+		    rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+		    if (rc) break;
+		} 
+		else 
+		{
+		    oneLoop = 1;
+		}
+	    }
+	}
+
     } else { // !scomData->isChipUnitRelated
-      if (chipUnitType != "") {
-        printed = "putscom - A chipUnit \"";
-        printed += chipUnitType;
-        printed += "\" was given on a non chipUnit scom address.\n";
-        ecmdOutputError(printed.c_str());
-        rc = ECMD_INVALID_ARGS;
-        break;
-      }
-      // Setup the variable oneLoop variable for this non-chipUnit case
-      oneLoop = 1;
+	if (chipUnitType != "") {
+	    printed = "putscom - A chipUnit \"";
+	    printed += chipUnitType;
+	    printed += "\" was given on a non chipUnit scom address.\n";
+	    ecmdOutputError(printed.c_str());
+	    rc = ECMD_INVALID_ARGS;
+	    break;
+	}
+	// Setup the variable oneLoop variable for this non-chipUnit case
+	oneLoop = 1;
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     /* Also,  if the wildcard char is used and a chipUnit was specified we will fall into the while and break.  The previous looper will handle 
        looping on cu's 
     */
-    while ((scomData->isChipUnitRelated  && !chipWildcardFound ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    //while ((scomData->isChipUnitRelated  && !chipWildcardFound ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isCuRelatedOverride && !chipWildcardFound ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startbit != ECMD_UNSET)) {
