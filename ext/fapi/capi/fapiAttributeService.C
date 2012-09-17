@@ -1950,6 +1950,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_MEM_IPL_COMPLETE, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MSS_SLEW_RATE_DATA)
+    {
+        ATTR_MSS_SLEW_RATE_DATA_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_SLEW_RATE_DATA, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
+    }
+    else if (i_id == ATTR_MSS_SLEW_RATE_ADR)
+    {
+        ATTR_MSS_SLEW_RATE_ADR_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_SLEW_RATE_ADR, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
+    }
     else if (i_id == ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE)
     {
         ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE_Type l_attr;

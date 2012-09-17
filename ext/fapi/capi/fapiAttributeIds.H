@@ -336,6 +336,8 @@ enum AttributeId
     ATTR_MSS_EFF_DIMM_FUNCTIONAL_VECTOR = 0x55ca724,
     ATTR_MSS_CAL_STEP_ENABLE = 0xf2e501b,
     ATTR_MSS_MEM_IPL_COMPLETE = 0xbf464ef,
+    ATTR_MSS_SLEW_RATE_DATA = 0xe6e1ed0,
+    ATTR_MSS_SLEW_RATE_ADR = 0x459ac09,
     ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE = 0x7ef345b,
     ATTR_FREQ_CORE = 0xcd23d9e,
     ATTR_PROC_EPS_GB_PERCENTAGE = 0x0a991b8,
@@ -3102,6 +3104,18 @@ typedef uint8_t ATTR_MSS_MEM_IPL_COMPLETE_Type;
 const bool ATTR_MSS_MEM_IPL_COMPLETE_Privileged = false;
 const TargetTypes_t ATTR_MSS_MEM_IPL_COMPLETE_TargetTypes = TARGET_TYPE_PROC_CHIP;
 const bool ATTR_MSS_MEM_IPL_COMPLETE_PlatInit = false;
+
+/* ATTR_MSS_SLEW_RATE_DATA */
+typedef uint8_t ATTR_MSS_SLEW_RATE_DATA_Type[4][3];
+const bool ATTR_MSS_SLEW_RATE_DATA_Privileged = false;
+const TargetTypes_t ATTR_MSS_SLEW_RATE_DATA_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_MSS_SLEW_RATE_DATA_PlatInit = false;
+
+/* ATTR_MSS_SLEW_RATE_ADR */
+typedef uint8_t ATTR_MSS_SLEW_RATE_ADR_Type[4][3];
+const bool ATTR_MSS_SLEW_RATE_ADR_Privileged = false;
+const TargetTypes_t ATTR_MSS_SLEW_RATE_ADR_TargetTypes = TARGET_TYPE_MBA_CHIPLET;
+const bool ATTR_MSS_SLEW_RATE_ADR_PlatInit = false;
 
 /* ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE */
 typedef uint8_t ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE_Type;
