@@ -20,6 +20,7 @@
 #include <fapiErrorInfo.H>
 #include <string.h>
 
+
 namespace fapi
 {
 
@@ -65,7 +66,7 @@ FfdcType ErrorInfoFfdc::getType() const
 // ErrorInfoCDG Constructor
 //******************************************************************************
 ErrorInfoCDG::ErrorInfoCDG(const Target & i_target)
-: iv_target(i_target), iv_callout(false), iv_calloutPriority(PRI_LOW),
+: iv_target(i_target), iv_callout(false), iv_calloutPriority(PRI_LOW_),
   iv_deconfigure(false), iv_gard(false)
 {
 
