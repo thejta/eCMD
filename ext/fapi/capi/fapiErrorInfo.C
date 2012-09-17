@@ -11,6 +11,10 @@
  *                          mjjones     08/05/2011  Created
  *                          mjjones     08/24/2011  Added ErrorInfoGard.
  *                          mjjones     09/22/2011  Major updates
+ *                          mjjones     03/16/2012  Add FfdcType. Remove copy
+ *                                                  ctor and assignment operator
+ *                          mjjones     08/14/2012  Merge Callout/Deconfig/Gard
+ *                                                  structures into one
  */
 
 #include <fapiErrorInfo.H>
@@ -23,21 +27,12 @@ namespace fapi
 // ErrorInfoFfdc Constructor
 //******************************************************************************
 ErrorInfoFfdc::ErrorInfoFfdc(const void * i_pFfdc,
-                             const uint32_t i_size)
-: iv_size(i_size)
+                             const uint32_t i_size,
+                             const FfdcType i_type)
+: iv_size(i_size), iv_type(i_type)
 {
     iv_pFfdc = new uint8_t[i_size];
     memcpy(iv_pFfdc, i_pFfdc, i_size);
-}
-
-//******************************************************************************
-// ErrorInfoFfdc Copy Constructor
-//******************************************************************************
-ErrorInfoFfdc::ErrorInfoFfdc(const ErrorInfoFfdc & i_right)
-: iv_size(i_right.iv_size)
-{
-    iv_pFfdc = new uint8_t[i_right.iv_size];
-    memcpy(iv_pFfdc, i_right.iv_pFfdc, i_right.iv_size);
 }
 
 //******************************************************************************
@@ -50,18 +45,6 @@ ErrorInfoFfdc::~ErrorInfoFfdc()
 }
 
 //******************************************************************************
-// ErrorInfoFfdc Assignment Operator
-//******************************************************************************
-ErrorInfoFfdc & ErrorInfoFfdc::operator=(const ErrorInfoFfdc & i_right)
-{
-    delete [] iv_pFfdc;
-    iv_pFfdc = new uint8_t[i_right.iv_size];
-    memcpy(iv_pFfdc, i_right.iv_pFfdc, i_right.iv_size);
-    iv_size = i_right.iv_size;
-    return *this;
-}
-
-//******************************************************************************
 // ErrorInfoFfdc getData function
 //******************************************************************************
 const void * ErrorInfoFfdc::getData(uint32_t & o_size) const
@@ -71,30 +54,19 @@ const void * ErrorInfoFfdc::getData(uint32_t & o_size) const
 }
 
 //******************************************************************************
-// ErrorInfoCallout Constructor
+// ErrorInfoFfdc getType function
 //******************************************************************************
-ErrorInfoCallout::ErrorInfoCallout(const Target & i_target,
-                                   const CalloutPriority i_priority)
-: iv_target(i_target),
-  iv_priority(i_priority)
+FfdcType ErrorInfoFfdc::getType() const
 {
-
+    return iv_type;
 }
 
 //******************************************************************************
-// ErrorInfoDeconfig Constructor
+// ErrorInfoCDG Constructor
 //******************************************************************************
-ErrorInfoDeconfig::ErrorInfoDeconfig(const Target & i_target)
-: iv_target(i_target)
-{
-
-}
-
-//******************************************************************************
-// ErrorInfoGard Constructor
-//******************************************************************************
-ErrorInfoGard::ErrorInfoGard(const Target & i_target)
-: iv_target(i_target)
+ErrorInfoCDG::ErrorInfoCDG(const Target & i_target)
+: iv_target(i_target), iv_callout(false), iv_calloutPriority(PRI_LOW),
+  iv_deconfigure(false), iv_gard(false)
 {
 
 }
@@ -111,26 +83,38 @@ ErrorInfo::~ErrorInfo()
         (*l_itr) = NULL;
     }
 
-    for (ErrorInfo::ErrorInfoCalloutItr_t l_itr = iv_callouts.begin();
-         l_itr != iv_callouts.end(); ++l_itr)
+    for (ErrorInfo::ErrorInfoCDGItr_t l_itr = iv_CDGs.begin();
+         l_itr != iv_CDGs.end(); ++l_itr)
     {
         delete (*l_itr);
         (*l_itr) = NULL;
+    }
+}
+
+//******************************************************************************
+// ErrorInfo getCreateErrorInfoCDG
+//******************************************************************************
+ErrorInfoCDG & ErrorInfo::getCreateErrorInfoCDG(const Target & i_target)
+{
+    ErrorInfoCDG * l_pInfo = NULL;
+
+    for (ErrorInfo::ErrorInfoCDGCItr_t l_itr = iv_CDGs.begin();
+         l_itr != iv_CDGs.end(); ++l_itr)
+    {
+        if ((*l_itr)->iv_target == i_target)
+        {
+            l_pInfo = (*l_itr);
+            break;
+        }
     }
 
-    for (ErrorInfo::ErrorInfoDeconfigItr_t l_itr = iv_deconfigs.begin();
-         l_itr != iv_deconfigs.end(); ++l_itr)
+    if (l_pInfo == NULL)
     {
-        delete (*l_itr);
-        (*l_itr) = NULL;
+        l_pInfo = new ErrorInfoCDG(i_target);
+        iv_CDGs.push_back(l_pInfo);
     }
 
-    for (ErrorInfo::ErrorInfoGardItr_t l_itr = iv_gards.begin();
-         l_itr != iv_gards.end(); ++l_itr)
-    {
-        delete (*l_itr);
-        (*l_itr) = NULL;
-    }
+    return *l_pInfo;
 }
 
 }
