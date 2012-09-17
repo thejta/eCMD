@@ -259,6 +259,30 @@
 #define RC_PROC_FAB_SMP_FABRIC_CHIP_ID_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_FAB_SMP_FABRIC_CHIP_ID_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
 
+#define RC_PROC_FAB_SMP_EPSILON_TABLE_TYPE_ATTR_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_FAB_SMP_EPSILON_TABLE_TYPE_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_FAB_SMP_EPSILON_TABLE_TYPE_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_FAB_SMP_EPSILON_GB_DIRECTION_ATTR_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_FAB_SMP_EPSILON_GB_DIRECTION_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_FAB_SMP_EPSILON_GB_DIRECTION_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_FAB_SMP_ASYNC_SAFE_MODE_ATTR_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_FAB_SMP_ASYNC_SAFE_MODE_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_FAB_SMP_ASYNC_SAFE_MODE_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_FAB_SMP_PUMP_MODE_ATTR_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_FAB_SMP_PUMP_MODE_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_FAB_SMP_PUMP_MODE_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_FAB_SMP_X_BUS_WIDTH_ATTR_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_FAB_SMP_X_BUS_WIDTH_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_FAB_SMP_X_BUS_WIDTH_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_FAB_SMP_MCS_INTERLEAVED_ATTR_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_FAB_SMP_MCS_INTERLEAVED_ATTR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_FAB_SMP_MCS_INTERLEAVED_ATTR_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ATTR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ATTR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
 #define RC_PROC_GETTRACEARRAY_INVALID_ARGS_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
 #define RC_PROC_GETTRACEARRAY_INVALID_ARGS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_GETTRACEARRAY_INVALID_ARGS_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ARGS}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ARGS)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
@@ -582,6 +606,10 @@
 #define RC_PROCPM_PMC_CODE_BAD_MODE_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
 #define RC_PROCPM_PMC_CODE_BAD_MODE_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROCPM_PMC_CODE_BAD_MODE_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&MODE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MODE)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROCPM_PMCINIT_TIMEOUT_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROCPM_PMCINIT_TIMEOUT_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROCPM_PMCINIT_TIMEOUT_ADD_ERROR_INFO(RC) 
 
 #define RC_PROCPM_GPE0_RESET_TIMEOUT_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
 #define RC_PROCPM_GPE0_RESET_TIMEOUT_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
@@ -1015,6 +1043,86 @@
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_PCIE_PLL_NO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_PCIE_PLL_NO_LOCK_ADD_ERROR_INFO(RC) 
 
+#define RC_PROC_ABUS_SCOMINIT_INVALID_TARGET_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_ABUS_SCOMINIT_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_ABUS_SCOMINIT_INVALID_TARGET_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_CHIPLET_SCOMINIT_INVALID_TARGET_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_CHIPLET_SCOMINIT_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_CHIPLET_SCOMINIT_INVALID_TARGET_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_DMI_SCOMINIT_INVALID_TARGET_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_DMI_SCOMINIT_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_DMI_SCOMINIT_INVALID_TARGET_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_XBUS_SCOMINIT_INVALID_TARGET_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_XBUS_SCOMINIT_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_XBUS_SCOMINIT_INVALID_TARGET_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_BUILD_SMP_NODE_ADD_INTERNAL_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_NODE_ADD_INTERNAL_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_NODE_ADD_INTERNAL_ERR_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_BUILD_SMP_DUPLICATE_FABRIC_ID_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_DUPLICATE_FABRIC_ID_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_DUPLICATE_FABRIC_ID_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&NODE_ID, &CHIP_ID}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(NODE_ID)}, {fapi::ReturnCode::EI_TYPE_FFDC, 1, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CHIP_ID)}}; RC.addErrorInfo(l_objects, l_entries, 2);}
+
+#define RC_PROC_BUILD_SMP_INVALID_OPERATION_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_INVALID_OPERATION_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_INVALID_OPERATION_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&OP}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(OP)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_BUILD_SMP_MASTER_DESIGNATION_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_MASTER_DESIGNATION_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_MASTER_DESIGNATION_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&OP, &MASTER_CHIP_SYS_CURR, &MASTER_CHIP_NODE_CURR, &FIRST_CHIP_IN_SYS, &FIRST_CHIP_IN_NODE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(OP)}, {fapi::ReturnCode::EI_TYPE_FFDC, 1, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MASTER_CHIP_SYS_CURR)}, {fapi::ReturnCode::EI_TYPE_FFDC, 2, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MASTER_CHIP_NODE_CURR)}, {fapi::ReturnCode::EI_TYPE_FFDC, 3, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FIRST_CHIP_IN_SYS)}, {fapi::ReturnCode::EI_TYPE_FFDC, 4, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FIRST_CHIP_IN_NODE)}}; RC.addErrorInfo(l_objects, l_entries, 5);}
+
+#define RC_PROC_BUILD_SMP_EPSILON_RANGE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_EPSILON_RANGE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_EPSILON_RANGE_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&VALUE, &MAX_HW_VALUE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(VALUE)}, {fapi::ReturnCode::EI_TYPE_FFDC, 1, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MAX_HW_VALUE)}}; RC.addErrorInfo(l_objects, l_entries, 2);}
+
+#define RC_PROC_BUILD_SMP_EPSILON_INVALID_TABLE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_EPSILON_INVALID_TABLE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_EPSILON_INVALID_TABLE_ERR_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_BUILD_SMP_PACING_RATE_TABLE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_PACING_RATE_TABLE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_PACING_RATE_TABLE_ERR_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_BUILD_SMP_CORE_FLOOR_FREQ_RATIO_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_CORE_FLOOR_FREQ_RATIO_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_CORE_FLOOR_FREQ_RATIO_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&FREQ_PB, &FREQ_CORE_FLOOR}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FREQ_PB)}, {fapi::ReturnCode::EI_TYPE_FFDC, 1, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FREQ_CORE_FLOOR)}}; RC.addErrorInfo(l_objects, l_entries, 2);}
+
+#define RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&CORE_FLOOR_RATIO}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CORE_FLOOR_RATIO)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_BUILD_SMP_INVALID_GROUP_SIZE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_INVALID_GROUP_SIZE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_INVALID_GROUP_SIZE_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&SIZE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(SIZE)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_BUILD_SMP_INVALID_AGGREGATE_CONFIG_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_INVALID_AGGREGATE_CONFIG_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_INVALID_AGGREGATE_CONFIG_ERR_ADD_ERROR_INFO(RC) 
+
+#define RC_PROC_BUILD_SMP_HOTPLUG_SHADOW_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_HOTPLUG_SHADOW_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_HOTPLUG_SHADOW_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ADDRESS0, &ADDRESS1, &DATA0, &DATA1}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ADDRESS0)}, {fapi::ReturnCode::EI_TYPE_FFDC, 1, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ADDRESS1)}, {fapi::ReturnCode::EI_TYPE_FFDC, 2, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(DATA0)}, {fapi::ReturnCode::EI_TYPE_FFDC, 3, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(DATA1)}}; RC.addErrorInfo(l_objects, l_entries, 4);}
+
+#define RC_PROC_BUILD_SMP_X_CMD_RATE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_X_CMD_RATE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_X_CMD_RATE_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&CMD_RATE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CMD_RATE)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_BUILD_SMP_A_CMD_RATE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_A_CMD_RATE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_A_CMD_RATE_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&CMD_RATE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CMD_RATE)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_BUILD_SMP_F_CMD_RATE_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_F_CMD_RATE_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_F_CMD_RATE_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&CMD_RATE}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CMD_RATE)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
+#define RC_PROC_BUILD_SMP_ADU_STATUS_MISMATCH_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_PROC_BUILD_SMP_ADU_STATUS_MISMATCH_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_ADU_STATUS_MISMATCH_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&STATUS_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(STATUS_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
+
 #define RC_CEN_GETTRACEARRAY_INTERNAL_ERR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
 #define RC_CEN_GETTRACEARRAY_INTERNAL_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_CEN_GETTRACEARRAY_INTERNAL_ERR_ADD_ERROR_INFO(RC) {const void * l_objects[] = {&ERR_DATA}; fapi::ReturnCode::ErrorInfoEntry l_entries[] = {{fapi::ReturnCode::EI_TYPE_FFDC, 0, fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ERR_DATA)}}; RC.addErrorInfo(l_objects, l_entries, 1);}
@@ -1254,6 +1362,10 @@
 #define RC_MSS_NUM_MBA_ERROR_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
 #define RC_MSS_NUM_MBA_ERROR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_NUM_MBA_ERROR_ADD_ERROR_INFO(RC) 
+
+#define RC_CEN_DMI_SCOMINIT_INVALID_TARGET_CALL_FUNC_TO_ANALYZE_ERROR(RC) 
+#define RC_CEN_DMI_SCOMINIT_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_CEN_DMI_SCOMINIT_INVALID_TARGET_ADD_ERROR_INFO(RC) 
 
 
 
