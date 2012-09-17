@@ -58,22 +58,6 @@ using namespace fapi;
 {\
     void * l_pLibHandle = NULL; \
     void * l_pSymAddr = NULL; \
-    RC = openSharedLib(#FUNC, l_pLibHandle); \
-    if (RC == 0) \
-    { \
-        RC = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
-        if (RC == 0) \
-        { \
-            FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
-            RC = l_pFunc(_args_); \
-        } \
-        closeSharedLib(l_pLibHandle); \
-    }\
-}
-/*
-{\
-    void * l_pLibHandle = NULL; \
-    void * l_pSymAddr = NULL; \
     uint32_t l_rc = ECMD_SUCCESS; \
     l_rc = openSharedLib(#FUNC, l_pLibHandle); \
     if (l_rc == 0) \
@@ -98,6 +82,22 @@ using namespace fapi;
     { \
       RC.setEcmdError(l_rc); \
     } \
+}
+    /*
+{\
+    void * l_pLibHandle = NULL; \
+    void * l_pSymAddr = NULL; \
+    RC = openSharedLib(#FUNC, l_pLibHandle); \
+    if (RC == 0) \
+    { \
+        RC = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
+        if (RC == 0) \
+        { \
+            FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
+            RC = l_pFunc(_args_); \
+        } \
+        closeSharedLib(l_pLibHandle); \
+    }\
 }
 */
 int openSharedLib(const std::string & i_libName, void * & o_pLibHandle);

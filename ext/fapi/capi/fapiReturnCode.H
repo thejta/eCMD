@@ -1,25 +1,3 @@
-//  IBM_PROLOG_BEGIN_TAG
-//  This is an automatically generated prolog.
-//
-//  $Source$
-//
-//  IBM CONFIDENTIAL
-//
-//  COPYRIGHT International Business Machines Corp. 2011
-//
-//  p1
-//
-//  Object Code Only (OCO) source materials
-//  Licensed Internal Code Source Materials
-//  IBM HostBoot Licensed Internal Code
-//
-//  The source code for this program is not published or other-
-//  wise divested of its trade secrets, irrespective of what has
-//  been deposited with the U.S. Copyright Office.
-//
-//  Origin: 30
-//
-//  IBM_PROLOG_END
 /**
  *  @file fapiReturnCode.H
  *
@@ -39,6 +17,12 @@
  *                          mjjones     09/22/2011  Added ErrorInfo Support
  *                          mjjones     11/10/2011  Use ecmdDataBufferBase
  *                          mjjones     01/12/2012  Enforce correct usage
+ *                          mjjones     02/22/2012  Allow user to add Target FFDC
+ *                          mjjones     03/16/2012  Add type to FFDC data
+ *                          mjjones     03/16/2012  Allow different PLAT errors
+ *                          mjjones     04/20/2012  Remove deprecated int assign
+ *                          brianh      07/31/2012  performance/size optimizations
+ *                          mjjones     08/14/2012  Created getCreateReturnCodeDataRef
  */
 
 #ifndef FAPIRETURNCODE_H_
@@ -46,12 +30,13 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
 #include <ecmdDataBufferBase.H>
 #include <fapiTarget.H>
 #include <fapiReturnCodes.H>
 #include <fapiErrorInfo.H>
 #include <fapiHwpErrorInfo.H>
-//#include <fapiPlatTrace.H> JFDEBUG
+//#include <fapiPlatTrace.H> //JFDEBUG
 #include <fapiHwpReturnCodes.H>
 
 /**
@@ -105,7 +90,7 @@ public:
     /**
      * @brief Default constructor. Sets rcValue to success
      */
-    ReturnCode();
+    ReturnCode() : iv_rcValue(FAPI_RC_SUCCESS), iv_pDataRef(NULL) { }
 
     /**
      * @brief Constructor. Sets rcValue to the specified value
@@ -140,26 +125,11 @@ public:
     ReturnCode & operator=(const ReturnCode & i_right);
 
     /**
-     * @brief ***DEPRECATED*** Assignment Operator.
-     *
-     * TODO
-     * This function will be deleted to prevent invalid usage of ReturnCode
-     * Use setFapiError, setPlatError, setEcmdError or FAPI_SET_HWP_ERROR
-     *
-     * @param[in] i_rcValue rcValue to assign
-     *
-     * If FAPI_RC_SUCCESS (zero) is assigned then any associated data is deleted
-     *
-     * @return Reference to 'this' ReturnCode
-     */
-    ReturnCode & operator=(const uint32_t i_rcValue);
-
-    /**
      * @brief Returns if the return code indicates success
      *
      * @return bool. True if ok, else false
      */
-    bool ok() const;
+    bool ok() const { return (iv_rcValue == FAPI_RC_SUCCESS); }
 
     /**
      * @brief uint32_t conversion function. Returns the rcValue
@@ -169,7 +139,7 @@ public:
      *       2/ ReturnCode to ReturnCode (Both ReturnCode converted to uint32_t)
      *       This allows a user to test if a ReturnCode is bad (if (l_rc){})
      */
-    operator uint32_t() const;
+    operator uint32_t() const { return iv_rcValue; }
 
     /**
      * @brief Sets a FAPI error. Sets the rcValue to the supplied value (from
@@ -194,18 +164,25 @@ public:
     void setEcmdError(const uint32_t i_rcValue);
 
     /**
-     * @brief Sets a PLAT error. Sets the rcValue to FAPI_RC_PLAT_ERR_SEE_DATA,
-     *        deletes any associated data and associates the supplied heap based
+     * @brief Sets a PLAT error. Sets the rcValue to the supplied value, deletes
+     *        any associated data and associates the supplied heap based
      *        PlatData with the ReturnCode. The ReturnCode object takes
      *        responsibility for deleting the data (platform code implements the
      *        delete function and must know the type and how to delete it).
      *
-     * This is called by PLAT. The expected use-case is to associate a platform
-     * error log with the ReturnCode.
+     * This is called by PLAT code to generate an error. The expected use-case
+     * is to associate a platform error log with the ReturnCode. If the error is
+     * one that a HWP can look for (e.g. the HWP may want to retry in a specific
+     * error) then one of the specific FAPI_RC_PLAT errors in fapiReturnCodes.H
+     * can be used else it defaults to FAPI_RC_PLAT_ERR_SEE_DATA which means
+     * that there is a platform error that the HWP cannot decode.
      *
-     * @param[in] i_pData Pointer to PlatData (on the heap)
+     * @param[in] i_pData   Pointer to PlatData (on the heap). Can be NULL if
+     *                      the platform does not attach data
+     * @param[in] i_rcValue Error value to set
      */
-    void setPlatError(void * i_pData);
+    void setPlatError(void * i_pData,
+                      const ReturnCodes i_rcValue = FAPI_RC_PLAT_ERR_SEE_DATA);
 
     /**
      * @brief Sets a HWP error. Sets the rcValue to the supplied value (from
@@ -294,15 +271,14 @@ public:
      * This is called by:
      * - addErrorInfo
      * - ReturnCodeFfdc::addEIFfdc (function template)
-     * - FFDC HWPs (HWPs written to collect FFDC)
-     *
-     * Use ReturnCodeFfdc::addEIFfdc to add FFDC data using the data identifier
      *
      * @param[in] i_pFfdc Pointer to the FFDC to copy
      * @param[in] i_size  Size of the FFDC to copy
+     * @param[in] i_type  Type of the FFDC to copy
      */
     void addEIFfdc(const void * i_pFfdc,
-                   const uint32_t i_size);
+                   const uint32_t i_size,
+                   const FfdcType i_type);
 
     /**
      * @brief Get a pointer to any ErrorInfo 
@@ -333,9 +309,12 @@ public:
 private:
 
     /**
-     * @brief If iv_pDataRef is NULL then a new ReturnCodeDataRef is created
+     * @brief Get a reference to the ReturnCodeDataRef, if it doesn't exist
+     *        then one is created and returned
+     *
+     * @return ReturnCodeDataRef &. Reference to ReturnCodeDataRef
      */
-    void ensureDataRefExists();
+    ReturnCodeDataRef & getCreateReturnCodeDataRef();
 
     /**
      * @brief Forgets about any associated data (PlatData and ErrorInfo)
@@ -397,6 +376,7 @@ namespace ReturnCodeFfdc
     enum ErrorInfoFfdcSize
     {
         EI_FFDC_SIZE_ECMDDB = -1,   // ecmdDataBufferBase
+        EI_FFDC_SIZE_TARGET = -2,   // fapi::Target
     };
 
     /**
@@ -426,6 +406,16 @@ namespace ReturnCodeFfdc
     }
 
     /**
+     * @brief Get FFDC Size specialization for fapi::Target
+     */
+    template<>
+    inline int16_t getErrorInfoFfdcSize<fapi::Target>(
+        const fapi::Target &)
+    {
+        return EI_FFDC_SIZE_TARGET;
+    }
+
+    /**
      * @brief Compile error if caller tries to get the FFDC size of a pointer
      *
      * If this function template is instantiated, the compile will fail due to
@@ -451,7 +441,7 @@ namespace ReturnCodeFfdc
     void addEIFfdc(ReturnCode & o_rc,
                    const T & i_ffdc)
     {
-        o_rc.addEIFfdc(&i_ffdc, sizeof(T));
+        o_rc.addEIFfdc(&i_ffdc, sizeof(T), FFDC_TYPE_DATA);
     }
 
     /**
@@ -472,9 +462,24 @@ namespace ReturnCodeFfdc
 
         // Deliberately not checking return code from extract to save code space
         i_ffdc.extract(l_pData, 0, i_ffdc.getBitLength());
-
-        o_rc.addEIFfdc(l_pData, (i_ffdc.getWordLength() * 4));
+        o_rc.addEIFfdc(l_pData, (i_ffdc.getWordLength() * 4),
+                       FFDC_TYPE_ECMDDBB);
         delete [] l_pData;
+    }
+
+    /**
+     * @brief Specialization of addEIFfdc for fapi::Target
+     *
+     * @param[out] o_rc   Reference to ReturnCode to copy FFDC to
+     * @param[in]  i_ffdc Reference to fapi::Target to add FFDC for
+     */
+    template<>
+    inline void addEIFfdc<fapi::Target>(ReturnCode & o_rc,
+                                        const fapi::Target & i_ffdc)
+    {
+        const char * l_ecmdString = i_ffdc.toEcmdString();
+        o_rc.addEIFfdc(l_ecmdString, (strlen(l_ecmdString) + 1),
+                       FFDC_TYPE_TARGET);
     }
 
     /**

@@ -1,25 +1,3 @@
-//  IBM_PROLOG_BEGIN_TAG
-//  This is an automatically generated prolog.
-//
-//  $Source$
-//
-//  IBM CONFIDENTIAL
-//
-//  COPYRIGHT International Business Machines Corp. 2011
-//
-//  p1
-//
-//  Object Code Only (OCO) source materials
-//  Licensed Internal Code Source Materials
-//  IBM HostBoot Licensed Internal Code
-//
-//  The source code for this program is not published or other-
-//  wise divested of its trade secrets, irrespective of what has
-//  been deposited with the U.S. Copyright Office.
-//
-//  Origin: 30
-//
-//  IBM_PROLOG_END
 /**
  *  @file fapiReturnCode.C
  *
@@ -40,6 +18,14 @@
  *                                                  ReturnCode
  *                          mjjones     09/22/2011  Added ErrorInfo Support
  *                          mjjones     01/12/2012  Enforce correct usage
+ *                          mjjones     02/22/2012  Allow user to add Target FFDC
+ *                          mjjones     03/16/2012  Add type to FFDC data
+ *                          mjjones     03/16/2012  Allow different PLAT errors
+ *                          mjjones     04/20/2012  Remove deprecated int assign
+ *                          mjjones     05/02/2012  Only trace setEcmdError on err
+ *                          mjjones     07/11/2012  Remove a trace
+ *                          brianh      07/31/2012  performance/size optimizations
+ *                          mjjones     08/14/2012  Use new ErrorInfo structure
  */
 
 #include <fapiReturnCode.H>
@@ -60,17 +46,10 @@
 #define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)
 
 
+
+
 namespace fapi
 {
-
-//******************************************************************************
-// Default Constructor
-//******************************************************************************
-ReturnCode::ReturnCode() :
-    iv_rcValue(FAPI_RC_SUCCESS), iv_pDataRef(NULL)
-{
-
-}
 
 //******************************************************************************
 // Constructor
@@ -78,7 +57,10 @@ ReturnCode::ReturnCode() :
 ReturnCode::ReturnCode(const ReturnCodes i_rcValue) :
     iv_rcValue(i_rcValue), iv_pDataRef(NULL)
 {
-
+    if (i_rcValue != FAPI_RC_SUCCESS)
+    {
+        FAPI_ERR("ctor: Creating error 0x%x", i_rcValue);
+    }
 }
 
 //******************************************************************************
@@ -130,40 +112,11 @@ ReturnCode & ReturnCode::operator=(const ReturnCode & i_right)
 }
 
 //******************************************************************************
-// Assignment Operator
-//******************************************************************************
-ReturnCode & ReturnCode::operator=(const uint32_t i_rcValue)
-{
-    FAPI_ERR("Using deprecated ReturnCode function to assign integer");
-    iv_rcValue = i_rcValue;
-
-    // Forget about any associated data
-    forgetData();
-
-    return *this;
-}
-
-//******************************************************************************
-// ok function
-//******************************************************************************
-bool ReturnCode::ok() const
-{
-    return (iv_rcValue == FAPI_RC_SUCCESS);
-}
-
-//******************************************************************************
-// returnCode_t cast
-//******************************************************************************
-ReturnCode::operator uint32_t() const
-{
-    return iv_rcValue;
-}
-
-//******************************************************************************
 // setFapiError function
 //******************************************************************************
 void ReturnCode::setFapiError(const ReturnCodes i_rcValue)
 {
+    FAPI_ERR("setFapiError: Creating FAPI error 0x%x", i_rcValue);
     iv_rcValue = i_rcValue;
 
     // Forget about any associated data (this is a new error)
@@ -175,6 +128,13 @@ void ReturnCode::setFapiError(const ReturnCodes i_rcValue)
 //******************************************************************************
 void ReturnCode::setEcmdError(const uint32_t i_rcValue)
 {
+    // Some HWPs perform an ecmdDataBaseBufferBase operation, then call this
+    // function then check if the ReturnCode indicates an error. Therefore only
+    // trace an error if there actually is an error
+    if (i_rcValue != 0)
+    {
+        FAPI_ERR("setEcmdError: Creating ECMD error 0x%x", i_rcValue);
+    }
     iv_rcValue = i_rcValue;
 
     // Forget about any associated data (this is a new error)
@@ -184,15 +144,19 @@ void ReturnCode::setEcmdError(const uint32_t i_rcValue)
 //******************************************************************************
 // setPlatError function
 //******************************************************************************
-void ReturnCode::setPlatError(void * i_pData)
+void ReturnCode::setPlatError(void * i_pData,
+                              const ReturnCodes i_rcValue)
 {
-    iv_rcValue = FAPI_RC_PLAT_ERR_SEE_DATA;
+    FAPI_ERR("setPlatError: Creating PLAT error 0x%x", i_rcValue);
+    iv_rcValue = i_rcValue;
 
     // Forget about any associated data (this is a new error)
     forgetData();
 
-    ensureDataRefExists();
-    iv_pDataRef->setPlatData(i_pData);
+    if (i_pData)
+    {
+        getCreateReturnCodeDataRef().setPlatData(i_pData);
+    }
 }
 
 //******************************************************************************
@@ -200,6 +164,7 @@ void ReturnCode::setPlatError(void * i_pData)
 //******************************************************************************
 void ReturnCode::_setHwpError(const HwpReturnCode i_rcValue)
 {
+    FAPI_ERR("_setHwpError: Creating HWP error 0x%x", i_rcValue);
     iv_rcValue = i_rcValue;
 
     // Forget about any associated data (this is a new error)
@@ -257,8 +222,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             {
                 // This is a regular FFDC data object that can be directly
                 // memcopied
-                //JFDEBUG FAPI_ERR("addErrorInfo: Adding FFDC, size: %d", l_size);
-                addEIFfdc(l_pObject, l_size);
+                addEIFfdc(l_pObject, l_size, FFDC_TYPE_DATA);
             }
             else
             {
@@ -266,10 +230,16 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 if (l_size == ReturnCodeFfdc::EI_FFDC_SIZE_ECMDDB)
                 {
                     // The FFDC is a ecmdDataBufferBase
-                    //JFDEBUG FAPI_ERR("addErrorInfo: Adding ecmdDB FFDC");
                     const ecmdDataBufferBase * l_pDb =
                         static_cast<const ecmdDataBufferBase *>(l_pObject);
                     ReturnCodeFfdc::addEIFfdc(*this, *l_pDb);
+                }
+                else if (l_size == ReturnCodeFfdc::EI_FFDC_SIZE_TARGET)
+                {
+                    // The FFDC is a fapi::Target
+                    const fapi::Target * l_pTarget =
+                        static_cast<const fapi::Target *>(l_pObject);
+                    ReturnCodeFfdc::addEIFfdc(*this, *l_pTarget);
                 }
                 else
                 {
@@ -286,7 +256,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 static_cast<CalloutPriority>(i_pEntries[i].iv_data1);
 
             // Add the ErrorInfo
-            //JFDEBUG FAPI_ERR("addErrorInfo: Adding callout, pri: %d", l_pri);
+            FAPI_ERR("addErrorInfo: Adding callout, pri: %d", l_pri);
             addEICallout(*l_pTarget, l_pri);
         }
         else if (i_pEntries[i].iv_type == EI_TYPE_DECONF)
@@ -295,7 +265,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             const Target * l_pTarget = static_cast<const Target *>(l_pObject);
 
             // Add the ErrorInfo
-            //JFDEBUG FAPI_ERR("addErrorInfo: Adding deconfigure");
+            FAPI_ERR("addErrorInfo: Adding deconfigure");
             addEIDeconfigure(*l_pTarget);
         }
         else if (i_pEntries[i].iv_type == EI_TYPE_GARD)
@@ -304,7 +274,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             const Target * l_pTarget = static_cast<const Target *>(l_pObject);
 
             // Add the ErrorInfo
-            //JFDEBUG FAPI_ERR("addErrorInfo: Adding GARD");
+            FAPI_ERR("addErrorInfo: Adding GARD");
             addEIGard(*l_pTarget);
         }
         else
@@ -319,13 +289,13 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
 // addEIFfdc function
 //******************************************************************************
 void ReturnCode::addEIFfdc(const void * i_pFfdc,
-                           const uint32_t i_size)
+                           const uint32_t i_size,
+                           const FfdcType i_type)
 {
     // Create a ErrorInfoFfdc object and add it to the Error Information
-    //JFDEBUG FAPI_ERR("addEIFfdc: Adding FFDC, size: %d", i_size);
-    ensureDataRefExists();
-    ErrorInfoFfdc * l_pFfdc = new ErrorInfoFfdc(i_pFfdc, i_size);
-    iv_pDataRef->getCreateErrorInfo().iv_ffdcs.push_back(l_pFfdc);
+    ErrorInfoFfdc * l_pFfdc = new ErrorInfoFfdc(i_pFfdc, i_size, i_type);
+    getCreateReturnCodeDataRef().getCreateErrorInfo().
+        iv_ffdcs.push_back(l_pFfdc);
 }
 
 
@@ -364,14 +334,16 @@ ReturnCode::returnCodeCreator ReturnCode::getCreator() const
 }
 
 //******************************************************************************
-// ensureDataRefExists function
+// getCreateReturnCodeDataRef function
 //******************************************************************************
-void ReturnCode::ensureDataRefExists()
+ReturnCodeDataRef & ReturnCode::getCreateReturnCodeDataRef()
 {
-    if (!iv_pDataRef)
+    if (iv_pDataRef == NULL)
     {
         iv_pDataRef = new ReturnCodeDataRef();
     }
+
+    return *iv_pDataRef;
 }
 
 //******************************************************************************
@@ -398,10 +370,16 @@ void ReturnCode::forgetData()
 void ReturnCode::addEICallout(const Target & i_target,
                               const CalloutPriority i_priority)
 {
-    // Create a ErrorInfoCallout object and add it to the Error Information
-    ensureDataRefExists();
-    ErrorInfoCallout * l_pCallout = new ErrorInfoCallout(i_target, i_priority);
-    iv_pDataRef->getCreateErrorInfo().iv_callouts.push_back(l_pCallout);
+    // Get/Create a ErrorInfoCDG object for the target and update the callout
+    ErrorInfoCDG & l_errorInfoCdg = getCreateReturnCodeDataRef().
+        getCreateErrorInfo().getCreateErrorInfoCDG(i_target);
+    l_errorInfoCdg.iv_callout = true;
+
+    // If the same target is called out multiple times, use the highest priority
+    if (i_priority > l_errorInfoCdg.iv_calloutPriority)
+    {
+        l_errorInfoCdg.iv_calloutPriority = i_priority;
+    }
 }
 
 //******************************************************************************
@@ -409,10 +387,10 @@ void ReturnCode::addEICallout(const Target & i_target,
 //******************************************************************************
 void ReturnCode::addEIDeconfigure(const Target & i_target)
 {
-    // Create a ErrorInfoDeconfig object and add it to the Error Information
-    ensureDataRefExists();
-    ErrorInfoDeconfig * l_pDeconfig = new ErrorInfoDeconfig(i_target);
-    iv_pDataRef->getCreateErrorInfo().iv_deconfigs.push_back(l_pDeconfig);
+    // Get/Create a ErrorInfoCDG object for the target and update the deconfig
+    ErrorInfoCDG & l_errorInfoCdg = getCreateReturnCodeDataRef().
+        getCreateErrorInfo().getCreateErrorInfoCDG(i_target);
+    l_errorInfoCdg.iv_deconfigure = true;
 }
 
 //******************************************************************************
@@ -420,10 +398,10 @@ void ReturnCode::addEIDeconfigure(const Target & i_target)
 //******************************************************************************
 void ReturnCode::addEIGard(const Target & i_target)
 {
-    // Create a ErrorInfoGard object and add it to the Error Information
-    ensureDataRefExists();
-    ErrorInfoGard * l_pGard = new ErrorInfoGard(i_target);
-    iv_pDataRef->getCreateErrorInfo().iv_gards.push_back(l_pGard);
+    // Get/Create a ErrorInfoCDG object for the target and update the GARD
+    ErrorInfoCDG & l_errorInfoCdg = getCreateReturnCodeDataRef().
+        getCreateErrorInfo().getCreateErrorInfoCDG(i_target);
+    l_errorInfoCdg.iv_gard = true;
 }
 
 }
