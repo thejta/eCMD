@@ -5,10 +5,10 @@
 SUBDIR     := capi/
 include ../makefile.rules
 
-CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H  prdfCompressBuffer.H
+CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H  prdfCompressBuffer.H
 INT_INCLUDES  := ecmdDllCapi.H
 CAPI_SOURCE   := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
-SLIB_SOURCE   := ecmdDataBuffer.C ecmdDataBufferBase.C ecmdStructs.C ecmdSharedUtils.C
+SLIB_SOURCE   := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
 
 # Tell the SEDC code we import that we just want the scomdef parser
 SEDC_INCLUDES := ${INCLUDES} sedcScomdefParser.H sedcScomdefClasses.H sedcDefines.H sedcCommonParser.H sedcCommonClasses.H
@@ -37,6 +37,7 @@ SLIB     := libecmd_${OS}.so
 # *****************************************************************************
 ifeq (${OS},x86)
   CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
+# CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall -Werror -Wno-write-strings
 endif
 
 # *****************************************************************************
