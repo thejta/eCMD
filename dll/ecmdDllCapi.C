@@ -2994,12 +2994,13 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
   ringHashKey = ecmdHashString32(latchName.c_str(), 0);
 
   /* single exit point */
+  std::string l_version = "default";
   while (1) {
     /* Let's see if we have already looked up this info */
     foundit = false;
     
     /* find scandef file */
-    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile, l_version);
     if (rc) {
       dllRegisterErrorMsg(rc, "readScandef", ("Error occured locating scandef file: " + scandefFile + "\n").c_str());
       return rc;
@@ -3260,7 +3261,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   std::vector<std::string> curArgs;             ///< for tokenizing
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
   std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
-
+  std::string l_version = "default";
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
   latchHashKey = ecmdHashString32(latchName.c_str(), 0);
@@ -3274,7 +3275,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
     /* Let's see if we have already looked up this info */
     foundit = false;
     /* find scandef file */
-    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile);
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile, l_version);
     if (rc) {
       dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured locating scandef file: " + scandefFile + "\n").c_str());
       return rc;
@@ -3336,7 +3337,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
     if (!foundit) {
 
       /* find scandef hash file */
-      rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile);
+      rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile, l_version);
       if (rc) {
         dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured locating scandef hash file: " + scandefHashFile + "\n").c_str());
         return rc;
@@ -3741,7 +3742,8 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
 
   ecmdChipTarget dummy;
   std::string filePath;
-  uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath); 
+  std::string l_version = "default";
+  uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath, l_version); 
 
   if (rc || (filePath.length()==0)) {
     ret = "ERROR FINDING DECODE FILE";
