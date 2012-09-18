@@ -82,9 +82,7 @@ uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_que
 uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName, ecmdQueryDetail_t i_detail); 
 
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation); 
-
-uint32_t dllQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string i_version); 
+uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version); 
 
 bool dllQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData); 
 
@@ -125,6 +123,8 @@ uint32_t dllSendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t 
 uint32_t dllGetCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
+
+uint32_t dllGetEcid(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData); 
 
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data); 
@@ -180,8 +180,6 @@ uint32_t dllGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ecm
 uint32_t dllSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range); 
 
 uint32_t dllSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider); 
-
-uint32_t dllSetClockMinMax(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_fMin, uint32_t i_fMax); 
 
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t dllIStepsByNumber(ecmdDataBuffer & i_steps); 
@@ -294,6 +292,8 @@ uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_co
 
 uint32_t dllSyncPluginState(ecmdChipTarget & i_target); 
 
+uint32_t dllSyncIplMode(int i_unused); 
+
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
 uint32_t dllGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData); 
@@ -337,7 +337,11 @@ uint32_t dllPutModuleVpdKeywordToImage(ecmdChipTarget & i_target, const char * i
 #ifndef ECMD_REMOVE_VPD_FUNCTIONS
 uint32_t dllGetFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
+uint32_t dllGetFruVpdKeywordWithRid(uint32_t i_rid, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data); 
+
 uint32_t dllPutFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data); 
+
+uint32_t dllPutFruVpdKeywordWithRid(uint32_t i_rid, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data); 
 
 uint32_t dllGetFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
