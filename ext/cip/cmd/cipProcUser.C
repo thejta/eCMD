@@ -1909,7 +1909,7 @@ uint32_t cipRWReadCacheUser(int argc, char * argv[])
 
     //Setup the target that will be used to query the system config
     std::string l_chipType, l_chipUnitType;
-    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    l_rc = ecmdParseChipField(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
     if (l_rc) {
         ecmdOutputError("ciprwreadcache - Wildcard character detected however it is not being used correctly.\n");
         return l_rc;
@@ -2037,7 +2037,7 @@ uint32_t cipRWReadTLBUser(int argc, char * argv[])
 
     //Setup the target that will be used to query the system config
     std::string l_chipType, l_chipUnitType;
-    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    l_rc = ecmdParseChipField(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
     if (l_rc) {
         ecmdOutputError("ciprwreadtlb - Wildcard character detected however it is not being used correctly.\n");
         return l_rc;
@@ -2271,7 +2271,7 @@ uint32_t cipRWReadMemUser(int argc, char * argv[])
 
     //Setup the target that will be used to query the system config
     std::string l_chipType, l_chipUnitType;
-    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    l_rc = ecmdParseChipField(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
     if (l_rc) {
         ecmdOutputError("ciprwreadmem - Wildcard character detected however it is not being used correctly.\n");
         return l_rc;
@@ -2544,7 +2544,7 @@ uint32_t cipRWWriteMemUser(int argc, char * argv[])
 
     //Setup the target that will be used to query the system config
     std::string l_chipType, l_chipUnitType;
-    l_rc = ecmdParseChipFieldHidden(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    l_rc = ecmdParseChipField(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
     if (l_rc) {
         ecmdOutputError("ciprwreadmem - Wildcard character detected however it is not being used correctly.\n");
         return l_rc;
