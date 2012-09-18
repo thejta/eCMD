@@ -2400,6 +2400,200 @@ uint32_t ecmdSyncIplModeUser(int argc, char * argv[])
   return rc;
 }
 
+uint32_t ecmdGetEcidUser(int argc, char* argv[])
+{
+    uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+    std::string outputformat = "ecid";            ///< Output Format to display
+    ecmdChipTarget target;                        ///< Current target being operated on
+    ecmdDataBuffer buffer;                        ///< Buffer to hold Ecid data
+    bool validPosFound = false;                   ///< Did the looper find anything?
+    ecmdLooperData looperData;                    ///< Store internal Looper data
+    std::string printed;                          ///< Output data
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+    /* get format flag, if it's there */
+    char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+    if (formatPtr != NULL)
+    {
+        outputformat = formatPtr;
+    }
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    rc = ecmdCommandArgs(&argc, &argv);
+    if (rc) return rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+    if (argc < 1)  //chip
+    {
+        ecmdOutputError("getecid - Too few arguments specified; you need at least a chip.\n");
+        ecmdOutputError("getecid - Type 'getecid -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string chipType, chipUnitType;
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc)
+    { 
+        ecmdOutputError("getecid - Wildcard character detected however it is not being used correctly.\n");
+        return rc;
+    }
+    bool chipWildcardFound = false;
+
+    if (chipUnitType != "")
+    {
+        ecmdOutputError("getecid - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (chipType == "x")
+    {
+        target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+        chipWildcardFound = true;
+    }
+    else
+    {
+        target.chipType = chipType;
+        target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (argc > 2)
+    { 
+        ecmdOutputError("getecid - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+        ecmdOutputError("getecid - Type 'getecid -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+        rc = getEcid(target, buffer);
+        if (rc) {
+            printed = "getecid - Error occured performing getecid on ";
+            printed += ecmdWriteTarget(target);
+            printed += "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+        }
+        else
+        {
+            validPosFound = true;
+        }
+
+        printed = ecmdWriteTarget(target);
+        if (outputformat == "ecid")
+        {
+            // output ecid format
+            ecmdDataBuffer waferID(60);
+            uint8_t        Xloc;
+            uint8_t        Yloc;
+            char           waferIdText[11];
+            char           ecidString[100];
+
+            // --- the fuseString ---
+            // bits   0:3  are the version, which should be all zeros to start with
+            // bits   4:63 are the wafer id ( ten 6 bit fields each containing a code)
+            // bits  64:71 are the chip x location (7:0)
+            // bits  72:79 are the chip y location (7:0)
+            // bits  80:103 are used in a different chip location algorithm
+            // bits 104:111 are the ECC over the whole 112 bits
+
+            buffer.extract(waferID, 4, 60);
+            for (uint32_t offset = 0; offset < 10; offset++)
+            {
+                uint8_t code = 0;
+                waferID.extractToRight(&code, offset * 6, 6);
+                if (code < 10)
+                {
+                    code += '0';
+                }
+                else if ((code >= 10) && (code < 36))
+                {
+                    code += ('A' - 10);
+                }
+                else if (code == '\x3D')
+                {
+                    code = '-';
+                }
+                else if (code == '\x3E')
+                {
+                    code = '.';
+                }
+                else if (code == '\x3F')
+                {
+                    code = ' ';
+                }
+                else
+                {
+                    // unknown code
+                }
+                waferIdText[offset] = code;
+            }
+            waferIdText[10] = 0;
+
+            buffer.extract(&Xloc, 64, 8);
+            buffer.extract(&Yloc, 72, 8);
+
+            std::string wafer = waferIdText;
+            // getCheckSum()
+            {
+                std::string rtn=wafer + "A0";
+                int sum=0;
+                for (uint32_t i = 0; i < rtn.size(); i++)
+                {
+                    sum = ((sum * 8) + (rtn[i] - 32)) % 59;
+                }
+                if (sum != 0 && rtn.size() >= 12) {
+                    int adjust = 59 - sum;
+                    rtn[11] += adjust & 7;
+                    adjust >>= 3;
+                    rtn[10] += adjust & 7;
+                }
+            }
+
+            sprintf(ecidString, "%s_%02d_%02d\n", wafer.c_str(), Xloc, Yloc);
+            printed += ecidString;
+        }
+        else
+        {
+            printed += ecmdWriteDataFormatted(buffer, outputformat);
+        }
+        ecmdOutput( printed.c_str() );
+
+    }
+    // coeRc will be the return code from in the loop, coe mode or not.
+    if (coeRc) return coeRc;
+
+    // This is an error common across all UI functions
+    if (!validPosFound)
+    {
+        ecmdOutputError("getecid - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return rc;
+}
+
 // Change Log *********************************************************
 //                                                                      
 //  Flag Reason   Vers Date     Coder    Description                       

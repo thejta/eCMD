@@ -879,6 +879,20 @@ uint32_t getCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdData
 */
 uint32_t putCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
 
+/**
+ @brief Calls HWP to read ecid from the targeted chip
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_ecidData DataBuffer object that holds ecid
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getEcid(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData);
+
 //@}
 /* End FSI Functions */
 

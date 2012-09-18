@@ -357,6 +357,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
         } else if (!strcmp(argv[0], "getconfig")) {
           rc = ecmdGetConfigUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "getecid")) {
+          rc = ecmdGetEcidUser(argc - 1, argv + 1);
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
         } else if (!strcmp(argv[0], "getfpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_FPR);

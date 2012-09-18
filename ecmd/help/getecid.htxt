@@ -1,0 +1,21 @@
+
+Syntax: getecid <Chip> [-o<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Gets Ecid Data from Chip
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Chip to get ECID data from.
+
+        -o<format>[opt] Specifies the format type of the output : default 'ecid'
+                        Run 'ecmdquery formats' to view available formats
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > getecid pu
+                        > getecid pu -ox
