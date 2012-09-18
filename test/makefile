@@ -6,10 +6,10 @@
 OS           := $(shell uname)
 
 VPATH        := ../capi/export:../dllStub:../capi:../dll/
-INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H
+INCLUDES     := ecmdClientCapi.H  ecmdDataBufferBase.H  ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H
 INT_INCLUDES := 
 SOURCE       := ecmdLoadTest.C
-STATIC_SOURCE := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDataBuffer.C ecmdClientCapiFunc.C ecmdClientCapi.C ecmdUtils.C
+STATIC_SOURCE := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDataBufferBase.C ecmdDataBuffer.C ecmdClientCapiFunc.C ecmdClientCapi.C ecmdUtils.C
 ECMD_SOURCE  := ecmdCommandUtils.C ecmdDaScomUser.C ecmdInterpreter.C ecmdMain.C
 ECMD_INCLUDES := ecmdCommandUtils.H ecmdIntReturnCodes.H ecmdInterpreter.H
 DEFINES      := 
