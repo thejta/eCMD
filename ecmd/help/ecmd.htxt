@@ -103,6 +103,7 @@ Syntax: ecmd
         crogetl3                 
         crogetl3data             
         crogetl3dir              
+        croporestate             
         croputl2                 
         croputl2data             
         croputl2dir              
