@@ -27,7 +27,7 @@ my $rc = 0;
 
 $| = 1;  # set autoflush
 
-if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10,ver11,ver12")) { exit(0); }
+if (ecmdLoadDll("","ver5,ver6,ver7,ver8,ver9,ver10,ver11,ver12,ver13")) { exit(0); }
 
 $rc = ecmdCommandArgs(\@ARGV);
 
