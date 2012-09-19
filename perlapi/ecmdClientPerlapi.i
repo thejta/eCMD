@@ -37,6 +37,7 @@
 #include "ecmdDefines.H"
 #include "ecmdClientPerlapi.H"
 #include "ecmdClientPerlapiFunc.H"
+#include "ecmdDataBufferBase.H"
 #include "ecmdDataBuffer.H"
 #include "ecmdBit64.H"
 #include "ecmdStructs.H"
@@ -96,6 +97,7 @@
 %template(listEcmdNodeData)          std::list<ecmdNodeData>;
 %template(listEcmdCageData)          std::list<ecmdCageData>;
 %template(listString)                std::list<std::string>;
+%template(vectorEcmdDataBufferBase)      std::vector<ecmdDataBufferBase>;
 %template(vectorEcmdDataBuffer)      std::vector<ecmdDataBuffer>;
 %template(listEcmdMemoryEntry)       std::list<ecmdMemoryEntry>;
 %template(listEcmdRingData)          std::list<ecmdRingData>;
@@ -122,6 +124,7 @@
 %include "ecmdDefines.H"
 %include "ecmdClientPerlapi.H"
 %include "ecmdClientPerlapiFunc.H"
+%include "ecmdDataBufferBase.H"
 %include "ecmdDataBuffer.H"
 %include "ecmdBit64.H"
 %include "ecmdStructs.H"
