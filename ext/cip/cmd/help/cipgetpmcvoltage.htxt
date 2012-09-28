@@ -1,0 +1,26 @@
+
+Syntax: cipgetpmcvoltage <Chip> <Type> <Mode> [<Type> <Mode>] [-o<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Gets Processor Voltage Settings
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        Chip            Specifies the chip to operate on.
+
+        Type            Which voltage setting to request: vdd or vcs.
+
+        Mode            Which mode to output: vid or mv.
+
+        -o<format>[opt] Specifies the format type of the output : default 'd'
+                        decimal(d) and hexadecimal(x) are supported
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipgetpmcvoltage pu vdd vid -ox
+                        > cipgetpmcvoltage pu vdd mv vcs mv

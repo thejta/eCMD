@@ -94,6 +94,12 @@ uint32_t cipRWReadMemUser(int argc, char * argv[]);
 uint32_t cipRWWriteMemUser(int argc, char * argv[]);
 #endif // CIP_REMOVE_RW_FUNCTIONS
 
+/* cipProcUser.C */
+#ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+uint32_t cipGetPmcVoltageUser(int argc, char * argv[]);
+uint32_t cipPutPmcVoltageUser(int argc, char * argv[]);
+#endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+
 //@}
 
 #endif /* cipInterpreter_h */

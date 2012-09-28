@@ -789,6 +789,43 @@ uint32_t cipRWWriteMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i
 #endif // CIP_REMOVE_RW_FUNCTIONS
 //@}
 
+//@{
+#ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+/**
+ @brief Reads voltage values from processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/chipunit information
+ @param i_vdd_mode Mode to return vdd voltage value. CIP_PMC_VOLTAGE_MODE_IGNORE, CIP_PMC_VOLTAGE_MODE_VID, or CIP_PMC_VOLTAGE_MODE_VOLT
+ @param o_vdd vdd voltage value returned when i_vdd_mode not set to CIP_PMC_VOLTAGE_MODE_IGNORE
+ @param i_vcs_mode Mode to return vcs voltage value. CIP_PMC_VOLTAGE_MODE_IGNORE, CIP_PMC_VOLTAGE_MODE_VID, or CIP_PMC_VOLTAGE_MODE_VOLT
+ @param o_vcs vcs voltage value returned when i_vcs_mode not set to CIP_PMC_VOLTAGE_MODE_IGNORE
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipGetPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32_t & o_vdd, uint32_t i_vcs_mode, int32_t & o_vcs);
+
+/**
+ @brief Writes voltage values to processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position/chipunit information
+ @param i_vdd_mode Mode to write vdd voltage value. CIP_PMC_VOLTAGE_MODE_IGNORE, CIP_PMC_VOLTAGE_MODE_VID, or CIP_PMC_VOLTAGE_MODE_VOLT
+ @param i_vdd vdd voltage value to write when i_vdd_mode not set to CIP_PMC_VOLTAGE_MODE_IGNORE
+ @param i_vcs_mode Mode to write vcs voltage value. CIP_PMC_VOLTAGE_MODE_IGNORE, CIP_PMC_VOLTAGE_MODE_VID, or CIP_PMC_VOLTAGE_MODE_VOLT
+ @param i_vcs vcs voltage value to write when i_vcs_mode not set to CIP_PMC_VOLTAGE_MODE_IGNORE
+ @param i_step_size when step size is not equal to zero, will increment voltage change in step size specified.
+
+ NOTE : When CIP_PMC_VOLTAGE_MODE_VID is selected, the input should be limited from 0x0 to 0xFF in size.<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipPutPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32_t i_vdd, uint32_t i_vcs_mode, int32_t i_vcs, uint8_t i_step_size = 0);
+#endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+//@}
 
 #ifndef DOCUMENTATION
 } /* end extern "c" */

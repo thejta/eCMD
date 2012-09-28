@@ -2710,3 +2710,568 @@ uint32_t cipRWWriteMemUser(int argc, char * argv[])
     return l_rc;
 }
 #endif // CIP_REMOVE_RW_FUNCTIONS
+
+#ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+uint32_t cipGetPmcVoltageUser(int argc, char * argv[])
+{
+    // cipgetpmcvoltage chip type mode [type mode]
+    // type vdd or vcs
+    // mode vid or mv
+    // output defaults to decimal
+
+    uint32_t l_rc = ECMD_SUCCESS, l_coeRc = ECMD_SUCCESS;
+
+    ecmdLooperData l_looperdata;            ///< Store internal Looper data
+    std::string l_outputformat = "d";       ///< Output format - default to decimal
+    ecmdChipTarget l_target;                ///< Current target being operated on
+    bool l_validPosFound = false;           ///< Did the looper find anything?
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+
+    /* get format flag, if it's there */
+    char * l_outputFormatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+    if (l_outputFormatPtr != NULL)
+    {
+        l_outputformat = l_outputFormatPtr;
+    }
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    l_rc = ecmdCommandArgs(&argc, &argv);
+    if (l_rc) return l_rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool l_coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+
+    // check number of arguments
+    if (argc < 3)
+    {
+        ecmdOutputError("cipgetpmcvoltage - chip, type, and mode must be specified\n");
+        ecmdOutputError("cipgetpmcvoltage - Type 'cipgetpmcvoltage -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    if ((argc != 3) && (argc != 5))
+    {
+        ecmdOutputError("cipgetpmcvoltage - Incorrect number of arguments specified.\n");
+        ecmdOutputError("cipgetpmcvoltage - Type 'cipgetpmcvoltage -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string l_chipType, l_chipUnitType;
+    l_rc = ecmdParseChipField(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    if (l_rc)
+    {
+        ecmdOutputError("cipgetpmcvoltage - Wildcard character detected however it is not being used correctly.\n");
+        return l_rc;
+    }
+    bool l_chipWildcardFound = false;
+
+    if (l_chipUnitType != "")
+    {
+        ecmdOutputError("cipgetpmcvoltage - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (l_chipType == "x")
+    {
+        l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+        l_chipWildcardFound = true;
+    }
+    else
+    {
+        l_target.chipType = l_chipType;
+        l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.chipUnitTypeState = l_target.chipUnitNumState = l_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    uint32_t l_vdd_mode = CIP_PMC_VOLTAGE_MODE_IGNORE;
+    uint32_t l_vcs_mode = CIP_PMC_VOLTAGE_MODE_IGNORE;
+    uint32_t * l_mode_pointer = NULL;
+
+    //argv[1] vdd or vcs
+    if (strcasecmp(argv[1], "vdd") == 0)
+    {
+        l_mode_pointer = &l_vdd_mode;
+    }
+    else if (strcasecmp(argv[1], "vcs") == 0)
+    {
+        l_mode_pointer = &l_vcs_mode;
+    }
+    else
+    {
+        ecmdOutputError("cipgetpmcvoltage - unknown voltage type. Use vdd or vcs.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    //argv[2] vid or mv
+    if (strcasecmp(argv[2], "vid") == 0)
+    {
+        *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VID;
+    }
+    else if (strcasecmp(argv[2], "mv") == 0)
+    {
+        *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VOLT;
+    }
+    else
+    {
+        ecmdOutputError("cipgetpmcvoltage - unknown voltage mode. Use vid or mv.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (argc > 3)
+    {
+        //argv[3] vdd or vcs
+        if (strcasecmp(argv[3], "vdd") == 0)
+        {
+            if (l_vdd_mode != CIP_PMC_VOLTAGE_MODE_IGNORE)
+            {
+                ecmdOutputError("cipgetpmcvoltage - vdd already selected\n");
+                return ECMD_INVALID_ARGS;
+            }
+            l_mode_pointer = &l_vdd_mode;
+        }
+        else if (strcasecmp(argv[3], "vcs") == 0)
+        {
+            if (l_vcs_mode != CIP_PMC_VOLTAGE_MODE_IGNORE)
+            {
+                ecmdOutputError("cipgetpmcvoltage - vcs already selected\n");
+                return ECMD_INVALID_ARGS;
+            }
+            l_mode_pointer = &l_vcs_mode;
+        }
+        else
+        {
+            ecmdOutputError("cipgetpmcvoltage - unknown voltage type. Use vdd or vcs.\n");
+            return ECMD_INVALID_ARGS;
+        }
+        //argv[4] vid or mv
+        if (strcasecmp(argv[4], "vid") == 0)
+        {
+            *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VID;
+        }
+        else if (strcasecmp(argv[4], "mv") == 0)
+        {
+            *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VOLT;
+        }
+        else
+        {
+            ecmdOutputError("cipgetpmcvoltage - unknown voltage mode. Use vid or mv.\n");
+            return ECMD_INVALID_ARGS;
+        }
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    l_rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_looperdata);
+    if (l_rc) return l_rc;
+
+    while (ecmdLooperNext(l_target, l_looperdata) && (!l_coeRc || l_coeMode))
+    {
+        uint32_t l_vdd = 0x0;
+        int32_t l_vcs = 0x0;
+        l_rc = cipGetPmcVoltage(l_target, l_vdd_mode, l_vdd, l_vcs_mode, l_vcs);
+        if (l_rc)
+        {
+            std::string l_printed;
+            l_printed = "cipgetpmcvoltage - Error occured performing cipgetpmcvoltage on ";
+            l_printed += ecmdWriteTarget(l_target) + "\n";
+            ecmdOutputError(l_printed.c_str());
+            l_coeRc = l_rc;
+            continue;
+        }
+        else
+        {
+            l_validPosFound = true;
+
+            std::string l_printed = ecmdWriteTarget(l_target);
+            ecmdOutput(l_printed.c_str());
+            if (l_outputformat == "d")
+            {
+                if (l_vdd_mode != CIP_PMC_VOLTAGE_MODE_IGNORE)
+                {
+                    char buf[20];
+                    snprintf(buf, 20, "vdd %d%s", l_vdd, (l_vcs_mode == CIP_PMC_VOLTAGE_MODE_IGNORE ? "\n" : "    "));
+                    ecmdOutput(buf);
+                }
+                if (l_vcs_mode != CIP_PMC_VOLTAGE_MODE_IGNORE)
+                {
+                    char buf[20];
+                    snprintf(buf, 20, "vcs %d\n", l_vcs);
+                    ecmdOutput(buf);
+                }
+            }
+            else
+            {
+                if (l_vdd_mode != CIP_PMC_VOLTAGE_MODE_IGNORE)
+                {
+                    char buf[20];
+                    snprintf(buf, 20, "vdd 0x%02X%s\n", l_vdd, (l_vcs_mode == CIP_PMC_VOLTAGE_MODE_IGNORE ? "\n" : "    "));
+                    ecmdOutput(buf);
+                }
+                if (l_vcs_mode != CIP_PMC_VOLTAGE_MODE_IGNORE)
+                {
+                    char buf[20];
+                    snprintf(buf, 20, "vcs 0x%02X\n", l_vcs);
+                    ecmdOutput(buf);
+                }
+            }
+        }
+    }
+    // l_coeRc will be the return code from in the loop, coe mode or not.
+    if (l_coeRc) return l_coeRc;
+
+    // This is an error common across all UI functions
+    if (!l_validPosFound && !l_rc) {
+        ecmdOutputError("cipgetpmcvoltage - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return l_rc;
+}
+
+uint32_t cipPutPmcVoltageUser(int argc, char * argv[])
+{
+    // cipputpmcvoltage chip type mode value [type mode value] [-step size]
+    // type vdd or vcs
+    // mode vid or mv
+    // value if mv for vcs may be negative, vid values are uint8_t
+    // size for -step are uint8_t
+    // input defaults to decimal
+
+    uint32_t l_rc = ECMD_SUCCESS, l_coeRc = ECMD_SUCCESS;
+
+    ecmdLooperData l_looperdata;            ///< Store internal Looper data
+    std::string l_inputformat = "d";        ///< Input format - default to decimal
+    ecmdChipTarget l_target;                ///< Current target being operated on
+    bool l_validPosFound = false;           ///< Did the looper find anything?
+    uint8_t l_step_size = 0x0;              ///< Step size input
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+
+    /* get format flag, if it's there */
+    char * l_inputFormatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+    if (l_inputFormatPtr != NULL)
+    {
+        l_inputformat = l_inputFormatPtr;
+    }
+
+    /* check for step size arguement */
+    char * l_stepSizePtr = ecmdParseOptionWithArgs(&argc, &argv, "-step");
+    if (l_stepSizePtr != NULL)
+    {
+        uint32_t l_tempStepSize = 0x0;
+        int l_formatFound = 0;
+        if (l_inputformat == "d")
+        {
+            if (ecmdIsAllDecimal(l_stepSizePtr))
+            {
+                l_formatFound = sscanf(l_stepSizePtr, "%u", &l_tempStepSize);
+            }
+        }
+        else
+        {
+            if (ecmdIsAllHex(l_stepSizePtr))
+            {
+                l_formatFound = sscanf(l_stepSizePtr, "%X", &l_tempStepSize);
+            }
+        }
+        if (l_formatFound != 1)
+        {
+            ecmdOutputError("cipputpmcvoltage - invalid step size specified\n");
+            ecmdOutputError("cipputpmcvoltage - Type 'cipputpmcvoltage -h' for usage.\n");
+            return ECMD_INVALID_ARGS;
+        }
+        if (l_tempStepSize > 0xFF)
+        {
+            ecmdOutputError("cipputpmcvoltage - step size is greater than allowed\n");
+            return ECMD_INVALID_ARGS;
+        }
+        l_step_size = l_tempStepSize;
+    }
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    l_rc = ecmdCommandArgs(&argc, &argv);
+    if (l_rc) return l_rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool l_coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+
+    // check number of arguments
+    if (argc < 4)
+    {
+        ecmdOutputError("cipputpmcvoltage - chip, type, mode, and value must be specified\n");
+        ecmdOutputError("cipputpmcvoltage - Type 'cipputpmcvoltage -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    if ((argc != 4) && (argc != 7))
+    {
+        ecmdOutputError("cipputpmcvoltage - Incorrect number of arguments specified.\n");
+        ecmdOutputError("cipputpmcvoltage - Type 'cipputpmcvoltage -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string l_chipType, l_chipUnitType;
+    l_rc = ecmdParseChipField(argv[0], l_chipType, l_chipUnitType, true /* supports wildcard usage */);
+    if (l_rc)
+    {
+        ecmdOutputError("cipputpmcvoltage - Wildcard character detected however it is not being used correctly.\n");
+        return l_rc;
+    }
+    bool l_chipWildcardFound = false;
+
+    if (l_chipUnitType != "")
+    {
+        ecmdOutputError("cipputpmcvoltage - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (l_chipType == "x")
+    {
+        l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+        l_chipWildcardFound = true;
+    }
+    else
+    {
+        l_target.chipType = l_chipType;
+        l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.chipUnitTypeState = l_target.chipUnitNumState = l_target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    uint32_t l_vdd_mode = CIP_PMC_VOLTAGE_MODE_IGNORE;
+    uint32_t l_vcs_mode = CIP_PMC_VOLTAGE_MODE_IGNORE;
+    uint32_t * l_mode_pointer = NULL;
+    bool l_vdd_select = false;
+    uint32_t l_vdd = 0x0;
+    int32_t l_vcs = 0x0;
+
+    //argv[1] vdd or vcs
+    if (strcasecmp(argv[1], "vdd") == 0)
+    {
+        l_mode_pointer = &l_vdd_mode;
+        l_vdd_select = true;
+    }
+    else if (strcasecmp(argv[1], "vcs") == 0)
+    {
+        l_mode_pointer = &l_vcs_mode;
+    }
+    else
+    {
+        ecmdOutputError("cipputpmcvoltage - unknown voltage type. Use vdd or vcs.\n");
+        return ECMD_INVALID_ARGS;
+    }
+    //argv[2] vid or mv 
+    if (strcasecmp(argv[2], "vid") == 0)
+    {
+        *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VID;
+    }
+    else if (strcasecmp(argv[2], "mv") == 0)
+    {
+        *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VOLT;
+    }
+    else
+    {
+        ecmdOutputError("cipputpmcvoltage - unknown voltage mode. Use vid or mv.\n");
+        return ECMD_INVALID_ARGS; 
+    }
+    //argv[3] value
+    int l_formatFound = 0;
+    if (l_inputformat == "d")
+    {
+        if (l_vdd_select)
+        {
+            if (ecmdIsAllDecimal(argv[3]))
+            {
+                l_formatFound = sscanf(argv[3], "%u", &l_vdd);
+            }
+        }
+        else
+        {
+            char * l_tempargv = argv[3];
+            if (l_tempargv[0] == '-')
+            {
+                l_tempargv++;
+            }
+
+            if (ecmdIsAllDecimal(l_tempargv))
+            {
+                l_formatFound = sscanf(argv[3], "%d", &l_vcs);
+            }
+        }
+    }
+    else
+    {
+        if (l_vdd_select)
+        {
+            if (ecmdIsAllHex(argv[3]))
+            {
+                l_formatFound = sscanf(argv[3], "%X", &l_vdd);
+            }
+        }
+        else
+        {
+            if (ecmdIsAllHex(argv[3]))
+            {
+                l_formatFound = sscanf(argv[3], "%X", (uint32_t *) &l_vcs);
+            }
+        }
+    }
+    if (l_formatFound != 1)
+    {
+        ecmdOutputError("cipputpmcvoltage - invalid voltage value specified\n");
+        ecmdOutputError("cipputpmcvoltage - Type 'cipputpmcvoltage -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (argc > 4)
+    {
+        l_vdd_select = false;
+        //argv[4] vdd or vcs
+        if (strcasecmp(argv[4], "vdd") == 0)
+        {
+            l_mode_pointer = &l_vdd_mode;
+            l_vdd_select = true;
+        }
+        else if (strcasecmp(argv[4], "vcs") == 0)
+        {
+            l_mode_pointer = &l_vcs_mode;
+        }
+        else
+        {
+            ecmdOutputError("cipputpmcvoltage - unknown voltage type. Use vdd or vcs.\n");
+            return ECMD_INVALID_ARGS;
+        }
+        //argv[5] vid or mv 
+        if (strcasecmp(argv[5], "vid") == 0)
+        {
+            *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VID;
+        }
+        else if (strcasecmp(argv[5], "mv") == 0)
+        {
+            *l_mode_pointer = CIP_PMC_VOLTAGE_MODE_VOLT;
+        }
+        else
+        {
+            ecmdOutputError("cipputpmcvoltage - unknown voltage mode. Use vid or mv.\n");
+            return ECMD_INVALID_ARGS; 
+        }
+        //argv[6] value
+        l_formatFound = 0;
+        if (l_inputformat == "d")
+        {
+            if (l_vdd_select)
+            {
+                if (ecmdIsAllDecimal(argv[6]))
+                {
+                    l_formatFound = sscanf(argv[6], "%u", &l_vdd);
+                }
+            }
+            else
+            {
+                char * l_tempargv = argv[6];
+                if (l_tempargv[0] == '-')
+                {
+                    l_tempargv++;
+                }
+
+                if (ecmdIsAllDecimal(l_tempargv))
+                {
+                    l_formatFound = sscanf(argv[6], "%d", &l_vcs);
+                }
+            }
+        }
+        else
+        {
+            if (l_vdd_select)
+            {
+                if (ecmdIsAllHex(argv[6]))
+                {
+                    l_formatFound = sscanf(argv[6], "%X", &l_vdd);
+                }
+            }
+            else
+            {
+                if (ecmdIsAllHex(argv[6]))
+                {
+                    l_formatFound = sscanf(argv[6], "%X", (uint32_t *) &l_vcs);
+                }
+            }
+        }
+        if (l_formatFound != 1)
+        {
+            ecmdOutputError("cipputpmcvoltage - invalid voltage value specified\n");
+            ecmdOutputError("cipputpmcvoltage - Type 'cipputpmcvoltage -h' for usage.\n");
+            return ECMD_INVALID_ARGS;
+        }
+    }
+
+    if ((l_vdd_mode == CIP_PMC_VOLTAGE_MODE_VID) && (l_vdd > 0xFF))
+    {
+        ecmdOutputError("cipputpmcvoltage - vdd vid mode voltage value is greater than allowed\n");
+        return ECMD_INVALID_ARGS;
+    }
+    if ((l_vcs_mode == CIP_PMC_VOLTAGE_MODE_VID) && (l_vcs > 0xFF))
+    {
+        ecmdOutputError("cipputpmcvoltage - vcs vid mode voltage value is greater than allowed\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    l_rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_looperdata);
+    if (l_rc) return l_rc;
+    
+    while (ecmdLooperNext(l_target, l_looperdata) && (!l_coeRc || l_coeMode))
+    {
+        l_rc = cipPutPmcVoltage(l_target, l_vdd_mode, l_vdd, l_vcs_mode, l_vcs, l_step_size);
+        if (l_rc)
+        {
+            std::string l_printed;
+            l_printed = "cipputpmcvoltage - Error occured performing cipputpmcvoltage on ";
+            l_printed += ecmdWriteTarget(l_target) + "\n";
+            ecmdOutputError(l_printed.c_str());
+            l_coeRc = l_rc;
+            continue;
+        }
+        else
+        {
+            l_validPosFound = true;
+    
+            std::string l_printed = ecmdWriteTarget(l_target);
+            l_printed += "\n";
+            ecmdOutput(l_printed.c_str());
+        }
+    }
+    // l_coeRc will be the return code from in the loop, coe mode or not.
+    if (l_coeRc) return l_coeRc;
+
+    // This is an error common across all UI functions
+    if (!l_validPosFound && !l_rc) {
+        ecmdOutputError("cipputpmcvoltage - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return l_rc;
+}
+#endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS

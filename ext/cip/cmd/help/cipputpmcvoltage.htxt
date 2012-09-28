@@ -1,0 +1,33 @@
+
+Syntax: cipputpmcvoltage <Chip> <Type> <Mode> <Value> [<Type> <Mode> <Value>]
+        [-step <size>] [-i<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Sets Processor Voltage Settings
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        Chip            Specifies the chip to operate on.
+
+        Type            Which voltage setting to change: vdd or vcs.
+
+        Mode            Which mode to input: vid or mv.
+
+        Value           Voltage value to write. When using vid restrict input from 0-255.
+                        Vcs may accept negative values in mv mode.
+
+        -step <size>    When size is set to non-zero value, will adjust voltage to
+        [optional]      requested value by size requested. Size is restricted to 0-255.
+
+        -i<format>[opt] Specifies the format type of the input : default 'd'
+                        decimal(d) and hexadecimal(x) are supported
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > cipputpmcvoltage pu vdd vid 2F vcs vid 5F -ix -step 1
+                        > cipputpmcvoltage pu vcs mv -800000 vdd mv 160000

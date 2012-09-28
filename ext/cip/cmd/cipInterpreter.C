@@ -110,6 +110,10 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "cipgetvsr")) {
           rc = cipGetVsrUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_VSR_FUNCTIONS
+#ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipgetpmcvoltage")) {
+          rc = cipGetPmcVoltageUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
@@ -173,6 +177,10 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "cipporeloadimage")) {
           rc = cipPoreLoadImageUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_PORE_FUNCTIONS
+#ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+        } else if (!strcmp(argv[0], "cipputpmcvoltage")) {
+          rc = cipPutPmcVoltageUser(argc - 1, argv + 1);
+#endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
