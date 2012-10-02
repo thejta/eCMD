@@ -197,6 +197,7 @@ fapi::ReturnCode platModifyRing(const fapi::Target& i_target,
 // HB does not allow spy access
 
 #ifndef _NO_SPY_ACCESS
+#if 0
 /**
  * @brief Platform-level implementation called by fapiGetSpy()
  * Hardware procedures writers will not call this function.
@@ -253,7 +254,14 @@ fapi::ReturnCode platPutSpyEnum(const fapi::Target& i_target,
                                 const uint32_t i_enumVal);
 
 #endif
+#endif
+fapi::ReturnCode platPutSpy(const fapi::Target& i_target,
+                            const char *  const i_spyId,
+                            ecmdDataBufferBase & i_data);
 
+fapi::ReturnCode platGetSpy(const fapi::Target& i_target,
+                            const char * const i_spyId,
+                            ecmdDataBufferBase & o_data);
 } // extern "C"
 
 #endif // FAPIPLATHWACCESS_H_

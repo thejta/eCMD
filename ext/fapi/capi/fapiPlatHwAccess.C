@@ -184,6 +184,8 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
   ReturnCode rc;
   uint32_t l_ecmdRc;
 
+  ecmdDataBuffer l_ecmd_buffer;
+
   ecmdChipTarget   ecmdTarget;
   fapiTargetToEcmdTarget(i_target, ecmdTarget); 
 
@@ -200,7 +202,7 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &ecmdTarget);
      args.push_back((void*) &i_address);
-     args.push_back((void*) &o_data);
+     args.push_back((void*) &l_ecmd_buffer);
      fppCallCount++;
      myTcount = fppCallCount;
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & o_data)",args);
@@ -216,7 +218,7 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
       return rc;
    }
 #ifdef ECMD_STATIC_FUNCTIONS
-  l_ecmdRc = dllGetScom(ecmdTarget, i_address, o_data); 
+  l_ecmdRc = dllGetScom(ecmdTarget, i_address, l_ecmd_buffer); 
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc); 
@@ -231,9 +233,9 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
      }
   }
 
-  uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &))DllFnTable[ECMD_GETSCOM];
-  l_ecmdRc =    (*Function)(ecmdTarget, i_address, o_data);
+  uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETSCOM];
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, l_ecmd_buffer);
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc); 
@@ -253,6 +255,9 @@ ReturnCode platGetScom(const Target& i_target, const uint64_t i_address, ecmdDat
     errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
+
+  o_data = l_ecmd_buffer;
+
   return rc;
 }
 
@@ -260,6 +265,9 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
 {
   ReturnCode rc;
   uint32_t l_ecmdRc;
+
+  ecmdDataBuffer l_ecmd_buffer;
+  l_ecmd_buffer = i_data;
 
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
@@ -279,7 +287,7 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &ecmdTarget);
      args.push_back((void*) &i_address);
-     args.push_back((void*) &i_data);
+     args.push_back((void*) &l_ecmd_buffer);
      fppCallCount++;
      myTcount = fppCallCount;
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScom(ecmdChipTarget & ecmdTarget, uint64_t i_address, ecmdDataBufferBase & i_data)",args);
@@ -295,7 +303,7 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
      return rc;
    }
 #ifdef ECMD_STATIC_FUNCTIONS
-  l_ecmdRc = dllPutScom(ecmdTarget, i_address, i_data); 
+  l_ecmdRc = dllPutScom(ecmdTarget, i_address, l_ecmd_buffer); 
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -310,9 +318,9 @@ ReturnCode platPutScom(const Target& i_target, const uint64_t i_address,  ecmdDa
      }
   }
 
-  uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOM];
-  l_ecmdRc =    (*Function)(ecmdTarget, i_address, i_data);
+  uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOM];
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, l_ecmd_buffer);
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -340,6 +348,11 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
 {
   ReturnCode rc;
   uint32_t l_ecmdRc;
+ 
+  ecmdDataBuffer l_ecmd_buffer, l_ecmd_buffer_mask;
+  l_ecmd_buffer = i_data;
+  l_ecmd_buffer_mask = i_mask;
+
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
   ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
@@ -364,8 +377,8 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &ecmdTarget);
      args.push_back((void*) &i_address);
-     args.push_back((void*) &i_data);
-     args.push_back((void*) &i_mask);
+     args.push_back((void*) &l_ecmd_buffer);
+     args.push_back((void*) &l_ecmd_buffer_mask);
      fppCallCount++;
      myTcount = fppCallCount;
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapi::PutScomUnderMask(const Target& i_handle, const uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
@@ -374,7 +387,7 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  l_ecmdRc = dllPutScomUnderMask(ecmdTarget, i_address, i_data, i_mask);
+  l_ecmdRc = dllPutScomUnderMask(ecmdTarget, i_address, l_ecmd_buffer, l_ecmd_buffer_mask);
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -389,9 +402,9 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
      }
   }
 
-  uint32_t (*Function)(const ecmdChipTarget&, const uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &) = 
-      (uint32_t(*)(const ecmdChipTarget&,  const uint64_t,  ecmdDataBufferBase &,  const ecmdDataBufferBase &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
-  l_ecmdRc =    (*Function)(ecmdTarget, i_address, i_data, i_mask);
+  uint32_t (*Function)(const ecmdChipTarget&, const uint64_t,  ecmdDataBuffer &,  const ecmdDataBuffer &) = 
+      (uint32_t(*)(const ecmdChipTarget&,  const uint64_t,  ecmdDataBuffer &,  const ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, l_ecmd_buffer, l_ecmd_buffer_mask);
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -415,6 +428,8 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
   ReturnCode rc; 
   uint32_t l_ecmdRc;
 
+  ecmdDataBuffer l_ecmd_buffer;
+ 
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
   ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
@@ -433,7 +448,7 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &ecmdTarget);
      args.push_back((void*) &i_address);
-     args.push_back((void*) &o_data);
+     args.push_back((void*) &l_ecmd_buffer);
      fppCallCount++;
      myTcount = fppCallCount;
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBufferBase & o_data)",args);
@@ -449,7 +464,7 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
      return rc;
    }
 #ifdef ECMD_STATIC_FUNCTIONS
-  l_ecmdRc = dllGetCfamRegister(ecmdTarget, i_address, o_data); 
+  l_ecmdRc = dllGetCfamRegister(ecmdTarget, i_address, l_ecmd_buffer); 
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -464,9 +479,9 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
      }
   }
 
-  uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &))DllFnTable[ECMD_GETCFAMREGISTER];
-  l_ecmdRc =    (*Function)(ecmdTarget, i_address, o_data);
+  uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETCFAMREGISTER];
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, l_ecmd_buffer);
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -487,6 +502,8 @@ ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address,
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
+  o_data = l_ecmd_buffer;
+
   return rc;
 }
 
@@ -495,6 +512,9 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
 {
   ReturnCode rc;
   uint32_t l_ecmdRc;
+
+  ecmdDataBuffer l_ecmd_buffer;
+  l_ecmd_buffer = i_data;
   
   ecmdChipTarget   ecmdTarget;
   ecmdChipTarget * ecmdTargetPtr;
@@ -514,7 +534,7 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &ecmdTarget);
      args.push_back((void*) &i_address);
-     args.push_back((void*) &i_data);
+     args.push_back((void*) &l_ecmd_buffer);
      fppCallCount++;
      myTcount = fppCallCount;
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putCfamRegister(ecmdChipTarget & ecmdTarget, uint32_t i_address, ecmdDataBuffer & i_data)",args);
@@ -530,7 +550,7 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
      return rc;
    }
 #ifdef ECMD_STATIC_FUNCTIONS
-  l_ecmdRc = dllPutCfamRegister(ecmdTarget, i_address, i_data); 
+  l_ecmdRc = dllPutCfamRegister(ecmdTarget, i_address, l_ecmd_buffer); 
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -545,9 +565,9 @@ ReturnCode platPutCfamRegister(const Target& i_target, const uint32_t i_address,
      }
   }
 
-  uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &) = 
-      (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBufferBase &))DllFnTable[ECMD_PUTCFAMREGISTER];
-  l_ecmdRc =    (*Function)(ecmdTarget, i_address, i_data);
+  uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_PUTCFAMREGISTER];
+  l_ecmdRc =    (*Function)(ecmdTarget, i_address, l_ecmd_buffer);
   if (l_ecmdRc)
   {
     rc.setEcmdError(l_ecmdRc);
@@ -652,5 +672,167 @@ ReturnCode fapiGetMvpdField(const fapi::MvpdRecord i_record,
   return rc;
 
 }
+
+fapi::ReturnCode platGetSpy(const fapi::Target& i_target, const char * const i_spyId, ecmdDataBufferBase & o_data)
+{
+
+    ReturnCode rc;
+    uint32_t l_ecmd_rc;
+
+    ecmdDataBuffer l_ecmd_buffer;
+    ecmdChipTarget l_ecmd_target;
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target); 
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL) 
+    {
+	fprintf(stderr,"dllGetSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_spyId);
+     args.push_back((void*) &l_ecmd_buffer);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpy");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  l_ecmd_rc = dllGetSpy(l_ecmd_target, i_spyId, l_ecmd_buffer);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+#else
+  if (DllFnTable[ECMD_GETSPY] == NULL) {
+     DllFnTable[ECMD_GETSPY] = (void*)dlsym(dlHandle, "dllGetSpy");
+     if (DllFnTable[ECMD_GETSPY] == NULL) {
+       fprintf(stderr,"dllGetSpy%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &))DllFnTable[ECMD_GETSPY];
+  l_ecmd_rc =    (*Function)(l_ecmd_target, i_spyId, l_ecmd_buffer);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &l_ecmd_rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpy");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer)",args);
+   }
+#endif
+
+  if (l_ecmd_rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(l_ecmd_rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  // Copy the data over
+  if (rc.ok())
+  {
+    o_data = l_ecmd_buffer;
+  }
+
+  return rc;
+}
+
+fapi::ReturnCode platPutSpy(const fapi::Target& i_target,
+                            const char *  const i_spyId,
+                            ecmdDataBufferBase & i_data)
+{
+    ReturnCode rc;
+    uint32_t l_ecmd_rc;
+
+    ecmdDataBuffer l_ecmd_buffer;
+    l_ecmd_buffer = i_data;
+
+    ecmdChipTarget l_ecmd_target;
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target); 
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL) 
+    {
+	fprintf(stderr,"dllPutSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_spyId);
+     args.push_back((void*) &l_ecmd_buffer);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putgetSpy");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  l_ecmd_rc = dllPutSpy(l_ecmd_target, i_spyId, l_ecmd_buffer);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+#else
+  if (DllFnTable[ECMD_PUTSPY] == NULL) {
+     DllFnTable[ECMD_PUTSPY] = (void*)dlsym(dlHandle, "dllPutSpy");
+     if (DllFnTable[ECMD_PUTSPY] == NULL) {
+       fprintf(stderr,"dllPutSpy%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &))DllFnTable[ECMD_PUTSPY];
+  l_ecmd_rc =    (*Function)(l_ecmd_target, i_spyId, l_ecmd_buffer);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &l_ecmd_rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpy");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer)",args);
+   }
+#endif
+
+  if (l_ecmd_rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(l_ecmd_rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+
+
 
 } //Namespace

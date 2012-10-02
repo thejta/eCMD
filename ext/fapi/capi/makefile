@@ -3,7 +3,7 @@
 
 EXTENSION_NAME   := fapi
 DISABLE_AUTOGEN := @
-DEFINES := ${DEFINES}  -DFAPIARCHIVE
+DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING
 
 # Base info and default build rules
 SUBDIR     := ext/${EXTENSION_NAME}/capi/
