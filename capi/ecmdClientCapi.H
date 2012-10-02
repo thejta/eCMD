@@ -2130,7 +2130,34 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode);
 //@}
 
 
+#ifndef ECMD_REMOVE_BLOCK_FUNCTIONS
+/** @name Block Functions */
+//@{
+/**
+ @brief Query block entries in system dump
+ @param i_target Struct that specifies the target to operate on 
+ @param o_metadataBlockEntry Vector of metadata strings for block entries found in system dump
+ @param i_metadataHWPName if != all used to refine query to a single HWP type
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t ecmdQueryBlock(const ecmdChipTarget & i_target, 
+	                std::vector<std::string>& o_metadataBlockEntry, 
+	                const std::string & i_metadataHWPName = "all");
 
+/**
+ @brief Extract block data from hardware or system dump
+ @param i_target Struct that specifies the target to operate on 
+ @param i_metadataBlockEntry Name of metabdata block entry. This should be in exact metadata string
+ @param o_data Data extracted from hardware or dump 
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t ecmdGetBlock(const ecmdChipTarget & i_target, 
+	              const std::string & i_metadataBlockEntry,  
+		      std::vector<ecmdDataBuffer>& o_data);
+//@}
+#endif // ECMD_REMOVE_BLOCK_FUNCTIONS
 
 /** @name Output Functions */
 //@{
