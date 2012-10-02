@@ -434,10 +434,80 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 #endif // ECMD_REMOVE_TRACE_ARRAY_FUNCTIONS
 
+#ifndef ECMD_REMOVE_BLOCK_FUNCTIONS
+  /* ---------- */
+  /* blocks     */
+  /* ---------- */
+  } else if (!strcmp(argv[0], "blocks")) {
+
+      std::vector<std::string> l_block_entries;
+      std::vector<std::string>::iterator l_block_itr;
+
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for blocks; you need at least a query blocks <chipname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    std::string l_block_name = "all";
+    if (argc == 3) 
+    {
+	l_block_name = argv[3]; 
+    }
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget l_target;
+    l_target.chipType = argv[1];
+    l_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    l_target.cageState = l_target.nodeState = l_target.slotState = l_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    l_target.threadState = l_target.chipUnitNumState = l_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+
+    // Kickoff Looping Stuff                                                
+    bool validPosFound = false;
+    rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    char buf[200];
+
+    while (ecmdLooperNext(l_target, looperData)) 
+    {
+	l_block_entries.clear();
+	rc = ecmdQueryBlock(l_target, l_block_entries, l_block_name);
+	if (rc) {
+	    printed = "ecmdquery - Error occured performing ring query on ";
+	    printed += ecmdWriteTarget(l_target);
+	    printed += "\n";
+	    ecmdOutputError( printed.c_str() );
+	    return rc;
+	}
+	else {
+	    validPosFound = true;     
+	}
+
+	sprintf(buf,"\nAvailable blocks for %s:\n", ecmdWriteTarget(l_target).c_str());
+	printed = buf;
+	ecmdOutput(printed.c_str());
+	printed = "Metadata Entry                          \n"; ecmdOutput(printed.c_str());
+	printed = "-----------------------------------      \n"; ecmdOutput(printed.c_str());
+	for (l_block_itr = l_block_entries.begin(); l_block_itr != l_block_entries.end(); l_block_itr ++) 
+	{
+
+	    printed = "";
+	    sprintf(buf,"%s\n", (*l_block_itr).c_str());
+	    printed += buf;
+	    ecmdOutput(printed.c_str());
+	}
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+#endif  //ECMD_REMOVE_BLOCK_FUNCTIONS
+
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
   /* ---------- */
   /* rings      */
   /* ---------- */
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
   } else if (!strcmp(argv[0], "rings")) {
 
     char invmask = 'N';
