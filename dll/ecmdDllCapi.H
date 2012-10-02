@@ -266,6 +266,12 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode);
 
 std::string dllParseReturnCode(uint32_t i_returnCode); 
 
+#ifndef ECMD_REMOVE_BLOCK_FUNCTIONS
+uint32_t dllQueryBlock(const ecmdChipTarget & i_target); 
+
+uint32_t dllGetBlock(const ecmdChipTarget & i_target); 
+
+#endif // ECMD_REMOVE_BLOCK_FUNCTIONS
 void dllOutputError(const char* i_message); 
 
 void dllOutputWarning(const char* i_message); 
