@@ -62,6 +62,7 @@ Syntax: ecmd
         cipbreakpoint            
         cipgetmempba             
         cipgetmemproc            
+        cipgetpmcvoltage         
         cipgetvr                 
         cipgetvsr                
         cipinstruct              
@@ -72,6 +73,7 @@ Syntax: ecmd
         cipporequeryimage        
         cipputmempba             
         cipputmemproc            
+        cipputpmcvoltage         
         cipputvr                 
         cipputvsr                
         ciprwreadcache           
