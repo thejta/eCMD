@@ -2141,9 +2141,7 @@ std::string ecmdParseReturnCode(uint32_t i_returnCode);
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
  */
-uint32_t ecmdQueryBlock(const ecmdChipTarget & i_target, 
-	                std::vector<std::string>& o_metadataBlockEntry, 
-	                const std::string & i_metadataHWPName = "all");
+uint32_t ecmdQueryBlock(const ecmdChipTarget & i_target, std::vector<std::string>& o_metadataBlockEntry, const std::string & i_metadataHWPName = "all");
 
 /**
  @brief Extract block data from hardware or system dump
@@ -2153,9 +2151,7 @@ uint32_t ecmdQueryBlock(const ecmdChipTarget & i_target,
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
  */
-uint32_t ecmdGetBlock(const ecmdChipTarget & i_target, 
-	              const std::string & i_metadataBlockEntry,  
-		      std::vector<ecmdDataBuffer>& o_data);
+uint32_t ecmdGetBlock(const ecmdChipTarget & i_target, const std::string & i_metadataBlockEntry,  std::vector<ecmdDataBuffer>& o_data);
 //@}
 #endif // ECMD_REMOVE_BLOCK_FUNCTIONS
 
