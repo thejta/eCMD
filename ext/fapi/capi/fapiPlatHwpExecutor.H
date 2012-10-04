@@ -58,29 +58,29 @@ using namespace fapi;
 {\
     void * l_pLibHandle = NULL; \
     void * l_pSymAddr = NULL; \
-    uint32_t l_rc = ECMD_SUCCESS; \
-    l_rc = openSharedLib(#FUNC, l_pLibHandle); \
-    if (l_rc == 0) \
+    uint32_t l_u32_rc_xyzabc = ECMD_SUCCESS; \
+    l_u32_rc_xyzabc = openSharedLib(#FUNC, l_pLibHandle); \
+    if (l_u32_rc_xyzabc == 0) \
     { \
-        l_rc = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
-        if (l_rc == 0) \
+        l_u32_rc_xyzabc = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
+        if (l_u32_rc_xyzabc == 0) \
         { \
             FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
-            l_rc = l_pFunc(_args_); \
-	    if (l_rc) \
+            l_u32_rc_xyzabc = l_pFunc(_args_); \
+	    if (l_u32_rc_xyzabc) \
 	    { \
-              RC.setEcmdError(l_rc); \
+              RC.setEcmdError(l_u32_rc_xyzabc); \
 	    } \
         } \
 	else \
 	{ \
-          RC.setEcmdError(l_rc); \
+          RC.setEcmdError(l_u32_rc_xyzabc); \
 	} \
         closeSharedLib(l_pLibHandle); \
     } \
     else \
     { \
-      RC.setEcmdError(l_rc); \
+      RC.setEcmdError(l_u32_rc_xyzabc); \
     } \
 }
     /*
