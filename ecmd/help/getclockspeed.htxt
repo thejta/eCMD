@@ -6,7 +6,7 @@ Syntax: getclockspeed <ClockType> mhz|us
 
         ECMD:           Core Common Function
 
-        Function:       Read the speed of a clock in the system.
+        Function:       Read the speed of a clock in the system for single frequency and min-max mode.
 
         Parameters:
         --------------------------------------------------------------------------------

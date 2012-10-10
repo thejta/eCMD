@@ -1,6 +1,7 @@
 
 Syntax: setclockspeed <ClockType> <Speed> [-steer]
         setclockspeed <Chip[.ChipUnit]> <ClockType> <Speed> [-steer]
+        setclockspeed <Chip[.ChipUnit]> <ClockType> <MinMax> [-steer]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -40,7 +41,10 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         'sptd' for super turbo percentage down (4sptu)
                         'mult' AND 'div' -- MUST have both, with mult first --
                             for multiplier and divider (100mult 10div)
+                        'fmin' AND 'fmax' -- MUST have both, with fmin first --
+                            for frequency minimum and maximum (3400fmin 3600fmax)
 
+        MinMax          "fmin" and "fmax" in megahertz
         -steer [opt]    Steer to new value.  Default is to move in one operation.
 
                         Run 'ecmdquery options' for a list of the global command line
@@ -54,4 +58,5 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         > setclockspeed pu.core pu_coreclock 2700mhz
                         > setclockspeed pu pu_coreclock 5npu
                         > setclockspeed pu pu_coreclock 10cpd
+                        > setclockspeed pu.core pu_coreclock 3500fmin 3700fmax
 
