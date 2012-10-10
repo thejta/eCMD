@@ -531,7 +531,10 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   ecmdClockRange_t clockRange = ECMD_CLOCK_RANGE_DEFAULT; ///< range to adjust clock steering procedure
   uint32_t iv_mult=0;                              ///< Multiplier value, if present 
   uint32_t iv_div=0;                           ///< Divider value, if present
+  uint32_t iv_fminmhz=0;                        ///< Frequency Minimum value, if present 
+  uint32_t iv_fmaxmhz=0;                        ///< Frequency Maximum value, if present
   int32_t endOffet = 0;                         ///< The location where the required args in the arg list end
+  ecmdClockFreqMode_t freqmode = ECMD_CLOCK_SINGLE_FREQ_MODE; ///<Frequency mode computed based on the paremeters
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -677,7 +680,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
     }
     iv_mult = (uint32_t)atoi(clockspeed.c_str());
     if (iv_mult==0) {
-      ecmdOutputError("setclockspeed - 'mult' value cannot equal 0\n");
+      ecmdOutputError("setclockspeed - 'mult' value cannot be 0\n");
       return ECMD_INVALID_ARGS;
     }
     
@@ -694,7 +697,7 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       }
       iv_div = (uint32_t)atoi(clockspeed.c_str());
       if (iv_div==0) {
-        ecmdOutputError("setclockspeed - 'div' value cannot equal 0\n");
+        ecmdOutputError("setclockspeed - 'div' value cannot be 0\n");
         return ECMD_INVALID_ARGS;
       }
       endOffet = endOffet + 1;//add for div also
@@ -706,8 +709,54 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
       ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
       return ECMD_INVALID_ARGS;
     }
+  }else if ((strpos = clockspeed.find("fmin")) != std::string::npos) {
+    freqmode = ECMD_CLOCK_MINMAX_FREQ_MODE;
+    // get fmin and fmax value from cmdline
+    clockspeed.erase(strpos, clockspeed.length()-strpos);
 
+    if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+      ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'fmin' parm\n");
+      return ECMD_INVALID_ARGS;
+    }
+    iv_fminmhz = (uint32_t)atoi(clockspeed.c_str());
+    if (iv_fminmhz==0) {
+      ecmdOutputError("setclockspeed - 'fmin' value cannot be 0\n");
+      return ECMD_INVALID_ARGS;
+    }
 
+    // fmax is the next parameter
+    clockspeed = argv[endOffet + 1];
+    transform(clockspeed.begin(), clockspeed.end(), clockspeed.begin(), (int(*)(int)) tolower);
+
+    if ((strpos = clockspeed.find("fmax")) != std::string::npos) {
+      clockspeed.erase(strpos, clockspeed.length()-strpos);
+
+      if (!ecmdIsAllDecimal(clockspeed.c_str())) {
+        ecmdOutputError("setclockspeed - Non-Decimal characters detected in speed field with 'fmax' parm\n");
+        return ECMD_INVALID_ARGS;
+      }
+      iv_fmaxmhz = (uint32_t)atoi(clockspeed.c_str());
+      if (iv_fmaxmhz==0) {
+        ecmdOutputError("setclockspeed - 'fmax' value cannot be 0\n");
+        return ECMD_INVALID_ARGS;
+      }
+      if (iv_fmaxmhz < iv_fminmhz) {
+        ecmdOutputError("setclockspeed - 'fmax' value cannot less than 'fmin' value\n");
+        return ECMD_INVALID_ARGS;
+      }
+      endOffet = endOffet + 1;//add for fmax also
+      clockspeed = "0"; //clockspeed of zero in case of fmin and fmax
+    } else {
+      // this is supposed to be 'fmax'
+      ecmdOutputError("setclockspeed - 'fmax' parm needs to come after 'fmin' parm\n");
+      ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    //throw error of min-max mode is used for clocktypes other than core clock
+    if (clocktype != "pu_coreclock") {
+      ecmdOutputError("setclockspeed - Min-Max mode is supported only for core clocks\n");
+    }
   } else {
     ecmdOutputError("setclockspeed - Speed Keyword not found in clock speed field\n");
     ecmdOutputError("setclockspeed - Type 'setclockspeed -h' for usage.\n");
@@ -736,9 +785,15 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
 
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
-
+    //if not mult/div type
     if (iv_mult==0) {
-      rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange);
+      if (freqmode == ECMD_CLOCK_SINGLE_FREQ_MODE) {
+        //In single frequency mode don not set min, max values
+        rc = ecmdSetClockSpeed(target, clockType, speed, speedType, clockSetMode, clockRange, freqmode, 0, 0);
+    } else { 
+        //if the freq is min/max we dont set the speed
+        rc = ecmdSetClockSpeed(target, clockType, 0, speedType, clockSetMode, clockRange, freqmode, iv_fminmhz, iv_fmaxmhz);
+      }
     } else { 
       rc = ecmdSetClockMultDiv(target, clockType, iv_mult, iv_div);
     }
@@ -787,6 +842,9 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   std::string clocktype;                        ///< the clock type to change the speed on
   std::string clockspeed;                       ///< Speed - frequency or cycle time
   uint32_t endOffet = 0;                         ///< The location where the required args in the arg list end
+  ecmdClockFreqMode_t freqmode = ECMD_CLOCK_SINGLE_FREQ_MODE;///< Frequency mode set on the specified target
+  uint32_t freqMin= 0;                           ///< Minimum frequency value set for the target 
+  uint32_t freqMax= 0;                           ///< Maximum frequency value set for the target
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -902,7 +960,7 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
-    rc = ecmdGetClockSpeed(target, clockType, speedType, speed);
+    rc = ecmdGetClockSpeed(target, clockType, speedType, speed, freqmode, freqMin, freqMax);
     if (rc) {
       printed = "getclockspeed - Error occured performing getclockspeed on ";
       printed += ecmdWriteTarget(target);
@@ -913,11 +971,28 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     } else {
       validPosFound = true;     
     }
-
+    if( freqmode == ECMD_CLOCK_MINMAX_FREQ_MODE ){
+      printed = ecmdWriteTarget(target);
+      printed += "  speed:";
+      buffer.setWord(0, speed);
+      std::string formatstr = ecmdWriteDataFormatted(buffer, outputformat);
+      formatstr.erase(std::remove(formatstr.begin(), formatstr.end(), '\n'), formatstr.end());
+      printed += formatstr;
+      buffer.setWord(0, freqMin);
+      formatstr = ecmdWriteDataFormatted(buffer, outputformat);
+      formatstr.erase(std::remove(formatstr.begin(), formatstr.end(), '\n'), formatstr.end());
+      printed += "  fmin:";
+      printed += formatstr;
+      buffer.setWord(0, freqMax);
+      printed += "  fmax:";
+      printed += ecmdWriteDataFormatted(buffer, outputformat);
+      ecmdOutput( printed.c_str() );
+    } else {
     buffer.setWord(0, speed);
     printed = ecmdWriteTarget(target);
     printed += ecmdWriteDataFormatted(buffer, outputformat);
     ecmdOutput( printed.c_str() );
+    }
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
