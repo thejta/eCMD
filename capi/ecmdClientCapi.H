@@ -1370,14 +1370,16 @@ uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool 
  @param i_type Clock type to read in system
  @param i_speedType Specifies if o_speed is provided in frequency or cycle time
  @param o_speed Read speed value, specified in Mhz or micro-seconds based on i_speedType
-
+ @param o_freqMode Read mode(single/min-max) set in the system
+ @param o_freqmin Read minimum frequency value set for minmax mode
+ @param o_freqmax Read maximum frequency value set for min-max mode
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
  TARGET DEPTH  : pos, core/chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed);
+uint32_t ecmdGetClockSpeed( ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed,ecmdClockFreqMode_t & o_freqMode, uint32_t & o_freqmin, uint32_t & o_freqmax);
 
 /**
  @brief Change a system clock speed without adjusting system initialization settings using speed value
@@ -1387,14 +1389,16 @@ uint32_t ecmdGetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ec
  @param i_speedType Specifies if i_speed is provided in frequency, cycle time, or % of nominal or current value
  @param i_mode Do adjustment in one step or steer the clock to the new value
  @param i_range Adjustments for the clock steer procedure
-
+ @param i_freqMode To configure speed/min,max values based on frequency mode 
+ @param i_freqMinMhz To set minimum frequency value for minmax mode in Mhz
+ @param i_freqMaxMhz To set maximum frequency value for minmax mode in Mhz
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
  TARGET DEPTH  : cage, pos, core/chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range);
+uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode,  ecmdClockRange_t i_range,ecmdClockFreqMode_t i_freqMode = ECMD_CLOCK_SINGLE_FREQ_MODE,uint32_t i_freqMinMhz = 0,uint32_t i_freqMaxMhz = 0);
 
 /**
  @brief Change a system clock speed without adjusting system initialization settings using speed value

@@ -136,6 +136,14 @@ typedef enum {
 } ecmdClockRange_t;
 
 /**
+ @brief Used by SetClockSpeed interfaces to adjust clock steering procedure
+ */
+typedef enum {
+  ECMD_CLOCK_SINGLE_FREQ_MODE,
+  ECMD_CLOCK_MINMAX_FREQ_MODE,
+} ecmdClockFreqMode_t;
+
+/**
  @brief Used by SetClockSpeed interfaces to specify to do adjustment in one operation or to steer to new value
 */
 typedef enum {
