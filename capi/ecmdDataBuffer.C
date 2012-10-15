@@ -1,3 +1,20 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips810 src/ecmd/import/ecmdDataBuffer.C 1.61.1.1 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// COPYRIGHT International Business Machines Corp. 2004,2012 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -46,7 +63,6 @@
 //  Global Variables
 //----------------------------------------------------------------------
 #ifdef FIPSODE
-tracDesc_t g_etrc; /** Trace Descriptor **/
 TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 #elif defined ZSERIES_SWITCH
 #define TRACE_ID ECMDBUF
@@ -2587,3 +2603,368 @@ ecmdOptimizableDataBuffer::ecmdOptimizableDataBuffer(uint32_t i_numBits)
 }
 
 ecmdOptimizableDataBuffer::~ecmdOptimizableDataBuffer(){}
+
+uint32_t ecmdDataBuffer::shiftLeft(uint32_t i_shiftnum, uint32_t i_offset)
+{
+  return ecmdDataBufferBase::shiftLeft(i_shiftnum,i_offset);
+}
+
+uint32_t ecmdDataBuffer::memCopyOut(uint32_t * o_buf, uint32_t i_bytes) const
+{
+  return ecmdDataBufferBase::memCopyOut(o_buf, i_bytes);
+}
+
+uint32_t ecmdDataBuffer::memCopyOut(uint8_t * o_buf, uint32_t i_bytes) const
+{
+  return ecmdDataBufferBase::memCopyOut(o_buf, i_bytes);
+}
+
+uint32_t ecmdDataBuffer::memCopyOut(uint16_t * o_buf, uint32_t i_bytes) const
+{
+  return ecmdDataBufferBase::memCopyOut(o_buf, i_bytes);
+}
+
+uint16_t ecmdDataBuffer::getHalfWord(uint32_t i_halfwordoffset) const
+{
+  return ecmdDataBufferBase::getHalfWord(i_halfwordoffset);
+}
+uint32_t ecmdDataBuffer::memCopyIn(const uint16_t * i_buf, uint32_t i_bytes)
+{
+  return ecmdDataBufferBase::memCopyIn(i_buf, i_bytes);
+}
+uint32_t ecmdDataBuffer::memCopyIn(const uint8_t * i_buf, uint32_t i_bytes)
+{
+  return ecmdDataBufferBase::memCopyIn(i_buf, i_bytes);
+}
+bool   ecmdDataBuffer::isBitClear(uint32_t i_bit, uint32_t i_len) const
+{
+  return ecmdDataBufferBase::isBitClear(i_bit, i_len);
+}
+uint32_t ecmdDataBuffer::shrinkBitLength(uint32_t i_newNumBits)
+{
+  return ecmdDataBufferBase::shrinkBitLength(i_newNumBits);
+}
+uint32_t ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len)
+{
+  return ecmdDataBufferBase::unflatten(i_data, i_len);
+}
+uint32_t  ecmdDataBuffer::setBitLength(uint32_t i_newNumBits)
+{
+  return ecmdDataBufferBase::setBitLength(i_newNumBits);
+}
+uint32_t ecmdDataBuffer::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const
+{
+  return ecmdDataBufferBase::getNumBitsSet(i_bit, i_len);
+}
+uint32_t ecmdDataBuffer::flattenSize(void) const
+{
+  return ecmdDataBufferBase::flattenSize();
+}
+uint32_t   ecmdDataBuffer::getBitLength() const
+{
+  return ecmdDataBufferBase::getBitLength();
+}
+uint32_t   ecmdDataBuffer::getWordLength() const
+{
+  return ecmdDataBufferBase::getWordLength();
+}
+uint32_t ecmdDataBuffer::extractPreserve(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const
+{
+  return ecmdDataBufferBase::extractPreserve((o_bufferOut), i_start, i_len, i_targetStart);
+}
+uint32_t ecmdDataBuffer::extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const
+{
+  return ecmdDataBufferBase::extractPreserve(o_data, i_start, i_len, i_targetStart);
+}
+
+uint32_t  ecmdDataBuffer::setWordLength(uint32_t i_newNumWords)
+{
+  return ecmdDataBufferBase::setWordLength(i_newNumWords);
+}
+uint32_t ecmdDataBuffer::flatten(uint8_t * o_data, uint32_t i_len) const
+{
+  return ecmdDataBufferBase::flatten(o_data, i_len);
+}
+uint32_t  ecmdDataBuffer::setByteLength(uint32_t i_newNumBytes)
+{
+  return ecmdDataBufferBase::setByteLength(i_newNumBytes);
+}
+uint32_t   ecmdDataBuffer::getByteLength() const
+{
+  return ecmdDataBufferBase::getByteLength();
+}
+uint32_t ecmdDataBuffer::getWord(uint32_t i_wordoffset) const
+{
+  return ecmdDataBufferBase::getWord(i_wordoffset);
+}
+uint8_t ecmdDataBuffer::getByte(uint32_t i_byteoffset) const
+{
+  return ecmdDataBufferBase::getByte(i_byteoffset);
+}
+uint32_t ecmdDataBuffer::insert(uint32_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart )
+{
+  return ecmdDataBufferBase::insert(i_data,i_targetStart,i_len,i_sourceStart);
+}
+uint64_t ecmdDataBuffer::getDoubleWord(uint32_t i_doublewordoffset) const
+{
+  return ecmdDataBufferBase::getDoubleWord(i_doublewordoffset);
+}
+
+uint32_t ecmdDataBuffer::setXor(uint32_t i_data, uint32_t i_startbit, uint32_t i_len)
+{
+  return ecmdDataBufferBase::setXor(i_data, i_startbit, i_len);
+}
+uint32_t ecmdDataBuffer::setXor(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len)
+{
+  return ecmdDataBufferBase::setXor(i_data, i_startbit, i_len);
+}
+
+bool ecmdDataBuffer::getBit(uint32_t i_bit) const
+{
+   return ecmdDataBufferBase::getBit(i_bit);
+}
+
+uint32_t ecmdDataBuffer::insert(uint8_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart)
+{
+   return ecmdDataBufferBase::insert(i_datain, i_targetStart, i_len, i_sourceStart);
+}
+
+uint32_t ecmdDataBuffer::setAnd(uint32_t i_data, uint32_t i_startbit, uint32_t i_len)
+{
+   return ecmdDataBufferBase::setAnd(i_data, i_startbit, i_len);
+}
+
+uint32_t ecmdDataBuffer::shiftRight(uint32_t i_shiftnum, uint32_t i_offset )
+{
+   return ecmdDataBufferBase::shiftRight(i_shiftnum, i_offset);
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(const uint32_t * i_data, uint32_t i_start, uint32_t i_len)
+{
+   return ecmdDataBufferBase::insertFromRight(i_data, i_start, i_len);
+}
+
+uint32_t ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop) const
+{
+   return ecmdDataBufferBase::oddParity(i_start, i_stop);
+}
+
+uint32_t ecmdDataBuffer::concat(const ecmdDataBuffer & i_buf0, const ecmdDataBuffer & i_buf1)
+{
+  return ecmdDataBufferBase::concat(i_buf0, i_buf1);
+}
+
+uint32_t ecmdDataBuffer::concat(const std::vector<ecmdDataBuffer> & i_bufs) 
+{
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+  uint32_t totalSize = 0, offset = 0, x;
+  /* Loop through and get the total bit size and set length */
+  for (x = 0; x < i_bufs.size(); x++) {
+    totalSize += i_bufs[x].iv_NumBits;
+  }
+  rc = this->setBitLength(totalSize); if (rc) return rc;
+
+  /* Now that the size is set, loop through and insert */
+  for (x = 0; x < i_bufs.size(); x++) {
+    rc = this->insert(i_bufs[x], offset, i_bufs[x].iv_NumBits); if (rc) return rc;
+    offset += i_bufs[x].iv_NumBits;
+  }
+
+  return rc;
+}
+
+uint32_t ecmdDataBuffer::extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const
+{
+   return ecmdDataBufferBase::extractToRight(o_data, i_start, i_len);
+}
+
+uint32_t ecmdDataBuffer::compressBuffer(ecmdCompressionMode_t i_mode)
+{
+  return ecmdDataBufferBase::compressBuffer(i_mode);
+}
+
+uint32_t ecmdDataBuffer::uncompressBuffer()
+{
+    return ecmdDataBufferBase::uncompressBuffer();
+}
+
+
+uint32_t ecmdDataBuffer::flipBit(uint32_t i_bit, uint32_t i_len)
+{
+  return ecmdDataBufferBase::flipBit(i_bit, i_len);
+}
+
+uint32_t ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop) const
+{
+   return ecmdDataBufferBase::evenParity(i_start, i_stop);
+}
+
+uint32_t ecmdDataBuffer::shiftLeftAndResize(uint32_t i_shiftnum)
+{
+  return ecmdDataBufferBase::shiftLeftAndResize(i_shiftnum);
+}
+
+uint32_t ecmdDataBuffer::extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const
+{
+   return ecmdDataBufferBase::extractToRight(o_data, i_start, i_len);
+}
+
+bool   ecmdDataBuffer::isBitSet(uint32_t i_bit, uint32_t i_len) const
+{
+  return  ecmdDataBufferBase::isBitSet(i_bit, i_len);
+}
+
+uint32_t ecmdDataBuffer::setOr(uint32_t i_data, uint32_t i_startbit, uint32_t i_len)
+{
+   return  ecmdDataBufferBase::setOr(i_data, i_startbit, i_len);
+}
+
+void ecmdDataBuffer::queryErrorState(uint32_t & o_errorState)
+{
+   return  ecmdDataBufferBase::queryErrorState(o_errorState);
+}
+
+uint32_t ecmdDataBuffer::invert()
+{
+   return  ecmdDataBufferBase::invert();
+}
+
+uint32_t ecmdDataBuffer::setBit(uint32_t i_bit, uint32_t i_len)
+{
+   return  ecmdDataBufferBase::setBit(i_bit, i_len);
+}
+
+uint32_t ecmdDataBuffer::extractToRight(uint16_t * o_data, uint32_t i_start, uint32_t i_len) const
+{
+   return  ecmdDataBufferBase::extractToRight(o_data, i_start, i_len);
+}
+
+uint32_t ecmdDataBuffer::evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos)
+{
+    return  ecmdDataBufferBase::evenParity(i_start, i_stop, i_insertpos);     
+}
+
+uint32_t ecmdDataBuffer::writeBit(uint32_t i_bit, uint32_t i_value)
+{
+   return  ecmdDataBufferBase::writeBit(i_bit, i_value);
+}
+
+uint32_t ecmdDataBuffer::clearBit(uint32_t i_bit, uint32_t i_len)
+{
+   return  ecmdDataBufferBase::clearBit(i_bit, i_len);
+}
+
+uint32_t ecmdDataBuffer::insert(const uint8_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart)
+{
+     return  ecmdDataBufferBase::insert(i_data, i_targetStart, i_len, i_sourceStart);
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(uint32_t i_data, uint32_t i_start, uint32_t i_len)
+{
+  return ecmdDataBufferBase::insertFromRight(i_data, i_start, i_len);
+}
+
+uint32_t   ecmdDataBuffer::getCapacity() const
+{
+  return ecmdDataBufferBase::getCapacity();
+}
+
+uint32_t ecmdDataBuffer::rotateRight(uint32_t i_rotatenum)
+{
+  return ecmdDataBufferBase::rotateRight(i_rotatenum);
+}
+
+uint32_t ecmdDataBuffer::rotateLeft(uint32_t i_rotatenum)
+{
+  return ecmdDataBufferBase::rotateLeft(i_rotatenum);
+}
+
+uint32_t ecmdDataBuffer::extractPreserve(uint16_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart) const
+{
+  return ecmdDataBufferBase::extractPreserve(o_data, i_start, i_len, i_targetStart);
+}
+
+uint32_t ecmdDataBuffer::extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart ) const
+{
+  return ecmdDataBufferBase::extractPreserve(o_data, i_start, i_len, i_targetStart);
+}
+
+uint32_t  ecmdDataBuffer::setDoubleWordLength(uint32_t i_newNumDoubleWords)
+{
+  return ecmdDataBufferBase::setDoubleWordLength(i_newNumDoubleWords);
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(const uint8_t * i_data, uint32_t i_start, uint32_t i_len)
+{
+  return ecmdDataBufferBase::insertFromRight(i_data, i_start, i_len);
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(const uint8_t i_datain, uint32_t i_start, uint32_t i_len)
+{
+  return ecmdDataBufferBase::insertFromRight(i_datain, i_start, i_len);
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(uint16_t i_datain, uint32_t i_start, uint32_t i_len)
+{
+  return ecmdDataBufferBase::insertFromRight(i_datain, i_start, i_len);
+}
+
+bool ecmdDataBuffer::isBufferCompressed()
+{
+  return ecmdDataBufferBase::isBufferCompressed();
+}
+
+uint32_t ecmdDataBuffer::extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const
+{
+  return ecmdDataBufferBase::extractToRight(o_bufferOut, i_start, i_len);
+}
+
+uint32_t   ecmdDataBuffer::getDoubleWordLength() const
+{
+  return ecmdDataBufferBase::getDoubleWordLength();
+}
+
+uint32_t   ecmdDataBuffer::getHalfWordLength() const
+{
+  return ecmdDataBufferBase::getHalfWordLength();
+}
+
+uint32_t ecmdDataBuffer::insert(const uint16_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart )
+{
+  return ecmdDataBufferBase::insert(i_datain, i_targetStart, i_len, i_sourceStart);
+}
+
+uint32_t ecmdDataBuffer::insert(uint16_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart )
+{
+  return ecmdDataBufferBase::insert(i_datain, i_targetStart, i_len, i_sourceStart);
+}
+
+uint32_t ecmdDataBuffer::insertFromRight(const uint16_t * i_datain, uint32_t i_start, uint32_t i_len)
+{
+  return ecmdDataBufferBase::insertFromRight(i_datain, i_start, i_len);
+}
+
+uint32_t ecmdDataBuffer::oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos)
+{
+  return ecmdDataBufferBase::oddParity(i_start, i_stop, i_insertpos);
+}
+
+uint32_t ecmdDataBuffer::setAnd(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len)
+{
+  return ecmdDataBufferBase::setAnd(i_data, i_startbit, i_len);
+}
+
+uint32_t  ecmdDataBuffer::setHalfWordLength(uint32_t i_newNumHalfWords)
+{
+  return ecmdDataBufferBase::setHalfWordLength(i_newNumHalfWords);
+}
+
+uint32_t ecmdDataBuffer::setOr(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len)
+{
+  return ecmdDataBufferBase::setOr(i_data, i_startbit, i_len);
+}
+
+uint32_t ecmdDataBuffer::shiftRightAndResize(uint32_t i_shiftnum, uint32_t i_offset )
+{
+  return ecmdDataBufferBase::shiftRightAndResize(i_shiftnum, i_offset);
+}
