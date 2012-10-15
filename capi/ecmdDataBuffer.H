@@ -1,3 +1,20 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips810 src/ecmd/import/ecmdDataBuffer.H 1.25.1.24 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// COPYRIGHT International Business Machines Corp. 2004,2012 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
 #ifndef ecmdDataBuffer_H 
 #define ecmdDataBuffer_H
 /* $Header$ */
@@ -222,6 +239,22 @@ public:
    */
   uint32_t setDoubleWord(uint32_t i_doublewordoffset, uint64_t i_value);
 
+  /**
+   * @brief Rotate data to left
+   * @param i_rotatenum Number of bits to rotate
+   * @post Bits in buffer are rotated to the left by specified number of bits - data is rotated to the end
+   * @retval ECMD_DBUF_SUCCESS on success
+   */
+  uint32_t rotateLeft(uint32_t i_rotatenum);
+
+  /**
+   * @brief Rotate data to right
+   * @param i_rotatenum Number of bits to rotate
+   * @post Bits in buffer are rotated to the right by specified number of bits - data is rotated to the beginning
+   * @retval ECMD_DBUF_SUCCESS on success
+   */
+  uint32_t rotateRight(uint32_t i_rotatenum);
+
   using ecmdDataBufferBase::clearBit;
   /**
    * @brief Clear a bit in buffer
@@ -256,6 +289,23 @@ public:
    */
   bool   isBitClear(uint32_t i_bit) const;
   //@}
+
+  /**
+   * NNNNNN
+   * @brief Test if bit is clear
+   * @param i_bit Bit to test
+   * @param i_len length of 
+   * @retval true if bit is clear - false if bit is set
+   */
+  bool   isBitClear(uint32_t i_bit, uint32_t i_len) const; 
+
+  /**
+   * NNNNNN
+   * @brief Returns the halfword value from the offset
+   * @param i_halfwordoffset Offset to return the halfword from
+   * @retval half word value from the offset
+   */
+  uint16_t getHalfWord(uint32_t i_halfwordoffset) const;
 
 
   /** @name Buffer Manipulation Functions */
@@ -321,6 +371,19 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t insert(const uint32_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief Copy part of a uint32_t into the DataBuffer
+   * @param i_data uint32_t value to copy into DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @param i_sourceStart Start bit in i_data - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insert(uint32_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
   /**
    * @brief Copy data from this DataBuffer into another
@@ -457,7 +520,6 @@ public:
 
   //@}
 
-
   /** @name Buffer Character Conversion Functions */
   //@{
   /**
@@ -491,6 +553,721 @@ public:
    * @retval String containing requested data
    */
   std::string genAsciiStr(uint32_t i_start, uint32_t i_bitlen) const; 
+
+  /**
+   * @brief Shrink buffer size to a new bit size
+   * @param i_newNumBits New bit length for buffer (must be <= current buffer length)
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @post Internal buffer size is reset but data inside new size is not lost
+   */
+  uint32_t shrinkBitLength(uint32_t i_newNumBits);
+
+  /**
+   * @brief Unflatten object data from a uint8_t buffer into this DataBuffer
+   * @param i_data Byte buffer to read the flattened data from
+   * @param i_len Number of bytes in the i_data buffer
+   * @post This DataBuffer is allocated and initialized with the unflattened version of i_data
+   * Data format (all in network byte order):
+   * First Word:      iv_Capacity*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  uint32_t unflatten(const uint8_t * i_data, uint32_t i_len);
+
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumBits Length of new buffer in bits
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   * @post Buffer is reinitialized and zero'd out
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   * CAUTION : All data stored in buffer will be lost
+   */
+  uint32_t  setBitLength(uint32_t i_newNumBits);
+
+  /**
+   * @brief Count number of bits set in a range
+   * @param i_bit Start bit to test
+   * @param i_len Number of consecutive bits to test
+   * @retval Number of bits set in range
+   */
+  uint32_t getNumBitsSet(uint32_t i_bit, uint32_t i_len) const;
+
+  /**
+   * @brief Return number of bytes needed for a buffer to flatten the object
+   * @retval Number of bytes needed
+   */
+  uint32_t flattenSize(void) const;
+
+  /**
+   * @brief Return the length of the buffer in bits
+   * @retval Buffer length in bits
+   */
+  uint32_t   getBitLength() const;
+
+  /**
+   * @brief Return the length of the buffer in words
+   * @retval Buffer length in words rounded up
+   */
+  uint32_t   getWordLength() const;
+
+  /**
+   * @brief Copy data from this buffer into another at a given offset, preserving the size and other data in the output buffer
+   * @param o_bufferOut Target data buffer where data is copied into
+   * @param i_start Start bit in this DataBuffer to begin copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Start bit in output buffer where data is copied defaults to zero
+   * @post Data is copied from offset in this buffer to offset in out buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval EMCD_DBUF_BUFFER_OVERFLOW data requested is out of range in one of the 2 buffers
+   */
+  uint32_t extractPreserve(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer
+   * @param o_data Array of data to write into, must be pre-allocated
+   * @param i_start Start bit in this DataBuffer to begin the copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Starting bit in output data to place extracted data, defaults to zero
+   * @post Data is copied from offset in this DataBuffer to offset in output buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
+   * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
+   */
+  uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer
+   * @param o_data Array of data to write into, must be pre-allocated
+   * @param i_start Start bit in this DataBuffer to begin the copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Starting bit in output data to place extracted data, defaults to zero
+   * @post Data is copied from offset in this DataBuffer to offset in output buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
+   * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
+   */
+  uint32_t extractPreserve(uint16_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer
+   * @param o_data Array of data to write into, must be pre-allocated
+   * @param i_start Start bit in this DataBuffer to begin the copy
+   * @param i_len Length of consecutive bits to copy
+   * @param i_targetStart Starting bit in output data to place extracted data, defaults to zero
+   * @post Data is copied from offset in this DataBuffer to offset in output buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL unable to allocate databuffer
+   * @retval ECMD_DBUF BUFFER_OVERFLOW request is out of range for this DataBuffer, output buffer is NOT checked for overflow
+   */
+  uint32_t extractPreserve(uint8_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
+
+
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumWords Length of new buffer in words
+   * @post Buffer is reinitialized and zero'd out
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   * CAUTION : All data stored in buffer will be lost
+   */
+  uint32_t  setWordLength(uint32_t i_newNumWords);
+
+  /**
+   * @brief Flatten all the object data into a uint8_t buffer
+   * @param o_data Byte buffer to write the flattened data to - should
+   * @param i_len Number of bytes in the o_data buffer
+   * @post o_data buffer has a flattened version of the DataBuffer - must be pre-allocated
+   * Data format (all in network byte order):
+   * First Word:      iv_Capacity*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  uint32_t flatten(uint8_t * o_data, uint32_t i_len) const;
+
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumBytes Length of new buffer in bytes
+   * @post Buffer is reinitialized and zero'd out
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   * CAUTION : All data stored in buffer will be lost
+   */
+  uint32_t  setByteLength(uint32_t i_newNumBytes);
+
+  /**
+   * @brief Return the length of the buffer in bytes
+   * @retval Buffer length in bytes rounded up
+   */
+  uint32_t   getByteLength() const;
+
+  /**
+   * @brief Fetch a word from ecmdDataBufferBase
+   * @param i_wordoffset Offset of word to fetch
+   * @retval Value of word requested
+   */
+  uint32_t getWord(uint32_t i_wordoffset) const;
+
+  /**
+   * @brief Fetch a byte from ecmdDataBufferBase
+   * @param i_byteoffset Offset of byte to fetch
+   * @retval Value of byte requested
+   *
+   * NOTE : If offset > buffer length retval = 0 and error printed
+   */
+  uint8_t getByte(uint32_t i_byteoffset) const;
+
+  /**
+   * @brief Fetch a doubleword from ecmdDataBufferBase
+   * @param i_doublewordoffset Offset of doubleword to fetch
+   * @retval Value of doubleword requested
+   */
+  uint64_t getDoubleWord(uint32_t i_doublewordoffset) const;
+
+  /**
+   * @brief Copy DataBuffer into supplied uint32_t buffer
+   * @param o_buf Buffer to copy into - must be pre-allocated
+   * @param i_bytes Byte length to copy
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t memCopyOut(uint32_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBufferBase into supplied buffer */
+
+  /**
+   * @brief Copy DataBuffer into supplied uint32_t buffer
+   * @param o_buf Buffer to copy into - must be pre-allocated
+   * @param i_bytes Byte length to copy
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t memCopyOut(uint16_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBufferBase into supplied buffer */
+
+  /**
+   * @brief Copy DataBuffer into supplied uint8_t buffer
+   * @param o_buf Buffer to copy into - must be pre-allocated
+   * @param i_bytes Byte length to copy
+   * @post o_buf has contents of databuffer for smaller of i_bytes or buffer capacity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t memCopyOut(uint8_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBufferBase into supplied buffer */
+
+  /**
+   * @brief Copy buffer into this unsigned 16 bit pointer
+   * @param i_buf Buffer to copy from
+   * @param i_bytes Byte length to copy
+   * @pre DataBuffer must be pre-allocated
+   * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t memCopyIn(const uint16_t * i_buf, uint32_t i_bytes);
+
+  /**
+   * @brief Copy buffer into this ecmdDataBufferBase
+   * @param i_buf Buffer to copy from
+   * @param i_bytes Byte length to copy
+   * @pre DataBuffer must be pre-allocated
+   * @post  Xstate and Raw buffer are set to value in i_buf for smaller of i_bytes or buffer capacity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t memCopyIn(const uint8_t * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBufferBase */
+
+  /**
+   * @brief XOR data into DataBuffer
+   * @param i_data uint32_t buffer to XOR data from - data is taken left aligned
+   * @param i_startbit Start bit to XOR to
+   * @param i_len Length of bits to XOR
+   * @post Data is XORed from datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setXor(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+
+  /**
+   * @brief XOR data into DataBuffer
+   * @param i_data uint32_t to XOR data from - data is taken left aligned
+   * @param i_startbit Start bit to XOR to
+   * @param i_len Length of bits to XOR (must be <= 32)
+   * @post Data is XORed from datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setXor(uint32_t i_data, uint32_t i_startbit, uint32_t i_len);
+
+  /**
+   * @brief Get the value of a bit in the buffer
+   * @param i_bit Bit in buffer to get
+   * @retval true/1 if bit is on, false/0 if bit is off
+   */
+  bool getBit(uint32_t i_bit) const;
+
+  /**
+   * @brief Copy part of a uint8_t into the DataBuffer
+   * @param i_datain uint32_t value to copy into DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insert(uint8_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief AND data into DataBuffer
+   * @param i_data uint32_t to AND data from - data is taken left aligned
+   * @param i_startbit Start bit to AND to
+   * @param i_len Length of bits to AND (must be <= 32)
+   * @post Data is ANDed from datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setAnd(uint32_t i_data, uint32_t i_startbit, uint32_t i_len);
+
+  /**
+   * @brief Shift data to right
+   * @param i_shiftnum Number of bits to shift
+   * @param i_offset Offset into the buffer to start the shift from.  Default is bit 0.
+   * @post Bits in buffer are shifted to right by specified number of bits - data is shifted off the end
+   * @post Buffer size is unchanged
+   * @retval ECMD_DBUF_SUCCESS on success
+   */
+  uint32_t shiftRight(uint32_t i_shiftnum, uint32_t i_offset = 0);
+
+  /**
+   * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
+   * @param i_data uint32_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   *
+   * NOTE : Data is assumed to be aligned on the word boundary of i_len
+   */
+  uint32_t insertFromRight(const uint32_t * i_data, uint32_t i_start, uint32_t i_len);
+
+  /**
+   * @brief Copy a right aligned (decimal) uint32_t into the DataBuffer
+   * @param i_data uint32_t value to copy into DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insertFromRight(uint32_t i_data, uint32_t i_start, uint32_t i_len);
+
+
+  /** @name Parity Functions */
+  //@{
+  /**
+   * @brief Generate odd parity over a range of bits
+   * @param i_start Start bit of range
+   * @param i_stop Stop bit of range
+   * @retval 0 or 1 depending on parity of range
+   */
+  uint32_t oddParity(uint32_t i_start, uint32_t i_stop) const;
+
+  /**
+   * @brief Concatenate 2 DataBuffers into in this one
+   * @param i_buf0 First DataBuffer to concatenate; copied to beginning of this buffer
+   * @param i_buf1 Second DataBuffer to concatenate; copied to this buffer after the first buffer
+   * @post Space is allocated, and data from the 2 DataBuffers is concatenated and copied to this buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t concat(const ecmdDataBuffer & i_buf0, const ecmdDataBuffer & i_buf1);
+
+  /**
+   * @brief Concatenate multiple DataBuffers into in this one
+   * @param i_bufs The vector of databuffers to concatenate; copied in order into this buffer
+   * @post Space is allocated, and data from the vector is concatenated and copied to this buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t concat(const std::vector<ecmdDataBuffer> & i_bufs);
+
+  /**
+   * @brief Copy data from this DataBuffer into a uint32_t buffer
+   * @param o_data uint32_t buffer to copy into - data is placed right aligned - must be pre-allocated
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_data, right aligned.  Data is only right aligned if i_len < 32
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Compress the data in the buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval non-zero on failure
+   */
+  uint32_t compressBuffer(ecmdCompressionMode_t i_mode = ECMD_COMP_PRD);
+
+  /**
+   * @brief Compress the data in the buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval non-zero on failure
+   */
+  uint32_t uncompressBuffer();
+
+  /**
+   * @brief Invert multiple bits
+   * @param i_bit Start bit in buffer to invert
+   * @param i_len Number of consecutive bits to invert
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
+   */
+  uint32_t flipBit(uint32_t i_bit, uint32_t i_len);
+
+  /**
+   * @brief Generate even parity over a range of bits
+   * @param i_start Start bit of range
+   * @param i_stop Stop bit of range
+   * @retval 0 or 1 depending on parity of range
+   */
+  uint32_t evenParity(uint32_t i_start, uint32_t i_stop) const;
+
+  /**
+   * @brief Shift data to left - resizing buffer
+   * @param i_shiftnum Number of bits to shift
+   * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
+   * @post Buffer size is resized to accomodate shift
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   */
+  uint32_t shiftLeftAndResize(uint32_t i_shiftnum);
+
+  /**
+   * @brief Copy data from this DataBuffer into a uint16_t buffer
+   * @param o_data uint16_t buffer to copy into - data is placed right aligned - must be pre-allocated
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_data, right aligned.  Data is only right aligned if i_len < 16
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t extractToRight(uint16_t * o_data, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Copy data from this DataBuffer into a uint8_t buffer
+   * @param o_data uint8_t buffer to copy into - data is placed right aligned - must be pre-allocated
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_data, right aligned.  Data is only right aligned if i_len < 8
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t extractToRight(uint8_t * o_data, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Test if multiple bits are set
+   * @param i_bit Start bit to test
+   * @param i_len Number of consecutive bits to test
+   * @retval true if all bits in range are set - false if any bit is clear
+   */
+  bool   isBitSet(uint32_t i_bit, uint32_t i_len) const;
+
+   /**
+   * @brief OR data into DataBuffer
+   * @param i_data uint32_t to OR data from - data is taken left aligned
+   * @param i_startbit Start bit to OR to
+   * @param i_len Length of bits to OR (must be <= 32)
+   * @post Data is ORed from datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setOr(uint32_t i_data, uint32_t i_startbit, uint32_t i_len);
+
+  /**
+   * @brief This function returns the stored error state that could have been caused by any number of previous operations on the buffer
+   * @param o_errorState Stored Error state
+   */
+  void queryErrorState(uint32_t & o_errorState);
+
+  /**
+   * @brief Invert entire buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   */
+  uint32_t invert();
+
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumDoubleWords Length of new buffer in words
+   * @post Buffer is reinitialized and zero'd out
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   * CAUTION : All data stored in buffer will be lost
+   */
+  uint32_t  setDoubleWordLength(uint32_t i_newNumDoubleWords);
+
+  /**
+   * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer
+   * @param i_data uint8_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   *
+   * NOTE : Data is assumed to be aligned on the word boundary of i_len
+   */
+  uint32_t insertFromRight(const uint8_t * i_data, uint32_t i_start, uint32_t i_len);
+
+  /**
+   * @brief Copy a right aligned (decimal) uint8_t array into this DataBuffer
+   * @param i_datain uint8_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   *
+   * NOTE : Data is assumed to be aligned on the word boundary of i_len
+   */
+  uint32_t insertFromRight(const uint8_t i_datain, uint32_t i_start, uint32_t i_len);
+
+  /**
+   * @brief Copy a right aligned (decimal) uint16_t into the DataBuffer
+   * @param i_datain uint16_t value to copy into DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insertFromRight(uint16_t i_datain, uint32_t i_start, uint32_t i_len);
+
+
+  /**
+   * @brief Turn on a bit in buffer
+   * @param i_bit start bit in buffer to turn on
+   * @param i_len Number of consecutive bits from start bit to turn on
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
+   */
+  uint32_t setBit(uint32_t i_bit, uint32_t i_len);
+
+  /**
+   * @brief Generate even parity over a range of bits and insert into DataBuffer
+   * @param i_start Start bit of range
+   * @param i_stop Stop bit of range
+   * @param i_insertpos Bit position to insert parity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t evenParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos);
+
+  /**
+   * @brief Write a bit to specified value in buffer
+   * @param i_bit Bit in buffer to turn on
+   * @param i_value Value to write
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
+   */
+  uint32_t writeBit(uint32_t i_bit, uint32_t i_value);
+
+  /**
+   * @brief Clear multiple bits in buffer
+   * @param i_bit Start bit in buffer to turn off
+   * @param i_len Number of consecutive bits from start bit to off
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW i_bit is not contained in the size of this buffer
+   */
+  uint32_t clearBit(uint32_t i_bit, uint32_t i_len);
+
+  /**
+   * @brief Return the actual capacity of the internal buffer in words
+   * @retval Actual capacity in words of internal buffer
+   */
+  uint32_t   getCapacity() const;
+
+  /**
+   * @brief Copy part of a uint8_t array into this DataBuffer
+   * @param i_data uint8_t array to copy into this DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_data - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_data to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insert(const uint8_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief Look to see if the compression header is at the start of the buffer
+   * @retval true if compressed, false if not
+   */
+  bool isBufferCompressed();
+
+  /**
+   * @brief Copy data from this DataBuffer into another DataBuffer and right justify
+   * @param o_bufferOut DataBuffer to copy into - data is placed right aligned
+   * @param i_start Start bit of data in DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to o_bufferOut, right aligned.  Data is only right aligned if i_len < 32
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t extractToRight(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+
+  /**
+   * @brief Return the length of the buffer in double words
+   * @retval Buffer length in double words rounded up
+   */
+  uint32_t   getDoubleWordLength() const;
+
+  /**
+   * @brief Return the length of the buffer in half words
+   * @retval Buffer length in half words rounded up
+   */
+  uint32_t   getHalfWordLength() const;
+
+  /**
+   * @brief Copy part of a uint16_t array into this DataBuffer
+   * @param i_datain uint16_t array to copy into this DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insert(const uint16_t * i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief Copy part of a uint16_t into the DataBuffer
+   * @param i_datain uint16_t value to copy into DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @param i_sourceStart Start bit in i_datain - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insert(uint16_t i_datain, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+  /**
+   * @brief Copy a right aligned (decimal) uint16_t array into this DataBuffer
+   * @param i_datain uint16_t array to copy into this DataBuffer - data is taken right aligned
+   * @param i_start Start bit to insert into
+   * @param i_len Length of bits to insert
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from datain into this DataBuffer at specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   *
+   * NOTE : Data is assumed to be aligned on the word boundary of i_len
+   */
+  uint32_t insertFromRight(const uint16_t * i_datain, uint32_t i_start, uint32_t i_len);
+
+  /**
+   * @brief Generate odd parity over a range of bits and insert into DataBuffer
+   * @param i_start Start bit of range
+   * @param i_stop Stop bit of range
+   * @param i_insertpos Bit position to insert parity
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t oddParity(uint32_t i_start, uint32_t i_stop, uint32_t i_insertpos);
+
+  /**
+   * @brief AND data into DataBuffer
+   * @param i_data uint32_t buffer to AND data from - data is taken left aligned
+   * @param i_startbit Start bit to AND to
+   * @param i_len Length of bits to AND
+   * @post Data is ANDed from datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setAnd(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+
+  /**
+   * @brief Reinitialize the Buffer to specified length
+   * @param i_newNumHalfWords Length of new buffer in words
+   * @post Buffer is reinitialized and zero'd out
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred setting new length
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   * CAUTION : All data stored in buffer will be lost
+   */
+  uint32_t  setHalfWordLength(uint32_t i_newNumHalfWords);
+
+  /**
+   * @brief OR data into DataBuffer
+   * @param i_data uint32_t buffer to OR data from - data is taken left aligned
+   * @param i_startbit Start bit to OR to
+   * @param i_len Length of bits to OR
+   * @post Data is ORed from datain to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t setOr(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+
+
+  /**
+   * @brief Shift data to right - resizing buffer
+   * @param i_shiftnum Number of bits to shift
+   * @param i_offset Offset into the buffer to start the shift from.  Default is bit 0.
+   * @post Bits in buffer are shifted to right by specified number of bits
+   * @post Buffer size is resized to accomodate shift
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   */
+  uint32_t shiftRightAndResize(uint32_t i_shiftnum, uint32_t i_offset = 0);
+
+  /**
+   * @brief Shift data to left
+   * @param i_shiftnum Number of bits to shift
+   * @param i_offset Offset into the buffer to start the shift from.  Default is to start at end of buffer.
+   * @post Bits in buffer are shifted to left by specified number of bits - data is shifted off the beginning
+   * @post Buffer size is unchanged
+   * @retval ECMD_DBUF_SUCCESS on success
+   */
+  uint32_t shiftLeft(uint32_t i_shiftnum, uint32_t i_offset = 0xFFFFFFFF);
+
+
+  /**
+   * @brief Copy part of a uint32_t into the DataBuffer
+   * @param i_data uint32_t value to copy into DataBuffer - data is taken left aligned
+   * @param i_targetStart Start bit to insert into
+   * @param i_len Length of bits to insert (must be <= 32)
+   * @param i_sourceStart Start bit in i_data - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  //uint32_t insert(uint32_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
 
   /**
    * @brief Return Data as an ASCII char string formatted to be put through printf.
@@ -746,6 +1523,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t memCopyOutXstate(char * o_buf, uint32_t i_bits) const; /* Does a memcpy from ecmdDataBuffer into supplied buffer */
+
 
   //@}
 #endif /* REMOVE_SIM */
