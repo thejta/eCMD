@@ -70,7 +70,7 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                 FAPI_ERR("fapiQueryChipEcFeature: Unknown feature 0x%x",
                     i_id);
                 l_rc.setFapiError(FAPI_RC_INVALID_CHIP_EC_FEATURE_GET);
-                fapi::ReturnCodeFfdc::addEIFfdc(l_rc, i_id);
+                l_rc.addEIFfdc(0, &i_id, sizeof(i_id));
                 break;
             }
 

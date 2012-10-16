@@ -78,12 +78,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_L3_W_EPS, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_POS)
-    {
-        ATTR_POS_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_POS, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_CHIP_ID)
     {
         ATTR_CHIP_ID_Type l_attr;
@@ -940,6 +934,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_FUNCTIONAL_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_FUNCTIONAL, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_POS)
+    {
+        ATTR_POS_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_POS, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_SPD_DRAM_DEVICE_TYPE)
@@ -2418,11 +2418,29 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_PROC_SELECT_BOOT_MASTER, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_PROC_PCIE_IOP_CONFIG)
+    {
+        ATTR_PROC_PCIE_IOP_CONFIG_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_IOP_CONFIG, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_PROC_PCIE_IOP_SWAP)
+    {
+        ATTR_PROC_PCIE_IOP_SWAP_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_IOP_SWAP, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_PROC_PCIE_PHB_ACTIVE)
+    {
+        ATTR_PROC_PCIE_PHB_ACTIVE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_PHB_ACTIVE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else
     {
         FAPI_ERR("fapiGetInitFileAttr: Unrecognized attr: %d", i_id);
         l_rc.setFapiError(FAPI_RC_INVALID_ATTR_GET);
-        ReturnCodeFfdc::addEIFfdc(l_rc, static_cast<uint32_t>(i_id));
+        l_rc.addEIFfdc(0, &i_id, sizeof(i_id));
     }
 
     if (l_rc)
