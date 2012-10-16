@@ -4140,7 +4140,7 @@ The ecmdDataBuffer maintains data both as unsigned integers and as a character s
 <hr>
 @section example Examples
 
-For Makefile and Client examples please go to 'Use eCMD' on the eCMD web page : http://rhea.rchland.ibm.com/eCMD/
+For Makefile and Client examples please go to 'Use eCMD' on the eCMD web page : http://rhea.rch.stglabs.ibm.com/eCMD/
 
 */
 #endif
