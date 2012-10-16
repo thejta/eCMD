@@ -386,7 +386,7 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
  <hr>
  @section perlscript Example Perl Script
 
- Please see the eCMD web page under 'Use eCMD' for an example Perl script at : http://rhea.rchland.ibm.com/eCMD/
+ Please see the eCMD web page under 'Use eCMD' for an example Perl script at : http://rhea.rch.stglabs.ibm.com/eCMD/
 
 
 */
