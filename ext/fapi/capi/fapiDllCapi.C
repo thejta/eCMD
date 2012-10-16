@@ -76,12 +76,12 @@ uint32_t dllFapiInitExtension (const char * i_clientVersion) {
     if (atoi(i_clientVersion) < atoi(DllVersion.c_str())) {
       fprintf(stderr,"**** FATAL : Your client is older then the eCMD FAPI Extension Plugin you are running\n");
       fprintf(stderr,"**** FATAL : You must grab the latest client libraries and rebuild your client to continue\n");
-      fprintf(stderr,"**** FATAL : Information on where to obtain these files is at http://rhea.rchland.ibm.com/eCMD/\n");
+      fprintf(stderr,"**** FATAL : Information on where to obtain these files is at http://rhea.rch.stglabs.ibm.com/eCMD/\n");
     } else {
       fprintf(stderr,"**** FATAL : It appears your client is newer then the eCMD FAPI Extension Plugin you are running\n");
       fprintf(stderr,"**** FATAL : Contact the eCMD team to have the Plugin rebuilt to match your client\n");
       fprintf(stderr,"**** FATAL : Or get ahold of down level client libraries and rebuild your client to match\n");
-      fprintf(stderr,"**** FATAL : Contact information can be found at http://rhea.rchland.ibm.com/eCMD/\n");
+      fprintf(stderr,"**** FATAL : Contact information can be found at http://rhea.rch.stglabs.ibm.com/eCMD/\n");
 
     }
 
