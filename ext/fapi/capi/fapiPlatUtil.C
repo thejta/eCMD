@@ -471,6 +471,71 @@ if (!fapiInitialized) {
   return rc;
 }
 
+fapi::ReturnCode fapiSpecialWakeup(const fapi::Target & i_target, const bool i_enable)
+{
+    fapi::ReturnCode rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL) {
+	fprintf(stderr,"dllFapiSpecialWakeup%s",ECMD_DLL_NOT_LOADED_ERROR);
+	exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+
+    if (!fapiInitialized) {
+	fprintf(stderr,"dllFapiSpecialWakeup: eCMD Extension not initialized before function called\n");
+	fprintf(stderr,"dllFapiSpecialWakeup: OR eCMD fapi Extension not supported by plugin\n");
+	exit(ECMD_DLL_INVALID);
+    }
+
+#ifndef ECMD_STRIP_DEBUG
+    int myTcount;
+    std::vector< void * > args;
+    if (ecmdClientDebug != 0) {
+	args.push_back((void*) &i_target);
+	args.push_back((void*) &i_enable);
+	fppCallCount++;
+	myTcount = fppCallCount;
+	ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"fapi::ReturnCode fapiSpecialWakeup(const fapi::Target & i_target, const bool i_enable)",args);
+	ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiSpecialWakeup");
+    }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+    rc = dllFapiSpecialWakeup(i_target, i_enable);
+#else
+    if (fapiDllFnTable[ECMD_FAPISPECIALWAKEUP] == NULL) {
+	fapiDllFnTable[ECMD_FAPISPECIALWAKEUP] = (void*)dlsym(dlHandle, "dllFapiSpecialWakeup");
+	if (fapiDllFnTable[ECMD_FAPISPECIALWAKEUP] == NULL) {
+	    fprintf(stderr,"dllFapiSpecialWakeup%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+	    ecmdDisplayDllInfo();
+	    exit(ECMD_DLL_INVALID);
+	}
+    }
+
+    ReturnCode (*Function)(const Target &,  const bool ) = 
+	(ReturnCode(*)(const Target &,  const bool ))fapiDllFnTable[ECMD_FAPISPECIALWAKEUP];
+    rc =    (*Function)(i_target, i_enable);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+    if (ecmdClientDebug != 0) {
+	args.push_back((void*) &rc);
+	ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiSpecialWakeup");
+	ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"fapi::ReturnCode fapiSpecialWakeup(const fapi::Target & i_target , const bool i_enable)",args);
+    }
+#endif
+
+    if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+	std::string errorString;
+	errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+	if (errorString.size()) ecmdOutput(errorString.c_str());
+    }
+
+    return rc;
+}
+
 
 
 } //end extern

@@ -1,25 +1,3 @@
-//  IBM_PROLOG_BEGIN_TAG
-//  This is an automatically generated prolog.
-//
-//  $Source$
-//
-//  IBM CONFIDENTIAL
-//
-//  COPYRIGHT International Business Machines Corp. 2011
-//
-//  p1
-//
-//  Object Code Only (OCO) source materials
-//  Licensed Internal Code Source Materials
-//  IBM HostBoot Licensed Internal Code
-//
-//  The source code for this program is not published or other-
-//  wise divested of its trade secrets, irrespective of what has
-//  been deposited with the U.S. Copyright Office.
-//
-//  Origin: 30
-//
-//  IBM_PROLOG_END
 /**
  *  @file fapiUtil.H
  *
@@ -40,8 +18,10 @@
  *                          mjjones     10/13/2011  Added extern "C" to functions
  *                          camvanng    10/14/2011  Added fapiLoadInitFile &
  *                                                  fapiUnloadInitFile
- *                          camvanng    11/15/2011  Pass target to fapiLoadInitFile;
- *                                                  Needed by Cronus
+ *                          camvanng    11/15/2011  Pass target to fapiLoadInitFile
+ *                                                  and doxygen changes;
+ *                                                  needed by cronus
+ *                          mjjones     08/13/2012  Add fapiSpecialWakeup
  */
 
 #ifndef FAPIUTIL_H_
@@ -167,6 +147,49 @@ fapi::ReturnCode fapiLoadInitFile(const fapi::Target & i_Target,
  */
 fapi::ReturnCode fapiUnloadInitFile(const char * i_file, const char *& io_addr, 
     size_t & io_size);
+
+/**  @brief Set a break point in the current procedure
+ *
+ * This function will suspend the calling istep/procedure.
+ * The procedure can be signaled to resume via a cmd through the
+ * istep dispatcher.
+ * @param[in] i_info  Tag to send when at breakpoint
+ */
+
+void fapiBreakPoint(uint32_t i_info);
+
+/**
+ * @brief Enable/Disable special wakeup on processor chip core(s)
+ *
+ * Special Wakeup Enable must be done when a HWP is doing an operation that
+ * requires core(s) to be awake (e.g. modifying the Sleep-Winkle image). For
+ * each Special Wakeup Enable call, there must be a subsequent Special Wakeup
+ * Disable call.
+ *
+ * This does not apply to SCOM operations, platforms must handle Special Wakeup
+ * for SCOM operations internally.
+ *
+ * If Special Wakeup is enabled, a core will not go to sleep (if already
+ * sleeping, it is woken up). If Special Wakeup is disabled, if there are no
+ * other active Enables, the core is allowed to sleep.
+ *
+ * @note Implemented by platform code calling the proc_cpu_special_wakeup HWP.
+ *       This is a FAPI function because each platform may do different things
+ *         Hostboot: Does nothing (cores cannot sleep while Hostboot running)
+ *         FSP: Uses an algorithm to decide when to disable special wakeup
+ *         Cronus: Does Special Wakeup enable/disable as requested
+ *
+ * @param[in] i_target
+ *              TARGET_TYPE_PROC_CHIP: Enables/Disables Special Wakeup on all
+ *                cores (EX chiplets) of the specified chip
+ *              TARGET_TYPE_EX_CHIPLET: Enables/Disables Special Wakeup on the
+ *                specified core (EX chiplet)
+ * @param[in] i_enable. true = enable. false = disable.
+ *
+ * @return ReturnCode. Zero on success, else platform specified error.
+ */
+fapi::ReturnCode fapiSpecialWakeup(const fapi::Target & i_target,
+                                   const bool i_enable);
 
 }
 
