@@ -2605,16 +2605,6 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     std::string printed;                          ///< Output data
 
     /************************************************************************/
-    /* Parse Local FLAGS here!                                              */
-    /************************************************************************/
-    /* get format flag, if it's there */
-    char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-    if (formatPtr != NULL)
-    {
-        outputformat = formatPtr;
-    }
-
-    /************************************************************************/
     /* Parse Common Cmdline Args                                            */
     /************************************************************************/
     rc = ecmdCommandArgs(&argc, &argv);
@@ -2714,16 +2704,6 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
     bool validPosFound = false;                   ///< Did the looper find anything?
     ecmdLooperData looperData;                    ///< Store internal Looper data
     std::string printed;                          ///< Output data
-
-    /************************************************************************/
-    /* Parse Local FLAGS here!                                              */
-    /************************************************************************/
-    /* get format flag, if it's there */
-    char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-    if (formatPtr != NULL)
-    {
-        outputformat = formatPtr;
-    }
 
     /************************************************************************/
     /* Parse Common Cmdline Args                                            */
