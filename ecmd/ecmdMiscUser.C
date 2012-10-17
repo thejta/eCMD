@@ -2594,10 +2594,225 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
     return rc;
 }
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************
+
+uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
+{
+    uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+    ecmdChipTarget target;                        ///< Current target being operated on
+    bool validPosFound = false;                   ///< Did the looper find anything?
+    ecmdLooperData looperData;                    ///< Store internal Looper data
+    std::string printed;                          ///< Output data
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+    /* get format flag, if it's there */
+    char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+    if (formatPtr != NULL)
+    {
+        outputformat = formatPtr;
+    }
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    rc = ecmdCommandArgs(&argc, &argv);
+    if (rc) return rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+    if (argc < 1)  //chip
+    {
+        ecmdOutputError("mpiplclearcheckstop - Too few arguments specified; you need at least a chip.\n");
+        ecmdOutputError("mpiplclearcheckstop - Type 'mpiplclearcheckstop -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string chipType, chipUnitType;
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc)
+    { 
+        ecmdOutputError("mpiplclearcheckstop - Wildcard character detected however it is not being used correctly.\n");
+        return rc;
+    }
+    bool chipWildcardFound = false;
+
+    if (chipUnitType != "")
+    {
+        ecmdOutputError("mpiplclearcheckstop - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (chipType == "x")
+    {
+        target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+        chipWildcardFound = true;
+    }
+    else
+    {
+        target.chipType = chipType;
+        target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (argc > 2)
+    { 
+        ecmdOutputError("mpiplclearcheckstop - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+        ecmdOutputError("mpiplclearcheckstop - Type 'getecid -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+        rc = mpiplClearCheckstop(target);
+        if (rc) {
+            printed = "mpiplclearcheckstop - Error occured performing getecid on ";
+            printed += ecmdWriteTarget(target);
+            printed += "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+        }
+        else
+        {
+            validPosFound = true;
+        }
+    }
+    // coeRc will be the return code from in the loop, coe mode or not.
+    if (coeRc) return coeRc;
+
+    // This is an error common across all UI functions
+    if (!validPosFound)
+    {
+        ecmdOutputError("mpiplclearcheckstop - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return rc;
+}
+
+uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
+{
+    uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+    ecmdChipTarget target;                        ///< Current target being operated on
+    bool validPosFound = false;                   ///< Did the looper find anything?
+    ecmdLooperData looperData;                    ///< Store internal Looper data
+    std::string printed;                          ///< Output data
+
+    /************************************************************************/
+    /* Parse Local FLAGS here!                                              */
+    /************************************************************************/
+    /* get format flag, if it's there */
+    char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+    if (formatPtr != NULL)
+    {
+        outputformat = formatPtr;
+    }
+
+    /************************************************************************/
+    /* Parse Common Cmdline Args                                            */
+    /************************************************************************/
+    rc = ecmdCommandArgs(&argc, &argv);
+    if (rc) return rc;
+
+    /* Global args have been parsed, we can read if -coe was given */
+    bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+    /************************************************************************/
+    /* Parse Local ARGS here!                                               */
+    /************************************************************************/
+    if (argc < 1)  //chip
+    {
+        ecmdOutputError("mpiplforcewinkle - Too few arguments specified; you need at least a chip.\n");
+        ecmdOutputError("mpiplforcewinkle - Type 'mpiplforcewinkle -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config
+    std::string chipType, chipUnitType;
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc)
+    { 
+        ecmdOutputError("mpiplforcewinkle - Wildcard character detected however it is not being used correctly.\n");
+        return rc;
+    }
+    bool chipWildcardFound = false;
+
+    if (chipUnitType != "")
+    {
+        ecmdOutputError("mpiplforcewinkle - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    if (chipType == "x")
+    {
+        target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+        chipWildcardFound = true;
+    }
+    else
+    {
+        target.chipType = chipType;
+        target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    if (argc > 2)
+    { 
+        ecmdOutputError("mpiplforcewinkle - Too many arguments specified; you probably added an option that wasn't recognized.\n");
+        ecmdOutputError("mpiplforcewinkle - Type 'getecid -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+        rc = mpiplForceWinkle(target);
+        if (rc) {
+            printed = "mpiplforcewinkle - Error occured performing getecid on ";
+            printed += ecmdWriteTarget(target);
+            printed += "\n";
+            ecmdOutputError( printed.c_str() );
+            coeRc = rc;
+            continue;
+        }
+        else
+        {
+            validPosFound = true;
+        }
+    }
+    // coeRc will be the return code from in the loop, coe mode or not.
+    if (coeRc) return coeRc;
+
+    // This is an error common across all UI functions
+    if (!validPosFound)
+    {
+        ecmdOutputError("mpiplforcewinkle - Unable to find a valid chip to execute command on\n");
+        return ECMD_TARGET_NOT_CONFIGURED;
+    }
+
+    return rc;
+}

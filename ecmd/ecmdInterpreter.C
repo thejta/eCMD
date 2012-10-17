@@ -467,6 +467,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
         if (!strcmp(argv[0], "makespsystemcall")) {
           rc = ecmdMakeSPSystemCallUser(argc - 1, argv + 1);
+#ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
+	} else if (!strcmp(argv[0], "mpiplclearcheckstop")) {
+          rc = ecmdMpiplClearCheckstopUser(argc - 1, argv + 1);
+	} else if (!strcmp(argv[0], "mpiplforcewinkle")) {
+          rc = ecmdMpiplForceWinkleUser(argc - 1, argv + 1);
+#endif //ECMD_REMOVE_MPIPL_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
