@@ -1871,6 +1871,42 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 //@}
 /* End Processor Functions */
 
+/** @name Memory Preserving IPL (MPIPL) Functions */
+//@{
+#ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
+/**
+ @brief Clear checkstops to allow an MPIPL to take place
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
+ @retval ECMD_SUCCESS if successful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t mpiplClearCheckstop(const ecmdChipTarget & i_target);
+
+/**
+ @brief Force special winkle wakeup (i.e., no loss of ex/core voltage) for MPIPL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
+ @retval ECMD_SUCCESS if successful
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.<br>
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t mpiplForceWinkle(const ecmdChipTarget & i_target);
+#endif // ECMD_REMOVE_MPIPL_FUNCTIONS
+//@}
+
 
 
 /** @name Trace Array Functions */
@@ -4117,6 +4153,7 @@ This extension provides HWPF fapi only interfaces.  More information about writi
        <li>fapiPlatTrace.H</li>
        <li>fapiPlatHwpExecutor.H</li>
        <li>fapiAttributeService.H</li>
+       <li>fapiMvpdAccess.H</li>
        <li>ecmdDataBufferBase.H</li>
        </ul>
     </ul>
