@@ -1713,7 +1713,7 @@ uint32_t ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { 
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
   if (strlen(i_buf) < i_bits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::memCopyInXstate: supplied buffer(%d) shorter than i_bits(%d)", strlen(i_buf), i_bits);
+    ETRAC2("**** ERROR : ecmdDataBuffer::memCopyInXstate: supplied buffer(%x) shorter than i_bits(%x)", strlen(i_buf), i_bits);
     RETURN_ERROR(ECMD_DBUF_INVALID_DATA_FORMAT);
   }
 
