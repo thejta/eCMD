@@ -184,7 +184,7 @@ void fapiBreakPoint(uint32_t i_info);
  *                cores (EX chiplets) of the specified chip
  *              TARGET_TYPE_EX_CHIPLET: Enables/Disables Special Wakeup on the
  *                specified core (EX chiplet)
- * @param[in] i_enable. true = enable. false = disable.
+ * @param[in] i_enable  true = enable. false = disable.
  *
  * @return ReturnCode. Zero on success, else platform specified error.
  */
