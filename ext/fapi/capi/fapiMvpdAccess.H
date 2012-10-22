@@ -6,6 +6,13 @@
  *
  */
 
+/*
+ * Change Log ******************************************************************
+ * Flag     Defect/Feature  User        Date        Description
+ * ------   --------------  ----------  ----------- ----------------------------
+ *                          mjjones     10/09/2012  Added fapiGetMvpdField
+ */
+
 #ifndef _FAPI_FAPIMVPDACCESS_H_
 #define _FAPI_FAPIMVPDACCESS_H_
 
@@ -98,7 +105,7 @@ extern "C"
  *
  *  @param[in] i_record     Record enumerator
  *  @param[in] i_keyword    Keyword enumerator
- *  @param[in] i_procTarget Pointer to processor chip target for the record
+ *  @param[in] i_procTarget Reference to processor chip target for the record
  *  @param[in] i_pBuffer    Pointer to buffer where record will be stored. If
  *                          NULL then the size of record will be stored in
  *                          io_fieldSize
@@ -111,6 +118,25 @@ fapi::ReturnCode fapiGetMvpdField(const fapi::MvpdRecord i_record,
                                   const fapi::Target &i_procTarget,
                                   uint8_t * const i_pBuffer,
                                   uint32_t &io_fieldSize);
+
+/**
+ *  @brief Set Module VPD field.
+ *
+ *  A Module VPD field is specified using a record and keyword enumerator
+ *
+ *  @param[in] i_record     Record enumerator
+ *  @param[in] i_keyword    Keyword enumerator
+ *  @param[in] i_procTarget Reference to processor chip target for the record
+ *  @param[in] i_pBuffer    Pointer to buffer where data to set is stored
+ *  @param[io] i_fieldSize  Size of i_pBuffer in bytes
+ *
+ *  @return fapi::ReturnCode. FAPI_RC_SUCCESS, or failure value.
+ */
+fapi::ReturnCode fapiSetMvpdField(const fapi::MvpdRecord i_record,
+                                  const fapi::MvpdKeyword i_keyword,
+                                  const fapi::Target &i_procTarget,
+                                  const uint8_t * const i_pBuffer,
+                                  const uint32_t i_fieldSize);
 }
 
 #endif

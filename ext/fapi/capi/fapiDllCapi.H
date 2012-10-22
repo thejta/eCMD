@@ -79,6 +79,13 @@ fapi::ReturnCode dllFapiGetMvpdField(const fapi::MvpdRecord i_record,
                                   const fapi::Target &i_procTarget,
                                   uint8_t * const i_pBuffer,
                                   uint32_t &io_fieldSize);
+
+fapi::ReturnCode dllFapiSetMvpdField(const fapi::MvpdRecord i_record,
+                                  const fapi::MvpdKeyword i_keyword,
+                                  const fapi::Target &i_procTarget,
+                                  const uint8_t * const i_pBuffer,
+                                  const uint32_t i_fieldSize);
+
 fapi::ReturnCode dllFapiSpecialWakeup(const fapi::Target & i_target, const bool i_enable);
 
 } //extern C

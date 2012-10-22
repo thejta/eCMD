@@ -673,6 +673,81 @@ ReturnCode fapiGetMvpdField(const fapi::MvpdRecord i_record,
 
 }
 
+ReturnCode fapiSetMvpdField(const fapi::MvpdRecord i_record,
+                            const fapi::MvpdKeyword i_keyword,
+                            const fapi::Target &i_procTarget,
+                            const uint8_t * const i_pBuffer,
+                            const uint32_t i_fieldSize)
+{
+
+  ReturnCode rc;
+  uint32_t l_ecmdRc;
+  
+  ecmdChipTarget   ecmdTarget;
+  ecmdChipTarget * ecmdTargetPtr;
+  ecmdTargetPtr = (ecmdChipTarget *) i_procTarget.get();
+  ecmdTarget = (*ecmdTargetPtr);                
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiGetVpdField%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_record);
+     args.push_back((void*) &i_keyword);
+     args.push_back((void*) &i_procTarget);
+     args.push_back((void*) &i_pBuffer);
+     args.push_back((void*) &i_fieldSize);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiSetMvpdField(const fapi::MvpdRecord i_record, const fapi::MvpdKeyword i_keyword, const fapi::Target &i_procTarget, const uint8_t * const i_pBuffer, const uint32_t i_fieldSize) )",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiSetMvpdField");
+  }
+#endif
+
+   ecmdChipTarget cacheTarget;
+   cacheTarget = ecmdTarget;
+   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+   if (ecmdIsRingCacheEnabled(cacheTarget)){
+     rc.setEcmdError(ECMD_RING_CACHE_ENABLED);
+     return rc;
+   }
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiSetMvpdField(i_record, i_keyword, i_procTarget, i_pBuffer, i_fieldSize);
+#else
+  if (DllFnTable[ECMD_FAPISETMVPDFIELD] == NULL) {
+     DllFnTable[ECMD_FAPISETMVPDFIELD] = (void*)dlsym(dlHandle, "dllFapiSetMvpdField");
+     if (DllFnTable[ECMD_FAPISETMVPDFIELD] == NULL) {
+       fprintf(stderr,"dllFapiSetMVpdField%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  ReturnCode (*Function)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  const uint8_t *, const uint32_t ) = 
+      (ReturnCode(*)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  const uint8_t *, const uint32_t ))DllFnTable[ECMD_FAPISETMVPDFIELD];
+  rc =    (*Function)(i_record, i_keyword, i_procTarget, i_pBuffer, i_fieldSize);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &l_ecmdRc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiSetMvpdField");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiSetMvpdField(const fapi::MvpdRecord i_record, const fapi::MvpdKeyword i_keyword, const fapi::Target &i_procTarget, const uint8_t * const i_pBuffer, const uint32_t i_fieldSize)",args);
+   }
+#endif
+
+  return rc;
+
+}
+
+
 fapi::ReturnCode platGetSpy(const fapi::Target& i_target, const char * const i_spyId, ecmdDataBufferBase & o_data)
 {
 
