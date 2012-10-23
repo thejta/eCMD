@@ -15,6 +15,7 @@
  *                                                  ctor and assignment operator
  *                          mjjones     08/14/2012  Merge Callout/Deconfig/Gard
  *                                                  structures into one
+ *                          mjjones     09/19/2012  Replace FFDC type with ID
  */
 
 #ifndef FAPIERRORINFO_H_
@@ -28,19 +29,6 @@ namespace fapi
 {
 
 /**
- * @enum FfdcType
- *
- * This enumeration defines the possible types of FFDC data
- */
-enum FfdcType
-{
-    FFDC_TYPE_NONE = 0,
-    FFDC_TYPE_TARGET = 1,  // FFDC data is a Target ecmd-string
-    FFDC_TYPE_ECMDDBB = 2, // FFDC data is the contents of an ecmdDataBaseBuffer
-    FFDC_TYPE_DATA = 3,    // FFDC data is just raw data
-};
-
-/**
  * @class ErrorInfoFfdc
  *
  * This class contains a copy of some FFDC data
@@ -51,13 +39,13 @@ public:
     /**
      * @brief Constructor
      *
-     * @param[in] i_pFfdc Pointer to the FFDC to copy
-     * @param[in] i_size  Size of the FFDC to copy
-     * @param[in] i_type  Type of the FFDC to copy
+     * @param[in] i_ffdcId FFDC Identifier (used to decode FFDC)
+     * @param[in] i_pFfdc  Pointer to the FFDC to copy
+     * @param[in] i_size   Size of the FFDC to copy
      */
-    ErrorInfoFfdc(const void * i_pFfdc,
-                  const uint32_t i_size,
-                  const FfdcType i_type);
+    ErrorInfoFfdc(const uint32_t i_ffdcId,
+                  const void * i_pFfdc,
+                  const uint32_t i_size);
 
     /**
      * @brief Destructor
@@ -73,24 +61,24 @@ public:
      * @return void *. Pointer to the FFDC
      */
     const void * getData(uint32_t & o_size) const;
-
+    
     /**
-     * @brief Get the FfdcData type
+     * @brief Get the FFDC Identifier
      *
-     * @return FfdcType. FFDC type
+     * @return uint32_t The FFDC Identifier
      */
-    FfdcType getType() const;
+    uint32_t getFfdcId() {return iv_ffdcId;}
 
 private:
 
+    // FFDC Identifier
+    uint32_t iv_ffdcId;
+    
     // Pointer to the FFDC
     uint8_t * iv_pFfdc;
 
     // Size of the FFDC
     uint32_t iv_size;
-
-    // Type of the FFDC
-    FfdcType iv_type;
 
     // Disabled
     ErrorInfoFfdc(const ErrorInfoFfdc &);

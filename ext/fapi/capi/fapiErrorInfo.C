@@ -15,11 +15,11 @@
  *                                                  ctor and assignment operator
  *                          mjjones     08/14/2012  Merge Callout/Deconfig/Gard
  *                                                  structures into one
+ *                          mjjones     09/19/2012  Replace FFDC type with ID
  */
 
 #include <fapiErrorInfo.H>
 #include <string.h>
-
 
 namespace fapi
 {
@@ -27,10 +27,10 @@ namespace fapi
 //******************************************************************************
 // ErrorInfoFfdc Constructor
 //******************************************************************************
-ErrorInfoFfdc::ErrorInfoFfdc(const void * i_pFfdc,
-                             const uint32_t i_size,
-                             const FfdcType i_type)
-: iv_size(i_size), iv_type(i_type)
+ErrorInfoFfdc::ErrorInfoFfdc(const uint32_t i_ffdcId,
+                             const void * i_pFfdc,
+                             const uint32_t i_size)
+: iv_ffdcId(i_ffdcId), iv_size(i_size)
 {
     iv_pFfdc = new uint8_t[i_size];
     memcpy(iv_pFfdc, i_pFfdc, i_size);
@@ -52,14 +52,6 @@ const void * ErrorInfoFfdc::getData(uint32_t & o_size) const
 {
     o_size = iv_size;
     return iv_pFfdc;
-}
-
-//******************************************************************************
-// ErrorInfoFfdc getType function
-//******************************************************************************
-FfdcType ErrorInfoFfdc::getType() const
-{
-    return iv_type;
 }
 
 //******************************************************************************
