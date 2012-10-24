@@ -163,6 +163,22 @@ uint32_t ecmdHexToUInt32(const char* i_str);
 uint32_t ecmdHashString32(const char *i_str, uint32_t i_c);
 
 /**
+ * @brief Calculates a 64bit hash value for a given string.
+ *
+ * LICENSE:
+ * By Bob Jenkins, 2006.  bob_jenkins@burtleburtle.net.  You may use this
+ * code any way you wish, private, educational, or commercial.  It's free.
+ * See http://burtleburtle.net/bob/hash/doobs.html
+ *     http://burtleburtle.net/bob/c/lookup3.c
+ *     modified hashlittle2 function
+ *
+ * @param i_str String to convert to hash
+ * @param i_initval Start value for hash.
+ * @retval Hash value
+ */
+uint64_t ecmdHashString64(const char *i_str, uint64_t i_initval);
+
+/**
  *  @brief Sets State Fields of Chip Target based on depth
  *  @param io_target an ecmdChipTarget struct representing a specific eCmd target
  *  @param i_depth an ecmdTargetDepth_t enum representing depth to be set valid
