@@ -4013,7 +4013,7 @@ Common Hardware Access Programming Interface (eCMD)
 
 This is the documentation of the eCMD C/C++ Programming Api
 
-Last Approved: June 11th, 2009
+Last Approved: October 23rd 2012
 
 @section inc eCMD Core Include Files
 
@@ -4032,7 +4032,7 @@ To link the client code on AIX, the following is required:
 <ul>
 <li>ecmdClientCapi_aix.a
 <li>libecmd_aix.so
-<li>xlC 7.0.0.2
+<li>xlC 9.0.0.0
 </ul>
 To create Linux x86 binaries, the following is required:
 <ul>
