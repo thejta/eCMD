@@ -39,7 +39,8 @@ typedef enum {
   ECMD_MEM_MEMCTRL,
   ECMD_MEM_PROC,
   ECMD_GPR,
-  ECMD_FPR
+  ECMD_FPR,
+  ECMD_SRAM
 } ECMD_DA_TYPE;
 
 

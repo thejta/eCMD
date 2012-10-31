@@ -63,6 +63,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdDataBuffer returnData;            ///< Buffer to hold return data from memory
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
+  uint32_t channel = 0xFFFFFFFF;        ///< Channel to use for getsram
   uint64_t address;                     ///< The address from the command line
   uint32_t numBytes = ECMD_UNSET;       ///< Number of bytes from the command line
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
@@ -87,6 +88,8 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     cmdlineName = "getmemmemctrl";
   } else if (memMode == ECMD_MEM_PROC) {
     cmdlineName = "getmemproc";
+  } else if (memMode == ECMD_SRAM) {
+    cmdlineName = "getsram";
   }
 
   /************************************************************************/
@@ -103,6 +106,22 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     inputformat = inputFormatPtr;
   }
 
+  /* Get the channel for getsram */
+  if (memMode == ECMD_SRAM) {
+    char * channelPtr = ecmdParseOptionWithArgs(&argc, &argv, "-ch");
+    if (channelPtr != NULL) {
+      if (!ecmdIsAllDecimal(channelPtr)) {
+        printLine = cmdlineName + " - Non-dec characters detected in channel option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      channel = (uint32_t)atoi(channelPtr);
+    } else {
+      printLine = cmdlineName + " - channel must be specified with -ch option. Please contact plugin owner for correct channel. Cronus/FSP default channel: 2.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+  }
 
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
@@ -152,7 +171,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = 
       target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || (memMode == ECMD_SRAM)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = 
@@ -266,6 +285,8 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       rc = getMemMemCtrl(target, address, numBytes, returnData);
     } else if (memMode == ECMD_MEM_PROC) {
       rc = getMemProc(target, address, numBytes, returnData);
+    } else if (memMode == ECMD_SRAM) {
+      rc = getSram(target, channel, address, numBytes, returnData);
     }
 
     if (rc) {
@@ -364,6 +385,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdMemoryEntry memEntry;             ///< to store data from the user
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
+  uint32_t channel = 0xFFFFFFFF;        ///< Channel to use for getsram
   uint64_t address = 0;                 ///< The address from the command line
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
   int match;                            ///< For sscanf
@@ -378,6 +400,8 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     cmdlineName = "putmemmemctrl";
   } else if (memMode == ECMD_MEM_PROC) {
     cmdlineName = "putmemproc";
+  } else if (memMode == ECMD_SRAM) {
+    cmdlineName = "putsram";
   }
 
   /************************************************************************/
@@ -388,6 +412,24 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (formatPtr != NULL) {
     inputformat = formatPtr;
   }
+
+  /* Get the channel for putsram */
+  if (memMode == ECMD_SRAM) {
+    char * channelPtr = ecmdParseOptionWithArgs(&argc, &argv, "-ch");
+    if (channelPtr != NULL) {
+      if (!ecmdIsAllDecimal(channelPtr)) {
+        printLine = cmdlineName + " - Non-dec characters detected in channel option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      channel = (uint32_t)atoi(channelPtr);
+    } else {
+      printLine = cmdlineName + " - channel must be specified with -ch option. Please contact plugin owner for correct channel. Cronus/FSP default channel: 2.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+  }
+
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
  
@@ -444,7 +486,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (memMode == ECMD_MEM_MEMCTRL) {
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA)) {
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || (memMode == ECMD_SRAM)) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState =   ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
@@ -532,6 +574,8 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
         rc = putMemMemCtrl(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       } else if (memMode == ECMD_MEM_PROC) {
         rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
+      } else if (memMode == ECMD_SRAM) {
+        rc = putSram(target, channel, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       }
 
       if (rc) {

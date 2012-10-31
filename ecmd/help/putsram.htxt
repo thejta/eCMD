@@ -1,0 +1,38 @@
+
+Syntax: putsram <MemAddress> <Data> -ch <Channel> [-i<format>]
+        putsram <MemAddress> -ch <Channel> -fb<filename>
+        putsram -ch <Channel> [AddressOffset] -fd<filename>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Write the specified data to SRAM using the Processor 
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        MemAddress      64 Bit address to write to (Hex-Right). Not valid with -fd option
+
+        -ch <Channel>   Channel to use when accessing SRAM
+
+        -fd <filename>  Specify full path and filename to file in D-Card format to load
+                        to system
+                        You can optionally specify AddressOffset which will be added
+                        to the addresses in the dcardfile
+
+        -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+        Data            Data to write into mainstore. Not valid with -f option
+                        Format specified by -i<format>
+
+        -i<format>[opt] Specifies the format type of input data : default 'xl'
+                        Not valid with -f option
+                        Run 'ecmdquery formats' to view available formats
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > putsram 10000 deadbeef80000000 -ch 2 -p0,1 
+                        > putsram 10000 -ch 2 -fb datafile
+                        > putsram -ch 2 -fd dcardfile

@@ -2073,6 +2073,47 @@ uint32_t getMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i
 uint32_t putMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
 
 /**
+ @brief Reads SRAM through the processor chip using a real address
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_channel channel number
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+
+
+/**
+ @brief Writes SRAM through the processor chip using a real address
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_channel channel number
+ @param i_address Starting address to write to
+ @param i_bytes Number of bytes to write
+ @param i_data DataBuffer object that holds data to write into memory
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+
+/**
  @brief Query information about the cache levels
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_cacheType ecmdCacheType_t struct defines what type of cache gets flushed
