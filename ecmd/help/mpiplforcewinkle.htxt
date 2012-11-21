@@ -2,7 +2,7 @@ Syntax: mpiplforcewinkle <Chip[.ChipUnit]> [-exist] [-coe] [-a#] [-k#] [-n#] [-s
 
         ECMD:           Core Common Function
 
-        Function:       Force winkle wakeup for Memory Preserving IPL (MPIPL)
+        Function:       Force special winkle wakeup (i.e., no loss of ex/core voltage) for Memory Preserving IPL (MPIPL)
 
         Parameters:
         --------------------------------------------------------------------------------

@@ -2,7 +2,7 @@ Syntax: mpiplclearcheckstop <Chip[.ChipUnit]> [-exist] [-coe] [-a#] [-k#] [-n#] 
 
         ECMD:           Core Common Function
 
-        Function:       Clear checkstop for Memory Preserving IPL (MPIPL)
+        Function:       Clear checkstops to allow an MPIPL to take place.
 
         Parameters:
         --------------------------------------------------------------------------------
