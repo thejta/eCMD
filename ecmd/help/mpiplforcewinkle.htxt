@@ -1,0 +1,20 @@
+Syntax: mpiplforcewinkle <Chip[.ChipUnit]> [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
+        ECMD:           Core Common Function
+
+        Function:       Force winkle wakeup for Memory Preserving IPL (MPIPL)
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > mpiplforcewinkle pu -k0 -n1 -p3
+                        > mpiplforcewinkle pu -all
+                        > mpiplforcewinkle pu
