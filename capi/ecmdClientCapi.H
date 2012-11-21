@@ -1878,7 +1878,6 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @brief Clear checkstops to allow an MPIPL to take place
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
  TARGET DEPTH  : pos<br>
@@ -1891,7 +1890,6 @@ uint32_t mpiplClearCheckstop(const ecmdChipTarget & i_target);
  @brief Force special winkle wakeup (i.e., no loss of ex/core voltage) for MPIPL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
  The return value of this function is set to the first non-zero return code found when
