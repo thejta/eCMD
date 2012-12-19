@@ -14,6 +14,7 @@
  *                          mjjones     09/23/2011  Added fapiHwpErrorInfo.H
  *                          mjjones     11/10/2011  Use ecmdDataBufferBase
  *                          mjjones     04/16/2012  Added fapiChipEcFeature.H
+ *                          mjjones     11/14/2012  Added fapiSetSbeError.H
  */
 
 #ifndef FAPI_H_
@@ -31,6 +32,8 @@
 #include <fapiHwpReturnCodes.H> // Generated file
 #include <fapiHwpErrorInfo.H>   // Generated file
 #include <fapiAttributeIds.H>   // Generated file
+//#include <fapiSetSbeError.H>    // Generated file
 #include <ecmdDataBufferBase.H>
+#include <fapiMvpdAccess.H>
 
 #endif // FAPI_H_

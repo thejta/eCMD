@@ -647,9 +647,9 @@ ReturnCode fapiGetMvpdField(const fapi::MvpdRecord i_record,
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllFapiGetMvpdField(i_record, i_keyword, i_procTarget, i_pBuffer, io_fieldSize);
 #else
-  if (DllFnTable[ECMD_FAPIGETMVPDFIELD] == NULL) {
-     DllFnTable[ECMD_FAPIGETMVPDFIELD] = (void*)dlsym(dlHandle, "dllFapiGetMvpdField");
-     if (DllFnTable[ECMD_FAPIGETMVPDFIELD] == NULL) {
+  if (fapiDllFnTable[ECMD_FAPIGETMVPDFIELD] == NULL) {
+     fapiDllFnTable[ECMD_FAPIGETMVPDFIELD] = (void*)dlsym(dlHandle, "dllFapiGetMvpdField");
+     if (fapiDllFnTable[ECMD_FAPIGETMVPDFIELD] == NULL) {
        fprintf(stderr,"dllFapiGetMVpdField%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
        ecmdDisplayDllInfo();
        exit(ECMD_DLL_INVALID);
@@ -657,7 +657,7 @@ ReturnCode fapiGetMvpdField(const fapi::MvpdRecord i_record,
   }
 
   ReturnCode (*Function)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  uint8_t *, uint32_t &) = 
-      (ReturnCode(*)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  uint8_t *, uint32_t &))DllFnTable[ECMD_FAPIGETMVPDFIELD];
+      (ReturnCode(*)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  uint8_t *, uint32_t &))fapiDllFnTable[ECMD_FAPIGETMVPDFIELD];
   rc =    (*Function)(i_record, i_keyword, i_procTarget, i_pBuffer, io_fieldSize);
 #endif
 
@@ -721,9 +721,9 @@ ReturnCode fapiSetMvpdField(const fapi::MvpdRecord i_record,
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllFapiSetMvpdField(i_record, i_keyword, i_procTarget, i_pBuffer, i_fieldSize);
 #else
-  if (DllFnTable[ECMD_FAPISETMVPDFIELD] == NULL) {
-     DllFnTable[ECMD_FAPISETMVPDFIELD] = (void*)dlsym(dlHandle, "dllFapiSetMvpdField");
-     if (DllFnTable[ECMD_FAPISETMVPDFIELD] == NULL) {
+  if (fapiDllFnTable[ECMD_FAPISETMVPDFIELD] == NULL) {
+     fapiDllFnTable[ECMD_FAPISETMVPDFIELD] = (void*)dlsym(dlHandle, "dllFapiSetMvpdField");
+     if (fapiDllFnTable[ECMD_FAPISETMVPDFIELD] == NULL) {
        fprintf(stderr,"dllFapiSetMVpdField%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
        ecmdDisplayDllInfo();
        exit(ECMD_DLL_INVALID);
@@ -731,7 +731,7 @@ ReturnCode fapiSetMvpdField(const fapi::MvpdRecord i_record,
   }
 
   ReturnCode (*Function)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  const uint8_t *, const uint32_t ) = 
-      (ReturnCode(*)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  const uint8_t *, const uint32_t ))DllFnTable[ECMD_FAPISETMVPDFIELD];
+      (ReturnCode(*)(const fapi::MvpdRecord, const fapi::MvpdKeyword, const fapi::Target &,  const uint8_t *, const uint32_t ))fapiDllFnTable[ECMD_FAPISETMVPDFIELD];
   rc =    (*Function)(i_record, i_keyword, i_procTarget, i_pBuffer, i_fieldSize);
 #endif
 
