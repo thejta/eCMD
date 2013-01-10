@@ -1,0 +1,29 @@
+
+Syntax: ciprwgetdcr [Chip[.ChipUnit]] <DcrStartNum> [<numEntries>] [-o<format>]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Gets Processor DCR
+
+        Parameters:
+        --------------------------------------------------------------------------------
+
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.core
+
+        DcrNum          Dcr Entry to read (Decimal)
+
+        numEntries      Specifies number of entries to get from starting entry (Decimal)
+
+        -o<format>[opt] Specifies the format type of the output : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > ciprwgetdcr pu.occ 6 -p0,1
+                        > ciprwgetdcr pu.occ 0 32 -p10, -t1 -c1

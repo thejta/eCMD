@@ -2709,6 +2709,421 @@ uint32_t cipRWWriteMemUser(int argc, char * argv[])
 
     return l_rc;
 }
+
+uint32_t cipRWGetDcrUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  ecmdChipTarget subTarget;        ///< Current target
+  ecmdLooperData subLooperdata;            ///< Store internal Looper data
+  bool validPosFound = false, validChipFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  std::list<ecmdIndexEntry> entries;    ///< List of dcr's to fetch, to use cipRWGetDcrMultiple
+  std::list<ecmdIndexEntry> entries_copy;    ///< List of dcr's to fetch, to use cipRWGetDcrMultiple
+  ecmdIndexEntry  entry;         ///< Dcr entry to fetch
+  int idx;
+  std::string function;         ///< What function are we running (based on type)
+  int numEntries = 1;           ///< Number of consecutive entries to retrieve
+  int startEntry = 0;           ///< Entry to start on
+  char buf[100];                ///< Temporary string buffer
+  std::string sprName;
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
+  std::string chipType, chipUnitType;
+
+  /* get format flag, if it's there */
+  std::string format;
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr == NULL) {
+    format = "x";
+  }
+  else {
+    format = formatPtr;
+  }
+
+  // Set commandline name based up on the type
+  function = "ciprwgetdcr";
+  sprName = "dcr";
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 1) {
+    printed = function + " - Too few arguments specified; you need at least one dcr.\n";
+    ecmdOutputError(printed.c_str());
+    printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  /* Walk through the arguments and create our list of dcrs */
+  validChipFound = ecmdIsAllDecimal(argv[0]) ? false : ecmdIsValidChip(argv[0], target);
+  if(!validChipFound && ecmdIsAllDecimal(argv[0]))
+  {
+     startEntry = atoi(argv[0]);
+     if (argc > 1) {
+       numEntries = atoi(argv[1]);
+     }  
+  }
+  else
+  {
+     if (argc < 2) {
+        printed = function + " - Too few arguments specified; you need at least one dcr.\n";
+        ecmdOutputError(printed.c_str());
+        printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+        ecmdOutputError(printed.c_str());
+        return ECMD_INVALID_ARGS;
+     }
+     else
+     {
+         //Setup the target
+         //target.chipType = argv[0];
+         startEntry = atoi(argv[1]);
+         if (argc > 2) {
+           numEntries = atoi(argv[2]);
+         }
+          rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+          if (rc) {
+             ecmdOutputError("Wildcard character detected.\n");
+             return rc;
+          }
+     }
+  }
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    /* Clear out our list */
+    entries.clear();
+
+    /* First thing we need to do is find out for this particular target if the SPR is threaded */
+    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+    if (rc) {
+      printed = function + " - Error occured getting info for ";
+      printed += sprName;
+      printed += " on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+
+    if ((startEntry + numEntries) > (int)procInfo.totalEntries) {
+      printed = function + " - Num Entries requested exceeds maximum number available on: ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = ECMD_INVALID_ARGS;
+      continue;
+    }
+
+    for (idx = startEntry; idx < startEntry + numEntries; idx ++) {
+      entry.index = idx;
+      entries.push_back(entry);
+    }
+
+    /* Now setup our chipUnit/thread loop */
+    subTarget = target;
+    if (procInfo.isChipUnitRelated) {
+      if (procInfo.relatedChipUnit != "") {
+        subTarget.chipUnitType = procInfo.relatedChipUnit;
+        subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      if (procInfo.threadReplicated) {
+        subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      }
+    }
+
+    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    if (rc) {
+      coeRc = rc;
+      continue;
+    }
+
+    while (ecmdLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+
+      /* Restore to our initial list */
+      entries_copy = entries;
+
+      /* Actually go fetch the data */
+      rc = cipRWGetDcrMultiple(subTarget, entries_copy);
+
+      if (rc) {
+        printed = function + " - Error occured performing getMultiple on ";
+        printed += ecmdWriteTarget(subTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      }
+      else {
+        validPosFound = true;     
+      }
+
+      printed = ecmdWriteTarget(subTarget) + "\n";
+      ecmdOutput( printed.c_str() );
+      for (std::list<ecmdIndexEntry>::iterator nameIter = entries_copy.begin(); nameIter != entries_copy.end(); nameIter ++) {
+
+        sprintf(buf,"%02d\t", nameIter->index);
+        printed = buf;
+
+        printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+
+        ecmdOutput( printed.c_str() );
+      }
+
+      ecmdOutput("\n");
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    printed = function + " - Unable to find a valid chip to execute command on\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
+
+uint32_t cipRWPutDcrUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperdata;    ///< Store internal Looper data
+  ecmdChipTarget subTarget;        ///< Current target
+  ecmdLooperData subLooperdata;            ///< Store internal Looper data
+  std::string inputformat = "x";                ///< Default input format
+  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
+  ecmdDataBuffer cmdlineBuffer; ///< Buffer to store data to write with
+  ecmdDataBuffer buffer;        ///< Buffer to store data from the read
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  uint32_t entry;               ///< Index entry to write 
+  uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
+  uint32_t numBits = 0;         ///< Number of bits to insert data
+  std::string function;         ///< Current function being run based on daType
+  std::string sprName;
+  char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
+  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  bool validChipFound = false;
+  std::string chipType, chipUnitType;
+  int idx = 0;
+
+  /* get format flag, if it's there */
+  char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
+  if (formatPtr != NULL) {
+    dataModifier = formatPtr;
+  }
+
+  // Set commandline name based up on the type
+  function = "ciprwputdcr";
+  sprName = "dcr";
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 2) {
+    printed = function + " - Too few arguments specified; you need at least an gpr/fpr Name  and some data.\n";
+    ecmdOutputError(printed.c_str());
+    printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  validChipFound = ecmdIsValidChip(argv[0], target);
+  if(validChipFound)
+  {
+    if (argc < 3) {
+       printed = function + " - Too few arguments specified; you need at least an gpr/fpr Name  and some data.\n";
+       ecmdOutputError(printed.c_str());
+       printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+       ecmdOutputError(printed.c_str());
+       return ECMD_INVALID_ARGS;
+    }
+    idx = 1;  //gpr starts from first index
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) {
+        ecmdOutputError("Wildcard character detected.\n");
+        return rc;
+    }
+
+  }
+
+  entry = (uint32_t)atoi(argv[0 + idx]);
+
+  if (argc == (4 + idx)) {
+
+    if (!ecmdIsAllDecimal(argv[1 + idx])) {
+      printed = function + " - Non-decimal numbers detected in startbit field\n";
+      ecmdOutputError(printed.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+    startBit = (uint32_t)atoi(argv[1 + idx]);
+
+    if (!ecmdIsAllDecimal(argv[2 + idx])) {
+      printed = function + " - Non-decimal numbers detected in numbits field\n";
+      ecmdOutputError(printed.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+    numBits = (uint32_t)atoi(argv[2 + idx]);
+    
+    rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
+    if (rc) {
+      printed = function + "Problems occurred parsing input data, must be an invalid format\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
+    }
+  } else if (argc == (2 + idx)) {
+
+    cmdlinePtr = argv[1 + idx];
+
+  } else {
+    printed = function + " - Too many arguments specified; you probably added an option that wasn't recognized.\n";
+    ecmdOutputError(printed.c_str());
+    printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+    /* First thing we need to do is find out for this particular target if the SPR is threaded */
+    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+    if (rc) {
+      printed = function + " - Error occured getting info for ";
+      printed += sprName;
+      printed += " on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+
+    /* If we have a cmdlinePtr, read it in now that we have a length we can use */
+    if (cmdlinePtr != NULL) {
+      if (dataModifier == "insert") {
+        rc = ecmdReadDataFormatted(buffer, cmdlinePtr, inputformat, procInfo.bitLength);
+      } else {
+        rc = ecmdReadDataFormatted(cmdlineBuffer, cmdlinePtr, inputformat, procInfo.bitLength);
+      }
+      if (rc) {
+        printed = function + " - Problems occurred parsing input data, must be an invalid format\n";
+        ecmdOutputError(printed.c_str());
+        coeRc = rc;
+        continue;
+      }
+    }
+
+    /* Now setup our chipUnit/thread loop */
+    subTarget = target;
+    if (procInfo.isChipUnitRelated) {
+      if (procInfo.relatedChipUnit != "") {
+        subTarget.chipUnitType = procInfo.relatedChipUnit;
+        subTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      }
+      subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+      if (procInfo.threadReplicated) {
+        subTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
+      }
+    }
+
+    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    if (rc) {
+      coeRc = rc;
+      continue;
+    }
+
+    while (ecmdLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+
+      /* Do we need to perform a read/modify/write op ? */
+      if ((dataModifier != "insert") || (startBit != ECMD_UNSET)) {
+        rc = cipRWGetDcr(subTarget, entry, buffer);
+        if (rc) {
+          printed = function + " - Error occured performing getgpr/fpr on ";
+          printed += ecmdWriteTarget(subTarget) + "\n";
+          ecmdOutputError( printed.c_str() );
+          coeRc = rc;
+          continue;
+        }
+
+        rc = ecmdApplyDataModifier(buffer, cmdlineBuffer, (startBit == ECMD_UNSET ? 0 : startBit), dataModifier);
+        if (rc) {
+          coeRc = rc;
+          continue;
+        }
+      }
+
+      rc = cipRWPutDcr(subTarget, entry, buffer);
+
+      if (rc) {
+        printed = function + " - Error occured performing command on ";
+        printed += ecmdWriteTarget(subTarget) + "\n";
+        ecmdOutputError( printed.c_str() );
+        coeRc = rc;
+        continue;
+      } else {
+        validPosFound = true;
+      }
+
+      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+        printed = ecmdWriteTarget(subTarget) + "\n";
+        ecmdOutput(printed.c_str());
+      }
+    }
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    printed = function + " - Unable to find a valid chip to execute command on\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
 #endif // CIP_REMOVE_RW_FUNCTIONS
 
 #ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS

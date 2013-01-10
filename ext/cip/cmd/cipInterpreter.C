@@ -202,6 +202,10 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = cipRWReadMemUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "ciprwwritemem")) {
           rc = cipRWWriteMemUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ciprwgetdcr")) {
+          rc = cipRWGetDcrUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ciprwputdcr")) {
+          rc = cipRWPutDcrUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
