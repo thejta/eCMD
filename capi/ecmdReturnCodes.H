@@ -135,7 +135,7 @@
 #define ECMD_FATAL_FAILURE                      (ECMD_ERR_ECMD | 0x10CB) ///< Fatal error during plugin load due to library versions mismatch
 #define ECMD_WILDCARD_CHAR_NOT_SUPPORTED        (ECMD_ERR_ECMD | 0x10CD) ///< Wildcard 'x' was used with a command that doesn't support it
 #define ECMD_WILDCARD_MISUSE                    (ECMD_ERR_ECMD | 0x10CF) ///< Wildcard 'x' was used incorrectly - i.e. as a chipunit 
-#define ECMD_UNABLE_TO_OPEN_SPYDEF              (ECMD_ERR_ECMD | 0x10CD) ///< eCMD was unable to open the spydef
+#define ECMD_UNABLE_TO_OPEN_SPYDEF              (ECMD_ERR_ECMD | 0x10D1) ///< eCMD was unable to open the spydef
 
 
 
