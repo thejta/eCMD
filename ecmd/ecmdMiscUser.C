@@ -2569,6 +2569,7 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
                     adjust >>= 3;
                     rtn[10] += adjust & 7;
                 }
+                wafer = rtn;
             }
 
             sprintf(ecidString, "%s_%02d_%02d\n", wafer.c_str(), Xloc, Yloc);
