@@ -36,7 +36,7 @@ Syntax: stopclocks                                   [-force]
                         > stopclocks -domain ALL_PU_CHIPS
 
 	P8S1 Specific Examples:
-			> stopclocks pu refr    # stops ex and dram refresh clocks only
+                        > stopclocks pu refr    # stops ex and dram refresh clocks only
                         > stopclocks pu dpll    # stops ex and dpll clocks only
                         > stopclocks pu         # stops nest, ex, xbus, abus, pcie clocks
                         > stopclocks pu pcie    # stops pcie clock only 
