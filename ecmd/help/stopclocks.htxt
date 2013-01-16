@@ -34,3 +34,13 @@ Syntax: stopclocks                                   [-force]
                         > stopclocks pu FBC_DOMAIN -k1 -n2
                         > stopclocks 
                         > stopclocks -domain ALL_PU_CHIPS
+
+	P8S1 Specific Examples:
+			> stopclocks pu refr    # stops ex and dram refresh clocks only
+                        > stopclocks pu dpll    # stops ex and dpll clocks only
+                        > stopclocks pu         # stops nest, ex, xbus, abus, pcie clocks
+                        > stopclocks pu pcie    # stops pcie clock only 
+                        > stopclocks pu xbus    # stops the xbus clocks only
+                        > stopclocks pu abus    # stops the abus clocks only
+                        > stopclocks pu nest    # stops the nest clocks only
+                        > stopclocks pu ex      # stops the ex clocks only (uses multicast)
