@@ -452,7 +452,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     std::string l_block_name = "all";
     if (argc == 3) 
     {
-	l_block_name = argv[3]; 
+	l_block_name = argv[2]; 
     }
     //Setup the target that will be used to query the system config 
     ecmdChipTarget l_target;
