@@ -44,6 +44,8 @@
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
+// Prototype of fuction to format ecid to wafer ID
+uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_waferString);
 
 
 //----------------------------------------------------------------------
@@ -2410,6 +2412,7 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
     bool validPosFound = false;                   ///< Did the looper find anything?
     ecmdLooperData looperData;                    ///< Store internal Looper data
     std::string printed;                          ///< Output data
+    bool verbose = false;                         ///< Prints extra decoded ECID values
 
     /************************************************************************/
     /* Parse Local FLAGS here!                                              */
@@ -2420,6 +2423,15 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
     {
         outputformat = formatPtr;
     }
+
+    /* check for the verbose flag */
+    if (ecmdParseOption(&argc, &argv, "-verbose"))
+    {
+	verbose = true;
+	// Output hex format by default when verbose is chosen.
+	outputformat = "x";
+    }
+    
 
     /************************************************************************/
     /* Parse Common Cmdline Args                                            */
@@ -2503,14 +2515,13 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
         printed = ecmdWriteTarget(target);
         if (outputformat == "ecid")
         {
-            // output ecid format
-            ecmdDataBuffer waferID(60);
+            // output ecid format            
             uint8_t        Xloc;
-            uint8_t        Yloc;
-            char           waferIdText[11];
+            uint8_t        Yloc;           
             char           ecidString[100];
+            std::string    wafer;
 
-            // --- the fuseString ---
+            // --- the fuseString (proc)---
             // bits   0:3  are the version, which should be all zeros to start with
             // bits   4:63 are the wafer id ( ten 6 bit fields each containing a code)
             // bits  64:71 are the chip x location (7:0)
@@ -2518,59 +2529,12 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
             // bits  80:103 are used in a different chip location algorithm
             // bits 104:111 are the ECC over the whole 112 bits
 
-            buffer.extract(waferID, 4, 60);
-            for (uint32_t offset = 0; offset < 10; offset++)
-            {
-                uint8_t code = 0;
-                waferID.extractToRight(&code, offset * 6, 6);
-                if (code < 10)
-                {
-                    code += '0';
-                }
-                else if ((code >= 10) && (code < 36))
-                {
-                    code += ('A' - 10);
-                }
-                else if (code == '\x3D')
-                {
-                    code = '-';
-                }
-                else if (code == '\x3E')
-                {
-                    code = '.';
-                }
-                else if (code == '\x3F')
-                {
-                    code = ' ';
-                }
-                else
-                {
-                    // unknown code
-                }
-                waferIdText[offset] = code;
-            }
-            waferIdText[10] = 0;
+	    rc = formatEcidString( buffer, wafer );
+	    if (rc) return rc;
 
             buffer.extract(&Xloc, 64, 8);
             buffer.extract(&Yloc, 72, 8);
 
-            std::string wafer = waferIdText;
-            // getCheckSum()
-            {
-                std::string rtn=wafer + "A0";
-                int sum=0;
-                for (uint32_t i = 0; i < rtn.size(); i++)
-                {
-                    sum = ((sum * 8) + (rtn[i] - 32)) % 59;
-                }
-                if (sum != 0 && rtn.size() >= 12) {
-                    int adjust = 59 - sum;
-                    rtn[11] += adjust & 7;
-                    adjust >>= 3;
-                    rtn[10] += adjust & 7;
-                }
-                wafer = rtn;
-            }
 
             sprintf(ecidString, "%s_%02d_%02d\n", wafer.c_str(), Xloc, Yloc);
             printed += ecidString;
@@ -2579,6 +2543,160 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
         {
             printed += ecmdWriteDataFormatted(buffer, outputformat);
         }
+
+	if (verbose)
+	{
+	  if (target.chipType == "centaur")
+	  {      
+	    // Fusestring Centaur 
+	    // bits   0:3  are the version, which should be all zeros to start with
+	    // bits   4:63 are the wafer id ( ten 6 bit fields each containing a code)
+	    // bits  64:71 are the chip x location (7:0)
+	    // bits  72:79 are the chip y location (7:0)
+	    // bits  80:103 are used in a different chip location algorithm
+	    // bits 104:111 are the ECC over the whole 112 bits
+	    // bits 112:113 cache state
+	    // bits 114:115 DDR port status
+	    // bits 116:123 PSRO
+	    // bit 124 centaur sub revision
+	    // bit 127 cache data valid
+	    
+	    // Print out some decoded ECID data
+	    uint8_t Xloc;
+	    uint8_t Yloc;
+	    uint8_t l_bad_bedram_a;
+	    uint8_t l_bad_bedram_b;
+	    uint8_t l_bad_ddr_port01 = 0;
+	    uint8_t l_bad_ddr_port23 = 0;
+	    uint8_t l_psro;
+	    float l_psro_bound = 0;
+	    const float BASE_PSRO_VAL = 7.50; //ps
+	    const float PSRO_INCR = 0.025; //ps
+	    uint8_t l_cen_sub_rev;
+	    uint8_t l_cache_data_val;
+      	    char waferOut[30];
+      	    char chipXYOut[30];
+	    char psroOut[30];
+	    char subRevOut[20];
+	    char cacheDataValOut[20];
+            std::string    wafer;
+	   
+
+	    // Character decode of ECID
+	    rc = formatEcidString( buffer, wafer );
+            if (rc) return rc;
+
+	    // Get the X and Y coordinates
+	    buffer.extract(&Xloc, 64, 8);
+	    buffer.extract(&Yloc, 72, 8);
+	    
+	    // Get the PSRO
+	    buffer.extract(&l_psro, 116, 8);
+	    
+	    // Decode the ddr_port values
+	    l_bad_ddr_port01 = buffer.getBit(114);
+	    l_bad_ddr_port23 = buffer.getBit(115);
+	    
+	    // Get the bad bedram indicator bits
+	    l_bad_bedram_a = buffer.getBit(112);
+	    l_bad_bedram_b = buffer.getBit(113);
+	    
+	    // Get the sub revision 
+	    l_cen_sub_rev = buffer.getBit(124);
+	    
+	    // Get the cache data valid bit
+	    l_cache_data_val = buffer.getBit(127);
+	    
+	    // Display the wafer ID	   
+	    sprintf(waferOut, "     Wafer ID: %s\n", wafer.c_str());
+	    printed += waferOut;
+
+	    // Display the chip X/Y coordinates    
+	    sprintf(chipXYOut, "     Chip X/Y loc: x:%02d y:%02d\n", Xloc, Yloc);
+	    printed += chipXYOut;
+	    
+	    // Display Revision
+	    sprintf(subRevOut, "     Revision type: %d\n", l_cen_sub_rev);
+	    printed += subRevOut;
+	    
+	    // Display Cache data valid
+	    sprintf(cacheDataValOut, "     Cache valid bit: %d\n", l_cache_data_val);
+	    printed += cacheDataValOut;
+	    
+	    // Display eDRAM config
+	    printed += "     eDRAM: ";
+	    if(!(l_bad_bedram_a) && !(l_bad_bedram_b))       
+	      {
+		printed += "All eDRAMs are good.\n";   
+	      }
+	    else if(!(l_bad_bedram_a) && l_bad_bedram_b)
+	      {
+		printed += "eDRAM Half A is good.  eDRAM Half B is bad.\n";
+	      }
+	    else if((l_bad_bedram_a) && !(l_bad_bedram_b))
+	      {
+		printed += "eDRAM Half A is bad.  eDRAM Half B is good.\n";
+	      }
+	    else 
+	      {
+		printed += "All eDRAMs are bad.\n";
+	      }
+	    
+	    // Display DDR port config
+	    printed += "     DDR Ports: ";
+	    if(!(l_bad_ddr_port01) && !(l_bad_ddr_port23))
+	      {
+		printed += "All DDR Ports are good.\n";
+	      }
+	    else if(!(l_bad_ddr_port01) && l_bad_ddr_port23)
+	      {
+		printed += "DDR Port 0/1 is good.  DDR Port 2/3 is bad.\n";
+	      }
+	    else if((l_bad_ddr_port01) && !(l_bad_ddr_port23))
+	      {
+		printed += "DDR Port 0/1 is bad.  DDR Port 2/3 is good.\n";
+	      }
+	    else 
+	      {
+		printed += "All DDR Ports are bad.\n"; 
+	      }
+	    
+	    // Display PSRO
+	    //116.........123
+	    //<=7.5ps		b'0000 0000
+	    //>7.500ps - <=7.525ps	b'0000 0001
+	    //>7.525ps - <=7.550ps	b'0000 0010
+	    //etc., etc.
+	    //>13.825ps - <=13.85ps	b'1111 1110
+	    //>13.85ps		b'1111 1111
+	    //So you take the decimal value of the code * 0.025ps and add it to 7.5ps, and that's your psro bucket.	    	  
+	    l_psro_bound = (BASE_PSRO_VAL + (l_psro * PSRO_INCR));
+	    if (l_psro == 0)
+	    {
+	      sprintf(psroOut, "     PSRO: 0x%02x ( PSRO <= %5.3fps )\n" , l_psro, l_psro_bound);
+	    }
+	    else if (l_psro == 0xFF)
+	    {
+	      sprintf(psroOut, "     PSRO: 0x%02x ( PSRO > %5.3fps )\n" , l_psro, (l_psro_bound - PSRO_INCR));
+	    }
+	    else
+	    {
+	      sprintf(psroOut, "     PSRO: 0x%02x ( %5.3fps < PSRO <= %5.3fps )\n" , l_psro, (l_psro_bound - PSRO_INCR), l_psro_bound);
+	    }
+	    printed += psroOut;
+	    
+	  } // end if centaur
+	  else
+	  {
+            printed = "getecid - Verbose option not supported on chip  ";
+            printed += ecmdWriteTarget(target);
+            printed += "\n";
+            ecmdOutputError( printed.c_str() );
+	    return ECMD_INVALID_ARGS;
+	  }
+	  
+	}
+	
         ecmdOutput( printed.c_str() );
 
     }
@@ -2796,4 +2914,68 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
     }
 
     return rc;
+}
+
+
+uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_waferString)
+{
+  uint32_t rc = ECMD_SUCCESS;
+
+  ecmdDataBuffer waferID(60);
+  char           waferIdText[11];
+
+  i_ecidBuffer.extract(waferID, 4, 60);
+  for (uint32_t offset = 0; offset < 10; offset++)
+    {
+      uint8_t code = 0;
+      waferID.extractToRight(&code, offset * 6, 6);
+      if (code < 10)
+	{
+	  code += '0';
+	}
+      else if ((code >= 10) && (code < 36))
+	{
+	  code += ('A' - 10);
+	}
+      else if (code == '\x3D')
+	{
+	  code = '-';
+	}
+      else if (code == '\x3E')
+	{
+	  code = '.';
+	}
+      else if (code == '\x3F')
+	{
+	  code = ' ';
+	}
+      else
+	{
+	  // unknown code
+	}
+      waferIdText[offset] = code;
+    }
+  waferIdText[10] = 0;
+  
+  o_waferString = waferIdText;
+  // getCheckSum()
+  {
+    std::string rtn=o_waferString + "A0";
+    int sum=0;
+    for (uint32_t i = 0; i < rtn.size(); i++)
+      {
+	sum = ((sum * 8) + (rtn[i] - 32)) % 59;
+      }
+    if (sum != 0 && rtn.size() >= 12) {
+      int adjust = 59 - sum;
+      rtn[11] += adjust & 7;
+      adjust >>= 3;
+      rtn[10] += adjust & 7;
+    }
+    o_waferString = rtn;
+  }
+  
+ 
+  return rc;
+  
 }
