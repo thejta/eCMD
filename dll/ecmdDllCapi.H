@@ -126,6 +126,8 @@ uint32_t dllPutCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdD
 
 uint32_t dllGetEcid(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData); 
 
+uint32_t dllGetEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData, std::vector<std::string> & o_additionalInfo); 
+
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data); 
 
@@ -228,6 +230,12 @@ uint32_t dllPutSlb(ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer 
 uint32_t dllPutSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries); 
 
 #endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
+#ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
+uint32_t dllMpiplClearCheckstop(const ecmdChipTarget & i_target); 
+
+uint32_t dllMpiplForceWinkle(const ecmdChipTarget & i_target); 
+
+#endif // ECMD_REMOVE_MPIPL_FUNCTIONS
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
 
@@ -246,6 +254,10 @@ uint32_t dllPutMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_
 uint32_t dllGetMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
+
+uint32_t dllGetSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
+
+uint32_t dllPutSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
 
 uint32_t dllQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, ecmdCacheData & o_data); 
 
