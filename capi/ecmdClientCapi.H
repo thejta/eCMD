@@ -893,6 +893,21 @@ uint32_t putCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdData
 */
 uint32_t getEcid(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData);
 
+/**
+ @brief Calls HWP to read ecid from the targeted chip and print out extra information
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_ecidData DataBuffer object that holds ecid
+ @param o_additionalInfo Vector of strings that store additional verbose output to be displayed
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData, std::vector<std::string> & o_additionalInfo);
+
 //@}
 /* End FSI Functions */
 
@@ -1878,6 +1893,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @brief Clear checkstops to allow an MPIPL to take place
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
  TARGET DEPTH  : pos<br>
@@ -1890,6 +1906,7 @@ uint32_t mpiplClearCheckstop(const ecmdChipTarget & i_target);
  @brief Force special winkle wakeup (i.e., no loss of ex/core voltage) for MPIPL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
  The return value of this function is set to the first non-zero return code found when
