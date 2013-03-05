@@ -134,10 +134,10 @@ endif
 ifeq (${OS},aix)
   GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
 #CC_VER   := 7.0.0.2
-#CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC
-#CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC_r
-CC       := /bin/xlC
-CC_R     := /bin/xlC_r
+CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC
+CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC_r
+#CC       := /bin/xlC
+#CC_R     := /bin/xlC_r
   CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
   LD       := ${CC}
   LD_R     := ${CC_R}
