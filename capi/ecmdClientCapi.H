@@ -1962,6 +1962,42 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i
 
 */
 uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
+
+/**
+ @brief Dump all entries of specified trace array
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_name Name of trace array - names may vary for each product/chip
+ @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
+ @param o_data List of trace array data retrieved.  Optional name and iteration members can be assigned.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
+ @retval ECMD_SUCCESS if successful
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data);
+
+/**
+ @brief Dump all entries of specified trace array
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
+ @param o_data List of trace array data retrieved.  Optional name and iteration members can be assigned.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARRAY Invalid trace array name specified
+ @retval ECMD_SUCCESS if successful
+
+ The return value of this function is set to the first non-zero return code found when
+  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
+  the same return code. That data and all subsequent entries in the list will not be fetched and the data
+  should be considered invalid.<br>
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 //@}
 

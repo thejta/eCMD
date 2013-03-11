@@ -1,5 +1,5 @@
 
-Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<format>] [-stop] [-stopstart]
+Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<format>] [-itr <it#>] [-stop] [-stopstart]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -18,6 +18,8 @@ Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<forma
         -o<format>[opt] Output Format : default 'xl'
                         Run 'ecmdquery formats' to view available formats
 
+        -itr <it#>[opt] Single value, list, or range of trace array iterations to retrieve data from.
+
         -stop [opt]     Stop the trace arrays before dumping.
 
         -stopstart [o]  Stop the trace arrays before dumping and start when finished.
@@ -27,3 +29,4 @@ Syntax: gettracearray <Chip[.ChipUnit]> <ArrayName> [<ArrayName2> ...] [-o<forma
         --------------------------------------------------------------------------------
 
         Examples:       > gettracearray pu fbc -p0,1 
+                        > gettracearray pu NX -p0 -itr 12:20
