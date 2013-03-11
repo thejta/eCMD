@@ -5275,6 +5275,33 @@ void  ecmdNameVectorEntry::printStruct() {
 }
 #endif  // end of REMOVE_SIM
 
+/*
+ * The following methods for the ecmdNameVectorEntryHidden struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+uint32_t ecmdNameVectorEntryHidden::flatten(uint8_t *o_buf, uint32_t i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdNameVectorEntryHidden::unflatten(const uint8_t *i_buf, uint32_t i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdNameVectorEntryHidden::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef REMOVE_SIM
+void  ecmdNameVectorEntryHidden::printStruct() {
+
+        printf("\n\t--- Name Vector Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of REMOVE_SIM
+
 
 /*
  * The following methods for the ecmdIndexVectorEntry struct will flatten, unflatten &

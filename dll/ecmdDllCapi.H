@@ -241,6 +241,10 @@ uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_
 
 uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
 
+uint32_t dllGetTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data); 
+
+uint32_t dllGetTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data); 
+
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 #ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
 uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
