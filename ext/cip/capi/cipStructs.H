@@ -149,6 +149,18 @@ struct cipRWTLBRec
    uint8_t  wimg;     // WIMG storage attributes bits
 };
 
+/**
+ @brief Used by cipRWProcStatus to return status
+*/
+typedef enum {
+  CIP_RW_PROC_STATUS_UNKNOWN,
+  CIP_RW_PROC_STATUS_RUNNING,
+  CIP_RW_PROC_STATUS_STOPPED,
+  CIP_RW_PROC_STATUS_HALTED,
+  CIP_RW_PROC_STATUS_CHECKSTOPPED,
+  CIP_RW_PROC_STATUS_POWEROFF,
+} cipRWProcStatus_t;
+
 #endif /* cipStructs_h */
 
 // Change Log *********************************************************
