@@ -3124,6 +3124,121 @@ uint32_t cipRWPutDcrUser(int argc, char * argv[]) {
 
   return rc;
 }
+
+uint32_t cipRWProcStatusUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  bool validPosFound = false, validChipFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  std::string function;         ///< What function are we running (based on type)
+  std::string chipType, chipUnitType;
+
+  // Set commandline name based up on the type
+  function = "ciprwprocstatus";
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc < 1) {
+    printed = function + " - Too few arguments specified; you need to specify the target.\n";
+    ecmdOutputError(printed.c_str());
+    printed = function + " - Type '"; printed += function; printed += " -h' for usage.\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_INVALID_ARGS;
+  }
+
+  //Setup the target that will be used to query the system config 
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  /* Walk through the arguments and create our list of dcrs */
+  validChipFound = ecmdIsValidChip(argv[0], target);
+  if(validChipFound)
+  {
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) {
+      ecmdOutputError("Wildcard character detected.\n");
+      return rc;
+    }
+  }
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+    cipRWProcStatus_t status;
+    /* Actually go fetch the data */
+    rc = cipRWProcStatus(target, status);
+
+    if (rc) {
+      printed = function + " - Error occured performing cipRWProcStatus on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+
+    printed = ecmdWriteTarget(target) + "\n";
+    ecmdOutput( printed.c_str() );
+    switch (status)
+    {
+        case CIP_RW_PROC_STATUS_UNKNOWN:
+            printed = "UNKNOWN";
+            break;
+        case CIP_RW_PROC_STATUS_RUNNING:
+            printed = "RUNNING";
+            break;
+        case CIP_RW_PROC_STATUS_STOPPED:
+            printed = "STOPPED";
+            break;
+        case CIP_RW_PROC_STATUS_HALTED:
+            printed = "HALTED";
+            break;
+        case CIP_RW_PROC_STATUS_CHECKSTOPPED:
+            printed = "CHECKSTOPPED";
+            break;
+        case CIP_RW_PROC_STATUS_POWEROFF:
+            printed = "POWEROFF";
+            break;
+        default:
+            printed = function + " - unknown status code on ";
+            printed += ecmdWriteTarget(target) + "\n";
+            ecmdOutputError( printed.c_str() );
+            printed = "";
+            break;
+    }
+    ecmdOutput( printed.c_str() );
+
+    ecmdOutput("\n");
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    printed = function + " - Unable to find a valid chip to execute command on\n";
+    ecmdOutputError(printed.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
 #endif // CIP_REMOVE_RW_FUNCTIONS
 
 #ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS

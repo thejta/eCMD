@@ -94,6 +94,7 @@ uint32_t cipRWReadMemUser(int argc, char * argv[]);
 uint32_t cipRWWriteMemUser(int argc, char * argv[]);
 uint32_t cipRWGetDcrUser(int argc, char * argv[]);
 uint32_t cipRWPutDcrUser(int argc, char * argv[]);
+uint32_t cipRWProcStatusUser(int argc, char * argv[]);
 #endif // CIP_REMOVE_RW_FUNCTIONS
 
 /* cipProcUser.C */

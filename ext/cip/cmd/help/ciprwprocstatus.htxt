@@ -1,0 +1,18 @@
+
+Syntax: ciprwprocstatus <Chip[.ChipUnit]>
+        [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Displays status of the processor via RISCWatch
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.occ
+        --------------------------------------------------------------------------------
+
+        Examples:       > ciprwprocstatus pu.occ -pall
+
