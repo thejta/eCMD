@@ -99,6 +99,72 @@ fapi::ReturnCode fapiGetChildChiplets( const fapi::Target & i_chip, const fapi::
 
   return rc;
 }
+
+fapi::ReturnCode fapiGetOtherSideOfMemChannel(const fapi::Target & i_target, fapi::Target & o_target, const fapi::TargetState i_state)
+{
+
+  ReturnCode rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) 
+  {
+    fprintf(stderr,"dllFapiGetOtherSideOfMemChannel%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+  if (!fapiInitialized) 
+  {
+    fprintf(stderr,"dllFapiGetOtherSideOfMemChannel: eCMD Extension not initialized before function called\n");
+    fprintf(stderr,"dllFapiGetOtherSideOfMemChannel: OR eCMD fapi Extension not supported by plugin\n");
+    exit(ECMD_DLL_INVALID);
+  }
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) 
+  {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &o_target);
+     args.push_back((void*) &i_state);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode fapiGetOtherSideOfMemChannel(const Target& i_target, Target & o_target, const fapi::TargetState i_state )",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiGetOtherSideOfMemChannel");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiGetOtherSideOfMemChannel(i_target, o_target, i_state);
+#else
+  if (fapiDllFnTable[ECMD_FAPIGETOTHERSIDEOFMEMCHANNEL] == NULL) 
+  {
+     fapiDllFnTable[ECMD_FAPIGETOTHERSIDEOFMEMCHANNEL] = (void*)dlsym(dlHandle, "dllFapiGetOtherSideOfMemChannel");
+     if (fapiDllFnTable[ECMD_FAPIGETOTHERSIDEOFMEMCHANNEL] == NULL) {
+       fprintf(stderr,"dllFapiGetOtherSideOfMemChannel%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  ReturnCode (*Function)(const Target &, Target &, const TargetState) = 
+      (ReturnCode(*)(const Target &, Target &, const TargetState ))fapiDllFnTable[ECMD_FAPIGETOTHERSIDEOFMEMCHANNEL];
+  rc =    (*Function)(i_target, o_target, i_state);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) 
+  {
+      args.push_back((void*) &rc);
+      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiGetFunctionalChiplets");
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapiGetFunctionalChiplets(const Target& i_target, Target & o_target, const fapi::TargetState i_state)",args);
+  }
+#endif
+
+  return rc;
+}
+
 #if 0
 ReturnCode fapiGetExistingChiplets(const Target& i_handle, const TargetType  i_chiplet, std::vector<Target> &o_entries) {
 

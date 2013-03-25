@@ -88,6 +88,13 @@ fapi::ReturnCode dllFapiSetMvpdField(const fapi::MvpdRecord i_record,
 
 fapi::ReturnCode dllFapiSpecialWakeup(const fapi::Target & i_target, const bool i_enable);
 
+fapi::ReturnCode dllFapiGetOtherSideOfMemChannel(
+    const fapi::Target& i_target,
+    fapi::Target & o_target,
+    const fapi::TargetState i_state);
+
+
+
 } //extern C
 
 #endif
