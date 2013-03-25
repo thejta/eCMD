@@ -1,3 +1,25 @@
+/* IBM_PROLOG_BEGIN_TAG                                                   */
+/* This is an automatically generated prolog.                             */
+/*                                                                        */
+/* $Source$                  */
+/*                                                                        */
+/* IBM CONFIDENTIAL                                                       */
+/*                                                                        */
+/* COPYRIGHT International Business Machines Corp. 2012,2013              */
+/*                                                                        */
+/* p1                                                                     */
+/*                                                                        */
+/* Object Code Only (OCO) source materials                                */
+/* Licensed Internal Code Source Materials                                */
+/* IBM HostBoot Licensed Internal Code                                    */
+/*                                                                        */
+/* The source code for this program is not published or otherwise         */
+/* divested of its trade secrets, irrespective of what has been           */
+/* deposited with the U.S. Copyright Office.                              */
+/*                                                                        */
+/* Origin: 30                                                             */
+/*                                                                        */
+/* IBM_PROLOG_END_TAG                                                     */
 // $Id$
 /**
  *  @file fapiMvpdAccess.H
@@ -40,19 +62,26 @@ namespace fapi
         MVPD_RECORD_LRP9 = 0x0c,
         MVPD_RECORD_LRPA = 0x0d,
         MVPD_RECORD_LRPB = 0x0e,
-        MVPD_RECORD_LWP0 = 0x0f,
-        MVPD_RECORD_LWP1 = 0x10,
-        MVPD_RECORD_LWP2 = 0x11,
-        MVPD_RECORD_LWP3 = 0x12,
-        MVPD_RECORD_LWP4 = 0x13,
-        MVPD_RECORD_LWP5 = 0x14,
-        MVPD_RECORD_LWP6 = 0x15,
-        MVPD_RECORD_LWP7 = 0x16,
-        MVPD_RECORD_LWP8 = 0x17,
-        MVPD_RECORD_LWP9 = 0x18,
-        MVPD_RECORD_LWPA = 0x19,
-        MVPD_RECORD_LWPB = 0x1a,
-        MVPD_RECORD_VWML = 0x1b,
+        MVPD_RECORD_LRPC = 0x0f,
+        MVPD_RECORD_LRPD = 0x10,
+        MVPD_RECORD_LRPE = 0x11,
+        MVPD_RECORD_LWP0 = 0x12,
+        MVPD_RECORD_LWP1 = 0x13,
+        MVPD_RECORD_LWP2 = 0x14,
+        MVPD_RECORD_LWP3 = 0x15,
+        MVPD_RECORD_LWP4 = 0x16,
+        MVPD_RECORD_LWP5 = 0x17,
+        MVPD_RECORD_LWP6 = 0x18,
+        MVPD_RECORD_LWP7 = 0x19,
+        MVPD_RECORD_LWP8 = 0x1a,
+        MVPD_RECORD_LWP9 = 0x1b,
+        MVPD_RECORD_LWPA = 0x1c,
+        MVPD_RECORD_LWPB = 0x1d,
+        MVPD_RECORD_LWPC = 0x1e,
+        MVPD_RECORD_LWPD = 0x1f,
+        MVPD_RECORD_LWPE = 0x20,
+        MVPD_RECORD_VWML = 0x21,
+        MVPD_RECORD_MER0 = 0x22,
     };
 
     enum MvpdKeyword
@@ -91,6 +120,7 @@ namespace fapi
         MVPD_KEYWORD_PDG = 0x1f,
         MVPD_KEYWORD_MK  = 0x20,
         MVPD_KEYWORD_PB  = 0x21,
+        MVPD_KEYWORD_CH  = 0x22,
     };
 }
 
