@@ -1,0 +1,24 @@
+
+Syntax: emcdchipcleanup [Chip[.ChipUnit]] [-pm]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Cleans up chips to enable different types of access
+                        Default: Clean up proc to enable memory DA after a checkstop
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip     [opt]  Specifies the chip to operate on. Default: pu
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.ex
+
+        -pm [optional]  Run in Power Management cleanup mode
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Example:        > emcdchipcleanup pu -pall
+

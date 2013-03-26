@@ -177,6 +177,7 @@ uint32_t ecmdSyncPluginStateUser(int argc, char* argv[]);
 uint32_t ecmdSyncIplModeUser(int argc, char* argv[]);
 uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[]);
 uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[]);
+uint32_t ecmdChipCleanupUser(int argc, char * argv[]);
 
 /* ecmdVpdUser.C */
 uint32_t ecmdPutVpdKeywordUser(int argc, char* argv[]);
