@@ -311,6 +311,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdQueryUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "ecmddelay")) {
           rc = ecmdDelayUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "ecmdchipcleanup")) {
+          rc = ecmdChipCleanupUser(argc - 1, argv + 1);
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

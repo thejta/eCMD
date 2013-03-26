@@ -550,6 +550,8 @@ std::string dllGetCurrentCmdline();
 
 void dllSetCurrentCmdline(int argc, char* argv[]); 
 
+uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode); 
+
 } //extern C
 
 #endif

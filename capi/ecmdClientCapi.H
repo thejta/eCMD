@@ -4085,6 +4085,22 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 //@}
 #endif
 
+/**
+ @brief Cleans up the chip to enable DA of memory after a checkstop
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains cage information 
+ @param i_mode The cleanup mode to run 
+
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

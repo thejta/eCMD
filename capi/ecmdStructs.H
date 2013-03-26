@@ -2249,4 +2249,11 @@ std::string ecmdGetSharedLibVersion();
 #define ECMD_TRACE_ARRAY_START 0x00000001
 #define ECMD_TRACE_ARRAY_STOP  0x00000002
 
+/**
+ Defines for chipCleanup
+*/
+#define ECMD_CHIP_CLEANUP_UNUSED    0x00000000
+#define ECMD_CHIP_CLEANUP_MEMDA     0x00000001
+#define ECMD_CHIP_CLEANUP_PM        0x00000002
+
 #endif

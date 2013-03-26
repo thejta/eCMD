@@ -2855,3 +2855,104 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
   return rc;
   
 }
+
+uint32_t ecmdChipCleanupUser(int argc, char * argv[]) {
+  uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
+
+  ecmdChipTarget target;        ///< Current target
+  bool validPosFound = false;   ///< Did we find something to actually execute on ?
+  std::string printed;          ///< Print Buffer
+  ecmdLooperData looperdata;            ///< Store internal Looper data
+  uint32_t mode = ECMD_CHIP_CLEANUP_MEMDA;
+  
+  /************************************************************************/
+  /* Parse Local FLAGS here!                                              */
+  /************************************************************************/
+  if (ecmdParseOption(&argc, &argv, "-pm")) {
+    mode = ECMD_CHIP_CLEANUP_PM;
+  }
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  if (argc > 1) {  //chip
+    ecmdOutputError("ecmdchipcleanup - Too many arguments specified; specify at most one chip.\n");
+    ecmdOutputError("ecmdchipcleanup - Type 'ecmdchipcleanup -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  // use PU
+  if (argc == 0) {
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  } else {
+    //Setup the target
+    std::string chipType, chipUnitType;
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc) {
+        ecmdOutputError("ecmdchipcleanup - Wildcard character detected however it is not being used correctly.\n");
+        return rc;
+    }
+    bool chipWildcardFound = false;
+
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    
+    if (chipType == "x") {
+      target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+      chipWildcardFound = true;
+    } else {
+      target.chipType = chipType;
+      target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    }
+
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    } 
+  }
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+  
+    /* Go cleanup the chips */
+    rc = ecmdChipCleanup(target, mode);
+    if (rc) {
+      printed = "ecmdchipcleanup - Error occured performing ecmdChipCleanup on ";
+      printed += ecmdWriteTarget(target) + "\n";
+      ecmdOutputError( printed.c_str() );
+      coeRc = rc;
+      continue;
+    }
+    else {
+      validPosFound = true;     
+    }
+  }
+
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    printed = "ecmdchipcleanup - Unable to find a valid chip to execute command on\n";
+    //this is an error common across all UI functions
+    ecmdOutputError(printed.c_str());
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+
+  return rc;
+}
