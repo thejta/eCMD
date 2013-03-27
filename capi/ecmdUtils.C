@@ -786,7 +786,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
   std::string printed;                          ///< Output data
   std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
-  std::string l_version;
+  std::string l_version = "default";
 
   if ((std::string)i_format == "-v") {
     verboseFlag = true;
