@@ -704,10 +704,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   uint32_t doStopStart = 0x0;              ///< Do we StopStart trace arrays ?
   std::list<ecmdTraceArrayData> queryTraceData; ///< Trace Data
   std::list<ecmdTraceArrayData>::iterator queryIt; ///< Trace Data Ietrator
-  std::map< std::string, std::list<ecmdNameVectorEntry> > cuArrayMap;        ///< Array data fetched
-  std::map< std::string, std::list<ecmdNameVectorEntry> >::iterator cuArrayMapIter;        ///< Array data fetched
-  std::list<ecmdNameVectorEntry> nestArrayList;        ///< Array data fetched
-  ecmdNameVectorEntry entry;                       ///< Entry to populate the list
+  std::map< std::string, std::list<ecmdNameVectorEntryHidden> > cuArrayMap;        ///< Array data fetched
+  std::map< std::string, std::list<ecmdNameVectorEntryHidden> >::iterator cuArrayMapIter;        ///< Array data fetched
+  std::list<ecmdNameVectorEntryHidden> nestArrayList;        ///< Array data fetched
+  ecmdNameVectorEntryHidden entry;                       ///< Entry to populate the list
+  bool haveItrs = false;                 ///< Do we have any iteration values passed in?
+  std::vector<uint32_t> itrVals;         ///< Iteration values to pass into ecmdNameVectorEntryHidden.iteration
   
   /* get format flag, if it's there */
   std::string format;
@@ -739,6 +741,138 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
+
+  // Check for the iteration option
+  // Can be of a format -itr x:y or -itr a,b,...,z or -itr a
+  char * itrArgs = ecmdParseOptionWithArgs(&argc, &argv, "-itr");
+  if (itrArgs != NULL) 
+  {
+    
+    std::vector<std::string> tokens;
+    std::vector<std::string>::iterator tokit;
+    uint32_t l_find = 0;
+    std::string l_tmp_string;
+
+    haveItrs = true;
+    
+    // First look for ":" then look for "," - singleton otherwise.
+
+    l_tmp_string = itrArgs;
+
+    l_find = l_tmp_string.find_first_of(":");
+    if (l_find == std::string::npos) 
+    {
+      // No ":" found - check for ","
+      l_find = l_tmp_string.find_first_of(",");
+      if (l_find == std::string::npos)
+      {
+	// No "," found either
+	// Must have a single value, but check first to make sure it's a number
+	if (!ecmdIsAllDecimal(itrArgs))
+	{
+	  ecmdOutputError("gettracearray - Invalid iteration option specified.  Must be a decimal number.\n");
+	  return ECMD_INVALID_ARGS;	  
+	}
+	else
+	{
+	  // We have a good numeric value, so assign it
+	  itrVals.push_back (atoi(l_tmp_string.c_str()));
+	}
+      }
+      else
+      {
+	// Found ","; Make sure there's something before frist ','
+	if (l_find == 0)
+	{
+	  ecmdOutputError("gettracearray - Invalid iteration list specified.  Must be of format x,y,z.\n");
+          return ECMD_INVALID_ARGS;
+        } 
+	else 
+	{
+          // Parse the values ','
+	  ecmdParseTokens(itrArgs,",", tokens);
+	  for (tokit = tokens.begin(); tokit != tokens.end(); tokit++) 
+	  {
+	    // Do a check for numeric values
+	    if(!ecmdIsAllDecimal(tokit->c_str()))
+	    {
+	      ecmdOutputError("gettracearray - Invalid iteration option specified.  Must be a decimal number.\n");
+	      return ECMD_INVALID_ARGS;
+	    }
+	    else
+	    {
+	      // We have a good numeric value, so assign it
+	      itrVals.push_back (atoi(tokit->c_str()));
+	    }
+
+	  } //end tokit for loop
+        } // end if statement for comma parsing
+      } // end if statement for finding a comma      
+    } // end if for not finding a colon
+    else 
+    {
+      // Found ":"; Make sure there's something before first ':'
+      if (l_find == 0)
+	{
+	  ecmdOutputError("gettracearray - Invalid iteration range specified.  Must be of format x:z.\n");
+          return ECMD_INVALID_ARGS;
+        } 
+	else 
+	{
+          // Parse the values ':'
+	  ecmdParseTokens(itrArgs,":", tokens);
+	  // Check to make sure there are only 2 values in the range.
+	  if (tokens.size() != 2)
+	  {
+	    ecmdOutputError("gettracearray - Invalid iteration range specified.  Must be of format x:z. \n");
+	    return ECMD_INVALID_ARGS;
+	  }
+	  else
+	  {
+	    uint32_t l_range_start = 0;
+	    uint32_t l_range_end = 0;
+	    for (tokit = tokens.begin(); tokit != tokens.end(); tokit++) 
+	    {
+	      // Do a check for numeric values	      
+	      if (!ecmdIsAllDecimal(tokit->c_str()))
+	      {
+		ecmdOutputError("gettracearray - Invalid iteration option specified.  Must be a decimal number.\n");
+		return ECMD_INVALID_ARGS;	      
+	      }
+	      else
+	      {
+		// We have a good numeric value, so assign it
+		if (tokit == tokens.begin())
+		{
+		  l_range_start = atoi(tokit->c_str());
+		}
+		else
+		{
+		  l_range_end = atoi(tokit->c_str());
+		}
+	      }
+		      
+	    } //end tokit for loop
+
+	    //Make sure the first number in the range is less than the second
+	    if (!(l_range_start < l_range_end))
+	    {
+	      ecmdOutputError("gettracearray - Invalid iteration range specified.  First number not less than second.\n");
+	      return ECMD_INVALID_ARGS;
+	    }
+
+	    // Now fill in all the iterations between the range specified
+	    for (uint32_t i = l_range_start; i <= l_range_end; i++)
+	    {
+	      itrVals.push_back (i);
+	    }
+
+	  } //end valid range size condition
+        } //end if condition for colon parsing
+    } // end if condition for finding colon
+  } //end if itrArgs
+  
+
   if (argc < 2) {
     ecmdOutputError("gettracearray - Too few arguments specified; you need at least a chip and an array.\n");
     ecmdOutputError("gettracearray - Type 'gettracearray -h' for usage.\n");
@@ -790,8 +924,11 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         transform(qTrace.begin(), qTrace.end(), qTrace.begin(), (int(*)(int)) toupper);
         if (qTrace == traceArrayName) {
           tracearrayfound = true;
-          entry.name = traceArrayName;
-
+          entry.name = traceArrayName;	
+	  if (haveItrs)
+	  {
+	    entry.iteration = itrVals;
+	  }
           if (queryIt->isChipUnitRelated) {
             cuArrayMap[queryIt->relatedChipUnit].push_back(entry);
           } else {
@@ -812,9 +949,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
     if (nestArrayList.size() > 0) {
 
-      rc = getTraceArrayMultiple(target,  doStopStart, nestArrayList);
+      rc = getTraceArrayMultipleHidden(target,  doStopStart, nestArrayList);
       if (rc) {
-        printed = "gettracearray - Error occured performing getTraceArrayMultiple on ";
+        printed = "gettracearray - Error occured performing getTraceArrayMultipleHidden on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;                                           //@02
@@ -823,7 +960,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         validPosFound = true;
       }
 
-      for (std::list<ecmdNameVectorEntry>::iterator lit = nestArrayList.begin(); lit != nestArrayList.end(); lit++ ) {
+      for (std::list<ecmdNameVectorEntryHidden>::iterator lit = nestArrayList.begin(); lit != nestArrayList.end(); lit++ ) {
         printedHeader = false;
         for(loop =0; loop < lit->buffer.size() ; loop++) {
           if (!printedHeader) {
@@ -870,11 +1007,11 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         while (ecmdLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
 
           //Clear the chipUnit List
-          for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
+          for (std::list<ecmdNameVectorEntryHidden>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
             lit->buffer.clear();
           }
 
-          rc = getTraceArrayMultiple(cuTarget,  doStopStart, cuArrayMapIter->second);
+          rc = getTraceArrayMultipleHidden(cuTarget,  doStopStart, cuArrayMapIter->second);
           if (rc) {
             printed = "gettracearray - Error occured performing getTraceArray on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -885,7 +1022,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
             validPosFound = true;
           }
 
-          for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
+          for (std::list<ecmdNameVectorEntryHidden>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
             printedHeader = false;
             for(loop =0; loop < lit->buffer.size() ; loop++) {
               if (!printedHeader) {
