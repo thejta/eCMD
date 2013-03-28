@@ -66,6 +66,81 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     o_hasFeature = true;
                 }
                 break;
+            case ATTR_CENTAUR_EC_MSS_CONTINUE_ON_DP18_PLL_LOCK_FAIL:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                     (l_chipEc == 0x10))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CENTAUR_EC_MSS_READ_PHASE_SELECT_RESET:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                     (l_chipEc == 0x10))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CHIP_EC_FEATURE_HW_BUG_PIBSLVRESET:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                     (l_chipEc == 0x10))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CHIP_EC_FEATURE_HW_BUG_PLLINIT:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                     (l_chipEc <= 0x11))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CHIP_EC_FEATURE_SECURE_IOVALID_PRESENT:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                     (l_chipEc >= 0x20))
+                ||
+                    ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                     (l_chipEc >= 0x10))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CHIP_EC_FEATURE_NOT_SUPPORT_SBE_CFAM_START:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                     (l_chipEc < 0x20))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CHIP_EC_FEATURE_NOT_SUPPORT_SBE_AUTO_START:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                     (l_chipEc < 0x20))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
+            case ATTR_CHIP_EC_FEATURE_32_PCIE_LANES:
+                if (
+                    ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                     (l_chipEc >= 0x10))
+                   )
+                {
+                    o_hasFeature = true;
+                }
+                break;
             default:
                 FAPI_ERR("fapiQueryChipEcFeature: Unknown feature 0x%x",
                     i_id);

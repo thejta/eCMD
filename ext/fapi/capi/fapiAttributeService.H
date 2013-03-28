@@ -44,7 +44,7 @@
  *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_pVal);
  *
  * The first part of these macros is a call to fapiCheckIdType that will cause a
- * compile failure if the id or VAL parameters are incorrect.
+ * compile failure if the ID or VAL parameters are incorrect.
  *
  * For the non-PRIVILEGED macros, the second part is a call to
  * fapiFailIfPrivileged that will cause a compile failure if the attribute is
