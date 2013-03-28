@@ -1,3 +1,48 @@
+// IBM_PROLOG_BEGIN_TAG 
+// This is an automatically generated prolog. 
+//  
+// fips770 src/ecmd/import/ecmdDataBufferBase.C 1.1 
+//  
+// IBM CONFIDENTIAL 
+//  
+// OBJECT CODE ONLY SOURCE MATERIALS 
+//  
+// COPYRIGHT International Business Machines Corp. 2012 
+// All Rights Reserved 
+//  
+// The source code for this program is not published or otherwise 
+// divested of its trade secrets, irrespective of what has been 
+// deposited with the U.S. Copyright Office. 
+//  
+// IBM_PROLOG_END_TAG 
+/* $Header$ */
+// Copyright ***********************************************************
+//                                                                      
+// File ecmdDataBufferBase.C                                   
+//                                                                      
+// IBM Confidential                                                     
+// OCO Source Materials                                                 
+// 9400 Licensed Internal Code                                          
+// (C) COPYRIGHT IBM CORP. 2002                                        
+//                                                                      
+// The source code for this program is not published or otherwise       
+// divested of its trade secrets, irrespective of what has been         
+// deposited with the U.S. Copyright Office.                            
+//                                                                      
+// End Copyright *******************************************************
+                               
+// Change Log *********************************************************
+//                                                                      
+//  Flag Reason   Vers Date     Coder     Description                       
+//  ---- -------- ---- -------- -----     -----------------------------
+//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
+// End Change Log *****************************************************
+
+// Get rid of some annoying lint errors that aren't real - cje
+//lint -e613 Possible use of null pointer, lint doesn't understand we use iv_NumBits to check length and pointer validity
+//lint -e668 Possible passing of a null pointer, same thing as above
+//lint -e527 Lint doesn't understand that iv_UserOwned is changed in shareBuffer
+
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
