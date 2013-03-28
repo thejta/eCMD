@@ -157,8 +157,8 @@ fapi::ReturnCode fapiGetOtherSideOfMemChannel(const fapi::Target & i_target, fap
   if (ecmdClientDebug != 0) 
   {
       args.push_back((void*) &rc);
-      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiGetFunctionalChiplets");
-      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapiGetFunctionalChiplets(const Target& i_target, Target & o_target, const fapi::TargetState i_state)",args);
+      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiGetOtherSideOfMemChannel");
+      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode fapiGetOtherSideOfMemChannel(const Target& i_target, Target & o_target, const fapi::TargetState i_state)",args);
   }
 #endif
 
