@@ -118,7 +118,8 @@ ReturnCode & ReturnCode::operator=(const ReturnCode & i_right)
 //******************************************************************************
 void ReturnCode::setFapiError(const ReturnCodes i_rcValue)
 {
-    FAPI_ERR("setFapiError: Creating FAPI error 0x%x", i_rcValue);
+    // Removing cause it pollutes stdout - farrugia 01.21.13
+    // FAPI_ERR("setFapiError: Creating FAPI error 0x%x", i_rcValue);
     iv_rcValue = i_rcValue;
 
     // Forget about any associated data (this is a new error)
@@ -135,7 +136,7 @@ void ReturnCode::setEcmdError(const uint32_t i_rcValue)
     // trace an error if there actually is an error
     if (i_rcValue != 0)
     {
-        FAPI_ERR("setEcmdError: Creating ECMD error 0x%x", i_rcValue);
+       // FAPI_ERR("setEcmdError: Creating ECMD error 0x%x", i_rcValue);
     }
     iv_rcValue = i_rcValue;
 
@@ -166,7 +167,8 @@ void ReturnCode::setPlatError(void * i_pData,
 //******************************************************************************
 void ReturnCode::_setHwpError(const HwpReturnCode i_rcValue)
 {
-    FAPI_ERR("_setHwpError: Creating HWP error 0x%x", i_rcValue);
+    // Removing cause it pollutes stdout - farrugia 01.21.13
+    // FAPI_ERR("_setHwpError: Creating HWP error 0x%x", i_rcValue);
     iv_rcValue = i_rcValue;
 
     // Forget about any associated data (this is a new error)
