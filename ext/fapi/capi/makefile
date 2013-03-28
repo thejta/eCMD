@@ -15,9 +15,10 @@ CAPI_SOURCE  := fapiDllCapi.C fapiPlatUtil.C fapiHwAccess.C fapiPlatHwAccess.C f
 # Added for fapiTarget.H, etc
 CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnCode.H  fapiReturnCodeDataRef.H  \
                      fapiReturnCodes.H fapiDllCapi.H fapiClientEnums.H \
-                     fapiUtil.H fapiHwAccess.H fapiSystemConfig.H fapiPlatHwAccess.H \
+                     fapiUtil.H fapiPlatUtil.H fapiHwAccess.H fapiSystemConfig.H fapiPlatHwAccess.H \
                      fapiErrorInfo.H fapiPlatHwpExecutor.H  fapiHwpReturnCodes.H fapiHwpErrorInfo.H \
-                     fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H fapiMvpdAccess.H fapiCollectRegFfdc.H \
+                     fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H \
+		     fapiMBvpdAccess.H fapiMvpdAccess.H fapiCollectRegFfdc.H \
 
 # These files are needed by the client code
 CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C fapiAttributeService.C fapiChipEcFeature.H fapiChipEcFeature.C \
