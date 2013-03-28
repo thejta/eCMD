@@ -36,46 +36,57 @@
 
 // Information traces (standard flight recorder that can wrap often)
 #define FAPI_INF(_fmt_, _args_...) \
-{ char user_str[255]; \
-char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-snprintf(user_str, 255, "" _fmt_"\n", ##_args_); \
-strncat(sum_str, user_str, 255); \
-fapiOutputInfo(sum_str); } 
+do \
+{   char inf_user_str[255]; \
+    char inf_sum_str[512]; \
+    snprintf(inf_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(inf_user_str, 255, "" _fmt_"\n", ##_args_); \
+    strncat(inf_sum_str, inf_user_str, 255); \
+    fapiOutputInfo(inf_sum_str); \
+} while(0)
+
 
 // Important traces (should not wrap often)
 #define FAPI_IMP(_fmt_, _args_...) \
-{ char user_str[255]; \
-char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
-strncat(sum_str, user_str, 255); \
-fapiOutputImportant(sum_str); } 
+do \
+{   char imp_user_str[255]; \
+    char imp_sum_str[512]; \
+    snprintf(imp_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(imp_user_str, 255, ""_fmt_"\n", ##_args_); \
+    strncat(imp_sum_str, imp_user_str, 255); \
+    fapiOutputImportant(imp_sum_str); \
+} while(0)
 
 // Error traces (should not wrap often)
 #define FAPI_ERR(_fmt_, _args_...) \
-{ char user_str[255]; \
-char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
-strncat(sum_str, user_str, 255); \
-fapiOutputError(sum_str); } 
+do \
+{   char err_user_str[255]; \
+    char err_sum_str[512];  \
+    snprintf(err_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(err_user_str, 255, ""_fmt_"\n", ##_args_); \
+    strncat(err_sum_str, err_user_str, 255); \
+    fapiOutputError(err_sum_str); \
+} while(0)
 
 // Debug traces (can wrap often)
 #define FAPI_DBG(_fmt_, _args_...) \
-{ char user_str[255]; \
-char sum_str[512];  \
-snprintf(sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
-strncat(sum_str, user_str, 255); \
-fapiOutputDebug(sum_str); } 
+do \
+{   char dbg_user_str[255]; \
+    char dbg_sum_str[512];  \
+    snprintf(dbg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(dbg_user_str, 255, ""_fmt_"\n", ##_args_); \
+    strncat(dbg_sum_str, dbg_user_str, 255); \
+    fapiOutputDebug(dbg_sum_str); \
+} while(0)
 
 
 // Common SCAN traces for hardware access 
 #define FAPI_SCAN(_fmt_, _args_...) \
-{ char user_str[255]; \
-snprintf(user_str, 255, ""_fmt_"\n", ##_args_); \
-fapiOutputScanTrace(user_str); } 
+do \
+{   char scan_user_str[255]; \
+    snprintf(scan_user_str, 255, ""_fmt_"\n", ##_args_); \
+    fapiOutputScanTrace(scan_user_str); \
+} while(0)
 
 
 
