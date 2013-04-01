@@ -118,7 +118,7 @@ bool dllPlatIsScanTraceEnabled();
 
 void dllPlatSetScanTrace(bool i_enable);
 
-void dllFapiLogError( fapi::ReturnCode & io_rc);
+void dllFapiLogError(fapi::ReturnCode & io_rc);
 
 fapi::ReturnCode dllFapiLoadInitFile(
 	const fapi::Target &, 
