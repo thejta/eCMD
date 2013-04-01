@@ -55,7 +55,6 @@
 #include <fstream>
 #include <iostream>
 #include <zlib.h>
-#include <prdfCompressBuffer.H>
 
 #include <ecmdDataBuffer.H>
 //----------------------------------------------------------------------
@@ -78,7 +77,7 @@ TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 #define EDB_RETURN_CODE 0
 
 // New Constants for improved performance
-//#define MIN(x,y)            (((x)<(y))?x:y) - Removed because prdfCompressBuffer.H defines this function
+#define MIN(x,y)            (((x)<(y))?x:y)
 #define UNIT_SZ             32
 
 #define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[EDB_RETURN_CODE] == 0)) { iv_RealData[EDB_RETURN_CODE] = i_rc; } return i_rc;

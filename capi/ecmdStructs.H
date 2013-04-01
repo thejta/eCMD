@@ -25,6 +25,9 @@
 
 //  @03                05/08/07 hjh       add of the continue on error option -coe
 //  @04  U6037    07/07/09  jaschnei  Oscillator Interface Changes
+//  @05  SW142634 06/17/12  gonaveen  Adding P8, centaur chiptype defines
+//  @06  SW177194 12/03/12  gonaveen  Moved P8 defines to ecmdIpP8ChipDefines
+//  @07  SW186750 02/11/13  nkumar    increased ECMD_ARG_LIMIT to 100
 /**
   @file ecmdStructs.H
   @brief All the Structures required for the eCMD Capi
@@ -33,6 +36,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <stdlib.h>
 #include <inttypes.h>
 #include <list>  /* For STL list */
 #include <vector>
@@ -83,7 +87,7 @@
 
 #define ECMD_TARGETDEPTH_NA 0xFFFFFFFF ///< Used to signify a level of the ecmdChipTarget depth is not used (only valid for node/slot depths)
 
-#define ECMD_ARG_LIMIT      20         ///< Used in a few spots set the limit of command line args
+#define ECMD_ARG_LIMIT      100        ///< Used in a few spots set the limit of command line args
 
 //--------------------------------------------------------------------
 //  TypeDefs                                               
