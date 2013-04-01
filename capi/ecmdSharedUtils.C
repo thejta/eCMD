@@ -602,6 +602,8 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   bool naFound;
   bool numFound;
   int num=0;        //fix beam error
+  bool slotFound = false;
+  bool chipFound = false;
 
   /* Set all the target states to unused as a starting point */
   o_target.cageState = ECMD_TARGET_FIELD_UNUSED;
@@ -629,12 +631,96 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     // We will have problems with something like p7, but if they use pu we will be okay.
     // This will fix p5ioc2, which was broke under the previous sscanf only method - JTA 04/28/08
 
-
-    // FIXME FIXME - big p8 HACK JFDEBUG -farrugia 
-
-    else if ((tokens[x].find_first_not_of("0123456789",1) == std::string::npos) && (tokens[x] != "p8") && (tokens[x] != "s1")) {
+    else if (tokens[x].find_first_not_of("0123456789",1) == std::string::npos) {
       sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
       numFound = true;
+    }
+
+    if (numFound || allFound || naFound) {
+      if (tokens[x].substr(0, 1) == "k") {
+        if (allFound) {
+          o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.cage = num;
+          o_target.cageState = ECMD_TARGET_FIELD_VALID;
+        }
+      } else if (tokens[x].substr(0, 1) == "n") {
+        if (allFound) {
+          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        } else if (naFound) {
+          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          if (naFound) {
+            o_target.node = ECMD_TARGETDEPTH_NA;
+          } else {
+            o_target.node = num;
+          }
+          o_target.nodeState = ECMD_TARGET_FIELD_VALID;
+        }
+      } else if (tokens[x].substr(0, 1) == "s") {
+        bool processSlot = true;
+        // test s1 case
+        if (tokens[x] == "s1") {
+          // if slot has already been found allow code to go to chip type parsing
+          if (slotFound == true) {
+            // reset 
+            numFound = false;
+            allFound = false;
+            naFound = false;
+            processSlot = false;
+          }
+        }
+        if (processSlot) {
+          if (allFound) {
+            o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+          } else {
+            if (naFound) {
+              o_target.slot = ECMD_TARGETDEPTH_NA;
+            } else {
+              o_target.slot = num;
+            }
+            o_target.slotState = ECMD_TARGET_FIELD_VALID;
+          }
+          slotFound = true;
+        }
+      } else if (tokens[x].substr(0, 1) == "p") {
+        bool processPosition = true;
+        // test p8 case
+        if (tokens[x] == "p8") {
+          // if chip has not been found allow code to go to chip type parsing
+          if (!chipFound) {
+            // reset 
+            numFound = false;
+            allFound = false;
+            naFound = false;
+            processPosition = false;
+          }
+        }
+        if (processPosition) {
+          if (allFound) {
+            o_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+          } else {
+            o_target.pos = num;
+            o_target.posState = ECMD_TARGET_FIELD_VALID;
+          }
+        }
+      } else if (tokens[x].substr(0, 1) == "c") {
+        if (allFound) {
+          o_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.chipUnitNum = num;
+          o_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+        }
+      } else if (tokens[x].substr(0, 1) == "t") {
+        if (allFound) {
+          o_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+        } else {
+          o_target.thread = num;
+          o_target.threadState = ECMD_TARGET_FIELD_VALID;
+        }
+      } else {
+        return ECMD_INVALID_ARGS;
+      }
     }
 
     if (!numFound && !allFound && !naFound) {
@@ -651,62 +737,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
           o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
         }
       }
-    } else {    
-      if (tokens[x].substr(0, 1) == "k") {
-        if (allFound) {
-          o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.cage = num;
-          o_target.cageState = ECMD_TARGET_FIELD_VALID;
-        } 
-      } else if (tokens[x].substr(0, 1) == "n") {
-        if (allFound) {
-          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-        } else if (naFound) {
-          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          if (naFound) {
-            o_target.node = ECMD_TARGETDEPTH_NA;
-          } else {
-            o_target.node = num;
-          }
-          o_target.nodeState = ECMD_TARGET_FIELD_VALID;
-        } 
-      } else if (tokens[x].substr(0, 1) == "s") {
-        if (allFound) {
-          o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          if (naFound) {
-            o_target.slot = ECMD_TARGETDEPTH_NA;
-          } else {
-            o_target.slot = num;
-          }
-          o_target.slotState = ECMD_TARGET_FIELD_VALID;
-        } 
-      } else if (tokens[x].substr(0, 1) == "p") {
-        if (allFound) {
-          o_target.posState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.pos = num;
-          o_target.posState = ECMD_TARGET_FIELD_VALID;
-        } 
-      } else if (tokens[x].substr(0, 1) == "c") {
-        if (allFound) {
-          o_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.chipUnitNum = num;
-          o_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
-        } 
-      } else if (tokens[x].substr(0, 1) == "t") {
-        if (allFound) {
-          o_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.thread = num;
-          o_target.threadState = ECMD_TARGET_FIELD_VALID;
-        } 
-      } else {
-        return ECMD_INVALID_ARGS;
-      }
+      chipFound = true;
     }
   }
 
