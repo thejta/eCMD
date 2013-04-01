@@ -7,7 +7,7 @@
 //  
 // OBJECT CODE ONLY SOURCE MATERIALS 
 //  
-// COPYRIGHT International Business Machines Corp. 2004,2012 
+// COPYRIGHT International Business Machines Corp. 2004,2013 
 // All Rights Reserved 
 //  
 // The source code for this program is not published or otherwise 
@@ -48,7 +48,6 @@
 #include <vector>
 #include <inttypes.h>
 
-#include <ecmdDefines.H>
 #include <ecmdDataBufferBase.H>
 
 //----------------------------------------------------------------------

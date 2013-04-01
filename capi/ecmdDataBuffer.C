@@ -1,13 +1,13 @@
 // IBM_PROLOG_BEGIN_TAG 
 // This is an automatically generated prolog. 
 //  
-// fips810 src/ecmd/import/ecmdDataBuffer.C 1.61.1.1 
+// fips810 src/ecmd/import/ecmdDataBuffer.C 1.62 
 //  
 // IBM CONFIDENTIAL 
 //  
 // OBJECT CODE ONLY SOURCE MATERIALS 
 //  
-// COPYRIGHT International Business Machines Corp. 2004,2012 
+// COPYRIGHT International Business Machines Corp. 2004,2013 
 // All Rights Reserved 
 //  
 // The source code for this program is not published or otherwise 
@@ -55,10 +55,9 @@
 #include <fstream>
 #include <iostream>
 #include <zlib.h>
+#include <prdfCompressBuffer.H>
 
-#include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
-
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -79,7 +78,7 @@ TRAC_INIT(&g_etrc, "ECMD", 0x1000);
 #define EDB_RETURN_CODE 0
 
 // New Constants for improved performance
-#define MIN(x,y)            (((x)<(y))?x:y)
+//#define MIN(x,y)            (((x)<(y))?x:y) - Removed because prdfCompressBuffer.H defines this function
 #define UNIT_SZ             32
 
 #define RETURN_ERROR(i_rc) if ((iv_RealData != NULL) && (iv_RealData[EDB_RETURN_CODE] == 0)) { iv_RealData[EDB_RETURN_CODE] = i_rc; } return i_rc;
