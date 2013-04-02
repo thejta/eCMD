@@ -12,14 +12,15 @@ Syntax: ecmd
         Common Commands:
         --------------------------------------------------------------------------------
 
-        biasvoltage              getmemmemctrl            putbits                  simGETFAC                synciplmode              
-                                 getmemproc               putcfam                  simGETFACX               syncpluginstate          
-        cacheflush               getringdump              putfpr                   simPUTFAC                systempower              
-        checkrings               getscom                  putgpiolatch             simPUTFACX                                        
-                                 getscomgroup             putgpioreg               simSTKFAC                unitid                   
-        deconfig                 getsensor                putgpr                   simSTKFACX               
-                                 getspr                   putgpreg                 simSUBCMD                
-        ecmd                     getspy                   puti2c                   simUNSTICK               
+        biasvoltage              getmemdma                putarray                 simEXPECTFAC             stopclocks               
+                                 getmemmemctrl            putbits                  simGETFAC                synciplmode              
+        cacheflush               getmemproc               putcfam                  simGETFACX               syncpluginstate          
+        checkrings               getringdump              putfpr                   simPUTFAC                systempower              
+                                 getscom                  putgpiolatch             simPUTFACX                                        
+        deconfig                 getscomgroup             putgpioreg               simSTKFAC                unitid                   
+                                 getsensor                putgpr                   simSTKFACX               
+        ecmd                     getspr                   putgpreg                 simSUBCMD                
+        ecmdchipcleanup          getspy                   puti2c                   simUNSTICK               
         ecmddelay                getspyimage              putlatch                 simaet                   
         ecmdecho                 getsram                  putmemdma                simcheckpoint            
         ecmdquery                gettracearray            putmemmemctrl            simclock                 
@@ -41,7 +42,6 @@ Syntax: ecmd
         getgpreg                 pollscom                 sendcmd                  simtckinterval           
         geti2c                   powermode                setclockspeed            simunsticktcfac          
         getlatch                 psi                      setconfig                startclocks              
-        getmemdma                putarray                 simEXPECTFAC             stopclocks               
 
 
         GIP Extensions:
@@ -75,6 +75,9 @@ Syntax: ecmd
         cipputpmcvoltage         
         cipputvr                 
         cipputvsr                
+        ciprwgetdcr              
+        ciprwprocstatus          
+        ciprwputdcr              
         ciprwreadcache           
         ciprwreadmem             
         ciprwreadtlb             
