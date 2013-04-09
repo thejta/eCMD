@@ -598,12 +598,10 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
 
   uint32_t rc = ECMD_SUCCESS;
   std::vector<std::string> tokens;
-  bool allFound;
-  bool naFound;
-  bool numFound;
-  int num=0;        //fix beam error
-  bool slotFound = false;
-  bool chipFound = false;
+  bool allFound = false;
+  bool naFound = false;
+  bool numFound = false;
+  int num = 0;  //fix beam error
 
   /* Set all the target states to unused as a starting point */
   o_target.cageState = ECMD_TARGET_FIELD_UNUSED;
@@ -617,6 +615,8 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
 
   /* Tokenize my string on colon */
   ecmdParseTokens(i_targetStr, ":", tokens);
+  // cage:node:slot:chiptype[.chipunittype]:position[:chipunitnum[:thread]
+  // 0    1    2    3                       4         5            6
 
   for (uint32_t x = 0; x < tokens.size(); x++) {
     allFound = false;
@@ -627,117 +627,134 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     } else if (tokens[x].substr(1,tokens[x].length()) == "-") {
       naFound = true;
     }
-    // If it is all numbers after the first letter, assume it is a k/c/s/p/c/t arg and not a chip name
-    // We will have problems with something like p7, but if they use pu we will be okay.
-    // This will fix p5ioc2, which was broke under the previous sscanf only method - JTA 04/28/08
-
     else if (tokens[x].find_first_not_of("0123456789",1) == std::string::npos) {
       sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
       numFound = true;
     }
 
-    if (numFound || allFound || naFound) {
-      if (tokens[x].substr(0, 1) == "k") {
-        if (allFound) {
-          o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.cage = num;
-          o_target.cageState = ECMD_TARGET_FIELD_VALID;
-        }
-      } else if (tokens[x].substr(0, 1) == "n") {
-        if (allFound) {
-          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-        } else if (naFound) {
-          o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          if (naFound) {
-            o_target.node = ECMD_TARGETDEPTH_NA;
-          } else {
-            o_target.node = num;
-          }
-          o_target.nodeState = ECMD_TARGET_FIELD_VALID;
-        }
-      } else if (tokens[x].substr(0, 1) == "s") {
-        bool processSlot = true;
-        // test s1 case
-        if (tokens[x] == "s1") {
-          // if slot has already been found allow code to go to chip type parsing
-          if (slotFound == true) {
-            // reset 
-            numFound = false;
-            allFound = false;
-            naFound = false;
-            processSlot = false;
-          }
-        }
-        if (processSlot) {
-          if (allFound) {
-            o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-          } else {
-            if (naFound) {
-              o_target.slot = ECMD_TARGETDEPTH_NA;
+    switch (x) {
+      case 0:
+        {
+          if (tokens[x].substr(0, 1) == "k") {
+            if (allFound) {
+              o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
             } else {
-              o_target.slot = num;
+              o_target.cage = num;
+              o_target.cageState = ECMD_TARGET_FIELD_VALID;
             }
-            o_target.slotState = ECMD_TARGET_FIELD_VALID;
-          }
-          slotFound = true;
-        }
-      } else if (tokens[x].substr(0, 1) == "p") {
-        bool processPosition = true;
-        // test p8 case
-        if (tokens[x] == "p8") {
-          // if chip has not been found allow code to go to chip type parsing
-          if (!chipFound) {
-            // reset 
-            numFound = false;
-            allFound = false;
-            naFound = false;
-            processPosition = false;
-          }
-        }
-        if (processPosition) {
-          if (allFound) {
-            o_target.posState = ECMD_TARGET_FIELD_WILDCARD;
           } else {
-            o_target.pos = num;
-            o_target.posState = ECMD_TARGET_FIELD_VALID;
+            // ERROR
+            return ECMD_INVALID_ARGS;
           }
         }
-      } else if (tokens[x].substr(0, 1) == "c") {
-        if (allFound) {
-          o_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.chipUnitNum = num;
-          o_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+        break;
+      case 1:
+        {
+          if (tokens[x].substr(0, 1) == "n") {
+            if (allFound) {
+              o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+            } else if (naFound) {
+              o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+            } else {
+              if (naFound) {
+                o_target.node = ECMD_TARGETDEPTH_NA;
+              } else {
+                o_target.node = num;
+              }
+              o_target.nodeState = ECMD_TARGET_FIELD_VALID;
+            }
+          } else {
+            // ERROR
+            return ECMD_INVALID_ARGS;
+          }
         }
-      } else if (tokens[x].substr(0, 1) == "t") {
-        if (allFound) {
-          o_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
-        } else {
-          o_target.thread = num;
-          o_target.threadState = ECMD_TARGET_FIELD_VALID;
+        break;
+      case 2:
+        {
+          if (tokens[x].substr(0, 1) == "s") {
+            if (allFound) {
+              o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+            } else {
+              if (naFound) {
+                o_target.slot = ECMD_TARGETDEPTH_NA;
+              } else {
+                o_target.slot = num;
+              }
+              o_target.slotState = ECMD_TARGET_FIELD_VALID;
+            }
+          } else {
+            // ERROR
+            return ECMD_INVALID_ARGS;
+          }
         }
-      } else {
-        return ECMD_INVALID_ARGS;
-      }
-    }
-
-    if (!numFound && !allFound && !naFound) {
-      /* I didn't get a number, - or all, must be a chip */
-      rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
-      if (o_target.chipType == "chipall"){
-        o_target.chipType = ""; /* Blank it for clarity */
-        o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-      } else {
-        o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-        if (o_target.chipUnitType != "") {
-          o_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-        } else {
-          o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+        break;
+      case 3:
+        {
+          rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
+          if (o_target.chipType == "chipall") {
+            o_target.chipType = ""; /* Blank it for clarity */
+            o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+          } else {
+            o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+            if (o_target.chipUnitType != "") {
+              o_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+            } else {
+              o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+            }
+          }
         }
-      }
-      chipFound = true;
+        break;
+      case 4:
+        {
+          if (tokens[x].substr(0, 1) == "p") {
+            if (allFound) {
+              o_target.posState = ECMD_TARGET_FIELD_WILDCARD;
+            } else {
+              o_target.pos = num;
+              o_target.posState = ECMD_TARGET_FIELD_VALID;
+            }
+          } else {
+            // ERROR
+            return ECMD_INVALID_ARGS;
+          }
+        }
+        break;
+      case 5:
+        {
+          if (tokens[x].substr(0, 1) == "c") {
+            if (allFound) {
+              o_target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+            } else {
+              o_target.chipUnitNum = num;
+              o_target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
+            }
+          } else {
+            // ERROR
+            return ECMD_INVALID_ARGS;
+          }
+        }
+        break;
+      case 6:
+        {
+          if (tokens[x].substr(0, 1) == "t") {
+            if (allFound) {
+              o_target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+            } else {
+              o_target.thread = num;
+              o_target.threadState = ECMD_TARGET_FIELD_VALID;
+            }
+          } else {
+            // ERROR
+            return ECMD_INVALID_ARGS;
+          }
+        }
+        break;
+      default:
+        {
+          // ERROR
+          return ECMD_INVALID_ARGS;
+        }
+        break;
     }
   }
 
