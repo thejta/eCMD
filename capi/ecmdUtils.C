@@ -750,6 +750,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "P8/S1\n";
   } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHONP) {
     printed += "Artemis (zGr+)\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_STRADALE) {
+    printed += "Stradale\n";
   } else {
     printed += "Unknown\n";
   }
