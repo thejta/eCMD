@@ -1977,7 +1977,7 @@ uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStop
  TARGET STATES : Unused<br>
 
 */
-uint32_t getTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data);
+uint32_t getTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntryHidden & o_data);
 
 /**
  @brief Dump all entries of specified trace array
