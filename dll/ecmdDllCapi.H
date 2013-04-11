@@ -241,7 +241,7 @@ uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_
 
 uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
 
-uint32_t dllGetTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data); 
+uint32_t dllGetTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntryHidden & o_data); 
 
 uint32_t dllGetTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data); 
 

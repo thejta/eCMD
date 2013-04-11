@@ -964,20 +964,28 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         printedHeader = false;
         for(loop =0; loop < lit->buffer.size() ; loop++) {
           if (!printedHeader) {
-            printed = ecmdWriteTarget(target) + " " + lit->name + "\n";
+	    if (haveItrs)
+	    {
+	      char charIteration [50];
+	      sprintf(charIteration, "%d", lit->iteration[loop]);
+	      printed = ecmdWriteTarget(target) + " " + lit->name + "  Iteration: " + charIteration + "\n";
+	    }
+	    else
+	      printed = ecmdWriteTarget(target) + " " + lit->name + "\n";
             ecmdOutput( printed.c_str() );
             printedHeader = true;
           }
 
-          printed = ecmdWriteDataFormatted(lit->buffer[loop], format);
-
-          ecmdOutput( printed.c_str() );
+	  for(uint32_t bufloop = 0; bufloop < lit->buffer[loop].size(); bufloop++)
+	  {
+	    printed = ecmdWriteDataFormatted(lit->buffer[loop][bufloop], format); 
+	    ecmdOutput( printed.c_str() );
+	  }
         }
       }
     }
 
     if (!cuArrayMap.empty()) {
-
       for (cuArrayMapIter = cuArrayMap.begin(); cuArrayMapIter != cuArrayMap.end(); cuArrayMapIter++) {
         /* Setup our target */
         cuTarget = target;
@@ -1010,7 +1018,6 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
           for (std::list<ecmdNameVectorEntryHidden>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
             lit->buffer.clear();
           }
-
           rc = getTraceArrayMultipleHidden(cuTarget,  doStopStart, cuArrayMapIter->second);
           if (rc) {
             printed = "gettracearray - Error occured performing getTraceArray on ";
@@ -1026,14 +1033,23 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
             printedHeader = false;
             for(loop =0; loop < lit->buffer.size() ; loop++) {
               if (!printedHeader) {
-                printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "\n";
+		if (haveItrs)
+		{
+		  char charIteration [50];
+		  sprintf(charIteration, "%d", lit->iteration[loop]);
+		  printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "  Iteration: " + charIteration + "\n";
+		}		 
+		else
+		  printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "\n";
                 ecmdOutput( printed.c_str() );
                 printedHeader = true;
               }
 
-              printed = ecmdWriteDataFormatted(lit->buffer[loop], format);
-
-              ecmdOutput( printed.c_str() );
+	      for(uint32_t bufloop = 0; bufloop < lit->buffer[loop].size(); bufloop++)
+	      {
+		printed = ecmdWriteDataFormatted(lit->buffer[loop][bufloop], format);
+		ecmdOutput( printed.c_str() );
+	      }
             }
           }
 

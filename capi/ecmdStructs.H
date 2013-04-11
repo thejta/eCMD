@@ -1793,7 +1793,7 @@ struct ecmdNameVectorEntryHidden {
 
   // Members
   std::string    name;                  ///< Name of entry 
-  std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
+  std::vector< std::vector<ecmdDataBuffer> > buffer;   ///< Vector of data to/from entry
   std::vector<uint32_t> iteration;      ///< Vector of iteration values to retrieve
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
