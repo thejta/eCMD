@@ -65,8 +65,6 @@ enum AttributeSource
 #define FAPI_ATTRIBUTE_TYPE_UINT64ARY   0x01000000
 
 #define FAPI_ATTRIBUTE_MODE_CONST       0x80000000
-#define FAPI_ATTRIBUTE_MODE_OVERRIDE    0x40000000
-#define FAPI_ATTRIBUTE_MODE_STATE       0x20000000
 /**
  @brief Used by the get/set configuration functions to return the data
 */
