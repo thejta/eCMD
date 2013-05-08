@@ -2598,6 +2598,8 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     bool validPosFound = false;                   ///< Did the looper find anything?
     ecmdLooperData looperData;                    ///< Store internal Looper data
     std::string printed;                          ///< Output data
+    bool l_groupModeEnabled = false;		  ///< Is group mode enabled or not?
+    std::vector<ecmdChipTarget> l_targets;
 
     /************************************************************************/
     /* Parse Common Cmdline Args                                            */
@@ -2609,13 +2611,17 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
     /************************************************************************/
-    /* Parse Local ARGS here!                                               */
+    /* parse local args here!                                               */
     /************************************************************************/
     if (argc < 1)  //chip
     {
         ecmdOutputError("mpiplclearcheckstop - Too few arguments specified; you need at least a chip.\n");
         ecmdOutputError("mpiplclearcheckstop - Type 'mpiplclearcheckstop -h' for usage.\n");
         return ECMD_INVALID_ARGS;
+    }
+
+    if (ecmdParseOption(&argc, &argv, "-group")) {
+	l_groupModeEnabled = true;
     }
 
     //Setup the target that will be used to query the system config
@@ -2656,27 +2662,53 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     }
 
     /************************************************************************/
-    /* Kickoff Looping Stuff                                                */
+    /* If group mode is enabled then build a vector of ecmdChipTargts, where*/
+    /* each target is of the same chip type.                                */
     /************************************************************************/
+    if (l_groupModeEnabled)
+    {
+	rc = ecmdLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
+	if (rc) return rc;
 
-    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
-    if (rc) return rc;
+	while (ecmdLooperNext(target, looperData)) {
+	    l_targets.push_back(target);
+	}
 
-    while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+	rc = mpiplClearCheckstop(l_targets);
+	if (rc) {
+	    printed = "mpiplclearcheckstop - Error occured performing mpiplclearcheckstop ";
+	    printed += "\n";
+	    ecmdOutputError( printed.c_str() );
+	    coeRc = rc;
 
-        rc = mpiplClearCheckstop(target);
-        if (rc) {
-            printed = "mpiplclearcheckstop - Error occured performing mpiplclearcheckstop on ";
-            printed += ecmdWriteTarget(target);
-            printed += "\n";
-            ecmdOutputError( printed.c_str() );
-            coeRc = rc;
-            continue;
-        }
-        else
-        {
-            validPosFound = true;
-        }
+	}
+    }
+    /************************************************************************/
+    /* If group mode is disabled it's business as usual - loop on what the  */
+    /* user said to loop on. The vector will always be 1 entry large in this*/
+    /* case.                                                                */
+    /************************************************************************/
+    else 
+    {
+	rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+	if (rc) return rc;
+
+	while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+	    l_targets.clear();
+	    l_targets.push_back(target);
+	    rc = mpiplClearCheckstop(l_targets);
+	    if (rc) {
+		printed = "mpiplclearcheckstop - Error occured performing mpiplclearcheckstop on ";
+		printed += "\n";
+		ecmdOutputError( printed.c_str() );
+		coeRc = rc;
+		continue;
+	    }
+	    else
+	    {
+		validPosFound = true;
+	    }
+	}
     }
     // coeRc will be the return code from in the loop, coe mode or not.
     if (coeRc) return coeRc;
@@ -2684,8 +2716,8 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     // This is an error common across all UI functions
     if (!validPosFound)
     {
-        ecmdOutputError("mpiplclearcheckstop - Unable to find a valid chip to execute command on\n");
-        return ECMD_TARGET_NOT_CONFIGURED;
+	ecmdOutputError("mpiplclearcheckstop - Unable to find a valid chip to execute command on\n");
+	return ECMD_TARGET_NOT_CONFIGURED;
     }
 
     return rc;

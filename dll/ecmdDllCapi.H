@@ -231,7 +231,7 @@ uint32_t dllPutSlbMultiple(ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
 
 #endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
 #ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
-uint32_t dllMpiplClearCheckstop(const ecmdChipTarget & i_target); 
+uint32_t dllMpiplClearCheckstop(const std::vector<ecmdChipTarget> & i_target); 
 
 uint32_t dllMpiplForceWinkle(const ecmdChipTarget & i_target); 
 

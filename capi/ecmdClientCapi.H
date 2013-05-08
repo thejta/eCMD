@@ -1900,7 +1900,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t mpiplClearCheckstop(const ecmdChipTarget & i_target);
+uint32_t mpiplClearCheckstop(const std::vector<ecmdChipTarget> & i_target);
 
 /**
  @brief Force special winkle wakeup (i.e., no loss of ex/core voltage) for MPIPL
