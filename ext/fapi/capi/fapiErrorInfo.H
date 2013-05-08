@@ -16,6 +16,7 @@
  *                          mjjones     08/14/2012  Merge Callout/Deconfig/Gard
  *                                                  structures into one
  *                          mjjones     09/19/2012  Replace FFDC type with ID
+ *                          mjjones     03/22/2013  Support Procedure Callouts
  */
 
 #ifndef FAPIERRORINFO_H_
@@ -27,6 +28,45 @@
 
 namespace fapi
 {
+
+/**
+ * @enum ProcedureCallout
+ *
+ * This enumeration defines the possible Procedure Callouts
+ * These instruct the customer/customer-engineer what to do
+ *
+ * Note that platform code may depend on the enum values starting at 0 and
+ * incrementing in order to efficiently convert to a platform callout value
+ * so do not reorder without consulting all platforms
+ */
+namespace ProcedureCallouts
+{
+enum ProcedureCallout
+{
+    CODE                  = 0, // Code problem
+    LVL_SUPPORT           = 1, // Call next level of support
+    MEMORY_PLUGGING_ERROR = 2, // DIMM Plugging error
+};
+}
+
+/**
+ * @enum CalloutPriority
+ *
+ * This enumeration defines the possible Procedure and Target callout priorities
+ *
+ * Note that platform code may depend on the enum values starting at 0 and
+ * incrementing in order to efficiently convert to a platform priority value
+ * so do not reorder without consulting all platforms
+ */
+namespace CalloutPriorities
+{
+enum CalloutPriority
+{
+    LOW    = 0,
+    MEDIUM = 1,
+    HIGH   = 2,
+};
+}
 
 /**
  * @class ErrorInfoFfdc
@@ -86,24 +126,25 @@ private:
 };
 
 /**
- * @enum CalloutPriority
+ * @struct ErrorInfoProcedureCallout
  *
- * This enumeration defines the possible callout priorities
+ * This struct contains a procedure to callout
  */
-enum CalloutPriority
+struct ErrorInfoProcedureCallout
 {
-#ifdef AIX
-    PRI_HIGH = 1,
-    PRI_MEDIUM = 2,
-    PRI_LOW_ = 3, //JFDEBUG HACK for aix builds
-#else
-    PRI_HIGH = 1,
-    PRI_MEDIUM = 2,
-    PRI_LOW = 3,
-    PRI_LOW_ = 3, //JFDEBUG HACK for aix builds
-#endif
-};
+    /**
+     * @brief Constructor.
+     *
+     * @param[in] i_procedure        Procedure to callout
+     * @param[in] i_calloutPriority  Priority of callout
+     */
+    ErrorInfoProcedureCallout(
+        const ProcedureCallouts::ProcedureCallout i_procedure,
+        const CalloutPriorities::CalloutPriority i_calloutPriority);
 
+    ProcedureCallouts::ProcedureCallout iv_procedure;
+    CalloutPriorities::CalloutPriority iv_calloutPriority;
+};
 
 /**
  * @struct ErrorInfoCDG
@@ -124,7 +165,7 @@ struct ErrorInfoCDG
 
     // Callout Information
     bool iv_callout;
-    CalloutPriority iv_calloutPriority;
+    CalloutPriorities::CalloutPriority iv_calloutPriority;
 
     // Deconfigure Information
     bool iv_deconfigure;
@@ -161,6 +202,13 @@ struct ErrorInfo
     std::vector<ErrorInfoFfdc *> iv_ffdcs;
     typedef std::vector<ErrorInfoFfdc *>::iterator ErrorInfoFfdcItr_t;
     typedef std::vector<ErrorInfoFfdc *>::const_iterator ErrorInfoFfdcCItr_t;
+
+    // Vector of procedures to callout
+    std::vector<ErrorInfoProcedureCallout *> iv_procedureCallouts;
+    typedef std::vector<ErrorInfoProcedureCallout *>::iterator
+        ErrorInfoProcedureCalloutItr_t;
+    typedef std::vector<ErrorInfoProcedureCallout *>::const_iterator
+        ErrorInfoProcedureCalloutCItr_t;
 
     // Vector of targets to callout/deconfigure/GARD
     std::vector<ErrorInfoCDG *> iv_CDGs;

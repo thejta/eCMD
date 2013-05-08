@@ -4,6 +4,7 @@
 
 #include <fapiChipEcFeature.H>
 #include <fapiAttributeService.H>
+#include <fapiSystemConfig.H>
 #include <fapiPlatTrace.H>
 
 namespace fapi
@@ -17,145 +18,258 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
     fapi::ReturnCode l_rc;
     uint8_t l_chipName = 0;
     uint8_t l_chipEc = 0;
+    fapi::Target l_target = *i_pTarget;
 
-    l_rc = FAPI_ATTR_GET_PRIVILEGED(ATTR_NAME, i_pTarget, l_chipName);
-
-    if (l_rc)
+    if (i_pTarget->isChiplet())
     {
-        FAPI_ERR("fapiQueryChipEcFeature: error getting chip name");
-    }
-    else
-    {
-        l_rc = FAPI_ATTR_GET_PRIVILEGED(ATTR_EC, i_pTarget, l_chipEc);
+        l_rc = fapiGetParentChip(*i_pTarget, l_target);
 
         if (l_rc)
         {
-            FAPI_ERR("fapiQueryChipEcFeature: error getting chip ec");
+            FAPI_ERR("fapiQueryChipEcFeature: error getting parent chip");
+        }
+    }
+
+    if (!l_rc)
+    {
+        l_rc = FAPI_ATTR_GET_PRIVILEGED(ATTR_NAME, &l_target, l_chipName);
+
+        if (l_rc)
+        {
+            FAPI_ERR("fapiQueryChipEcFeature: error getting chip name");
         }
         else
         {
-            switch (i_id)
-            {
-            case ATTR_CHIP_EC_FEATURE_TEST1:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
-                     (l_chipEc == 0x10))
-                ||
-                    ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
-                     (l_chipEc > 0x30))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_TEST2:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc < 0x20))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
-                     (l_chipEc == 0x10))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CENTAUR_EC_MSS_CONTINUE_ON_DP18_PLL_LOCK_FAIL:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
-                     (l_chipEc == 0x10))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CENTAUR_EC_MSS_READ_PHASE_SELECT_RESET:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
-                     (l_chipEc == 0x10))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_HW_BUG_PIBSLVRESET:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc == 0x10))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_HW_BUG_PLLINIT:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc <= 0x11))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_SECURE_IOVALID_PRESENT:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc >= 0x20))
-                ||
-                    ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
-                     (l_chipEc >= 0x10))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_NOT_SUPPORT_SBE_CFAM_START:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc < 0x20))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_NOT_SUPPORT_SBE_AUTO_START:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
-                     (l_chipEc < 0x20))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            case ATTR_CHIP_EC_FEATURE_32_PCIE_LANES:
-                if (
-                    ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
-                     (l_chipEc >= 0x10))
-                   )
-                {
-                    o_hasFeature = true;
-                }
-                break;
-            default:
-                FAPI_ERR("fapiQueryChipEcFeature: Unknown feature 0x%x",
-                    i_id);
-                l_rc.setFapiError(FAPI_RC_INVALID_CHIP_EC_FEATURE_GET);
-                l_rc.addEIFfdc(0, &i_id, sizeof(i_id));
-                break;
-            }
+            l_rc = FAPI_ATTR_GET_PRIVILEGED(ATTR_EC, &l_target, l_chipEc);
 
-            if (o_hasFeature)
+            if (l_rc)
             {
-                FAPI_INF("fapiQueryChipEcFeature: Chip (0x%x:0x%x) has feature (0x%x)", l_chipName, l_chipEc, i_id);
+                FAPI_ERR("fapiQueryChipEcFeature: error getting chip ec");
             }
             else
             {
-                FAPI_INF("fapiQueryChipEcFeature: Chip (0x%x:0x%x) does not have feature (0x%x)", l_chipName, l_chipEc, i_id);
+                switch (i_id)
+                {
+                case ATTR_CHIP_EC_FEATURE_TEST1:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc == 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc > 0x30))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_TEST2:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc == 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_MSS_CONTINUE_ON_DP18_PLL_LOCK_FAIL:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc == 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_MSS_READ_PHASE_SELECT_RESET:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc == 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_HW_BUG_PIBSLVRESET:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_HW_BUG_PLLINIT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc <= 0x11))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_SECURE_IOVALID_PRESENT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_NOT_SUPPORT_SBE_CFAM_START:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_NOT_SUPPORT_SBE_AUTO_START:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_32_PCIE_LANES:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_CAPP_HANG_CONTROL_ON_SCOM:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_RECAL_DFE_ENABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_RECAL_DDC_ENABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_RECAL_CTLE_ENABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_LCTANK_PLL_VCO_BUG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_XBUS_DLL_SLOW_MURANO:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x12))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_ADU_PBINIT_LAUNCH_BUG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_MCS_ECC_BYPASS_DISABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                default:
+                    FAPI_ERR("fapiQueryChipEcFeature: Unknown feature 0x%x",
+                        i_id);
+                    l_rc.setFapiError(FAPI_RC_INVALID_CHIP_EC_FEATURE_GET);
+                    l_rc.addEIFfdc(0, &i_id, sizeof(i_id));
+                    break;
+                }
+
+                if (o_hasFeature)
+                {
+                    FAPI_INF("fapiQueryChipEcFeature: Chip (0x%x:0x%x) has feature (0x%x)", l_chipName, l_chipEc, i_id);
+                }
+                else
+                {
+                    FAPI_INF("fapiQueryChipEcFeature: Chip (0x%x:0x%x) does not have feature (0x%x)", l_chipName, l_chipEc, i_id);
+                }
             }
         }
     }
