@@ -52,12 +52,22 @@ namespace fapi
         MBVPD_RECORD_VEIR = 0x00,
         MBVPD_RECORD_VER0 = 0x01,
         MBVPD_RECORD_MER0 = 0x02,
+        MBVPD_RECORD_VSPD = 0x03,
     };
 
     enum MBvpdKeyword
     {
         MBVPD_KEYWORD_PDI = 0x00,
+        MBVPD_KEYWORD_PF  = 0x01,
+        MBVPD_KEYWORD_MT  = 0x02,
+        MBVPD_KEYWORD_MR  = 0x03,
+        MBVPD_KEYWORD_PDA = 0x04,
+        MBVPD_KEYWORD_EL  = 0x05,
+        MBVPD_KEYWORD_LM  = 0x06,
+        MBVPD_KEYWORD_MW  = 0x07,
+        MBVPD_KEYWORD_MV  = 0x08,
     };
+
 }
 
 extern "C"
