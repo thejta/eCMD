@@ -1,19 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips810 src/ecmd/import/ecmdDataBufferBase.H 1.3 
-//  
-// Licensed Materials - Property of IBM 
-//  
-// Restricted Materials of IBM 
-//  
-// COPYRIGHT International Business Machines Corp. 2011,2013 
-// All Rights Reserved 
-//  
-// US Government Users Restricted Rights - Use, duplication or 
-// disclosure restricted by GSA ADP Schedule Contract with IBM Corp. 
-//  
-// IBM_PROLOG_END_TAG 
 #ifndef ecmdDataBufferBase_H 
 #define ecmdDataBufferBase_H
 /* $Header$ */
@@ -45,7 +29,7 @@
 //--------------------------------------------------------------------
 #include <vector>
 #include <stdint.h>
-#include <ecmdDefines.H>
+
 
 #ifdef ENABLE_MPATROL
  #include <mpatrol.h>
