@@ -1,13 +1,13 @@
 // IBM_PROLOG_BEGIN_TAG 
 // This is an automatically generated prolog. 
 //  
-// fips810 src/ecmd/import/ecmdDataBuffer.C 1.62 
+// fips810 src/ecmd/import/ecmdDataBuffer.C 1.61.1.1 
 //  
 // IBM CONFIDENTIAL 
 //  
 // OBJECT CODE ONLY SOURCE MATERIALS 
 //  
-// COPYRIGHT International Business Machines Corp. 2004,2013 
+// COPYRIGHT International Business Machines Corp. 2004,2012 
 // All Rights Reserved 
 //  
 // The source code for this program is not published or otherwise 
@@ -56,7 +56,9 @@
 #include <iostream>
 #include <zlib.h>
 
+#include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
