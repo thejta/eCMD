@@ -1075,6 +1075,175 @@ fapi::ReturnCode platPutSpy(const fapi::Target& i_target,
   return rc;
 }
 
+fapi::ReturnCode platPutSpyImage(const fapi::Target& i_target,
+                                 const char* const i_spyId,
+                                 const ecmdDataBufferBase & i_data,
+                                 ecmdDataBufferBase & io_imageData)
+{
+    ReturnCode rc;
+    uint32_t l_ecmd_rc;
+
+    ecmdDataBuffer l_ecmd_buffer;
+    l_ecmd_buffer = i_data;
+
+    ecmdChipTarget l_ecmd_target;
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target); 
+
+    ecmdDataBuffer l_ecmd_buffer_image_data;
+    l_ecmd_buffer_image_data = io_imageData;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL) 
+    {
+	fprintf(stderr,"dllPutSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_spyId);
+     args.push_back((void*) &l_ecmd_buffer);
+     args.push_back((void*) &l_ecmd_buffer_image_data);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putSpyImage");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  l_ecmd_rc = dllPutSpyImage(l_ecmd_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+#else
+  if (DllFnTable[ECMD_PUTSPYIMAGE] == NULL) {
+     DllFnTable[ECMD_PUTSPYIMAGE] = (void*)dlsym(dlHandle, "dllPutSpyImage");
+     if (DllFnTable[ECMD_PUTSPYIMAGE] == NULL) {
+       fprintf(stderr,"dllPutSpyImage%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_PUTSPYIMAGE];
+  l_ecmd_rc =    (*Function)(l_ecmd_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &l_ecmd_rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpyImage");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_data_buffer_image_data)",args);
+   }
+#endif
+
+  if (l_ecmd_rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(l_ecmd_rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+
+}
+
+fapi::ReturnCode platGetSpyImage(const fapi::Target& i_target,
+                                 const char * const i_spyId,
+                                 ecmdDataBufferBase & o_data,
+                                 const ecmdDataBufferBase & i_imageData)
+{
+    ReturnCode rc;
+    uint32_t l_ecmd_rc;
+
+    ecmdDataBuffer l_ecmd_buffer;
+    l_ecmd_buffer = o_data;
+
+    ecmdChipTarget l_ecmd_target;
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target); 
+
+    ecmdDataBuffer l_ecmd_buffer_image_data;
+    l_ecmd_buffer_image_data = i_imageData;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL) 
+    {
+	fprintf(stderr,"dllGettSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_spyId);
+     args.push_back((void*) &l_ecmd_buffer);
+     args.push_back((void*) &l_ecmd_buffer_image_data);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpyImage");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  l_ecmd_rc = dllGetSpyImage(l_ecmd_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+#else
+  if (DllFnTable[ECMD_GETSPYIMAGE] == NULL) {
+     DllFnTable[ECMD_GETSPYIMAGE] = (void*)dlsym(dlHandle, "dllGetSpyImage");
+     if (DllFnTable[ECMD_GETSPYIMAGE] == NULL) {
+       fprintf(stderr,"dllGetSpyImage%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
+      (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_GETSPYIMAGE];
+  l_ecmd_rc =    (*Function)(l_ecmd_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+  if (l_ecmd_rc)
+  {
+    rc.setEcmdError(l_ecmd_rc); 
+  }
+
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &l_ecmd_rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpyImage");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_data_buffer_image_data)",args);
+   }
+#endif
+
+  if (l_ecmd_rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(l_ecmd_rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+
+
+}
+
 
 
 
