@@ -602,6 +602,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   bool naFound = false;
   bool numFound = false;
   int num = 0;  //fix beam error
+  bool l_alt_format_used = false;
 
   /* Set all the target states to unused as a starting point */
   o_target.cageState = ECMD_TARGET_FIELD_UNUSED;
@@ -615,8 +616,18 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
 
   /* Tokenize my string on colon */
   ecmdParseTokens(i_targetStr, ":", tokens);
+
+  // Two possible formats that are supported: 
+  // The 2nd one is considered the alternate format (i.e. l_alt_format_used = true)
   // cage:node:slot:chiptype[.chipunittype]:position[:chipunitnum[:thread]
   // 0    1    2    3                       4         5            6
+  // chiptyp[.chipunittype]:cage:node:slot:position[:chipunitnum[:thread]
+  // 0                      1    2    3    4         5            6
+
+  if ((tokens[0].substr(0, 1) != "k") && (tokens[1].substr(0, 1) != "n"))  
+  {
+      l_alt_format_used = true;
+  }
 
   for (uint32_t x = 0; x < tokens.size(); x++) {
     allFound = false;
@@ -633,75 +644,159 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     }
 
     switch (x) {
-      case 0:
-        {
-          if (tokens[x].substr(0, 1) == "k") {
-            if (allFound) {
-              o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-            } else {
-              o_target.cage = num;
-              o_target.cageState = ECMD_TARGET_FIELD_VALID;
-            }
-          } else {
-            // ERROR
-            return ECMD_INVALID_ARGS;
-          }
-        }
+	case 0:
+	    {
+		if (l_alt_format_used)
+		{
+		    rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
+		    if (o_target.chipType == "chipall") {
+			o_target.chipType = ""; /* Blank it for clarity */
+			o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else {
+			o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+			if (o_target.chipUnitType != "") {
+			    o_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+			} else {
+			    o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+			}
+		    }
+		}
+		else
+		{
+		    if (tokens[x].substr(0, 1) == "k") {
+			if (allFound) {
+			    o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+			} else {
+			    o_target.cage = num;
+			    o_target.cageState = ECMD_TARGET_FIELD_VALID;
+			}
+		    } else {
+			// ERROR
+			return ECMD_INVALID_ARGS;
+		    }
+
+		}
+	    }
         break;
       case 1:
         {
-          if (tokens[x].substr(0, 1) == "n") {
-            if (allFound) {
-              o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-            } else if (naFound) {
-              o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
-            } else {
-              if (naFound) {
-                o_target.node = ECMD_TARGETDEPTH_NA;
-              } else {
-                o_target.node = num;
-              }
-              o_target.nodeState = ECMD_TARGET_FIELD_VALID;
-            }
-          } else {
-            // ERROR
-            return ECMD_INVALID_ARGS;
-          }
+	    if (l_alt_format_used)
+	    {
+		if (tokens[x].substr(0, 1) == "k") {
+		    if (allFound) {
+			o_target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else {
+			o_target.cage = num;
+			o_target.cageState = ECMD_TARGET_FIELD_VALID;
+		    }
+		} else {
+		    // ERROR
+		    return ECMD_INVALID_ARGS;
+		}
+
+
+	    }
+	    else
+	    {
+		if (tokens[x].substr(0, 1) == "n") {
+		    if (allFound) {
+			o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else if (naFound) {
+			o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else {
+			if (naFound) {
+			    o_target.node = ECMD_TARGETDEPTH_NA;
+			} else {
+			    o_target.node = num;
+			}
+			o_target.nodeState = ECMD_TARGET_FIELD_VALID;
+		    }
+		} else {
+		    // ERROR
+		    return ECMD_INVALID_ARGS;
+		}
+	    }
         }
         break;
       case 2:
         {
-          if (tokens[x].substr(0, 1) == "s") {
-            if (allFound) {
-              o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
-            } else {
-              if (naFound) {
-                o_target.slot = ECMD_TARGETDEPTH_NA;
-              } else {
-                o_target.slot = num;
-              }
-              o_target.slotState = ECMD_TARGET_FIELD_VALID;
-            }
-          } else {
-            // ERROR
-            return ECMD_INVALID_ARGS;
-          }
+	    if (l_alt_format_used)
+	    {
+		if (tokens[x].substr(0, 1) == "n") {
+		    if (allFound) {
+			o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else if (naFound) {
+			o_target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else {
+			if (naFound) {
+			    o_target.node = ECMD_TARGETDEPTH_NA;
+			} else {
+			    o_target.node = num;
+			}
+			o_target.nodeState = ECMD_TARGET_FIELD_VALID;
+		    }
+		} else {
+		    // ERROR
+		    return ECMD_INVALID_ARGS;
+		}
+	    }
+	    else
+	    {
+		if (tokens[x].substr(0, 1) == "s") {
+		    if (allFound) {
+			o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else {
+			if (naFound) {
+			    o_target.slot = ECMD_TARGETDEPTH_NA;
+			} else {
+			    o_target.slot = num;
+			}
+			o_target.slotState = ECMD_TARGET_FIELD_VALID;
+		    }
+		} else {
+		    // ERROR
+		    return ECMD_INVALID_ARGS;
+		}
+
+	    }
         }
         break;
       case 3:
         {
-          rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
-          if (o_target.chipType == "chipall") {
-            o_target.chipType = ""; /* Blank it for clarity */
-            o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-          } else {
-            o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-            if (o_target.chipUnitType != "") {
-              o_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-            } else {
-              o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
-            }
-          }
+	    if (l_alt_format_used)
+	    {
+		if (tokens[x].substr(0, 1) == "s") {
+		    if (allFound) {
+			o_target.slotState = ECMD_TARGET_FIELD_WILDCARD;
+		    } else {
+			if (naFound) {
+			    o_target.slot = ECMD_TARGETDEPTH_NA;
+			} else {
+			    o_target.slot = num;
+			}
+			o_target.slotState = ECMD_TARGET_FIELD_VALID;
+		    }
+		} else {
+		    // ERROR
+		    return ECMD_INVALID_ARGS;
+		}
+
+	    }
+	    else
+	    {
+		rc = ecmdParseChipField(tokens[x], o_target.chipType, o_target.chipUnitType); if (rc) return rc;
+		if (o_target.chipType == "chipall") {
+		    o_target.chipType = ""; /* Blank it for clarity */
+		    o_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
+		} else {
+		    o_target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+		    if (o_target.chipUnitType != "") {
+			o_target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+		    } else {
+			o_target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+		    }
+		}
+	    }
         }
         break;
       case 4:
