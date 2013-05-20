@@ -89,6 +89,7 @@
 
 #define CIP_PBA_MODE_LCO    0x00000001  ///< Use LCO mode with cipPutMemPba
 #define CIP_PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with cipPutMemPba
+#define CIP_PBA_MODE_DMA    0x00000003  ///< Use DMA mode with cipPutMemPba
 
 #define CIP_PMC_VOLTAGE_MODE_IGNORE  0x00000000
 #define CIP_PMC_VOLTAGE_MODE_VID     0x00000001
