@@ -1386,6 +1386,8 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
       pbaMode = CIP_PBA_MODE_INJECT;
     } else if (strcmp(modestring, "lco") == 0) {
       pbaMode = CIP_PBA_MODE_LCO;
+    } else if (strcmp(modestring, "dma") == 0) {
+      pbaMode = CIP_PBA_MODE_DMA;
     } else {
       printLine = cmdlineName + "Unknown mode option. Valid options are lco or inj.\n";
       ecmdOutputError(printLine.c_str());

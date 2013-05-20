@@ -13,7 +13,7 @@ Syntax: cipputmempba <MemAddress> <Data> [-i<format>]
         --------------------------------------------------------------------------------
         MemAddress      64 Bit address to write to (Hex-Right). Not valid with -fd option
 
-        -mode <PbaMode> Specify witch mode to use: 'lco' or 'inj' : default 'lco'
+        -mode <PbaMode> Specify witch mode to use: 'lco', 'inj', or 'dma' : default 'lco'
 
         -fd <filename>  Specify full path and filename to file in D-Card format to load
                         to system
