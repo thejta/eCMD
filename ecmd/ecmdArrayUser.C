@@ -969,11 +969,14 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 	      char charIteration [50];
 	      sprintf(charIteration, "%d", lit->iteration[loop]);
 	      printed = ecmdWriteTarget(target) + " " + lit->name + "  Iteration: " + charIteration + "\n";
+	      ecmdOutput( printed.c_str() );
 	    }
 	    else
+	    {
 	      printed = ecmdWriteTarget(target) + " " + lit->name + "\n";
-            ecmdOutput( printed.c_str() );
-            printedHeader = true;
+	      ecmdOutput( printed.c_str() );
+	      printedHeader = true;
+	    }
           }
 
 	  for(uint32_t bufloop = 0; bufloop < lit->buffer[loop].size(); bufloop++)
@@ -1038,11 +1041,14 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 		  char charIteration [50];
 		  sprintf(charIteration, "%d", lit->iteration[loop]);
 		  printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "  Iteration: " + charIteration + "\n";
+		  ecmdOutput( printed.c_str() );
 		}		 
 		else
+		{
 		  printed = ecmdWriteTarget(cuTarget) + " " + lit->name + "\n";
-                ecmdOutput( printed.c_str() );
-                printedHeader = true;
+		  ecmdOutput( printed.c_str() );
+		  printedHeader = true;
+		}
               }
 
 	      for(uint32_t bufloop = 0; bufloop < lit->buffer[loop].size(); bufloop++)
