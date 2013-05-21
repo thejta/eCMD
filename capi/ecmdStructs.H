@@ -222,6 +222,7 @@ typedef enum {
   ECMD_IO_REFCLOCK,                     ///< IO Chip reference clock
   ECMD_IO_CLOCK,                        ///< IO Chip Clock (actual speed of the chip)
   ECMD_GX_REFCLOCK,                     ///< GX reference Clock
+  ECMD_DRAM_FREQ,                       ///< DRAM Frequency
 } ecmdClockType_t;
 
 /**
