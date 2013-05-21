@@ -2598,7 +2598,7 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     bool validPosFound = false;                   ///< Did the looper find anything?
     ecmdLooperData looperData;                    ///< Store internal Looper data
     std::string printed;                          ///< Output data
-    bool l_groupModeEnabled = false;		  ///< Is group mode enabled or not?
+    bool l_bucketModeEnabled = false;		  ///< Is bucket mode enabled or not?
     std::vector<ecmdChipTarget> l_targets;
 
     /************************************************************************/
@@ -2620,8 +2620,8 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
         return ECMD_INVALID_ARGS;
     }
 
-    if (ecmdParseOption(&argc, &argv, "-group")) {
-	l_groupModeEnabled = true;
+    if (ecmdParseOption(&argc, &argv, "-bucket")) {
+	l_bucketModeEnabled = true;
     }
 
     //Setup the target that will be used to query the system config
@@ -2662,10 +2662,10 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     }
 
     /************************************************************************/
-    /* If group mode is enabled then build a vector of ecmdChipTargts, where*/
+    /* If bucket mode is enabled then build a vector of ecmdChipTargts, where*/
     /* each target is of the same chip type.                                */
     /************************************************************************/
-    if (l_groupModeEnabled)
+    if (l_bucketModeEnabled)
     {
 	rc = ecmdLooperInit(target, ECMD_ALL_TARGETS_LOOP, looperData);
 	if (rc) return rc;
@@ -2682,9 +2682,13 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
 	    coeRc = rc;
 
 	}
+	else
+	{
+	    validPosFound = true;
+	}
     }
     /************************************************************************/
-    /* If group mode is disabled it's business as usual - loop on what the  */
+    /* If bucket mode is disabled it's business as usual - loop on what the  */
     /* user said to loop on. The vector will always be 1 entry large in this*/
     /* case.                                                                */
     /************************************************************************/
