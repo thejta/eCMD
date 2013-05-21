@@ -1,4 +1,4 @@
-Syntax: mpiplclearcheckstop <Chip[.ChipUnit]> [-group] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
+Syntax: mpiplclearcheckstop <Chip[.ChipUnit]> [-bucket] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
 
@@ -11,11 +11,11 @@ Syntax: mpiplclearcheckstop <Chip[.ChipUnit]> [-group] [-exist] [-coe] [-a#] [-k
                         w/o  ChipUnit: pu
                         with ChipUnit: pu.mc
 
-        group [opt]     Forces multiple targets to be passed to the dll.
+        bucket [opt]     Forces multiple targets to be passed to the dll.
 	                All target are of the same chiptype .
                         ex: 
 			in a 4 processor system:
-			      'mpiplclearcheckstop pu -group'
+			      'mpiplclearcheckstop pu -bucket'
 		        will call the dll with a list of processor targets 4 entries
 	                large.
 
@@ -25,4 +25,4 @@ Syntax: mpiplclearcheckstop <Chip[.ChipUnit]> [-group] [-exist] [-coe] [-a#] [-k
 
         Examples:       > mpiplclearcheckstop pu -k0 -n1 -p3
                         > mpiplclearcheckstop pu -all
-                        > mpiplclearcheckstop pu -group
+                        > mpiplclearcheckstop pu -bucket
