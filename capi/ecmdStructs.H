@@ -2250,6 +2250,14 @@ std::string ecmdGetSharedLibVersion();
 //@}
 
 /**
+ Defines for getMemPba 
+*/
+#define PBA_MODE_LCO    0x00000001  ///< Use LCO mode with putMemPba
+#define PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with putMemPba
+
+
+
+/**
  Defines for getTraceArrayMultiple 
 */
 #define ECMD_TRACE_ARRAY_START 0x00000001
