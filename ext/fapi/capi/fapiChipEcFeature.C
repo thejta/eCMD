@@ -254,6 +254,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CHIP_EC_FEATURE_DPLL_FMIN_FMAX_BUG_WA:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x13))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 default:
                     FAPI_ERR("fapiQueryChipEcFeature: Unknown feature 0x%x",
                         i_id);
