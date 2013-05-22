@@ -267,11 +267,11 @@ uint32_t dllQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, e
 
 uint32_t dllCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType); 
 
-uint32_t dllGetMemPba(ecmdChipTarget & i_target); 
+uint32_t dllGetMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
-uint32_t dllPutMemPba(ecmdChipTarget & i_target); 
+uint32_t dllPutMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode); 
 
-uint32_t dllQueryHostMemInfo(); 
+uint32_t dllQueryHostMemInfo( const std::vector<ecmdChipTarget> & i_targets, ecmdChipTarget & o_target,  uint64_t & o_address, uint64_t & o_size, const uint32_t i_mode); 
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder); 
