@@ -2208,10 +2208,7 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getMemPba (ecmdChipTarget & i_target, 
-	uint64_t i_address, 
-	uint32_t i_bytes, 
-	ecmdDataBuffer & o_data);
+uint32_t getMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Writes System Mainstore through the processor chip using PBA
@@ -2233,11 +2230,7 @@ uint32_t getMemPba (ecmdChipTarget & i_target,
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putMemPba (ecmdChipTarget & i_target, 
-	uint64_t i_address, 
-	uint32_t i_bytes, 
-	ecmdDataBuffer & i_data, 
-	uint32_t i_mode);
+uint32_t putMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode);
 
 /**
  @brief Query the memory information of the Host processor
@@ -2254,12 +2247,7 @@ uint32_t putMemPba (ecmdChipTarget & i_target,
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t queryHostMemInfo(
-	const std::vector<ecmdChipTarget> & i_targets, 
-	ecmdChipTarget & o_target,  
-	uint64_t & o_address, 
-	uint64_t & o_size, 
-	const uint32_t i_mode = 0x0);
+uint32_t queryHostMemInfo( const std::vector<ecmdChipTarget> & i_targets, ecmdChipTarget & o_target,  uint64_t & o_address, uint64_t & o_size, const uint32_t i_mode = 0x0);
 
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 //@}
