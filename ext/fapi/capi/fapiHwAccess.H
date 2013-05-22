@@ -134,8 +134,7 @@ fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target,
  * @brief Reads a CFAM register from a chip
  * @param[in] i_target Target to operate on
  * @param[in] i_address CFAM address to read from
- * @param[out] o_data ecmdDataBufferBase object that holds data read from
- *                    address
+ * @param[out] o_data ecmdDataBufferBase object that holds data read from address
  * @return ReturnCode. Zero on success, else platform specified error
  */
 fapi::ReturnCode fapiGetCfamRegister(const fapi::Target& i_target,
@@ -202,6 +201,7 @@ fapi::ReturnCode fapiPutRing(const fapi::Target& i_target,
  * @param[in] i_address Ring address to modify
  * @param[in] i_data    ecmdDataBufferBase object that holds data to write into
  *                      address
+ * @param[in] i_modifyMode The modify mode (or/and/xor)
  * @param[in] i_ringMode Any number of mode options from fapi::RingMode ORed
  * @return ReturnCode. Zero on success, else platform specified error
  */

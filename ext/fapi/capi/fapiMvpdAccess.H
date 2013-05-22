@@ -161,7 +161,7 @@ fapi::ReturnCode fapiGetMvpdField(const fapi::MvpdRecord i_record,
  *  @param[in] i_keyword    Keyword enumerator
  *  @param[in] i_procTarget Reference to processor chip target for the record
  *  @param[in] i_pBuffer    Pointer to buffer where data to set is stored
- *  @param[io] i_fieldSize  Size of i_pBuffer in bytes
+ *  @param[in] i_fieldSize  Size of i_pBuffer in bytes
  *
  *  @return fapi::ReturnCode. FAPI_RC_SUCCESS, or failure value.
  */
