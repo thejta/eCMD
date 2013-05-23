@@ -563,8 +563,12 @@ uint32_t ecmdSetClockSpeedUser(int argc, char* argv[]) {
   /* We need to figure out if the user gave us a proc chip or not */
   std::string temp = argv[0];
   transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
-  if (temp.find("clock") == std::string::npos) {
-    /* No clock in the very first arg, assume it is a chip */
+  if (
+	  (temp.find("clock") == std::string::npos) &&
+	  (temp.find("freq") == std::string::npos) 
+     )
+     {
+    /* No 'clock' or 'freq' in the very first arg, assume it is a chip */
     ecmdParseChipField(argv[0], chipType, chipUnitType);
     //check if clocktype and speed were provided before reading them
     if (argc < 3) {  //chip + clocktype + speed
