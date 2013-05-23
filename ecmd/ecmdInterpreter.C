@@ -392,6 +392,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_DMA);
         } else if (!strcmp(argv[0], "getmemmemctrl")) {
           rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_MEMCTRL);
+        } else if (!strcmp(argv[0], "getmempba")) {
+          rc = ecmdGetMemPbaUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getmemproc")) {
           rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_MEM_PROC);
         } else if (!strcmp(argv[0], "getsram")) {
@@ -536,6 +538,8 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdPutMemUser(argc - 1, argv + 1, ECMD_MEM_DMA);
         } else if (!strcmp(argv[0], "putmemmemctrl")) {
           rc = ecmdPutMemUser(argc - 1, argv + 1, ECMD_MEM_MEMCTRL);
+        } else if (!strcmp(argv[0], "putmempba")) {
+          rc = ecmdPutMemPbaUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "putmemproc")) {
           rc = ecmdPutMemUser(argc - 1, argv + 1, ECMD_MEM_PROC);
         } else if (!strcmp(argv[0], "putsram")) {
