@@ -2254,7 +2254,7 @@ std::string ecmdGetSharedLibVersion();
 */
 #define PBA_MODE_LCO    0x00000001  ///< Use LCO mode with putMemPba
 #define PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with putMemPba
-
+#define PBA_MODE_DMA    0x00000003  ///< Use DMA mode with putMemPba
 
 
 /**
