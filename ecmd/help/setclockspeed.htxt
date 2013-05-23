@@ -23,6 +23,8 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                          - memctrl_clock        <-- Memory controller clock
                          - io_refclock          <-- IO chip reference clock
                          - io_clock             <-- IO chip clock
+                         - dram_freq            <-- DRAM frequency (you must provide a
+			                            memb target for this ClockType)
 
         Speed           New speed value to program can be specified with any of the
                         following keyword(s) preceded by decimal numbers:
@@ -59,4 +61,5 @@ Syntax: setclockspeed <ClockType> <Speed> [-steer]
                         > setclockspeed pu pu_coreclock 5npu
                         > setclockspeed pu pu_coreclock 10cpd
                         > setclockspeed pu.core pu_coreclock 3500fmin 3700fmax
+                        > setclockspeed memb dram_freq 5npu -p4
 
