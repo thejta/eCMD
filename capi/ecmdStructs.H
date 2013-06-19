@@ -2270,4 +2270,9 @@ std::string ecmdGetSharedLibVersion();
 #define ECMD_CHIP_CLEANUP_MEMDA     0x00000001
 #define ECMD_CHIP_CLEANUP_PM        0x00000002
 
+/**
+ Defines for stopClocksHidden
+*/
+#define ECMD_STOP_CLOCK_MODE_SKIP_IOVALID   0x00000001
+
 #endif
