@@ -1,7 +1,7 @@
 
-Syntax: stopclocks                                   [-force]
-        stopclocks -domain <ConvenienceClockDomain>] [-force]
-        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-force]
+Syntax: stopclocks                                   [-force] [-skip_iovalid]
+        stopclocks -domain <ConvenienceClockDomain>] [-force] [-skip_iovalid]
+        stopclocks <Chip[.ChipUnit]> [<ClockDomain>] [-force] [-skip_iovalid]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -25,6 +25,8 @@ Syntax: stopclocks                                   [-force]
                         with -domain
 
         -force    [opt] Force clocks off regardless of current state
+        -skip_iovalid   Skip calling iovalid code when stopclocks is invoked
+                  [opt]
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
