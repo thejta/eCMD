@@ -386,10 +386,11 @@ uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
 uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t coeRc = ECMD_SUCCESS;            //@02
-  char clockDomain[100]; 			///< Store the clock domain user specified
+  char clockDomain[100];                ///< Store the clock domain user specified
   ecmdLooperData looperdata;            ///< Store internal Looper data
   ecmdChipTarget target;                ///< Current target being operated on
   bool validPosFound = false;           ///< Did the looper find something to run on?
+  uint32_t mode = 0x0;                  ///< Extra options to pass to stopClocks
 
    /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -397,6 +398,12 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
  
   //Check force option
   bool force = ecmdParseOption(&argc, &argv, "-force");
+
+  //Check skip_iovalid option
+  bool skipIovalid = ecmdParseOption(&argc, &argv, "-skip_iovalid");
+  if (skipIovalid) {
+    mode |= ECMD_STOP_CLOCK_MODE_SKIP_IOVALID;
+  }
 
   strcpy(clockDomain, "ALL");
   
@@ -459,7 +466,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
-    rc = stopClocks(target, clockDomain, force);
+    rc = stopClocksHidden(target, clockDomain, force, mode);
     if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
       printed = "stopclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
       printed += ecmdWriteTarget(target) + "\n";

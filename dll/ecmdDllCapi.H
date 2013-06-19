@@ -175,6 +175,8 @@ uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, b
 
 uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState); 
 
+uint32_t dllStopClocksHidden(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState, uint32_t i_mode); 
+
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 uint32_t dllGetClockSpeed( ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed,ecmdClockFreqMode_t & o_freqMode, uint32_t & o_freqmin, uint32_t & o_freqmax); 

@@ -1377,6 +1377,28 @@ uint32_t startClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool
 
 */
 uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
+
+/**
+ @brief Stop the clocks in the domain specified
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
+ @retval ECMD_CLOCKS_ALREADY_OFF The clocks in the specified domain are already off
+ @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
+ @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
+ @param i_mode Bit-field for new options
+
+ * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
+          If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
+            documented in the eCMD system spec for your particular product.<br>
+ TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t stopClocksHidden(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false, uint32_t i_mode = 0x0);
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 /**
