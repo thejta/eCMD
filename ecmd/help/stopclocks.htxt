@@ -48,3 +48,7 @@ Syntax: stopclocks                                   [-force] [-skip_iovalid]
                         > stopclocks pu.ex ex   # stops ex clocks
                         > stopclocks pu.ex      # stops ex clocks
                         > stopclocks pu.ex -c4  # stops ex4 clocks only
+                        > stopclocks pu perv    # stops pervasive/tp domain only
+
+			To skip the setting of the io valid bits for the X/A bus
+			use -skip_iovalid
