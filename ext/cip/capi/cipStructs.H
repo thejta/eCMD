@@ -105,6 +105,16 @@ typedef enum {
   CIP_BREAKPOINT_CIABR         ///< ?? Breakpoint
 } ecmdBreakpointType_t;
 
+/**
+  @brief Used by sendMboxMsg function to specify message types
+  */
+typedef enum {
+    CIP_MBOX_MSG_UNKNOWN,              ///< Unknown operation
+    CIP_MBOX_MSG_STOP,                 ///< Stop message
+    CIP_MBOX_MSG_RESUME                ///< Resume message
+} mbox_message_t;
+
+
 
 /**
  @brief Used by cipPoreQueryImage functions to return image info
