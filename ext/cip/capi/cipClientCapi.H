@@ -896,6 +896,22 @@ uint32_t cipRWProcStatus (ecmdChipTarget & i_target, cipRWProcStatus_t & o_statu
 //@}
 
 //@{
+#ifndef CIP_REMOVE_MBOX_FUNCTIONS
+/**
+ @brief Send a mailbox message to plugin/platform specific mailbox mechanism(s)
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains cage information 
+ @param i_msg_type The message type to send
+
+*/
+uint32_t cipSendMboxMsg(ecmdChipTarget & i_target, mbox_message_t i_msg_type = CIP_MBOX_MSG_UNKNOWN);
+#endif // CIP_REMOVE_MBOX_FUNCTIONS
+//@}
+
+
+//@{
 #ifndef CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
 /**
  @brief Reads voltage values from processor
