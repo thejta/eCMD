@@ -32,7 +32,7 @@
 #include <fapiHwpReturnCodes.H> // Generated file
 #include <fapiHwpErrorInfo.H>   // Generated file
 #include <fapiAttributeIds.H>   // Generated file
-//#include <fapiSetSbeError.H>    // Generated file
+#include <fapiSetSbeError.H>    // Generated file
 #include <ecmdDataBufferBase.H>
 #include <fapiMvpdAccess.H>
 

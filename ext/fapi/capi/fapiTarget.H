@@ -43,6 +43,7 @@ enum TargetType
     TARGET_TYPE_MCS_CHIPLET   = 0x00000040,
     TARGET_TYPE_XBUS_ENDPOINT = 0x00000080,
     TARGET_TYPE_ABUS_ENDPOINT = 0x00000100,
+    TARGET_TYPE_L4            = 0x00000200,
 };
 
 /**
@@ -147,7 +148,7 @@ public:
      *
      * @return Handle_t. The handle.
      */
-    void * get() const;
+    void * get() const { return iv_pHandle; }
 
     /**
      * @brief Set the handle. Platform using Handle_t as handle
@@ -163,14 +164,14 @@ public:
      *
      * @return The type of target represented by this target
      */
-    TargetType getType() const;
+    TargetType getType() const { return iv_type; }
 
     /**
      * @brief Set the target type
      *
      * @param[in] i_type The type of target represented by this target
      */
-    void setType(const TargetType i_type);
+    void setType(const TargetType i_type) { iv_type = i_type; }
 
     /**
      * @brief Returns if the target is a chip

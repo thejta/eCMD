@@ -28,13 +28,14 @@
  *   must implement
  *
  */
-
+// $Id$
 
 /*
  * Change Log ******************************************************************
  * Flag     Defect/Feature  User        Date        Description
  * ------   --------------  ----------  ----------- ----------------------------
  *                          whs         01/24/2013  Added fapiGetMBvpdField
+ *                          whs         04/29/2013  Added VSPD record, keywords
  */
 
 #ifndef _FAPI_FAPIMBVPDACCESS_H_
@@ -66,6 +67,7 @@ namespace fapi
         MBVPD_KEYWORD_LM  = 0x06,
         MBVPD_KEYWORD_MW  = 0x07,
         MBVPD_KEYWORD_MV  = 0x08,
+        MBVPD_KEYWORD_AM  = 0x09,
     };
 
 }

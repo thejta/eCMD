@@ -68,6 +68,10 @@ void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi::Target & o_fapi
       {
          o_fapiTarget.setType(fapi::TARGET_TYPE_ABUS_ENDPOINT);
       } 
+      else if (i_ecmdTarget.chipUnitType == "l4") 
+      {
+         o_fapiTarget.setType(fapi::TARGET_TYPE_L4);
+      } 
       /*
       else if (i_ecmdTarget.chipUnitType == "occ") 
       {

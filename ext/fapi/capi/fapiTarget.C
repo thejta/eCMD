@@ -100,14 +100,6 @@ bool Target::operator!=(const Target & i_right) const
 }
 
 //******************************************************************************
-// Get the handle.
-//******************************************************************************
-void * Target::get() const
-{
-    return iv_pHandle;
-}
-
-//******************************************************************************
 // Set the handle.
 //******************************************************************************
 void Target::set(void * i_pHandle)
@@ -115,22 +107,6 @@ void Target::set(void * i_pHandle)
     iv_pHandle = i_pHandle;
     delete [] iv_pEcmdString;
     iv_pEcmdString = NULL;
-}
-
-//******************************************************************************
-// Get the target type
-//******************************************************************************
-TargetType Target::getType() const
-{
-    return iv_type;
-}
-
-//******************************************************************************
-// Set the target type
-//******************************************************************************
-void Target::setType(const TargetType i_type)
-{
-    iv_type = i_type;
 }
 
 //******************************************************************************
@@ -150,7 +126,8 @@ bool Target::isChiplet() const
                         TARGET_TYPE_MBA_CHIPLET |
                         TARGET_TYPE_MCS_CHIPLET |
                         TARGET_TYPE_XBUS_ENDPOINT |
-                        TARGET_TYPE_ABUS_ENDPOINT)) != 0);
+                        TARGET_TYPE_ABUS_ENDPOINT |
+                        TARGET_TYPE_L4 )) != 0);
 }
 
 //******************************************************************************
