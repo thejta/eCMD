@@ -402,7 +402,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   bool maskFlag = false;
   char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
   char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
-  char* verbosePtr = NULL;                      ///< Pointer to -v[s0,s1] in arg list
+  const char* verbosePtr = NULL;                      ///< Pointer to -v[s0,s1] in arg list
   ecmdDataBuffer expected;                      ///< Buffer to store expected data
   ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
   std::string outputformat = "x";               ///< Output Format to display
