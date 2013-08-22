@@ -60,7 +60,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   bool expectFlag = false;
   bool maskFlag = false;
-  char* verbosePtr = NULL;
+  const char* verbosePtr = NULL;
   char* expectPtr = NULL;                       ///< Pointer to expected data in arg list
   char* maskPtr = NULL;                         ///< Pointer to mask data in arg list
   ecmdDataBuffer expected;                      ///< Buffer to store expected data
@@ -1161,7 +1161,6 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
   //get the scomGroupName and version
   std::string scomGroupName = argv[1];
   bool use_version = false;
-  //std::string version = "";
   std::string version = "";
   if (argc > 2) {
     use_version = true;
@@ -1169,7 +1168,6 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
   }
   std::string printName;
 
-  
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/

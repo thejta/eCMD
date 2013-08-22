@@ -118,7 +118,7 @@ uint32_t ecmdParseShellCommands(std::vector< std::string > & o_commands);
  @param o_targetFieldList Update this string with the list of targets specified
  @retval ECMD_SUCCESS or ECMD_INVALID_ARGS
 */
-uint32_t ecmdParseTargetFields(int *io_argc, char ** io_argv[], char *i_targetField, ecmdChipTarget &io_target, uint8_t &o_targetFieldType, std::string &o_targetFieldList);
+uint32_t ecmdParseTargetFields(int *io_argc, char ** io_argv[], const char *i_targetField, ecmdChipTarget &io_target, uint8_t &o_targetFieldType, std::string &o_targetFieldList);
 
 /**
  @brief Checks if the string is a valid target

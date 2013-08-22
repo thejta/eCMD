@@ -684,7 +684,7 @@ uint32_t ecmdParseShellCommands(std::vector< std::string > & o_commands)
   return 1;
 }
 
-uint32_t ecmdParseTargetFields(int *argc, char ** argv[], char *targetField, ecmdChipTarget &target, uint8_t &targetFieldType, std::string &targetFieldList) {
+uint32_t ecmdParseTargetFields(int *argc, char ** argv[],const char *targetField, ecmdChipTarget &target, uint8_t &targetFieldType, std::string &targetFieldList) {
   uint32_t rc = ECMD_SUCCESS;
   uint8_t ONE = 0;
   uint8_t MANY = 1;
