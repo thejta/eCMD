@@ -275,6 +275,8 @@ uint32_t dllPutMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_
 
 uint32_t dllQueryHostMemInfo( const std::vector<ecmdChipTarget> & i_targets, ecmdChipTarget & o_target,  uint64_t & o_address, uint64_t & o_size, const uint32_t i_mode); 
 
+uint32_t dllQueryHostMemInfoRanges( const std::vector<ecmdChipTarget> & i_targets, ecmdChipTarget & o_target, std::vector<std::pair<uint64_t,  uint64_t> > & o_ranges, const uint32_t i_mode); 
+
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i_deleteMessage, bool i_messageBorder); 
 

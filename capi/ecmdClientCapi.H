@@ -2271,6 +2271,22 @@ uint32_t putMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
 */
 uint32_t queryHostMemInfo( const std::vector<ecmdChipTarget> & i_targets, ecmdChipTarget & o_target,  uint64_t & o_address, uint64_t & o_size, const uint32_t i_mode = 0x0);
 
+/**
+ @brief Query the memory information of the Host processor
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @param i_targets Vector of targets in physical node (i.e. ecmdChipTarget.node)
+ @param o_target Host target
+ @param o_ranges Vector of address/size pairs of Host memory locations
+ @param i_mode Input modes - for future use/expansion
+
+ TARGET DEPTH  : Pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t queryHostMemInfoRanges( const std::vector<ecmdChipTarget> & i_targets, ecmdChipTarget & o_target, std::vector<std::pair<uint64_t, uint64_t> > & o_ranges, const uint32_t i_mode = 0x0);
+
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
 //@}
 /* End Memory Functions */
