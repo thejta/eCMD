@@ -143,6 +143,14 @@ if ($ARGV[1] =~ /ClientPerlapiFunc.C/ || $genAll) {
           my ($type, $funcname) = split(/\s+/, $func);
           my @argnames = split(/,/,$args);
 
+          #join any split std::pair arguments
+          foreach my $i (0..$#argnames) {
+            if ($argnames[$i] =~ /std::pair/) {
+              $argnames[$i] = "$argnames[$i], $argnames[$i+1]";
+              splice(@argnames, $i+1, 1);
+            }
+          }
+
           #remove the default initializations
           foreach my $i (0..$#argnames) {
             if ($argnames[$i] =~ /=/) {
