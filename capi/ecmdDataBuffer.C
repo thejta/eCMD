@@ -1336,11 +1336,12 @@ uint32_t ecmdDataBuffer::insertFromBinAndResize (const char * i_binChars, uint32
     }
   }
 
-  return insertFromBin(i_binChars, i_start);
+  return insertFromBin(i_binChars, i_start, i_length);
 }
 
 uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t i_start, uint32_t i_length) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+
   // input checking done with clearBit() and setBit()
   if (i_length == 0) {
     i_length = strlen(i_binChars);
@@ -1354,14 +1355,24 @@ uint32_t ecmdDataBuffer::insertFromBin (const char * i_binChars, uint32_t i_star
     }
   }
 
-
+  uint32_t l_binLength = strlen(i_binChars); //Need the length of the string to compare against i_length for padding/dropping data.
+  
   for (uint32_t i = 0; i < i_length; i++) {
-    if (i_binChars[i] == '0') {
-      this->clearBit(i_start+i);
+    if (i_binChars[i] == '0') 
+    {
+      rc = this->clearBit(i_start+i); if (rc) return rc;
     }
-    else if (i_binChars[i] == '1') {
-      this->setBit(i_start+i);
-    } else {
+    else if (i_binChars[i] == '1') 
+    {
+      rc = this->setBit(i_start+i); if (rc) return rc;
+    }
+    // Pad with 0s if user requested larger length than binary string
+    else if (i >= l_binLength)
+    {
+      rc = this->clearBit(i_start+i); if (rc) return rc;
+    }
+    else 
+    {
       RETURN_ERROR(ECMD_DBUF_INVALID_DATA_FORMAT);
     }
   }
