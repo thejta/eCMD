@@ -3,14 +3,14 @@
 
 EXTENSION_NAME   := fapi
 DISABLE_AUTOGEN := @
-DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING
+DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING -DFAPI_SUPPORT_MULTI_SCOM
 
 # Base info and default build rules
 SUBDIR     := ext/${EXTENSION_NAME}/capi/
 include ../../../makefile.rules
 
 # Additional Source files for the Client API
-CAPI_SOURCE  := fapiDllCapi.C fapiPlatUtil.C fapiHwAccess.C fapiPlatHwAccess.C fapiPlatHwpExecutor.C fapiPlatSystemConfig.C
+CAPI_SOURCE  := fapiDllCapi.C fapiPlatUtil.C fapiHwAccess.C fapiPlatHwAccess.C fapiPlatHwpExecutor.C fapiPlatSystemConfig.C fapiMultiScom.C
 
 # Added for fapiTarget.H, etc
 CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnCode.H  fapiReturnCodeDataRef.H  \
@@ -19,6 +19,7 @@ CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnC
                      fapiErrorInfo.H fapiPlatHwpExecutor.H  fapiHwpReturnCodes.H fapiHwpErrorInfo.H \
                      fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H \
 		     fapiMBvpdAccess.H fapiMvpdAccess.H fapiCollectRegFfdc.H \
+		     fapiMultiScom.H
 
 # These files are needed by the client code
 CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C fapiAttributeService.C fapiChipEcFeature.H fapiChipEcFeature.C \

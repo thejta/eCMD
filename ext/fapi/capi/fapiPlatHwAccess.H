@@ -60,6 +60,7 @@
 #include <ecmdDataBufferBase.H>
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
+#include <fapiMultiScom.H>
 
 
 extern "C"
@@ -117,6 +118,19 @@ fapi::ReturnCode platPutScomUnderMask(const fapi::Target& i_target,
                                       ecmdDataBufferBase & i_data,
                                       ecmdDataBufferBase & i_mask);
 
+#ifdef FAPI_SUPPORT_MULTI_SCOM
+/**
+ * @brief Platform-level implementation called by fapiMultiScom()
+ * Hardware procedures writers will not call this function.
+ *
+ * @param[in]    i_target         Target to operate on
+ * @param[inout] io_multiScomList MultiScom object pre-populated with SCOMs to
+ *                                be performed on i_target
+ * @return       ReturnCode       Zero on success, else platform specified error
+ */
+fapi::ReturnCode platMultiScom (const fapi::Target&    i_target,
+                                      fapi::MultiScom& io_multiScomList);
+#endif
 
 /**
  * @brief Platorm-level implementation called by GetCfamRegister()

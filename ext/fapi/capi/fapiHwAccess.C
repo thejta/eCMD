@@ -148,6 +148,42 @@ fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target,
 }
 
 //******************************************************************************
+// fapiMultiScom function
+//******************************************************************************
+#ifdef FAPI_SUPPORT_MULTI_SCOM
+fapi::ReturnCode fapiMultiScom (
+                    const   fapi::Target&       i_target,
+                            fapi::MultiScom&    io_multiScomObj)
+{
+    FAPI_DBG ("fapiMultiScom - i_target: %s, # input ops: %d",
+              i_target.toEcmdString (), io_multiScomObj.iv_ScomList.size ());
+
+    fapi::ReturnCode l_rc;
+
+    // Call the platform specific implemetation
+    l_rc = platMultiScom (i_target, io_multiScomObj);
+
+    if (!l_rc.ok ())
+    {
+        uint32_t l_retCode = l_rc;
+
+        FAPI_ERR ("fapiMultiScom Failed with RC: 0x%.8X! i_target: %s, "
+                  "# input ops: %d, # ops complete: %d", l_retCode,
+                  i_target.toEcmdString (),
+                  io_multiScomObj.iv_ScomList.size (),
+                  io_multiScomObj.iv_NumOfCompletes);
+    }
+
+    FAPI_DBG ("fapiMultiScom - i_target: %s, # input ops: %d, "
+              "#ops complete: %d", i_target.toEcmdString (),
+              io_multiScomObj.iv_ScomList.size (),
+              io_multiScomObj.iv_NumOfCompletes);
+
+    return l_rc;
+}
+#endif // FAPI_SUPPORT_MULTI_SCOM
+
+//******************************************************************************
 // fapiGetCfamRegister function
 //******************************************************************************
 fapi::ReturnCode fapiGetCfamRegister(const fapi::Target& i_target,

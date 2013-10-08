@@ -16,6 +16,7 @@
 #include <fapiAttributeIds.H>
 #include <fapiMvpdAccess.H>
 #include <fapiMBvpdAccess.H>
+#include <fapiMultiScom.H>
 
 extern "C" {
 
@@ -168,6 +169,9 @@ fapi::ReturnCode dllFapiSetMBvpdField(
 	const uint8_t * const i_pBuffer,
 	const uint32_t i_fieldSize);
 
+#ifdef FAPI_SUPPORT_MULTI_SCOM
+fapi::ReturnCode dllFapiMultiScom(const fapi::Target & i_target, fapi::MultiScom & io_multiScomList);
+#endif
 
 } //extern C
 

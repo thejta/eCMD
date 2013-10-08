@@ -58,6 +58,11 @@
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
 
+#ifdef FAPI_SUPPORT_MULTI_SCOM
+#include <fapiMultiScom.H>
+#endif
+
+
 namespace fapi
 {
     /**
@@ -408,6 +413,52 @@ fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
                                   ecmdDataBufferBase & o_data,
                                   const ecmdDataBufferBase & i_imageData);
 #endif
+
+#ifdef FAPI_SUPPORT_MULTI_SCOM
+/**
+ *  @brief Performs a multiple SCOM operation
+ *
+ *  @par Description:
+ *    This interface performs multiple SCOM operations on a chip or chiplet,
+ *    in the order specified by the input MultiScom object. See fapiMultiScom.H
+ *    for details of how to populate the MultiScom object with SCOM operations
+ *
+ *  @param[in]      i_target        Chip/Chiplet target to do MultiScom on
+ *  @param[in/out]  io_MultiScomObj Reference to a MultiScom object,
+ *                                  pre-populated with SingleScomInfo entries
+ *                                  to perform multiple SCOMs on input target
+ *  @return ReturnCode              Zero on success, else platform specified
+ *                                  error
+ *
+ *  @note   This is a synchronous interface and would return after all the SCOM
+ *          operations are completed or on the first failed SCOM operation
+ *
+ *  @note   SCOMs will be performed in the order they were added to the input
+ *          MultiScom object
+ *
+ *  @note   In case of errors, the platform code is responsible to collect and
+ *          add all the required error info and FFDC into the error data for
+ *          debugging
+ *
+ *  @note   If the SCOM operations added are specific to a processor chip,
+ *          then the FSI Shift Engine configured in scatter-gather DMA mode
+ *          extension would be used to execute the SCOM operations in a
+ *          performance optimize mode. In this mode, the special
+ *          SCOM_BULK_READ_MODE and SCOM_BULK_WRITE_MODE operations are
+ *          supported that allow a large bulk of SCOM access (in multiple of 64
+ *          bits) for targets that support auto-increment. The
+ *          SCOM_WRITE_UNDER_MASK operation is not supported in this mode
+ *
+ *  @note   If the SCOM operations added are specific to a memory buffer chip,
+ *          then the regular SCOM engine is used to execute the SCOM operations.
+ *          SCOM_WRITE_UNDER_MASK operation is supported in this mode, but the
+ *          special SCOM_BULK_READ_MODE and SCOM_BULK_WRITE_MODE operations are
+ *          not supported due to hardware limitations.
+ */
+fapi::ReturnCode fapiMultiScom (
+                    const   fapi::Target&       i_target,
+                            fapi::MultiScom&    io_multiScomObj);
+#endif  // FAPI_SUPPORT_MULTI_SCOM
 
 
 } // extern "C"

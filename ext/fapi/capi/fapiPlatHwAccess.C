@@ -439,6 +439,74 @@ ReturnCode platPutScomUnderMask(const Target& i_target, const  uint64_t i_addres
   return rc;
 }
 
+#ifdef FAPI_SUPPORT_MULTI_SCOM
+fapi::ReturnCode platMultiScom(const fapi::Target & i_target, fapi::MultiScom & io_multiScomList)
+{
+
+  ReturnCode rc;
+  uint32_t l_ecmdRc;
+  
+  ecmdChipTarget   ecmdTarget;
+  ecmdChipTarget * ecmdTargetPtr;
+  ecmdTargetPtr = (ecmdChipTarget *) i_target.get();
+  ecmdTarget = (*ecmdTargetPtr);                
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiMultiScom%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &io_multiScomList);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"fapi::ReturnCode fapiMultiScom(const fapi::Target & i_target, fapi::MultiScom & io_multiScomList)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiMultiScom");
+  }
+#endif
+
+   ecmdChipTarget cacheTarget;
+   cacheTarget = ecmdTarget;
+   ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+   if (ecmdIsRingCacheEnabled(cacheTarget)){
+     rc.setEcmdError(ECMD_RING_CACHE_ENABLED);
+     return rc;
+   }
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiMultiScom(i_target, io_multiScomList);
+#else
+  if (fapiDllFnTable[ECMD_FAPIMULTISCOM] == NULL) {
+     fapiDllFnTable[ECMD_FAPIMULTISCOM] = (void*)dlsym(dlHandle, "dllFapiMultiScom");
+     if (fapiDllFnTable[ECMD_FAPIMULTISCOM] == NULL) {
+       fprintf(stderr,"dllFapiMultiScom%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  ReturnCode (*Function)(const fapi::Target &, fapi::MultiScom &) = 
+      (ReturnCode(*)(const fapi::Target &, fapi::MultiScom &))fapiDllFnTable[ECMD_FAPIMULTISCOM];
+  rc =    (*Function)(i_target, io_multiScomList);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &l_ecmdRc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiMultiScom");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"fapi::ReturnCode fapiMultiScom(const fapi::Target & i_target, fapi::MultiScom & io_multiScomList)",args);
+   }
+#endif
+
+  return rc;
+
+}
+#endif
 
 ReturnCode platGetCfamRegister(const Target& i_target, const uint32_t i_address, ecmdDataBufferBase & o_data)
 {

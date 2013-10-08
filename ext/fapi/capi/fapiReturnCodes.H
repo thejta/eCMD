@@ -58,8 +58,11 @@ enum ReturnCodes
     // HWP requested a chip EC feature with an invalid attribute ID
     FAPI_RC_INVALID_CHIP_EC_FEATURE_GET = FAPI_RC_FAPI_MASK | 0x02,
 
-     // HWP attempted to create an unrecognized SBE error
+    // HWP attempted to create an unrecognized SBE error
     FAPI_RC_UNRECOGNIZED_SBE_ERROR      = FAPI_RC_FAPI_MASK | 0x03,
+
+    // Invalid parameters passed to a FAPI interface
+    FAPI_RC_INVALID_PARAM               = FAPI_RC_FAPI_MASK | 0x04,
 
     //--------------------------------------------------------------------------
     // PLAT generated return codes. Additional details may be contained in
