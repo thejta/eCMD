@@ -19,7 +19,7 @@ CAPI_INCLUDES     :=  fapiSharedUtils.H fapiTarget.H fapiPlatTrace.H fapiReturnC
                      fapiErrorInfo.H fapiPlatHwpExecutor.H  fapiHwpReturnCodes.H fapiHwpErrorInfo.H \
                      fapiHwpExecutor.H fapiAttributeService.H fapiPlatAttributeService.H \
 		     fapiMBvpdAccess.H fapiMvpdAccess.H fapiCollectRegFfdc.H \
-		     fapiMultiScom.H
+		     fapiMultiScom.H fapiSetSbeError.H
 
 # These files are needed by the client code
 CAPI_INCLUDES	  := ${CAPI_INCLUDES} fapi.H fapiAttributeIds.H fapiPlatAttributeService.C fapiAttributeService.C fapiChipEcFeature.H fapiChipEcFeature.C \
