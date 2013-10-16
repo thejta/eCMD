@@ -3622,6 +3622,21 @@ uint32_t ecmdGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmd
 */
 uint32_t ecmdGetBandwidthSensor(ecmdChipTarget & i_target, const char * i_ecmdBandwidthSensorId, uint32_t & o_bandwidth, ecmdBandwidthUnit_t i_BandwidthUnit=ECMD_BW_UNIT_MRW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
+/**
+ @brief Read DTS Sensor Values
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ecmdDTSSensorId String that specifies the type of DTS sensor 
+ @param o_dtsReadings DTS values returned
+ @param i_thermalUnit enum to control the return unit
+ @param i_sensorReadMode enum to control the sensor read mode (ECMD_SENSOR_READ_MODE_DEFAULT always supported)
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdReadDigitalThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdDTSSensorId, ecmdDTSData & o_dtsReadings, ecmdThermalUnit_t i_thermalUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 //@}
