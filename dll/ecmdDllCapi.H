@@ -463,6 +463,8 @@ uint32_t dllGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmdU
 
 uint32_t dllGetBandwidthSensor(ecmdChipTarget & i_target, const char * i_ecmdBandwidthSensorId, uint32_t & o_bandwidth, ecmdBandwidthUnit_t i_BandwidthUnit, ecmdSensorReadMode_t i_sensorReadMode); 
 
+uint32_t dllReadDigitalThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdDTSSensorId, ecmdDTSData & o_dtsReadings, ecmdThermalUnit_t i_thermalUnit, ecmdSensorReadMode_t i_sensorReadMode); 
+
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 #ifndef REMOVE_SIM
 uint32_t dllSimaet(const char* i_function); 

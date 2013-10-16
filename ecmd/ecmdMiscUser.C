@@ -1888,7 +1888,7 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
   ecmdLooperData looperdata;            //< Store internal Looper data
   bool validPosFound = false;           //< Did we find a valid chip in the looper
   std::string outputformat = "d";       //< Display format for output
-
+  bool headerPrinted = false;           //< Print the header if it is not already printed
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -1976,6 +1976,7 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
     target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
   }
   uint32_t o_data = 0; //the output return value
+  ecmdDTSData o_dtsReadings; //the output return value in case of dts
 
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -2198,6 +2199,26 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
       //get memory bandwidth sensor
       rc =  ecmdGetBandwidthSensor(target,sensorId.c_str(),o_data,sensorUnit, readMode);
     }
+    else if (sensorType == "dts")
+    {
+      ecmdThermalUnit_t sensorUnit; //thermal unit
+      if(unit == "dc") 
+      {
+        //deci degree Celcius
+        sensorUnit = ECMD_THERMAL_UNIT_dC;
+      }
+      else if(unit == "c") 
+      {
+        //degree celcius
+        sensorUnit = ECMD_THERMAL_UNIT_C;
+      }
+      else 
+      {
+        ecmdOutputError("getsensor - Invalid unit for dts sensor. Type 'getsensor -h' for usage.\n");
+        return ECMD_INVALID_ARGS;
+      }
+      rc =  ecmdReadDigitalThermalSensor(target,sensorId.c_str(),o_dtsReadings,sensorUnit,readMode);
+    }
     else
     {
       ecmdOutputError("getsensor - Invalid sensor type. Type 'getsensor -h' for usage.\n");
@@ -2213,11 +2234,50 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
       coeRc = rc;
     }
     else {
-      ecmdDataBuffer buf(32);
-      buf.setWord(0,o_data);
       printed = ecmdWriteTarget(target);
-      printed += ecmdWriteDataFormatted(buf, outputformat);
-
+      if ( sensorType == "dts" ) {
+        char buffer[200];
+        char temperature[30];
+        std::string tripLevelStr;
+        if ( headerPrinted == false ) {
+          //print the header now
+          std::string header1(printed.length(),' ');
+          std::string header2(printed.length(),' ');
+          for ( int i = 0; i < o_dtsReadings.num_of_sensors; i++ ) {
+            header1 += "====================";
+            header2 += " Name  Temp (trip)  ";
+          }
+          header1 += "\n";
+          header2 += "\n";
+          ecmdOutput(header1.c_str());
+          ecmdOutput(header2.c_str());
+          ecmdOutput(header1.c_str());
+          headerPrinted = true; //setting it to true as the header is printed now
+        }
+        for (int i = 0; i < o_dtsReadings.num_of_sensors; i++) {
+          if ( o_dtsReadings.validity_of_sensor_reading[i] ) {
+            sprintf(temperature,"%lld",o_dtsReadings.temp_of_sensors[i]);
+            switch (  o_dtsReadings.tripLevel_of_reading[i] ) {
+              case 0 : tripLevelStr = "(no trip)"; break;
+              case 1 : tripLevelStr = "(warning)"; break;
+              case 2 : tripLevelStr = "(critical)"; break;
+              case 3 : tripLevelStr = "(fatal)"; break;
+              default: tripLevelStr = "(unknown)"; break;
+            }
+          } else {
+            //if we come here, then we need to ignore the temperature
+            sprintf(temperature,"%4s","   ");
+            tripLevelStr = "invalid";
+          } //end if
+          sprintf(buffer,"%3s: %4s %-10s",o_dtsReadings.name_of_sensors[i].c_str(), temperature, tripLevelStr.c_str());
+          printed += buffer;
+        } //for loop 
+        printed += "\n";
+      } else {
+        ecmdDataBuffer buf(32);
+        buf.setWord(0,o_data);
+        printed += ecmdWriteDataFormatted(buf, outputformat);
+      }
       ecmdOutput(printed.c_str());
     }
   } //end - configLooper 

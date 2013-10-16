@@ -2275,4 +2275,16 @@ std::string ecmdGetSharedLibVersion();
 */
 #define ECMD_STOP_CLOCK_MODE_SKIP_IOVALID   0x00000001
 
+/**
+@brief Used in ecmdReadDigitalThermalSensor function to get the dts readings for an ex target
+*/
+struct ecmdDTSData{
+  uint8_t                   num_of_sensors;             ///< Number of sensors in an ex target as specified in the h/w procedure
+  std::vector<std::string>  name_of_sensors;            ///< Name of sensors as returned by the h/w procedure
+  std::vector<uint64_t>     temp_of_sensors;            ///< Temperature readings in requested ecmdThermalUnit
+  std::vector<uint64_t>     validity_of_sensor_reading; ///< Flag indicating whether the reading is valid; If set, then reading is valid 
+  std::vector<uint64_t>     tripLevel_of_reading;       ///< Indicates whether the sensor result is above threshold trip level:
+                                                        ///< 0 - no trip; 1 - warning; 2 - critical; 3 - fatal
+};
+
 #endif
