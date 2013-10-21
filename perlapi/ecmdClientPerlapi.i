@@ -84,6 +84,10 @@
   #include "zseClientPerlapiFunc.H"
   #include "zseClientPerlapiIterators.H"
 #endif
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+  #include "fapiClientPerlapi.H"
+  #include "fapiClientPerlapiFunc.H"
+#endif
 %}
 /*********** End Insert Code ***********/
 
@@ -161,6 +165,9 @@
 #endif
 #ifdef ECMD_ZSE_EXTENSION_SUPPORT
   %include zseClientPerlapi.i
+#endif
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+  %include fapiClientPerlapi.i
 #endif
 /*********** End Files to swigify ***********/
 

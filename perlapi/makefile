@@ -17,10 +17,6 @@ DEFINES      :=
 CFLAGS       := ${CFLAGS} -I../capi -I../dll
 SWIGFLAGS    := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I../capi -I../dll -DECMD_PERLAPI
 
-# Don't want to include the fapi extension, there isn't one
-EXTENSIONS   := $(subst fapi,,${EXTENSIONS})
-
-
 # Ok, tack on all the extension stuff
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi:../ext/${ext}/perlapi)
 VPATH := $(subst ${space},,${VPATH})
@@ -36,7 +32,10 @@ SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${
 PM_TARGET := ecmd.pm
 SO_TARGET := ecmd.so
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi_${OS}.a
+# remove fapi here and add initFapiExtention only
+EXTENSIONS   := $(subst fapi,,${EXTENSIONS})
 LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi_${OS}.a)
+LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
 VPATH     := ${VPATH}:${OBJPATH}
 ifeq ($(strip ${SWIG}),)
   SWIG      := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/${OS}/bin/swig
