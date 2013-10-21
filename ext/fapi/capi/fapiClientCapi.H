@@ -10,10 +10,12 @@
 
 #include <stdint.h>
 #include <list>
+#ifndef ECMD_PERLAPI
 #include <fapiTarget.H>
 #include <fapiReturnCode.H>
 #include <fapiStructs.H>  
 #include <fapiAttributeIds.H>
+#endif // #ifndef ECMD_PERLAPI
 
 #include <ecmdStructs.H>  
 #include <ecmdDataBufferBase.H>
@@ -26,6 +28,8 @@
 extern "C" {
 
  
+#ifndef ECMD_PERLAPI
+
 /** @name Load/Unload Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)*/
 //@{
 /**
@@ -181,6 +185,7 @@ void fapiOutputDebug(const char* i_message);
 */
 void fapiOutputScanTrace(const char* i_message);
 
+#endif // #ifndef ECMD_PERLAPI
 
 } //extern c
 

@@ -207,12 +207,17 @@ bmlperlapi:
 ########################
 # fapi Extension
 ########################
-fapi: fapicapi 
+fapi: fapicapi fapiperlapi
 
 fapicapi: ecmdcapi
-	@echo "fapi Extension C-API ..."
+	@echo "FAPI Extension C-API ..."
 	@cd ext/fapi/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/fapi/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+fapiperlapi:
+	@echo "FAPI Extension Perl-API ..."
+	@cd ext/fapi/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################

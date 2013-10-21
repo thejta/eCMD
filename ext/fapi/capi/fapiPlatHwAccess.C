@@ -48,8 +48,7 @@ using namespace fapi;
 /* This is from ecmdClientCapiFunc.C */
  extern void * dlHandle;
  extern void * DllFnTable[];
-
- void * fapiDllFnTable[FAPI_NUMFUNCTIONS];
+ extern void * fapiDllFnTable[];
 
 #else
 
@@ -58,8 +57,7 @@ using namespace fapi;
 #endif
 
 
-/* Our initialization flag */
- bool fapiInitialized = false;
+extern bool fapiInitialized;
 #ifndef ECMD_STRIP_DEBUG
 extern int ecmdClientDebug;
 extern int fppCallCount;

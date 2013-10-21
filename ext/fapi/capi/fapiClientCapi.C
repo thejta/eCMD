@@ -85,57 +85,6 @@ extern bool ecmdDebugOutput;
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-uint32_t fapiInitExtension() {
-
-  int rc = ECMD_SUCCESS;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"fapiInitExtension: eCMD FAPI Extension Initialization function called before DLL has been loaded\n");
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-  /* Only do this if it hasn't been done already */
-  if (fapiInitialized) {
-    return ECMD_SUCCESS;
-  }
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  /* look for init function */
-  uint32_t (*Function)(const char *) =
-    (uint32_t(*)(const char *))(void*)dlsym(dlHandle, "dllFapiInitExtension");
-  if (!Function) {
-    /* This extension is not supported by this plugin */
-    rc = ECMD_EXTENSION_NOT_SUPPORTED;
-  } else {
-    rc = (*Function)(ECMD_FAPI_CAPI_VERSION);
-    if (!rc) fapiInitialized = true;
-  }
-  
-  /* Clear out the function table */
-  for (int func = 0; func < FAPI_NUMFUNCTIONS; func ++) {
-    fapiDllFnTable[func] = NULL;
-  }
-#else
-
-  rc = dllFapiInitExtension(ECMD_FAPI_CAPI_VERSION);
-  if (!rc) fapiInitialized = true;
-
-#endif /* ECMD_STATIC_FUNCTIONS */
-
-  /* Now as part of defect 18081 we register to the core client that we have been initialized */
-  ecmdRegisterExtensionInitState(&fapiInitialized);
-
-  if (rc) {
-    std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, false, false);
-    if (errorString.size()) ecmdOutput(errorString.c_str());
-  }
-
-  return rc;
-}
-
 uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedObjectName, const std::string & i_sharedObjectEntryPoint, std::list<uint64_t> &i_sharedObjectArgs) {
 
 #ifndef ECMD_STATIC_FUNCTIONS
