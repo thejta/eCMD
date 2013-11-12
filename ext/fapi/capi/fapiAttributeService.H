@@ -1,3 +1,6 @@
+// $Id$
+// $Source$
+
 /**
  *  @file fapiAttributeService.H
  *
@@ -18,6 +21,8 @@
  *                          camvanng    10/20/2011  Changed i_pTarget to "const"
  *                                                  ptr
  *                          mjjones     04/10/2012  Support for privileged atts
+ *                          mjjones     06/07/2012  Add attr override support
+ *                          mjjones     03/13/2013  Move attr override code to plat
  */
 
 #ifndef FAPIATTRIBUTESERVICE_H_
@@ -43,31 +48,33 @@
  *   l_rc = FAPI_ATTR_GET(<ID>, l_pTarget, l_pVal);
  *   l_rc = FAPI_ATTR_SET(<ID>, l_pTarget, l_pVal);
  *
- * The first part of these macros is a call to fapiCheckIdType that will cause a
- * compile failure if the ID or VAL parameters are incorrect.
+ * A priveleged attribute is one that a HWP should not generally access,
+ * examples include ATTR_NAME and ATTR_EC, where usage can lead to a non
+ * data-driven design. A privileged attribute can be accessed with
+ * FAPI_ATTR_GET_PRIVILEGED and FAPI_ATTR_SET_PRIVILEGED
+ * 
+ * The non-PRIVILEGED macros first call a template function (compiler will
+ * optimize out) that will cause a compile failure if the attribute is
+ * privileged, they then call a PRIVILEGED macro to get/set the attribute
  *
- * For the non-PRIVILEGED macros, the second part is a call to
- * fapiFailIfPrivileged that will cause a compile failure if the attribute is
- * privileged (in general, HWPs should not access privileged attributes.
- * Examples include ATTR_NAME and ATTR_EC, where usage can lead to a non
- * data-driven design).
- *
- * The final part of these macros calls a macro named <ID>_GET/SETMACRO. This
- * macro is defined by PLAT and must do the work of getting/setting the
- * attribute.
+ * The PRIVILEGED macros call a template function (compiler will optimize out)
+ * that will cause a compile failure if the ID is not valid or VAL is not the
+ * correct type.
  */
 #define FAPI_ATTR_GET(ID, PTARGET, VAL) \
-    (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
-     fapi::fapiFailIfPrivileged<fapi::ID##_Privileged>(), \
+    (fapi::fapiFailIfPrivileged<fapi::ID##_Privileged>(), \
+     fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
      ID##_GETMACRO(ID, PTARGET, VAL))
+
 #define FAPI_ATTR_SET(ID, PTARGET, VAL) \
-    (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
-     fapi::fapiFailIfPrivileged<fapi::ID##_Privileged>(), \
+    (fapi::fapiFailIfPrivileged<fapi::ID##_Privileged>(), \
+     fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
      ID##_SETMACRO(ID, PTARGET, VAL))
 
 #define FAPI_ATTR_GET_PRIVILEGED(ID, PTARGET, VAL) \
     (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
      ID##_GETMACRO(ID, PTARGET, VAL))
+
 #define FAPI_ATTR_SET_PRIVILEGED(ID, PTARGET, VAL) \
     (fapi::fapiCheckIdType<fapi::ID##_Type>(fapi::ID, VAL), \
      ID##_SETMACRO(ID, PTARGET, VAL))
@@ -111,7 +118,7 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
  * This is called by FAPI code to check at compile time that a FAPI attribute
  * access is using the correct data type and a valid AttributeId
  */
-template<typename T> void fapiCheckIdType(AttributeId, T &) {}
+template<typename T> inline void fapiCheckIdType(AttributeId, T &) {}
 
 /**
  * @brief Fail if attribute privileged

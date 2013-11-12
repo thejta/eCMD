@@ -35,5 +35,6 @@
 #include <fapiSetSbeError.H>    // Generated file
 #include <ecmdDataBufferBase.H>
 #include <fapiMvpdAccess.H>
+#include <fapiMBvpdAccess.H>
 
 #endif // FAPI_H_

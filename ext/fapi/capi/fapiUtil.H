@@ -1,25 +1,6 @@
-/* IBM_PROLOG_BEGIN_TAG                                                   */
-/* This is an automatically generated prolog.                             */
-/*                                                                        */
-/* $Source$                        */
-/*                                                                        */
-/* IBM CONFIDENTIAL                                                       */
-/*                                                                        */
-/* COPYRIGHT International Business Machines Corp. 2011,2012              */
-/*                                                                        */
-/* p1                                                                     */
-/*                                                                        */
-/* Object Code Only (OCO) source materials                                */
-/* Licensed Internal Code Source Materials                                */
-/* IBM HostBoot Licensed Internal Code                                    */
-/*                                                                        */
-/* The source code for this program is not published or otherwise         */
-/* divested of its trade secrets, irrespective of what has been           */
-/* deposited with the U.S. Copyright Office.                              */
-/*                                                                        */
-/* Origin: 30                                                             */
-/*                                                                        */
-/* IBM_PROLOG_END_TAG                                                     */
+// $Id$
+// $Source$
+
 /**
  *  @file fapiUtil.H
  *
@@ -44,6 +25,7 @@
  *                                                  and doxygen changes;
  *                                                  needed by cronus
  *                          mjjones     08/13/2012  Add fapiSpecialWakeup
+ *                          dcrowell    10/14/2013  Add explicit inline
  */
 
 #ifndef FAPIUTIL_H_
@@ -69,6 +51,10 @@
 #define FAPI_LE64TOH(x) FAPI_PLAT_LE64TOH(x)
 #define FAPI_HTOBE64(x) FAPI_PLAT_HTOBE64(x)
 #define FAPI_HTOLE64(x) FAPI_PLAT_HTOLE64(x)
+
+// Defines for platform-specific memory allocation
+#define fapiMalloc(s) fapiPlatMalloc(s)
+#define fapiFree(p) fapiPlatFree(p)
 
 // It is an eCMD requirement that these functions have a "C" symbol
 // because they may be used from a dynamically linked shared library
@@ -241,6 +227,7 @@ namespace fapi
  * This function can be called to check that a variable type is as expected
  */
 template<typename T>
+inline
 void fapiCheckType(const T &) {}
 
 }

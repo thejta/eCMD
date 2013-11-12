@@ -109,6 +109,24 @@ public:
      */
     ErrorInfo & getCreateErrorInfo();
 
+#ifdef FAPI_CUSTOM_MALLOC
+    /**
+     * @brief Overload new operator to use platform-specific allocator
+     *
+     * @param[in] i_sz  Size of memory to allocate in bytes
+     *
+     * @return  Pointer to allocated memory
+     */
+    static void * operator new(size_t i_sz);
+
+    /**
+     * @brief Overload delete operator to use platform-specific deallocator
+     *
+     * @param[in] i_ptr Pointer to memory previously allocated with new
+     */
+    static void operator delete(void * i_ptr);
+#endif
+
 private:
 
     /**

@@ -70,4 +70,22 @@ void Target::toString(char (&o_ecmdString)[MAX_ECMD_STRING_LEN]) const
    o_ecmdString[MAX_ECMD_STRING_LEN - 1] = 0;
 }
 
+//******************************************************************************
+// Get the ecmd-format string
+//******************************************************************************
+const char * Target::toEcmdString() const
+{
+    if (iv_pEcmdString == NULL)
+    {
+        iv_pEcmdString = new char[fapi::MAX_ECMD_STRING_LEN];
+        char (&l_ecmdString)[fapi::MAX_ECMD_STRING_LEN] =
+            *(reinterpret_cast<char(*)[fapi::MAX_ECMD_STRING_LEN]>
+                (iv_pEcmdString));
+        toString(l_ecmdString);
+    }
+
+    return iv_pEcmdString;
+}
+
+
 }

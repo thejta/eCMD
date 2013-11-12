@@ -71,6 +71,33 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_EC_ENABLE_TRACE_LCL_CLK_GATE_CTRL:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_ENABLE_NM_CHANGE_AFTER_SYNC:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_ENABLE_ROW_HAMMER_FEATURE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CENTAUR_EC_WRITE_FIR_MASK_FEATURE:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
@@ -116,6 +143,60 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_EC_ECID_CONTAINS_PORT_LOGIC_BAD_INDICATION:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_MCBIST_RANDOM_DATA_GEN:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_MCBIST_TRAP_RESET:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_MCBIST_RANDOM_ADDRESS:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_SCOM_PARITY_ERROR_HW244827_FIXED:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_HW217608_MBSPA_0_CMD_COMPLETE_ATTN_FIXED:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CHIP_EC_FEATURE_VENICE_SPECIFIC:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
@@ -129,6 +210,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
                          (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_BOOT_FREQ_LESS_PSAVE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc == 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -183,6 +273,18 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     }
                     break;
                 case ATTR_CHIP_EC_FEATURE_CAPP_HANG_CONTROL_ON_SCOM:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_CAPP_PROD:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
                          (l_chipEc >= 0x20))
@@ -329,7 +431,184 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
-                case ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_CENT5_VER2:
+                case ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_WE5_VER2:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C8_VER3:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C8_VER2:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc == 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C10_VER2:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_MCD_HANG_RECOVERY_BUG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_PCBS_ERR_RESET:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_IO_TRAINING_SLS_WORKAROUND:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc <= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_IO_TRAINING_DLL_WORKAROUND:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc <= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_DCCAL_PLL_WORKAROUND:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc <= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_RESONANT_CLK_VALID:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_AISS_SPECIAL_WAKEUP:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_CFAM_RESET_SBE_START_WA:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_OCC_CE_FIR_DISABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_ENABLE_IVE_PERFORMANCE_ORDERING:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_ENABLE_PCI_DMAR_OOO:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_IVRM_WINKLE_BUG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc > 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_PROC_EC_MSS_RECONFIG_POSSIBLE:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
                          (l_chipEc >= 0x20))
@@ -357,6 +636,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_CPM4_NO_CAL_WA:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc == 0x10))
                        )
                     {
                         o_hasFeature = true;

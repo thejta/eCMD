@@ -1,3 +1,6 @@
+// $Id$
+// $Source$
+
 /**
  *  @file fapiReturnCode.H
  *
@@ -25,6 +28,13 @@
  *                          mjjones     08/14/2012  Created getCreateReturnCodeDataRef
  *                          mjjones     09/19/2012  Add FFDC ID to error info
  *                          mjjones     03/22/2013  Support Procedure Callouts
+ *                          mjjones     05/20/2013  Support Bus Callouts
+ *                          mjjones     06/06/2013  Check FFDC size at compile time
+ *                          mjjones     06/24/2013  Support Children CDGs
+ *                          mjjones     08/26/2013  Support Hw Callout
+ *                          rjknight    09/10/2013  Support DIMM callout from
+ *                                                  MBA port and dimm number
+ *                          mjjones     11/08/2013  Do not define struct in union
  */
 
 #ifndef FAPIRETURNCODE_H_
@@ -243,10 +253,11 @@ public:
     enum ErrorInfoType
     {
         EI_TYPE_FFDC              = 1,
-        EI_TYPE_PROCEDURE_CALLOUT = 2,
-        EI_TYPE_CALLOUT           = 3,
-        EI_TYPE_DECONF            = 4,
-        EI_TYPE_GARD              = 5,
+        EI_TYPE_HW_CALLOUT        = 2,
+        EI_TYPE_PROCEDURE_CALLOUT = 3,
+        EI_TYPE_BUS_CALLOUT       = 4,
+        EI_TYPE_CDG               = 5, // Target Callout/Deconfig/GARD
+        EI_TYPE_CHILDREN_CDG      = 6, // Children Callout/Deconfig/GARD
     };
 
     /**
@@ -255,15 +266,66 @@ public:
      * An array of these is passed to the addErrorInfo function when a HWP
      * generates an error by calling the FAPI_SET_HWP_ERROR macro
      */
+    struct ErrorInfoEntryFfdc
+    {
+        uint8_t  iv_ffdcObjIndex;
+        uint16_t iv_ffdcSize;
+        uint32_t iv_ffdcId;
+    };
+
+    struct ErrorInfoEntryHwCallout
+    {
+        uint8_t iv_hw;
+        uint8_t iv_calloutPriority;
+        uint8_t iv_refObjIndex;
+    };
+
+    struct ErrorInfoEntryProcCallout
+    {
+        uint8_t iv_procedure;
+        uint8_t iv_calloutPriority;
+    };
+
+    struct ErrorInfoEntryBusCallout
+    {
+        uint8_t iv_endpoint1ObjIndex;
+        uint8_t iv_endpoint2ObjIndex;
+        uint8_t iv_calloutPriority;
+    };
+
+    struct ErrorInfoEntryTargetCDG
+    {
+        uint8_t iv_targetObjIndex;
+        uint8_t iv_callout;
+        uint8_t iv_deconfigure;
+        uint8_t iv_gard;
+        uint8_t iv_calloutPriority;
+    };
+
+    struct ErrorInfoEntryChildrenCDG
+    {
+        uint8_t  iv_parentObjIndex;
+        uint8_t  iv_callout;
+        uint8_t  iv_deconfigure;
+        uint32_t iv_childType;
+        uint8_t  iv_childPort;
+        uint8_t  iv_childNumber;
+        uint8_t  iv_gard;
+        uint8_t  iv_calloutPriority;
+    };
+
     struct ErrorInfoEntry
     {
-        uint8_t  iv_type;   // The type of ErrorInfo (from ErrorInfoType enum)
-        uint8_t  iv_object; // Which object in the i_pObjects array the
-                            // ErrorInfoEntry refers to
-        int16_t  iv_data1;  // EI_TYPE_FFDC               : Size of FFDC
-                            // EI_TYPE_[PROCEDURE_]CALLOUT: CalloutPriority
-        uint32_t iv_data2;  // EI_TYPE_FFDC               : FFDC Id
-                            // EI_TYPE_PROCEDURE_CALLOUT  : ProcedureCallout
+        uint8_t iv_type; // Value from ErrorInfoType
+        union
+        {
+            ErrorInfoEntryFfdc ffdc;
+            ErrorInfoEntryHwCallout hw_callout;
+            ErrorInfoEntryProcCallout proc_callout;
+            ErrorInfoEntryBusCallout bus_callout;
+            ErrorInfoEntryTargetCDG target_cdg;
+            ErrorInfoEntryChildrenCDG children_cdg;
+        };
     };
 
     /**
@@ -277,10 +339,9 @@ public:
      *
      * @param[in] i_pObjects Pointer to array of const pointers to const objects
      *                       that are referred to by ErrorInfoEntry objects
-     *                       (object type is dependent on ErrorInfoEntry type)
      * @param[in] i_pEntries Pointer to array of ErrorInfoEntry objects defining
      *                       the ErrorInfo that needs to be added
-     * @param[in] i_count    Number of ErrorInfoEntry structures
+     * @param[in] i_count    Number of ErrorInfoEntry entries
      */
     void addErrorInfo(const void * const * i_pObjects,
                       const ErrorInfoEntry * i_pEntries,
@@ -344,7 +405,21 @@ private:
     void forgetData();
 
     /**
-     * @brief Add a procedure to callout to the ErrorInfo
+     * @brief Add a HW callout to the ErrorInfo
+     *
+     * This is called by addErrorInfo
+     *
+     * @param[in] i_hw        The hardware to callout
+     * @param[in] i_priority  The priority of the callout
+     * @param[in] i_refTarget Reference to reference Target
+     */
+     void addEIHwCallout(
+         const HwCallouts::HwCallout i_hw,
+         const CalloutPriorities::CalloutPriority i_priority,
+         const Target & i_refTarget);
+
+    /**
+     * @brief Add a procedure callout to the ErrorInfo
      *
      * This is called by addErrorInfo
      *
@@ -356,34 +431,62 @@ private:
          const CalloutPriorities::CalloutPriority i_priority);
 
     /**
-     * @brief Add a target to callout to the ErrorInfo
+     * @brief Add a bus callout to the ErrorInfo
      *
      * This is called by addErrorInfo
      *
-     * @param[in] i_target   Reference to the target to callout.
+     * @param[in] i_target1  Reference to endpoint1 Target
+     * @param[in] i_target2  Reference to endpoint2 Target
      * @param[in] i_priority The priority of the callout
      */
-     void addEICallout(
-         const Target & i_target,
+     void addEIBusCallout(
+         const Target & i_target1,
+         const Target & i_target2,
          const CalloutPriorities::CalloutPriority i_priority);
 
     /**
-     * @brief Add a target to deconfigure to the ErrorInfo
+     * @brief Add a target callout/deconfigure/GARD to the ErrorInfo
      *
      * This is called by addErrorInfo
      *
-     * @param[in] i_target Reference to the target to deconfigure.
+     * @param[in] i_target      Reference to the target to cdg
+     * @param[in] i_callout     True if Target should be called out
+     * @param[in] i_deconfigure True if Target should be deconfigured
+     * @param[in] i_gard        True if Target should be GARDed
+     * @param[in] i_priority    The priority of any callout
      */
-    void addEIDeconfigure(const Target & i_target);
+     void addEICdg(
+         const Target & i_target,
+         const bool i_callout,
+         const bool i_deconfigure,
+         const bool i_gard,
+         const CalloutPriorities::CalloutPriority i_priority);
 
-    /**
-     * @brief Add a target to create a GARD record for to the ErrorInfo
-     *
-     * This is called by addErrorInfo
-     *
-     * @param[in] i_target Reference to the target to create a GARD record for
-     */
-    void addEIGard(const Target & i_target);
+     /**
+      * @brief Add children target callout/deconfigure/GARDs to the ErrorInfo
+      *
+      * This is called by addErrorInfo to c/d/g all child Targets of a specified
+      * type. The function can take a chip/unit pair or an MBA/DIMM pair.  For
+      * the MBA/DIMM pair two additional parameters are used to identify which
+      * dimms should be called out.
+      *
+      * @param[in] i_parent      Reference to the parent chip
+      * @param[in] i_childType   Child target types to c/d/g
+      * @param[in] i_callout     True if Target should be called out
+      * @param[in] i_deconfigure True if Target should be deconfigured
+      * @param[in] i_gard        True if Target should be GARDed
+      * @param[in] i_priority    The priority of any callout
+      * @param[in] i_childPort   MBA port where error was detected
+      * @param[in] i_childNum    MBA dimm number of failing chip
+      */
+      void addEIChildrenCdg(
+          const Target & i_parent,
+          const TargetType i_childType,
+          const bool i_callout,
+          const bool i_deconfigure,
+          const bool i_gard,
+          const CalloutPriorities::CalloutPriority i_priority,
+          const uint8_t i_childPort, const uint8_t i_childNum);
 
     // The rcValue
     uint32_t iv_rcValue;
@@ -407,9 +510,25 @@ namespace ReturnCodeFfdc
      */
     enum ErrorInfoFfdcSize
     {
-        EI_FFDC_SIZE_ECMDDB = -1,   // ecmdDataBufferBase
-        EI_FFDC_SIZE_TARGET = -2,   // fapi::Target
+        EI_FFDC_SIZE_ECMDDB = 0xffff,   // ecmdDataBufferBase
+        EI_FFDC_SIZE_TARGET = 0xfffe,   // fapi::Target
+        EI_FFDC_MAX_SIZE    = 0x1000,   // Limit regular FFDC capture to 4kb
     };
+
+    /**
+     * @brief Compile error if caller tries to add too much FFDC to a ReturnCode
+     *
+     * If the unspecialized function template is instantiated, the compile will
+     * fail due to the construction of an undefined class. If the specialized
+     * function template is instantiated (done if the FFDC size is not too big),
+     * the function does nothing and is optimized out
+     */
+    class Error_FfdcTooLargeToCapture;
+    template<const bool TOO_BIG> void checkFfdcSize()
+    {
+        Error_FfdcTooLargeToCapture();
+    }
+    template <> inline void checkFfdcSize<false>() {}
 
     /**
      * @brief Get FFDC Size
@@ -419,11 +538,12 @@ namespace ReturnCodeFfdc
      * than types that are simply memcopied then it is handled by a template
      * specialization
      *
-     * @return int8_t. Size of the FFDC data
+     * @return uint16_t. Size of the FFDC data
      */
     template<typename T>
-    int16_t getErrorInfoFfdcSize(const T &)
+    inline uint16_t getErrorInfoFfdcSize(const T &)
     {
+        checkFfdcSize<(sizeof(T) > EI_FFDC_MAX_SIZE)>();
         return sizeof(T);
     }
 
@@ -431,7 +551,7 @@ namespace ReturnCodeFfdc
      * @brief Get FFDC Size specialization for ecmdDataBufferBase
      */
     template<>
-    inline int16_t getErrorInfoFfdcSize<ecmdDataBufferBase>(
+    inline uint16_t getErrorInfoFfdcSize<ecmdDataBufferBase>(
         const ecmdDataBufferBase &)
     {
         return EI_FFDC_SIZE_ECMDDB;
@@ -441,7 +561,7 @@ namespace ReturnCodeFfdc
      * @brief Get FFDC Size specialization for fapi::Target
      */
     template<>
-    inline int16_t getErrorInfoFfdcSize<fapi::Target>(
+    inline uint16_t getErrorInfoFfdcSize<fapi::Target>(
         const fapi::Target &)
     {
         return EI_FFDC_SIZE_TARGET;
@@ -455,7 +575,7 @@ namespace ReturnCodeFfdc
      */
     class Error_PtrPassedToGetErrorInfoFfdcSize;
     template<typename T>
-    int16_t getErrorInfoFfdcSize(const T *)
+    inline int16_t getErrorInfoFfdcSize(const T *)
     {
         Error_PtrPassedToGetErrorInfoFfdcSize();
         return 0;

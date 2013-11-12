@@ -13,7 +13,8 @@
  *                          mjjones     06/30/2011  Added #include
  *                          mjjones     07/05/2011  Removed const from data
  *                          mjjones     07/25/2011  Added support for FFDC
- *                          mjjones     09/22/2100  Added support for Error Info
+ *                          mjjones     09/22/2011  Added support for Error Info
+ *                          mjjones     07/11/2012  Removed some tracing
  */
 
 #include <string.h>
@@ -160,5 +161,25 @@ ErrorInfo & ReturnCodeDataRef::getCreateErrorInfo()
 
     return *iv_pErrorInfo;
 }
+
+//******************************************************************************
+// Overload Operator new function
+//******************************************************************************
+#ifdef FAPI_CUSTOM_MALLOC
+void * ReturnCodeDataRef::operator new(size_t i_sz)
+{
+    return fapiMalloc(i_sz);
+}
+#endif
+
+//******************************************************************************
+// Overload Operator delete function
+//******************************************************************************
+#ifdef FAPI_CUSTOM_MALLOC
+void ReturnCodeDataRef::operator delete(void * i_ptr)
+{
+    fapiFree(i_ptr);
+}
+#endif
 
 }
