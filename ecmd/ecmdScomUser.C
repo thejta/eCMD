@@ -175,23 +175,6 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
 
   uint64_t  address = strtoull(argv[1],NULL,16);
 
-
-  if (expectFlag) {
-    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
-    if (rc) {
-      ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
-      return rc;
-    }
-
-    if (maskFlag) {
-      rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
-      if (rc) {
-        ecmdOutputError("getscom - Problems occurred parsing mask data, must be an invalid format\n");
-        return rc;
-      }
-    }
-  }
-  
   if (argc > 2) {
     if (argc != 4) {
       ecmdOutputError("getscom - Too many arguments specified; you probably added an unsupported option.\n");
@@ -224,6 +207,45 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     
   } 
   
+
+  if (expectFlag) {
+    if (inputformat == "d") 
+    {
+      char msgbuf[100];
+      sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", numbits);
+      ecmdOutput(msgbuf);
+
+      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, numbits);
+    }
+    else
+    {
+      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
+    }
+    if (rc) {
+      ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
+      return rc;
+    }
+
+    if (maskFlag) {
+      if (inputformat == "d") 
+      {
+	char msgbuf[100];
+	sprintf(msgbuf,"Resizing mask value to requested number of bits (%d).\n", numbits);
+	ecmdOutput(msgbuf);
+	rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, numbits);
+      }
+      else
+      {
+	rc = ecmdReadDataFormatted(mask, maskPtr, inputformat);
+      }
+      if (rc) {
+        ecmdOutputError("getscom - Problems occurred parsing mask data, must be an invalid format\n");
+        return rc;
+      }
+    }
+  }
+  
+
   
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
@@ -754,6 +776,16 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
 
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+  if (formatPtr != NULL) {
+    outputformat = formatPtr;
+  }
+  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
+
   //expect and mask flags check
   if ((curArg = ecmdParseOptionWithArgs(&argc, &argv, "-exp")) != NULL) {
     expectFlag = true;
@@ -828,15 +860,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   }
 #endif
 
-  /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
-  if (formatPtr != NULL) {
-    outputformat = formatPtr;
-  }
-  formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
-  }
+
 
 
 
