@@ -21,16 +21,12 @@
 #include <fapiClientCapi.H>
 #include <fapiStructs.H>
 
-/* In eCMD (and Cronus) we dont use the override macros so defaulting to false
-   will force the fapi::fapiQueryChipEcFeature() to get called.  Right now
-   there isn't a way to override chip ec feature attributes directly.  Users 
-   can indirectly override these types of attribute by override the ATTR_EC
-   and ATTR_NAME if needed.
-   -farrugia 05.03.2013
- */
-#define PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, PTARGET, VAL) false
+#define PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, PTARGET, VAL) \
+      _getEcFeatureOverride<fapi::ID##_Type>(fapi::ID, PTARGET, VAL)
 
 /* INSERT NEW ATTRIBUTES HERE */
+
+#define ATTR_MRW_MAX_DRAM_DATABUS_UTIL_GETMACRO PLAT_ATTR_GET_GLOBAL_INT
 
 #define ATTR_VPD_CEN_DRV_IMP_ADDR_SETMACRO PLAT_ATTR_SET_UINT8_1D_ARRAY
 #define ATTR_VPD_CEN_DRV_IMP_CLK_SETMACRO PLAT_ATTR_SET_UINT8_1D_ARRAY
@@ -1446,6 +1442,55 @@
      _set<fapi::ID##_Type>(fapi::ID, PTARGET, VAL)
 
 /******************************************************************************/
+// Get Override Macros
+/******************************************************************************/
+/* global get override uint8_t 1D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_1D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayShort(fapi::ID, PTARGET, VAL)
+/* global get override uint8_t 2D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_2D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayShort(fapi::ID, PTARGET, VAL[0])
+/* global get override uint8_t 3D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_3D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayShort(fapi::ID, PTARGET, VAL[0][0])
+/* global get override uint8_t 4D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_4D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayShort(fapi::ID, PTARGET, VAL[0][0][0])
+
+
+/* global get override uint32_t 1D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_1D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayWord(fapi::ID, PTARGET, VAL)
+/* global get override uint32_t 2D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_2D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayWord(fapi::ID, PTARGET, VAL[0])
+/* global get override uint32_t 3D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_3D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayWord(fapi::ID, PTARGET, VAL[0][0])
+/* global get override uint32_t 4D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_4D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayWord(fapi::ID, PTARGET, VAL[0][0][0])
+
+
+/* global get override uint64_t 1D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_1D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayDoubleWord(fapi::ID, PTARGET, VAL)
+/* global get override uint64_t 2D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_2D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayDoubleWord(fapi::ID, PTARGET, VAL[0])
+/* global get override uint64_t 3D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_3D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayDoubleWord(fapi::ID, PTARGET, VAL[0][0])
+/* global get override uint64_t 4D array macro */
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_4D_ARRAY(ID, PTARGET, VAL) \
+     _getAttributeOverrideArrayDoubleWord(fapi::ID, PTARGET, VAL[0][0][0])
+
+/* global get override int macro (uint8_t, 32 and 64) */
+#define PLAT_ATTR_GET_OVERRIDE_GLOBAL_INT(ID, PTARGET, VAL) \
+     _getOverride<fapi::ID##_Type>(fapi::ID, PTARGET, VAL)
+
+
+/******************************************************************************/
 // Get string 
 /******************************************************************************/
 
@@ -1515,6 +1560,92 @@ ReturnCode _get<uint64_t> (const AttributeId i_id,
                            const Target * const i_pTarget,
                            uint64_t & o_value);
 
+/******************************************************************************/
+// Get Override string
+/******************************************************************************/
+
+template<typename T>
+ReturnCode _getOverride(const AttributeId i_id,
+			const Target * const i_pTarget,
+			char * & o_pValue)
+{
+      printf("Unsupported type specified\n");
+      return 0xFFFFFFFF;
+}
+template<> // Specialized template function defined in fapiAttributeService.C
+ReturnCode _getOverride<char *> (const AttributeId i_id,
+				 const Target * const i_pTarget,
+				 char * & o_value);
+
+//******************************************************************************
+// Get Override uint8_t 
+//******************************************************************************
+template<typename T>
+ReturnCode _getOverride(const AttributeId i_id,
+			const Target * const i_pTarget,
+			uint8_t& o_value)
+{
+      printf("Unsupported type specified\n");
+      return 0xFFFFFFFF;
+}
+
+template<> // Specialized template function defined in fapiAttributeService.C
+ReturnCode _getOverride<uint8_t> (const AttributeId i_id,
+				  const Target * const i_pTarget,
+				  uint8_t & o_value);
+
+//******************************************************************************
+// Get Override uint32_t 
+//******************************************************************************
+template<typename T>
+ReturnCode _getOverride(const AttributeId i_id,
+			const Target * const i_pTarget,
+			uint32_t& o_value)
+{
+      printf("Unsupported type specified\n");
+      return 0xFFFFFFFF;
+}
+
+template<> // Specialized template function defined in fapiAttributeService.C
+ReturnCode _getOverride<uint32_t> (const AttributeId i_id,
+				   const Target * const i_pTarget,
+				   uint32_t & o_value);
+
+
+//******************************************************************************
+// Get Override uint64_t 
+//******************************************************************************
+template<typename T>
+ReturnCode _getOverride(const AttributeId i_id,
+			const Target * const i_pTarget,
+			uint64_t& o_value)
+{
+      printf("Unsupported type specified\n");
+      return 0xFFFFFFFF;
+}
+template<> // Specialized template function defined in fapiAttributeService.C
+ReturnCode _getOverride<uint64_t> (const AttributeId i_id,
+				   const Target * const i_pTarget,
+				   uint64_t & o_value);
+
+//******************************************************************************
+// Get override EC Feature (uint8_t)
+//******************************************************************************
+template<typename T>
+ReturnCode _getEcFeatureOverride(const AttributeId i_id,
+				 const Target * const i_pTarget,
+				 uint8_t& o_value)
+{
+      printf("Unsupported type specified\n");
+      return 0xFFFFFFFF;
+}
+
+template<> // Specialized template function defined in fapiAttributeService.C
+ReturnCode _getEcFeatureOverride<uint8_t> (const AttributeId i_id,
+					   const Target * const i_pTarget,
+					   uint8_t & o_value);
+
+
 //******************************************************************************
 // Get and set arrays  
 //******************************************************************************
@@ -1524,6 +1655,9 @@ ReturnCode _getAttributeArrayWord(const AttributeId i_id, const Target * const i
 ReturnCode _setAttributeArrayWord(const AttributeId i_id, const Target * const i_pTarget, uint32_t * i_pValues);
 ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id, const Target * const i_pTarget, uint64_t * o_pValues);
 ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id, const Target * const i_pTarget, uint64_t * i_pValues);
+ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id, const Target * const i_pTarget, uint8_t * o_pValues);
+ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id, const Target * const i_pTarget, uint32_t * o_pValues);
+ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id, const Target * const i_pTarget, uint64_t * o_pValues);
 
 //******************************************************************************
 // Set String 

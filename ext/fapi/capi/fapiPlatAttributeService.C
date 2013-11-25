@@ -208,6 +208,205 @@ ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
 }
 
 //******************************************************************************
+// Get Override EC Feature uint8_t
+//******************************************************************************
+template<>
+ReturnCode _getEcFeatureOverride<uint8_t> (const AttributeId i_id,
+				  const Target * const i_pTarget,
+				  uint8_t & o_value)
+{
+
+  // The way this is implemented, we want to return a non-zero return code if we found an override.  
+  // Return 0 if there was an error.
+  // This is how it's implemented:
+  // PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, PTARGET, VAL) ? fapi::FAPI_RC_SUCCESS : fapi::fapiQueryChipEcFeature(fapi::ID, PTARGET, VAL)
+
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS; 
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {    
+     l_fapi_rc.setEcmdError(ECMD_SUCCESS);    
+     // Should then call fapiQueryChipEcFeature to get value in calling macros
+   }
+   else 
+   {
+     o_value = o_data.faUint8;
+     l_fapi_rc.setEcmdError(ECMD_INVALID_CONFIG_NAME); // translates to FAPI_RC_SUCCESS in calling macros
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override string
+//******************************************************************************
+template<>
+ReturnCode _getOverride<char *> (const AttributeId i_id,
+				 const Target * const i_pTarget,
+				 char * & o_value)
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS; 
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_STRING;
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
+   else 
+   {
+     o_value = o_data.faString;
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override uint8_t
+//******************************************************************************
+template<>
+ReturnCode _getOverride<uint8_t> (const AttributeId i_id,
+				  const Target * const i_pTarget,
+				  uint8_t & o_value)
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS; 
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
+   else 
+   {
+     o_value = o_data.faUint8;
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override uint32_t
+//******************************************************************************
+template<>
+ReturnCode _getOverride<uint32_t> (const AttributeId i_id,
+				   const Target * const i_pTarget,
+				   uint32_t & o_value)
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS;
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32;
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   { 
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   } 
+   else 
+   {
+     o_value = o_data.faUint32;
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override uint64_t
+//******************************************************************************
+template<>
+ReturnCode _getOverride<uint64_t> (const AttributeId i_id,
+				   const Target * const i_pTarget,
+				   uint64_t & o_value)
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS;
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64;
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
+   else
+   {
+     o_value = o_data.faUint64;
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override uint8_t array
+//******************************************************************************
+ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id, 
+					   const Target * const i_pTarget, 
+					   uint8_t * o_pValues)
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS;
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8ARY;
+   o_data.faUint8ary = o_pValues;
+
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override uint32_t array
+//******************************************************************************
+ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id, 
+					  const Target * const i_pTarget, 
+					  uint32_t * o_pValues)
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS; 
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32ARY;
+   o_data.faUint32ary = o_pValues;
+
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
+// Get Override uint64_t array
+//******************************************************************************
+ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id, 
+						const Target * const i_pTarget, 
+						uint64_t * o_pValues) 
+{
+   fapi::AttributeData o_data;
+   fapi::ReturnCode l_fapi_rc; 
+   uint32_t l_ecmd_rc = ECMD_SUCCESS; 
+
+   o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64ARY;
+   o_data.faUint64ary = o_pValues;
+
+   l_ecmd_rc = fapiGetAttributeOverride(*(i_pTarget), i_id, o_data); 
+   if (l_ecmd_rc)
+   {
+     l_fapi_rc.setEcmdError(l_ecmd_rc);
+   }
+   return l_fapi_rc;
+}
+
+//******************************************************************************
 // Set uint8_t
 //******************************************************************************
 template<>

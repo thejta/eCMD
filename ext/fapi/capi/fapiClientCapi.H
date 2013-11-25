@@ -66,6 +66,28 @@ uint32_t fapiHwpInvoker(ecmdChipTarget & i_target, const std::string & i_sharedO
 uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_fileName, std::string & o_fileLocation, std::string i_version = "default");
 
 /**
+ @brief Retrieve the value of an Attribute Override Setting from attribute file or cache.
+ @param i_target Struct that specifies the target to operate on
+ @param i_id ID of attribute to query
+ @param o_data Structure containing the valid data
+ @retval ECMD_INVALID_CONFIG_NAME Name specified is not found
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+
+ <b>
+ NOTE: </b>
+ <b>
+   <ul>
+   <li>Hardware procedures (HWP) should not call this API directly as it's only supported by eCMD, not FW. </li>
+  </ul>
+</b>
+
+*/
+uint32_t fapiGetAttributeOverride(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data);
+
+
+
+/**
  @brief Retrieve the value of an Attribute Setting
  @param i_target Struct that specifies the target to operate on
  @param i_id ID of attribute to query

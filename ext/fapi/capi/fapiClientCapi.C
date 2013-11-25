@@ -217,6 +217,65 @@ uint32_t fapiQueryFileLocation(fapi::FileType_t i_fileType, std::string & i_file
   return rc;
 }
 
+uint32_t fapiGetAttributeOverride(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data){
+
+  uint32_t rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiGetAttributeOverride%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &i_target);
+     args.push_back((void*) &i_id);
+     args.push_back((void*) &o_data);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapiGetAttributeOverride(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiGetAttributeOverride");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiGetAttributeOverride(i_target, i_id, o_data);
+#else
+  if (fapiDllFnTable[ECMD_FAPIGETATTRIBUTEOVERRIDE] == NULL) {
+     fapiDllFnTable[ECMD_FAPIGETATTRIBUTEOVERRIDE] = (void*)dlsym(dlHandle, "dllFapiGetAttributeOverride");
+     if (fapiDllFnTable[ECMD_FAPIGETATTRIBUTEOVERRIDE] == NULL) {
+       fprintf(stderr,"dllFapiGetAttributeOverride%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  uint32_t (*Function)(const fapi::Target &, const uint32_t,  fapi::AttributeData &) = 
+      (uint32_t(*)(const fapi::Target &, const uint32_t,  fapi::AttributeData &))fapiDllFnTable[ECMD_FAPIGETATTRIBUTEOVERRIDE];
+  rc =    (*Function)(i_target, i_id, o_data);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiGetAttributeOverride");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapiGetAttributeOverride(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data)",args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
 uint32_t fapiGetAttribute(const fapi::Target & i_target, const uint32_t i_id, fapi::AttributeData & o_data){
 
   uint32_t rc;

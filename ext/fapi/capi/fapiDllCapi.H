@@ -70,6 +70,11 @@ fapi::ReturnCode dllFapiGetAssociatedDimms(
 	std::vector<fapi::Target> & o_dimms, 
 	const fapi::TargetState i_state);
 
+uint32_t dllFapiGetAttributeOverride(
+	const fapi::Target & i_target, 
+	const uint32_t i_id, 
+	fapi::AttributeData & o_data);
+
 uint32_t dllFapiGetAttribute(
 	const fapi::Target & i_target, 
 	const uint32_t i_id, 
