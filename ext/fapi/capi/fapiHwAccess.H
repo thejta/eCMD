@@ -221,6 +221,7 @@ fapi::ReturnCode fapiModifyRing(const fapi::Target& i_target,
 // These spy access interfaces are only used in FSP and cronus
 // HB does not allow spy access
 
+#if defined(FAPI_SUPPORT_SPY_AS_ENUM) || defined(FAPI_SUPPORT_SPY_AS_STRING)
 /**
  * @brief Reads a Spy from a target
  * @param[in] i_target              Target to read spy from
@@ -262,9 +263,13 @@ fapi::ReturnCode fapiModifyRing(const fapi::Target& i_target,
  *         quotes for the cronus environment
  *
 */
+#endif
+
 #ifdef FAPI_SUPPORT_SPY_AS_ENUM
 
+#ifndef DOCUMENTATION
 #define fapiGetSpy(TARGET, ID, DATA) _fapiGetSpy(TARGET, FAPI_SPY_NAMES::ID.value, DATA )
+#endif
 fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
                             const uint32_t i_spyId,
                             ecmdDataBufferBase & o_data);
@@ -272,13 +277,15 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
 
 #ifdef FAPI_SUPPORT_SPY_AS_STRING
 
+#ifndef DOCUMENTATION
 #define fapiGetSpy(TARGET, ID, DATA) _fapiGetSpy(TARGET, #ID, DATA)
+#endif
 fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
                              const char * const i_spyId,
                              ecmdDataBufferBase & o_data);
 #endif
 
-#ifdef FAPI_SUPPORT_SPY_AS_ENUM
+#if defined(FAPI_SUPPORT_SPY_AS_ENUM) || defined(FAPI_SUPPORT_SPY_AS_STRING)
 /**
  * @brief Writes a spy on a target
  * @param[in] i_target  Target to operate on
@@ -321,21 +328,28 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
  *         quotes for the cronus environment
  *
 */
+#endif
+
+#ifdef FAPI_SUPPORT_SPY_AS_ENUM
+#ifndef DOCUMENTATION
 #define fapiPutSpy(TARGET, ID, DATA) _fapiPutSpy(TARGET, FAPI_SPY_NAMES::ID.value, DATA)
+#endif
 fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
                             const uint32_t i_spyId,
                             ecmdDataBufferBase & i_data);
 #endif
 
 #ifdef FAPI_SUPPORT_SPY_AS_STRING
+#ifndef DOCUMENTATION
 #define fapiPutSpy(TARGET, ID, DATA) _fapiPutSpy(TARGET, #ID, DATA)
+#endif
 fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
                             const char* const i_spyId,
                             ecmdDataBufferBase & i_data);
 
 #endif
 
-#ifdef FAPI_SUPPORT_SPY_AS_ENUM
+#if defined(FAPI_SUPPORT_SPY_AS_ENUM) || defined(FAPI_SUPPORT_SPY_AS_STRING)
 /**
  * @brief Writes data into a ring image
  * @param[in]   i_target      Target to operate on
@@ -355,9 +369,14 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
  *
  *         See fapiPutSpy for details on spy id specifics.
  */
+#endif
+
+#ifdef FAPI_SUPPORT_SPY_AS_ENUM
+#ifndef DOCUMENTATION
 #define fapiPutSpyImage(TARGET, ID, DATA1, DATA2) _fapiPutSpyImage(TARGET, \
                                                     FAPI_SPY_NAMES::ID.value, \
                                                     DATA1, DATA2)
+#endif
 fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
                                   const uint32_t i_spyId,
                                   const ecmdDataBufferBase & i_data,
@@ -366,15 +385,18 @@ fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
 
 #ifdef FAPI_SUPPORT_SPY_AS_STRING
 // fapiPutSpyImage function Cronus version
+#ifndef DOCUMENTATION
 #define fapiPutSpyImage(TARGET, ID, DATA1, DATA2) _fapiPutSpyImage(TARGET, #ID,\
                                                              DATA1,DATA2)
+#endif
+
 fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
                                   const char* const i_spyId,
                                   const ecmdDataBufferBase & i_data,
                                   ecmdDataBufferBase & o_imageData);
 #endif
 
-#ifdef FAPI_SUPPORT_SPY_AS_ENUM
+#if defined(FAPI_SUPPORT_SPY_AS_ENUM) || defined(FAPI_SUPPORT_SPY_AS_STRING)
 /**
  * @brief Reads data from a ring image
  * @param[in]   i_target      Target to operate on
@@ -394,9 +416,14 @@ fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
  *
  *         See fapiPutSpy for details on spy id specifics.
  */
+#endif
+
+#ifdef FAPI_SUPPORT_SPY_AS_ENUM
+#ifndef DOCUMENTATION
 #define fapiGetSpyImage(TARGET, ID, DATA1, DATA2) _fapiGetSpyImage(TARGET, \
                                             FAPI_SPY_NAMES::ID.value, \
                                             DATA1, DATA2)
+#endif
 fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
                                   const uint32_t i_spyId,
                                   ecmdDataBufferBase & o_data,
@@ -405,8 +432,10 @@ fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
 
 #ifdef FAPI_SUPPORT_SPY_AS_STRING
 // fapiGetSpyImage function Cronus version
+#ifndef DOCUMENTATION
 #define fapiGetSpyImage(TARGET, ID, DATA1, DATA2) _fapiGetSpyImage(TARGET,\
                                                     #ID, DATA1,DATA2)
+#endif
 
 fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
                                   const char* const i_spyId,
@@ -424,7 +453,7 @@ fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
  *    for details of how to populate the MultiScom object with SCOM operations
  *
  *  @param[in]      i_target        Chip/Chiplet target to do MultiScom on
- *  @param[in/out]  io_MultiScomObj Reference to a MultiScom object,
+ *  @param[in,out]  io_multiScomObj Reference to a MultiScom object,
  *                                  pre-populated with SingleScomInfo entries
  *                                  to perform multiple SCOMs on input target
  *  @return ReturnCode              Zero on success, else platform specified

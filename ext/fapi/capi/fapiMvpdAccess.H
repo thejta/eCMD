@@ -142,7 +142,7 @@ extern "C"
  *  @param[in] i_pBuffer    Pointer to buffer where record will be stored. If
  *                          NULL then the size of record will be stored in
  *                          io_fieldSize
- *  @param[io] io_fieldSize Size of i_pBuffer in bytes
+ *  @param[in,out] io_fieldSize Size of i_pBuffer in bytes
  *
  *  @return fapi::ReturnCode. FAPI_RC_SUCCESS, or failure value.
  */

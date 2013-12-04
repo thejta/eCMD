@@ -146,7 +146,7 @@ public:
      *  @note   As copies of i_data and i_mask are taken, the user is free to
      *          re-use these buffers. The buffer sizes must both match 64 bits
      *  @note   Data written at i_addr conforms to the below formula:
-     *          [(i_data & i_mask) | (val@i_addr & ~i_mask)]
+     *          [(i_data & i_mask) | (val\@i_addr & ~i_mask)]
      *  @note   This operation is currently -not- supported on processor chips
      *          and its chiplets. A MultiScom with this operation on a processor
      *          chip/chiplet will return an error
