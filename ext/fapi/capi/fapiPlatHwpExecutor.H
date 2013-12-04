@@ -46,8 +46,6 @@
 #include <fapiTarget.H>
 #include <string>
 
-using namespace fapi;
-
 
 
 // Macro to execute an arbitrary function with an arbitray number of arguments. The
