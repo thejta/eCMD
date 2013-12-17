@@ -4213,6 +4213,17 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 */
 uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
 
+/**
+   @brief  Converts zero chip unit address into chip unit address that is being passed
+   @retval returns ECMD_SUCCESS if successful
+   @retval returns ECMD_FUNCTION_NOT_SUPPORTED if it is no supported
+   @retval nonzero if unsuccessful
+   @param  i_target Struct that contains cage information
+   @param  i_address conains zero chip unit address
+   @param  o_address contains the corresponding address of the chip unit
+*/
+uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

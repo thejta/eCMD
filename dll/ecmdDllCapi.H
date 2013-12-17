@@ -564,6 +564,8 @@ void dllSetCurrentCmdline(int argc, char* argv[]);
 
 uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode); 
 
+uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address); 
+
 } //extern C
 
 #endif
