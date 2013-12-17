@@ -814,7 +814,19 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
     return rc;
   }
   rc = readScomDefFile(i_scomData.address, scomdefFile);
+  if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
+      uint64_t modifiedScomAddress = 0;
+      rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
+      if (rc) {
+	ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
+	return rc;
+      }
+      scomdefFile.clear();
+      scomdefFile.seekg(0, std::ios::beg);
+      rc = readScomDefFile(modifiedScomAddress, scomdefFile);
+  }
   if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
     ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
     return rc;
   }
@@ -955,7 +967,6 @@ uint32_t readScomDefFile(uint64_t address, std::ifstream &scomdefFile) {
     scomdefFile.seekg(beginPtr-beginLen-1);
   }
   else {
-    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
     rc = ECMD_SCOMADDRESS_NOT_FOUND;
   }
   return rc;
