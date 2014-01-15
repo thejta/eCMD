@@ -2205,16 +2205,20 @@ uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
-  rc = this->setCapacity(newCapacity);
-  if (rc != ECMD_DBUF_SUCCESS) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
-    RETURN_ERROR(rc);
+  if (this->getCapacity() != newCapacity) {
+    rc = this->setCapacity(newCapacity);
+    if (rc != ECMD_DBUF_SUCCESS) {
+      ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
+      RETURN_ERROR(rc);
+    }
   }
 
-  rc = this->setBitLength(newBitLength);
-  if (rc != ECMD_DBUF_SUCCESS) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
-    RETURN_ERROR(rc);
+  if (this->getBitLength() != newBitLength) {
+    rc = this->setBitLength(newBitLength);
+    if (rc != ECMD_DBUF_SUCCESS) {
+      ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
+      RETURN_ERROR(rc);
+    }
   }
 
   newWordLength = getWordLength();
