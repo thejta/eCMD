@@ -492,6 +492,8 @@ typedef enum {
   ECMD_GETSCOM_OP,              ///< Do a getScom operation
   ECMD_PUTSCOM_OP,              ///< Do a putScom operation
   ECMD_PUTSCOMUNDERMASK_OP,     ///< Do a putScomUnderMask operation
+  ECMD_BULK_GETSCOM_OP,         ///< Do a bulk getScom operation
+  ECMD_BULK_PUTSCOM_OP,         ///< Do a bulk putScom operation
 } ecmdScomMode_t;
 
 /**
