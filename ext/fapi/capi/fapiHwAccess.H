@@ -42,8 +42,10 @@
  *          836579          thi         May 22,2012 Spy/Ring supports
  *                          mjjones     07/12/2012  Add mode options to Ring funcs
  *                          rjknight    09/20/2012  Update fapiSpy interfaces to
- *                                                  allow string inputs for cronus
- *                          jknight     04/02/2013  Add fapi get/setSpyImage
+ *          F876964         jknight     Apr, 02,2013  fapi get/setSpyImage
+ *          F873646         srimeesa    Mar 10,2013 64Bit SPYID and 
+ *                                                  ClockDomain ID support
+ *          F883863         atendolk    05/06/2013  Add MultiScom support
  */
 
 #ifndef FAPIHWACCESS_H_
@@ -92,6 +94,9 @@ namespace fapi
 extern "C"
 {
 
+typedef uint64_t spyId_t;
+typedef uint32_t scanRingId_t;
+
 //------------------------------------------------------------------------------
 // HW Communication Functions
 //------------------------------------------------------------------------------
@@ -139,7 +144,8 @@ fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target,
  * @brief Reads a CFAM register from a chip
  * @param[in] i_target Target to operate on
  * @param[in] i_address CFAM address to read from
- * @param[out] o_data ecmdDataBufferBase object that holds data read from address
+ * @param[out] o_data ecmdDataBufferBase object that holds data read from
+ *                    address
  * @return ReturnCode. Zero on success, else platform specified error
  */
 fapi::ReturnCode fapiGetCfamRegister(const fapi::Target& i_target,
@@ -181,7 +187,7 @@ fapi::ReturnCode fapiModifyCfamRegister(const fapi::Target& i_target,
  * @return ReturnCode. Zero on success, else platform specified error
  */
 fapi::ReturnCode fapiGetRing(const fapi::Target& i_target,
-                             const uint32_t i_address,
+                             const scanRingId_t i_address,
                              ecmdDataBufferBase & o_data,
                              const uint32_t i_ringMode = 0);
 
@@ -195,7 +201,7 @@ fapi::ReturnCode fapiGetRing(const fapi::Target& i_target,
  * @return ReturnCode. Zero on success, else platform specified error
  */
 fapi::ReturnCode fapiPutRing(const fapi::Target& i_target,
-                             const uint32_t i_address,
+                             const scanRingId_t i_address,
                              ecmdDataBufferBase & i_data,
                              const uint32_t i_ringMode = 0);
 
@@ -211,7 +217,7 @@ fapi::ReturnCode fapiPutRing(const fapi::Target& i_target,
  * @return ReturnCode. Zero on success, else platform specified error
  */
 fapi::ReturnCode fapiModifyRing(const fapi::Target& i_target,
-                                const uint32_t i_address,
+                                const scanRingId_t i_address,
                                 ecmdDataBufferBase & i_data,
                                 const fapi::ChipOpModifyMode i_modifyMode,
                                 const uint32_t i_ringMode = 0);
@@ -271,7 +277,7 @@ fapi::ReturnCode fapiModifyRing(const fapi::Target& i_target,
 #define fapiGetSpy(TARGET, ID, DATA) _fapiGetSpy(TARGET, FAPI_SPY_NAMES::ID.value, DATA )
 #endif
 fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
-                            const uint32_t i_spyId,
+                            const spyId_t i_spyId,
                             ecmdDataBufferBase & o_data);
 #endif
 
@@ -335,7 +341,7 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
 #define fapiPutSpy(TARGET, ID, DATA) _fapiPutSpy(TARGET, FAPI_SPY_NAMES::ID.value, DATA)
 #endif
 fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
-                            const uint32_t i_spyId,
+                            const spyId_t i_spyId,
                             ecmdDataBufferBase & i_data);
 #endif
 
@@ -378,7 +384,7 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
                                                     DATA1, DATA2)
 #endif
 fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
-                                  const uint32_t i_spyId,
+                                  const spyId_t i_spyId,
                                   const ecmdDataBufferBase & i_data,
                                   ecmdDataBufferBase & o_imageData);
 #endif
@@ -425,7 +431,7 @@ fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
                                             DATA1, DATA2)
 #endif
 fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
-                                  const uint32_t i_spyId,
+                                  const spyId_t i_spyId,
                                   ecmdDataBufferBase & o_data,
                                   const ecmdDataBufferBase & i_imageData);
 #endif

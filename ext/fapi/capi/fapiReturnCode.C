@@ -30,6 +30,7 @@
  *                          mjjones     03/22/2013  Support Procedure Callouts
  *                          mjjones     05/20/2013  Support Bus Callouts
  *                          mjjones     06/24/2013  Support Children CDGs
+ *                          mjjones     08/26/2013  Support HW Callouts
  */
 
 #include <fapiReturnCode.H>
@@ -236,7 +237,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 // The FFDC is a ecmdDataBufferBase
                 const ecmdDataBufferBase * l_pDb =
                     static_cast<const ecmdDataBufferBase *>(l_pObject);
-                    
+
                 size_t byteLength = l_pDb->getWordLength() * sizeof(uint32_t);
                 uint32_t * l_pData =
                         reinterpret_cast<uint32_t*>(fapiMalloc(byteLength));
@@ -248,7 +249,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 // Deliberately not checking return code from extract
                 l_pDb->extract(l_pData, 0, l_pDb->getBitLength());
                 addEIFfdc(l_ffdcId, l_pData, (l_pDb->getWordLength() * 4));
-                
+
                 fapiFree(l_pData);
             }
             else if (l_size == ReturnCodeFfdc::EI_FFDC_SIZE_TARGET)
@@ -256,7 +257,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 // The FFDC is a fapi::Target
                 const fapi::Target * l_pTarget =
                     static_cast<const fapi::Target *>(l_pObject);
-                
+
                 const char * l_ecmdString = l_pTarget->toEcmdString();
                 addEIFfdc(l_ffdcId, l_ecmdString, (strlen(l_ecmdString) + 1));
             }
@@ -474,7 +475,6 @@ void ReturnCode::addEIHwCallout(
         iv_hwCallouts.push_back(l_pCallout);
 }
 
-
 //******************************************************************************
 // addEIProcedureCallout function
 //******************************************************************************
@@ -542,6 +542,5 @@ void ReturnCode::addEIChildrenCdg(
     getCreateReturnCodeDataRef().getCreateErrorInfo().
         iv_childrenCDGs.push_back(l_pCdg);
 }
-
 
 }

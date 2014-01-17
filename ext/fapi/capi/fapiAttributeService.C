@@ -150,6 +150,24 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_PCI_OSCSWITCH_CONFIG, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_OSCSWITCH_CTL0)
+    {
+        ATTR_OSCSWITCH_CTL0_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_OSCSWITCH_CTL0, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_OSCSWITCH_CTL1)
+    {
+        ATTR_OSCSWITCH_CTL1_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_OSCSWITCH_CTL1, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_OSCSWITCH_CTL2)
+    {
+        ATTR_OSCSWITCH_CTL2_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_OSCSWITCH_CTL2, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_EC_FEATURE_TEST1)
     {
         ATTR_CHIP_EC_FEATURE_TEST1_Type l_attr;
@@ -714,6 +732,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_PM_SLW_CONTROL_VECTOR_OFFSET, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_PM_SLW_DEEP_WINKLE_EXIT_GOOD_HALT_ADDR)
+    {
+        ATTR_PM_SLW_DEEP_WINKLE_EXIT_GOOD_HALT_ADDR_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SLW_DEEP_WINKLE_EXIT_GOOD_HALT_ADDR, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SLW_DEEP_SLEEP_EXIT_GOOD_HALT_ADDR)
+    {
+        ATTR_PM_SLW_DEEP_SLEEP_EXIT_GOOD_HALT_ADDR_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SLW_DEEP_SLEEP_EXIT_GOOD_HALT_ADDR, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_PM_EXTERNAL_VRM_STEPSIZE)
     {
         ATTR_PM_EXTERNAL_VRM_STEPSIZE_Type l_attr;
@@ -960,6 +990,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_PM_WINKLE_TYPE, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_PM_SYSTEM_IVRMS_ENABLED)
+    {
+        ATTR_PM_SYSTEM_IVRMS_ENABLED_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SYSTEM_IVRMS_ENABLED, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PM_SYSTEM_IVRM_VPD_MIN_LEVEL)
+    {
+        ATTR_PM_SYSTEM_IVRM_VPD_MIN_LEVEL_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_SYSTEM_IVRM_VPD_MIN_LEVEL, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MVPD_FREQ_CORE_NOMINAL)
     {
         ATTR_MVPD_FREQ_CORE_NOMINAL_Type l_attr;
@@ -1162,6 +1204,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_MEM_FILTER_PLL_SOURCE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MEM_FILTER_PLL_SOURCE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MULTI_SCOM_BUFFER_MAX_SIZE)
+    {
+        ATTR_MULTI_SCOM_BUFFER_MAX_SIZE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MULTI_SCOM_BUFFER_MAX_SIZE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_RECONFIGURE_LOOP)
+    {
+        ATTR_RECONFIGURE_LOOP_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_RECONFIGURE_LOOP, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_CHIP_UNIT_POS)
@@ -1812,18 +1866,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_VPD_DRAM_ADDRESS_MIRRORING, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
     }
-    else if (i_id == ATTR_VPD_DRAM_2N_MODE)
-    {
-        ATTR_VPD_DRAM_2N_MODE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_DRAM_2N_MODE, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_DIMM_SPARE_TEMP)
-    {
-        ATTR_EFF_DIMM_SPARE_TEMP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DIMM_SPARE_TEMP, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_VPD_ODT_RD)
     {
         ATTR_VPD_ODT_RD_Type l_attr;
@@ -2280,34 +2322,40 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_VPD_CDIMM_SENSOR_MAP_SECONDARY, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_VPD_CDIMM_MASTER_POWER_SLOPE)
-    {
-        ATTR_VPD_CDIMM_MASTER_POWER_SLOPE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_CDIMM_MASTER_POWER_SLOPE, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_VPD_CDIMM_MASTER_POWER_INTERCEPT)
-    {
-        ATTR_VPD_CDIMM_MASTER_POWER_INTERCEPT_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_CDIMM_MASTER_POWER_INTERCEPT, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_VPD_CDIMM_SUPPLIER_POWER_SLOPE)
-    {
-        ATTR_VPD_CDIMM_SUPPLIER_POWER_SLOPE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_CDIMM_SUPPLIER_POWER_SLOPE, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_VPD_CDIMM_SUPPLIER_POWER_INTERCEPT)
-    {
-        ATTR_VPD_CDIMM_SUPPLIER_POWER_INTERCEPT_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_CDIMM_SUPPLIER_POWER_INTERCEPT, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_VPD_DRAM_2N_MODE_ENABLED)
     {
         ATTR_VPD_DRAM_2N_MODE_ENABLED_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_VPD_DRAM_2N_MODE_ENABLED, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CDIMM_VPD_MASTER_POWER_SLOPE)
+    {
+        ATTR_CDIMM_VPD_MASTER_POWER_SLOPE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_MASTER_POWER_SLOPE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CDIMM_VPD_MASTER_POWER_INTERCEPT)
+    {
+        ATTR_CDIMM_VPD_MASTER_POWER_INTERCEPT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_MASTER_POWER_INTERCEPT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CDIMM_VPD_SUPPLIER_POWER_SLOPE)
+    {
+        ATTR_CDIMM_VPD_SUPPLIER_POWER_SLOPE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_SUPPLIER_POWER_SLOPE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CDIMM_VPD_SUPPLIER_POWER_INTERCEPT)
+    {
+        ATTR_CDIMM_VPD_SUPPLIER_POWER_INTERCEPT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_SUPPLIER_POWER_INTERCEPT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_L4_BANK_DELETE_VPD)
+    {
+        ATTR_L4_BANK_DELETE_VPD_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_L4_BANK_DELETE_VPD, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MSS_VOLT)
@@ -2472,64 +2520,16 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_EFF_QUATERNARY_RANK_GROUP3, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
     }
-    else if (i_id == ATTR_EFF_ODT_RD)
-    {
-        ATTR_EFF_ODT_RD_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_ODT_RD, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
-    }
-    else if (i_id == ATTR_EFF_ODT_WR)
-    {
-        ATTR_EFF_ODT_WR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_ODT_WR, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
-    }
-    else if (i_id == ATTR_EFF_CKE_MAP)
-    {
-        ATTR_EFF_CKE_MAP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CKE_MAP, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
-    }
-    else if (i_id == ATTR_EFF_SPCKE_MAP)
-    {
-        ATTR_EFF_SPCKE_MAP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_SPCKE_MAP, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
-    }
     else if (i_id == ATTR_EFF_DIMM_SPARE)
     {
         ATTR_EFF_DIMM_SPARE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_DIMM_SPARE, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
     }
-    else if (i_id == ATTR_EFF_DRAM_RON)
-    {
-        ATTR_EFF_DRAM_RON_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_RON, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
-    }
-    else if (i_id == ATTR_EFF_DRAM_RTT_NOM)
-    {
-        ATTR_EFF_DRAM_RTT_NOM_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_RTT_NOM, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
-    }
-    else if (i_id == ATTR_EFF_DRAM_RTT_WR)
-    {
-        ATTR_EFF_DRAM_RTT_WR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_RTT_WR, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2][i_arrayIndex3];
-    }
     else if (i_id == ATTR_EFF_DRAM_WR_VREF)
     {
         ATTR_EFF_DRAM_WR_VREF_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_WR_VREF, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_DRAM_WRDDR4_VREF)
-    {
-        ATTR_EFF_DRAM_WRDDR4_VREF_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_WRDDR4_VREF, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_EFF_DRAM_WR_VREF_SCHMOO)
@@ -2548,30 +2548,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_EFF_CEN_DRV_IMP_DQ_DQS_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_DRV_IMP_DQ_DQS, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_DRV_IMP_ADDR)
-    {
-        ATTR_EFF_CEN_DRV_IMP_ADDR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_DRV_IMP_ADDR, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_DRV_IMP_CNTL)
-    {
-        ATTR_EFF_CEN_DRV_IMP_CNTL_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_DRV_IMP_CNTL, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_DRV_IMP_CLK)
-    {
-        ATTR_EFF_CEN_DRV_IMP_CLK_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_DRV_IMP_CLK, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_DRV_IMP_SPCKE)
-    {
-        ATTR_EFF_CEN_DRV_IMP_SPCKE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_DRV_IMP_SPCKE, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_EFF_CEN_DRV_IMP_DQ_DQS_SCHMOO)
@@ -2614,30 +2590,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_EFF_CEN_SLEW_RATE_DQ_DQS_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_SLEW_RATE_DQ_DQS, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_SLEW_RATE_ADDR)
-    {
-        ATTR_EFF_CEN_SLEW_RATE_ADDR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_SLEW_RATE_ADDR, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_SLEW_RATE_CLK)
-    {
-        ATTR_EFF_CEN_SLEW_RATE_CLK_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_SLEW_RATE_CLK, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_SLEW_RATE_SPCKE)
-    {
-        ATTR_EFF_CEN_SLEW_RATE_SPCKE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_SLEW_RATE_SPCKE, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_SLEW_RATE_CNTL)
-    {
-        ATTR_EFF_CEN_SLEW_RATE_CNTL_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_SLEW_RATE_CNTL, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_EFF_CEN_SLEW_RATE_DQ_DQS_SCHMOO)
@@ -3060,23 +3012,11 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_DIMM_MAXBANDWIDTH_MRS, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
     }
-    else if (i_id == ATTR_MSS_CHANNEL_MAXBANDWIDTH_GBS)
-    {
-        ATTR_MSS_CHANNEL_MAXBANDWIDTH_GBS_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_CHANNEL_MAXBANDWIDTH_GBS, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
     else if (i_id == ATTR_MSS_CHANNEL_PAIR_MAXBANDWIDTH_GBS)
     {
         ATTR_MSS_CHANNEL_PAIR_MAXBANDWIDTH_GBS_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_CHANNEL_PAIR_MAXBANDWIDTH_GBS, i_pTarget, l_attr);
         o_val = l_attr;
-    }
-    else if (i_id == ATTR_MSS_CHANNEL_MAXBANDWIDTH_MRS)
-    {
-        ATTR_MSS_CHANNEL_MAXBANDWIDTH_MRS_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_CHANNEL_MAXBANDWIDTH_MRS, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_MSS_CHANNEL_PAIR_MAXBANDWIDTH_MRS)
     {
@@ -3089,12 +3029,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         ATTR_MSS_DIMM_MAXPOWER_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_DIMM_MAXPOWER, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
-    }
-    else if (i_id == ATTR_MSS_CHANNEL_MAXPOWER)
-    {
-        ATTR_MSS_CHANNEL_MAXPOWER_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_CHANNEL_MAXPOWER, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_MSS_CHANNEL_PAIR_MAXPOWER)
     {
@@ -3156,10 +3090,28 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_MBA_ADDR_INTERLEAVE_BIT, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MSS_DERIVED_MBA_ADDR_INTERLEAVE_BIT)
+    {
+        ATTR_MSS_DERIVED_MBA_ADDR_INTERLEAVE_BIT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_DERIVED_MBA_ADDR_INTERLEAVE_BIT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MSS_MBA_CACHELINE_INTERLEAVE_MODE)
     {
         ATTR_MSS_MBA_CACHELINE_INTERLEAVE_MODE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_MBA_CACHELINE_INTERLEAVE_MODE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MSS_DERIVED_MBA_CACHELINE_INTERLEAVE_MODE)
+    {
+        ATTR_MSS_DERIVED_MBA_CACHELINE_INTERLEAVE_MODE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_DERIVED_MBA_CACHELINE_INTERLEAVE_MODE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MRW_MBA_CACHELINE_INTERLEAVE_MODE_CONTROL)
+    {
+        ATTR_MRW_MBA_CACHELINE_INTERLEAVE_MODE_CONTROL_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_MBA_CACHELINE_INTERLEAVE_MODE_CONTROL, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MSS_CACHE_ENABLE)
@@ -3426,304 +3378,10 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_ALLOW_SINGLE_PORT, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CLK_P0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CLK_P0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CLK_P0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CLK_P1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CLK_P1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CLK_P1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CLK_P0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CLK_P0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CLK_P0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CLK_P1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CLK_P1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CLK_P1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A2)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A3)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A4)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A4_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A4, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A5)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A5_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A5, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A6)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A6_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A6, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A7)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A7_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A7, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A8)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A8_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A8, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A9)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A9_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A9, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A10)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A10_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A10, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A11)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A11_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A11, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A12)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A12_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A12, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A13)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A13_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A13, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A14)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A14_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A14, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_A15)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_A15_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_A15, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA2)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_BA2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_CASN)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_CASN_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_CASN, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_RASN)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_RASN_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_RASN, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_CMD_WEN)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_CMD_WEN_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_CMD_WEN, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_PAR)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_PAR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_PAR, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M_ACTN)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M_ACTN_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M_ACTN, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE2)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE3)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CKE3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN2)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN3)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_CSN3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_ODT0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_ODT0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_ODT0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_ODT1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_ODT1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M0_CNTL_ODT1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE2)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE3)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CKE3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN2)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN2_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN2, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN3)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN3_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_CSN3, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_ODT0)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_ODT0_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_ODT0, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_ODT1)
-    {
-        ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_ODT1_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CEN_PHASE_ROT_M1_CNTL_ODT1, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
     else if (i_id == ATTR_MSS_DQS_SWIZZLE_TYPE)
     {
         ATTR_MSS_DQS_SWIZZLE_TYPE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_DQS_SWIZZLE_TYPE, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_MSS_ZSERIES)
-    {
-        ATTR_MSS_ZSERIES_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_ZSERIES, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MSS_PSRO)
@@ -3738,65 +3396,11 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_NWELL_MISPLACEMENT, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_EFF_DRAM_2N_MODE_ENABLED)
-    {
-        ATTR_EFF_DRAM_2N_MODE_ENABLED_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_2N_MODE_ENABLED, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_MSS_DIMM_POWER_TEST_REV)
-    {
-        ATTR_MSS_DIMM_POWER_TEST_REV_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_DIMM_POWER_TEST_REV, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_LAB_ONLY_RAW_CARD)
     {
         ATTR_LAB_ONLY_RAW_CARD_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_LAB_ONLY_RAW_CARD, i_pTarget, l_attr);
         o_val = l_attr;
-    }
-    else if (i_id == ATTR_CDIMM_SENSOR_MAP_PRIMARY)
-    {
-        ATTR_CDIMM_SENSOR_MAP_PRIMARY_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_SENSOR_MAP_PRIMARY, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_CDIMM_SENSOR_MAP_SECONDARY)
-    {
-        ATTR_CDIMM_SENSOR_MAP_SECONDARY_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_SENSOR_MAP_SECONDARY, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_CDIMM_VPD_MASTER_POWER_SLOPE)
-    {
-        ATTR_CDIMM_VPD_MASTER_POWER_SLOPE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_MASTER_POWER_SLOPE, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_CDIMM_VPD_MASTER_POWER_INTERCEPT)
-    {
-        ATTR_CDIMM_VPD_MASTER_POWER_INTERCEPT_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_MASTER_POWER_INTERCEPT, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_CDIMM_VPD_SUPPLIER_POWER_SLOPE)
-    {
-        ATTR_CDIMM_VPD_SUPPLIER_POWER_SLOPE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_SUPPLIER_POWER_SLOPE, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_CDIMM_VPD_SUPPLIER_POWER_INTERCEPT)
-    {
-        ATTR_CDIMM_VPD_SUPPLIER_POWER_INTERCEPT_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_CDIMM_VPD_SUPPLIER_POWER_INTERCEPT, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_DRAM_ADDRESS_MIRRORING)
-    {
-        ATTR_EFF_DRAM_ADDRESS_MIRRORING_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DRAM_ADDRESS_MIRRORING, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
     }
     else if (i_id == ATTR_MSS_BLUEWATERFALL_BROKEN)
     {
@@ -3846,52 +3450,10 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_SCHMOO_MULTIPLE_SETUP_CALL, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_EFF_RLO)
-    {
-        ATTR_EFF_RLO_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_RLO, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_CKE_PRI_MAP)
-    {
-        ATTR_EFF_CKE_PRI_MAP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CKE_PRI_MAP, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_CKE_PWR_MAP)
-    {
-        ATTR_EFF_CKE_PWR_MAP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_CKE_PWR_MAP, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_GPO)
-    {
-        ATTR_EFF_GPO_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_GPO, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
     else if (i_id == ATTR_EFF_RDTAG)
     {
         ATTR_EFF_RDTAG_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_EFF_RDTAG, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_WLO)
-    {
-        ATTR_EFF_WLO_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_WLO, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_EFF_TSYS_ADR)
-    {
-        ATTR_EFF_TSYS_ADR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_TSYS_ADR, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_TSYS_DP18)
-    {
-        ATTR_EFF_TSYS_DP18_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_TSYS_DP18, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_EFF_DQ_WR_OFFSET)
@@ -3924,12 +3486,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_LRDIMM_RANK_MULT_MODE, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_L4_BANK_DELETE_VPD)
-    {
-        ATTR_L4_BANK_DELETE_VPD_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_L4_BANK_DELETE_VPD, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_MSS_DIMM_POWER_TEST_MEM_THROTTLE_NUMERATOR_PER_MBA)
     {
         ATTR_MSS_DIMM_POWER_TEST_MEM_THROTTLE_NUMERATOR_PER_MBA_Type l_attr;
@@ -3948,12 +3504,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_DIMM_POWER_TEST_MEM_THROTTLE_DENOMINATOR, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_MSS_DRAM_ACTIVATE_POWER_PERCENT)
-    {
-        ATTR_MSS_DRAM_ACTIVATE_POWER_PERCENT_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_DRAM_ACTIVATE_POWER_PERCENT, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_MSS_THROTTLE_CONTROL_RAS_WEIGHT)
     {
         ATTR_MSS_THROTTLE_CONTROL_RAS_WEIGHT_Type l_attr;
@@ -3964,54 +3514,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_MSS_THROTTLE_CONTROL_CAS_WEIGHT_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_THROTTLE_CONTROL_CAS_WEIGHT, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_VPD_MT_CKE_PRI_MAP)
-    {
-        ATTR_VPD_MT_CKE_PRI_MAP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MT_CKE_PRI_MAP, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_VPD_MT_CKE_PWR_MAP)
-    {
-        ATTR_VPD_MT_CKE_PWR_MAP_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MT_CKE_PWR_MAP, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_VPD_MR_GPO)
-    {
-        ATTR_VPD_MR_GPO_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MR_GPO, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_VPD_MR_RLO)
-    {
-        ATTR_VPD_MR_RLO_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MR_RLO, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_VPD_MR_WLO)
-    {
-        ATTR_VPD_MR_WLO_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MR_WLO, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_VPD_MR_TSYS_ADR)
-    {
-        ATTR_VPD_MR_TSYS_ADR_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MR_TSYS_ADR, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_VPD_MR_TSYS_DP18)
-    {
-        ATTR_VPD_MR_TSYS_DP18_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_VPD_MR_TSYS_DP18, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
-    else if (i_id == ATTR_LAB_USE_JTAG_MODE)
-    {
-        ATTR_LAB_USE_JTAG_MODE_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_LAB_USE_JTAG_MODE, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MCBIST_RANDOM_SEED_VALUE)
@@ -4042,6 +3544,42 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_MSS_INIT_STATE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_INIT_STATE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MRW_MAX_DRAM_DATABUS_UTIL)
+    {
+        ATTR_MRW_MAX_DRAM_DATABUS_UTIL_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_MAX_DRAM_DATABUS_UTIL, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MSS_DRAM_ACTIVATE_POWER_PERCENT)
+    {
+        ATTR_MSS_DRAM_ACTIVATE_POWER_PERCENT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_DRAM_ACTIVATE_POWER_PERCENT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MSS_EFF_VPD_VERSION)
+    {
+        ATTR_MSS_EFF_VPD_VERSION_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_EFF_VPD_VERSION, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MSS_NEST_CAPABLE_FREQUENCIES)
+    {
+        ATTR_MSS_NEST_CAPABLE_FREQUENCIES_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_NEST_CAPABLE_FREQUENCIES, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MRW_NEST_FREQUENCIES)
+    {
+        ATTR_MRW_NEST_FREQUENCIES_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_NEST_FREQUENCIES, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MRW_STRICT_MBA_PLUG_RULE_CHECKING)
+    {
+        ATTR_MRW_STRICT_MBA_PLUG_RULE_CHECKING_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_STRICT_MBA_PLUG_RULE_CHECKING, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MSS_DATABUS_UTIL_PER_MBA)
@@ -4138,6 +3676,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_CENTAUR_EC_HW217608_MBSPA_0_CMD_COMPLETE_ATTN_FIXED_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_HW217608_MBSPA_0_CMD_COMPLETE_ATTN_FIXED, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CENTAUR_EC_USE_FIRST_SUPPLIER_FOR_INVALID_MODULE_ID)
+    {
+        ATTR_CENTAUR_EC_USE_FIRST_SUPPLIER_FOR_INVALID_MODULE_ID_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_USE_FIRST_SUPPLIER_FOR_INVALID_MODULE_ID, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CENTAUR_EC_ENABLE_SAFEMODE_THROTTLE)
+    {
+        ATTR_CENTAUR_EC_ENABLE_SAFEMODE_THROTTLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_ENABLE_SAFEMODE_THROTTLE, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MCBIST_ADDR_MODES)
@@ -4560,6 +4110,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_PROC_SELECT_SEEPROM_IMAGE, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_PROC_SELECT_BOOT_SEEPROM_IMAGE)
+    {
+        ATTR_PROC_SELECT_BOOT_SEEPROM_IMAGE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_SELECT_BOOT_SEEPROM_IMAGE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_PROC_PCIE_IOP_CONFIG)
     {
         ATTR_PROC_PCIE_IOP_CONFIG_Type l_attr;
@@ -4654,6 +4210,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_PROC_PCIE_IOP_RX_SDL_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_IOP_RX_SDL, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
+    }
+    else if (i_id == ATTR_PROC_PCIE_IOP_TX_FFE_GEN1)
+    {
+        ATTR_PROC_PCIE_IOP_TX_FFE_GEN1_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_IOP_TX_FFE_GEN1, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
+    }
+    else if (i_id == ATTR_PROC_PCIE_IOP_TX_FFE_GEN2)
+    {
+        ATTR_PROC_PCIE_IOP_TX_FFE_GEN2_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_IOP_TX_FFE_GEN2, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1][i_arrayIndex2];
     }
     else if (i_id == ATTR_PROC_PCIE_IOP_ZCAL_CONTROL)
@@ -5106,6 +4674,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MEMB_DMI_CUPLL_REFCLKSEL_OFFSET, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MEMB_MEM_PLL_CFG_UPDATE_OFFSET)
+    {
+        ATTR_MEMB_MEM_PLL_CFG_UPDATE_OFFSET_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MEMB_MEM_PLL_CFG_UPDATE_OFFSET, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_PROC_EX_FUNC_L3_DELTA_DATA)
     {
         ATTR_PROC_EX_FUNC_L3_DELTA_DATA_Type l_attr;
@@ -5292,6 +4866,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C8_VER2, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_FBC_UX_SCOPE_ARB_RR)
+    {
+        ATTR_CHIP_EC_FEATURE_FBC_UX_SCOPE_ARB_RR_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_FBC_UX_SCOPE_ARB_RR, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C10_VER2)
     {
         ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C10_VER2_Type l_attr;
@@ -5364,6 +4944,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_ENABLE_PCI_DMAR_OOO, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_ZCAL_OVERRIDE)
+    {
+        ATTR_CHIP_EC_FEATURE_ZCAL_OVERRIDE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_ZCAL_OVERRIDE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_EC_FEATURE_IVRM_WINKLE_BUG)
     {
         ATTR_CHIP_EC_FEATURE_IVRM_WINKLE_BUG_Type l_attr;
@@ -5374,6 +4960,30 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_PROC_EC_MSS_RECONFIG_POSSIBLE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_PROC_EC_MSS_RECONFIG_POSSIBLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CEN_EC_THROTTLE_SYNC_POSSIBLE)
+    {
+        ATTR_CEN_EC_THROTTLE_SYNC_POSSIBLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CEN_EC_THROTTLE_SYNC_POSSIBLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_EC_CORE_HANG_PULSE_BUG)
+    {
+        ATTR_PROC_EC_CORE_HANG_PULSE_BUG_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_EC_CORE_HANG_PULSE_BUG, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_EC_PBA_PREFETCH_ENABLE)
+    {
+        ATTR_PROC_EC_PBA_PREFETCH_ENABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_EC_PBA_PREFETCH_ENABLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_PROC_EC_OHA_L3_PURGE_ABORT_ENABLE)
+    {
+        ATTR_PROC_EC_OHA_L3_PURGE_ABORT_ENABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PROC_EC_OHA_L3_PURGE_ABORT_ENABLE, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_PROC_CPM_DPLL_MODE_ENABLE)

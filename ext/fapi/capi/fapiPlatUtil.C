@@ -42,6 +42,7 @@
 #include <ecmdUtils.H>
 #include <fapiClientEnums.H>
 #include <fapiPlatTrace.H>
+#include <fapiUtil.H>
 
 #include <fapiDllCapi.H>
 #include <ecmdDllCapi.H>
@@ -279,7 +280,9 @@ if (!fapiInitialized) {
   }
 }
 
-void fapiLogError(fapi::ReturnCode & io_rc) {
+void fapiLogError(fapi::ReturnCode & io_rc,
+                  fapi::fapiErrlSeverity_t i_sev,
+                  bool i_unitTestError) {
 
 #ifndef ECMD_STATIC_FUNCTIONS
   if (dlHandle == NULL) {
@@ -299,15 +302,17 @@ if (!fapiInitialized) {
   std::vector< void * > args;
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &io_rc);
+     args.push_back((void*) &i_sev);
+     args.push_back((void*) &i_unitTestError);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void fapiLogError(fapi::ReturnCode & io_rc)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void fapiLogError(fapi::ReturnCode & io_rc, fapi::fapiErrlSeverity_t i_sev, bool i_unitTestError)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiLogError");
   }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  dllFapiLogError(io_rc);
+  dllFapiLogError(io_rc, i_sev, i_unitTestError);
 #else
   if (fapiDllFnTable[ECMD_FAPILOGERROR] == NULL) {
      fapiDllFnTable[ECMD_FAPILOGERROR] = (void*)dlsym(dlHandle, "dllFapiLogError");
@@ -318,15 +323,15 @@ if (!fapiInitialized) {
      }
   }
 
-   void (*Function)(fapi::ReturnCode &) = 
-      (void (*)(fapi::ReturnCode &))fapiDllFnTable[ECMD_FAPILOGERROR];
-      (*Function)(io_rc);
+   void (*Function)(fapi::ReturnCode &, fapi::fapiErrlSeverity_t, bool) = 
+      (void (*)(fapi::ReturnCode &, fapi::fapiErrlSeverity_t, bool))fapiDllFnTable[ECMD_FAPILOGERROR];
+      (*Function)(io_rc, i_sev, i_unitTestError);
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiLogError");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void fapiLogError(fapi::ReturnCode & io_rc)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void fapiLogError(fapi::ReturnCode & io_rc, fapi::fapiErrlSeverity_t i_sev, bool i_unitTestError)",args);
    }
 #endif
 

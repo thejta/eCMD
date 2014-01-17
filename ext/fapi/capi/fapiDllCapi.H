@@ -17,6 +17,8 @@
 #include <fapiMvpdAccess.H>
 #include <fapiMBvpdAccess.H>
 #include <fapiMultiScom.H>
+#include <fapiHwAccess.H>
+#include <fapiUtil.H>
 
 extern "C" {
 
@@ -28,13 +30,13 @@ uint32_t dllFapiInitExtensionInPlugin();
 
 fapi::ReturnCode dllFapiGetRing(
 	const fapi::Target& i_handle, 
-	const uint32_t i_address, 
+	const scanRingId_t i_address, 
 	ecmdDataBufferBase & o_data, 
 	const uint32_t i_ringMode); 
 
 fapi::ReturnCode dllFapiPutRing(
 	const fapi::Target& i_handle, 
-	const uint32_t i_address, 
+	const scanRingId_t i_address, 
 	ecmdDataBufferBase & i_data, 
 	const uint32_t i_ringMode); 
 
@@ -124,7 +126,9 @@ bool dllPlatIsScanTraceEnabled();
 
 void dllPlatSetScanTrace(bool i_enable);
 
-void dllFapiLogError(fapi::ReturnCode & io_rc);
+void dllFapiLogError(fapi::ReturnCode & io_rc,
+                     fapi::fapiErrlSeverity_t i_sev,
+                     bool i_unitTestError);
 
 fapi::ReturnCode dllFapiLoadInitFile(
 	const fapi::Target &, 

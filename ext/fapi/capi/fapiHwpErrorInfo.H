@@ -501,23 +501,68 @@
 
 #define IO_RUN_TRAINING_WIRETEST_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define IO_RUN_TRAINING_WIRETEST_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define IO_RUN_TRAINING_WIRETEST_TIMEOUT_RC_ADD_ERROR_INFO(RC) 
+#define IO_RUN_TRAINING_WIRETEST_TIMEOUT_RC_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&FFDC_NUM_CYCLES}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::IO_RUN_TRAINING_WIRETEST_TIMEOUT_RC_FFDC_NUM_CYCLES; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_NUM_CYCLES); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
 
 #define IO_RUN_TRAINING_DESKEW_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define IO_RUN_TRAINING_DESKEW_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define IO_RUN_TRAINING_DESKEW_TIMEOUT_RC_ADD_ERROR_INFO(RC) 
+#define IO_RUN_TRAINING_DESKEW_TIMEOUT_RC_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&FFDC_NUM_CYCLES}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::IO_RUN_TRAINING_DESKEW_TIMEOUT_RC_FFDC_NUM_CYCLES; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_NUM_CYCLES); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
 
 #define IO_RUN_TRAINING_EYE_OPT_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define IO_RUN_TRAINING_EYE_OPT_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define IO_RUN_TRAINING_EYE_OPT_TIMEOUT_RC_ADD_ERROR_INFO(RC) 
+#define IO_RUN_TRAINING_EYE_OPT_TIMEOUT_RC_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&FFDC_NUM_CYCLES}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::IO_RUN_TRAINING_EYE_OPT_TIMEOUT_RC_FFDC_NUM_CYCLES; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_NUM_CYCLES); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
 
 #define IO_RUN_TRAINING_REPAIR_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define IO_RUN_TRAINING_REPAIR_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define IO_RUN_TRAINING_REPAIR_TIMEOUT_RC_ADD_ERROR_INFO(RC) 
+#define IO_RUN_TRAINING_REPAIR_TIMEOUT_RC_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&FFDC_NUM_CYCLES}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::IO_RUN_TRAINING_REPAIR_TIMEOUT_RC_FFDC_NUM_CYCLES; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_NUM_CYCLES); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
 
 #define IO_RUN_TRAINING_FUNC_MODE_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define IO_RUN_TRAINING_FUNC_MODE_TIMEOUT_RC_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define IO_RUN_TRAINING_FUNC_MODE_TIMEOUT_RC_ADD_ERROR_INFO(RC) 
+#define IO_RUN_TRAINING_FUNC_MODE_TIMEOUT_RC_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&FFDC_NUM_CYCLES}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::IO_RUN_TRAINING_FUNC_MODE_TIMEOUT_RC_FFDC_NUM_CYCLES; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_NUM_CYCLES); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
 
 #define IO_GCR_WRITE_MISMATCH_RC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define IO_GCR_WRITE_MISMATCH_RC_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
@@ -2776,8 +2821,8 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&PROC_CHIP); \
 \
 { \
-  const void * l_objects[] = {&LOOPCOUNT, &PMSR, &PROC_CHIP}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  const void * l_objects[] = {&LOOPCOUNT, &PMSR, &PCBSPM_MON1, &PCBSPM_MON2, &PROC_CHIP}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[5]; \
   l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_LOOPCOUNT; \
@@ -2786,13 +2831,21 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
   l_entries[1].ffdc.iv_ffdcId = fapi::RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_PMSR; \
   l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(PMSR); \
-  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
-  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
-  l_entries[2].target_cdg.iv_callout = 1; \
-  l_entries[2].target_cdg.iv_deconfigure = 0; \
-  l_entries[2].target_cdg.iv_gard = 0; \
-  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
-  RC.addErrorInfo(l_objects, l_entries, 3); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[2].ffdc.iv_ffdcObjIndex = 2; \
+  l_entries[2].ffdc.iv_ffdcId = fapi::RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_PCBSPM_MON1; \
+  l_entries[2].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(PCBSPM_MON1); \
+  l_entries[3].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[3].ffdc.iv_ffdcObjIndex = 3; \
+  l_entries[3].ffdc.iv_ffdcId = fapi::RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_PCBSPM_MON2; \
+  l_entries[3].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(PCBSPM_MON2); \
+  l_entries[4].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[4].target_cdg.iv_targetObjIndex = 4; \
+  l_entries[4].target_cdg.iv_callout = 1; \
+  l_entries[4].target_cdg.iv_deconfigure = 0; \
+  l_entries[4].target_cdg.iv_gard = 0; \
+  l_entries[4].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 5); \
 }
 
 #define RC_PROC_PCBS_CODE_BAD_MODE_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
@@ -4517,12 +4570,15 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_ABUS_PLL_NO_LOCK_ADD_ERROR_INFO(RC) \
 { \
   const void * l_objects[] = {&LOCK_STATUS}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
   l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_A_X_PCI_DMI_PLL_SETUP_ABUS_PLL_NO_LOCK_LOCK_STATUS; \
   l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(LOCK_STATUS); \
-  RC.addErrorInfo(l_objects, l_entries, 1); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE ; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
 }
 
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_DMI_PLL_NO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
@@ -4530,12 +4586,15 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_DMI_PLL_NO_LOCK_ADD_ERROR_INFO(RC) \
 { \
   const void * l_objects[] = {&LOCK_STATUS}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
   l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_A_X_PCI_DMI_PLL_SETUP_DMI_PLL_NO_LOCK_LOCK_STATUS; \
   l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(LOCK_STATUS); \
-  RC.addErrorInfo(l_objects, l_entries, 1); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE ; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
 }
 
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_PCIE_PLL_NO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
@@ -4543,12 +4602,15 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_PROC_A_X_PCI_DMI_PLL_SETUP_PCIE_PLL_NO_LOCK_ADD_ERROR_INFO(RC) \
 { \
   const void * l_objects[] = {&LOCK_STATUS}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
   l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_A_X_PCI_DMI_PLL_SETUP_PCIE_PLL_NO_LOCK_LOCK_STATUS; \
   l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(LOCK_STATUS); \
-  RC.addErrorInfo(l_objects, l_entries, 1); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE ; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
 }
 
 #define RC_PROC_ABUS_SCOMINIT_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
@@ -4798,6 +4860,23 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   RC.addErrorInfo(l_objects, l_entries, 2); \
 }
 
+#define RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&FREQ_PB, &FREQ_CORE_CEILING}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_FREQ_PB; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FREQ_PB); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_FREQ_CORE_CEILING; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FREQ_CORE_CEILING); \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
+}
+
 #define RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_ADD_ERROR_INFO(RC) \
@@ -4808,6 +4887,19 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_BUILD_SMP_CORE_FLOOR_RATIO_ERR_CORE_FLOOR_RATIO; \
   l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CORE_FLOOR_RATIO); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
+
+#define RC_PROC_BUILD_SMP_CORE_CEILING_RATIO_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_CORE_CEILING_RATIO_ERR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_PROC_BUILD_SMP_CORE_CEILING_RATIO_ERR_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&CORE_CEILING_RATIO}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_BUILD_SMP_CORE_CEILING_RATIO_ERR_CORE_CEILING_RATIO; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CORE_CEILING_RATIO); \
   RC.addErrorInfo(l_objects, l_entries, 1); \
 }
 
@@ -5738,6 +5830,32 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   RC.addErrorInfo(l_objects, l_entries, 2); \
 }
 
+#define RC_MBVPD_INVALID_MODE_PARAMETER_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MBVPD_INVALID_MODE_PARAMETER_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MBVPD_INVALID_MODE_PARAMETER_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&MODE}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MBVPD_INVALID_MODE_PARAMETER_MODE; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MODE); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
+
+#define RC_MBVPD_UNEXPECTED_MEM_TYPE_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MBVPD_UNEXPECTED_MEM_TYPE_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MBVPD_UNEXPECTED_MEM_TYPE_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&MEM_TYPE}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[1]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MBVPD_UNEXPECTED_MEM_TYPE_MEM_TYPE; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MEM_TYPE); \
+  RC.addErrorInfo(l_objects, l_entries, 1); \
+}
+
 #define RC_P8_MAILBOX_UTILS_PROC_REFCLK_ZERO_ERROR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_P8_MAILBOX_UTILS_PROC_REFCLK_ZERO_ERROR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_P8_MAILBOX_UTILS_PROC_REFCLK_ZERO_ERROR_ADD_ERROR_INFO(RC) \
@@ -6431,10 +6549,11 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 
 #define RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) fapiCollectRegFfdc(CHIP_IN_ERROR, fapi::REG_FFDC_PROC_PERV_REGISTERS, RC); 
-#define RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_ADD_ERROR_INFO(RC) \
+#define RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&CHIP_IN_ERROR); \
+\
 { \
   const void * l_objects[] = {&RETRY_LIMIT, &PCB_ERR, &PCB_WNR, &PCB_ADDR, &PCB_DATA, &CHIP_IN_ERROR}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[6]; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[7]; \
   l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_RETRY_LIMIT; \
@@ -6459,15 +6578,22 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   l_entries[5].ffdc.iv_ffdcObjIndex = 5; \
   l_entries[5].ffdc.iv_ffdcId = fapi::RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_CHIP_IN_ERROR; \
   l_entries[5].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CHIP_IN_ERROR); \
-  RC.addErrorInfo(l_objects, l_entries, 6); \
+  l_entries[6].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[6].target_cdg.iv_targetObjIndex = 5; \
+  l_entries[6].target_cdg.iv_callout = 0; \
+  l_entries[6].target_cdg.iv_deconfigure = 1; \
+  l_entries[6].target_cdg.iv_gard = 0; \
+  l_entries[6].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::LOW; \
+  RC.addErrorInfo(l_objects, l_entries, 7); \
 }
 
 #define RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) fapiCollectRegFfdc(CHIP_IN_ERROR, fapi::REG_FFDC_PROC_PERV_REGISTERS, RC); 
-#define RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_ADD_ERROR_INFO(RC) \
+#define RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&CHIP_IN_ERROR); \
+\
 { \
   const void * l_objects[] = {&RETRY_LIMIT, &PCB_ERR, &PCB_WNR, &PCB_ADDR, &PCB_DATA, &CHIP_IN_ERROR}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[6]; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[7]; \
   l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
   l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
   l_entries[0].ffdc.iv_ffdcId = fapi::RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_RETRY_LIMIT; \
@@ -6492,7 +6618,13 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   l_entries[5].ffdc.iv_ffdcObjIndex = 5; \
   l_entries[5].ffdc.iv_ffdcId = fapi::RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_CHIP_IN_ERROR; \
   l_entries[5].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CHIP_IN_ERROR); \
-  RC.addErrorInfo(l_objects, l_entries, 6); \
+  l_entries[6].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[6].target_cdg.iv_targetObjIndex = 5; \
+  l_entries[6].target_cdg.iv_callout = 0; \
+  l_entries[6].target_cdg.iv_deconfigure = 1; \
+  l_entries[6].target_cdg.iv_gard = 1; \
+  l_entries[6].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::LOW; \
+  RC.addErrorInfo(l_objects, l_entries, 7); \
 }
 
 #define RC_PROC_GETL3CAC_INVALID_CGC_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
@@ -6693,6 +6825,10 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_EX_CHIPLET_AISS_WA_PB_PURGE_TIMEOUT_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_EX_CHIPLET_AISS_WA_PB_PURGE_TIMEOUT_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_EX_CHIPLET_AISS_WA_PB_PURGE_TIMEOUT_ADD_ERROR_INFO(RC) 
+
+#define RC_EX_CHIPLET_AISS_WA_INACCESSIBLE_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_EX_CHIPLET_AISS_WA_INACCESSIBLE_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_EX_CHIPLET_AISS_WA_INACCESSIBLE_ADD_ERROR_INFO(RC) 
 
 #define RC_PROC_MPIPL_FORCE_XSTOP_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROC_MPIPL_FORCE_XSTOP_INVALID_TARGET_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
@@ -7094,6 +7230,10 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   RC.addErrorInfo(l_objects, l_entries, 2); \
 }
 
+#define RC_PROC_MCSYNC_THERMAL_RETRY_EXCEEDED_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_PROC_MCSYNC_THERMAL_RETRY_EXCEEDED_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_PROC_MCSYNC_THERMAL_RETRY_EXCEEDED_ADD_ERROR_INFO(RC) 
+
 #define RC_CPM_VPD_FUNC_INVALID_PARAMETER_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_CPM_VPD_FUNC_INVALID_PARAMETER_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_CPM_VPD_FUNC_INVALID_PARAMETER_ADD_ERROR_INFO(RC) 
@@ -7474,58 +7614,177 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_ERROR_MBA_FIRS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) fapiCollectRegFfdc(CENCHIP_MBA, fapi::REG_FFDC_MBA_FIR_REGS, RC); fapiCollectRegFfdc(CENCHIP_MBA, fapi::REG_FFDC_DDR_PHY_FIR_REGS, RC); 
 #define RC_ERROR_MBA_FIRS_ADD_ERROR_INFO(RC) 
 
-#define RC_MSS_UNEXPECTED_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
-#define RC_MSS_UNEXPECTED_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_UNEXPECTED_CLOCK_STATUS_ADD_ERROR_INFO(RC) 
+#define RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MEMBUF_CHIP_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 0; \
+  l_entries[2].target_cdg.iv_gard = 0; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
+
+#define RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MEMBUF_CHIP_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 0; \
+  l_entries[2].target_cdg.iv_gard = 0; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
+
+#define RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MEMBUF_CHIP_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 0; \
+  l_entries[2].target_cdg.iv_gard = 0; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
 
 #define RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_ADD_ERROR_INFO(RC) \
-{ \
-  const void * l_objects[] = {&MEM_CHIP, &FFDC_DATA_1, &FFDC_DATA_2, &FFDC_DATA_3, &FFDC_DATA_4, &FFDC_DATA_5}; \
-  fapi::ReturnCode::ErrorInfoEntry l_entries[6]; \
-  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
-  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
-  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_MEM_CHIP; \
-  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MEM_CHIP); \
-  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
-  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
-  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_1; \
-  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_1); \
-  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
-  l_entries[2].ffdc.iv_ffdcObjIndex = 2; \
-  l_entries[2].ffdc.iv_ffdcId = fapi::RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_2; \
-  l_entries[2].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_2); \
-  l_entries[3].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
-  l_entries[3].ffdc.iv_ffdcObjIndex = 3; \
-  l_entries[3].ffdc.iv_ffdcId = fapi::RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_3; \
-  l_entries[3].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_3); \
-  l_entries[4].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
-  l_entries[4].ffdc.iv_ffdcObjIndex = 4; \
-  l_entries[4].ffdc.iv_ffdcId = fapi::RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_4; \
-  l_entries[4].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_4); \
-  l_entries[5].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
-  l_entries[5].ffdc.iv_ffdcObjIndex = 5; \
-  l_entries[5].ffdc.iv_ffdcId = fapi::RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_5; \
-  l_entries[5].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_5); \
-  RC.addErrorInfo(l_objects, l_entries, 6); \
-}
+#define RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_ADD_ERROR_INFO(RC) 
 
 #define RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) 
+#define RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MBA_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MBA_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 1; \
+  l_entries[2].target_cdg.iv_gard = 1; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
 
 #define RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) 
+#define RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MBA_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MBA_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 1; \
+  l_entries[2].target_cdg.iv_gard = 1; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
 
 #define RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) 
+#define RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MBA_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MBA_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 1; \
+  l_entries[2].target_cdg.iv_gard = 1; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
 
 #define RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) 
+#define RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MBA_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&EXPECTED_STATUS, &ACTUAL_STATUS, &MBA_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_EXPECTED_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EXPECTED_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_ACTUAL_STATUS; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(ACTUAL_STATUS); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 1; \
+  l_entries[2].target_cdg.iv_gard = 1; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
 
 #define RC_MSS_DRAMINIT_TRAINING_INIT_CAL_STALLED_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_DRAMINIT_TRAINING_INIT_CAL_STALLED_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
@@ -8452,9 +8711,37 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   RC.addErrorInfo(l_objects, l_entries, 1); \
 }
 
-#define RC_MSS_NUM_MBA_ERROR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
-#define RC_MSS_NUM_MBA_ERROR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
-#define RC_MSS_NUM_MBA_ERROR_ADD_ERROR_INFO(RC) 
+#define RC_MSS_SCOMINIT_NUM_MBA_ERROR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MSS_SCOMINIT_NUM_MBA_ERROR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MSS_SCOMINIT_NUM_MBA_ERROR_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&NUM_MBAS}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_SCOMINIT_NUM_MBA_ERROR_NUM_MBAS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(NUM_MBAS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
+}
+
+#define RC_MSS_SCOMINIT_NUM_L4_ERROR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MSS_SCOMINIT_NUM_L4_ERROR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MSS_SCOMINIT_NUM_L4_ERROR_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&NUM_L4S}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_SCOMINIT_NUM_L4_ERROR_NUM_L4S; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(NUM_L4S); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
+}
 
 #define RC_MSS_SETUP_BARS_NM_ALT_BAR_ERR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_SETUP_BARS_NM_ALT_BAR_ERR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
@@ -8501,6 +8788,30 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 #define RC_MSS_SLEW_CAL_ERROR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_MSS_SLEW_CAL_ERROR_ADD_ERROR_INFO(RC) 
 
+#define RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MEM_CHIP); \
+\
+{ \
+  const void * l_objects[] = {&FFDC_DATA_1, &FFDC_DATA_2, &MEM_CHIP}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_FFDC_DATA_1; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_1); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_FFDC_DATA_2; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(FFDC_DATA_2); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 1; \
+  l_entries[2].target_cdg.iv_gard = 1; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
+
 #define RC_MSS_VOLT_UNRECOGNIZED_DRAM_DEVICE_TYPE_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_MSS_VOLT_UNRECOGNIZED_DRAM_DEVICE_TYPE_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_MSS_VOLT_UNRECOGNIZED_DRAM_DEVICE_TYPE_ADD_ERROR_INFO(RC) \
@@ -8538,6 +8849,90 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   RC.addErrorInfo(l_objects, l_entries, 1); \
 }
 
+#define RC_CEN_MEM_PLL_INITF_UNSUPPORTED_MSS_FREQ_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_CEN_MEM_PLL_INITF_UNSUPPORTED_MSS_FREQ_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_CEN_MEM_PLL_INITF_UNSUPPORTED_MSS_FREQ_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&MSS_FREQ}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_CEN_MEM_PLL_INITF_UNSUPPORTED_MSS_FREQ_MSS_FREQ; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MSS_FREQ); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
+}
+
+#define RC_CEN_MEM_PLL_INITF_UNSUPPORTED_NEST_FREQ_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_CEN_MEM_PLL_INITF_UNSUPPORTED_NEST_FREQ_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_CEN_MEM_PLL_INITF_UNSUPPORTED_NEST_FREQ_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&NEST_FREQ}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[2]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_CEN_MEM_PLL_INITF_UNSUPPORTED_NEST_FREQ_NEST_FREQ; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(NEST_FREQ); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[1].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE; \
+  l_entries[1].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 2); \
+}
+
+#define RC_CEN_MEM_PLL_SETUP_PLL_LOCK_TIMEOUT_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_CEN_MEM_PLL_SETUP_PLL_LOCK_TIMEOUT_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_CEN_MEM_PLL_SETUP_PLL_LOCK_TIMEOUT_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&CFAM_FSI_STATUS, &MEMBUF_CHIP_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[3]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_CEN_MEM_PLL_SETUP_PLL_LOCK_TIMEOUT_CFAM_FSI_STATUS; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CFAM_FSI_STATUS); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_HW_CALLOUT; \
+  l_entries[1].hw_callout.iv_hw = fapi::HwCallouts::MEM_REF_CLOCK; \
+  l_entries[1].hw_callout.iv_calloutPriority = fapi::CalloutPriorities::MEDIUM; \
+  l_entries[1].hw_callout.iv_refObjIndex = 1; \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[2].target_cdg.iv_targetObjIndex = 1; \
+  l_entries[2].target_cdg.iv_callout = 1; \
+  l_entries[2].target_cdg.iv_deconfigure = 1; \
+  l_entries[2].target_cdg.iv_gard = 1; \
+  l_entries[2].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 3); \
+}
+
+#define RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_ADD_ERROR_INFO(RC) fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP_IN_ERROR); \
+\
+{ \
+  const void * l_objects[] = {&MEM_CLK_STATUS_REG, &MEM_CLK_STATUS_REG_EXP_DATA, &MEMBUF_CHIP_IN_ERROR}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[4]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[0].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[0].ffdc.iv_ffdcId = fapi::RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_MEM_CLK_STATUS_REG; \
+  l_entries[0].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MEM_CLK_STATUS_REG); \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[1].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[1].ffdc.iv_ffdcId = fapi::RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_MEM_CLK_STATUS_REG_EXP_DATA; \
+  l_entries[1].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(MEM_CLK_STATUS_REG_EXP_DATA); \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_HW_CALLOUT; \
+  l_entries[2].hw_callout.iv_hw = fapi::HwCallouts::MEM_REF_CLOCK; \
+  l_entries[2].hw_callout.iv_calloutPriority = fapi::CalloutPriorities::MEDIUM; \
+  l_entries[2].hw_callout.iv_refObjIndex = 2; \
+  l_entries[3].iv_type = fapi::ReturnCode::EI_TYPE_CDG; \
+  l_entries[3].target_cdg.iv_targetObjIndex = 2; \
+  l_entries[3].target_cdg.iv_callout = 1; \
+  l_entries[3].target_cdg.iv_deconfigure = 1; \
+  l_entries[3].target_cdg.iv_gard = 1; \
+  l_entries[3].target_cdg.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 4); \
+}
+
 namespace fapi
 {
 
@@ -8561,6 +8956,7 @@ enum HwpFfdcId
     RC_P8_MAILBOX_UTILS_FREQ_MULT_OOB_ERROR_REF_FREQ = 0xd03cd1f1,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FL_P8_FAIL_ERR_MCI_STAT = 0x370c9274,
     RC_PROCPM_SPCWKUP_CODE_BAD_ENTITY_I_ENTITY = 0xd81da3dc,
+    RC_MSS_SCOMINIT_NUM_L4_ERROR_NUM_L4S = 0x54f0800e,
     RC_PROCPM_POREBAR_IMAGE_SIZE_ERROR_XIPRC = 0x5532f076,
     RC_PMPROC_PFETLIB_CODE_FAULT_EX = 0x6a51407c,
     RC_PROC_SETUP_BARS_FOREIGN_NEAR_RANGE_ATTR_ERR_BASE_ADDR = 0x41da23fd,
@@ -8629,6 +9025,7 @@ enum HwpFfdcId
     RC_PROC_CEN_FRAMELOCK_FL_P8_FIR_ERR_MCS_MCI_FIR = 0x8710bc0c,
     REG_FFDC_DDR_PHY_FIR_REGS = 0xa4f8cd85,
     IO_FIR_GROUP_TX_PARITY_ERROR_RC_TX_ERROR_REG = 0xca53bfcb,
+    REG_FFDC_PROC_SLW_PBA_REGISTERS = 0x7f68245b,
     RC_MSS_MAINT_PUT_MARK_STORE_BAD_INPUT_MBA = 0xc3560774,
     RC_PROC_A_X_PCI_DMI_PLL_SETUP_PCIE_PLL_NO_LOCK_LOCK_STATUS = 0xadc32093,
     RC_PROC_SLWB_IMAGE_SIZE_NOT_FIXED_DATA_IMG_SIZE_FIXED = 0x3fe29fa0,
@@ -8640,6 +9037,7 @@ enum HwpFfdcId
     RC_PROC_BUILD_SMP_CORE_FREQ_RANGE_ERR_CEILING = 0x45f7191e,
     RC_P8_FORCE_FREQ_TARGET_MODE_ERROR_FMAX = 0x28196d78,
     RC_PROC_XIPC_CHIPLET_ID_MESS_DATA_CHIPLET_ID_REQ = 0x216a28ae,
+    RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_EXPECTED_STATUS = 0xbe511aec,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_CEN_FIR_ERR_MBI_STAT = 0xedb9cd8f,
     REG_FFDC_PROC_CFAM_REGISTERS = 0x5d934cc9,
     RC_PROC_EXTRACT_SBE_RC_ADDR_NOT_RECOGNIZED_SLW_SBE_ADDRESS = 0x23f71d98,
@@ -8663,6 +9061,7 @@ enum HwpFfdcId
     REG_FFDC_PROC_XBUS_CLOCK_CONTROLLER = 0x762052bc,
     RC_PROC_BUILD_SMP_F_CMD_RATE_ERR_CMD_RATE = 0x0048cfdd,
     REG_FFDC_PROC_ABUS_CLOCK_CONTROLLER = 0x6efafc00,
+    RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_EXPECTED_STATUS = 0x34551119,
     RC_PROC_SLWB_UNKNOWN_XIP_ERROR_RC_LOCAL = 0xd0c4cc96,
     RC_PROC_SLWB_MS_IMAGE_SIZE_MISMATCH_DATA_IMG_SIZE = 0xd6c027ea,
     RC_PROCPM_ACTIVATE_CORES_TIMEOUT_POLLCOUNT = 0x2a6dcfdd,
@@ -8679,6 +9078,7 @@ enum HwpFfdcId
     RC_PROC_BUILD_SMP_MASTER_DESIGNATION_ERR_OP = 0x70a4f7cf,
     RC_PROCPM_PMCRESET_SPIVID_CONFIG_ERROR_MASTER_TARGET = 0x297193fc,
     RC_MBVPD_INSUFFICIENT_VPD_RETURNED_KEYWORD = 0xcfdb2d97,
+    RC_MBVPD_INVALID_MODE_PARAMETER_MODE = 0x6b6f0bee,
     RC_PROC_XIPC_XIP_DELETE_SECTION_ERROR_RC_LOCAL = 0x218e0f83,
     RC_MSS_MAINT_INVALID_STEER_MUX_RANK = 0x564415b9,
     RC_PROC_SETUP_BARS_AS_MMIO_BAR_ATTR_ERR_SIZE = 0xfdccf2bf,
@@ -8696,11 +9096,13 @@ enum HwpFfdcId
     RC_PROC_XIPC_WRITE_VPD_RING_TO_SLW_IMAGE_ERROR_RC_LOCAL = 0x15ffc277,
     RC_CEN_XIPC_UNSPECIFIED_IMAGE_ERR_RC_LOCAL = 0x6c4ebfdc,
     RC_PROC_XIPC_IMGBUILD_ERROR_RC_LOCAL = 0x535916c1,
+    RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_FFDC_DATA_1 = 0x117c4384,
     RC_PROCPM_POREBAR_LOC_ERROR_MEMLOC = 0x00b15f9d,
     RC_PROC_SETUP_BARS_INTP_BAR_ATTR_ERR_SIZE = 0x0721bf7c,
     RC_MSS_MAINT_CCS_MUX_NOT_MAINLINE_MBA = 0x85f0b0ac,
     RC_PROC_GETL3CAC_INVALID_CGC_ARGS = 0xcb32111d,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FL_P8_FIR_ERR_MCS_MBI_STAT = 0xba247d31,
+    RC_MSS_CDIMM_INVALID_NUMBER_SENSORS_FFDC_DATA_2 = 0x4a2270a7,
     RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_PCB_ERR = 0x8bb047ae,
     RC_PMPROC_PFETLIB_RAIL_ON_DOMAIN = 0xf185c4b2,
     IO_GCR_WRITE_MISMATCH_RC_WRITE_BUF = 0xbc7b90a4,
@@ -8709,7 +9111,6 @@ enum HwpFfdcId
     RC_PROC_SLWB_APPEND_SLW_SECTION_ERROR_RC_LOCAL = 0xa79bbe0d,
     RC_MSS_MAINT_GET_STEER_MUX_BAD_INPUT_MUX_TYPE = 0xbce1fbea,
     RC_PROC_BUILD_SMP_DUPLICATE_FABRIC_ID_ERR_CHIP_ID = 0x61bae87c,
-    RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_4 = 0xfbe823f5,
     RC_P8_MAILBOX_UTILS_FREQ_MULT_OOB_ERROR_BOOT_FREQ = 0xdc04ddca,
     RC_ERROR_MSS_GROUPING_ATTRS__ATTR_PROC_MIRROR_BASE = 0x482fd223,
     RC_PROC_A_X_PCI_DMI_PLL_SETUP_DMI_PLL_NO_LOCK_LOCK_STATUS = 0x1a630cb6,
@@ -8734,6 +9135,7 @@ enum HwpFfdcId
     RC_PROC_BUILD_SMP_X_CMD_RATE_ERR_CMD_RATE = 0xa5c9d9ef,
     IO_FIR_GROUP_RX_PARITY_ERROR_RC_CHIP_TARGET = 0xb7f9414a,
     RC_PROCPM_GPE_RESET_TIMEOUT_MAXPOLLS = 0x56378bd3,
+    RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_ACTUAL_STATUS = 0xa4158864,
     RC_PROC_XIPC_PLL_RING_SIZE_TOO_LARGE_DATA_MAX_PLL_RING_SIZE = 0x86c5c24b,
     RC_PROC_BUILD_SMP_INVALID_OPERATION_ERR_OP = 0x8e9931be,
     RC_MSS_MEMDIAGS_RESTORE_REPAIRS_EXCEEDED_MBA = 0x94e556b5,
@@ -8769,6 +9171,7 @@ enum HwpFfdcId
     RC_PROC_CEN_FRAMELOCK_FRTL_P8_FAIL_ERR_MCI_STAT = 0x5a7a8b14,
     RC_PROC_FASTARRAY_INVALID_EX_CLOCK_SOURCE_PMGP0 = 0x72be916f,
     REG_FFDC_PROC_MBOX_REGISTERS = 0x0a10fb43,
+    RC_CEN_MEM_PLL_INITF_UNSUPPORTED_MSS_FREQ_MSS_FREQ = 0xbaf227a9,
     RC_MVPD_EX_L2_SINGLE_MEMBER_ENABLE_BAD_FIELD_SIZE_FIELD_SIZE = 0x98d5b572,
     RC_PROC_CEN_FRAMELOCK_FRTL_P8_FIR_ERR_MCS_MCI_FIR = 0x2cead37c,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_CEN_FAIL_ERR_MBI_FIR = 0x13070b33,
@@ -8824,6 +9227,7 @@ enum HwpFfdcId
     RC_OPT_MEMMAP_GROUP_PARTNER_ERR_GROUP = 0xfabdbe1c,
     RC_PROC_BUILD_SMP_NO_MASTER_SPECIFIED_ERR_OP = 0x0f679806,
     RC_PROC_PCBS_CODE_BAD_MODE_MODE = 0x63e7c8ce,
+    RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_MEM_CLK_STATUS_REG = 0x513f5484,
     RC_BAD_DQ_DIMM_BAD_PARAM_FFDC_DIMM = 0x965649ec,
     RC_MSS_MAINT_PUT_MARK_STORE_BAD_INPUT_RANK = 0xff72b733,
     RC_MBVPD_SUPPLIER_ID_NOT_IN_MV_VPD_MODULE_ID = 0xd9984f85,
@@ -8832,8 +9236,8 @@ enum HwpFfdcId
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_TIMEOUT_ERR_MCI_FIR = 0xdfe48c7c,
     RC_ERROR_MSS_GROUPING_ATTRS__ATTR_PROC_MEM_BASES = 0x3b80efb5,
     RC_PROC_SLWB_MAX_IMAGE_SIZE_EXCEEDED_DATA_IMG_SIZE_OLD = 0x12ea4e49,
-    RC_PROC_ADU_COHERENT_UTILS_SEC_VIOLATION_BASE_ADDRESS = 0x723ae21f,
     RC_INITFILE_TGT_NUM_OUT_OF_RANGE_FFDC_IF_NUM_TGTS_PASSED_IN = 0x9e4ca7d3,
+    RC_PROC_ADU_COHERENT_UTILS_SEC_VIOLATION_BASE_ADDRESS = 0x723ae21f,
     RC_MSS_MAINT_STOP_NOT_RESET_MBMCC = 0x69f7f099,
     RC_PROC_SLWB_WF_CREATION_ERROR_RC_LOCAL = 0x631c839b,
     RC_PROC_SETUP_BARS_FSP_MMIO_MASK_ATTR_ERR_SIZE = 0xe9c839d8,
@@ -8868,6 +9272,7 @@ enum HwpFfdcId
     RC_PROC_SETUP_BARS_NX_MMIO_BAR_ATTR_ERR_SIZE = 0xa0a6c7d7,
     RC_MSS_MAINT_NO_UE_TRAP_MBMMR = 0x9d6c8219,
     RC_MSS_MAINT_DO_STEER_INPUT_OUT_OF_RANGE_MBA = 0xcf0d284b,
+    RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_PCBSPM_MON1 = 0x2a4c1efd,
     RC_ERROR_MSS_GROUPING_ATTRS__ATTR_CHIP_UNIT_POS_MBA1 = 0xd593b1bb,
     RC_PROC_EXTRACT_SBE_RC_UNKNOWN_ENGINE_ENGINE = 0x5c1289c8,
     RC_CEN_XIPC_IMAGE_SIZE_MISMATCH_DATA_IMG_SIZE = 0xef5303ba,
@@ -8890,6 +9295,7 @@ enum HwpFfdcId
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_P8_FIR_ERR_MCS_MBI_STAT = 0xe7207b05,
     RC_INITFILE_EXECUTION_ERROR_FFDC_SCOM_ADDRID = 0xf07c23cd,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_CEN_FAIL_ERR_MBI_FIR = 0xa3acc4ad,
+    RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_ACTUAL_STATUS = 0xca6e2512,
     RC_PROC_XIPC_KEYWORD_NOT_FOUND_ERROR_RC_LOCAL = 0x85737c0a,
     RC_PROCPM_POREBAR_IMAGE_BRANCH_VALUE_ERROR_CHIP = 0x351fae10,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_P8_FIR_ERR_MEMBUF_MBI_FIR = 0xfdbef25f,
@@ -8911,7 +9317,9 @@ enum HwpFfdcId
     RC_TEST_DQ_BAD_DATA_FFDC_DATA1 = 0xb03bd885,
     RC_MSS_MAINT_INVALID_SYMBOL_TO_STEER_SYMBOL = 0xd51ca8e5,
     RC_PROC_PBA_COHERENT_UTILS_INVALID_ARGS_START_ADDRESS = 0x4d45d26c,
+    RC_MSS_AD32S_0_PLL_FAILED_TO_LOCK_EXPECTED_STATUS = 0xfcf52106,
     RC_PROC_EXTRACT_SBE_RC_FROM_ADDR_CODE_BUG_SBE_ADDRESS = 0x3e0d5fb5,
+    IO_RUN_TRAINING_EYE_OPT_TIMEOUT_RC_FFDC_NUM_CYCLES = 0xdea7c1b2,
     RC_PROC_XIPC_RING_BLOCK_ALIGN_ERROR_DATA_SIZE_OF_RS4_LAUNCH = 0x14c00ada,
     RC_PROC_SETUP_BARS_NON_MIRRORED_RANGE_ATTR_ERR_BASE_ADDR = 0x65807715,
     IO_FIR_MAX_SPARES_EXCEEDED_FIR_RC_CHIP_TARGET = 0xa696d29d,
@@ -8921,6 +9329,7 @@ enum HwpFfdcId
     RC_PROC_FAB_SMP_ASYNC_SAFE_MODE_ATTR_ERR_ATTR_DATA = 0x9e1cb122,
     RC_PROC_START_CLOCKS_PCIE_CHIPLET_CLK_STATUS_ERR_STATUS_REG = 0xb5ad3d7c,
     RC_PROC_XIPC_RS4_COMPRESS_SIZE_MESS_DATA_SIZE_RS4_COMPRESS_CONTAINER = 0xb3d3f077,
+    IO_RUN_TRAINING_FUNC_MODE_TIMEOUT_RC_FFDC_NUM_CYCLES = 0xc1d40d75,
     RC_PROC_ADU_COHERENT_UTILS_INVALID_ARGS_START_ADDRESS = 0x0cb69fae,
     RC_MSS_DIMM_NOT_FOUND_IN_POWER_TABLE_FFDC_DATA_2 = 0x4dcd0902,
     RC_PROC_PBA_COHERENT_UTILS_PBA_FIR_ERR_ERRPT0_DATA = 0xa3d264ad,
@@ -8935,6 +9344,7 @@ enum HwpFfdcId
     RC_PROC_SLWB_BUF_SIZE_NOT_FIXED_DATA_BUF_SIZE_FIXED = 0x8d852e31,
     RC_MSS_MAINT_INVALID_CHIP_INDEX_SYMBOL_MARK = 0x3b13bd07,
     RC_ERROR_MSS_GROUPING_ATTRS__ATTR_PROC_POS = 0xdc09f88d,
+    IO_RUN_TRAINING_WIRETEST_TIMEOUT_RC_FFDC_NUM_CYCLES = 0xa32a3b6f,
     RC_PROC_CEN_REF_CLK_ENABLE_SWIZZLE_ERR_POSITION = 0xa7fa0cce,
     RC_PROCPM_POREBAR_XIP_IMAGE_SIZE_ERROR_XIPRC = 0x0c5e7390,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_CEN_FIR_ERR_MCI_STAT = 0x9d7c0624,
@@ -8942,6 +9352,7 @@ enum HwpFfdcId
     RC_PROC_XIPC_UNEXPECTED_FIELD_SIZE_DATA_SIZE_VPD_FIELD = 0x51354ed8,
     RC_INITFILE_INCORRECT_VER_FFDC_IF_VER = 0x4002ab96,
     RC_PROCPM_ACTIVATE_ERROR_SCOREBOARD = 0x4d7c3193,
+    RC_MBVPD_UNEXPECTED_MEM_TYPE_MEM_TYPE = 0xed0fc897,
     RC_MSS_MAINT_ECC_DISABLED_CMD_TYPE = 0x2b5f2104,
     RC_MSS_MAINT_DO_STEER_INPUT_OUT_OF_RANGE_SYMBOL = 0xd2bf15db,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_CEN_FIR_ERR_MCI_FIR = 0x263f4586,
@@ -8954,6 +9365,7 @@ enum HwpFfdcId
     RC_MBVPD_INVALID_ATTRIBUTE_ID_ATTR_ID = 0x1d96f502,
     RC_MSS_MAINT_ZERO_DDR_FREQ_CMD_TYPE = 0x0a1d8195,
     RC_PROC_XIPC_RING_WRITE_WOULD_OVERFLOW_IMAGE_SIZE = 0x1d35d1b7,
+    RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_ACTUAL_STATUS = 0x274832d8,
     RC_PROC_START_CLOCKS_PCIE_CHIPLET_CLK_STATUS_ERR_EXPECTED_REG = 0x5959199a,
     RC_PROC_BUILD_SMP_ADU_STATUS_MISMATCH_STATUS_DATA = 0x6bdb967c,
     RC_MSS_DIMM_POWER_CURVE_DATA_LAB_FFDC_DATA_2 = 0xe03f98c0,
@@ -8980,6 +9392,7 @@ enum HwpFfdcId
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FL_CEN_FIR_ERR_MBI_FIR = 0x2d8ccdd1,
     RC_PROC_BUILD_SMP_HOTPLUG_SHADOW_ERR_ADDRESS1 = 0x496c6a84,
     RC_PROC_XIPC_OVERFLOW_BEFORE_REACHING_MINIMUM_EXS_BOOT_CORE_MASK = 0xa5af436e,
+    RC_CEN_MEM_PLL_INITF_UNSUPPORTED_NEST_FREQ_NEST_FREQ = 0xa452f9f6,
     RC_MSS_MAINT_ECC_DISABLED_MBA = 0xcdf9108b,
     RC_PROC_SETUP_BARS_PCIE_BAR_ATTR_ERR_RANGE = 0x044983c7,
     RC_MSS_MAINT_MARKSTORE_WRITE_BLOCKED_CHIP_MARK = 0xaa6d906e,
@@ -8995,12 +9408,12 @@ enum HwpFfdcId
     RC_MSS_MAINT_INVALID_SYMBOL_TO_STEER_STEER_TYPE = 0x46825997,
     RC_PROC_FAB_SMP_EPSILON_GB_DIRECTION_ATTR_ERR_ATTR_DATA = 0x186833da,
     RC_PROC_XIPC_PG_RING_TOO_LARGE_DATA_RING_SIZE_REQ = 0xf6427c80,
-    RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_1 = 0xb06c49e0,
     RC_REPAIR_RING_NOT_FOUND_RING_MODIFIER = 0x121ad260,
     RC_PROC_EXTRACT_SBE_RC_ADDR_UNALIGNED_SLW_SBE_ADDRESS = 0xca66d402,
     RC_PROC_ADU_COHERENT_UTILS_SEC_VIOLATION_END_ADDRESS = 0xa305b088,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_P8_FIR_ERR_MEMBUF_MCI_FIR = 0x0c738482,
     RC_SBE_FABRICINIT_FBC_STOPPED_ERR_ADU_PMISC_MODE_0x0202000B = 0x31c68ef4,
+    RC_MSS_UNEXPECTED_TP_CLOCK_STATUS_EXPECTED_STATUS = 0x1eb7716a,
     RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_CHIP_IN_ERROR = 0x606adaae,
     RC_MSS_MAINT_NO_MEM_CNFG_MBA = 0x353b62b4,
     RC_ERROR_MSS_GROUPING_ATTRS__ATTR_PROC_MEM_BASE = 0x1e0b22ac,
@@ -9011,6 +9424,7 @@ enum HwpFfdcId
     RC_PROC_START_CLOCKS_ABUS_CHIPLET_FIR_ERR_FIR_REG = 0x304b1c5f,
     RC_PROC_PARITY_ERROR_RETRY_LIMIT_REACHED_PCB_DATA = 0x05c94fc0,
     RC_PROC_XIPC_CREATE_FIXED_IMAGE_ERROR_RC_LOCAL = 0xc3c51f8b,
+    RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_FREQ_PB = 0xeb69e9d9,
     RC_PROC_SLWB_IMAGE_SIZE_MISMATCH_DATA_IMG_SIZE = 0x840894bc,
     RC_PROCPM_SPCWKUP_OHA_FLAG_SET_ON_EXIT_ENTITY = 0xd0c26314,
     RC_MSS_MAINT_GET_ADDRESS_RANGE_BAD_INPUT_RANK = 0x5295a95e,
@@ -9021,8 +9435,8 @@ enum HwpFfdcId
     RC_MSS_MAINT_GET_STEER_MUX_BAD_INPUT_RANK = 0x1f0a1521,
     IO_FIR_LANE_RX_PARITY_ERROR_RC_RX_ERROR_REG = 0x659e3cc4,
     RC_PROC_SETUP_BARS_NON_MIRRORED_RANGE_ERR_SIZE = 0x2bbaf23a,
-    RC_PROC_SETUP_BARS_SIZE_XLATE_ERR_SIZE = 0x6a2ea7a2,
     RC_PROC_PCIE_SCOMINIT_IOP_CONFIG_ATTR_ERR_ATTR_DATA = 0xebf8ee3c,
+    RC_PROC_SETUP_BARS_SIZE_XLATE_ERR_SIZE = 0x6a2ea7a2,
     RC_PROC_FAB_SMP_PUMP_MODE_ATTR_ERR_ATTR_DATA = 0xb8f37507,
     RC_PROCPM_GPE_CODE_BAD_MODE_IMODE = 0xf6695988,
     RC_PROC_BUILD_SMP_HOTPLUG_SHADOW_ERR_ADDRESS0 = 0x2037586d,
@@ -9046,6 +9460,7 @@ enum HwpFfdcId
     RC_PROC_XIPC_RING_WRITE_WOULD_OVERFLOW_ADD_INFO_MINIMUM = 0xf1d76aa5,
     RC_PROC_EXTRACT_SBE_RC_BRANCH_TO_SEEPROM_FAIL_CHIP_IN_ERROR = 0x29bd34ff,
     RC_PROC_SLWB_IMAGE_UPDATE_ERROR_RC_LOCAL = 0x526e6893,
+    RC_MSS_AD32S_1_PLL_FAILED_TO_LOCK_ACTUAL_STATUS = 0x9fc279ea,
     RC_PMPROC_PBA_SLAVE_RESET_TIMEOUT_SLAVENUM = 0x041d38d4,
     RC_PROC_ADU_COHERENT_UTILS_SEC_VIOLATION_SEC_END_ADDRESS = 0x9d507a6e,
     RC_GET_SPD_ACCESSOR_INVALID_DDR_TYPE_TYPE = 0xf5ccc3c8,
@@ -9069,6 +9484,7 @@ enum HwpFfdcId
     RC_PROC_CEN_REF_CLK_ENABLE_CONFIG_ERR_CONFIGURED = 0xc7632419,
     RC_CEN_XIPC_IMAGE_SIZE_MISMATCH_DATA_IMG_SIZE_INP = 0x147f964c,
     RC_PROC_PBA_COHERENT_UTILS_PBA_WRITE_STATUS_MISMATCH_STATUS1_DATA = 0x2065e845,
+    RC_MSS_SCOMINIT_NUM_MBA_ERROR_NUM_MBAS = 0xee40e9e1,
     RC_MSS_DIMM_POWER_CURVE_DATA_INVALID_FFDC_DATA_3 = 0x8a0b6dd3,
     RC_PROC_XIPC_MS_IMAGE_SIZE_MISMATCH_DATA_IMG_SIZE = 0x6d7cc1cd,
     RC_MSS_MAINT_NO_X8_ECC_SPARE_RANK = 0x26ab39e9,
@@ -9108,9 +9524,9 @@ enum HwpFfdcId
     RC_PROC_SETUP_BARS_NON_MIRRORED_RANGE_ATTR_ERR_SIZE = 0x9b9e73a2,
     RC_PROC_SLWB_L3_FUNC_OVERLAY_ERROR_DATA_FAIL_BYTE_NO = 0xbc57418c,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_TIMEOUT_ERR_MBI_FIR = 0xf733de00,
+    RC_PROC_SELECT_BOOT_MASTER_ATTR_ERR_ATTR_PROC_SELECT_BOOT_MASTER_CONTENT = 0xf1eea97f,
     RC_PROCPM_POREBAR_SIZE0_ERROR_MEMBAR = 0xa0c80927,
     RC_PROC_XBUS_SCOMINIT_INVALID_TARGET_THIS_XBUS_TARGET = 0x80be5be9,
-    RC_PROC_SELECT_BOOT_MASTER_ATTR_ERR_ATTR_PROC_SELECT_BOOT_MASTER_CONTENT = 0xf1eea97f,
     RC_PROC_PBA_UTILS_PBA_SLAVE_RESET_FAIL_ERR_DATA = 0x60e8784c,
     RC_PROC_SLWB_IMG_PTR_ERROR_DATA_BUF2_PTR = 0xfc9fba2d,
     RC_PROCPM_ACTIVATE_ERROR_POLLCOUNT = 0xc6a9d780,
@@ -9121,6 +9537,7 @@ enum HwpFfdcId
     REG_FFDC_CMD_TIMEOUT_MBS_REGS = 0x65d21927,
     RC_PROCPM_GPE_RESET_TIMEOUT_IENGINE = 0x559ef851,
     RC_PROC_XIPC_BUF_PTR_ERROR_DATA_BUF1_PTR = 0x81839a59,
+    RC_MSS_DP18_0_PLL_FAILED_TO_LOCK_EXPECTED_STATUS = 0x1efa8fb9,
     RC_CEN_XIPC_PLL_RING_SIZE_TOO_LARGE_DATA_SIZE_OF_BUF1 = 0xb8120534,
     RC_MSS_DIMM_POWER_CURVE_DATA_LAB_FFDC_DATA_4 = 0x8b490fae,
     RC_PROC_SETUP_BARS_NON_MIRRORED_RANGE_ERR_BASE_ADDR = 0x90583028,
@@ -9139,12 +9556,14 @@ enum HwpFfdcId
     RC_PROC_PREP_MASTER_WINKLE_BAD_ISTEP_NUM_SBE_VITAL = 0x973c13b2,
     RC_MSS_DIMM_POWER_CURVE_DATA_LAB_FFDC_DATA_1 = 0x78391a66,
     RC_MSS_MAINT_INVALID_SYMBOL_INDEX_MBA = 0x73b0c01c,
+    RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_ACTUAL_STATUS = 0x8af77fee,
     RC_PROC_XBUS_SCOMINIT_PARTIAL_GOOD_ERR_TARGET = 0xc0c99304,
     RC_PROC_BUILD_SMP_MASTER_DESIGNATION_ERR_SYS_RECONFIG_MASTER_SET = 0xd1495c9f,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_P8_FIR_ERR_MCS_MBI_FIR = 0x99b93be3,
     RC_MSS_MAINT_NO_UE_TRAP_UE_TRAP1 = 0xb853302e,
     RC_GET_SPD_ACCESSOR_INVALID_ATTRIBUTE_ID_ATTR_ID = 0x27806b4d,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_CEN_FIR_ERR_MBI_STAT = 0xe5f3dd94,
+    REG_FFDC_PROC_SLW_PMC_REGISTERS = 0x54122ce5,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FL_P8_FIR_ERR_MEMBUF_MBI_FIR = 0xf8d9dd1e,
     RC_PROCPM_SLW_RESET_TIMEOUT_POLLCOUNT = 0xf0101bef,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_P8_FAIL_ERR_MCI_STAT = 0xcfa0ba40,
@@ -9170,7 +9589,6 @@ enum HwpFfdcId
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_P8_FAIL_ERR_MBI_STAT = 0x19f0a5be,
     RC_PROC_XIPC_PLL_RING_BLOCK_TOO_LARGE_DATA_RING_BLOCK_SIZEOFTHIS = 0x562a2e28,
     RC_SBE_UNKNOWN_ERROR_CHIP_IN_ERROR = 0x6c9d7bea,
-    RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_3 = 0xd5bcf317,
     RC_MSS_MAINT_PUT_STEER_MUX_BAD_INPUT_STEER_TYPE = 0x98dd93bf,
     RC_PROC_CEN_FRAMELOCK_FRTL_P8_FIR_ERR_MEMBUF_MCI_STAT = 0x82decab0,
     RC_MSS_MAINT_INVALID_STEER_MUX_MUX_TYPE = 0x4c3770aa,
@@ -9180,17 +9598,22 @@ enum HwpFfdcId
     RC_CEN_DMI_SCOMINIT_INVALID_TARGET_TARGET = 0x8e48c070,
     RC_MSS_MAINT_INVALID_CHIP_INDEX_CHIP_MARK = 0x0f6b1155,
     RC_MSS_MAINT_GET_MARK_STORE_BAD_INPUT_RANK = 0xb2d644e3,
+    RC_MSS_UNEXPECTED_NEST_CLOCK_STATUS_ACTUAL_STATUS = 0xeca9e687,
     RC_PROC_SETUP_BARS_FSP_BAR_ATTR_ERR_BASE_ADDR = 0x8ecdd8ba,
     RC_PROC_EXTRACT_SBE_RC_MODEL_ERROR_GETTING_SCOM_CHIP_IN_ERROR = 0xf2036c6d,
     RC_MSS_MAINT_INVALID_DRAM_SIZE_WIDTH_DRAM_GEN = 0x1a3a0e40,
     RC_PROC_XIPC_OVERFLOW_BEFORE_REACHING_MINIMUM_EXS_VALID_COUNT = 0x38c6b752,
     RC_MSS_MAINT_INVALID_MARKSTORE_MARKSTORE = 0x76ff742d,
     RC_SBE_UNKNOWN_ERROR_ERROR_CODE = 0x9f4b6f68,
+    RC_PROC_BUILD_SMP_CORE_CEILING_FREQ_RATIO_ERR_FREQ_CORE_CEILING = 0x9e43da6b,
+    RC_CEN_MEM_PLL_SETUP_PLL_LOCK_TIMEOUT_CFAM_FSI_STATUS = 0x50027c2c,
     RC_PROC_CHIPLET_SCOMINIT_INVALID_TARGET_TARGET = 0x3b43ab27,
     RC_PROC_ABUS_SCOMINIT_PARTIAL_GOOD_ERR_TARGET = 0x3655b767,
     RC_MSS_MAINT_INVALID_CHIP_INDEX_DRAM_WIDTH = 0x8994e37a,
     RC_PROC_EXTRACT_SBE_RC_MODEL_ERRROR_SETTING_SEEPROM_ADDR_ERROR = 0x323916da,
+    RC_PROC_PCBS_CODE_SAFE_FSM_TIMEOUT_PCBSPM_MON2 = 0xae20e43d,
     RC_PROCPM_POREBAR_XIP_IMAGE_SIZE_ERROR_CHIP = 0x72b29a97,
+    RC_PROC_BUILD_SMP_CORE_CEILING_RATIO_ERR_CORE_CEILING_RATIO = 0xf598e354,
     RC_PROC_XIPC_IMAGE_SIZE_MESS_DATA_IMG_SIZE_MAX = 0x2ea95396,
     RC_OPT_MEMMAP_NON_MIRROR_GROUP_ERR_MEM_SIZES = 0x700c48b1,
     RC_PROC_CHECK_SLAVE_SBE_SEEPROM_COMPLETE_BAD_ISTEP_NUM_SUBSTEP_NUM = 0xd6b7a1e7,
@@ -9205,6 +9628,7 @@ enum HwpFfdcId
     REG_FFDC_TEST_X_PROC_REGISTERS_PRES_CHILDREN = 0xf335860d,
     RC_MSS_MAINT_INVALID_SYMBOL_INDEX_CHIP_MARK = 0x7eb77498,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_P8_FIR_ERR_MCS_MCI_STAT = 0xe98fe968,
+    RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_EXPECTED_STATUS = 0x9a8ba389,
     RC_PROC_BUILD_SMP_MASTER_DESIGNATION_ERR_MASTER_CHIP_SYS_CURR = 0xad1d23d1,
     RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_PCB_ADDR = 0x5938f774,
     RC_MSS_MAINT_STOP_NOT_RESET_CMD_TYPE = 0x0e7b7a5c,
@@ -9212,18 +9636,18 @@ enum HwpFfdcId
     RC_MSS_MAINT_MARKSTORE_WRITE_BLOCKED_RANK = 0x43bc4d22,
     RC_PROC_MANUAL_SBE_START_SECURITY_BLOCKS_START_SECURITY_SETUP = 0x97389980,
     RC_MSS_DIMM_POWER_CURVE_DATA_LAB_FFDC_DATA_3 = 0x7a5675fa,
+    RC_MSS_UNEXPECTED_MEM_CLOCK_STATUS_EXPECTED_STATUS = 0xe36df9e7,
     RC_MSS_DIMM_POWER_CURVE_DATA_INVALID_FFDC_DATA_1 = 0x37c03a2a,
     RC_PROC_CEN_FRAMELOCK_FRTL_P8_FIR_ERR_MEMBUF_MCI_FIR = 0xdc5dbd19,
     RC_PROCPM_PMC_INTERCHIP_CONFIG_ERROR_MASTERPMCMODE = 0x1eeeae0f,
     RC_PROC_XIPC_GEN_RAM_ERROR_RC_LOCAL = 0xe92b1213,
     RC_PROCPM_POREBAR_IMAGE_SLW_CONTROL_VECTOR_ERROR_SLWCONTROLVECTOR = 0x59c1b81c,
     RC_P8_MAILBOX_UTILS_PROC_REFCLK_ZERO_ERROR_REF_FREQ = 0x8e9d4f20,
-    IO_FIR_LANE_TX_PARITY_ERROR_RC_TX_ERROR_REG = 0x5d6acf80,
     RC_PROC_PCIE_SCOMINIT_IOP_SWAP_ATTR_ERR_ATTR_DATA = 0xd1b045f1,
+    IO_FIR_LANE_TX_PARITY_ERROR_RC_TX_ERROR_REG = 0x5d6acf80,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FL_TIMEOUT_ERR_MBI_STAT = 0xb2178888,
     RC_OPT_MEMMAP_NON_MIRROR_GROUP_ERR_GROUP_BASE = 0xbe4b30f7,
     RC_PROCPM_SPCWKUP_TIMEOUT_SP_WKUP_REG_ADDRESS = 0x7eda3623,
-    RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_MEM_CHIP = 0x530d07c0,
     RC_MSS_MAINT_MARKSTORE_WRITE_BLOCKED_MBA = 0x327e86b9,
     RC_PROC_CEN_FRAMELOCK_INVALID_ARGS_ARGS = 0x772b30bc,
     RC_EREPAIR_RESTORE_THRESHOLD_EXCEED_FFDC_LANES = 0x80f9cd2d,
@@ -9245,15 +9669,14 @@ enum HwpFfdcId
     RC_BAD_DQ_MFG_MODE_BITS_FOUND_DURING_SET_DIMM = 0x96b13071,
     RC_PROC_A_X_PCI_DMI_PLL_SETUP_ABUS_PLL_NO_LOCK_LOCK_STATUS = 0xc90a9567,
     RC_MPIPL_TOD_CLEAR_ERROR_TODERRREG = 0x6a5568e3,
-    RC_PROC_SLWB_BUF_PTR_ERROR_DATA_BUF1_PTR = 0x9e214ed0,
     RC_PROC_CHECK_SLAVE_SBE_SEEPROM_COMPLETE_BAD_SUBSTEP_NUM_ISTEP_NUM = 0x8bab7d92,
+    RC_PROC_SLWB_BUF_PTR_ERROR_DATA_BUF1_PTR = 0x9e214ed0,
     RC_MSS_MAINT_NO_UE_TRAP_UE_TRAP0 = 0x9749e072,
     RC_PROCPM_PBA_SLVRST_TIMED_OUT_SLVID = 0x2c7d8aef,
     RC_EREPAIR_RESTORE_THRESHOLD_EXCEED_FFDC_SUB_IFACE = 0x4d8cb819,
     RC_MSS_DIMM_POWER_CURVE_DATA_INVALID_FFDC_DATA_2 = 0x87e515d2,
     RC_ERROR_MSS_GROUPING_ATTRS__ATTR_ALL_MCS_IN_INTERLEAVING_GROUP = 0x655f6b93,
     REG_FFDC_PROC_TP_CLOCK_CONTROLLER = 0xf0ef5248,
-    RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_2 = 0xda4bf3c7,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_P8_FIR_ERR_MCS_MCI_FIR = 0x63e7e120,
     RC_PROCPM_ACTIVATE_ERROR_SLWCONTROL = 0x6f2fee93,
     RC_EREPAIR_RESTORE_THRESHOLD_EXCEED_FFDC_ENDP_TARGET = 0x7855445b,
@@ -9283,8 +9706,10 @@ enum HwpFfdcId
     RC_PROCPM_PMC_CODE_BAD_MODE_MODE = 0x294b335f,
     IO_FIR_MAX_SPARES_EXCEEDED_FIR_RC_SPARE_ERROR_REG = 0x8c5cb972,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FRTL_TIMEOUT_ERR_MCI_FIR = 0xe4e6faa4,
+    RC_CEN_MEM_STARTCLOCKS_UNEXPECTED_CLOCK_STATUS_MEM_CLK_STATUS_REG_EXP_DATA = 0xbcff43ce,
     RC_PROC_SETUP_BARS_AS_MMIO_BAR_ATTR_ERR_BASE_ADDR = 0xda84a966,
     RC_PROC_FAB_SMP_FABRIC_CHIP_ID_ATTR_ERR_ATTR_DATA = 0x6a16785a,
+    IO_RUN_TRAINING_REPAIR_TIMEOUT_RC_FFDC_NUM_CYCLES = 0x7044643f,
     RC_PMPROC_PFETLIB_RAIL_OFF_DOMAIN = 0x63fae357,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_TIMEOUT_ERR_MBI_STAT = 0x69cb4fa9,
     RC_PROCPM_PFETLIB_BABYSTEPPER_TIMEOUT_EX = 0x8bdf520f,
@@ -9297,6 +9722,7 @@ enum HwpFfdcId
     RC_GET_SPD_ACCESSOR_INVALID_OUTPUT_SIZE_EXPECTED_SIZE = 0x1d01eb3d,
     RC_PROC_CEN_FRAMELOCK_MANUAL_FRTL_P8_FIR_ERR_MCS_MCI_FIR = 0x34a141c8,
     RC_MSS_MAINT_GET_ADDRESS_RANGE_BAD_INPUT_MBA = 0xb6e00ecf,
+    IO_RUN_TRAINING_DESKEW_TIMEOUT_RC_FFDC_NUM_CYCLES = 0xe21e87c3,
     RC_PROC_CEN_FRAMELOCK_ERRSTATE_FL_P8_FAIL_ERR_MCI_FIR = 0xffb81369,
     RC_PROCPM_ACTIVATE_CORES_BREAKPOINT_POLLCOUNT = 0x1bdf1b7c,
     RC_OPT_MEMMAP_NON_MIRROR_GROUP_ERR_GROUP_SIZE = 0x975d70ac,
@@ -9306,9 +9732,10 @@ enum HwpFfdcId
     RC_PROC_SLWB_RING_BLOCK_ALIGN_ERROR_DATA_RING_BLOCK_ENTRYOFFSET = 0xc6e19582,
     RC_PROCPM_PMC_MASTER_CONFIG_ERROR_MASTERPMCMODE = 0x98a5ab6b,
     RC_MSS_VOLT_UNRECOGNIZED_DRAM_DEVICE_TYPE_DEVICE_TYPE = 0x8c4547c3,
-    RC_MBVPD_INSUFFICIENT_VPD_RETURNED_RETURNED_SIZE = 0x508e64d8,
-    RC_PROC_PCIE_SCOMINIT_INVALID_TARGET_TARGET = 0xbd7eaff3,
+    RC_MSS_DP18_1_PLL_FAILED_TO_LOCK_ACTUAL_STATUS = 0x9bec7bd8,
     RC_PROC_CHECK_SLAVE_SBE_SEEPROM_COMPLETE_BAD_SUBSTEP_NUM_SUBSTEP_NUM = 0xbdbda99c,
+    RC_PROC_PCIE_SCOMINIT_INVALID_TARGET_TARGET = 0xbd7eaff3,
+    RC_MBVPD_INSUFFICIENT_VPD_RETURNED_RETURNED_SIZE = 0x508e64d8,
     RC_OPT_MEMMAP_NON_MIRROR_GROUP_ERR_GROUP = 0xabe06cd1,
     RC_PROCPM_SPCWKUP_TIMEOUT_SP_WKUP_REG_VALUE = 0xfa629e9c,
     RC_PROC_PBA_COHERENT_UTILS_PBA_FIR_ERR_ERRPT2_DATA = 0x3d9c895f,
@@ -9324,7 +9751,6 @@ enum HwpFfdcId
     RC_P8_MAILBOX_UTILS_FREQ_MULT_OOB_ERROR_FREQ_MULT = 0xe9a3aeec,
     RC_PROC_PBA_COHERENT_UTILS_SEC_VIOLATION_SEC_END_ADDRESS = 0xd42b76c9,
     IO_FIR_SPARES_DEPLOYED_FIR_RC_SPARE_ERROR_REG = 0xf5b87e97,
-    RC_MSS_NOT_ENOUGH_AVAILABLE_DIMM_POWER_FFDC_DATA_5 = 0xcf180fc0,
     RC_PROC_PBA_COHERENT_UTILS_PBA_FIR_ERR_ERRPT1_DATA = 0xa1b2c416,
     RC_PROC_SLWB_INPUT_IMAGE_SIZE_MESS_DATA_IMG_SIZE_INP = 0x1ff0ab00,
     RC_PROC_TIMOUT_ERROR_RETRY_LIMIT_REACHED_PCB_DATA = 0x351b62ce,

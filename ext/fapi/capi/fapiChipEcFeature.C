@@ -197,6 +197,24 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_EC_USE_FIRST_SUPPLIER_FOR_INVALID_MODULE_ID:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_ENABLE_SAFEMODE_THROTTLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CHIP_EC_FEATURE_VENICE_SPECIFIC:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
@@ -464,6 +482,18 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CHIP_EC_FEATURE_FBC_UX_SCOPE_ARB_RR:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CHIP_EC_FEATURE_FBC_SERIAL_SCOM_C10_VER2:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
@@ -596,6 +626,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CHIP_EC_FEATURE_ZCAL_OVERRIDE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CHIP_EC_FEATURE_IVRM_WINKLE_BUG:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
@@ -613,6 +652,45 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
                          (l_chipEc >= 0x20))
                     ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CEN_EC_THROTTLE_SYNC_POSSIBLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_PROC_EC_CORE_HANG_PULSE_BUG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_PROC_EC_PBA_PREFETCH_ENABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x21))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_PROC_EC_OHA_L3_PURGE_ABORT_ENABLE:
+                    if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
                        )
