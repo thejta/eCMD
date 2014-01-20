@@ -271,15 +271,6 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       break;
     }
 
-    if (expectFlag) {
-      if (inputformat != "enum") {
-        rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
-        if (rc) break;
-      } else {
-        expectedEnum = expectArg;
-      }
-    }
-
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (spyData->isChipUnitRelated) {
@@ -406,6 +397,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           printed += "\n" + enumValue + "\n";
           ecmdOutput( printed.c_str() );
         } else {
+	  expectedEnum = expectArg;
           if (expectedEnum != enumValue) {
             printed =  "getspy - Mismatch found on spy : " + spyName + "\n";
             ecmdOutputError( printed.c_str() );
@@ -445,6 +437,37 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           ecmdOutput( printed.c_str() );
         }
         else {
+
+	  if (expectFlag) {
+	    if (inputformat != "enum") {
+	      if (inputformat == "d") 
+	      {		  
+		char msgbuf[100];
+		// Can only use 32 bits for decimal values
+		if (bitsToFetch > 32)
+		{
+		  sprintf(msgbuf,"Value too big for decimal representation (%d bits) - use Start and Numbits flags.\n", bitsToFetch);
+		  ecmdOutputError(msgbuf);
+		  rc = ECMD_DATA_BOUNDS_OVERFLOW;
+		  break;
+		}
+		else if (bitsToFetch >(spyBuffer.getBitLength() - startBit)) 
+		{
+		  sprintf(msgbuf,"Too many bits requested. (%d bits)  More than size of the spy requested.\n", bitsToFetch);
+		  ecmdOutputError(msgbuf);
+		  rc = ECMD_DATA_BOUNDS_OVERFLOW;
+		  break;
+		}
+
+		rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
+	      }
+	      else
+	      {
+		rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
+	      }
+	      if (rc) break;
+	    }
+	  }
 
           uint32_t mismatchBit = 0;
           if (!ecmdCheckExpected(buffer, expectedRaw, mismatchBit)) {
@@ -990,14 +1013,7 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
       rc = ECMD_INVALID_ARGS;
       break;
     }
-    if (expectFlag) {
-      if (inputformat != "enum") {
-        rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
-        if (rc) break;
-      } else {
-        expectedEnum = expectArg;
-      }
-    }
+
  /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (spyData->isChipUnitRelated) {
@@ -1066,10 +1082,11 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
       printed = ecmdWriteTarget(cuTarget) + " " + spyName;
 
       if (outputformat == "enum") {
- if (!expectFlag) {
+	if (!expectFlag) {
           printed += "\n" + enumValue + "\n";
           ecmdOutput( printed.c_str() );
         } else {
+          expectedEnum = expectArg;
           if (expectedEnum != enumValue) {
             printed =  "getspyimage - Mismatch found on spy : " + spyName + "\n";
             ecmdOutputError( printed.c_str() );
@@ -1102,6 +1119,23 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
         }
         else {
 
+
+	  if (inputformat != "enum") {
+	    if (inputformat == "d") 
+	    {
+	      //char msgbuf[100];
+	      //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", bitsToFetch);
+	      //ecmdOutput(msgbuf);
+
+	      rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
+	    }
+	    else
+	    {
+	      rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
+	    }
+	    if (rc) break;
+	  }
+    
           uint32_t mismatchBit = 0;
           if (!ecmdCheckExpected(buffer, expectedRaw, mismatchBit)) {
             printed =  "getspyimage - Mismatch found on spy : " + spyName + "\n";
