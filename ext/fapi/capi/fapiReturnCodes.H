@@ -1,3 +1,6 @@
+// $Id$
+// $Source$
+
 /**
  *  @file fapiReturnCodes.H
  *
@@ -73,11 +76,7 @@ enum ReturnCodes
     FAPI_RC_PLAT_ERR_SEE_DATA   = FAPI_RC_PLAT_MASK | 0x01,
 
     // Operation to AlterDisplay unit failed because it is locked
-    // JFDEBUG - removing since Joe McGill added it to his errorr xml file and if
-    // I leave this here we get build errors.   Joe needs to remove it from the 
-    // xml file then we can add it back here.  Removing it from the xml file will
-    // remove it from fapiHwpReturnCodes.H
-    //FAPI_RC_PLAT_ERR_ADU_LOCKED = FAPI_RC_PLAT_MASK | 0x02,
+    FAPI_RC_PLAT_ERR_ADU_LOCKED = FAPI_RC_PLAT_MASK | 0x02,
 };
 
 }
