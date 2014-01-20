@@ -211,9 +211,9 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   if (expectFlag) {
     if (inputformat == "d") 
     {
-      char msgbuf[100];
-      sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", numbits);
-      ecmdOutput(msgbuf);
+      //char msgbuf[100];
+      //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", numbits);
+      //ecmdOutput(msgbuf);
 
       rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, numbits);
     }
@@ -229,9 +229,9 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
     if (maskFlag) {
       if (inputformat == "d") 
       {
-	char msgbuf[100];
-	sprintf(msgbuf,"Resizing mask value to requested number of bits (%d).\n", numbits);
-	ecmdOutput(msgbuf);
+	//char msgbuf[100];
+	//sprintf(msgbuf,"Resizing mask value to requested number of bits (%d).\n", numbits);
+	//ecmdOutput(msgbuf);
 	rc = ecmdReadDataFormatted(mask, maskPtr, inputformat, numbits);
       }
       else

@@ -546,15 +546,6 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
-  if (expectFlag) {
-    /* Grab the data for the expect */
-    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
-    if (rc) {
-      ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
-      return rc;
-    }
-  }
-
   if (argc < 2) {
     ecmdOutputError("getlatch - Too few arguments passed.\n");
     ecmdOutputError("getlatch - Type 'getlatch -h' for usage.\n");
@@ -648,7 +639,6 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     ecmdOutputError("getlatch - Type 'getlatch -h' for usage.\n");
     return ECMD_INVALID_ARGS;
   }
-
 
 
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
@@ -803,6 +793,24 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 	if (expectFlag) {
 
+	  /* Grab the data for the expect */
+	  if (inputformat == "d") 
+	  {
+	    //char msgbuf[100];
+	    //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", curNumBits);
+	    //ecmdOutput(msgbuf);
+	    
+	    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat, curNumBits);
+	  }
+	  else
+	  {
+	    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
+	  }
+	  if (rc) {
+	    ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
+	    return rc;
+	  }
+ 
 
 	  uint32_t mismatchBit = 0;
 	  if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
@@ -986,13 +994,6 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   }
 
 
-  if (expectFlag) {
-    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
-    if (rc) {
-      ecmdOutputError("getbits - Problems occurred parsing expected data, must be an invalid format\n");
-      return rc;
-    }
-  }
   if (argc > 4) {
     ecmdOutputError("getbits - Too many arguments specified; you probably added an option that wasn't recognized.\n");
     ecmdOutputError("getbits - Type 'getbits -h' for usage.\n");
@@ -1083,6 +1084,23 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       if (rc) break;
 
       if (expectFlag) {
+	/* Grab the data for the expect */
+	if (inputformat == "d") 
+	{
+	  //char msgbuf[100];
+	  //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", numBits);
+	  //ecmdOutput(msgbuf);
+	    
+	  rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat, numBits);
+	}
+	else
+	{
+	  rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
+	}
+	if (rc) {
+	  ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
+	  return rc;
+	}
 
 	uint32_t mismatchBit = 0;
         if (!ecmdCheckExpected(buffer, expected, mismatchBit)) {
