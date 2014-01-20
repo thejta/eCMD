@@ -44,7 +44,9 @@
 #include <ecmdDataBufferBase.H>
 #include <fapiReturnCode.H>
 #include <fapiTarget.H>
+#ifdef FAPI_SUPPORT_MULTI_SCOM
 #include <fapiMultiScom.H>
+#endif
 
 extern "C"
 {
