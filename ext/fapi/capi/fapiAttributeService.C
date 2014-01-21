@@ -3132,12 +3132,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_CLEANER_ENABLE, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_MSS_LAB_OVERRIDE_FOR_MEM_PLL)
-    {
-        ATTR_MSS_LAB_OVERRIDE_FOR_MEM_PLL_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_MSS_LAB_OVERRIDE_FOR_MEM_PLL, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
     else if (i_id == ATTR_MSS_MEM_MC_IN_GROUP)
     {
         ATTR_MSS_MEM_MC_IN_GROUP_Type l_attr;
@@ -3450,18 +3444,6 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_SCHMOO_MULTIPLE_SETUP_CALL, i_pTarget, l_attr);
         o_val = l_attr;
     }
-    else if (i_id == ATTR_EFF_RDTAG)
-    {
-        ATTR_EFF_RDTAG_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_RDTAG, i_pTarget, l_attr);
-        o_val = l_attr;
-    }
-    else if (i_id == ATTR_EFF_DQ_WR_OFFSET)
-    {
-        ATTR_EFF_DQ_WR_OFFSET_Type l_attr;
-        l_rc = FAPI_ATTR_GET(ATTR_EFF_DQ_WR_OFFSET, i_pTarget, l_attr);
-        o_val = l_attr[i_arrayIndex1];
-    }
     else if (i_id == ATTR_EFF_BUFFER_LATENCY)
     {
         ATTR_EFF_BUFFER_LATENCY_Type l_attr;
@@ -3582,6 +3564,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MRW_STRICT_MBA_PLUG_RULE_CHECKING, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MRW_ENHANCED_GROUPING_NO_MIRRORING)
+    {
+        ATTR_MRW_ENHANCED_GROUPING_NO_MIRRORING_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_ENHANCED_GROUPING_NO_MIRRORING, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MSS_DATABUS_UTIL_PER_MBA)
     {
         ATTR_MSS_DATABUS_UTIL_PER_MBA_Type l_attr;
@@ -3592,6 +3580,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_MSS_UTIL_N_PER_MBA_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_UTIL_N_PER_MBA, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CENTAUR_EC_ENABLE_PAGE_MODE_FOR_RRQ)
+    {
+        ATTR_CENTAUR_EC_ENABLE_PAGE_MODE_FOR_RRQ_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_ENABLE_PAGE_MODE_FOR_RRQ, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_CENTAUR_EC_ENABLE_TRACE_LCL_CLK_GATE_CTRL)
