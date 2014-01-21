@@ -1586,6 +1586,7 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
           are used by adding only an entry to io_entries and setting ecmdNameEntry.name = -keyword-
    - "ALLTHREADED" : To fetch all threaded (replicated) SPR's for particular target
    - "ALLSHARED"   : To fetch all non-threaded SPR's for particular target
+   - "LPARSHARED"  : To fetch all LPAR shared SPR's for particular target
 
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
