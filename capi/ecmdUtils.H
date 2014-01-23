@@ -79,48 +79,48 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 #else
 #define PTRAC0(fmt) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__); \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__); \
   ecmdOutput(buffer);}
 #define PTRAC1(fmt, arg1) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1); \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1); \
   ecmdOutput(buffer);}
 #define PTRAC2(fmt, arg1, arg2) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2); \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2); \
   ecmdOutput(buffer);}
 #define PTRAC3(fmt, arg1, arg2, arg3) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3); \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3); \
   ecmdOutput(buffer);}
 #define PTRAC4(fmt, arg1, arg2, arg3, arg4) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3, \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, \
   arg4); \
   ecmdOutput(buffer);}
 #define PTRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
   arg5); \
   ecmdOutput(buffer);}
 #define PTRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
   arg5, arg6); \
   ecmdOutput(buffer);}
 #define PTRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
   arg5, arg6, arg7); \
   ecmdOutput(buffer);}
 #define PTRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
   arg5, arg6, arg7, arg8); \
   ecmdOutput(buffer);}
 #define PTRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
   {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: "fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
+  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
   arg5, arg6, arg7, arg8, arg9); \
   ecmdOutput(buffer);}
 #endif
