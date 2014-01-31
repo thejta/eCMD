@@ -224,6 +224,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_EC_DD2_FIR_BIT_DEFN_CHANGES:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CHIP_EC_FEATURE_VENICE_SPECIFIC:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&

@@ -3570,6 +3570,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MRW_ENHANCED_GROUPING_NO_MIRRORING, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MRW_CDIMM_MASTER_I2C_TEMP_SENSOR_ENABLE)
+    {
+        ATTR_MRW_CDIMM_MASTER_I2C_TEMP_SENSOR_ENABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_CDIMM_MASTER_I2C_TEMP_SENSOR_ENABLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MSS_DATABUS_UTIL_PER_MBA)
     {
         ATTR_MSS_DATABUS_UTIL_PER_MBA_Type l_attr;
@@ -3682,6 +3688,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_CENTAUR_EC_ENABLE_SAFEMODE_THROTTLE_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_ENABLE_SAFEMODE_THROTTLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CENTAUR_EC_DD2_FIR_BIT_DEFN_CHANGES)
+    {
+        ATTR_CENTAUR_EC_DD2_FIR_BIT_DEFN_CHANGES_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_DD2_FIR_BIT_DEFN_CHANGES, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MCBIST_ADDR_MODES)
