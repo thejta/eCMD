@@ -119,6 +119,7 @@ Syntax: ecmd
         crorwprobe               
         crosetconfig             
         crosysxcmd               
+        crotestdimmattr          
         crowritecnfg             
 
 
