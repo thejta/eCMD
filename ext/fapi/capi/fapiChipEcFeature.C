@@ -71,6 +71,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_EC_ENABLE_RCE_WITH_OTHER_ERRORS_HW246685:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CENTAUR_EC_ENABLE_PAGE_MODE_FOR_RRQ:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
@@ -225,6 +234,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     }
                     break;
                 case ATTR_CENTAUR_EC_DD2_FIR_BIT_DEFN_CHANGES:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CENTAUR_EC_RDCLK_PR_UPDATE_HW236658_FIXED:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
                          (l_chipEc >= 0x20))
@@ -711,6 +729,18 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_PFET_POWEROFF_BUG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc < 0x20))
                        )
                     {
                         o_hasFeature = true;
