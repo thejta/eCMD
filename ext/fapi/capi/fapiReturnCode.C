@@ -286,15 +286,17 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             {
                 const Target * l_pRefTarget = static_cast<const Target *>(
                     i_pObjects[l_refIndex]);
-                FAPI_ERR("addErrorInfo: Adding hw callout with ref, hw: %d, pri: %d",
-                     l_hw, l_pri);
+                // Removing cause it pollutes stdout - mklight 02.17.14
+                // FAPI_ERR("addErrorInfo: Adding hw callout with ref, hw: %d, pri: %d",
+                //      l_hw, l_pri);
                 addEIHwCallout(l_hw, l_pri, *l_pRefTarget);
             }
             else
             {
                 Target l_emptyTarget;
-                FAPI_ERR("addErrorInfo: Adding hw callout with no ref, hw: %d, pri: %d",
-                     l_hw, l_pri);
+                // Removing cause it pollutes stdout - mklight 02.17.14
+                // FAPI_ERR("addErrorInfo: Adding hw callout with no ref, hw: %d, pri: %d",
+                //      l_hw, l_pri);
                 addEIHwCallout(l_hw, l_pri, l_emptyTarget);
             }
         }
@@ -308,8 +310,9 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                     i_pEntries[i].proc_callout.iv_calloutPriority);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding proc callout, proc: %d, pri: %d",
-                     l_proc, l_pri);
+            // Removing cause it pollutes stdout - mklight 02.17.14
+            // FAPI_ERR("addErrorInfo: Adding proc callout, proc: %d, pri: %d",
+            //          l_proc, l_pri);
             addEIProcedureCallout(l_proc, l_pri);
         }
         else if (l_type == EI_TYPE_BUS_CALLOUT)
@@ -327,7 +330,8 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 i_pObjects[l_ep2Index]);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding bus callout, pri: %d", l_pri);
+            // Removing cause it pollutes stdout - mklight 02.17.14
+            // FAPI_ERR("addErrorInfo: Adding bus callout, pri: %d", l_pri);
             addEIBusCallout(*l_pTarget1, *l_pTarget2, l_pri);
         }
         else if (l_type == EI_TYPE_CDG)
@@ -345,8 +349,9 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 i_pObjects[l_targIndex]);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding target cdg (%d:%d:%d), pri: %d",
-                     l_callout, l_deconf, l_gard, l_pri);
+            // Removing cause it pollutes stdout - mklight 02.17.14
+            // FAPI_ERR("addErrorInfo: Adding target cdg (%d:%d:%d), pri: %d",
+            //          l_callout, l_deconf, l_gard, l_pri);
             addEICdg(*l_pTarget, l_callout, l_deconf, l_gard, l_pri);
         }
         else if (l_type == EI_TYPE_CHILDREN_CDG)
@@ -370,8 +375,9 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 i_pObjects[l_parentIndex]);
 
             // Add the ErrorInfo
-            FAPI_ERR("addErrorInfo: Adding children cdg (%d:%d:%d), type: 0x%08x, pri: %d",
-                     l_callout, l_deconf, l_gard, l_childType, l_pri);
+            // Removing cause it pollutes stdout - mklight 02.17.14
+            // FAPI_ERR("addErrorInfo: Adding children cdg (%d:%d:%d), type: 0x%08x, pri: %d",
+            //          l_callout, l_deconf, l_gard, l_childType, l_pri);
             addEIChildrenCdg(*l_pParent, l_childType, l_callout, l_deconf,
                              l_gard, l_pri, l_childPort, l_childNumber );
         }
