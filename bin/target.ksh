@@ -151,8 +151,14 @@ then
    then 
       if [[ ! -e $CRONUS_HOME/targets/$TARGET_VARIABLES""_info ]]
       then
-         echo "\"$TARGET_VARIABLES\" doesn't exist!  Please check your target name and try again"
-         return
+
+         if [[ ! -e $CRONUS_HOME/targets/oldfiles/$TARGET_VARIABLES""_info ]]
+         then
+           echo "\"$TARGET_VARIABLES\" doesn't exist!  Please check your target name and try again"
+           return
+        else
+           mv  $CRONUS_HOME/targets/oldfiles/$TARGET_VARIABLES""_info  $CRONUS_HOME/targets/$TARGET_VARIABLES""_info
+        fi
       fi
    fi
 
