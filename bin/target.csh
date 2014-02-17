@@ -130,8 +130,12 @@ else
    # Make sure the file exists
    if ($ECMD_PLUGIN != "scand") then
       if (!(-e $CRONUS_HOME/targets/$TARGET_VARIABLES""_info)) then
-         echo \"$TARGET_VARIABLES\" doesn\'t exist!  Please check your target name and try again
-         exit
+         if (!(-e $CRONUS_HOME/targets/oldfiles/$TARGET_VARIABLES""_info)) then
+            echo \"$TARGET_VARIABLES\" doesn\'t exist!  Please check your target name and try again
+            exit
+         else
+           mv  $CRONUS_HOME/targets/oldfiles/$TARGET_VARIABLES""_info  $CRONUS_HOME/targets/$TARGET_VARIABLES""_info
+         endif
       endif
    endif
 
