@@ -64,11 +64,7 @@
         if (l_u32_rc_xyzabc == 0) \
         { \
             FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
-            l_u32_rc_xyzabc = l_pFunc(_args_); \
-	    if (l_u32_rc_xyzabc) \
-	    { \
-              RC.setEcmdError(l_u32_rc_xyzabc); \
-	    } \
+            RC = l_pFunc(_args_); \
         } \
 	else \
 	{ \
