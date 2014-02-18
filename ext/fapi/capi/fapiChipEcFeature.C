@@ -71,6 +71,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_EC_ENABLE_SAFE_MODE_THROTTLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CENTAUR_EC_ENABLE_RCE_WITH_OTHER_ERRORS_HW246685:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&

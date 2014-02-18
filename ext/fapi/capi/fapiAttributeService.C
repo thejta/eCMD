@@ -3576,6 +3576,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_UTIL_N_PER_MBA, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_CENTAUR_EC_ENABLE_SAFE_MODE_THROTTLE)
+    {
+        ATTR_CENTAUR_EC_ENABLE_SAFE_MODE_THROTTLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_ENABLE_SAFE_MODE_THROTTLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CENTAUR_EC_ENABLE_RCE_WITH_OTHER_ERRORS_HW246685)
     {
         ATTR_CENTAUR_EC_ENABLE_RCE_WITH_OTHER_ERRORS_HW246685_Type l_attr;
@@ -4235,6 +4241,36 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         ATTR_PROC_PCIE_IOP_ZCAL_CONTROL_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_PROC_PCIE_IOP_ZCAL_CONTROL, i_pTarget, l_attr);
         o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_MNFG_DMI_MIN_EYE_WIDTH)
+    {
+        ATTR_MNFG_DMI_MIN_EYE_WIDTH_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MNFG_DMI_MIN_EYE_WIDTH, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MNFG_DMI_MIN_EYE_HEIGHT)
+    {
+        ATTR_MNFG_DMI_MIN_EYE_HEIGHT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MNFG_DMI_MIN_EYE_HEIGHT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MNFG_ABUS_MIN_EYE_WIDTH)
+    {
+        ATTR_MNFG_ABUS_MIN_EYE_WIDTH_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MNFG_ABUS_MIN_EYE_WIDTH, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MNFG_ABUS_MIN_EYE_HEIGHT)
+    {
+        ATTR_MNFG_ABUS_MIN_EYE_HEIGHT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MNFG_ABUS_MIN_EYE_HEIGHT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MNFG_XBUS_MIN_EYE_WIDTH)
+    {
+        ATTR_MNFG_XBUS_MIN_EYE_WIDTH_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MNFG_XBUS_MIN_EYE_WIDTH, i_pTarget, l_attr);
+        o_val = l_attr;
     }
     else if (i_id == ATTR_MCS_INBAND_BASE_ADDRESS)
     {
