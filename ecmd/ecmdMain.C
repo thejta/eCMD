@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <string>
 #include <stdlib.h>
+#include <string.h>
 #include <iostream>
 #include <fstream>
 

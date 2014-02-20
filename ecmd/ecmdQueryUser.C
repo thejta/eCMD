@@ -18,6 +18,7 @@
 //  Includes
 //----------------------------------------------------------------------
 #include <stdio.h>
+#include <string.h>
 
 #include <ecmdCommandUtils.H>
 #include <ecmdReturnCodes.H>

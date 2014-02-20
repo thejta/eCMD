@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdCommandUtils.H>

@@ -18,6 +18,7 @@
 //  Includes
 //----------------------------------------------------------------------
 
+#include <stdio.h>
 #include <ctype.h>
 #include <algorithm>
 #include <map>
