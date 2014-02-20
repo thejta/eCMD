@@ -28,6 +28,7 @@
 //  Includes
 //----------------------------------------------------------------------
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <ecmdDefines.H>
 #include <ecmdBit64.H>

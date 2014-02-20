@@ -18,7 +18,7 @@
 //  Includes
 //----------------------------------------------------------------------
 #define fapiInterpreter_C
-
+#include <string.h>
 
 #include <ecmdPluginExtensionSupport.H>
 

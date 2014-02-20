@@ -23,6 +23,7 @@
  *
  */
 
+#include <string.h>
 #include <fapiTarget.H>
 #include <ecmdStructs.H>
 #include <ecmdSharedUtils.H>

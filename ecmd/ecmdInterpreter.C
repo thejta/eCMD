@@ -23,6 +23,8 @@
 //----------------------------------------------------------------------
 #include <inttypes.h>
 #include <dlfcn.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>

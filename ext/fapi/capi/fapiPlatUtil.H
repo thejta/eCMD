@@ -63,6 +63,7 @@
   #define FAPI_PLAT_HTOLE64(x) (x)
 #endif
 
+#include <stdlib.h>
 #define fapiPlatMalloc(s) malloc(s)
 #define fapiPlatFree(p) free(p)
 

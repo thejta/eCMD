@@ -18,6 +18,7 @@
 //  Includes
 //----------------------------------------------------------------------
 #define cipInterpreter_C
+#include <string.h>
 
 #include <cipInterpreter.H>
 #include <ecmdReturnCodes.H>

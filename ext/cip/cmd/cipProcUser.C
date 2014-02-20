@@ -25,6 +25,7 @@
 #include <ecmdSharedUtils.H>
 #include <ecmdCommandUtils.H>
 #include <stdio.h>
+#include <string.h>
 #include <fstream>
 
 //----------------------------------------------------------------------

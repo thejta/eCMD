@@ -21,6 +21,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include <fapiReturnCodeDataRef.H>
 //JFDEBUG #include <fapiUtil.H>
 //JFDEBUG see comment below #include <fapiPlatTrace.H>
