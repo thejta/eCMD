@@ -26,6 +26,7 @@
  *                          rjknight    09/19/2013  Allow callout/deconfigure
  *                                                  /gard of DIMM(s) related
  *                                                  to MBA
+ *                          whs         03/11/2014  Add FW traces to error logs
  */
 
 #ifndef FAPIERRORINFO_H_
@@ -98,6 +99,23 @@ enum CalloutPriority
     LOW    = 0,
     MEDIUM = 1,
     HIGH   = 2,
+};
+}
+
+/**
+ * @enum Enumeration of firmware traces
+ *
+ * This enumeration defines the possible firmware traces to collect
+ */
+namespace CollectTraces
+{
+const uint32_t TRACE_SIZE = 256; // limit collected trace size
+enum CollectTrace
+{
+    FSI              = 1,
+    SCOM             = 2,
+    SCAN             = 3,
+    MBOX             = 4,
 };
 }
 
@@ -310,9 +328,7 @@ struct ErrorInfoBusCallout
     // The callout priority
     CalloutPriorities::CalloutPriority iv_calloutPriority;
 };
-// defines used with MBA dimm callouts
-#define FAPI_ALL_MBA_PORTS 0xFF
-#define FAPI_ALL_MBA_DIMMS 0xFF
+
 /**
  * @struct ErrorInfoCDG
  *
@@ -371,6 +387,17 @@ struct ErrorInfoCDG
  * @struct ErrorInfoChildrenCDG
  *
  * This struct contains children targets to callout/deconfigure/GARD
+ *
+ * Children by containment can be CDG (chiplets belonging to a parent chip) e.g.
+ * - PROC_CHIP -> EX_CHIPLET
+ * - MEMBUF_CHIP -> MBA_CHIPLET
+ * Children by affinity can be CDG.
+ *   Any from PROC_CHIP->MCS_CHIPLET->MEMBUF_CHIP->MBA_CHIPLET->DIMM e.g.
+ *   - PROC_CHIP->MEMBUF_CHIP
+ *   - MEMBUF_CHIP->DIMM
+ *   - MBA_CHIPLET->DIMM
+ * Port and Number criteria can be applied to the child target as
+ * detailed in the constructor
  */
 struct ErrorInfoChildrenCDG
 {
@@ -383,12 +410,12 @@ struct ErrorInfoChildrenCDG
      * @param[in] i_deconfigure True if Target should be deconfigured
      * @param[in] i_gard        True if Target should be GARDed
      * @param[in] i_priority    The priority of any callout
-     * @param[in] i_childPort   Parent port number where child is
-     *                          connected
-     * @param[in] i_childNum    Chip number of child target
-     *
-     * @note i_childPort and i_childNum are valid only for MBA/DIMM
-     *       parent/child combination
+     * @param[in] i_childPort   Child Port
+     *                            For DIMM children, the MBA port number
+     * @param[in] i_childNum    Child Number
+     *                            For DIMM children, the dimm socket number
+     *                            For Chip children, the chip position
+     *                            For Chiplet children, the chiplet unit pos
      */
     ErrorInfoChildrenCDG(const Target & i_parentChip,
                          const TargetType i_childType,
@@ -432,11 +459,49 @@ struct ErrorInfoChildrenCDG
     // GARD Information
     bool iv_gard;
 
-    // For MBA/DIMM parent/child, the MBA port
+    // Child Port
+    static const uint8_t ALL_CHILD_PORTS = 0xff;
     uint8_t iv_childPort;
 
-    // For MBA/DIMM parent/child, the MBA dimm number
+    // Child Number
+    static const uint8_t ALL_CHILD_NUMBERS = 0xff;
     uint8_t iv_childNumber;
+};
+
+/**
+ * @struct ErrorInfoCollectTrace
+ *
+ * This struct contains trace ID to add to the error log
+ */
+struct ErrorInfoCollectTrace
+{
+    /**
+     * @brief Constructor.
+     *
+     * @param[in] i_trace
+     */
+    ErrorInfoCollectTrace(CollectTraces::CollectTrace i_traceId);
+
+#ifdef FAPI_CUSTOM_MALLOC
+    /**
+     * @brief Overload new operator to use platform-specific allocator
+     *
+     * @param[in] i_sz  Size of memory to allocate in bytes
+     *
+     * @return  Pointer to allocated memory
+     */
+    static void * operator new(size_t i_sz);
+
+    /**
+     * @brief Overload delete operator to use platform-specific deallocator
+     *
+     * @param[in] i_ptr Pointer to memory previously allocated with new
+     */
+    static void operator delete(void * i_ptr);
+#endif
+
+    // trace
+    CollectTraces::CollectTrace iv_eiTraceId;
 };
 
 /**
@@ -507,6 +572,13 @@ struct ErrorInfo
         ErrorInfoChildrenCDGItr_t;
     typedef std::vector<ErrorInfoChildrenCDG *>::const_iterator
         ErrorInfoChildrenCDGCItr_t;
+
+    // Vector of traces to collect
+    std::vector<ErrorInfoCollectTrace *> iv_traces;
+    typedef std::vector<ErrorInfoCollectTrace *>::iterator
+         ErrorInfoCollectTraceItr_t;
+    typedef std::vector<ErrorInfoCollectTrace *>::const_iterator
+         ErrorInfoCollectTraceCItr_t;
 };
 
 }

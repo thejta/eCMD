@@ -25,6 +25,7 @@
  *                          mjjones     08/26/2013  Support HW Callouts
  *                          rjknight    09/24/2013  Support dimm callouts
  *                                                  based on mba parent target
+ *                          whs         03/11/2014  Add FW traces to error logs
  */
 
 #include <fapiErrorInfo.H>
@@ -241,6 +242,15 @@ ErrorInfoChildrenCDG::ErrorInfoChildrenCDG(
   iv_gard(i_gard), iv_childPort(i_childPort), iv_childNumber(i_childNum)
 {
 
+}
+
+//******************************************************************************
+// ErrorInfoCollectTrace Constructor
+//******************************************************************************
+ErrorInfoCollectTrace::ErrorInfoCollectTrace(
+    const CollectTraces::CollectTrace i_traceId)
+: iv_eiTraceId(i_traceId)
+{
 }
 
 //******************************************************************************
