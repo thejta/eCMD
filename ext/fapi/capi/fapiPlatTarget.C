@@ -27,6 +27,7 @@
 #include <fapiTarget.H>
 #include <ecmdStructs.H>
 #include <ecmdSharedUtils.H>
+#include <fapiUtil.H>
 
 
 namespace fapi
@@ -78,7 +79,7 @@ const char * Target::toEcmdString() const
 {
     if (iv_pEcmdString == NULL)
     {
-        iv_pEcmdString = new char[fapi::MAX_ECMD_STRING_LEN];
+        iv_pEcmdString = reinterpret_cast<char *>(fapiMalloc(fapi::MAX_ECMD_STRING_LEN));
         char (&l_ecmdString)[fapi::MAX_ECMD_STRING_LEN] =
             *(reinterpret_cast<char(*)[fapi::MAX_ECMD_STRING_LEN]>
                 (iv_pEcmdString));
