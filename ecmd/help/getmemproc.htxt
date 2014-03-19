@@ -1,7 +1,7 @@
 
-Syntax: getmemproc <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
-        getmemproc <MemAddress> <NumBytes> [-exp <data> [-i<format>] [-mask <data>]]
-        getmemproc <MemAddress>  [-exp -f[d|b]<filename>]
+Syntax: getmemproc <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>] [-ci] 
+        getmemproc <MemAddress> <NumBytes> [-exp <data> [-i<format>] [-mask <data>]] [-ci]
+        getmemproc <MemAddress>  [-exp -f[d|b]<filename>] [-ci]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -36,10 +36,13 @@ Syntax: getmemproc <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
         -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
                         Not valid with '-exp -f[d|b]'
 
+        -ci       [opt] Specifies cache-inhibited read
+
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Examples:       > getmemproc 1000 128 -p0
+        Examples:       > getmemproc 1000 128 -p0 
                         > getmemproc 1000 128 -fb datafile
                         > getmemproc 1000 -exp -fb datafile
+                        > getmemproc 1000 128 -ci  
