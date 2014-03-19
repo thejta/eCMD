@@ -2289,4 +2289,9 @@ struct ecmdDTSData{
                                                         ///< 0 - no trip; 1 - warning; 2 - critical; 3 - fatal
 };
 
+/**
+ Defines for getMemProcHidden and putMemProcHidden
+*/
+#define MEMPROC_CACHE_INHIBIT  0x00000001
+
 #endif
