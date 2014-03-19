@@ -1,7 +1,7 @@
 
-Syntax: putmemproc <MemAddress> <Data> [-i<format>]
-        putmemproc <MemAddress> -fb<filename>
-        putmemproc [AddressOffset] -fd<filename>
+Syntax: putmemproc <MemAddress> <Data> [-i<format>] [-ci] 
+        putmemproc <MemAddress> -fb<filename> [-ci] 
+        putmemproc [AddressOffset] -fd<filename> [-ci]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -27,6 +27,8 @@ Syntax: putmemproc <MemAddress> <Data> [-i<format>]
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
 
+        -ci       [opt] Specifies cache-inhibited write
+
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
         --------------------------------------------------------------------------------
@@ -34,3 +36,4 @@ Syntax: putmemproc <MemAddress> <Data> [-i<format>]
         Examples:       > putmemproc 10000 deadbeef80000000  -p0,1 
                         > putmemproc 10000 -fb datafile
                         > putmemproc -fd dcardfile
+                        > putmemproc 10000 deadbeef80000000  -ci

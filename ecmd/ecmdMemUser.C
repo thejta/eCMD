@@ -78,6 +78,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdDataBuffer expected;                      ///< Buffer to store expected data
   ecmdDataBuffer mask;                          ///< Buffer for mask of expected data
   std::string inputformat = "x";                ///< Input format of data
+  uint32_t mode = 0x0;                  ///< Extra options to pass to getMemProc
 
 
   /************************************************************************/
@@ -156,6 +157,13 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     expectFlag = ecmdParseOption(&argc, &argv, "-exp");
   }
 
+  if (memMode == ECMD_MEM_PROC) {
+    //Check cache inhit option
+    bool cacheInhibit = ecmdParseOption(&argc, &argv, "-ci");
+    if (cacheInhibit) {
+      mode |= MEMPROC_CACHE_INHIBIT;
+    }
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -285,7 +293,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     } else if (memMode == ECMD_MEM_MEMCTRL) {
       rc = getMemMemCtrl(target, address, numBytes, returnData);
     } else if (memMode == ECMD_MEM_PROC) {
-      rc = getMemProc(target, address, numBytes, returnData);
+      rc = getMemProcHidden(target, address, numBytes, returnData, mode);
     } else if (memMode == ECMD_SRAM) {
       rc = getSram(target, channel, address, numBytes, returnData);
     }
@@ -391,6 +399,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
+  uint32_t mode = 0x0;                  ///< Extra options to pass to putMemProc
 
   /************************************************************************/
   /* Setup the cmdlineName variable                                       */
@@ -448,6 +457,15 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
+
+  if (memMode == ECMD_MEM_PROC) {
+    //Check cache inhit option
+    bool cacheInhibit = ecmdParseOption(&argc, &argv, "-ci");
+    if (cacheInhibit) {
+      mode |= MEMPROC_CACHE_INHIBIT;
+    }
+  }
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -574,7 +592,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       } else if (memMode == ECMD_MEM_MEMCTRL) {
         rc = putMemMemCtrl(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       } else if (memMode == ECMD_MEM_PROC) {
-        rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
+        rc = putMemProcHidden(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data, mode);
       } else if (memMode == ECMD_SRAM) {
         rc = putSram(target, channel, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       }
