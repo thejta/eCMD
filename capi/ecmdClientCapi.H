@@ -2048,6 +2048,25 @@ uint32_t getTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTra
 */
 uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
+/**
+ @brief Reads System Mainstore through the processor chip using a real address
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+ @param i_mode Bit-field for new options
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
 
 /**
  @brief Writes System Mainstore through the processor chip using a real address
@@ -2067,6 +2086,26 @@ uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
 
 */
 uint32_t putMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+
+/**
+ @brief Writes System Mainstore through the processor chip using a real address
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_address Starting address to write to
+ @param i_bytes Number of bytes to write
+ @param i_data DataBuffer object that holds data to write into memory
+ @param i_mode Bit-field for new options
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 0x0);
 
 /**
  @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
