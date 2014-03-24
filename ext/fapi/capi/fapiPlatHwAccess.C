@@ -1256,17 +1256,17 @@ fapi::ReturnCode platGetSpyImage(const fapi::Target& i_target,
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &i_target);
      args.push_back((void*) &i_spyId);
-     args.push_back((void*) &l_ecmd_buffer);
      args.push_back((void*) &l_ecmd_buffer_image_data);
+     args.push_back((void*) &l_ecmd_buffer);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpyImage");
   }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-  l_ecmd_rc = dllGetSpyImage(l_ecmd_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+  l_ecmd_rc = dllGetSpyImage(l_ecmd_target, i_spyId, l_ecmd_buffer_image_data, l_ecmd_buffer);
   if (l_ecmd_rc)
   {
     rc.setEcmdError(l_ecmd_rc); 
@@ -1283,7 +1283,7 @@ fapi::ReturnCode platGetSpyImage(const fapi::Target& i_target,
 
   uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
       (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_GETSPYIMAGE];
-  l_ecmd_rc =    (*Function)(l_ecmd_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+  l_ecmd_rc =    (*Function)(l_ecmd_target, i_spyId, l_ecmd_buffer_image_data, l_ecmd_buffer);
   if (l_ecmd_rc)
   {
     rc.setEcmdError(l_ecmd_rc); 
@@ -1295,7 +1295,7 @@ fapi::ReturnCode platGetSpyImage(const fapi::Target& i_target,
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &l_ecmd_rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpyImage");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_data_buffer_image_data)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
    }
 #endif
 
@@ -1304,6 +1304,8 @@ fapi::ReturnCode platGetSpyImage(const fapi::Target& i_target,
     errorString = ecmdGetErrorMsg(l_ecmd_rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
+
+  o_data = l_ecmd_buffer;
 
   return rc;
 
