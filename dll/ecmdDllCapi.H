@@ -251,7 +251,11 @@ uint32_t dllGetTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_do
 #ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
 uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
+uint32_t dllGetMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode); 
+
 uint32_t dllPutMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
+
+uint32_t dllPutMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode); 
 
 uint32_t dllGetMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 
