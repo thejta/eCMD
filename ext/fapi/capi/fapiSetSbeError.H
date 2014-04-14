@@ -130,8 +130,7 @@ switch (ERRVAL)\
         FAPI_SET_HWP_ERROR(RC, RC_SBE_LOAD_RING_VEC_EX_ex_repr_eco_ERROR);\
         break;\
     default:\
-        RC.setFapiError(fapi::FAPI_RC_UNRECOGNIZED_SBE_ERROR);\
-        RC.addEIFfdc(0, &ERRVAL, sizeof(ERRVAL));\
+        FAPI_SET_HWP_ERROR(RC, RC_SBE_UNKNOWN_ERROR);\
         break;\
 }
 

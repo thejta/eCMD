@@ -1230,6 +1230,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_RECONFIGURE_LOOP, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_PM_HWP_ATTR_VERSION)
+    {
+        ATTR_PM_HWP_ATTR_VERSION_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_PM_HWP_ATTR_VERSION, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_UNIT_POS)
     {
         ATTR_CHIP_UNIT_POS_Type l_attr;
@@ -3090,10 +3096,22 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_INTERLEAVE_ENABLE, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MSS_MBA_ADDR_INTERLEAVE_BIT)
+    {
+        ATTR_MSS_MBA_ADDR_INTERLEAVE_BIT_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_MBA_ADDR_INTERLEAVE_BIT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MSS_DERIVED_MBA_ADDR_INTERLEAVE_BIT)
     {
         ATTR_MSS_DERIVED_MBA_ADDR_INTERLEAVE_BIT_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_DERIVED_MBA_ADDR_INTERLEAVE_BIT, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_MSS_MBA_CACHELINE_INTERLEAVE_MODE)
+    {
+        ATTR_MSS_MBA_CACHELINE_INTERLEAVE_MODE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_MBA_CACHELINE_INTERLEAVE_MODE, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MSS_DERIVED_MBA_CACHELINE_INTERLEAVE_MODE)
@@ -3564,6 +3582,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MRW_CDIMM_MASTER_I2C_TEMP_SENSOR_ENABLE, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MRW_CDIMM_SPARE_I2C_TEMP_SENSOR_ENABLE)
+    {
+        ATTR_MRW_CDIMM_SPARE_I2C_TEMP_SENSOR_ENABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MRW_CDIMM_SPARE_I2C_TEMP_SENSOR_ENABLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_MSS_DATABUS_UTIL_PER_MBA)
     {
         ATTR_MSS_DATABUS_UTIL_PER_MBA_Type l_attr;
@@ -3700,6 +3724,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_CENTAUR_EC_RDCLK_PR_UPDATE_HW236658_FIXED_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_RDCLK_PR_UPDATE_HW236658_FIXED, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CENTAUR_EC_DD2_ENABLE_EXIT_POINT_1)
+    {
+        ATTR_CENTAUR_EC_DD2_ENABLE_EXIT_POINT_1_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CENTAUR_EC_DD2_ENABLE_EXIT_POINT_1, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_MCBIST_ADDR_MODES)
@@ -4854,6 +4884,24 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_MCS_ECC_BYPASS_DISABLE, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_MCS_MURDD1_FIR_CONTROL)
+    {
+        ATTR_CHIP_EC_FEATURE_MCS_MURDD1_FIR_CONTROL_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_MCS_MURDD1_FIR_CONTROL, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_MCS_VENDD1_FIR_CONTROL)
+    {
+        ATTR_CHIP_EC_FEATURE_MCS_VENDD1_FIR_CONTROL_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_MCS_VENDD1_FIR_CONTROL, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_MCS_P8_DD2_FIR_CONTROL)
+    {
+        ATTR_CHIP_EC_FEATURE_MCS_P8_DD2_FIR_CONTROL_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_MCS_P8_DD2_FIR_CONTROL, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_EC_FEATURE_TRACE_CONTROL_ON_SCOM)
     {
         ATTR_CHIP_EC_FEATURE_TRACE_CONTROL_ON_SCOM_Type l_attr;
@@ -5008,6 +5056,18 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
     {
         ATTR_CHIP_EC_PFET_POWEROFF_BUG_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_PFET_POWEROFF_BUG, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_OCC_DISABLE)
+    {
+        ATTR_CHIP_EC_FEATURE_OCC_DISABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_OCC_DISABLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
+    else if (i_id == ATTR_CHIP_EC_FEATURE_HW_BUG_PBASLVRESET)
+    {
+        ATTR_CHIP_EC_FEATURE_HW_BUG_PBASLVRESET_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_CHIP_EC_FEATURE_HW_BUG_PBASLVRESET, i_pTarget, l_attr);
         o_val = l_attr;
     }
     else if (i_id == ATTR_PROC_CPM_DPLL_MODE_ENABLE)
